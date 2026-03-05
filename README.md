@@ -116,7 +116,6 @@ A scalable system determines which animals flee from threats on their home maps.
 
 **Configurable thresholds include**
 
-* **Safe Body Size Thresholds**  
 * **Safe Predator Body Size Threshold**  
 * **Safe Non-Predator Body Size Threshold**
 
