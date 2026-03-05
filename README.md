@@ -45,9 +45,7 @@ Every vanilla animal and DLC animal has had its core stats recalculated. All ani
 
 These values were compiled from scientific literature and processed through an automated Python script that generates the mod’s XML patches.
 
-The resulting numbers are balanced against RimWorld’s internal formulas so animals feel stronger, faster and more believable while still fitting the game’s combat and event systems.
-
-Melee DPS and movement speeds of animals are, on average, substantially increased compared to vanilla to reflect biologically realistic performance while Combat Power (used for in-game event generation) is still calculated using in-game formulas plus Mod Extension influences so balance with the rest of the game is preserved.
+The resulting numbers are balanced against RimWorld’s internal formulas so animals feel stronger, faster and more believable while still fitting the game’s combat and event systems. Melee DPS and movement speeds of animals are, on average, substantially increased compared to vanilla to reflect biologically realistic performance while Combat Power (used for in-game event generation) is still calculated using in-game formulas plus Mod Extension influences so balance with the rest of the game is preserved.
 
 ---
 
@@ -59,7 +57,7 @@ Biome distributions have been adjusted to remove obvious zoological inaccuracies
 
 ### Audio improvements
 
-Animal sounds have been corrected.
+Animal sounds have been corrected. Say goodbye to meowing cougars and tigers.
 
 ---
 
@@ -146,6 +144,7 @@ Predators may guard their kills against scavengers and colonists.
 
 * **Prey protection range**  
 * **Enable predator defending their kills**
+* **Protection trigger size difference treshold**
 
 A protection trigger threshold prevents large predators from attacking minor scavengers unnecessarily.
 
@@ -156,9 +155,9 @@ A protection trigger threshold prevents large predators from attacking minor sca
 Animals marked with `ModExtension_IsScavenger` can consume:
 
 * spoiled corpses  
-* partially skeletonized corpses
+* skeletonized corpses
 
-Nutrition value is reduced compared to fresh corpses.
+Nutrition value of skeletonized corpses is reduced compared to fresh corpses.
 
 **Controlled by**
 
@@ -285,7 +284,7 @@ Animal XML definitions are generated automatically.
 The mod uses a **TSV dataset** containing biological parameters such as:
 
 * body mass  
-* gestation length  
+* gestation period  
 * litter size  
 * bite force  
 * claw/tooth size  
@@ -361,12 +360,12 @@ The hediff changes dynamically if the animal moves between size thresholds.
 
 **Life stage fractions:**
 
-* `babyFraction` — fraction of regeneration for babies
-* `juvenileFraction` — fraction of regeneration for juveniles
-* `adultFraction` — fraction of regeneration for adults
+* `babyFraction` — fraction of body size to apply hediff for babies
+* `juvenileFraction` — fraction of body size to apply hediff for juveniles
+* `adultFraction` — fraction of body size to apply hediff for adults
 
 **Check interval:**  
-* `checkIntervalTicks` — how often regeneration is applied
+* `checkIntervalTicks` — how often regeneration hediff check is applied
 
 ```xml
 <comps>
@@ -469,7 +468,7 @@ A specific marker used to prevent the `PorcupineQuill` hediff from appearing or 
 ---
 
 #### ModExtension_FleeFromCarrier / CompProperties_FleeFromCarrier
-Makes the animal intimidating to others. Within a customizable `fleeRadius`, other animals will attempt to flee from the carrier. You can set a `fleeBodySizeLimit` to determine which animals are affected and `fleeDistance` to set how far they run. This can be applied as a global `modExtension` or a per-instance `comp`.
+Makes the animal intimidating to others. Within a customizable `fleeRadius`, other animals will attempt to flee from the carrier. You can set a `fleeBodySizeLimit` to determine which animals are affected and `fleeDistance` to set how far they run. This can be applied as a `modExtension` or a per-instance `comp`.
 
 ```xml
 <!-- As a ModExtension -->
