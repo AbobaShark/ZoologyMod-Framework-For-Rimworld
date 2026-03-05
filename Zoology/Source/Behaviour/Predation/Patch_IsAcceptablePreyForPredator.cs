@@ -1,4 +1,4 @@
-// Patch_IsAcceptablePreyForPredator.cs
+﻿
 
 using System;
 using System.Linq;
@@ -12,17 +12,17 @@ namespace ZoologyMod
     public static class Patch_IsAcceptablePreyForPredator
     {
 
-        // Детёныш млекопитающего — та же логика, что и в вашем FoodIsSuitable патче:
-        // - имеет IsMammal
-        // - имеет life stage с defName == "AnimalBaby" (точечная проверка)
-        // - (в вашем патче при отсутствии needs.food вы возвращали false — здесь воспроизводим ту же детекцию)
+        
+        
+        
+        
         static bool IsMammalBaby(Pawn p)
         {
             try
             {
                 if (p == null) return false;
                 if (!p.IsMammal()) return false;
-                if (p.needs?.food == null) return false; // совпадает с вашей логикой для пищи
+                if (p.needs?.food == null) return false; 
                 var curStage = p.ageTracker?.CurLifeStage;
                 if (curStage == null) return false;
                 return string.Equals(curStage.defName, "AnimalBaby", StringComparison.OrdinalIgnoreCase);
@@ -44,14 +44,14 @@ namespace ZoologyMod
                     return false;
                 }
 
-                // --- запрет охоты для детёнышей млекопитающих ---
+                
                 var settings = ZoologyModSettings.Instance;
                 if (settings != null && ZoologyModSettings.EnableMammalLactation)
                 {
                     if (IsMammalBaby(predator))
                     {
                         __result = false;
-                        return false; // skip original -> запрещаем охоту
+                        return false; 
                     }
                 }
 
@@ -67,19 +67,19 @@ namespace ZoologyMod
                         return false;
                     }
                 }
-                // --- остальная логика: базовые проверки + расширения ---
+                
                 if (predator.kindDef == null || prey.kindDef == null)
                 {
                     __result = false;
                     return false;
                 }
 				
-				// --- Photonozoa: detection and simple rules (safe: no compile-time dependency) ---
+				
 				bool predIsPhotonozoa = false;
 				bool preyIsPhotonozoa = false;
 				try
 				{
-					// Проверяем мод-расширения по имени типа, чтобы не требовать наличия типа PhotonozoaProperties при компиляции
+					
 					predIsPhotonozoa = predator.def.modExtensions != null && predator.def.modExtensions.Any(me =>
 						me != null && (me.GetType().Name == "PhotonozoaProperties" || me.GetType().FullName.EndsWith(".PhotonozoaProperties")));
 					preyIsPhotonozoa = prey.def.modExtensions != null && prey.def.modExtensions.Any(me =>
@@ -91,14 +91,14 @@ namespace ZoologyMod
 					preyIsPhotonozoa = false;
 				}
 
-				// Запрет: животные без PhotonozoaProperties не должны охотиться на фотонозой-животных
+				
 				if (preyIsPhotonozoa && !predIsPhotonozoa)
 				{
 					__result = false;
 					return false;
 				}
 
-				// Флаг: оба — фотонозои и оба в фракции "Photonozoa" (фракция может отсутствовать)
+				
 				bool photonozoaPairInTheirFaction = false;
 				if (predIsPhotonozoa && preyIsPhotonozoa)
 				{
@@ -109,7 +109,7 @@ namespace ZoologyMod
 						photonozoaPairInTheirFaction = true;
 					}
 				}
-				// --- end Photonozoa block ---
+				
 
                 bool predatorMammal = predator.IsMammal();
                 bool preyMammal = prey.IsMammal();
@@ -156,8 +156,8 @@ namespace ZoologyMod
                     }
                 }
 
-				// Если это не специально разрешённая пара Photonozoa внутри их фракции,
-				// то применяем обычный набор ограничений (hostility, player, herd, hidden, anomaly и т.д.)
+				
+				
 				if (!photonozoaPairInTheirFaction && !((predator.Faction == null || prey.Faction == null || predator.HostileTo(prey))
 					&& (predator.Faction == null || prey.HostFaction == null || predator.HostileTo(prey))
 					&& (predator.Faction != Faction.OfPlayer || prey.Faction != Faction.OfPlayer)
@@ -171,12 +171,12 @@ namespace ZoologyMod
 				}
 
                 __result = true;
-                return false; // skip original
+                return false; 
             }
             catch (Exception ex)
             {
                 Log.Error($"[Zoology] Patch_IsAcceptablePreyForPredator error: {ex}");
-                return true; // fallback on vanilla in case of exception
+                return true; 
             }
         }
 

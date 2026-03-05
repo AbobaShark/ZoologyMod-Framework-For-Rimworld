@@ -1,4 +1,4 @@
-// SpecialBionicPatcher.cs
+﻿
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -38,7 +38,7 @@ namespace ZoologyMod
                 var bodyAnimals = compatible.Where(a => !BionicPatcherUtils.HasBodyPart(a.race.body, "Torso") && BionicPatcherUtils.HasBodyPart(a.race.body, "Body")).ToList();
                 var isHealing = cfg.HediffDefName == "HealingEnhancer";
                 HediffDef animalHediff = isHealing ? null : CreateOrGetAnimalGlandHediff(cfg);
-                // Torso animals
+                
                 if (torsoAnimals.Any())
                 {
                     var torsoParts = installRecipe.appliedOnFixedBodyParts?.ToList() ?? new List<BodyPartDef> { DefDatabase<BodyPartDef>.GetNamed("Torso") };
@@ -62,7 +62,7 @@ namespace ZoologyMod
                         }
                     }
                 }
-                // Body animals
+                
                 if (bodyAnimals.Any())
                 {
                     var bodyParts = new List<BodyPartDef> { DefDatabase<BodyPartDef>.GetNamed("Body") };
@@ -123,9 +123,9 @@ namespace ZoologyMod
             if (baseDef == null || baseDef.stages == null || !baseDef.stages.Any()) return null;
             var clone = CloneAndModifyHediff(baseDef, newName, false);
             var stage = clone.stages[0];
-            // Remove beauty offset
+            
             stage.statOffsets = stage.statOffsets?.Where(s => s.stat != StatDefOf.PawnBeauty).ToList() ?? new List<StatModifier>();
-            // Add damage factor
+            
             stage.statFactors ??= new List<StatModifier>();
             stage.statFactors.Add(new StatModifier { stat = StatDefOf.IncomingDamageFactor, value = cfg.DamageFactor });
             DefDatabase<HediffDef>.Add(clone);
@@ -157,7 +157,7 @@ namespace ZoologyMod
                 }
                 catch (System.Exception)
                 {
-                    // do nothing
+                    
                 }
             }
             DefDatabase<HediffDef>.Add(clone);
@@ -184,7 +184,7 @@ namespace ZoologyMod
                 var newStage = new HediffStage();
                 foreach (var field in typeof(HediffStage).GetFields(BindingFlags.Public | BindingFlags.Instance))
                 {
-                    if (isHealing && field.Name == "naturalHealingFactor") continue; // Skip to leave default -1f
+                    if (isHealing && field.Name == "naturalHealingFactor") continue; 
                     var value = field.GetValue(s);
                     if (value == null)
                     {
@@ -220,7 +220,7 @@ namespace ZoologyMod
                     }
                     else
                     {
-                        // For other classes, deep copy fields
+                        
                         var newValue = Activator.CreateInstance(field.FieldType);
                         foreach (var subField in field.FieldType.GetFields(BindingFlags.Public | BindingFlags.Instance))
                         {

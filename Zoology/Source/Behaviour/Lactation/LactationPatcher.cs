@@ -1,4 +1,4 @@
-// LactationPatcher.cs
+﻿
 
 using System;
 using System.Collections.Generic;
@@ -159,7 +159,7 @@ namespace ZoologyMod
                             {
                                 object v = null;
                                 try { v = f.GetValue(__instance); } catch { v = "<err>"; }
-                                // убрал информационные логи
+                                
                             }
                         }
                         catch (Exception ex)
@@ -294,7 +294,7 @@ namespace ZoologyMod
                             if (dist <= 30)
                             {
                                 result.Add(pawn);
-                                // убраны информационные логи
+                                
                             }
                         }
                     }

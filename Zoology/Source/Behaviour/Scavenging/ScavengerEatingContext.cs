@@ -1,4 +1,4 @@
-// ScavengerEatingContext.cs
+﻿
 
 using System;
 using System.Collections.Generic;
@@ -8,21 +8,21 @@ using RimWorld;
 
 namespace ZoologyMod
 {
-    /// <summary>
-    /// Простая карта контекста «какой pawn ест какую вещь (труп)».
-    /// ThreadStatic чтобы данные не пересекались между потоками Unity (по возможности).
-    /// Храним Pawn -> Thing (target), очищаем stale записи автоматом.
-    /// </summary>
+    
+    
+    
+    
+    
     public static class ScavengerEatingContext
     {
         [ThreadStatic] private static Dictionary<Pawn, Thing> pawnToTarget;
 
         private static Dictionary<Pawn, Thing> Map => pawnToTarget ?? (pawnToTarget = new Dictionary<Pawn, Thing>());
 
-        /// <summary>
-        /// Установить, что pawn начал есть конкретный target (обычно Corpse).
-        /// Если pawn не является scavenger (mod extension), не делаем ничего.
-        /// </summary>
+        
+        
+        
+        
         public static void SetEating(Pawn pawn, Thing target)
         {
             try
@@ -40,9 +40,9 @@ namespace ZoologyMod
             }
         }
 
-        /// <summary>
-        /// Очистить состояние для pawn (удалить все записи для этого pawn).
-        /// </summary>
+        
+        
+        
         public static void Clear(Pawn pawn)
         {
             try
@@ -51,7 +51,7 @@ namespace ZoologyMod
                 var dict = Map;
                 if (dict.Remove(pawn))
                 {
-                    // intentionally left blank — verbose diagnostic logging removed
+                    
                 }
             }
             catch (Exception e)
@@ -60,11 +60,11 @@ namespace ZoologyMod
             }
         }
 
-        /// <summary>
-        /// Возвращает pawn, который (по нашей карте) ест этот труп *и* по факту имеет CurJob Ingest и target == corpse.
-        /// Если ничего не найдено — возвращает null.
-        /// Удаляет устаревшие записи.
-        /// </summary>
+        
+        
+        
+        
+        
         public static Pawn GetEatingPawnForCorpse(Corpse corpse)
         {
             try
@@ -78,7 +78,7 @@ namespace ZoologyMod
                     var p = kv.Key;
                     var t = kv.Value;
 
-                    // очистка устаревших
+                    
                     if (p == null || p.Dead)
                     {
                         toRemove.Add(p);
@@ -115,7 +115,7 @@ namespace ZoologyMod
                     }
                 }
 
-                // удаляем stale записи
+                
                 foreach (var rp in toRemove)
                 {
                     try { dict.Remove(rp); } catch { }

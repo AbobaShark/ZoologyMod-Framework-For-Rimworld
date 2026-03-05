@@ -1,4 +1,4 @@
-// ModExtension_AgroAtSlaughter.cs
+﻿
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,28 +9,28 @@ using Verse.AI;
 
 namespace ZoologyMod
 {
-    /// <summary>
-    /// ModExtension to mark PawnKinds/ThingDefs as "agro at slaughter".
-    /// Add to PawnKindDef/ThingDef via &lt;modExtensions&gt; in XML.
-    /// </summary>
+    
+    
+    
+    
     public class ModExtension_AgroAtSlaughter : DefModExtension
     {
-        /// <summary>
-        /// If true, show detailed messages in logs (use sparingly).
-        /// </summary>
+        
+        
+        
         public bool verboseLogging = false;
 
-        /// <summary>
-        /// If true, this pawn kind will be excluded from ritual animals by Patch_RitualRoleAnimal.
-        /// (Default: true to preserve previous Comp behavior.)
-        /// </summary>
+        
+        
+        
+        
         public bool excludeFromRituals = true;
     }
 
-    /// <summary>
-    /// Small helper for checking if a pawn is marked with ModExtension_AgroAtSlaughter.
-    /// Checks PawnKindDef first, then Pawn.def as fallback.
-    /// </summary>
+    
+    
+    
+    
     public static class AgroAtSlaughterUtil
     {
         public static bool IsAgroAtSlaughter(Pawn pawn, out ModExtension_AgroAtSlaughter ext)
@@ -38,7 +38,7 @@ namespace ZoologyMod
             ext = null;
             if (pawn == null) return false;
 
-            // Preferred: PawnKindDef (for kinds defined in XML)
+            
             var pk = pawn.kindDef;
             if (pk != null)
             {
@@ -46,7 +46,7 @@ namespace ZoologyMod
                 if (ext != null) return true;
             }
 
-            // Fallback: ThingDef (pawn.def)
+            
             var td = pawn.def;
             if (td != null)
             {
@@ -63,11 +63,11 @@ namespace ZoologyMod
         }
     }
 
-    // --------------------------
-    // Patch: DesignationManager.AddDesignation (postfix)
-    // Show message when someone designates a non-downed pawn for slaughter,
-    // if the target is marked with ModExtension_AgroAtSlaughter and setting enabled.
-    // --------------------------
+    
+    
+    
+    
+    
     [HarmonyPatch(typeof(DesignationManager), "AddDesignation")]
     public static class Patch_DesignationManager_AddDesignation_Agro
     {
@@ -84,7 +84,7 @@ namespace ZoologyMod
 
                 if (!AgroAtSlaughterUtil.IsAgroAtSlaughter(target, out var ext)) return;
 
-                // Show message (same as original)
+                
                 Messages.Message(
                     "ZoologySlaughterDesignationAdded".Translate(target.LabelShort),
                     target,
@@ -96,16 +96,16 @@ namespace ZoologyMod
             }
             catch (Exception ex)
             {
-                // don't break the game
+                
                 Log.Error($"[Zoology] Patch_DesignationManager_AddDesignation_Agro.Postfix exception: {ex}");
             }
         }
     }
 
-    // --------------------------
-    // Patch: JobDriver_Slaughter.MakeNewToils (postfix)
-    // Replace slaughter toils with one that triggers manhunter (if target is not downed and is marked)
-    // --------------------------
+    
+    
+    
+    
     [HarmonyPatch(typeof(JobDriver_Slaughter), "MakeNewToils")]
     public static class Patch_JobDriver_Slaughter_MakeNewToils_Agro
     {
@@ -122,7 +122,7 @@ namespace ZoologyMod
 
                 if (!AgroAtSlaughterUtil.IsAgroAtSlaughter(target, out var ext)) return;
 
-                // Build replacement toils: approach + reserve, then trigger manhunter + messages + remove designation + stop jobs.
+                
                 var newToils = new List<Toil>
                 {
                     Toils_Goto.GotoThing(TargetIndex.A, PathEndMode.Touch),
@@ -134,18 +134,18 @@ namespace ZoologyMod
                 {
                     try
                     {
-                        // Try to start manhunter state on the target (safe call)
+                        
                         target.mindState.mentalStateHandler.TryStartMentalState(MentalStateDefOf.Manhunter);
                     }
                     catch
                     {
-                        // swallow exceptions to avoid log spam
+                        
                     }
 
-                    // Big threat message for the player
+                    
                     Messages.Message("ZoologySensesSlaughterIntent".Translate(target.LabelCap), MessageTypeDefOf.ThreatBig);
 
-                    // Remove the Slaughter designation on the target if it still exists
+                    
                     try
                     {
                         if (target.Map != null)
@@ -157,7 +157,7 @@ namespace ZoologyMod
                     }
                     catch (Exception)
                     {
-                        // ignore designation removal errors
+                        
                     }
 
                     try
@@ -181,10 +181,10 @@ namespace ZoologyMod
         }
     }
 
-    // --------------------------
-    // Patch: RitualRoleAnimal.AppliesToPawn (postfix)
-    // Exclude agro animals from ritual selection (if configured)
-    // --------------------------
+    
+    
+    
+    
     [HarmonyPatch(typeof(RitualRoleAnimal), "AppliesToPawn")]
     public static class Patch_RitualRoleAnimal_AppliesToPawn
     {
@@ -198,7 +198,7 @@ namespace ZoologyMod
                 if (ext == null) return;
                 if (!ext.excludeFromRituals) return;
 
-                // Exclude from rituals
+                
                 __result = false;
                 if (!skipReason)
                     reason = "MessageRitualRoleMustBePeacefulAnimal".Translate(__instance.LabelCap);

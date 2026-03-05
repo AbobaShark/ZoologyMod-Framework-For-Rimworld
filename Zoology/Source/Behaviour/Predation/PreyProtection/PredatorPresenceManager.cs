@@ -1,4 +1,4 @@
-// PredatorPresenceManager.cs
+﻿
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -13,7 +13,7 @@ namespace ZoologyMod
         private static float PRESENCE_RADIUS => (ZoologyModSettings.Instance != null && ZoologyModSettings.Instance.EnablePredatorDefendCorpse) ? ZoologyModSettings.Instance.PreyProtectionRange : 20;
         private const int PRESENCE_CHECK_INTERVAL = 250;
 
-        // Логирование: минимальный интервал между одинаковыми сообщениями для одной пары pawn/corpse (в тиках)
+        
         private const int LOG_COOLDOWN_TICKS = 2000;
 
         private static readonly Dictionary<string, long> _lastLogTick = new Dictionary<string, long>();
@@ -67,7 +67,7 @@ namespace ZoologyMod
                         string stayReason;
                         if (!ShouldStayAtPrey(p, out stayReason))
                         {
-                            // логим только критичные сообщения: LogOnce внутри делает троттлинг
+                            
                             LogOnce(p, targetCorpse, $"Will NOT stay at prey: {stayReason}");
                             continue;
                         }
@@ -99,16 +99,16 @@ namespace ZoologyMod
                             continue;
                         }
 
-                        // Если уже в радиусе удержания — НЕ выдаём задания прямо здесь.
-                        // Поведение «бродить рядом» выполняется через JobGiver_WanderNearPrey (в ThinkTree).
+                        
+                        
                         if (p.Position.InHorDistOf(targetPos, PRESENCE_RADIUS))
                         {
-                            // ничего не делаем — JobGiver_WanderNearPrey будет брать на себя бродилки.
-                            // Логируем редко только исключительные состояния
+                            
+                            
                             continue;
                         }
 
-                        // Если хищник вне радиуса — отправляем его к трупу (как раньше).
+                        
                         TrySendPredatorToCorpse(p, targetCorpse, targetPos);
                     }
                 }

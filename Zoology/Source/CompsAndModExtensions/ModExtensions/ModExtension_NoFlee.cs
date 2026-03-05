@@ -1,4 +1,4 @@
-// ModExtension_NoFlee.cs
+﻿
 
 using System;
 using System.Reflection;
@@ -9,22 +9,22 @@ using Verse.AI;
 
 namespace ZoologyMod
 {
-    /// <summary>
-    /// Marker mod extension: if present on PawnKindDef or ThingDef, the pawn will not flee / enter panic/terror states.
-    /// Add via &lt;modExtensions&gt; in XML.
-    /// </summary>
+    
+    
+    
+    
     public class ModExtension_NoFlee : DefModExtension
     {
-        /// <summary>
-        /// If true, extra verbose logging will be emitted for debugging.
-        /// </summary>
+        
+        
+        
         public bool verboseLogging = false;
     }
 
-    /// <summary>
-    /// Utility helpers to check for the NoFlee extension.
-    /// Prefers PawnKindDef (kindDef) then ThingDef (def).
-    /// </summary>
+    
+    
+    
+    
     public static class NoFleeUtil
     {
         public static bool IsNoFlee(Pawn pawn)
@@ -55,10 +55,10 @@ namespace ZoologyMod
         }
     }
 
-    // ---------------------------
-    // Patch 1: JobGiver_AnimalFlee.TryGiveJob
-    // If pawn has ModExtension_NoFlee -> do not give flee job.
-    // ---------------------------
+    
+    
+    
+    
     [HarmonyPatch(typeof(JobGiver_AnimalFlee), "TryGiveJob")]
     public static class Patch_JobGiver_AnimalFlee_TryGiveJob_NoFlee
     {
@@ -71,7 +71,7 @@ namespace ZoologyMod
                     __result = null;
                     if (ext?.verboseLogging == true && Prefs.DevMode)
                         Log.Message($"[Zoology] Blocked flee job for pawn {pawn.LabelShort} (NoFlee).");
-                    return false; // block original -> no job
+                    return false; 
                 }
             }
             catch (Exception ex)
@@ -83,10 +83,10 @@ namespace ZoologyMod
         }
     }
 
-    // ---------------------------
-    // Patch 2: FleeUtility.ShouldAnimalFleeDanger
-    // If pawn has ModExtension_NoFlee -> return false (should not flee)
-    // ---------------------------
+    
+    
+    
+    
     [HarmonyPatch(typeof(FleeUtility), "ShouldAnimalFleeDanger")]
     public static class Patch_ShouldAnimalFleeDanger_NoFlee
     {
@@ -99,7 +99,7 @@ namespace ZoologyMod
                     __result = false;
                     if (ext?.verboseLogging == true && Prefs.DevMode)
                         Log.Message($"[Zoology] ShouldAnimalFleeDanger -> false for {pawn.LabelShort} (NoFlee).");
-                    return false; // block original
+                    return false; 
                 }
             }
             catch (Exception ex)
@@ -111,14 +111,14 @@ namespace ZoologyMod
         }
     }
 
-    // ---------------------------
-    // Patch 3: MentalStateHandler.TryStartMentalState
-    // Prevent entering PanicFlee and Terror for pawns with ModExtension_NoFlee.
-    // ---------------------------
+    
+    
+    
+    
     [HarmonyPatch(typeof(MentalStateHandler), "TryStartMentalState")]
     public static class Patch_MentalStateHandler_TryStartMentalState_NoFlee
     {
-        // Keep a signature that Harmony can match; ensure parameters align.
+        
         public static bool Prefix(
             MentalStateHandler __instance,
             MentalStateDef stateDef,
@@ -136,10 +136,10 @@ namespace ZoologyMod
             {
                 if (stateDef == null) return true;
 
-                // Only care about PanicFlee and Terror
+                
                 if (stateDef == MentalStateDefOf.PanicFlee || stateDef == MentalStateDefOf.Terror)
                 {
-                    // get private 'pawn' field from MentalStateHandler
+                    
                     var pawnObj = AccessTools.Field(typeof(MentalStateHandler), "pawn")?.GetValue(__instance);
                     var pawn = pawnObj as Pawn;
 
@@ -150,7 +150,7 @@ namespace ZoologyMod
                             Log.Message($"[Zoology] Blocked mental state '{stateDef.defName}' for pawn '{pawn.LabelShort}'.");
                         }
                         __result = false;
-                        return false; // block original -> do not start mental state
+                        return false; 
                     }
                 }
             }

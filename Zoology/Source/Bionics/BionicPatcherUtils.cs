@@ -1,4 +1,4 @@
-// BionicPatcherUtils.cs
+﻿
 using System.Collections.Generic;
 using System.Linq;
 using RimWorld;
@@ -15,7 +15,7 @@ namespace ZoologyMod
             if (animal == null) return false;
             if (animal.race == null || !animal.race.Animal) return false;
 
-            // Если в дефе есть ModExtension ModExtension_CannotBeAugmented — запрещаем.
+            
             if (animal.GetModExtension<ModExtension_CannotBeAugmented>() != null)
                 return false;
 
@@ -47,8 +47,8 @@ namespace ZoologyMod
         }
         public static void EnsureRemoveRecipe(BionicConfigSimple cfg, List<ThingDef> animals, RecipeDef originalInstall, List<BodyPartDef> appliedParts, HediffDef hediff, RecipeDef vanillaRemove, string sizeCategory = null)
         {
-            // Проверка: если это added body part (типа BionicArm/Leg), игра генерирует runtime remove-рецепт автоматически.
-            // Пропускаем создание, чтобы избежать дубликата и багов. Динамические рецепты работают для животных по body parts и Hediff.
+            
+            
             if (hediff.addedPartProps != null)
             {
                 return;
@@ -97,8 +97,8 @@ namespace ZoologyMod
             clone.appliedOnFixedBodyParts = newParts;
             clone.addsHediff = newHediff ?? source.addsHediff;
             clone.recipeUsers = newUsers;
-            clone.developmentalStageFilter = null; // Allow all stages for animals
-            clone.researchPrerequisite = null; // Ensure no research requirement
+            clone.developmentalStageFilter = null; 
+            clone.researchPrerequisite = null; 
             return clone;
         }
         private static RecipeDef DeepCloneDef(RecipeDef source)
@@ -122,7 +122,7 @@ namespace ZoologyMod
                     var listType = field.FieldType;
                     if (!listType.IsGenericType) continue;
                     var elementType = listType.GetGenericArguments()[0];
-                    // Попытка создать тот же тип списка; если не получается (интерфейс), fallback на List<elementType>
+                    
                     System.Collections.IList newList = null;
                     try
                     {
@@ -137,7 +137,7 @@ namespace ZoologyMod
                     foreach (var item in list)
                     {
                         if (item == null) continue;
-                        // Не клонируем "типовые" ссылки — возвращаем ссылку
+                        
                         if (elementType == typeof(Type) ||
                             typeof(Def).IsAssignableFrom(elementType) ||
                             typeof(Delegate).IsAssignableFrom(elementType) ||
@@ -165,16 +165,16 @@ namespace ZoologyMod
         private static object DeepCloneDefItem(System.Type type, object value)
         {
             if (value == null) return null;
-            // Специальная обработка типов, которые не нужно/нельзя клонировать по полям
+            
             if (type == typeof(Type) ||
                 typeof(Def).IsAssignableFrom(type) ||
                 typeof(Delegate).IsAssignableFrom(type) ||
                 type.IsEnum ||
                 type == typeof(string))
             {
-                return value; // shallow copy — возвращаем ссылку
+                return value; 
             }
-            // ThingFilter у вас есть отдельный метод CloneFilter — используем его
+            
             if (type == typeof(ThingFilter))
             {
                 return CloneFilter(value as ThingFilter);
@@ -186,12 +186,12 @@ namespace ZoologyMod
             }
             catch (MissingMethodException)
             {
-                // Невозможно создать экземпляр — возвращаем исходный объект (безопасный fallback)
+                
                 return value;
             }
             catch (Exception)
             {
-                // Другие ошибки создания — fallback к оригиналу
+                
                 return value;
             }
             var subFields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
@@ -244,7 +244,7 @@ namespace ZoologyMod
                 }
                 else
                 {
-                    // Рекурсивно клонируем вложенный объект
+                    
                     var subNewValue = DeepCloneDefItem(subField.FieldType, subValue);
                     subField.SetValue(newValue, subNewValue);
                 }
@@ -267,7 +267,7 @@ namespace ZoologyMod
             recipe.recipeUsers ??= new List<ThingDef>();
             foreach (var animal in animals)
             {
-                // Пропускаем животных, которым запрещена бионизация.
+                
                 if (!CanBeAugmented(animal)) continue;
 
                 if (!recipe.recipeUsers.Contains(animal)) recipe.recipeUsers.Add(animal);

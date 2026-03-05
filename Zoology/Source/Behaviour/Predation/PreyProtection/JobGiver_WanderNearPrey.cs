@@ -1,4 +1,4 @@
-// JobGiver_WanderNearPrey.cs
+﻿
 using System;
 using System.Collections.Generic;
 using RimWorld;
@@ -7,13 +7,13 @@ using Verse.AI;
 
 namespace ZoologyMod
 {
-    // Вставляется в Animal_PreMain (через XML). Работает как JobGiver_Wander, но
-    // центр блужданий — позиция парного трупа/носителя, и учитывает PRESENCE_RADIUS.
+    
+    
     public class JobGiver_WanderNearPrey : JobGiver_Wander
     {
         public JobGiver_WanderNearPrey()
         {
-            // Консервативные значения; ThinkNode/vanilla всё равно будет контролировать очередь.
+            
             this.wanderRadius = 5f;
             this.ticksBetweenWandersRange = new IntRange(125, 200);
             this.locomotionUrgency = LocomotionUrgency.Walk;
@@ -29,7 +29,7 @@ namespace ZoologyMod
                 var comp = PredatorPreyPairGameComponent.Instance;
                 if (comp == null) return IntVec3.Invalid;
 
-                // ищем активную пару (как в менеджере) — предпочитаем active список
+                
                 List<Corpse> corpses = null;
                 try { corpses = comp.GetActivePairedCorpses(pawn); } catch { corpses = null; }
 
@@ -45,7 +45,7 @@ namespace ZoologyMod
 
                 if (targetCorpse == null) return IntVec3.Invalid;
 
-                // если corpse на карте — берём его позицию, иначе — позицию носителя
+                
                 Map corpseMap = targetCorpse.Map;
                 IntVec3 pos;
                 if (corpseMap != null)
@@ -62,21 +62,21 @@ namespace ZoologyMod
 
                 if (pawn.Map != corpseMap) return IntVec3.Invalid;
 
-                // проверяем дистанцию: если вне PRESENCE_RADIUS — этот JobGiver не действует (менеджер должен отправить его наружу)
+                
                 float radius = GetPresenceRadius();
                 if (!pawn.Position.InHorDistOf(pos, radius)) return IntVec3.Invalid;
 
-                // если спит/лежит — не тревожим
+                
                 if (IsSleepingOrLyingDown(pawn)) return IntVec3.Invalid;
 
-                // для стаи можно попытаться вернуть «херд-центр», но чтобы не ломать совместимость —
-                // возвращаем позицию трупа: JobGiver_Wander (GetExactWanderDest) позаботится о радиусе.
+                
+                
                 return pos;
             }
             catch { return IntVec3.Invalid; }
         }
 
-        // Вспомогательные: как в менеджере
+        
         private static Pawn FindCarrierPawnForCorpse(Corpse corpse)
         {
             try

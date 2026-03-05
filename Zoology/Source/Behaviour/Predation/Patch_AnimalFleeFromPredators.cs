@@ -1,4 +1,4 @@
-// Patch_AnimalFleeFromPredators.cs
+﻿
 
 using System;
 using System.Linq;
@@ -15,7 +15,7 @@ namespace ZoologyMod
         const float SEARCH_RADIUS = 12f;
         const int FLEE_DISTANCE_DEFAULT = 12;
         const int FLEE_DISTANCE_TARGET = 16;
-        const float MELEE_ADJACENT_SQ = 2f * 2f; // adjacency approximation
+        const float MELEE_ADJACENT_SQ = 2f * 2f; 
 
         public static void Postfix(JobGiver_AnimalFlee __instance, Pawn pawn, ref Job __result)
         {
@@ -24,7 +24,7 @@ namespace ZoologyMod
                 if (!ModConstants.Settings.EnablePreyFleeFromPredators)
                     return;
 
-                // Убрали ранний return при __result != null — нам нужно иметь возможность отменять уже назначенный flee-job
+                
                 if (pawn == null || pawn.Map == null) return;
                 if (!pawn.RaceProps.Animal) return;
 
@@ -52,16 +52,16 @@ namespace ZoologyMod
                 
                 bool bothPhotonozoaInTheirFaction = IsPhotonozoaPairInTheirFaction(threat, pawn);
 
-                // Если пара НЕ фотонозой — применяем стандартную проверку ShouldAnimalFlee.
-                // Если пара — фотонозой, то пропускаем ShouldAnimalFleeDanger, но не даём уезжать упавшим (downed).
+                
+                
                 if (!bothPhotonozoaInTheirFaction)
                 {
                     if (!FleeUtility.ShouldAnimalFleeDanger(pawn)) return;
                 }
                 else
                 {
-                    // Для фотонозой: ручная проверка, эквивалентная оригинальному ShouldAnimalFleeDanger,
-                    // но без вызова самого метода (он патчен).
+                    
+                    
                     if (!pawn.IsAnimal) return;
                     if (pawn.InMentalState) return;
                     if (pawn.IsFighting()) return;
@@ -93,10 +93,10 @@ namespace ZoologyMod
                                             && threatJob.def == JobDefOf.AttackMelee
                                             && JobTargetsPawn(threatJob, pawn);
 
-                    // Если хищник целится в жертву и уже в ближнем бою (или выполняет melee-атаку),
+                    
                     if (threatAimingAtPawn && (threatIsDoingMelee || inMeleeProximity))
                     {
-                        // Отменяем побег и даём ванильной логике разбираться
+                        
                         __result = null;
                         return;
                     }
@@ -104,10 +104,10 @@ namespace ZoologyMod
                 catch (Exception exMelee)
                 {
                     Log.Error($"[ZoologyMod] Error while trying to handle melee-proximity logic for pawn {pawn?.LabelShort}: {exMelee}");
-                    // fallthrough -> give flee job
+                    
                 }
 
-                // В остальных случаях даём нормальную задачу убегания (может переопределять любой предыдущий __result)
+                
                 __result = FleeUtility.FleeJob(pawn, threat, fleeDistance);
             }
             catch (Exception e)
@@ -116,7 +116,7 @@ namespace ZoologyMod
             }
         }
 
-        // helper: проверяет, нацелен ли job.targetA на данного pawn
+        
         static bool JobTargetsPawn(Job job, Pawn pawn)
         {
             return job != null && job.targetA.HasThing && job.GetTarget(TargetIndex.A).Thing == pawn;
@@ -144,7 +144,7 @@ namespace ZoologyMod
                         Thing target = curJob.GetTarget(TargetIndex.A).Thing;
                         if (target is not Pawn preyPawn || preyPawn.Dead) return false;
 
-                        // Определяем тип job: hunt/protect driver или melee
+                        
                         bool isHuntDriver = false;
                         bool isMeleeJob = false;
                         try
@@ -157,7 +157,7 @@ namespace ZoologyMod
                                 if (typeof(JobDriver_PredatorHunt).IsAssignableFrom(driverClass))
                                     isHuntDriver = true;
 
-                                // учитываем наш защитный драйвер как hunt-подобный
+                                
                                 try
                                 {
                                     if (!isHuntDriver && typeof(JobDriver_ProtectPrey).IsAssignableFrom(driverClass))
@@ -166,7 +166,7 @@ namespace ZoologyMod
                                 catch { }
                             }
 
-                            // fallback по defName
+                            
                             if (!isHuntDriver)
                             {
                                 var defName = curJob.def?.defName;
@@ -183,17 +183,17 @@ namespace ZoologyMod
                             isMeleeJob = false;
                         }
 
-                        // Если это ни hunt/protect, ни melee — отбрасываем
+                        
                         if (!isHuntDriver && !isMeleeJob)
                             return false;
 
-                        // Для всех случаев (hunt/protect или melee) требуем, чтобы predator считал pawn приемлемой добычей.
-                        // Это предотвращает ложные срабатывания, когда хищник бьёт не по "пищевой" цели.
+                        
+                        
                         bool acceptablePrey = true;
                         try { acceptablePrey = FoodUtility.IsAcceptablePreyFor(p, pawn); } catch { acceptablePrey = true; }
                         if (!acceptablePrey) return false;
 
-                        // Если дошли до сюда — считаем predator релевантной угрозой
+                        
                         return true;
                     }
                 ) as Pawn;
@@ -214,7 +214,7 @@ namespace ZoologyMod
 
                 if (preySpeed <= predatorSpeed) return;
 
-                // Если комп не зарегистрирован — пробуем зарегистрировать динамически
+                
                 TryEnsurePursuitComponentRegistered();
 
                 var comp = ZoologyPursuitGameComponent.Instance;
@@ -236,7 +236,7 @@ namespace ZoologyMod
         {
             try
             {
-                // быстрый выход, если уже корректный экземпляр есть
+                
                 if (ZoologyPursuitGameComponent.Instance != null) return;
 
                 if (Current.Game?.components == null) return;
@@ -255,8 +255,8 @@ namespace ZoologyMod
             }
         }
 
-        // Безопасный проверочный метод: true только если и predator, и prey имеют Photonozoa ModExtension (проверка по имени типа)
-        // И принадлежат фракции с defName == "Photonozoa" (проверка через GetNamedSilentFail)
+        
+        
         static bool IsPhotonozoaPairInTheirFaction(Pawn a, Pawn b)
         {
             try

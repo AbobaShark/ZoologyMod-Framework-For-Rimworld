@@ -1,4 +1,4 @@
-// Comp_DrugsImmune.cs
+﻿
 
 using System;
 using System.Collections.Generic;
@@ -12,7 +12,7 @@ namespace ZoologyMod
 {
     public class CompProperties_DrugsImmune : CompProperties
     {
-        // Через сколько тиков проверять (по-умолчанию 2000)
+        
         public int cleanupIntervalTicks = 2000;
 
         public CompProperties_DrugsImmune()
@@ -49,7 +49,7 @@ namespace ZoologyMod
         {
             if (pawn?.health?.hediffSet == null) return;
 
-            // Копия списка для безопасной итерации
+            
             var hs = pawn.health.hediffSet.hediffs.ToList();
 
             bool removedAny = false;
@@ -59,7 +59,7 @@ namespace ZoologyMod
 
                 try
                 {
-                    // Удаляем, если это явно связанный с препаратами hediff (outcome or addiction)
+                    
                     if (DrugUtils.IsHediffDrugOrAddiction(h.def))
                     {
                         pawn.health.RemoveHediff(h);
@@ -84,12 +84,12 @@ namespace ZoologyMod
         private static HashSet<HediffDef> cachedDrugOutcomeHediffs = null;
         private static HashSet<HediffDef> cachedExpandedSet = null;
 
-        // Быстрые константы-эвристики
+        
         private static readonly string[] addictionBaseNames = new[] { "AddictionBase", "DrugToleranceBase" };
 
-        /// <summary>
-        /// Попытка извлечь HediffDef из любого outcomeDoer: поле/propery hediffDef, field/property hediff (string), или любое поле типа HediffDef.
-        /// </summary>
+        
+        
+        
         public static HediffDef TryExtractHediffDefFromOutcomeDoer(object outcomeDoer)
         {
             if (outcomeDoer == null) return null;
@@ -97,13 +97,13 @@ namespace ZoologyMod
 
             try
             {
-                // 1) поле/property hediffDef (HediffDef)
+                
                 var f = t.GetField("hediffDef", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
                 if (f != null)
                 {
                     var val = f.GetValue(outcomeDoer);
                     if (val is HediffDef hd1) return hd1;
-                    // иногда может быть строка
+                    
                     if (val is string s1)
                     {
                         var hd = DefDatabase<HediffDef>.GetNamedSilentFail(s1);
@@ -123,7 +123,7 @@ namespace ZoologyMod
                     }
                 }
 
-                // 2) поле/property "hediff" (часто у старых реализаций это string)
+                
                 var f2 = t.GetField("hediff", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
                 if (f2 != null)
                 {
@@ -148,27 +148,27 @@ namespace ZoologyMod
                     }
                 }
 
-                // 3) любой field типа HediffDef
+                
                 var any = t.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
                            .FirstOrDefault(fi => typeof(HediffDef).IsAssignableFrom(fi.FieldType));
                 if (any != null) return any.GetValue(outcomeDoer) as HediffDef;
 
-                // 4) любой property типа HediffDef
+                
                 var anyProp = t.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
                               .FirstOrDefault(pr => typeof(HediffDef).IsAssignableFrom(pr.PropertyType));
                 if (anyProp != null) return anyProp.GetValue(outcomeDoer) as HediffDef;
             }
             catch
             {
-                // swallow - best effort
+                
             }
 
             return null;
         }
 
-        /// <summary>
-        /// Возвращает набор HediffDef, которые даются непосредственно outcomeDoer-ами у ingestible.
-        /// </summary>
+        
+        
+        
         public static HashSet<HediffDef> GetAllDrugOutcomeHediffs()
         {
             if (cachedDrugOutcomeHediffs != null) return new HashSet<HediffDef>(cachedDrugOutcomeHediffs);
@@ -184,7 +184,7 @@ namespace ZoologyMod
                     {
                         if (od == null) continue;
 
-                        // Пытаемся извлечь HediffDef
+                        
                         var hd = TryExtractHediffDefFromOutcomeDoer(od);
                         if (hd != null)
                         {
@@ -192,7 +192,7 @@ namespace ZoologyMod
                         }
                         else
                         {
-                            // Если outcomeDoer имеет имя типа "GiveHediff", всё равно логируем один раз для отладки
+                            
                             var odType = od.GetType();
                             if (IsOrInheritsFrom(odType, "IngestionOutcomeDoer_GiveHediff"))
                             {
@@ -211,9 +211,9 @@ namespace ZoologyMod
             return new HashSet<HediffDef>(cachedDrugOutcomeHediffs);
         }
 
-        /// <summary>
-        /// Возвращает расширенный набор: hediff'ы из outcome + явно связанные с зависимостью (addiction-related).
-        /// </summary>
+        
+        
+        
         public static HashSet<HediffDef> GetAllDrugOutcomeAndAddictionRelatedHediffs()
         {
             if (cachedExpandedSet != null) return new HashSet<HediffDef>(cachedExpandedSet);
@@ -238,20 +238,20 @@ namespace ZoologyMod
             return new HashSet<HediffDef>(cachedExpandedSet);
         }
 
-        /// <summary>
-        /// Эвристики: считается связанным с зависимостью, если:
-        /// - имя класса hediff содержит "Addict" или "Addiction"
-        /// - defName содержит "addict" / "addiction"
-        /// - имеет chemicalNeed (NeedDef либо строка)
-        /// - является потомком AddictionBase или DrugToleranceBase
-        /// </summary>
+        
+        
+        
+        
+        
+        
+        
         private static bool IsHediffAddictionRelated(HediffDef candidate)
         {
             try
             {
                 if (candidate == null) return false;
 
-                // 1) Hediff class name
+                
                 var hc = candidate.hediffClass;
                 if (hc != null)
                 {
@@ -260,11 +260,11 @@ namespace ZoologyMod
                         return true;
                 }
 
-                // 2) defName heuristic
+                
                 if (!string.IsNullOrEmpty(candidate.defName) && (candidate.defName.IndexOf("addict", StringComparison.OrdinalIgnoreCase) >= 0 || candidate.defName.IndexOf("addiction", StringComparison.OrdinalIgnoreCase) >= 0))
                     return true;
 
-                // 3) chemicalNeed field/property (может быть NeedDef или string)
+                
                 object needFieldVal = null;
                 var hdType = candidate.GetType();
                 var fi = hdType.GetField("chemicalNeed", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
@@ -276,16 +276,16 @@ namespace ZoologyMod
                 }
 
                 if (needFieldVal != null) return true;
-                // если это string имя
+                
                 if (needFieldVal is string sNeed && !string.IsNullOrEmpty(sNeed))
                 {
                     var nd = DefDatabase<NeedDef>.GetNamedSilentFail(sNeed);
                     if (nd != null && IsNeedDescendantOf(nd, "DrugAddictionNeedBase")) return true;
-                    // даже если NeedDef не найден, наличие chemicalNeed-имени даёт вескую догадку, поэтому считаем true
+                    
                     return true;
                 }
 
-                // 4) parent/ParentName и т.п.
+                
                 foreach (var baseName in addictionBaseNames)
                 {
                     if (IsDescendantOf(candidate, baseName)) return true;
@@ -293,7 +293,7 @@ namespace ZoologyMod
             }
             catch
             {
-                // best-effort
+                
             }
 
             return false;
@@ -316,7 +316,7 @@ namespace ZoologyMod
 
                     if (string.Equals(current.defName, baseDefName, StringComparison.Ordinal)) return true;
 
-                    // Попытка получить parent field (как HediffDef)
+                    
                     HediffDef parentDef = null;
                     var parentFieldNames = new[] { "parent", "baseDef", "parentDef" };
                     foreach (var fname in parentFieldNames)
@@ -330,7 +330,7 @@ namespace ZoologyMod
                     }
                     if (parentDef != null) { current = parentDef; continue; }
 
-                    // Попробуем parentName / ParentName
+                    
                     string parentName = null;
                     var parentNameField = current.GetType().GetField("parentName", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
                                         ?? (FieldInfo)typeof(Def).GetField("parentName", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
@@ -354,7 +354,7 @@ namespace ZoologyMod
             }
             catch
             {
-                // swallow
+                
             }
             return false;
         }
@@ -399,7 +399,7 @@ namespace ZoologyMod
             }
             catch
             {
-                // swallow
+                
             }
             return false;
         }
@@ -415,18 +415,18 @@ namespace ZoologyMod
             return false;
         }
 
-        /// <summary>
-        /// Инвалидировать кешы (если defs поменялись динамически)
-        /// </summary>
+        
+        
+        
         public static void InvalidateCache()
         {
             cachedDrugOutcomeHediffs = null;
             cachedExpandedSet = null;
         }
 
-        /// <summary>
-        /// Быстрая проверка - является ли hediff результатом drug outcome (исключая addiction heuristics).
-        /// </summary>
+        
+        
+        
         public static bool IsHediffFromDrug(HediffDef hediff)
         {
             if (hediff == null) return false;
@@ -434,9 +434,9 @@ namespace ZoologyMod
             return set.Contains(hediff);
         }
 
-        /// <summary>
-        /// Скомбинированная проверка: исходный outcome OR addiction-related (с использованием эвристик).
-        /// </summary>
+        
+        
+        
         public static bool IsHediffDrugOrAddiction(HediffDef hediff)
         {
             if (hediff == null) return false;
@@ -448,7 +448,7 @@ namespace ZoologyMod
             }
             catch
             {
-                // swallow
+                
             }
 
             return false;
@@ -519,7 +519,7 @@ namespace ZoologyMod
             }
         }
 
-        // Префикс: если outcomeDoer даёт hediff, и Pawn имеет CompDrugsImmune, блокируем.
+        
         private static bool DoerGiveHediff_Prefix(object __instance, Pawn pawn, Thing ingested, int ingestedCount)
         {
             try
@@ -529,19 +529,19 @@ namespace ZoologyMod
                 var comp = pawn.TryGetComp<CompDrugsImmune>();
                 if (comp == null) return true;
 
-                // Пытаемся получить HediffDef от outcomeDoer
+                
                 HediffDef candidate = null;
 
-                // reuse utility
+                
                 candidate = DrugUtils.TryExtractHediffDefFromOutcomeDoer(__instance);
 
                 if (candidate == null)
                 {
-                    // ничего не нашли — безопасно не блокировать, т.к. не знаем что даётся
+                    
                     return true;
                 }
 
-                // Если этот hediff явно относится к препаратам/зависимости — блокируем
+                
                 if (DrugUtils.IsHediffDrugOrAddiction(candidate))
                 {
                     Log.Message($"[Zoology] blocked drug/addiction hediff {candidate.defName} being given to {pawn.LabelShortCap} (CompDrugsImmune present).");

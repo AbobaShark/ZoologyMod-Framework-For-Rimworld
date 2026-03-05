@@ -1,4 +1,4 @@
-// ZoologyPursuitGameComponent.cs
+﻿
 
 using System;
 using System.Collections.Generic;
@@ -20,17 +20,17 @@ namespace ZoologyMod
 
         private static readonly object dictLock = new object();
 
-        // persisted dictionaries (ключ -> untilTick)
+        
         private static Dictionary<long, long> allowedUntil = new Dictionary<long, long>();
         private static Dictionary<long, long> blockedUntil = new Dictionary<long, long>();
 
-        // runtime tracking не сериализуемый: key -> chaseStartTick
+        
         private readonly Dictionary<long, long> chaseStart = new Dictionary<long, long>();
 
-        // singleton
+        
         private static ZoologyPursuitGameComponent singleton;
 
-        // ссылка на игру, которой принадлежит этот экземпляр компонента
+        
         private Game owningGame;
 
         public static ZoologyPursuitGameComponent Instance
@@ -39,11 +39,11 @@ namespace ZoologyMod
             {
                 try
                 {
-                    // если singleton валиден и принадлежит текущей игре — возвращаем
+                    
                     if (singleton != null && singleton.owningGame == Current.Game)
                         return singleton;
 
-                    // иначе попробуем получить из Current.Game (если есть)
+                    
                     if (Current.Game != null)
                     {
                         var comp = Current.Game.GetComponent<ZoologyPursuitGameComponent>();
@@ -65,7 +65,7 @@ namespace ZoologyMod
             }
         }
 
-        // Пустой конструктор — соответствует GameComponent API вашей игры
+        
         public ZoologyPursuitGameComponent()
         {
             try
@@ -89,7 +89,7 @@ namespace ZoologyMod
         {
             try
             {
-                // запомним owningGame если есть
+                
                 this.owningGame = game;
 
                 if (singleton == null || singleton.owningGame != this.owningGame)
@@ -98,7 +98,7 @@ namespace ZoologyMod
 
                     lock (dictLock)
                     {
-                        // при создании для новой Game очищаем persisted-данные
+                        
                         allowedUntil = new Dictionary<long, long>();
                         blockedUntil = new Dictionary<long, long>();
                         chaseStart.Clear();
@@ -121,17 +121,17 @@ namespace ZoologyMod
 
             try
             {
-                // сохраняем ссылку на игру (может быть null в ранних этапах)
+                
                 this.owningGame = Current.Game;
 
-                // если singleton отсутствует или относится к другой Game — обновляем и очищаем persisted-словари
+                
                 if (singleton == null || singleton.owningGame != this.owningGame)
                 {
                     singleton = this;
 
                     lock (dictLock)
                     {
-                        // при смене/создании новой игры — очищаем persisted-данные (чтобы не переносить старые ключи)
+                        
                         allowedUntil = new Dictionary<long, long>();
                         blockedUntil = new Dictionary<long, long>();
                         chaseStart.Clear();
@@ -150,7 +150,7 @@ namespace ZoologyMod
             try
             {
                 this.owningGame = Current.Game;
-                // новая игра — явно очищаем состояние
+                
                 lock (dictLock)
                 {
                     allowedUntil = new Dictionary<long, long>();
@@ -179,7 +179,7 @@ namespace ZoologyMod
             }
         }
 
-        // --- Public API ---
+        
         public long PairKey(Pawn predator, Pawn prey) => KeyFor(predator, prey);
 
         public bool IsPairAllowedNow(Pawn predator, Pawn prey)
@@ -374,7 +374,7 @@ namespace ZoologyMod
 
                         long blockUntil = now2 + (long)CHASE_TIMEOUT * BLOCK_MULTIPLIER;
 
-                        // аккуратно прерываем hunt job если не в melee proximity (вынесено в отдельный метод)
+                        
                         StopPredatorHuntIfNeeded(predator, prey);
                     }
                 }
@@ -384,7 +384,7 @@ namespace ZoologyMod
                 }
             }
 
-            // редкая чистка (оставлена как было)
+            
             if (tickCounter % CLEAN_INTERVAL == 0)
             {
                 long now3 = Find.TickManager?.TicksGame ?? 0L;
@@ -462,7 +462,7 @@ namespace ZoologyMod
             }
         }
 
-        // сериализация (оставлена ваша логика)
+        
         public override void ExposeData()
         {
             base.ExposeData();

@@ -1,4 +1,4 @@
-// DamageReduction_AnimalTypes.cs
+﻿
 
 using System;
 using System.Reflection;
@@ -45,9 +45,9 @@ namespace ZoologyMod.Patches
                 if (victim == null) return;
 
                 Thing instigator = dinfo.Instigator;
-                if (instigator == null) return; // требуем атакующего
+                if (instigator == null) return; 
 
-                // ---- новая, более надёжная проверка животного по родителю с диагностикой ----
+                
                 bool IsThingAnimalStrictByParent(Thing t, out string diagnostic)
                 {
                     diagnostic = "";
@@ -59,7 +59,7 @@ namespace ZoologyMod.Patches
 
                     try
                     {
-                        // 1) Пройти цепочку ParentName через DefDatabase (если возможно)
+                        
                         ThingDef current = t.def;
                         string chain = current.defName ?? "(no defName)";
                         while (current != null)
@@ -70,7 +70,7 @@ namespace ZoologyMod.Patches
                                 return true;
                             }
 
-                            // Попытка получить поле parentName или свойство ParentName (через рефлексию)
+                            
                             string parentName = null;
                             var field = typeof(ThingDef).GetField("parentName", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
                             if (field != null)
@@ -84,7 +84,7 @@ namespace ZoologyMod.Patches
 
                             if (string.IsNullOrEmpty(parentName))
                             {
-                                // не удалось получить parentName — прервём попытку и перейдём к fallback
+                                
                                 chain += " -> (no parentName)";
                                 break;
                             }
@@ -100,8 +100,8 @@ namespace ZoologyMod.Patches
                             current = parentDef;
                         }
 
-                        // 2) Если цепочка parentName не дала result, делаем осторожный fallback:
-                        //    считаем "животным" если у def.race есть thinkTreeMain с "Animal" в имени
+                        
+                        
                         if (t.def.race != null)
                         {
                             var thinkMainName = t.def.race.thinkTreeMain?.defName;
@@ -113,7 +113,7 @@ namespace ZoologyMod.Patches
                             }
                         }
 
-                        // Никто не подтвердил как Animal
+                        
                         diagnostic = "not_animal (chain: " + chain + (t.def.race != null ? ", race.thinkTreeMain=" + (t.def.race.thinkTreeMain?.defName ?? "(null)") : ", race=null") + ")";
                         return false;
                     }
@@ -123,9 +123,9 @@ namespace ZoologyMod.Patches
                         return false;
                     }
                 }
-                // ---- конец проверки ----
+                
 
-                // Выполняем проверку для victim и instigator, и собираем диагностический текст если что-то не так
+                
                 if (!IsThingAnimalStrictByParent(victim, out string diagVictim))
                 {
                     return;
@@ -136,7 +136,7 @@ namespace ZoologyMod.Patches
                     return;
                 }
 
-                // далее — прежняя логика расчёта размера/предаторности/факторов
+                
                 Pawn attackerPawn = instigator as Pawn;
 
                 bool victimIsPredator = victim.RaceProps?.predator ?? false;

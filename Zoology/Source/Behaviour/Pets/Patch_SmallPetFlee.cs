@@ -1,4 +1,4 @@
-// Patch_SmallPetFlee.cs
+﻿
 
 using HarmonyLib;
 using RimWorld;
@@ -12,26 +12,26 @@ namespace ZoologyMod
     {
         public static void Postfix(JobGiver_AnimalFlee __instance, Pawn pawn, ref Job __result)
         {
-            // Если функция отключена, ничего не делаем
+            
             if (!ModConstants.Settings.EnableSmallPetFleeFromRaiders)
                 return;
 
             if (__result != null || !pawn.RaceProps.Animal || pawn.Faction != Faction.OfPlayer)
                 return;
 
-            // Определяем small pet: размер < ModConstants.SmallPetBodySizeThreshold, животное колониста
+            
             bool isSmallPet = pawn.RaceProps.baseBodySize < ModConstants.SmallPetBodySizeThreshold;
 
             if (!isSmallPet)
                 return;
 
-            // Проверяем, не Roamer ли (для roamers поведение как сейчас)
+            
             if (pawn.Roamer)
                 return;
 
             const float MaxThreatDist = 18f;
 
-            // Ищем ближайшего humanlike враждебного pawn (рейдера) в пределах дистанции
+            
             Pawn threat = GenClosest.ClosestThingReachable(
                 pawn.Position,
                 pawn.Map,

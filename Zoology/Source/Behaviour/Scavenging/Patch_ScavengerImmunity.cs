@@ -1,4 +1,4 @@
-// Patch_ScavengerImmunity.cs
+﻿
 
 using System;
 using HarmonyLib;
@@ -10,9 +10,9 @@ namespace ZoologyMod.HarmonyPatches
     [HarmonyPatch]
     public static class Patch_ScavengerImmunity
     {
-        // ---------------------------
-        // 1) Block food poisoning when pawn (scavenger) eats a Corpse AND cause == Rotten
-        // ---------------------------
+        
+        
+        
         [HarmonyPatch(typeof(FoodUtility), nameof(FoodUtility.AddFoodPoisoningHediff))]
         private static class Inner_AddFoodPoisoningHediff
         {
@@ -20,21 +20,21 @@ namespace ZoologyMod.HarmonyPatches
             {
                 try
                 {
-                    // Respect settings: если опция выключена — не вмешиваемся (ваниль).
+                    
                     var settings = ZoologyModSettings.Instance;
                     if (settings != null && !settings.EnableScavengering) return true;
 
                     if (pawn == null || ingestible == null) return true;
 
-                    // Блокируем ТОЛЬКО пищевое отравление, вызванное гниением (Rotten) от трупа,
-                    // и только для падальщиков (ModExtension IsScavenger).
+                    
+                    
                     if (cause != FoodPoisonCause.Rotten) return true;
                     if (!(ingestible is Corpse)) return true;
 
                     var scav = pawn.def?.GetModExtension<ModExtension_IsScavenger>();
                     if (scav == null) return true;
 
-                    // Падальщик + источник — труп + причина Rotten => блокируем ванильное добавление FoodPoisoning.
+                    
                     return false;
                 }
                 catch (Exception e)
@@ -45,9 +45,9 @@ namespace ZoologyMod.HarmonyPatches
             }
         }
 
-        // ---------------------------
-        // 2) Remove LungRotExposure caused by RotStink (gas) for scavengers
-        // ---------------------------
+        
+        
+        
         [HarmonyPatch(typeof(GasUtility), nameof(GasUtility.PawnGasEffectsTickInterval))]
         private static class Inner_PawnGasEffectsTickInterval
         {
@@ -55,7 +55,7 @@ namespace ZoologyMod.HarmonyPatches
             {
                 try
                 {
-                    // Respect settings: если опция выключена — не вмешиваемся (ваниль).
+                    
                     var settings = ZoologyModSettings.Instance;
                     if (settings != null && !settings.EnableScavengering) return;
 

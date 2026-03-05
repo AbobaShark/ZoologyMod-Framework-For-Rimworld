@@ -1,4 +1,4 @@
-// Patch_PawnUtility_IsFighting.cs
+﻿
 
 using System;
 using System.Reflection;
@@ -18,7 +18,7 @@ namespace ZoologyMod
         {
             try
             {
-                // DamageInfo — struct, поэтому dinfo не может быть null. Проверяем Instigator.
+                
                 if (dinfo.Instigator == null) return;
                 var pawn = dinfo.Instigator as Pawn;
                 if (pawn == null) return;
@@ -26,8 +26,8 @@ namespace ZoologyMod
                 bool alreadyHandled = false;
                 try
                 {
-                    // если ваниль уже обработал случай с PredatorHunt, он бы вызвал TookDamageFromPredator earlier;
-                    // но чтобы не дублировать — проверим curJob.def
+                    
+                    
                     if (pawn.CurJob?.def == JobDefOf.PredatorHunt)
                         alreadyHandled = true;
                 }
@@ -35,7 +35,7 @@ namespace ZoologyMod
 
                 if (alreadyHandled) return;
 
-                // Если instigator выполняет ProtectPrey — вызвать TookDamageFromPredator
+                
                 var driver = pawn.jobs?.curDriver;
                 bool isProtectPrey = false;
                 if (driver != null)
@@ -55,11 +55,11 @@ namespace ZoologyMod
 
                 if (isProtectPrey)
                 {
-                    // вызываем приватный метод TookDamageFromPredator через reflection
+                    
                     try
                     {
                         MethodInfo mi = AccessTools.Method(typeof(Faction), "TookDamageFromPredator", new Type[] { typeof(Pawn) });
-                        if (mi == null) // попытка без сигнатуры, на случай разных сборок/обфускации
+                        if (mi == null) 
                             mi = AccessTools.Method(typeof(Faction), "TookDamageFromPredator");
 
                         if (mi != null)
@@ -96,7 +96,7 @@ namespace ZoologyMod
                 var curJob = predator.CurJob;
                 if (curJob == null) return;
 
-                // Если ванильная проверка не сработала, но драйвер — наш ProtectPrey, вернуть target
+                
                 var driver = predator.jobs?.curDriver;
                 bool isProtectPrey = false;
                 if (driver != null)
@@ -105,7 +105,7 @@ namespace ZoologyMod
                     if (t.Name == "JobDriver_ProtectPrey" || t.FullName?.EndsWith(".JobDriver_ProtectPrey") == true
                         || typeof(JobDriver_ProtectPrey).IsAssignableFrom(t))
                     {
-                        // также убедимся, что драйвер не ended (как у ванили)
+                        
                         var endedProp = t.GetProperty("ended");
                         bool ended = false;
                         try { if (endedProp != null) ended = (bool)endedProp.GetValue(driver); } catch { ended = false; }
@@ -115,7 +115,7 @@ namespace ZoologyMod
 
                 if (!isProtectPrey)
                 {
-                    // fallback по defName (на случай, если job def называется по-другому)
+                    
                     if (!string.IsNullOrEmpty(curJob.def?.defName) && curJob.def.defName.Equals("Zoology_ProtectPrey", StringComparison.OrdinalIgnoreCase))
                     {
                         isProtectPrey = true;
@@ -124,7 +124,7 @@ namespace ZoologyMod
 
                 if (!isProtectPrey) return;
 
-                // Получаем цель (TargetIndex.A для вашего драйвера)
+                
                 try
                 {
                     var t = curJob.GetTarget(TargetIndex.A).Thing as Pawn;
@@ -145,23 +145,23 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(JobGiver_ReactToCloseMeleeThreat), "IsHunting", new Type[] { typeof(Pawn), typeof(Pawn) })]
     public static class Patch_ReactToCloseMeleeThreat_IsHunting
     {
-        // Важно: второй параметр должен называться 'prey' (именно так в ванильном методе)
+        
         static void Postfix(Pawn pawn, Pawn prey, ref bool __result)
         {
             try
             {
-                if (__result) return; // уже true — ничего не делаем
+                if (__result) return; 
                 if (pawn?.jobs?.curDriver == null) return;
 
                 var driver = pawn.jobs.curDriver;
                 var driverType = driver.GetType();
 
-                // Попытка найти тип по имени — безопаснее, чем typeof(...) если тип из другой сборки
+                
                 Type protectPreyType = Type.GetType("YourModNamespace.JobDriver_ProtectPrey, YourModAssemblyName");
-                // Если точное получение не сработало, попробуем обнаружить по имени/FullName
+                
                 if (protectPreyType == null)
                 {
-                    // сравниваем по имени и по окончанию FullName (на случай пространств имён)
+                    
                     if (driverType.Name.Equals("JobDriver_ProtectPrey", StringComparison.Ordinal)
                         || (driverType.FullName != null && driverType.FullName.EndsWith(".JobDriver_ProtectPrey", StringComparison.Ordinal)))
                     {
@@ -171,7 +171,7 @@ namespace ZoologyMod
                 }
                 else
                 {
-                    // если нашли Type, можно безопасно проверить наследование
+                    
                     if (protectPreyType.IsAssignableFrom(driverType))
                     {
                         __result = true;
@@ -179,7 +179,7 @@ namespace ZoologyMod
                     }
                 }
 
-                // резервный вариант — сравнение дефина работы (на случай, если JobDriver нестандартный)
+                
                 var defName = pawn.CurJob?.def?.defName;
                 if (!string.IsNullOrEmpty(defName) && defName.Equals("Zoology_ProtectPrey", StringComparison.OrdinalIgnoreCase))
                 {
@@ -200,13 +200,13 @@ namespace ZoologyMod
         {
             try
             {
-                if (__result) return; // уже true — ничего не делаем
+                if (__result) return; 
                 if (pawn == null || pawn.CurJob == null) return;
 
                 var curJob = pawn.CurJob;
                 var driver = pawn.jobs?.curDriver;
 
-                // helper: проверяет, является ли текущий драйвер нашим ProtectPrey (с безопасной детекцией)
+                
                 bool DriverIsProtectPrey(Type driverType)
                 {
                     if (driverType == null) return false;
@@ -214,7 +214,7 @@ namespace ZoologyMod
                     if (driverType.FullName != null && driverType.FullName.EndsWith(".JobDriver_ProtectPrey")) return true;
                     try
                     {
-                        // безопасная проверка наследования (если тип доступен)
+                        
                         var protectType = typeof(JobDriver_ProtectPrey);
                         if (protectType.IsAssignableFrom(driverType)) return true;
                     }
@@ -222,7 +222,7 @@ namespace ZoologyMod
                     return false;
                 }
 
-                // Если у pawn стоит ProtectPrey-драйвер — считаем его "воюющим" только когда это локальная угроза:
+                
                 if (driver != null)
                 {
                     var dType = driver.GetType();
@@ -230,13 +230,13 @@ namespace ZoologyMod
                     {
                         try
                         {
-                            // Получим целевой Pawn (TargetIndex.A) из curJob и применим фильтры
+                            
                             LocalTargetInfo targInfo = curJob.GetTarget(TargetIndex.A);
                             var targetPawn = targInfo.Thing as Pawn;
                             if (targetPawn != null && targetPawn.Spawned)
                             {
-                                // Ограничение дистанции: считаем угрозой только если хищник и цель находятся рядом друг с другом.
-                                // Подбирайте радиус по балансу; 20 тайлов — разумный компромисс.
+                                
+                                
                                 const float THREAT_RADIUS = 20f;
                                 if (pawn.Position.InHorDistOf(targetPawn.Position, THREAT_RADIUS))
                                 {
@@ -246,13 +246,13 @@ namespace ZoologyMod
                         }
                         catch
                         {
-                            // в случае каких-то ошибок — не ставим true, чтобы не вызывать false-положительные flee
+                            
                         }
                         return;
                     }
                 }
 
-                // Fallback: если job.def называется нашим ProtectPrey — применим те же дополнительные фильтры
+                
                 var defName = curJob.def?.defName;
                 if (!string.IsNullOrEmpty(defName) && defName.Equals("Zoology_ProtectPrey", StringComparison.OrdinalIgnoreCase))
                 {
@@ -286,11 +286,11 @@ namespace ZoologyMod
         {
             try
             {
-                if (__result) return; // ваниль уже считает, что predator недавно нападал
+                if (__result) return; 
 
                 if (predator == null || __instance == null) return;
 
-                // безопасная детекция нашего драйвера ProtectPrey
+                
                 var driver = predator.jobs?.curDriver;
                 bool isProtectPrey = false;
                 if (driver != null)
@@ -300,7 +300,7 @@ namespace ZoologyMod
                         isProtectPrey = true;
                 }
 
-                // fallback по defName — пригодится, если JobDriver находится в другой сборке/обфускован
+                
                 if (!isProtectPrey)
                 {
                     try
@@ -317,8 +317,8 @@ namespace ZoologyMod
 
                 if (!isProtectPrey) return;
 
-                // Если ProtectPrey — считаем, что он "недавно нападал" на эту фракцию,
-                // но только если цель действительно принадлежит этой фракции (чтобы не давать ложные alarms)
+                
+                
                 try
                 {
                     var curJob = predator.CurJob;
@@ -332,7 +332,7 @@ namespace ZoologyMod
                 }
                 catch
                 {
-                    // не ломаем ничего при ошибках чтения таргета
+                    
                 }
             }
             catch (Exception ex)
@@ -349,14 +349,14 @@ namespace ZoologyMod
         {
             try
             {
-                if (__result) return; // уже признано угрозой ванилью
+                if (__result) return; 
 
                 if (predator == null || toFaction == null) return;
 
                 var curJob = predator.CurJob;
                 if (curJob == null) return;
 
-                // безопасная детекция нашего драйвера ProtectPrey
+                
                 var driver = predator.jobs?.curDriver;
                 bool isProtectPrey = false;
                 if (driver != null)
@@ -373,7 +373,7 @@ namespace ZoologyMod
 
                 if (!isProtectPrey) return;
 
-                // Если ProtectPrey — считаем угрозой для этой фракции, если цель действительно принадлежит ей
+                
                 try
                 {
                     var targ = curJob.GetTarget(TargetIndex.A).Thing as Pawn;
@@ -394,7 +394,7 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(AttackTargetsCache), "GetPotentialTargetsFor", new Type[] { typeof(IAttackTargetSearcher) })]
     public static class Patch_AttackTargetsCache_GetPotentialTargetsFor
     {
-        // Важно: имя параметра должно совпадать с оригинальным — "th"
+        
         static void Postfix(AttackTargetsCache __instance, IAttackTargetSearcher th, ref List<IAttackTarget> __result)
         {
             try
@@ -402,7 +402,7 @@ namespace ZoologyMod
                 if (th == null) return;
                 if (__result == null) __result = new List<IAttackTarget>();
 
-                // Попробуем получить Pawn-ищущий (обычно th — Pawn)
+                
                 Pawn searcherPawn = null;
                 try
                 {

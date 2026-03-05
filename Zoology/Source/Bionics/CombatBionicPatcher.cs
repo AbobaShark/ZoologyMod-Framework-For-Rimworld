@@ -1,4 +1,4 @@
-// CombatBionicPatcher.cs
+﻿
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +9,7 @@ namespace ZoologyMod
 {
     public static class CombatBionicPatcher
     {
-        // Список конфигураций combat-бионики (оставляем только те, что IsCombat = true)
+        
         private static readonly List<BionicPatcherUtils.BionicConfigSimple> CombatConfigs = new List<BionicPatcherUtils.BionicConfigSimple>
         {
             new BionicPatcherUtils.BionicConfigSimple("InstallBionicJaw", "Jaw", "AnimalJaw", "BionicJaw"),
@@ -27,7 +27,7 @@ namespace ZoologyMod
 
             ClearAnimalsFromRelevantRecipes();
 
-            // Filter to only living animals (exclude corpses)
+            
             var allAnimalDefs = DefDatabase<ThingDef>.AllDefsListForReading
                 .Where(def => def.category == ThingCategory.Pawn && def.race != null && def.race.Animal && BionicPatcherUtils.CanBeAugmented(def))
                 .ToList();
@@ -42,7 +42,7 @@ namespace ZoologyMod
                 string partNameToCheck = config.AnimalPartDefName ?? config.HumanPartDefName;
                 var compatibleAnimals = allAnimalDefs.Where(animal => BionicPatcherUtils.HasBodyPart(animal.race.body, partNameToCheck)).ToList();
 
-                // Special case for Arm (bionic or archotech): check Shoulder OR Arm
+                
                 if (config.RecipeDefName.Contains("Arm"))
                 {
                     compatibleAnimals = allAnimalDefs.Where(animal =>
@@ -63,12 +63,12 @@ namespace ZoologyMod
                     var originalHediff = DefDatabase<HediffDef>.GetNamedSilentFail(config.HediffDefName);
                     if (originalHediff == null) continue;
 
-                    // Используем заранее подготовленные XML-hediff'ы вида "<Hediff>_Animal_<category>"
+                    
                     var newHediffName = $"{config.HediffDefName}_Animal_{category}";
                     var newHediff = BionicPatcherUtils.GetCombatHediff(config, category);
                     if (newHediff == null) continue;
 
-                    // For combat bionics, use appropriate body part for the recipe (Shoulder/Arm for arms, etc.)
+                    
                     List<BodyPartDef> appliedParts = new List<BodyPartDef>();
                     var animalBodyPart = DefDatabase<BodyPartDef>.GetNamedSilentFail(config.AnimalPartDefName ?? config.HumanPartDefName);
                     if (animalBodyPart != null)
@@ -76,7 +76,7 @@ namespace ZoologyMod
                         appliedParts.Add(animalBodyPart);
                     }
 
-                    // Special for Arm: split into Shoulder and Arm-only groups
+                    
                     if (config.RecipeDefName.Contains("Arm"))
                     {
                         var shoulderAnimals = animals.Where(a => BionicPatcherUtils.HasBodyPart(a.race.body, "Shoulder")).ToList();
@@ -94,10 +94,10 @@ namespace ZoologyMod
                             var newRecipe = CreateCombatRecipe(config, category, armOnlyAnimals, armParts, newHediff, recipe);
                             if (newRecipe != null) createdInstallRecipes.Add(newRecipe);
                         }
-                        continue; // Skip default creation
+                        continue; 
                     }
 
-                    // Default creation for other combat
+                    
                     if (appliedParts.Count == 0) continue;
                     var defaultRecipe = CreateCombatRecipe(config, category, animals, appliedParts, newHediff, recipe);
                     if (defaultRecipe != null) createdInstallRecipes.Add(defaultRecipe);

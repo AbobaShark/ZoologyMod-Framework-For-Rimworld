@@ -1,4 +1,4 @@
-// JobDriver_ProtectPrey.cs
+﻿
 
 using System;
 using System.Collections.Generic;
@@ -10,8 +10,8 @@ namespace ZoologyMod
 {
     public class JobDriver_ProtectPrey : JobDriver
     {
-        // TargetIndex.A: цель атаки (тот, кто поднял/начал есть добычу)
-        // TargetIndex.B: corpse (добыча), может быть null
+        
+        
 
         private static int MAX_DISTANCE_FROM_PREY => (ZoologyModSettings.Instance != null && ZoologyModSettings.Instance.EnablePredatorDefendCorpse) ? ZoologyModSettings.Instance.PreyProtectionRange : 20;
         private static readonly float MAX_DISTANCE_SQ = MAX_DISTANCE_FROM_PREY * MAX_DISTANCE_FROM_PREY;
@@ -31,16 +31,16 @@ namespace ZoologyMod
 
         public override bool TryMakePreToilReservations(bool errorOnFailed)
         {
-            // permissive: не резервируем добычу/цель — ванильная логика атаки справится
+            
             return true;
         }
 
         protected override IEnumerable<Toil> MakeNewToils()
         {
-            // закэшируем pawn для замыканий (уменьшает количество обращений к this.pawn)
+            
             Pawn actorPawn = this.pawn;
 
-            // Finish action — обновить кэш атакующих целей (как у PredatorHunt)
+            
             base.AddFinishAction(delegate (JobCondition cond)
             {
                 try
@@ -54,7 +54,7 @@ namespace ZoologyMod
                 }
             });
 
-            // init toil: set forbidden flags & notify player
+            
             Toil initToil = new Toil();
             initToil.initAction = delegate
             {
@@ -66,7 +66,7 @@ namespace ZoologyMod
                     {
                         try
                         {
-                            // если игрок — оставляем доступным, иначе запрещаем
+                            
                             if (actor != null && actor.Faction == Faction.OfPlayer)
                                 corpse.SetForbidden(false, false);
                             else
@@ -92,7 +92,7 @@ namespace ZoologyMod
             initToil.defaultCompleteMode = ToilCompleteMode.Instant;
             yield return initToil;
 
-            // Attack-toil: follow and melee attack the target (с периодическими проверками)
+            
             Action hitAction = delegate ()
             {
                 try
@@ -104,7 +104,7 @@ namespace ZoologyMod
                 }
                 catch (Exception ex)
                 {
-                    // Не критично, но логируем, чтобы выявлять редкие ошибки в атакующих функциях
+                    
                     Log.Warning($"Zoology: JobDriver_ProtectPrey hitAction exception: {ex}");
                 }
             };
@@ -117,10 +117,10 @@ namespace ZoologyMod
                     {
                         var corp = this.PreyCorpse;
                         var targ = this.TargetPawn;
-                        // если труп полностью отсутствует -> фэйл
+                        
                         if (corp == null) return true;
 
-                        // если труп не спавнен, но его несёт цель -> разрешаем (не фэлим)
+                        
                         if (!corp.Spawned && targ != null)
                         {
                             try
@@ -131,21 +131,21 @@ namespace ZoologyMod
                                 if (inv != null && inv.Contains(corp)) return false;
                             }
                             catch { /* ignore inventory anomalies */ }
-                            // если не несёт — считаем недоступным и завершаем
+                            
                             return true;
                         }
 
-                        // в остальных случаях (corp != null и либо spawned == true) — не завершаем
+                        
                         return false;
                     }
                     catch
                     {
-                        // в случае ошибок в проверке — не фэлим, чтобы не прерывать работу из-за багов
+                        
                         return false;
                     }
                 });
 
-            // Добавим периодическую проверку (как раньше), но учитывающую несение трупа:
+            
             attackToil.AddPreTickIntervalAction(delegate (int _)
             {
                 try
@@ -153,14 +153,14 @@ namespace ZoologyMod
                     Corpse corpse = this.PreyCorpse;
                     Pawn targ = this.TargetPawn;
 
-                    // если труп исчез окончательно -> finish
+                    
                     if (corpse == null)
                     {
                         actorPawn?.jobs?.EndCurrentJob(JobCondition.Succeeded, true, true);
                         return;
                     }
 
-                    // если труп не спавнен и не находится у цели -> finish
+                    
                     if (!corpse.Spawned)
                     {
                         bool carriedByTarget = false;
@@ -185,17 +185,17 @@ namespace ZoologyMod
                         }
                     }
 
-                    // если цель умерла/пропала -> finish
+                    
                     if (targ == null || !targ.Spawned || targ.Dead)
                     {
                         actorPawn?.jobs?.EndCurrentJob(JobCondition.Succeeded, true, true);
                         return;
                     }
 
-                    // если цель отошла слишком далеко от добычи -> finish
+                    
                     if (corpse.Spawned)
                     {
-                        // используем сравнение по квадрату для скорости
+                        
                         if (!targ.Position.InHorDistOf(corpse.Position, MAX_DISTANCE_FROM_PREY))
                         {
                             actorPawn?.jobs?.EndCurrentJob(JobCondition.Succeeded, true, true);
@@ -204,7 +204,7 @@ namespace ZoologyMod
                     }
                     else
                     {
-                        // если не спавн — проверяем расстояние до цели (чтобы хищник тоже не бегал бесконечно)
+                        
                         if (actorPawn != null && targ != null &&
                             actorPawn.Position.DistanceToSquared(targ.Position) > MAX_DISTANCE_SQ)
                         {
@@ -213,12 +213,12 @@ namespace ZoologyMod
                         }
                     }
 
-                    // обновляем кэш атакующих целей
+                    
                     if (actorPawn?.Map != null) actorPawn.Map.attackTargetsCache.UpdateTarget(actorPawn);
                 }
                 catch (Exception ex)
                 {
-                    // Логируем неожиданные исключения в проверке: они редки, но помогают отладке
+                    
                     Log.Warning($"Zoology: JobDriver_ProtectPrey attackToil Tick exception: {ex}");
                 }
             });
@@ -237,8 +237,8 @@ namespace ZoologyMod
                 Corpse corpse = this.PreyCorpse;
                 if (targ == null || corpse == null) return;
 
-                // --- новый кусок: если для этого трупа уже было агрегированное уведомление, 
-                // то не шлём своё письмо (помечаем notifiedPlayer = true)
+                
+                
                 try
                 {
                     if (PredatorPreyPairGameComponent.IsProtectionNotificationSuppressedForCorpse(corpse.thingIDNumber))
@@ -248,16 +248,16 @@ namespace ZoologyMod
                     }
                 }
                 catch { /* ignore suppression errors */ }
-                // --- конец нового куска
+                
 
-                // only warn if target is player pawn/animal, similar to PredatorHunt logic
+                
                 if (!targ.Spawned) return;
                 if (targ.Faction != null && targ.Faction == Faction.OfPlayer)
                 {
-                    // localization keys (add translations in your mod if needed)
+                    
                     string label = "LetterLabelPredatorProtectingPrey".Translate(this.pawn.LabelShort, targ.LabelDefinite(), this.pawn.Named("PREDATOR"), targ.Named("PREY"));
                     string text = "LetterPredatorProtectingPrey".Translate(this.pawn.LabelIndefinite(), targ.LabelDefinite(), this.pawn.Named("PREDATOR"), targ.Named("PREY"));
-                    // Fallback if translation missing
+                    
                     if (label.NullOrEmpty() || label.Contains("LetterLabelPredatorProtectingPrey"))
                         label = $"{this.pawn.LabelShort} is protecting its prey";
                     if (text.NullOrEmpty() || text.Contains("LetterPredatorProtectingPrey"))

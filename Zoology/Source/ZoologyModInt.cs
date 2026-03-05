@@ -1,9 +1,9 @@
-// ZoologyModInt.cs
+﻿
 
 using HarmonyLib;
 using UnityEngine;
 using Verse;
-using System.Linq; // If needed elsewhere, but not here
+using System.Linq; 
 
 namespace ZoologyMod
 {
@@ -18,7 +18,7 @@ namespace ZoologyMod
             Settings = GetSettings<ZoologyModSettings>();
             var harmony = new Harmony("com.abobashark.zoology.bionic");
             harmony.PatchAll();
-            // Run the bionic patcher after defs are loaded
+            
             LongEventHandler.ExecuteWhenFinished(() =>
             {
                 if (Settings.EnableHumanBionicOnAnimal)

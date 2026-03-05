@@ -1,4 +1,4 @@
-// CEPatches_Melee.cs
+﻿
 
 using System;
 using System.Linq;
@@ -65,29 +65,29 @@ namespace ZoologyMod
 
         private static bool Prefix_ArmorPenetrationGeneric(object verbInstance, ref float __result, bool isSharp)
         {
-            // Respect user setting: если override выключен или Settings ещё не инициализированы => не вмешиваемся
+            
             try
             {
                 if (ZoologyModSettings.Instance == null || !ZoologyModSettings.Instance.EnableOverrideCEPenetration)
                 {
-                    return true; // run original CE logic
+                    return true; 
                 }
             }
             catch
             {
-                // any error -> fallback to original
+                
                 return true;
             }
 
             if (verbInstance == null) return true;
             Type verbType = verbInstance.GetType();
 
-            // Получаем Pawn-атакующего (несколько fallbacks)
+            
             Pawn caster = GetCasterPawnFromVerbInstance(verbInstance);
 
             if (caster == null)
             {
-                // try selected pawn as a best-effort fallback for inspect/tooltips
+                
                 try
                 {
                     var sel = Find.Selector?.SingleSelectedThing;
@@ -96,7 +96,7 @@ namespace ZoologyMod
                 catch { caster = null; }
             }
 
-            // Получим tool (ToolCE или Tool)
+            
             object toolObj = null;
             try
             {
@@ -124,7 +124,7 @@ namespace ZoologyMod
                 return true;
             }
 
-            // Считываем AP из tool
+            
             float toolAP = 0f;
             try
             {
@@ -140,12 +140,12 @@ namespace ZoologyMod
             }
             catch (Exception ex) { Log.ErrorOnce($"[Zoology] Error reading tool AP: {ex}", ERR_RUNTIME); return true; }
 
-            // skillMult (как CE делает)
+            
             float skillMult = 1f;
             try { var prop = verbType.GetProperty("PenetrationSkillMultiplier", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public); if (prop != null) skillMult = Convert.ToSingle(prop.GetValue(verbInstance)); }
             catch { skillMult = 1f; }
 
-            // equipmentMult (как раньше)
+            
             float equipmentMult = 1f;
             try
             {
@@ -176,7 +176,7 @@ namespace ZoologyMod
             }
             catch { equipmentMult = 1f; }
 
-            // --- ВАЖНО: вычисляем currentOtherMult как CE делает, но разделяем вклад lifeStage и прочих источников ---
+            
             float lifeDamageFactor = 1f;
             string lifeStageName = "<null>";
             try
@@ -186,7 +186,7 @@ namespace ZoologyMod
             }
             catch { lifeDamageFactor = 1f; }
 
-            // statValue: агрегированный MeleeDamageFactor (включая lifeStage и прочие источники)
+            
             float totalStatMeleeDF = 1f;
             try
             {
@@ -194,13 +194,13 @@ namespace ZoologyMod
             }
             catch { totalStatMeleeDF = 1f; }
 
-            // pow'ed versions (как CE: ^0.75)
+            
             float lifeDFPow = 1f;
             try { lifeDFPow = Mathf.Pow(lifeDamageFactor, 0.75f); } catch { lifeDFPow = 1f; }
             float statPow = 1f;
             try { statPow = Mathf.Pow(totalStatMeleeDF, 0.75f); } catch { statPow = 1f; }
 
-            // currentOtherMult по логике CE = lifeDFPow * statPow (если pawn != null)
+            
             float currentOtherMult = 1f;
             if (caster != null)
             {
@@ -211,7 +211,7 @@ namespace ZoologyMod
                 currentOtherMult = 1f;
             }
 
-            // Получаем наш zoology extFactor (из LifeStagePenetrationDef / fallback)
+            
             LifeStagePenetrationDef lifeDef = null;
             float extFactor = 1f;
             try
@@ -221,7 +221,7 @@ namespace ZoologyMod
             }
             catch { lifeDef = null; extFactor = 1f; }
 
-            // --- Основная логика: заменяем именно вклад lifeStage на extFactor, оставляя прочие stat-вклады ---
+            
             float newOtherMult = currentOtherMult;
             try
             {
@@ -244,7 +244,7 @@ namespace ZoologyMod
             return false;
         }
 
-        // ---- вспомогалки ----
+        
         private static MethodInfo TryGetPropertyGetter(Type type, string propName)
         {
             try

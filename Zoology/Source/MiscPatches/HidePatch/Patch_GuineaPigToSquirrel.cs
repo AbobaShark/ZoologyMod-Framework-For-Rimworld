@@ -1,4 +1,4 @@
-//Patch_GuineaPigToSquirrel.cs
+﻿
 
 using System;
 using System.Collections;
@@ -39,11 +39,11 @@ namespace ZoologyMod
 
             foreach (ThingDef td in DefDatabase<ThingDef>.AllDefsListForReading)
             {
-                // Замена LeatherDef у животных
+                
                 if (td.race != null && td.race.leatherDef == from)
                     td.race.leatherDef = to;
 
-                // Замена ссылок в любых списках и полях ThingDef
+                
                 FieldInfo[] fields = td.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
                 foreach (FieldInfo fi in fields)
                 {

@@ -1,4 +1,4 @@
-// Patch_JobGiver_GetFood_TryGiveJob.cs
+﻿
 
 using System;
 using System.Collections.Generic;
@@ -14,11 +14,11 @@ namespace ZoologyMod.HarmonyPatches
     [HarmonyPatch(typeof(JobGiver_GetFood), "TryGiveJob")]
     public static class Patch_JobGiver_GetFood_TryGiveJob
     {
-        // Последний тик, когда конкретному pawn'у уже было назначено задание (чтобы не назначять несколько раз в одном тике)
+        
         private static readonly Dictionary<int, int> lastAssignedTick = new Dictionary<int, int>();
 
-        // Новая таблица: труп.thingIDNumber -> tick, когда он был назначен другому pawn'у.
-        // Это уменьшает вероятность одновременного назначения одного трупа нескольким pawns в пределах одного тика.
+        
+        
         private static readonly Dictionary<int, int> corpseAssignedTick = new Dictionary<int, int>();
 
         static void Postfix(Pawn pawn, ref Job __result)
@@ -28,15 +28,15 @@ namespace ZoologyMod.HarmonyPatches
                 var settings = ZoologyModSettings.Instance;
                 if (settings != null && !settings.EnableScavengering)
                 {
-                    // если мод-опция выключена — вообще не вмешиваемся, позволяем ванили работать
+                    
                     return;
                 }
-                // если ваниль уже назначила Ingest — не мешаем
+                
                 if (__result != null && __result.def == JobDefOf.Ingest) return;
                 if (pawn == null) return;
 
                 var scav = pawn.def.GetModExtension<ModExtension_IsScavenger>();
-                if (scav == null) return; // только падальщики обрабатываем
+                if (scav == null) return; 
 
                 var hunger = pawn.needs?.food;
                 if (hunger == null) return;
@@ -53,7 +53,7 @@ namespace ZoologyMod.HarmonyPatches
 
                     try
                     {
-                        // Если в этой мапе уже кто-то пометил труп в этом тике — считаем его недоступным.
+                        
                         if (corpseAssignedTick.TryGetValue(corpse.thingIDNumber, out int assignedTick) && assignedTick == currentTick)
                         {
                             return false;
@@ -73,7 +73,7 @@ namespace ZoologyMod.HarmonyPatches
                         if (!finalDef.IsNutritionGivingIngestible) return false;
                         if (corpse.IsForbidden(pawn)) return false;
 
-                        // dessicated проверка
+                        
                         if (!scav.allowVeryRotten)
                         {
                             var rotComp = corpse.TryGetComp<CompRottable>();
@@ -90,7 +90,7 @@ namespace ZoologyMod.HarmonyPatches
                             return false;
                         }
 
-                        // Делать проверку резервации так же, как ваниль для еды:
+                        
                         if (!pawn.CanReserveAndReach(corpse, PathEndMode.OnCell, Danger.Some, 1, -1, null, false)) return false;
 
                         return true;
@@ -123,7 +123,7 @@ namespace ZoologyMod.HarmonyPatches
 
                 if (found == null) return;
 
-                // Помечаем труп как назначенный в этом тике
+                
                 try
                 {
                     corpseAssignedTick[found.thingIDNumber] = currentTick;
@@ -133,7 +133,7 @@ namespace ZoologyMod.HarmonyPatches
                     Log.Error("[Zoology] MarkAssignedTickFailed: " + ex);
                 }
 
-                // не ставим дубликатную Ingest
+                
                 if (pawn.jobs != null)
                 {
                     Job cur = pawn.CurJob;
@@ -156,7 +156,7 @@ namespace ZoologyMod.HarmonyPatches
                 try { fd = FoodUtility.GetFinalIngestibleDef(found, false); }
                 catch
                 {
-                    // silent reject
+                    
                     return;
                 }
                 if (fd == null) return;
@@ -164,7 +164,7 @@ namespace ZoologyMod.HarmonyPatches
 
                 lastAssignedTick[pawnId] = currentTick;
 
-                // Создаём job и выставляем count по аналогии с ванилью
+                
                 Job job = JobMaker.MakeJob(JobDefOf.Ingest, found);
                 try
                 {
@@ -176,7 +176,7 @@ namespace ZoologyMod.HarmonyPatches
                     Log.Error("[Zoology] WillIngestStackCountOfFailed: " + ex);
                 }
 
-                // Пытаемся явной резервировать цель НЕМЕДЛЕННО через разные механизмы (reflection, fallback'ы).
+                
                 bool reserved = false;
                 try
                 {
@@ -193,11 +193,11 @@ namespace ZoologyMod.HarmonyPatches
 
                 if (!reserved)
                 {
-                    // не выставляем job, чтобы избежать гонки — попробует позднее ваниль/AI
+                    
                     return;
                 }
 
-                // Помечаем труп как назначенный в этом тике ТОЛЬКО ПОСЛЕ УСПЕШНОГО RESERVE
+                
                 try
                 {
                     corpseAssignedTick[found.thingIDNumber] = currentTick;
@@ -207,7 +207,7 @@ namespace ZoologyMod.HarmonyPatches
                     Log.Error("[Zoology] MarkAssignedTickFailed: " + ex);
                 }
 
-                // не ставим дубликатную Ingest
+                
                 if (pawn.jobs != null)
                 {
                     Job cur = pawn.CurJob;
@@ -226,21 +226,21 @@ namespace ZoologyMod.HarmonyPatches
                     }
                 }
 
-                // защитные проверки перед выдачей job
+                
                 if (found == null || !found.Spawned || found.Destroyed) return;
                 if (!pawn.CanReserveAndReach(found, PathEndMode.OnCell, Danger.Some, 1, -1, null, false))
                 {
                     Log.Warning($"[Zoology] Final CanReserveAndReach failed for pawn_id{pawn.thingIDNumber} target_id{found.thingIDNumber} - aborting job assignment");
-                    // попытка убрать некорректные резервации
+                    
                     TryReleaseReservationsForTarget(found);
                     return;
                 }
 
-                // Записываем lastAssignedTick и возвращаем job
+                
                 lastAssignedTick[pawnId] = currentTick;
                 __result = job;
 
-                // --- очистка старых записей в corpseAssignedTick, чтобы словарь не разрастался
+                
                 try
                 {
                     if (corpseAssignedTick.Count > 1000)
@@ -273,13 +273,13 @@ namespace ZoologyMod.HarmonyPatches
             }
         }
 
-        // ------------------ Helpers ------------------
+        
 
         private static bool AttemptReserveAndLog(Pawn pawn, Thing target, Job job)
         {
             try
             {
-                // 1) Попытаться pawn.Reserve(...) через reflection (много перегрузок)
+                
                 try
                 {
                     bool ok = TryReserveViaPawnMethod(pawn, target, job);
@@ -292,7 +292,7 @@ namespace ZoologyMod.HarmonyPatches
                         }
                         else
                         {
-                            // попытка очистить некорректные резервации (фоллбэк)
+                            
                             TryReleaseReservationsForTarget(target);
                         }
                     }
@@ -302,7 +302,7 @@ namespace ZoologyMod.HarmonyPatches
                     Log.Error("[Zoology] TryReserveViaPawnMethod threw: " + ex);
                 }
 
-                // 2) Попытаться Find.Reservations.Reserve(...) через reflection
+                
                 try
                 {
                     bool ok = TryReserveViaFindReservations(pawn, target, job);
@@ -324,17 +324,17 @@ namespace ZoologyMod.HarmonyPatches
                     Log.Error("[Zoology] TryReserveViaFindReservations threw: " + ex);
                 }
 
-                // 3) ничего не получилось — silent final check
+                
                 try
                 {
                     Pawn cur = QueryCurrentReserverPawn(target);
                     if (cur != null)
                     {
-                        // ничего (оставляем без спама)
+                        
                     }
                     else
                     {
-                        // ничего
+                        
                     }
                 }
                 catch { }
@@ -347,9 +347,9 @@ namespace ZoologyMod.HarmonyPatches
             return false;
         }
 
-        /// <summary>
-        /// Возвращает pawn, который сейчас резервирует target (или null). Использует reflection — аналог LogCurrentReserverIfAny, но возвращает Pawn.
-        /// </summary>
+        
+        
+        
         private static Pawn QueryCurrentReserverPawn(Thing target)
         {
             try
@@ -399,9 +399,9 @@ namespace ZoologyMod.HarmonyPatches
             }
         }
 
-        /// <summary>
-        /// Попытка через reflection вызвать ReleaseAllForTarget / Release(...) для данного target (фоллбэк/ремонт).
-        /// </summary>
+        
+        
+        
         private static void TryReleaseReservationsForTarget(Thing target)
         {
             try
@@ -418,7 +418,7 @@ namespace ZoologyMod.HarmonyPatches
                     string name = m.Name.ToLowerInvariant();
                     if (!name.Contains("release") && !name.Contains("remove")) continue;
                     var pars = m.GetParameters();
-                    // ищем метод (Thing/LocalTargetInfo) или (Pawn, Thing/LocalTargetInfo) или (LocalTargetInfo)
+                    
                     if (pars.Length == 1)
                     {
                         var pType = pars[0].ParameterType;
@@ -433,7 +433,7 @@ namespace ZoologyMod.HarmonyPatches
                     }
                     else if (pars.Length == 2)
                     {
-                        // try (Pawn, LocalTargetInfo) or (Pawn, Thing) -> pass null for pawn to release all
+                        
                         object arg0 = null;
                         object arg1 = target;
                         var pType = pars[1].ParameterType;
@@ -460,22 +460,22 @@ namespace ZoologyMod.HarmonyPatches
             if (paramType == typeof(Thing)) return target;
             if (paramType == typeof(int)) return 1;
             if (paramType == typeof(float)) return 1f;
-            // попытка создать LocalTargetInfo/TargetInfo если требуется
+            
             string name = paramType.Name;
             if (name.Contains("LocalTargetInfo") || name.Contains("TargetInfo"))
             {
-                // конструктор (Thing)
+                
                 var ctor1 = paramType.GetConstructor(new Type[] { typeof(Thing) });
                 if (ctor1 != null)
                     return ctor1.Invoke(new object[] { target });
-                // конструктор (IntVec3, Map)
+                
                 var ctor2 = paramType.GetConstructor(new Type[] { typeof(IntVec3), typeof(Map) });
                 if (ctor2 != null)
                     return ctor2.Invoke(new object[] { target.PositionHeld, target.Map });
-                // fallback — возвращаем Thing
+                
                 return target;
             }
-            // если ожидается object или неизвестный — передаём null
+            
             if (paramType == typeof(object)) return null;
             return null;
         }
@@ -496,7 +496,7 @@ namespace ZoologyMod.HarmonyPatches
                         args[i] = MakeArgForParam(pars[i].ParameterType, target, pawn, job);
                     }
                     m.Invoke(pawn, args);
-                    // попытка убедиться, что резервация прошла: позже вы логируете текущего резерватора
+                    
                     return true;
                 }
                 catch

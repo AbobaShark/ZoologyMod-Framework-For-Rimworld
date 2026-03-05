@@ -1,4 +1,4 @@
-// Patch_Predation.cs
+﻿
 
 using System;
 using System.Collections.Generic;
@@ -19,7 +19,7 @@ namespace ZoologyMod
             var harmony = new Harmony("com.abobashark.zoology.predatorpairs");
             try
             {
-                // Patch FoodUtility.FoodOptimality
+                
                 var targetFoodOpt = AccessTools.Method(typeof(FoodUtility), nameof(FoodUtility.FoodOptimality));
                 var postfixFood = typeof(PredationHarmonyPatches).GetMethod(nameof(FoodOptimality_Postfix), BindingFlags.Static | BindingFlags.Public);
                 if (targetFoodOpt != null && postfixFood != null)
@@ -31,7 +31,7 @@ namespace ZoologyMod
                     Log.Warning("Zoology: FoodUtility.FoodOptimality method or postfix not found; skipping patch.");
                 }
 
-                // Patch Pawn.Kill
+                
                 MethodInfo pawnKillMethod = null;
 
                 var killMethods = typeof(Pawn).GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
@@ -79,7 +79,7 @@ namespace ZoologyMod
                     Log.Warning("Zoology: Pawn.Kill overload not found for patching.");
                 }
 
-                // Patch Pawn_CarryTracker.TryStartCarry overloads (реальный класс — Pawn_CarryTracker)
+                
                 try
                 {
                     Type carryType = AppDomain.CurrentDomain.GetAssemblies()
@@ -91,7 +91,7 @@ namespace ZoologyMod
 
                     if (carryType != null)
                     {
-                        // overload 1: TryStartCarry(Thing) -> bool
+                        
                         var method1 = carryType.GetMethod("TryStartCarry", new Type[] { typeof(Thing) });
                         if (method1 != null)
                         {
@@ -99,7 +99,7 @@ namespace ZoologyMod
                             harmony.Patch(method1, null, new HarmonyMethod(postfix1));
                         }
 
-                        // overload 2: TryStartCarry(Thing, int, bool) -> int
+                        
                         var method2 = carryType.GetMethod("TryStartCarry", new Type[] { typeof(Thing), typeof(int), typeof(bool) });
                         if (method2 != null)
                         {
@@ -117,7 +117,7 @@ namespace ZoologyMod
                     Log.Warning($"Zoology: Exception while trying to patch TryStartCarry: {ex}");
                 }
 
-                // Patch Thing.Ingested to trigger defend on actual ingestion
+                
                 try
                 {
                     var targetIngested = AccessTools.Method(typeof(Thing), "Ingested", new Type[] { typeof(Pawn), typeof(float) });
@@ -148,7 +148,7 @@ namespace ZoologyMod
             }
         }
 
-        // FoodOptimality postfix — hot path, минимизируем аллокации/логирование/рефлексию
+        
         public static void FoodOptimality_Postfix(Pawn eater, Thing foodSource, ThingDef foodDef, float dist, bool takingToInventory, ref float __result)
         {
             if (eater == null || foodSource == null) return;
@@ -160,8 +160,8 @@ namespace ZoologyMod
                 var maybePawn = foodSource as Pawn;
                 if (maybePawn != null && maybePawn.Dead)
                 {
-                    // попытка найти соответствующий объект Corpse на карте (вдруг FoodOptimality вызван с Pawn вместо Corpse)
-                    corpse = maybePawn.Corpse; // если API доступен; или искать по InnerPawn
+                    
+                    corpse = maybePawn.Corpse; 
                 }
             }
             {
@@ -169,7 +169,7 @@ namespace ZoologyMod
                 {
                     if (comp != null && eater != null && comp.IsPaired(eater, corpse))
                     {
-                        __result += 10000f; // own (paired) corpse — явный приоритет для самого участника пары
+                        __result += 10000f; 
                         return;
                     }
 
@@ -182,7 +182,7 @@ namespace ZoologyMod
                         }
                         catch
                         {
-                            // fail-safe: если что-то пошло не так — считаем свободным (чтобы не ломать AI)
+                            
                             effectivelyUnowned = true;
                         }
                     }
@@ -222,7 +222,7 @@ namespace ZoologyMod
             }
         }
 
-        // Pawn.Kill postfix
+        
         public static void Pawn_Kill_Postfix(Pawn __instance, object[] __args)
         {
             try
@@ -318,7 +318,7 @@ namespace ZoologyMod
             }
         }
 
-        // Postfix for Pawn_CarryTracker.TryStartCarry(Thing) -> bool
+        
         public static void PawnCarry_TryStartCarry_Postfix(object __instance, Thing item, bool __result)
         {
             try
@@ -389,7 +389,7 @@ namespace ZoologyMod
             }
         }
 
-        // Postfix for Pawn_CarryTracker.TryStartCarry(Thing, int, bool) -> int
+        
         public static void PawnCarry_TryStartCarry_Int_Postfix(object __instance, Thing item, int count, bool reserve, int __result)
         {
             try
@@ -460,7 +460,7 @@ namespace ZoologyMod
             }
         }
 
-        // Thing.Ingested postfix
+        
         public static void Thing_Ingested_Postfix(Thing __instance, Pawn ingester, float nutritionWanted)
         {
             try

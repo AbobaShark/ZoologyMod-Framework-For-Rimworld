@@ -1,4 +1,4 @@
-// AutoSlaughterLactationPatch.cs
+﻿
 
 using System;
 using System.Collections.Generic;
@@ -76,11 +76,11 @@ namespace ZoologyMod
 
                                 var mode = ZoologyModSettings.Instance?.LactationSlaughterHandling ?? ZoologyModSettings.LactationSlaughterMode.TreatAsPregnant;
 
-                                // всегда учитываем лактирующих в отдельный список (для UI)
+                                
                                 if (isLact)
                                     tmpAnimalsLactating.Add(pawn);
 
-                                // Если ни беременная ни лактирующая — обычная взрослая самка
+                                
                                 if (!isPreg && !isLact)
                                 {
                                     tmpAnimalsFemale.Add(pawn);
@@ -88,7 +88,7 @@ namespace ZoologyMod
                                 }
                                 else
                                 {
-                                    // Вычислим разрешения по каждой группе отдельно
+                                    
                                     bool allowByPreg = true;
                                     bool allowByLact = true;
 
@@ -119,20 +119,20 @@ namespace ZoologyMod
                                         }
                                     }
 
-                                    // Если животное и беременно, и лактирует — оно допускается к забою только если **оба** соответствующих разрешения TRUE.
+                                    
                                     bool allowedOverall = true;
                                     if (isPreg && !allowByPreg) allowedOverall = false;
                                     if (isLact && !allowByLact) allowedOverall = false;
 
                                     if (!allowedOverall)
                                     {
-                                        // не добавляем в списки для отбора
+                                        
                                         continue;
                                     }
 
-                                    // Разрешено — добавляем в списки. Кроме того:
-                                    // - всегда добавляем во tmpAnimalsLactating (чтобы UI видел количество лактирующих)
-                                    // - у беременных (и у тех, кого мы считаем как беременных) оставляем запись в tmpAnimalsPregnant чтобы обеспечить приоритет/сортировку
+                                    
+                                    
+                                    
                                     tmpAnimalsFemale.Add(pawn);
                                     tmpAnimals.Add(pawn);
 
@@ -142,22 +142,22 @@ namespace ZoologyMod
                                     }
                                     else if (isLact)
                                     {
-                                        // если режим — считать как беременных -> кладём в pregnant для сортировки
+                                        
                                         if (mode == ZoologyModSettings.LactationSlaughterMode.TreatAsPregnant)
                                         {
                                             tmpAnimalsPregnant.Add(pawn);
                                         }
                                         else if (mode == ZoologyModSettings.LactationSlaughterMode.SeparateSetting)
                                         {
-                                            // если per-animal разрешено — добавляем в pregnant (чтобы иметь приоритет сортировки),
-                                            // если разрешено — мы уже сюда попали (allowedOverall true), значит per-animal true
+                                            
+                                            
                                             tmpAnimalsPregnant.Add(pawn);
                                         }
                                         else if (mode == ZoologyModSettings.LactationSlaughterMode.Ignore)
                                         {
-                                            // уже добавили в female/tmpAnimals выше
+                                            
                                         }
-                                        // DisableSlaughterLactatingGlobal не попадёт сюда (allowedOverall == false)
+                                        
                                     }
                                 }
                             }
@@ -171,7 +171,7 @@ namespace ZoologyMod
                         {
                             tmpAnimals.Add(pawn);
                         }
-                    } // foreach pawn
+                    } 
 
                     tmpAnimals.SortByDescending((Pawn a) => a.ageTracker.AgeBiologicalTicks);
                     tmpAnimalsMale.SortByDescending((Pawn a) => a.ageTracker.AgeBiologicalTicks);
@@ -186,32 +186,32 @@ namespace ZoologyMod
                             var hd = a.health.hediffSet.GetFirstHediffOfDef(HediffDefOf.Pregnant, false);
                             return hd?.Severity ?? 0f;
                         });
-                        // добавляем pregnant-список в female/общий — т.к. мы при добавлении выше уже добавляли беременных/подходящих лактирующих в tmpAnimalsFemale/tmpAnimals,
-                        // здесь нужно убедиться, что элементы в tmpAnimalsPregnant находятся в начале списка tmpAnimalsFemale/tmpAnimals для корректного отбора старших/по severity.
-                        // Чтобы не дублировать, удалим элементы из tmpAnimalsFemale/tmpAnimals и сначала добавим tmpAnimalsPregnant
-                        // (быстрая перестановка: удалим, затем вставим в начало)
+                        
+                        
+                        
+                        
 
-                        // Убедимся, что tmpAnimalsFemale содержит все эти элементы — если нет (редко), просто добавим в начало.
+                        
                         foreach (var p in tmpAnimalsPregnant)
                         {
                             if (tmpAnimalsFemale.Remove(p))
                             {
-                                // удалён — будем вставлять позже
+                                
                             }
                         }
-                        // Вставляем tmpAnimalsPregnant в начало tmpAnimalsFemale и tmpAnimals
+                        
                         tmpAnimalsFemale.InsertRange(0, tmpAnimalsPregnant);
                         foreach (var p in tmpAnimalsPregnant)
                         {
                             if (tmpAnimals.Remove(p))
                             {
-                                // элемент был в tmpAnimals и удалён — вставим в начало
+                                
                             }
                         }
                         tmpAnimals.InsertRange(0, tmpAnimalsPregnant);
                     }
 
-                    // Теперь применяем лимиты так же, как в оригинале
+                    
                     if (autoSlaughterConfig.maxFemales != -1)
                     {
                         while (tmpAnimalsFemale.Count > autoSlaughterConfig.maxFemales)
@@ -270,10 +270,10 @@ namespace ZoologyMod
                             animalsToSlaughterCachedLocal.Add(pawn2);
                         }
                     }
-                } // foreach config
+                } 
 
                 __result = animalsToSlaughterCachedLocal;
-                return false; // skip original
+                return false; 
             }
             catch (Exception ex)
             {
@@ -283,7 +283,7 @@ namespace ZoologyMod
         }
     }
 
-    // UI helpers & runtime cache
+    
     static class DialogAS_Helper
     {
         public static FieldInfo f_animalCounts = typeof(RimWorld.Dialog_AutoSlaughter).GetField("animalCounts", BindingFlags.Instance | BindingFlags.NonPublic);
@@ -340,7 +340,7 @@ namespace ZoologyMod
             try
             {
                 var mode = ZoologyModSettings.Instance?.LactationSlaughterHandling ?? ZoologyModSettings.LactationSlaughterMode.TreatAsPregnant;
-                // Если режим — Ignore, оставляем оригинальный RecalculateAnimals
+                
                 if (mode == ZoologyModSettings.LactationSlaughterMode.Ignore)
                     return true;
 
@@ -393,7 +393,7 @@ namespace ZoologyMod
                                 if (isLact)
                                     lactating++;
 
-                                // Если ни беременная ни лактирующая — обычная взрослая самка
+                                
                                 if (firstPreg == null && !isLact)
                                 {
                                     female++;
@@ -401,7 +401,7 @@ namespace ZoologyMod
                                 }
                                 else
                                 {
-                                    // вычисляем per-group разрешения
+                                    
                                     bool allowByPreg = true;
                                     bool allowByLact = true;
 
@@ -433,7 +433,7 @@ namespace ZoologyMod
                                         }
                                     }
 
-                                    // Если животное беременно и/или лактирует — оно учитывается в female/total только если все применимые разрешения true.
+                                    
                                     bool allowedOverall = true;
                                     if (firstPreg != null && firstPreg.Visible && !allowByPreg) allowedOverall = false;
                                     if (isLact && !allowByLact) allowedOverall = false;
@@ -441,7 +441,7 @@ namespace ZoologyMod
                                     if (!allowedOverall)
                                         continue;
 
-                                    // разрешено — считаем в female/total
+                                    
                                     female++;
                                     total++;
                                 }
@@ -471,7 +471,7 @@ namespace ZoologyMod
                                       select c).ToList();
                 DialogAS_Helper.f_configsOrdered.SetValue(__instance, configsOrdered);
 
-                return false; // skip original
+                return false; 
             }
             catch (Exception ex)
             {
@@ -494,7 +494,7 @@ namespace ZoologyMod
                 var miCalc = typeof(RimWorld.Dialog_AutoSlaughter).GetMethod("CalculateLabelWidth", BindingFlags.Instance | BindingFlags.NonPublic);
                 object widthObj = miCalc.Invoke(__instance, new object[] { rect1 });
                 float widthBase = (widthObj is float wf) ? wf : (rect1.width - 24f - 4f - 4f - 64f * 7f - 420f - 32f);
-                // Вычитаем ширину одного столбца (64f) чтобы разместить дополнительную колонку без смещения остальных
+                
                 float width = widthBase - 64f;
 
                 Widgets.BeginGroup(new Rect(rect1.x, rect1.y, rect1.width, rect1.height + rect2.height + 1f));
@@ -544,11 +544,11 @@ namespace ZoologyMod
                 AddCurrentAndMaxEntries("AnimalMaleYoung", 0f, 0f);
                 AddCurrentAndMaxEntries("AnimalFemaleAdult", 0f, 0f);
                 AddCurrentAndMaxEntries("AnimalFemaleYoung", 0f, 0f);
-                // Pregnant stays in its original place among originals
+                
                 AddCurrentAndMaxEntries("AnimalPregnant", 0f, 16f);
                 AddCurrentAndMaxEntries("AnimalBonded", 0f, 16f);
 
-                // Теперь добавляем Lactating в конце (новая 8-я колонка)
+                
                 AddCurrentAndMaxEntries("AnimalLactating", 0f, 16f);
 
                 Text.Anchor = anchor;
@@ -571,14 +571,14 @@ namespace ZoologyMod
                 row2.Label("AutoSlaugtherHeaderColCurrent".Translate(), 60f, "AutoSlaugtherHeaderTooltipCurrentFemalesYoung".Translate(), -1f);
                 row2.Label("AutoSlaugtherHeaderColMax".Translate(), 56f, "AutoSlaughterHeaderTooltipMaxFemalesYoung".Translate(), -1f);
 
-                // Pregnant header (current + allow)
+                
                 row2.Label("AutoSlaugtherHeaderColCurrent".Translate(), 60f, "AutoSlaughterHeaderTooltipCurrentPregnant".Translate(), -1f);
                 row2.Label("AllowSlaughter".Translate(), 72f, "AutoSlaughterHeaderTooltipAllowSlaughterPregnant".Translate(), -1f);
 
                 row2.Label("AutoSlaugtherHeaderColCurrent".Translate(), 60f, "AutoSlaughterHeaderTooltipCurrentBonded".Translate(), -1f);
                 row2.Label("AllowSlaughter".Translate(), 72f, "AutoSlaughterHeaderTooltipAllowSlaughterBonded".Translate(), -1f);
 
-                // Lactating header (current + allow) - теперь в самом конце
+                
                 row2.Label("AutoSlaugtherHeaderColCurrent".Translate(), 60f, "AutoSlaughterHeaderTooltipCurrentLactating".Translate(), -1f);
                 row2.Label("AllowSlaughter".Translate(), 72f, "AutoSlaughterHeaderTooltipAllowSlaughterLactating".Translate(), -1f);
 
@@ -612,7 +612,7 @@ namespace ZoologyMod
                 if (ZoologyModSettings.Instance == null || ZoologyModSettings.Instance.LactationSlaughterHandling != ZoologyModSettings.LactationSlaughterMode.SeparateSetting)
                     return true;
 
-                // Получаем текущее per-animal разрешение ДО BeginGroup (чтобы избежать NRE/несбалансированной GUI)
+                
                 bool prevAllow = ZoologyModSettings.Instance.GetAllowSlaughterLactatingFor(config.animal);
 
                 object dictObj = DialogAS_Helper.f_animalCounts.GetValue(__instance);
@@ -645,7 +645,7 @@ namespace ZoologyMod
                 var miCalc = typeof(RimWorld.Dialog_AutoSlaughter).GetMethod("CalculateLabelWidth", BindingFlags.Instance | BindingFlags.NonPublic);
                 object widthObj = miCalc.Invoke(__instance, new object[] { rect });
                 float widthBase = (widthObj is float wf) ? wf : (rect.width - 24f - 4f - 4f - 64f * 7f - 420f - 32f);
-                float width = widthBase - 64f; // уменьшили на ширину добавленного столбца
+                float width = widthBase - 64f; 
 
                 Widgets.BeginGroup(rect);
                 groupStarted = true;
@@ -673,7 +673,7 @@ namespace ZoologyMod
                 DrawCurrentCol(row, femaleYoung, config.maxFemalesYoung == -1 ? (int?)null : config.maxFemalesYoung);
                 DoMaxColumn(row, ref config.maxFemalesYoung, ref config.uiMaxFemalesYoungBuffer, femaleYoung);
 
-                // Pregnant
+                
                 Text.Anchor = TextAnchor.MiddleCenter;
                 row.Label(pregnant.ToString(), 60f, null, -1f);
                 Text.Anchor = TextAnchor.UpperLeft;
@@ -686,7 +686,7 @@ namespace ZoologyMod
                     try { DialogAS_Helper.m_recalculateAnimals.Invoke(__instance, null); } catch { }
                 }
 
-                // Bonded
+                
                 Text.Anchor = TextAnchor.MiddleCenter;
                 row.Label(bonded.ToString(), 60f, null, -1f);
                 Text.Anchor = TextAnchor.UpperLeft;
@@ -698,12 +698,12 @@ namespace ZoologyMod
                     try { DialogAS_Helper.m_recalculateAnimals.Invoke(__instance, null); } catch { }
                 }
 
-                // Lactating (new column moved to the end)
+                
                 Text.Anchor = TextAnchor.MiddleCenter;
                 row.Label(lactCount.ToString(), 60f, null, -1f);
                 Text.Anchor = TextAnchor.UpperLeft;
 
-                // per-animal checkbox (we read prevAllow before BeginGroup)
+                
                 bool newAllow = prevAllow;
                 row.Gap(26f);
                 float checkboxX = row.FinalX;
@@ -765,7 +765,7 @@ namespace ZoologyMod
                 row.Gap(width);
                 if (row.ButtonIconWithBG(TexButton.Infinity, 48f, "AutoSlaughterTooltipSetLimit".Translate(), true))
                 {
-                    // Play sound in a safe way: Click exists usually
+                    
                     try { SoundDefOf.Click.PlayOneShotOnCamera(null); } catch { }
                     val = current;
                 }

@@ -1,4 +1,4 @@
-// SimpleBionicPatcher.cs
+﻿
 using System.Collections.Generic;
 using System.Linq;
 using RimWorld;
@@ -38,14 +38,14 @@ namespace ZoologyMod
                 var installRecipe = DefDatabase<RecipeDef>.GetNamedSilentFail(cfg.RecipeDefName);
                 if (installRecipe == null) continue;
                 var removeRecipe = DefDatabase<RecipeDef>.GetNamedSilentFail(cfg.RecipeDefName.Replace("Install", "Remove"));
-                // Torso-compatible animals: add to originals
+                
                 var torsoAnimals = allAnimalDefs.Where(a => BionicPatcherUtils.HasBodyPart(a.race.body, cfg.HumanPartDefName)).ToList();
                 if (torsoAnimals.Any())
                 {
                     BionicPatcherUtils.EnsureRecipeUsersContains(installRecipe, torsoAnimals);
                     if (removeRecipe != null) BionicPatcherUtils.EnsureRecipeUsersContains(removeRecipe, torsoAnimals);
                 }
-                // Body-compatible animals (if alternate part defined)
+                
                 if (!string.IsNullOrEmpty(cfg.AnimalPartDefName) && cfg.AnimalPartDefName != cfg.HumanPartDefName)
                 {
                     var bodyAnimals = allAnimalDefs.Where(a => BionicPatcherUtils.HasBodyPart(a.race.body, cfg.AnimalPartDefName) && !BionicPatcherUtils.HasBodyPart(a.race.body, cfg.HumanPartDefName)).ToList();
@@ -54,7 +54,7 @@ namespace ZoologyMod
                         var bodyPart = DefDatabase<BodyPartDef>.GetNamedSilentFail(cfg.AnimalPartDefName);
                         if (bodyPart == null) continue;
                         var appliedParts = new List<BodyPartDef> { bodyPart };
-                        // Install: create if not exists
+                        
                         var newInstallDefName = $"{cfg.RecipeDefName}_Animal_{cfg.AnimalPartDefName}";
                         var existingInstall = DefDatabase<RecipeDef>.GetNamedSilentFail(newInstallDefName);
                         if (existingInstall == null)
@@ -66,7 +66,7 @@ namespace ZoologyMod
                         {
                             BionicPatcherUtils.EnsureRecipeUsersContains(existingInstall, bodyAnimals);
                         }
-                        // Remove: prefer vanilla or create
+                        
                         BionicPatcherUtils.EnsureRemoveRecipe(cfg, bodyAnimals, installRecipe, appliedParts, installRecipe.addsHediff, removeRecipe);
                     }
                 }

@@ -1,4 +1,4 @@
-// ZoologyModSettings.cs
+﻿
 
 using System.Collections.Generic;
 using UnityEngine;
@@ -25,32 +25,32 @@ namespace ZoologyMod
         public bool EnablePredatorDefendCorpse = true;
         public bool EnableScavengering = true;
 
-        // Range for predator corpse defence / presence radius (visible only when EnablePredatorDefendCorpse == true)
-        public int PreyProtectionRange = 20; // user-facing: 10..30, default 20
+        
+        public int PreyProtectionRange = 20; 
         private const int PreyProtectionRangeMin = 10;
         private const int PreyProtectionRangeMax = 30;
 
-        // Size limit for predator corpse defence (visible only when EnablePredatorDefendCorpse == true)
-        public int CorpseUnownedSizeMultiplier = 5; // user-facing: 10..30, default 20
+        
+        public int CorpseUnownedSizeMultiplier = 5; 
         private const int CorpseUnownedSizeMultiplierMin = 2;
         private const int CorpseUnownedSizeMultiplierMax = 10;
 
         public enum LactationSlaughterMode
         {
-            TreatAsPregnant = 0,   // считать лактирующих беременными (по умолчанию)
-            SeparateSetting = 1,   // отдельная колонка в Auto Slaughter Tab (per-animal)
-            Ignore = 2,            // ничего не менять (ванильное поведение) — лактирующие считаются обычными взрослыми самками
-            DisableSlaughterLactatingGlobal = 3 // глобально запрещаем забой лактирующих (без UI в табе)
+            TreatAsPregnant = 0,   
+            SeparateSetting = 1,   
+            Ignore = 2,            
+            DisableSlaughterLactatingGlobal = 3 
         }
         public LactationSlaughterMode LactationSlaughterHandling = LactationSlaughterMode.TreatAsPregnant;
 
-        // Персональная настройка разрешения забоя лактирующих по видам животных.
-        // Ключ — thingDef.defName, значение — разрешён/запрещён.
-        // Используется только когда Selected == SeparateSetting.
+        
+        
+        
         public Dictionary<string, bool> AllowSlaughterLactatingPerAnimal = new Dictionary<string, bool>();
 
-        // --- Уменьшение урона от animal-типов (по воркерам Scratch/Bite и подклассам)
-        // По умолчанию false. Если CE обнаружен, всегда false и недоступна в UI.
+        
+        
         public bool EnableAnimalDamageReduction = false;
 
         private float _smallPetBodySizeThreshold = ModConstants.DefaultSmallPetBodySizeThreshold;
@@ -92,7 +92,7 @@ namespace ZoologyMod
                 EnableAnimalDamageReduction = false;
             }
 
-            // Гарантируем, что словарь инициализирован (защита на случай, если сериализация вернула null)
+            
             if (AllowSlaughterLactatingPerAnimal == null)
                 AllowSlaughterLactatingPerAnimal = new Dictionary<string, bool>();
         }
@@ -191,18 +191,18 @@ namespace ZoologyMod
             list.GapLine(12f);
             list.Label("Lactation auto-slaughter handling:");
 
-            // Если лактация выключена, принудительно переводим режим в Ignore и дизейблим блок UI
+            
             if (!EnableMammalLactation)
             {
                 LactationSlaughterHandling = LactationSlaughterMode.Ignore;
-                // словарь хранится, но UI недоступен
+                
             }
 
             bool prevGuiEnabledForLact = GUI.enabled;
             if (!EnableMammalLactation)
                 GUI.enabled = false;
 
-            // Кнопки выбора режима
+            
             if (list.ButtonText(LactationSlaughterHandling == LactationSlaughterMode.TreatAsPregnant ? "● Treat lactating animals as PREGNANT (default)" : "○ Treat lactating animals as PREGNANT (default)"))
             {
                 LactationSlaughterHandling = LactationSlaughterMode.TreatAsPregnant;
@@ -223,7 +223,7 @@ namespace ZoologyMod
             list.GapLine(6f);
             if (LactationSlaughterHandling == LactationSlaughterMode.SeparateSetting)
             {
-                // раньше тут был глобальный AllowSlaughterLactatingGlobal — теперь управление per-animal происходит в Auto Slaughter tab
+                
                 list.Label("Per-animal toggle available in Auto Slaughter tab when SeparateSetting is enabled.");
                 list.GapLine(6f);
             }
@@ -238,7 +238,7 @@ namespace ZoologyMod
                 list.GapLine(6f);
             }
 
-            // ---------------- CE override ----------------
+            
             list.GapLine(16f);
 
             if (_cePresent)
@@ -251,7 +251,7 @@ namespace ZoologyMod
             }
             else
             {
-                // не показываем чекбокс вообще — вместо него поясняющая строка
+                
                 Text.Font = GameFont.Small;
                 Text.Anchor = TextAnchor.MiddleLeft;
                 list.Label("Disabled: Combat Extended not detected — CE override unavailable.");
@@ -259,11 +259,11 @@ namespace ZoologyMod
                 Text.Font = GameFont.Small;
                 list.GapLine(6f);
 
-                // на всякий случай принудительно сбросим опцию
+                
                 EnableOverrideCEPenetration = false;
             }
 
-            // ---------------- Animal damage reduction ----------------
+            
             list.GapLine(12f);
 
             if (_cePresent)
@@ -384,12 +384,12 @@ namespace ZoologyMod
             Scribe_Values.Look(ref EnableScavengering, "EnableScavengering", true);
             Scribe_Values.Look(ref LactationSlaughterHandling, "LactationSlaughterHandling", LactationSlaughterMode.TreatAsPregnant);
 
-            // сериализуем пер-видовую таблицу (ключи: defName -> bool)
+            
             if (AllowSlaughterLactatingPerAnimal == null)
                 AllowSlaughterLactatingPerAnimal = new Dictionary<string, bool>();
             Scribe_Collections.Look(ref AllowSlaughterLactatingPerAnimal, "AllowSlaughterLactatingPerAnimal", LookMode.Value, LookMode.Value);
 
-            // Если лактация отключена — принудительно сбрасываем режим в Ignore.
+            
             if (!EnableMammalLactation)
             {
                 LactationSlaughterHandling = LactationSlaughterMode.Ignore;
@@ -408,7 +408,7 @@ namespace ZoologyMod
             }
         }
 
-        // Удобные хелперы (null-safe)
+        
         public bool GetAllowSlaughterLactatingFor(ThingDef animal)
         {
             if (animal == null) return false;
