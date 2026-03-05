@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Patch>
+
+  <!-- AEXP: Crocodile animal egg-layer -> eggLayIntervalDays = 60.0, eggCountRange = 40~80 -->
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="AEXP_Crocodile"]/comps/li[Class="CompProperties_EggLayer"]/eggLayIntervalDays/text()</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName="AEXP_Crocodile"]/comps/li[Class="CompProperties_EggLayer"]/eggLayIntervalDays/text()</xpath>
+      <value>60.0</value>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="AEXP_Crocodile"]/comps/li[Class="CompProperties_EggLayer"]/eggCountRange/text()</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName="AEXP_Crocodile"]/comps/li[Class="CompProperties_EggLayer"]/eggCountRange/text()</xpath>
+      <value>35~65</value>
+    </match>
+  </Operation>
+
+  <!-- AEXP: Platypus animal egg-layer -> eggLayIntervalDays = 60.0, eggCountRange = 1~3 -->
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="AEXP_Platypus"]/comps/li[Class="CompProperties_EggLayer"]/eggLayIntervalDays/text()</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName="AEXP_Platypus"]/comps/li[Class="CompProperties_EggLayer"]/eggLayIntervalDays/text()</xpath>
+      <value>60.0</value>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="AEXP_Platypus"]/comps/li[Class="CompProperties_EggLayer"]/eggCountRange/text()</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName="AEXP_Platypus"]/comps/li[Class="CompProperties_EggLayer"]/eggCountRange/text()</xpath>
+      <value>1~3</value>
+    </match>
+  </Operation>
+
+  <!-- AEXP: DesertTortoise animal egg-layer -> eggLayIntervalDays = 20.0, eggCountRange = 15~25 -->
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="AEXP_DesertTortoise"]/comps/li[Class="CompProperties_EggLayer"]/eggLayIntervalDays/text()</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName="AEXP_DesertTortoise"]/comps/li[Class="CompProperties_EggLayer"]/eggLayIntervalDays/text()</xpath>
+      <value>20.0</value>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="AEXP_DesertTortoise"]/comps/li[Class="CompProperties_EggLayer"]/eggCountRange/text()</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName="AEXP_DesertTortoise"]/comps/li[Class="CompProperties_EggLayer"]/eggCountRange/text()</xpath>
+      <value>15~25</value>
+    </match>
+  </Operation>
+
+  <!-- AEXP: GilaMonster animal egg-layer -> eggLayIntervalDays = 60.0, eggCountRange = 10~15 -->
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="AEXP_GilaMonster"]/comps/li[Class="CompProperties_EggLayer"]/eggLayIntervalDays/text()</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName="AEXP_GilaMonster"]/comps/li[Class="CompProperties_EggLayer"]/eggLayIntervalDays/text()</xpath>
+      <value>60.0</value>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="AEXP_GilaMonster"]/comps/li[Class="CompProperties_EggLayer"]/eggCountRange/text()</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName="AEXP_GilaMonster"]/comps/li[Class="CompProperties_EggLayer"]/eggCountRange/text()</xpath>
+      <value>10~15</value>
+    </match>
+  </Operation>
+
+  <!-- AEXP: WildGoose animal egg-layer -> eggLayIntervalDays = 60.0, eggCountRange = 4~7 -->
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="AEXP_WildGoose"]/comps/li[Class="CompProperties_EggLayer"]/eggLayIntervalDays/text()</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName="AEXP_WildGoose"]/comps/li[Class="CompProperties_EggLayer"]/eggLayIntervalDays/text()</xpath>
+      <value>60.0</value>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="AEXP_WildGoose"]/comps/li[Class="CompProperties_EggLayer"]/eggCountRange/text()</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName="AEXP_WildGoose"]/comps/li[Class="CompProperties_EggLayer"]/eggCountRange/text()</xpath>
+      <value>4~7</value>
+    </match>
+  </Operation>
+
+  <!-- Remove egg-layer comp on AEXP_Anaconda (they are eggviviparous in this mod) -->
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="AEXP_Anaconda"]/comps/li[@Class="CompProperties_EggLayer"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="AEXP_Anaconda"]/comps/li[@Class="CompProperties_EggLayer"]</xpath>
+    </match>
+  </Operation>
+  
+  <Operation Class="PatchOperationRemove">
+	<xpath>Defs/ThingDef[defName="AEXP_EggAnacondaUnfertilized"]</xpath>
+  </Operation>
+  
+  <Operation Class="PatchOperationRemove">
+	<xpath>Defs/ThingDef[defName="AEXP_EggAnacondaFertilized"]</xpath>
+  </Operation>
+  
+  <!-- Remove egg-layer comp on AEXP_Rattlesnake -->
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="AEXP_Rattlesnake"]/comps/li[@Class="CompProperties_EggLayer"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="AEXP_Rattlesnake"]/comps/li[@Class="CompProperties_EggLayer"]</xpath>
+    </match>
+  </Operation>
+  
+  <Operation Class="PatchOperationRemove">
+	<xpath>Defs/ThingDef[defName="AEXP_EggRattlesnakeUnfertilized"]</xpath>
+  </Operation>
+  
+  <Operation Class="PatchOperationRemove">
+	<xpath>Defs/ThingDef[defName="AEXP_EggRattlesnakeFertilized"]</xpath>
+  </Operation>
+
+</Patch>

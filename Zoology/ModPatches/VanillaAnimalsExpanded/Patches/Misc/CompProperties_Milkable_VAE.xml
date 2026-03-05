@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+
+  <!-- ============================
+       A) Ensure <comps> exists for animals we will add full milkable blocks to
+       (add <comps/> to ThingDef if it's missing)
+       ============================ -->
+
+  <!-- AEXP_Wildebeest: ensure comps exists -->
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="AEXP_Wildebeest"]/comps/li[Class="CompProperties_Milkable"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="AEXP_Wildebeest"]/comps/li[Class="CompProperties_Milkable"]</xpath>
+    </match>
+  </Operation>
+
+  <!-- Boombat: ensure comps exists -->
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="AEXP_Boombat"]/comps</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName="AEXP_Boombat"]</xpath>
+      <value>
+        <comps />
+      </value>
+    </nomatch>
+  </Operation>
+
+  <!-- ============================
+       B) Replace or add full <li Class="CompProperties_Milkable">
+       (for AEXP_Boombat, we want to set full block)
+       ============================ -->
+
+  <!-- AEXP_Boombat: replace if exists, otherwise add li under comps -->
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="AEXP_Boombat"]/comps/li[Class="CompProperties_Milkable"]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName="AEXP_Boombat"]/comps/li[Class="CompProperties_Milkable"]</xpath>
+      <value>
+        <li Class="CompProperties_Milkable">
+          <milkDef>Chemfuel</milkDef>
+          <milkIntervalDays>1</milkIntervalDays>
+          <milkAmount>2</milkAmount>
+          <milkFemaleOnly>false</milkFemaleOnly>
+        </li>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName="AEXP_Boombat"]/comps</xpath>
+      <value>
+        <li Class="CompProperties_Milkable">
+          <milkDef>Chemfuel</milkDef>
+          <milkIntervalDays>1</milkIntervalDays>
+          <milkAmount>2</milkAmount>
+          <milkFemaleOnly>false</milkFemaleOnly>
+        </li>
+      </value>
+    </nomatch>
+  </Operation>
+
+  <!-- =================================================
+       C) Safe text replacements for animals that already
+          have CompProperties_Milkable (replace text nodes only)
+       ================================================= -->
+
+  <!-- AEXP_Camel -->
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="AEXP_Camel"]/comps/li[Class="CompProperties_Milkable"]/milkAmount/text()</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName="AEXP_Camel"]/comps/li[Class="CompProperties_Milkable"]/milkAmount/text()</xpath>
+      <value>12</value>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="AEXP_Camel"]/comps/li[Class="CompProperties_Milkable"]/milkIntervalDays/text()</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName="AEXP_Camel"]/comps/li[Class="CompProperties_Milkable"]/milkIntervalDays/text()</xpath>
+      <value>1</value>
+    </match>
+  </Operation>
+
+</Patch>

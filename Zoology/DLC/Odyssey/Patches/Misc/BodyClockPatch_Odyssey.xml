@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Patch>
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>Vanilla Expanded Framework</li>
+    </mods>
+    <match Class="PatchOperationSequence">
+      <operations>
+        <!-- Crepuscular (grouped by defName) -->
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[(defName='Tiger' or defName='Cat_Scimitar' or defName='Heron' or defName='Quail' or defName='Mink' or defName='PrairieDog' or defName='Moose' or defName='LavaSnail')]/modExtensions/li[@Class='VEF.AnimalBehaviours.ExtendedRaceProperties']</xpath>
+          <nomatch Class="PatchOperationAddModExtension">
+            <xpath>Defs/ThingDef[(defName='Tiger' or defName='Cat_Scimitar' or defName='Heron' or defName='Quail' or defName='Mink' or defName='PrairieDog' or defName='Moose' or defName='LavaSnail')]</xpath>
+            <value>
+              <li Class="VEF.AnimalBehaviours.ExtendedRaceProperties">
+                <bodyClock>Crepuscular</bodyClock>
+              </li>
+            </value>
+          </nomatch>
+        </li>
+
+        <!-- Nocturnal (grouped by defName) -->
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[(defName='HermitCrab' or defName='StoneCrab' or defName='Bullfrog' or defName='ColossusToad' or defName='Hippo' or defName='Armadillo' or defName='Wolverine' or defName='Badger' or defName='Otter' or defName='Alligator' or defName='Porcupine' or defName='Megavole')]/modExtensions/li[@Class='VEF.AnimalBehaviours.ExtendedRaceProperties']</xpath>
+          <nomatch Class="PatchOperationAddModExtension">
+            <xpath>Defs/ThingDef[(defName='HermitCrab' or defName='StoneCrab' or defName='Bullfrog' or defName='ColossusToad' or defName='Hippo' or defName='Armadillo' or defName='Wolverine' or defName='Badger' or defName='Otter' or defName='Alligator' or defName='Porcupine' or defName='Megavole')]</xpath>
+            <value>
+              <li Class="VEF.AnimalBehaviours.ExtendedRaceProperties">
+                <bodyClock>Nocturnal</bodyClock>
+              </li>
+            </value>
+          </nomatch>
+        </li>
+      </operations>
+    </match>
+  </Operation>
+</Patch>

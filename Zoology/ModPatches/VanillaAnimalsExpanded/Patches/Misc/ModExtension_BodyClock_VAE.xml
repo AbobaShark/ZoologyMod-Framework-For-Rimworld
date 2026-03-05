@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Patch>
+  <!-- Crepuscular - по defName (AEXP_Hyena, AEXP_Lion, AEXP_Boombat, AEXP_Tapir) -->
+  <Operation Class="PatchOperationConditional">
+    <xpath>Defs/ThingDef[(defName='AEXP_Hyena' or defName='AEXP_Lion' or defName='AEXP_Boombat' or defName='AEXP_Tapir')]/modExtensions/li[@Class='VEF.AnimalBehaviours.ExtendedRaceProperties']</xpath>
+    <nomatch Class="PatchOperationAddModExtension">
+      <xpath>Defs/ThingDef[(defName='AEXP_Hyena' or defName='AEXP_Lion' or defName='AEXP_Boombat' or defName='AEXP_Tapir')]</xpath>
+      <value>
+        <li Class="VEF.AnimalBehaviours.ExtendedRaceProperties">
+          <bodyClock>Crepuscular</bodyClock>
+        </li>
+      </value>
+    </nomatch>
+  </Operation>
+
+  <!-- Nocturnal - по defName (AEXP_Crocodile, AEXP_Jaguar, AEXP_Hedgehog, AEXP_RedPanda, AEXP_Lemur, AEXP_Anaconda, AEXP_Badger) -->
+  <Operation Class="PatchOperationConditional">
+    <xpath>Defs/ThingDef[(defName='AEXP_Crocodile' or defName='AEXP_Jaguar' or defName='AEXP_Hedgehog' or defName='AEXP_RedPanda' or defName='AEXP_Lemur' or defName='AEXP_Anaconda' or defName='AEXP_Badger')]/modExtensions/li[@Class='VEF.AnimalBehaviours.ExtendedRaceProperties']</xpath>
+    <nomatch Class="PatchOperationAddModExtension">
+      <xpath>Defs/ThingDef[(defName='AEXP_Crocodile' or defName='AEXP_Jaguar' or defName='AEXP_Hedgehog' or defName='AEXP_RedPanda' or defName='AEXP_Lemur' or defName='AEXP_Anaconda' or defName='AEXP_Badger')]</xpath>
+      <value>
+        <li Class="VEF.AnimalBehaviours.ExtendedRaceProperties">
+          <bodyClock>Nocturnal</bodyClock>
+        </li>
+      </value>
+    </nomatch>
+  </Operation>
+</Patch>

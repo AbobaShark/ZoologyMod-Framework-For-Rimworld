@@ -1,0 +1,483 @@
+// PredatorPresenceManager.cs
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using RimWorld;
+using Verse;
+using Verse.AI;
+
+namespace ZoologyMod
+{
+    public static class PredatorPresenceManager
+    {
+        private static float PRESENCE_RADIUS => (ZoologyModSettings.Instance != null && ZoologyModSettings.Instance.EnablePredatorDefendCorpse) ? ZoologyModSettings.Instance.PreyProtectionRange : 20;
+        private const int PRESENCE_CHECK_INTERVAL = 250;
+
+        // Логирование: минимальный интервал между одинаковыми сообщениями для одной пары pawn/corpse (в тиках)
+        private const int LOG_COOLDOWN_TICKS = 2000;
+
+        private static readonly Dictionary<string, long> _lastLogTick = new Dictionary<string, long>();
+        private static readonly Dictionary<int, long> _transientBlockTick = new Dictionary<int, long>();
+
+        public static void TickPresence()
+        {
+            try
+            {
+                long now = Find.TickManager?.TicksGame ?? 0L;
+                if (now % PRESENCE_CHECK_INTERVAL != 0) return;
+
+                var maps = Find.Maps;
+                if (maps == null || maps.Count == 0) return;
+
+                var comp = PredatorPreyPairGameComponent.Instance;
+                if (comp == null) return;
+
+                for (int mi = 0; mi < maps.Count; mi++)
+                {
+                    var map = maps[mi];
+                    var pawns = map.mapPawns.AllPawnsSpawned;
+                    for (int pi = 0; pi < pawns.Count; pi++)
+                    {
+                        var p = pawns[pi];
+                        if (p == null) continue;
+                        if (!p.RaceProps.predator) continue;
+
+                        List<Corpse> corpses = null;
+                        try { corpses = comp.GetActivePairedCorpses(p); } catch { corpses = null; }
+
+                        Corpse targetCorpse = null;
+                        if (corpses != null && corpses.Count > 0)
+                        {
+                            targetCorpse = corpses[0];
+                        }
+                        else
+                        {
+                            try
+                            {
+                                targetCorpse = comp.GetPairedCorpse(p);
+                            }
+                            catch
+                            {
+                                targetCorpse = null;
+                            }
+                        }
+
+                        if (targetCorpse == null) continue;
+
+                        string stayReason;
+                        if (!ShouldStayAtPrey(p, out stayReason))
+                        {
+                            // логим только критичные сообщения: LogOnce внутри делает троттлинг
+                            LogOnce(p, targetCorpse, $"Will NOT stay at prey: {stayReason}");
+                            continue;
+                        }
+
+                        IntVec3 targetPos;
+                        Map corpseMap = targetCorpse.Map;
+                        if (corpseMap != null)
+                        {
+                            targetPos = targetCorpse.Position;
+                        }
+                        else
+                        {
+                            var carrier = FindCarrierPawnForCorpse(targetCorpse);
+                            if (carrier != null && carrier.Map != null)
+                            {
+                                corpseMap = carrier.Map;
+                                targetPos = carrier.Position;
+                            }
+                            else
+                            {
+                                LogOnce(p, targetCorpse, "Corpse not on any map and no carrier found.");
+                                continue;
+                            }
+                        }
+
+                        if (p.Map == null || corpseMap == null || p.Map != corpseMap)
+                        {
+                            LogOnce(p, targetCorpse, $"Different maps (predatorMap {(p.Map == null ? "null" : p.Map.uniqueID.ToString())}, corpseMap {(corpseMap == null ? "null" : corpseMap.uniqueID.ToString())}).");
+                            continue;
+                        }
+
+                        // Если уже в радиусе удержания — НЕ выдаём задания прямо здесь.
+                        // Поведение «бродить рядом» выполняется через JobGiver_WanderNearPrey (в ThinkTree).
+                        if (p.Position.InHorDistOf(targetPos, PRESENCE_RADIUS))
+                        {
+                            // ничего не делаем — JobGiver_WanderNearPrey будет брать на себя бродилки.
+                            // Логируем редко только исключительные состояния
+                            continue;
+                        }
+
+                        // Если хищник вне радиуса — отправляем его к трупу (как раньше).
+                        TrySendPredatorToCorpse(p, targetCorpse, targetPos);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Warning($"Zoology: PredatorPresenceManager.TickPresence exception: {ex}");
+            }
+        }
+
+        private static bool ShouldStayAtPrey(Pawn pawn, out string reason)
+        {
+            reason = null;
+            try
+            {
+                long now = Find.TickManager?.TicksGame ?? 0L;
+                if (pawn == null) { reason = "pawn is null"; return false; }
+
+                try
+                {
+                    int pid = pawn.thingIDNumber;
+                    if (_transientBlockTick.TryGetValue(pid, out long blockedTick) && blockedTick == now)
+                    {
+                        reason = "transient block for this tick";
+                        return false;
+                    }
+                }
+                catch { }
+
+                if (!pawn.IsAnimal) { reason = "not an animal"; return false; }
+
+                if (pawn.InMentalState)
+                {
+                    reason = "in mental state (transient)";
+                    RecordTransientBlock(pawn, now);
+                    return false;
+                }
+
+                if (pawn.IsFighting())
+                {
+                    reason = "is fighting (transient)";
+                    RecordTransientBlock(pawn, now);
+                    return false;
+                }
+
+                if (pawn.Downed) { reason = "downed"; return false; }
+                if (pawn.Dead) { reason = "dead"; return false; }
+                if (ThinkNode_ConditionalShouldFollowMaster.ShouldFollowMaster(pawn)) { reason = "should follow master (tame/follower)"; return false; }
+                if (HasLord(pawn)) { reason = "has lord"; return false; }
+                if (pawn.Faction == Faction.OfPlayer && pawn.Map != null) { reason = "player faction on player home map"; return false; }
+                if (pawn.Faction != null && !pawn.Faction.def.animalsFleeDanger) { reason = "faction forbids animals fleeing danger"; return false; }
+                if (pawn.CurJob != null && pawn.CurJobDef != null && pawn.CurJobDef.neverFleeFromEnemies) { reason = "current job forbids fleeing from enemies"; return false; }
+
+                if (pawn.jobs?.curJob != null)
+                {
+                    var cur = pawn.jobs.curJob;
+                    if (cur.def == JobDefOf.Flee && cur.startTick == Find.TickManager.TicksGame)
+                    {
+                        reason = "just started Flee job this tick";
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                reason = $"exception in ShouldStayAtPrey: {ex.Message}";
+                LogOnce(pawn, null, $"ShouldStayAtPrey exception: {ex}");
+                return false;
+            }
+        }
+
+        private static void RecordTransientBlock(Pawn pawn, long now)
+        {
+            try
+            {
+                if (pawn == null) return;
+                int pid = pawn.thingIDNumber;
+                _transientBlockTick[pid] = now;
+
+                var toRemove = new List<int>();
+                foreach (var kv in _transientBlockTick)
+                {
+                    if (kv.Value < now) toRemove.Add(kv.Key);
+                }
+                foreach (var k in toRemove) _transientBlockTick.Remove(k);
+            }
+            catch { }
+        }
+
+        private static bool HasLord(Pawn pawn)
+        {
+            try
+            {
+                if (pawn == null) return false;
+                var t = pawn.GetType();
+                var m = t.GetMethod("GetLord", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                if (m == null) return false;
+                var lord = m.Invoke(pawn, null);
+                return lord != null;
+            }
+            catch { return false; }
+        }
+
+        private static Pawn FindCarrierPawnForCorpse(Corpse corpse)
+        {
+            try
+            {
+                if (corpse == null) return null;
+                var maps = Find.Maps;
+                for (int mi = 0; mi < maps.Count; mi++)
+                {
+                    var pawns = maps[mi].mapPawns.AllPawnsSpawned;
+                    for (int pi = 0; pi < pawns.Count; pi++)
+                    {
+                        var p = pawns[pi];
+                        if (p == null) continue;
+                        try
+                        {
+                            if (p.carryTracker != null && p.carryTracker.CarriedThing != null && p.carryTracker.CarriedThing.thingIDNumber == corpse.thingIDNumber)
+                                return p;
+                            var inv = p.inventory?.innerContainer;
+                            if (inv != null)
+                            {
+                                for (int j = 0; j < inv.Count; j++)
+                                {
+                                    var t = inv[j];
+                                    if (t != null && t.thingIDNumber == corpse.thingIDNumber) return p;
+                                }
+                            }
+                        }
+                        catch { }
+                    }
+                }
+            }
+            catch { }
+            return null;
+        }
+
+        private static void TrySendPredatorToCorpse(Pawn pred, Corpse corpse, IntVec3 corpsePos)
+        {
+            try
+            {
+                if (pred == null || corpse == null)
+                {
+                    LogOnce(pred, corpse, "TrySendPredatorToCorpse: pred or corpse is null.");
+                    return;
+                }
+
+                if (pred.Dead || pred.Downed || !pred.Spawned)
+                {
+                    LogOnce(pred, corpse, $"Predator not valid for ordering (Dead:{pred.Dead}, Downed:{pred.Downed}, Spawned:{pred.Spawned}).");
+                    return;
+                }
+
+                var curJob = pred.CurJob;
+                if (curJob != null)
+                {
+                    if (curJob.playerForced)
+                    {
+                        LogOnce(pred, corpse, "Current job is playerForced; will not override.");
+                        return;
+                    }
+                    if (curJob.def == JobDefOf.AttackMelee)
+                    {
+                        LogOnce(pred, corpse, "Currently performing AttackMelee; will not override.");
+                        return;
+                    }
+                    if (curJob.def != null && string.Equals(curJob.def.defName, "Zoology_ProtectPrey", StringComparison.OrdinalIgnoreCase))
+                    {
+                        LogOnce(pred, corpse, "Already protecting prey (Zoology_ProtectPrey).");
+                        return;
+                    }
+                }
+
+                IntVec3 dest = FindClosestReachableCellNear(corpsePos, pred.Map, pred, (int)PRESENCE_RADIUS);
+
+                if (!dest.IsValid || dest == corpsePos)
+                {
+                    IntVec3 adj;
+                    try
+                    {
+                        if (RCellFinder.TryFindGoodAdjacentSpotToTouch(pred, corpse, out adj))
+                        {
+                            dest = adj;
+                        }
+                    }
+                    catch { }
+                }
+
+                if (!dest.IsValid)
+                {
+                    try
+                    {
+                        bool canReach = false;
+                        try { canReach = pred.CanReach(corpsePos, PathEndMode.Touch, Danger.Some); } catch { canReach = true; }
+                        if (!canReach)
+                        {
+                            try { canReach = pred.CanReach(corpsePos, PathEndMode.Touch, Danger.Deadly); } catch { canReach = true; }
+                        }
+
+                        if (!canReach)
+                        {
+                            LogOnce(pred, corpse, $"No reachable destination near corpse and cannot reach corpsePos (canReach=false).");
+                            return;
+                        }
+
+                        var gotoDef = DefDatabase<JobDef>.GetNamedSilentFail("Goto");
+                        if (gotoDef != null)
+                        {
+                            var gotoJob = JobMaker.MakeJob(gotoDef, corpsePos);
+                            gotoJob.locomotionUrgency = LocomotionUrgency.Walk;
+                            pred.jobs.TryTakeOrderedJob(gotoJob);
+                            LogOnce(pred, corpse, $"Ordered Goto directly to corpse position ({corpsePos}).");
+                            return;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        LogOnce(pred, corpse, $"Fallback reachability/goto exception: {ex.Message}");
+                    }
+                    return;
+                }
+
+                if (pred.pather.Moving && pred.pather.Destination == dest) return;
+
+                try
+                {
+                    var gotoDef2 = DefDatabase<JobDef>.GetNamedSilentFail("Goto");
+                    if (gotoDef2 != null)
+                    {
+                        var gotoJob2 = JobMaker.MakeJob(gotoDef2, dest);
+                        gotoJob2.locomotionUrgency = LocomotionUrgency.Walk;
+                        pred.jobs.TryTakeOrderedJob(gotoJob2);
+                        LogOnce(pred, corpse, $"Ordered Walk-Goto to corpse area. Dest: {dest} (distance {IntDistance(pred.Position, dest)}).");
+                    }
+                    else
+                    {
+                        pred.pather.StartPath(dest, PathEndMode.OnCell);
+                        LogOnce(pred, corpse, $"Started path to corpse area (StartPath fallback). Dest: {dest} (distance {IntDistance(pred.Position, dest)}).");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    try
+                    {
+                        var gotoDef3 = DefDatabase<JobDef>.GetNamedSilentFail("Goto");
+                        if (gotoDef3 != null)
+                        {
+                            var j = JobMaker.MakeJob(gotoDef3, dest);
+                            j.locomotionUrgency = LocomotionUrgency.Walk;
+                            pred.jobs.TryTakeOrderedJob(j);
+                            LogOnce(pred, corpse, $"StartPath failed, fallback to Walk-Goto job to {dest} succeeded. Exception: {ex.Message}");
+                        }
+                        else
+                        {
+                            LogOnce(pred, corpse, $"StartPath failed and no Goto job available. Exception: {ex.Message}");
+                        }
+                    }
+                    catch (Exception ex2)
+                    {
+                        LogOnce(pred, corpse, $"Both StartPath and fallback failed: {ex2.Message}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Warning($"Zoology: TrySendPredatorToCorpse exception: {ex}");
+            }
+        }
+
+        private static IntVec3 FindClosestReachableCellNear(IntVec3 center, Map map, Pawn pawn, int maxDist)
+        {
+            try
+            {
+                if (map == null || pawn == null) return IntVec3.Invalid;
+
+                int max = Math.Max(0, maxDist);
+                var best = IntVec3.Invalid;
+                int bestScore = int.MaxValue;
+
+                var cells = GenRadial.RadialCellsAround(center, max, true);
+                foreach (var c in cells)
+                {
+                    if (!c.InBounds(map)) continue;
+                    if (!c.Walkable(map)) continue;
+                    if (!c.Standable(map)) continue;
+                    if (c == center) continue;
+
+                    try
+                    {
+                        var terrain = c.GetTerrain(map);
+                        if (terrain != null && terrain.avoidWander && (!terrain.IsWater || !pawn.RaceProps.waterSeeker))
+                            continue;
+                    }
+                    catch { }
+
+                    bool canReach = false;
+                    try
+                    {
+                        canReach = map.reachability.CanReachNonLocal(pawn.Position, new TargetInfo(c, map), PathEndMode.OnCell, TraverseParms.For(pawn, Danger.Some, TraverseMode.ByPawn, false));
+                    }
+                    catch
+                    {
+                        canReach = pawn.CanReach(c, PathEndMode.OnCell, Danger.Some);
+                    }
+                    if (!canReach) continue;
+
+                    int score = (pawn.Position - c).LengthHorizontalSquared;
+
+                    if (score < bestScore)
+                    {
+                        bestScore = score;
+                        best = c;
+                    }
+                }
+
+                return best;
+            }
+            catch { }
+            return IntVec3.Invalid;
+        }
+
+        private static void LogOnce(Pawn pawn, Corpse corpse, string message)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(message)) return;
+
+                string ml = message.ToLowerInvariant();
+                bool isImportant = ml.Contains("exception") || ml.Contains("error") || ml.Contains("failed");
+
+                if (!isImportant) return;
+
+                long now = Find.TickManager?.TicksGame ?? 0L;
+                int pawnId = pawn?.thingIDNumber ?? 0;
+                int corpseId = corpse?.thingIDNumber ?? 0;
+                string key = $"{pawnId}_{corpseId}_{message}";
+
+                long last;
+                if (_lastLogTick.TryGetValue(key, out last))
+                {
+                    if (now - last < LOG_COOLDOWN_TICKS) return;
+                    _lastLogTick[key] = now;
+                }
+                else
+                {
+                    _lastLogTick[key] = now;
+                }
+
+                string pawnLabel = pawn != null ? $"{pawn.LabelShort} (id={pawnId})" : "null-pawn";
+                string corpseLabel = corpse != null ? $"{(corpse.InnerPawn != null ? corpse.InnerPawn.LabelShort : corpse.ToString())} (id={corpseId})" : "null-corpse";
+
+                string final = $"Zoology: [{pawnLabel}] - [{corpseLabel}] => {message}";
+                Log.Warning(final);
+            }
+            catch { }
+        }
+
+        private static int IntDistance(IntVec3 a, IntVec3 b)
+        {
+            try
+            {
+                int dx = a.x - b.x;
+                int dz = a.z - b.z;
+                return (int)Math.Sqrt(dx * dx + dz * dz);
+            }
+            catch { return 0; }
+        }
+    }
+}

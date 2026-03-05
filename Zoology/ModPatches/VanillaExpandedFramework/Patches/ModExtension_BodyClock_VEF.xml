@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Patch>
+  <!-- 1) Crepuscular - по defName (Cassowary, Chinchilla, Deer, Elk, Warg) -->
+  <Operation Class="PatchOperationConditional">
+    <xpath>Defs/ThingDef[(defName='Cassowary' or defName='Chinchilla' or defName='Deer' or defName='Elk' or defName='Warg')]/modExtensions/li[@Class='VEF.AnimalBehaviours.ExtendedRaceProperties']</xpath>
+    <nomatch Class="PatchOperationAddModExtension">
+      <xpath>Defs/ThingDef[(defName='Cassowary' or defName='Chinchilla' or defName='Deer' or defName='Elk' or defName='Warg')]</xpath>
+      <value>
+        <li Class="VEF.AnimalBehaviours.ExtendedRaceProperties">
+          <bodyClock>Crepuscular</bodyClock>
+        </li>
+      </value>
+    </nomatch>
+  </Operation>
+
+  <!-- 2) Crepuscular - по @Name (BaseHare, ThingBaseWolf, ThingBaseFox) -->
+  <Operation Class="PatchOperationConditional">
+    <xpath>Defs/ThingDef[(@Name='BaseHare' or @Name='ThingBaseWolf' or @Name='ThingBaseFox')]/modExtensions/li[@Class='VEF.AnimalBehaviours.ExtendedRaceProperties']</xpath>
+    <nomatch Class="PatchOperationAddModExtension">
+      <xpath>Defs/ThingDef[(@Name='BaseHare' or @Name='ThingBaseWolf' or @Name='ThingBaseFox')]</xpath>
+      <value>
+        <li Class="VEF.AnimalBehaviours.ExtendedRaceProperties">
+          <bodyClock>Crepuscular</bodyClock>
+        </li>
+      </value>
+    </nomatch>
+  </Operation>
+
+  <!-- 3) Nocturnal - по defName (Cat, Lynx, Cougar, Panther, Megasloth, WildBoar, Rat, Boomrat, Alphabeaver, Raccoon) -->
+  <Operation Class="PatchOperationConditional">
+    <xpath>Defs/ThingDef[(defName='Cat' or defName='Lynx' or defName='Cougar' or defName='Panther' or defName='Megasloth' or defName='WildBoar' or defName='Rat' or defName='Boomrat' or defName='Alphabeaver' or defName='Raccoon')]/modExtensions/li[@Class='VEF.AnimalBehaviours.ExtendedRaceProperties']</xpath>
+    <nomatch Class="PatchOperationAddModExtension">
+      <xpath>Defs/ThingDef[(defName='Cat' or defName='Lynx' or defName='Cougar' or defName='Panther' or defName='Megasloth' or defName='WildBoar' or defName='Rat' or defName='Boomrat' or defName='Alphabeaver' or defName='Raccoon')]</xpath>
+      <value>
+        <li Class="VEF.AnimalBehaviours.ExtendedRaceProperties">
+          <bodyClock>Nocturnal</bodyClock>
+        </li>
+      </value>
+    </nomatch>
+  </Operation>
+</Patch>

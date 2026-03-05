@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+
+  <!-- =======================================================================
+       1) Заменяем мех морской свинки на мех белки (Leather_GuineaPig → Leather_Squirrel)
+       ======================================================================= -->
+  <Operation Class="PatchOperationReplace">
+    <xpath>Defs/ThingDef[defName="Leather_GuineaPig"]</xpath>
+    <value>
+      <ThingDef ParentName="LeatherBase">
+        <defName>Leather_Squirrel</defName>
+        <label>squirrel fur</label>
+        <description>Soft pelt from a small tree-dwelling rodent. It is delicate, but luxurious.</description>
+        <graphicData>
+          <color>(179,125,55)</color>
+        </graphicData>
+        <statBases>
+          <MarketValue>3.6</MarketValue>
+          <StuffPower_Armor_Sharp>0.067</StuffPower_Armor_Sharp>
+          <StuffPower_Armor_Blunt>0.014</StuffPower_Armor_Blunt>
+          <StuffPower_Insulation_Cold>20</StuffPower_Insulation_Cold>
+          <StuffPower_Insulation_Heat>3</StuffPower_Insulation_Heat>
+        </statBases>
+        <stuffProps>
+          <color>(179,125,55)</color>
+          <commonality>0.025</commonality>
+          <statFactors>
+            <MaxHitPoints>0.6</MaxHitPoints>
+            <Beauty>2.2</Beauty>
+          </statFactors>
+        </stuffProps>
+      </ThingDef>
+    </value>
+  </Operation>
+
+  <!-- =======================================================================
+       2) GuineaPig теперь даёт Lightleather вместо меха, а белка даёт мех белки
+       ======================================================================= -->
+	<Operation Class="PatchOperationConditional">
+	  <xpath>Defs/ThingDef[defName="GuineaPig"]/race/leatherDef</xpath>
+	  <nomatch Class="PatchOperationAdd">
+		<xpath>Defs/ThingDef[defName="GuineaPig"]/race</xpath>
+		<value>
+		  <leatherDef>Leather_Light</leatherDef>
+		</value>
+	  </nomatch>
+	  <match Class="PatchOperationReplace">
+		<xpath>Defs/ThingDef[defName="GuineaPig"]/race/leatherDef</xpath>
+		<value>
+		  <leatherDef>Leather_Light</leatherDef>
+		</value>
+	  </match>
+	</Operation>
+
+	<Operation Class="PatchOperationConditional">
+	  <xpath>Defs/ThingDef[defName="Squirrel"]/race/leatherDef</xpath>
+	  <nomatch Class="PatchOperationAdd">
+		<xpath>Defs/ThingDef[defName="Squirrel"]/race</xpath>
+		<value>
+		  <leatherDef>Leather_Squirrel</leatherDef>
+		</value>
+	  </nomatch>
+	  <match Class="PatchOperationReplace">
+		<xpath>Defs/ThingDef[defName="Squirrel"]/race/leatherDef</xpath>
+		<value>
+		  <leatherDef>Leather_Squirrel</leatherDef>
+		</value>
+	  </match>
+	</Operation>
+
+  <!-- =======================================================================
+       3) Правки кожи и мехов
+       ======================================================================= -->
+
+  <!-- Bear leather -->
+  <Operation Class="PatchOperationConditional">
+    <xpath>Defs/ThingDef[defName="Leather_Bear"]/statBases/MarketValue</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>Defs/ThingDef[defName="Leather_Bear"]/statBases/MarketValue</xpath>
+      <value><MarketValue>4.0</MarketValue></value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>Defs/ThingDef[defName="Leather_Bear"]/statBases</xpath>
+      <value><MarketValue>4.0</MarketValue></value>
+    </nomatch>
+  </Operation>
+
+  <Operation Class="PatchOperationConditional">
+    <xpath>Defs/ThingDef[defName="Leather_Bear"]/statBases/StuffPower_Insulation_Cold</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>Defs/ThingDef[defName="Leather_Bear"]/statBases/StuffPower_Insulation_Cold</xpath>
+      <value><StuffPower_Insulation_Cold>24</StuffPower_Insulation_Cold></value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>Defs/ThingDef[defName="Leather_Bear"]/statBases</xpath>
+      <value><StuffPower_Insulation_Cold>24</StuffPower_Insulation_Cold></value>
+    </nomatch>
+  </Operation>
+
+  <!-- Human leather -->
+  <Operation Class="PatchOperationConditional">
+    <xpath>Defs/ThingDef[defName="Leather_Human"]/statBases/MarketValue</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>Defs/ThingDef[defName="Leather_Human"]/statBases/MarketValue</xpath>
+      <value><MarketValue>2.0</MarketValue></value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>Defs/ThingDef[defName="Leather_Human"]/statBases</xpath>
+      <value><MarketValue>2.0</MarketValue></value>
+    </nomatch>
+  </Operation>
+
+  <!-- Panthera -->
+  <Operation Class="PatchOperationConditional">
+    <xpath>Defs/ThingDef[defName="Leather_Panthera"]/statBases/MarketValue</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>Defs/ThingDef[defName="Leather_Panthera"]/statBases/MarketValue</xpath>
+      <value><MarketValue>4.2</MarketValue></value>
+    </match>
+  </Operation>
+
+  <Operation Class="PatchOperationConditional">
+    <xpath>Defs/ThingDef[defName="Leather_Panthera"]/statBases/StuffPower_Armor_Sharp</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>Defs/ThingDef[defName="Leather_Panthera"]/statBases/StuffPower_Armor_Sharp</xpath>
+      <value><StuffPower_Armor_Sharp>1.02</StuffPower_Armor_Sharp></value>
+    </match>
+  </Operation>
+
+  <Operation Class="PatchOperationConditional">
+    <xpath>Defs/ThingDef[defName="Leather_Panthera"]/stuffProps/statFactors/Beauty</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>Defs/ThingDef[defName="Leather_Panthera"]/stuffProps/statFactors/Beauty</xpath>
+      <value><Beauty>2.3</Beauty></value>
+    </match>
+  </Operation>
+
+  <!-- Lizard -->
+  <Operation Class="PatchOperationConditional">
+    <xpath>Defs/ThingDef[defName="Leather_Lizard"]/statBases/MarketValue</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>Defs/ThingDef[defName="Leather_Lizard"]/statBases/MarketValue</xpath>
+      <value><MarketValue>4.4</MarketValue></value>
+    </match>
+  </Operation>
+
+  <Operation Class="PatchOperationConditional">
+    <xpath>Defs/ThingDef[defName="Leather_Lizard"]/stuffProps/statFactors/Beauty</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>Defs/ThingDef[defName="Leather_Lizard"]/stuffProps/statFactors/Beauty</xpath>
+      <value><Beauty>2.5</Beauty></value>
+    </match>
+  </Operation>
+
+  <!-- Fox -->
+  <Operation Class="PatchOperationConditional">
+    <xpath>Defs/ThingDef[defName="Leather_Fox"]/statBases/MarketValue</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>Defs/ThingDef[defName="Leather_Fox"]/statBases/MarketValue</xpath>
+      <value><MarketValue>4.6</MarketValue></value>
+    </match>
+  </Operation>
+
+  <Operation Class="PatchOperationConditional">
+    <xpath>Defs/ThingDef[defName="Leather_Fox"]/stuffProps/statFactors/Beauty</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>Defs/ThingDef[defName="Leather_Fox"]/stuffProps/statFactors/Beauty</xpath>
+      <value><Beauty>2.7</Beauty></value>
+    </match>
+  </Operation>
+
+  <!-- =======================================================================
+       4) Combat Extended-specific balancing
+       ======================================================================= -->
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>Combat Extended</li>
+    </mods>
+    <match Class="PatchOperationSequence">
+      <operations>
+
+        <!-- Squirrel -->
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="Leather_Squirrel"]/statBases/StuffPower_Armor_Sharp</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="Leather_Squirrel"]/statBases/StuffPower_Armor_Sharp</xpath>
+            <value><StuffPower_Armor_Sharp>0.03</StuffPower_Armor_Sharp></value>
+          </match>
+        </li>
+
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="Leather_Squirrel"]/statBases/StuffPower_Armor_Blunt</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="Leather_Squirrel"]/statBases/StuffPower_Armor_Blunt</xpath>
+            <value><StuffPower_Armor_Blunt>0.024</StuffPower_Armor_Blunt></value>
+          </match>
+        </li>
+
+        <!-- Panthera -->
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="Leather_Panthera"]/statBases/StuffPower_Armor_Sharp</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="Leather_Panthera"]/statBases/StuffPower_Armor_Sharp</xpath>
+            <value><StuffPower_Armor_Sharp>0.07</StuffPower_Armor_Sharp></value>
+          </match>
+        </li>
+
+        <!-- Pig -->
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="Leather_Pig"]/statBases/StuffPower_Armor_Sharp</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="Leather_Pig"]/statBases/StuffPower_Armor_Sharp</xpath>
+            <value><StuffPower_Armor_Sharp>0.05</StuffPower_Armor_Sharp></value>
+          </match>
+        </li>
+
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="Leather_Pig"]/statBases/StuffPower_Armor_Blunt</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="Leather_Pig"]/statBases/StuffPower_Armor_Blunt</xpath>
+            <value><StuffPower_Armor_Blunt>0.04</StuffPower_Armor_Blunt></value>
+          </match>
+        </li>
+		
+        <!-- Thrumbo -->
+        <!-- <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="Leather_Thrumbo"]/statBases/StuffPower_Armor_Sharp</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="Leather_Thrumbo"]/statBases/StuffPower_Armor_Sharp</xpath>
+            <value><StuffPower_Armor_Sharp>0.38</StuffPower_Armor_Sharp></value>
+          </match>
+        </li>
+
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="Leather_Thrumbo"]/statBases/StuffPower_Armor_Blunt</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="Leather_Thrumbo"]/statBases/StuffPower_Armor_Blunt</xpath>
+            <value><StuffPower_Armor_Blunt>0.1</StuffPower_Armor_Blunt></value>
+          </match>
+        </li> -->
+
+      </operations>
+    </match>
+  </Operation>
+
+</Patch>

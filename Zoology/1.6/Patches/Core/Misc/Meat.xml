@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Patch>
+
+  <!-- =================================================
+       Dogs
+       ================================================= -->
+	   
+  <Operation Class="PatchOperationConditional">
+    <xpath>Defs/ThingDef[defName="YorkshireTerrier"]/race/meatLabel</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>Defs/ThingDef[defName="YorkshireTerrier"]/race/meatLabel</xpath>
+      <value>
+        <meatLabel>dog meat</meatLabel>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>Defs/ThingDef[defName="YorkshireTerrier"]/race</xpath>
+      <value>
+        <meatLabel>dog meat</meatLabel>
+      </value>
+    </nomatch>
+  </Operation>
+
+  <Operation Class="PatchOperationConditional">
+    <xpath>Defs/ThingDef[defName="LabradorRetriever" or defName="Husky"]/race/useMeatFrom</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>Defs/ThingDef[defName="LabradorRetriever" or defName="Husky"]/race/useMeatFrom</xpath>
+      <value>
+        <useMeatFrom>YorkshireTerrier</useMeatFrom>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>Defs/ThingDef[defName="LabradorRetriever" or defName="Husky"]/race</xpath>
+      <value>
+        <useMeatFrom>YorkshireTerrier</useMeatFrom>
+      </value>
+    </nomatch>
+  </Operation>
+
+</Patch>
