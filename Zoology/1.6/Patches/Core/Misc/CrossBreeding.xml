@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Patch>
+
+  <!-- =========================================================
+       Apply ONLY if Vanilla Animals Expanded is NOT loaded
+       ========================================================= -->
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>Vanilla Animals Expanded</li>
+    </mods>
+    <!-- Если мод НЕ найден — применяем патчи -->
+    <nomatch Class="PatchOperationSequence">
+      <operations>
+        <!-- =================================================
+             LabradorRetriever
+             ================================================= -->
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="LabradorRetriever"]/race/canCrossBreedWith</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="LabradorRetriever"]/race/canCrossBreedWith</xpath>
+            <value>
+              <canCrossBreedWith>
+                <li>Husky</li>
+              </canCrossBreedWith>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="LabradorRetriever"]/race</xpath>
+            <value>
+              <canCrossBreedWith>
+                <li>Husky</li>
+              </canCrossBreedWith>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="LabradorRetriever"]/race/crossAggroWith</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="LabradorRetriever"]/race/crossAggroWith</xpath>
+            <value>
+              <crossAggroWith>
+                <li>Husky</li>
+              </crossAggroWith>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="LabradorRetriever"]/race</xpath>
+            <value>
+              <crossAggroWith>
+                <li>Husky</li>
+              </crossAggroWith>
+            </value>
+          </nomatch>
+        </li>
+        <!-- =================================================
+             Husky
+             ================================================= -->
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="Husky"]/race/canCrossBreedWith</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="Husky"]/race/canCrossBreedWith</xpath>
+            <value>
+              <canCrossBreedWith>
+                <li>LabradorRetriever</li>
+              </canCrossBreedWith>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="Husky"]/race</xpath>
+            <value>
+              <canCrossBreedWith>
+                <li>LabradorRetriever</li>
+              </canCrossBreedWith>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="Husky"]/race/crossAggroWith</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="Husky"]/race/crossAggroWith</xpath>
+            <value>
+              <crossAggroWith>
+                <li>LabradorRetriever</li>
+              </crossAggroWith>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="Husky"]/race</xpath>
+            <value>
+              <crossAggroWith>
+                <li>LabradorRetriever</li>
+              </crossAggroWith>
+            </value>
+          </nomatch>
+        </li>
+      </operations>
+    </nomatch>
+  </Operation>
+
+  <!-- Wolf_Arctic -->
+
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Wolf_Arctic"]/race/canCrossBreedWith</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "Wolf_Arctic"]/race/canCrossBreedWith</xpath>
+      <value>
+	    <canCrossBreedWith>
+			<li>Wolf_Timber</li>
+		</canCrossBreedWith>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "Wolf_Arctic"]/race</xpath>
+      <value>
+	    <canCrossBreedWith>
+			<li>Wolf_Timber</li>
+		</canCrossBreedWith>
+      </value>
+    </nomatch>
+  </Operation>
+  
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Wolf_Arctic"]/race/crossAggroWith</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "Wolf_Arctic"]/race/crossAggroWith</xpath>
+      <value>
+	    <crossAggroWith>
+			<li>Wolf_Timber</li>
+		</crossAggroWith>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "Wolf_Arctic"]/race</xpath>
+      <value>
+	    <crossAggroWith>
+			<li>Wolf_Timber</li>
+		</crossAggroWith>
+      </value>
+    </nomatch>
+  </Operation>
+
+  <!-- Wolf_Timber -->
+  
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Wolf_Timber"]/race/canCrossBreedWith</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "Wolf_Timber"]/race/canCrossBreedWith</xpath>
+      <value>
+	    <canCrossBreedWith>
+			<li>Wolf_Arctic</li>
+		</canCrossBreedWith>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "Wolf_Timber"]/race</xpath>
+      <value>
+	    <canCrossBreedWith>
+			<li>Wolf_Arctic</li>
+		</canCrossBreedWith>
+      </value>
+    </nomatch>
+  </Operation>
+  
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Wolf_Timber"]/race/crossAggroWith</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "Wolf_Timber"]/race/crossAggroWith</xpath>
+      <value>
+	    <crossAggroWith>
+			<li>Wolf_Arctic</li>
+		</crossAggroWith>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "Wolf_Timber"]/race</xpath>
+      <value>
+	    <crossAggroWith>
+			<li>Wolf_Arctic</li>
+		</crossAggroWith>
+      </value>
+    </nomatch>
+  </Operation>
+
+</Patch>

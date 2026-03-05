@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Patch>
+
+  <!-- AEXP_ArcticCoyote -->
+
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/canCrossBreedWith</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/canCrossBreedWith</xpath>
+      <value>
+	    <canCrossBreedWith>
+			<li>AEXP_Coyote</li>
+		</canCrossBreedWith>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race</xpath>
+      <value>
+	    <canCrossBreedWith>
+			<li>AEXP_Coyote</li>
+		</canCrossBreedWith>
+      </value>
+    </nomatch>
+  </Operation>
+  
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/crossAggroWith</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/crossAggroWith</xpath>
+      <value>
+	    <crossAggroWith>
+			<li>AEXP_Coyote</li>
+		</crossAggroWith>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race</xpath>
+      <value>
+	    <crossAggroWith>
+			<li>AEXP_Coyote</li>
+		</crossAggroWith>
+      </value>
+    </nomatch>
+  </Operation>
+  
+	<!-- =========================================================
+		 AEXP_ArcticCoyote – AnimalCrossbreedExtension (safe replace/add)
+		 ========================================================= -->
+	<Operation Class="PatchOperationConditional">
+	  <xpath>
+		Defs/ThingDef[defName="AEXP_ArcticCoyote"]/modExtensions/li[@Class="VEF.AnimalBehaviours.AnimalCrossbreedExtension"]
+	  </xpath>
+	  <!-- Если расширение уже есть — заменяем -->
+	  <match Class="PatchOperationReplace">
+		<xpath>
+		  Defs/ThingDef[defName="AEXP_ArcticCoyote"]/modExtensions/li[@Class="VEF.AnimalBehaviours.AnimalCrossbreedExtension"]
+		</xpath>
+		<value>
+		  <li Class="VEF.AnimalBehaviours.AnimalCrossbreedExtension">
+			<crossBreedKindDef>Random</crossBreedKindDef>
+		  </li>
+		</value>
+	  </match>
+	  <!-- Если расширения нет — добавляем -->
+	  <nomatch Class="PatchOperationAddModExtension">
+		<xpath>Defs/ThingDef[defName="AEXP_ArcticCoyote"]</xpath>
+		<value>
+		  <li Class="VEF.AnimalBehaviours.AnimalCrossbreedExtension">
+			<crossBreedKindDef>Random</crossBreedKindDef>
+		  </li>
+		</value>
+	  </nomatch>
+	</Operation>
+
+
+  <!-- AEXP_Coyote -->
+  
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/canCrossBreedWith</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/canCrossBreedWith</xpath>
+      <value>
+	    <canCrossBreedWith>
+			<li>AEXP_ArcticCoyote</li>
+		</canCrossBreedWith>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race</xpath>
+      <value>
+	    <canCrossBreedWith>
+			<li>AEXP_ArcticCoyote</li>
+		</canCrossBreedWith>
+      </value>
+    </nomatch>
+  </Operation>
+  
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/crossAggroWith</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/crossAggroWith</xpath>
+      <value>
+	    <crossAggroWith>
+			<li>AEXP_ArcticCoyote</li>
+		</crossAggroWith>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race</xpath>
+      <value>
+	    <crossAggroWith>
+			<li>AEXP_ArcticCoyote</li>
+		</crossAggroWith>
+      </value>
+    </nomatch>
+  </Operation>
+  
+	<!-- =========================================================
+		 AEXP_Coyote – AnimalCrossbreedExtension (safe replace/add)
+		 ========================================================= -->
+	<Operation Class="PatchOperationConditional">
+	  <xpath>
+		Defs/ThingDef[defName="AEXP_Coyote"]/modExtensions/li[@Class="VEF.AnimalBehaviours.AnimalCrossbreedExtension"]
+	  </xpath>
+	  <!-- Если расширение уже есть — заменяем -->
+	  <match Class="PatchOperationReplace">
+		<xpath>
+		  Defs/ThingDef[defName="AEXP_Coyote"]/modExtensions/li[@Class="VEF.AnimalBehaviours.AnimalCrossbreedExtension"]
+		</xpath>
+		<value>
+		  <li Class="VEF.AnimalBehaviours.AnimalCrossbreedExtension">
+			<crossBreedKindDef>Random</crossBreedKindDef>
+		  </li>
+		</value>
+	  </match>
+	  <!-- Если расширения нет — добавляем -->
+	  <nomatch Class="PatchOperationAddModExtension">
+		<xpath>Defs/ThingDef[defName="AEXP_Coyote"]</xpath>
+		<value>
+		  <li Class="VEF.AnimalBehaviours.AnimalCrossbreedExtension">
+			<crossBreedKindDef>Random</crossBreedKindDef>
+		  </li>
+		</value>
+	  </nomatch>
+	</Operation>
+
+  <!-- Panther -->
+  
+  <Operation Class="PatchOperationConditional">
+	<xpath>Defs/ThingDef[defName="Panther"]/race</xpath>
+	<nomatch Class="PatchOperationAdd">
+	  <xpath>Defs/ThingDef[defName="Panther"]</xpath>
+	  <value>
+	    <race/>
+	  </value>
+	</nomatch>
+  </Operation>
+
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Panther"]/race/canCrossBreedWith</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "Panther"]/race/canCrossBreedWith</xpath>
+      <value>
+	    <canCrossBreedWith>
+			<li>AEXP_Jaguar</li>
+		</canCrossBreedWith>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "Panther"]/race</xpath>
+      <value>
+	    <canCrossBreedWith>
+			<li>AEXP_Jaguar</li>
+		</canCrossBreedWith>
+      </value>
+    </nomatch>
+  </Operation>
+  
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Panther"]/race/crossAggroWith</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "Panther"]/race/crossAggroWith</xpath>
+      <value>
+	    <crossAggroWith>
+			<li>AEXP_Jaguar</li>
+		</crossAggroWith>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "Panther"]/race</xpath>
+      <value>
+	    <crossAggroWith>
+			<li>AEXP_Jaguar</li>
+		</crossAggroWith>
+      </value>
+    </nomatch>
+  </Operation>
+  
+	<!-- =========================================================
+		 Panther – AnimalCrossbreedExtension (safe replace/add)
+		 ========================================================= -->
+	<Operation Class="PatchOperationConditional">
+	  <xpath>
+		Defs/ThingDef[defName="Panther"]/modExtensions/li[@Class="VEF.AnimalBehaviours.AnimalCrossbreedExtension"]
+	  </xpath>
+	  <!-- Если расширение уже есть — заменяем -->
+	  <match Class="PatchOperationReplace">
+		<xpath>
+		  Defs/ThingDef[defName="Panther"]/modExtensions/li[@Class="VEF.AnimalBehaviours.AnimalCrossbreedExtension"]
+		</xpath>
+		<value>
+		  <li Class="VEF.AnimalBehaviours.AnimalCrossbreedExtension">
+			<crossBreedKindDef>Random</crossBreedKindDef>
+		  </li>
+		</value>
+	  </match>
+	  <!-- Если расширения нет — добавляем -->
+	  <nomatch Class="PatchOperationAddModExtension">
+		<xpath>Defs/ThingDef[defName="Panther"]</xpath>
+		<value>
+		  <li Class="VEF.AnimalBehaviours.AnimalCrossbreedExtension">
+			<crossBreedKindDef>Random</crossBreedKindDef>
+		  </li>
+		</value>
+	  </nomatch>
+	</Operation>
+
+
+  <!-- AEXP_Jaguar -->
+  
+  <Operation Class="PatchOperationConditional">
+	<xpath>Defs/ThingDef[defName="AEXP_Jaguar"]/race</xpath>
+	<nomatch Class="PatchOperationAdd">
+	  <xpath>Defs/ThingDef[defName="AEXP_Jaguar"]</xpath>
+	  <value>
+	    <race/>
+	  </value>
+	</nomatch>
+  </Operation>
+  
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AEXP_Jaguar"]/race/canCrossBreedWith</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "AEXP_Jaguar"]/race/canCrossBreedWith</xpath>
+      <value>
+	    <canCrossBreedWith>
+			<li>Panther</li>
+		</canCrossBreedWith>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "AEXP_Jaguar"]/race</xpath>
+      <value>
+	    <canCrossBreedWith>
+			<li>Panther</li>
+		</canCrossBreedWith>
+      </value>
+    </nomatch>
+  </Operation>
+  
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AEXP_Jaguar"]/race/crossAggroWith</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "AEXP_Jaguar"]/race/crossAggroWith</xpath>
+      <value>
+	    <crossAggroWith>
+			<li>Panther</li>
+		</crossAggroWith>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "AEXP_Jaguar"]/race</xpath>
+      <value>
+	    <crossAggroWith>
+			<li>Panther</li>
+		</crossAggroWith>
+      </value>
+    </nomatch>
+  </Operation>
+  
+	<!-- =========================================================
+		 AEXP_Jaguar – AnimalCrossbreedExtension (safe replace/add)
+		 ========================================================= -->
+	<Operation Class="PatchOperationConditional">
+	  <xpath>
+		Defs/ThingDef[defName="AEXP_Jaguar"]/modExtensions/li[@Class="VEF.AnimalBehaviours.AnimalCrossbreedExtension"]
+	  </xpath>
+	  <!-- Если расширение уже есть — заменяем -->
+	  <match Class="PatchOperationReplace">
+		<xpath>
+		  Defs/ThingDef[defName="AEXP_Jaguar"]/modExtensions/li[@Class="VEF.AnimalBehaviours.AnimalCrossbreedExtension"]
+		</xpath>
+		<value>
+		  <li Class="VEF.AnimalBehaviours.AnimalCrossbreedExtension">
+			<crossBreedKindDef>Random</crossBreedKindDef>
+		  </li>
+		</value>
+	  </match>
+	  <!-- Если расширения нет — добавляем -->
+	  <nomatch Class="PatchOperationAddModExtension">
+		<xpath>Defs/ThingDef[defName="AEXP_Jaguar"]</xpath>
+		<value>
+		  <li Class="VEF.AnimalBehaviours.AnimalCrossbreedExtension">
+			<crossBreedKindDef>Random</crossBreedKindDef>
+		  </li>
+		</value>
+	  </nomatch>
+	</Operation>
+
+</Patch>

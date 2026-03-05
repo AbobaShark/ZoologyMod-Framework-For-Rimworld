@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+
+  <!-- ============================
+       A) Ensure <comps> exists for animals we will add full milkable blocks to
+       (add <comps/> to ThingDef if it's missing)
+       ============================ -->
+
+  <!-- Boomrat: ensure comps exists -->
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="Boomrat"]/comps</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName="Boomrat"]</xpath>
+      <value>
+        <comps />
+      </value>
+    </nomatch>
+  </Operation>
+
+  <!-- Boomalope: ensure comps exists -->
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="Boomalope"]/comps</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName="Boomalope"]</xpath>
+      <value>
+        <comps />
+      </value>
+    </nomatch>
+  </Operation>
+
+  <!-- Horse: ensure comps exists -->
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="Horse"]/comps</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName="Horse"]</xpath>
+      <value>
+        <comps />
+      </value>
+    </nomatch>
+  </Operation>
+
+  <!-- ============================
+       B) Replace or add full <li Class="CompProperties_Milkable">
+       (for Boomrat, Boomalope, Horse we want to set full block)
+       ============================ -->
+
+  <!-- Boomrat: replace if exists, otherwise add li under comps -->
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="Boomrat"]/comps/li[Class="CompProperties_Milkable"]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName="Boomrat"]/comps/li[Class="CompProperties_Milkable"]</xpath>
+      <value>
+        <li Class="CompProperties_Milkable">
+          <milkDef>Chemfuel</milkDef>
+          <milkIntervalDays>1</milkIntervalDays>
+          <milkAmount>1</milkAmount>
+          <milkFemaleOnly>false</milkFemaleOnly>
+        </li>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName="Boomrat"]/comps</xpath>
+      <value>
+        <li Class="CompProperties_Milkable">
+          <milkDef>Chemfuel</milkDef>
+          <milkIntervalDays>1</milkIntervalDays>
+          <milkAmount>1</milkAmount>
+          <milkFemaleOnly>false</milkFemaleOnly>
+        </li>
+      </value>
+    </nomatch>
+  </Operation>
+
+  <!-- Boomalope -->
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="Boomalope"]/comps/li[Class="CompProperties_Milkable"]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName="Boomalope"]/comps/li[Class="CompProperties_Milkable"]</xpath>
+      <value>
+        <li Class="CompProperties_Milkable">
+          <milkDef>Chemfuel</milkDef>
+          <milkIntervalDays>1</milkIntervalDays>
+          <milkAmount>11</milkAmount>
+          <milkFemaleOnly>false</milkFemaleOnly>
+        </li>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName="Boomalope"]/comps</xpath>
+      <value>
+        <li Class="CompProperties_Milkable">
+          <milkDef>Chemfuel</milkDef>
+          <milkIntervalDays>1</milkIntervalDays>
+          <milkAmount>11</milkAmount>
+          <milkFemaleOnly>false</milkFemaleOnly>
+        </li>
+      </value>
+    </nomatch>
+  </Operation>
+
+  <!-- Horse -->
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="Horse"]/comps/li[Class="CompProperties_Milkable"]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName="Horse"]/comps/li[Class="CompProperties_Milkable"]</xpath>
+      <value>
+        <li Class="CompProperties_Milkable">
+          <milkDef>Milk</milkDef>
+          <milkIntervalDays>1</milkIntervalDays>
+          <milkAmount>10</milkAmount>
+        </li>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName="Horse"]/comps</xpath>
+      <value>
+        <li Class="CompProperties_Milkable">
+          <milkDef>Milk</milkDef>
+          <milkIntervalDays>1</milkIntervalDays>
+          <milkAmount>10</milkAmount>
+        </li>
+      </value>
+    </nomatch>
+  </Operation>
+
+  <!-- =================================================
+       C) Safe text replacements for animals that already
+          have CompProperties_Milkable (replace text nodes only)
+       ================================================= -->
+
+  <!-- Cow: milkAmount -->
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="Cow"]/comps/li[Class="CompProperties_Milkable"]/milkAmount/text()</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName="Cow"]/comps/li[Class="CompProperties_Milkable"]/milkAmount/text()</xpath>
+      <value>20</value>
+    </match>
+  </Operation>
+
+  <!-- Cow: milkIntervalDays -->
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="Cow"]/comps/li[Class="CompProperties_Milkable"]/milkIntervalDays/text()</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName="Cow"]/comps/li[Class="CompProperties_Milkable"]/milkIntervalDays/text()</xpath>
+      <value>1</value>
+    </match>
+  </Operation>
+
+  <!-- Goat -->
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="Goat"]/comps/li[Class="CompProperties_Milkable"]/milkAmount/text()</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName="Goat"]/comps/li[Class="CompProperties_Milkable"]/milkAmount/text()</xpath>
+      <value>8</value>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="Goat"]/comps/li[Class="CompProperties_Milkable"]/milkIntervalDays/text()</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName="Goat"]/comps/li[Class="CompProperties_Milkable"]/milkIntervalDays/text()</xpath>
+      <value>1</value>
+    </match>
+  </Operation>
+
+  <!-- Elk -->
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="Elk"]/comps/li[Class="CompProperties_Milkable"]/milkAmount/text()</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName="Elk"]/comps/li[Class="CompProperties_Milkable"]/milkAmount/text()</xpath>
+      <value>8</value>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="Elk"]/comps/li[Class="CompProperties_Milkable"]/milkIntervalDays/text()</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName="Elk"]/comps/li[Class="CompProperties_Milkable"]/milkIntervalDays/text()</xpath>
+      <value>1</value>
+    </match>
+  </Operation>
+
+  <!-- Yak -->
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="Yak"]/comps/li[Class="CompProperties_Milkable"]/milkAmount/text()</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName="Yak"]/comps/li[Class="CompProperties_Milkable"]/milkAmount/text()</xpath>
+      <value>10</value>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="Yak"]/comps/li[Class="CompProperties_Milkable"]/milkIntervalDays/text()</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName="Yak"]/comps/li[Class="CompProperties_Milkable"]/milkIntervalDays/text()</xpath>
+      <value>1</value>
+    </match>
+  </Operation>
+
+  <!-- Dromedary -->
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="Dromedary"]/comps/li[Class="CompProperties_Milkable"]/milkAmount/text()</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName="Dromedary"]/comps/li[Class="CompProperties_Milkable"]/milkAmount/text()</xpath>
+      <value>10</value>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="Dromedary"]/comps/li[Class="CompProperties_Milkable"]/milkIntervalDays/text()</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName="Dromedary"]/comps/li[Class="CompProperties_Milkable"]/milkIntervalDays/text()</xpath>
+      <value>1</value>
+    </match>
+  </Operation>
+
+  <!-- Caribou -->
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="Caribou"]/comps/li[Class="CompProperties_Milkable"]/milkAmount/text()</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName="Caribou"]/comps/li[Class="CompProperties_Milkable"]/milkAmount/text()</xpath>
+      <value>6</value>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="Caribou"]/comps/li[Class="CompProperties_Milkable"]/milkIntervalDays/text()</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName="Caribou"]/comps/li[Class="CompProperties_Milkable"]/milkIntervalDays/text()</xpath>
+      <value>1</value>
+    </match>
+  </Operation>
+
+</Patch>

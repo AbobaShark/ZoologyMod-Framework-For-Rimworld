@@ -1,0 +1,704 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <!-- ====== Base HediffDefs (animal bionic bases, abstract for inheritance) ====== -->
+  <HediffDef Name="BionicArm_Animal_Base" ParentName="AddedBodyPartBase" Abstract="True">
+    <label>bionic arm (animal base)</label>
+    <descriptionHyperlinks>
+      <ThingDef>BionicArm</ThingDef>
+    </descriptionHyperlinks>
+    <spawnThingOnRemoved>BionicArm</spawnThingOnRemoved>
+    <addedPartProps>
+      <solid>true</solid>
+      <partEfficiency>1.25</partEfficiency>
+      <betterThanNatural>true</betterThanNatural>
+    </addedPartProps>
+  </HediffDef>
+  <HediffDef Name="BionicLeg_Animal_Base" ParentName="AddedBodyPartBase" Abstract="True">
+    <label>bionic leg (animal base)</label>
+    <descriptionHyperlinks>
+      <ThingDef>BionicLeg</ThingDef>
+    </descriptionHyperlinks>
+    <spawnThingOnRemoved>BionicLeg</spawnThingOnRemoved>
+    <addedPartProps>
+      <solid>true</solid>
+      <partEfficiency>1.25</partEfficiency>
+      <betterThanNatural>true</betterThanNatural>
+    </addedPartProps>
+  </HediffDef>
+  <HediffDef Name="BionicJaw_Animal_Base" ParentName="AddedBodyPartBase" Abstract="True">
+    <label>bionic jaw (animal base)</label>
+    <descriptionHyperlinks>
+      <ThingDef>BionicJaw</ThingDef>
+    </descriptionHyperlinks>
+    <spawnThingOnRemoved>BionicJaw</spawnThingOnRemoved>
+    <addedPartProps>
+      <solid>true</solid>
+      <partEfficiency>1.25</partEfficiency>
+      <betterThanNatural>true</betterThanNatural>
+    </addedPartProps>
+  </HediffDef>
+
+  <!-- ====== Archotech Bases for Animals ====== -->
+  <HediffDef Name="ArchotechArm_Animal_Base" ParentName="AddedBodyPartBase" Abstract="True">
+    <label>archotech arm (animal base)</label>
+    <descriptionHyperlinks>
+      <ThingDef>ArchotechArm</ThingDef>
+    </descriptionHyperlinks>
+    <spawnThingOnRemoved>ArchotechArm</spawnThingOnRemoved>
+    <addedPartProps>
+      <solid>true</solid>
+      <partEfficiency>1.50</partEfficiency>
+      <betterThanNatural>true</betterThanNatural>
+    </addedPartProps>
+  </HediffDef>
+  <HediffDef Name="ArchotechLeg_Animal_Base" ParentName="AddedBodyPartBase" Abstract="True">
+    <label>archotech leg (animal base)</label>
+    <descriptionHyperlinks>
+      <ThingDef>ArchotechLeg</ThingDef>
+    </descriptionHyperlinks>
+    <spawnThingOnRemoved>ArchotechLeg</spawnThingOnRemoved>
+    <addedPartProps>
+      <solid>true</solid>
+      <partEfficiency>1.50</partEfficiency>
+      <betterThanNatural>true</betterThanNatural>
+    </addedPartProps>
+  </HediffDef>
+
+  <!-- ===== BionicArm animal variants (inherit base) ===== -->
+  <HediffDef ParentName="BionicArm_Animal_Base">
+    <defName>BionicArm_Animal_VerySmall</defName>
+    <label>bionic arm (very small animal)</label>
+    <description>Scaled-down bionic arm for very small animals.</description>
+    <comps>
+      <li Class="HediffCompProperties_VerbGiver">
+        <tools Inherit="False">
+          <li>
+            <label>fist</label>
+            <capacities>
+              <li>Blunt</li>
+            </capacities>
+            <power>3</power>
+            <cooldownTime>0.6</cooldownTime>
+            <soundMeleeHit>Pawn_Melee_SmallScratch_HitPawn</soundMeleeHit>
+            <soundMeleeMiss>Pawn_Melee_SmallScratch_Miss</soundMeleeMiss>
+          </li>
+        </tools>
+      </li>
+    </comps>
+  </HediffDef>
+  <HediffDef ParentName="BionicArm_Animal_Base">
+    <defName>BionicArm_Animal_Small</defName>
+    <label>bionic arm (small animal)</label>
+    <description>Scaled bionic arm for small animals.</description>
+    <comps>
+      <li Class="HediffCompProperties_VerbGiver">
+        <tools Inherit="False">
+          <li>
+            <label>fist</label>
+            <capacities>
+              <li>Blunt</li>
+            </capacities>
+            <power>6.5</power>
+            <cooldownTime>0.85</cooldownTime>
+            <soundMeleeHit>Pawn_Melee_SmallScratch_HitPawn</soundMeleeHit>
+            <soundMeleeMiss>Pawn_Melee_SmallScratch_Miss</soundMeleeMiss>
+          </li>
+        </tools>
+      </li>
+    </comps>
+  </HediffDef>
+  <HediffDef ParentName="BionicArm_Animal_Base">
+    <defName>BionicArm_Animal_Medium</defName>
+    <label>bionic arm (medium animal)</label>
+    <description>Scaled bionic arm for medium animals.</description>
+    <comps>
+      <li Class="HediffCompProperties_VerbGiver">
+        <tools Inherit="False">
+          <li>
+            <label>fist</label>
+            <capacities>
+              <li>Blunt</li>
+            </capacities>
+            <power>10</power>
+            <cooldownTime>1</cooldownTime>
+            <soundMeleeHit>Pawn_Melee_SmallScratch_HitPawn</soundMeleeHit>
+            <soundMeleeMiss>Pawn_Melee_SmallScratch_Miss</soundMeleeMiss>
+          </li>
+        </tools>
+      </li>
+    </comps>
+  </HediffDef>
+  <HediffDef ParentName="BionicArm_Animal_Base">
+    <defName>BionicArm_Animal_Large</defName>
+    <label>bionic arm (large animal)</label>
+    <description>Scaled bionic arm for large animals.</description>
+    <comps>
+      <li Class="HediffCompProperties_VerbGiver">
+        <tools Inherit="False">
+          <li>
+            <label>fist</label>
+            <capacities>
+              <li>Blunt</li>
+            </capacities>
+            <power>17.5</power>
+            <cooldownTime>1.25</cooldownTime>
+            <soundMeleeHit>Pawn_Melee_BigBash_HitPawn</soundMeleeHit>
+            <soundMeleeMiss>Pawn_Melee_BigBash_Miss</soundMeleeMiss>
+          </li>
+        </tools>
+      </li>
+    </comps>
+  </HediffDef>
+  <HediffDef ParentName="BionicArm_Animal_Base">
+    <defName>BionicArm_Animal_VeryLarge</defName>
+    <label>bionic arm (very large animal)</label>
+    <description>Scaled bionic arm for very large animals.</description>
+    <comps>
+      <li Class="HediffCompProperties_VerbGiver">
+        <tools Inherit="False">
+          <li>
+            <label>fist</label>
+            <capacities>
+              <li>Blunt</li>
+            </capacities>
+            <power>29.5</power>
+            <cooldownTime>1.55</cooldownTime>
+            <soundMeleeHit>Pawn_Melee_BigBash_HitPawn</soundMeleeHit>
+            <soundMeleeMiss>Pawn_Melee_BigBash_Miss</soundMeleeMiss>
+          </li>
+        </tools>
+      </li>
+    </comps>
+  </HediffDef>
+  <HediffDef ParentName="BionicArm_Animal_Base">
+    <defName>BionicArm_Animal_Huge</defName>
+    <label>bionic arm (huge animal)</label>
+    <description>Scaled bionic arm for huge animals.</description>
+    <comps>
+      <li Class="HediffCompProperties_VerbGiver">
+        <tools Inherit="False">
+          <li>
+            <label>fist</label>
+            <capacities>
+              <li>Blunt</li>
+            </capacities>
+            <power>55</power>
+            <cooldownTime>2.05</cooldownTime>
+            <soundMeleeHit>Pawn_Melee_BigBash_HitPawn</soundMeleeHit>
+            <soundMeleeMiss>Pawn_Melee_BigBash_Miss</soundMeleeMiss>
+          </li>
+        </tools>
+      </li>
+    </comps>
+  </HediffDef>
+  <!-- ===== BionicLeg animal variants (inherit base) ===== -->
+  <HediffDef ParentName="BionicLeg_Animal_Base">
+    <defName>BionicLeg_Animal_VerySmall</defName>
+    <label>bionic leg (very small animal)</label>
+    <description>Scaled bionic leg for very small animals.</description>
+    <comps>
+      <li Class="HediffCompProperties_VerbGiver">
+        <tools Inherit="False">
+          <li>
+            <label>claw</label>
+            <capacities>
+              <li>Scratch</li>
+            </capacities>
+            <power>3</power>
+            <cooldownTime>0.6</cooldownTime>
+            <soundMeleeHit>Pawn_Melee_SmallScratch_HitPawn</soundMeleeHit>
+            <soundMeleeMiss>Pawn_Melee_SmallScratch_Miss</soundMeleeMiss>
+          </li>
+        </tools>
+      </li>
+    </comps>
+  </HediffDef>
+  <HediffDef ParentName="BionicLeg_Animal_Base">
+    <defName>BionicLeg_Animal_Small</defName>
+    <label>bionic leg (small animal)</label>
+    <description>Scaled bionic leg for small animals.</description>
+    <comps>
+      <li Class="HediffCompProperties_VerbGiver">
+        <tools Inherit="False">
+          <li>
+            <label>claw</label>
+            <capacities>
+              <li>Scratch</li>
+            </capacities>
+            <power>6.5</power>
+            <cooldownTime>0.85</cooldownTime>
+            <soundMeleeHit>Pawn_Melee_SmallScratch_HitPawn</soundMeleeHit>
+            <soundMeleeMiss>Pawn_Melee_SmallScratch_Miss</soundMeleeMiss>
+          </li>
+        </tools>
+      </li>
+    </comps>
+  </HediffDef>
+  <HediffDef ParentName="BionicLeg_Animal_Base">
+    <defName>BionicLeg_Animal_Medium</defName>
+    <label>bionic leg (medium animal)</label>
+    <description>Scaled bionic leg for medium animals.</description>
+    <comps>
+      <li Class="HediffCompProperties_VerbGiver">
+        <tools Inherit="False">
+          <li>
+            <label>claw</label>
+            <capacities>
+              <li>Scratch</li>
+            </capacities>
+            <power>10</power>
+            <cooldownTime>1</cooldownTime>
+            <soundMeleeHit>Pawn_Melee_SmallScratch_HitPawn</soundMeleeHit>
+            <soundMeleeMiss>Pawn_Melee_SmallScratch_Miss</soundMeleeMiss>
+          </li>
+        </tools>
+      </li>
+    </comps>
+  </HediffDef>
+  <HediffDef ParentName="BionicLeg_Animal_Base">
+    <defName>BionicLeg_Animal_Large</defName>
+    <label>bionic leg (large animal)</label>
+    <description>Scaled bionic leg for large animals.</description>
+    <comps>
+      <li Class="HediffCompProperties_VerbGiver">
+        <tools Inherit="False">
+          <li>
+            <label>claw</label>
+            <capacities>
+              <li>Scratch</li>
+            </capacities>
+            <power>17.5</power>
+            <cooldownTime>1.25</cooldownTime>
+            <soundMeleeHit>Pawn_Melee_BigBash_HitPawn</soundMeleeHit>
+            <soundMeleeMiss>Pawn_Melee_BigBash_Miss</soundMeleeMiss>
+          </li>
+        </tools>
+      </li>
+    </comps>
+  </HediffDef>
+  <HediffDef ParentName="BionicLeg_Animal_Base">
+    <defName>BionicLeg_Animal_VeryLarge</defName>
+    <label>bionic leg (very large animal)</label>
+    <description>Scaled bionic leg for very large animals.</description>
+    <comps>
+      <li Class="HediffCompProperties_VerbGiver">
+        <tools Inherit="False">
+          <li>
+            <label>claw</label>
+            <capacities>
+              <li>Scratch</li>
+            </capacities>
+            <power>29.5</power>
+            <cooldownTime>1.55</cooldownTime>
+            <soundMeleeHit>Pawn_Melee_BigBash_HitPawn</soundMeleeHit>
+            <soundMeleeMiss>Pawn_Melee_BigBash_Miss</soundMeleeMiss>
+          </li>
+        </tools>
+      </li>
+    </comps>
+  </HediffDef>
+  <HediffDef ParentName="BionicLeg_Animal_Base">
+    <defName>BionicLeg_Animal_Huge</defName>
+    <label>bionic leg (huge animal)</label>
+    <description>Scaled bionic leg for huge animals.</description>
+    <comps>
+      <li Class="HediffCompProperties_VerbGiver">
+        <tools Inherit="False">
+          <li>
+            <label>claw</label>
+            <capacities>
+              <li>Scratch</li>
+            </capacities>
+            <power>55</power>
+            <cooldownTime>2.05</cooldownTime>
+            <soundMeleeHit>Pawn_Melee_BigBash_HitPawn</soundMeleeHit>
+            <soundMeleeMiss>Pawn_Melee_BigBash_Miss</soundMeleeMiss>
+          </li>
+        </tools>
+      </li>
+    </comps>
+  </HediffDef>
+  <!-- ===== BionicJaw animal variants (inherit base) ===== -->
+  <HediffDef ParentName="BionicJaw_Animal_Base">
+    <defName>BionicJaw_Animal_VerySmall</defName>
+    <label>bionic jaw (very small animal)</label>
+    <description>Scaled bionic jaw for very small animals.</description>
+    <comps>
+      <li Class="HediffCompProperties_VerbGiver">
+        <tools Inherit="False">
+          <li>
+            <label>teeth</label>
+            <capacities>
+              <li>Bite</li>
+            </capacities>
+            <power>4.5</power>
+            <cooldownTime>0.7</cooldownTime>
+            <soundMeleeHit>Pawn_Melee_SmallScratch_HitPawn</soundMeleeHit>
+            <soundMeleeMiss>Pawn_Melee_SmallScratch_Miss</soundMeleeMiss>
+          </li>
+        </tools>
+      </li>
+    </comps>
+  </HediffDef>
+  <HediffDef ParentName="BionicJaw_Animal_Base">
+    <defName>BionicJaw_Animal_Small</defName>
+    <label>bionic jaw (small animal)</label>
+    <description>Scaled bionic jaw for small animals.</description>
+    <comps>
+      <li Class="HediffCompProperties_VerbGiver">
+        <tools Inherit="False">
+          <li>
+            <label>teeth</label>
+            <capacities>
+              <li>Bite</li>
+            </capacities>
+            <power>10</power>
+            <cooldownTime>1</cooldownTime>
+            <soundMeleeHit>Pawn_Melee_SmallScratch_HitPawn</soundMeleeHit>
+            <soundMeleeMiss>Pawn_Melee_SmallScratch_Miss</soundMeleeMiss>
+          </li>
+        </tools>
+      </li>
+    </comps>
+  </HediffDef>
+  <HediffDef ParentName="BionicJaw_Animal_Base">
+    <defName>BionicJaw_Animal_Medium</defName>
+    <label>bionic jaw (medium animal)</label>
+    <description>Scaled bionic jaw for medium animals.</description>
+    <comps>
+      <li Class="HediffCompProperties_VerbGiver">
+        <tools Inherit="False">
+          <li>
+            <label>teeth</label>
+            <capacities>
+              <li>Bite</li>
+            </capacities>
+            <power>15.5</power>
+            <cooldownTime>1.2</cooldownTime>
+            <soundMeleeHit>Pawn_Melee_SmallScratch_HitPawn</soundMeleeHit>
+            <soundMeleeMiss>Pawn_Melee_SmallScratch_Miss</soundMeleeMiss>
+          </li>
+        </tools>
+      </li>
+    </comps>
+  </HediffDef>
+  <HediffDef ParentName="BionicJaw_Animal_Base">
+    <defName>BionicJaw_Animal_Large</defName>
+    <label>bionic jaw (large animal)</label>
+    <description>Scaled bionic jaw for large animals.</description>
+    <comps>
+      <li Class="HediffCompProperties_VerbGiver">
+        <tools Inherit="False">
+          <li>
+            <label>teeth</label>
+            <capacities>
+              <li>Bite</li>
+            </capacities>
+            <power>26.5</power>
+            <cooldownTime>1.5</cooldownTime>
+            <soundMeleeHit>Pawn_Melee_BigBash_HitPawn</soundMeleeHit>
+            <soundMeleeMiss>Pawn_Melee_BigBash_Miss</soundMeleeMiss>
+          </li>
+        </tools>
+      </li>
+    </comps>
+  </HediffDef>
+  <HediffDef ParentName="BionicJaw_Animal_Base">
+    <defName>BionicJaw_Animal_VeryLarge</defName>
+    <label>bionic jaw (very large animal)</label>
+    <description>Scaled bionic jaw for very large animals.</description>
+    <comps>
+      <li Class="HediffCompProperties_VerbGiver">
+        <tools Inherit="False">
+          <li>
+            <label>teeth</label>
+            <capacities>
+              <li>Bite</li>
+            </capacities>
+            <power>46.5</power>
+            <cooldownTime>1.9</cooldownTime>
+            <soundMeleeHit>Pawn_Melee_BigBash_HitPawn</soundMeleeHit>
+            <soundMeleeMiss>Pawn_Melee_BigBash_Miss</soundMeleeMiss>
+          </li>
+        </tools>
+      </li>
+    </comps>
+  </HediffDef>
+  <HediffDef ParentName="BionicJaw_Animal_Base">
+    <defName>BionicJaw_Animal_Huge</defName>
+    <label>bionic jaw (huge animal)</label>
+    <description>Scaled bionic jaw for huge animals.</description>
+    <comps>
+      <li Class="HediffCompProperties_VerbGiver">
+        <tools Inherit="False">
+          <li>
+            <label>teeth</label>
+            <capacities>
+              <li>Bite</li>
+            </capacities>
+            <power>91</power>
+            <cooldownTime>2.45</cooldownTime>
+            <soundMeleeHit>Pawn_Melee_BigBash_HitPawn</soundMeleeHit>
+            <soundMeleeMiss>Pawn_Melee_BigBash_Miss</soundMeleeMiss>
+          </li>
+        </tools>
+      </li>
+    </comps>
+  </HediffDef>
+
+  <!-- ===== ArchotechArm animal variants (inherit base, scaled from vanilla power 14) ===== -->
+  <HediffDef ParentName="ArchotechArm_Animal_Base">
+    <defName>ArchotechArm_Animal_VerySmall</defName>
+    <label>archotech arm (very small animal)</label>
+    <description>Scaled-down archotech arm for very small animals.</description>
+    <comps>
+      <li Class="HediffCompProperties_VerbGiver">
+        <tools Inherit="False">
+          <li>
+            <label>fist</label>
+            <capacities>
+              <li>Blunt</li>
+            </capacities>
+            <power>3</power>
+            <cooldownTime>0.6</cooldownTime>
+            <soundMeleeHit>Pawn_Melee_SmallScratch_HitPawn</soundMeleeHit>
+            <soundMeleeMiss>Pawn_Melee_SmallScratch_Miss</soundMeleeMiss>
+          </li>
+        </tools>
+      </li>
+    </comps>
+  </HediffDef>
+  <HediffDef ParentName="ArchotechArm_Animal_Base">
+    <defName>ArchotechArm_Animal_Small</defName>
+    <label>archotech arm (small animal)</label>
+    <description>Scaled archotech arm for small animals.</description>
+    <comps>
+      <li Class="HediffCompProperties_VerbGiver">
+        <tools Inherit="False">
+          <li>
+            <label>fist</label>
+            <capacities>
+              <li>Blunt</li>
+            </capacities>
+            <power>7</power>
+            <cooldownTime>0.85</cooldownTime>
+            <soundMeleeHit>Pawn_Melee_SmallScratch_HitPawn</soundMeleeHit>
+            <soundMeleeMiss>Pawn_Melee_SmallScratch_Miss</soundMeleeMiss>
+          </li>
+        </tools>
+      </li>
+    </comps>
+  </HediffDef>
+  <HediffDef ParentName="ArchotechArm_Animal_Base">
+    <defName>ArchotechArm_Animal_Medium</defName>
+    <label>archotech arm (medium animal)</label>
+    <description>Scaled archotech arm for medium animals.</description>
+    <comps>
+      <li Class="HediffCompProperties_VerbGiver">
+        <tools Inherit="False">
+          <li>
+            <label>fist</label>
+            <capacities>
+              <li>Blunt</li>
+            </capacities>
+            <power>10.5</power>
+            <cooldownTime>1</cooldownTime>
+            <soundMeleeHit>Pawn_Melee_SmallScratch_HitPawn</soundMeleeHit>
+            <soundMeleeMiss>Pawn_Melee_SmallScratch_Miss</soundMeleeMiss>
+          </li>
+        </tools>
+      </li>
+    </comps>
+  </HediffDef>
+  <HediffDef ParentName="ArchotechArm_Animal_Base">
+    <defName>ArchotechArm_Animal_Large</defName>
+    <label>archotech arm (large animal)</label>
+    <description>Scaled archotech arm for large animals.</description>
+    <comps>
+      <li Class="HediffCompProperties_VerbGiver">
+        <tools Inherit="False">
+          <li>
+            <label>fist</label>
+            <capacities>
+              <li>Blunt</li>
+            </capacities>
+            <power>17.5</power>
+            <cooldownTime>1.25</cooldownTime>
+            <soundMeleeHit>Pawn_Melee_BigBash_HitPawn</soundMeleeHit>
+            <soundMeleeMiss>Pawn_Melee_BigBash_Miss</soundMeleeMiss>
+          </li>
+        </tools>
+      </li>
+    </comps>
+  </HediffDef>
+  <HediffDef ParentName="ArchotechArm_Animal_Base">
+    <defName>ArchotechArm_Animal_VeryLarge</defName>
+    <label>archotech arm (very large animal)</label>
+    <description>Scaled archotech arm for very large animals.</description>
+    <comps>
+      <li Class="HediffCompProperties_VerbGiver">
+        <tools Inherit="False">
+          <li>
+            <label>fist</label>
+            <capacities>
+              <li>Blunt</li>
+            </capacities>
+            <power>30</power>
+            <cooldownTime>1.55</cooldownTime>
+            <soundMeleeHit>Pawn_Melee_BigBash_HitPawn</soundMeleeHit>
+            <soundMeleeMiss>Pawn_Melee_BigBash_Miss</soundMeleeMiss>
+          </li>
+        </tools>
+      </li>
+    </comps>
+  </HediffDef>
+  <HediffDef ParentName="ArchotechArm_Animal_Base">
+    <defName>ArchotechArm_Animal_Huge</defName>
+    <label>archotech arm (huge animal)</label>
+    <description>Scaled archotech arm for huge animals.</description>
+    <comps>
+      <li Class="HediffCompProperties_VerbGiver">
+        <tools Inherit="False">
+          <li>
+            <label>fist</label>
+            <capacities>
+              <li>Blunt</li>
+            </capacities>
+            <power>57</power>
+            <cooldownTime>2.05</cooldownTime>
+            <soundMeleeHit>Pawn_Melee_BigBash_HitPawn</soundMeleeHit>
+            <soundMeleeMiss>Pawn_Melee_BigBash_Miss</soundMeleeMiss>
+          </li>
+        </tools>
+      </li>
+    </comps>
+  </HediffDef>
+
+  <!-- ===== ArchotechLeg animal variants (inherit base, added tools scaled from ~15 base power, analogous to bionic leg) ===== -->
+  <HediffDef ParentName="ArchotechLeg_Animal_Base">
+    <defName>ArchotechLeg_Animal_VerySmall</defName>
+    <label>archotech leg (very small animal)</label>
+    <description>Scaled-down archotech leg for very small animals.</description>
+    <comps>
+      <li Class="HediffCompProperties_VerbGiver">
+        <tools Inherit="False">
+          <li>
+            <label>claw</label>
+            <capacities>
+              <li>Scratch</li>
+            </capacities>
+            <power>3</power>
+            <cooldownTime>0.6</cooldownTime>
+            <soundMeleeHit>Pawn_Melee_SmallScratch_HitPawn</soundMeleeHit>
+            <soundMeleeMiss>Pawn_Melee_SmallScratch_Miss</soundMeleeMiss>
+          </li>
+        </tools>
+      </li>
+    </comps>
+  </HediffDef>
+  <HediffDef ParentName="ArchotechLeg_Animal_Base">
+    <defName>ArchotechLeg_Animal_Small</defName>
+    <label>archotech leg (small animal)</label>
+    <description>Scaled archotech leg for small animals.</description>
+    <comps>
+      <li Class="HediffCompProperties_VerbGiver">
+        <tools Inherit="False">
+          <li>
+            <label>claw</label>
+            <capacities>
+              <li>Scratch</li>
+            </capacities>
+            <power>7</power>
+            <cooldownTime>0.85</cooldownTime>
+            <soundMeleeHit>Pawn_Melee_SmallScratch_HitPawn</soundMeleeHit>
+            <soundMeleeMiss>Pawn_Melee_SmallScratch_Miss</soundMeleeMiss>
+          </li>
+        </tools>
+      </li>
+    </comps>
+  </HediffDef>
+  <HediffDef ParentName="ArchotechLeg_Animal_Base">
+    <defName>ArchotechLeg_Animal_Medium</defName>
+    <label>archotech leg (medium animal)</label>
+    <description>Scaled archotech leg for medium animals.</description>
+    <comps>
+      <li Class="HediffCompProperties_VerbGiver">
+        <tools Inherit="False">
+          <li>
+            <label>claw</label>
+            <capacities>
+              <li>Scratch</li>
+            </capacities>
+            <power>10.5</power>
+            <cooldownTime>1</cooldownTime>
+            <soundMeleeHit>Pawn_Melee_SmallScratch_HitPawn</soundMeleeHit>
+            <soundMeleeMiss>Pawn_Melee_SmallScratch_Miss</soundMeleeMiss>
+          </li>
+        </tools>
+      </li>
+    </comps>
+  </HediffDef>
+  <HediffDef ParentName="ArchotechLeg_Animal_Base">
+    <defName>ArchotechLeg_Animal_Large</defName>
+    <label>archotech leg (large animal)</label>
+    <description>Scaled archotech leg for large animals.</description>
+    <comps>
+      <li Class="HediffCompProperties_VerbGiver">
+        <tools Inherit="False">
+          <li>
+            <label>claw</label>
+            <capacities>
+              <li>Scratch</li>
+            </capacities>
+            <power>17.5</power>
+            <cooldownTime>1.25</cooldownTime>
+            <soundMeleeHit>Pawn_Melee_BigBash_HitPawn</soundMeleeHit>
+            <soundMeleeMiss>Pawn_Melee_BigBash_Miss</soundMeleeMiss>
+          </li>
+        </tools>
+      </li>
+    </comps>
+  </HediffDef>
+  <HediffDef ParentName="ArchotechLeg_Animal_Base">
+    <defName>ArchotechLeg_Animal_VeryLarge</defName>
+    <label>archotech leg (very large animal)</label>
+    <description>Scaled archotech leg for very large animals.</description>
+    <comps>
+      <li Class="HediffCompProperties_VerbGiver">
+        <tools Inherit="False">
+          <li>
+            <label>claw</label>
+            <capacities>
+              <li>Scratch</li>
+            </capacities>
+            <power>30</power>
+            <cooldownTime>1.55</cooldownTime>
+            <soundMeleeHit>Pawn_Melee_BigBash_HitPawn</soundMeleeHit>
+            <soundMeleeMiss>Pawn_Melee_BigBash_Miss</soundMeleeMiss>
+          </li>
+        </tools>
+      </li>
+    </comps>
+  </HediffDef>
+  <HediffDef ParentName="ArchotechLeg_Animal_Base">
+    <defName>ArchotechLeg_Animal_Huge</defName>
+    <label>archotech leg (huge animal)</label>
+    <description>Scaled archotech leg for huge animals.</description>
+    <comps>
+      <li Class="HediffCompProperties_VerbGiver">
+        <tools Inherit="False">
+          <li>
+            <label>claw</label>
+            <capacities>
+              <li>Scratch</li>
+            </capacities>
+            <power>57</power>
+            <cooldownTime>2.05</cooldownTime>
+            <soundMeleeHit>Pawn_Melee_BigBash_HitPawn</soundMeleeHit>
+            <soundMeleeMiss>Pawn_Melee_BigBash_Miss</soundMeleeMiss>
+          </li>
+        </tools>
+      </li>
+    </comps>
+  </HediffDef>
+</Defs>

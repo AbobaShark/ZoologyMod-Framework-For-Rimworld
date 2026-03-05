@@ -1,0 +1,133 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+
+  <!-- ====================================================
+       1) meleeDamageFactor — grouped updates
+          babies -> 0.2 (EXCLUDING AnimalBabyTiny);
+          AnimalBabyTiny -> 0.15;
+          juveniles -> 0.5
+       ==================================================== -->
+
+  <!-- babies (AnimalBaby, EusocialInsectLarva) -->
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/LifeStageDef[
+             defName="AnimalBaby" or defName="EusocialInsectLarva"
+           ]/meleeDamageFactor</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/LifeStageDef[
+               defName="AnimalBaby" or defName="EusocialInsectLarva"
+             ]/meleeDamageFactor</xpath>
+      <value><meleeDamageFactor>0.2</meleeDamageFactor></value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/LifeStageDef[
+               defName="AnimalBaby" or defName="EusocialInsectLarva"
+             ]</xpath>
+      <value><meleeDamageFactor>0.2</meleeDamageFactor></value>
+    </nomatch>
+  </Operation>
+
+  <!-- AnimalBabyTiny (special case) -->
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/LifeStageDef[defName="AnimalBabyTiny"]/meleeDamageFactor</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/LifeStageDef[defName="AnimalBabyTiny"]/meleeDamageFactor</xpath>
+      <value><meleeDamageFactor>0.15</meleeDamageFactor></value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/LifeStageDef[defName="AnimalBabyTiny"]</xpath>
+      <value><meleeDamageFactor>0.15</meleeDamageFactor></value>
+    </nomatch>
+  </Operation>
+
+  <!-- juveniles (AnimalJuvenile, EusocialInsectJuvenile) -->
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/LifeStageDef[
+             defName="AnimalJuvenile" or defName="EusocialInsectJuvenile"
+           ]/meleeDamageFactor</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/LifeStageDef[
+               defName="AnimalJuvenile" or defName="EusocialInsectJuvenile"
+             ]/meleeDamageFactor</xpath>
+      <value><meleeDamageFactor>0.5</meleeDamageFactor></value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/LifeStageDef[
+               defName="AnimalJuvenile" or defName="EusocialInsectJuvenile"
+             ]</xpath>
+      <value><meleeDamageFactor>0.5</meleeDamageFactor></value>
+    </nomatch>
+  </Operation>
+
+
+  <!-- ====================================================
+       2) LifeStagePenetrationDef
+       ==================================================== -->
+
+	  <!-- Имя defName должно совпадать с defName LifeStageDef (например AnimalBaby, AnimalJuvenile, AnimalBabyTiny, AnimalAdult и т.д.) -->
+	  <!-- AnimalBabyTiny -->
+	  <Operation Class="PatchOperationAdd">
+		<xpath>Defs</xpath>
+		<value>
+		  <LifeStagePenetrationDef Class="ZoologyMod.LifeStagePenetrationDef, ZoologyMod">
+			<defName>AnimalBabyTiny</defName>
+			<label>animal baby tiny AP factors</label>
+			<meleePenetrationSharpFactor>0.05</meleePenetrationSharpFactor>
+			<meleePenetrationBluntFactor>0.05</meleePenetrationBluntFactor>
+		  </LifeStagePenetrationDef>
+		</value>
+	  </Operation>
+
+	  <!-- AnimalBaby -->
+	  <Operation Class="PatchOperationAdd">
+		<xpath>Defs</xpath>
+		<value>
+		  <LifeStagePenetrationDef Class="ZoologyMod.LifeStagePenetrationDef, ZoologyMod">
+			<defName>AnimalBaby</defName>
+			<label>animal baby AP factors</label>
+			<meleePenetrationSharpFactor>0.15</meleePenetrationSharpFactor>
+			<meleePenetrationBluntFactor>0.10</meleePenetrationBluntFactor>
+		  </LifeStagePenetrationDef>
+		</value>
+	  </Operation>
+
+	  <!-- AnimalJuvenile -->
+	  <Operation Class="PatchOperationAdd">
+		<xpath>Defs</xpath>
+		<value>
+		  <LifeStagePenetrationDef Class="ZoologyMod.LifeStagePenetrationDef, ZoologyMod">
+			<defName>AnimalJuvenile</defName>
+			<label>animal juvenile AP factors</label>
+			<meleePenetrationSharpFactor>0.65</meleePenetrationSharpFactor>
+			<meleePenetrationBluntFactor>0.40</meleePenetrationBluntFactor>
+		  </LifeStagePenetrationDef>
+		</value>
+	  </Operation>
+
+	  <!-- EusocialInsectLarva -->
+	  <Operation Class="PatchOperationAdd">
+		<xpath>Defs</xpath>
+		<value>
+		  <LifeStagePenetrationDef Class="ZoologyMod.LifeStagePenetrationDef, ZoologyMod">
+			<defName>EusocialInsectLarva</defName>
+			<label>eusocial insect larva AP factors</label>
+			<meleePenetrationSharpFactor>0.15</meleePenetrationSharpFactor>
+			<meleePenetrationBluntFactor>0.10</meleePenetrationBluntFactor>
+		  </LifeStagePenetrationDef>
+		</value>
+	  </Operation>
+
+	  <!-- EusocialInsectJuvenile -->
+	  <Operation Class="PatchOperationAdd">
+		<xpath>Defs</xpath>
+		<value>
+		  <LifeStagePenetrationDef Class="ZoologyMod.LifeStagePenetrationDef, ZoologyMod">
+			<defName>EusocialInsectJuvenile</defName>
+			<label>eusocial insect juvenile AP factors</label>
+			<meleePenetrationSharpFactor>0.65</meleePenetrationSharpFactor>
+			<meleePenetrationBluntFactor>0.40</meleePenetrationBluntFactor>
+		  </LifeStagePenetrationDef>
+		</value>
+	  </Operation>
+
+</Patch>

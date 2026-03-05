@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+  <!-- Заменить только <def>AnimalBaby</def> -> <def>AnimalBabyTiny</def> в lifeStageAges для перечисленных ThingDef (DLC) -->
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[
+      defName="Alligator" or
+      defName="MonitorLizard" or
+      defName="SeaTurtle" or
+      defName="Bullfrog" or
+      defName="ColossusToad" or
+      defName="HermitCrab" or
+      defName="StoneCrab" or
+      defName="LavaSnail"
+    ]/lifeStageAges/li/def[text()="AnimalBaby"]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[
+        defName="Alligator" or
+        defName="MonitorLizard" or
+        defName="SeaTurtle" or
+        defName="Bullfrog" or
+        defName="ColossusToad" or
+        defName="HermitCrab" or
+        defName="StoneCrab" or
+        defName="LavaSnail"
+      ]/lifeStageAges/li/def[text()="AnimalBaby"]</xpath>
+      <value>
+        <def>AnimalBabyTiny</def>
+      </value>
+    </match>
+  </Operation>
+</Patch>
