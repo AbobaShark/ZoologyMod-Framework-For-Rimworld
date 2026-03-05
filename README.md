@@ -17,7 +17,7 @@
 
 The player version of the mod is available on Steam:
 
-Workshop page: https://steamcommunity.com/sharedfiles/filedetails/?id=3679267978
+Workshop page: https://steamcommunity.com/sharedfiles/filedetails/?id=3679368694
 
 ---
 
