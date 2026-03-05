@@ -1,67 +1,522 @@
 # Zoology
 
 ## Table of contents
-- [Overview](#overview)
-- [What’s changed (high level)](#whats-changed-high-level)
-- [Optional, configurable mechanics (toggleable)](#optional-configurable-mechanics-toggleable)
-- [Mod compatibility](#mod-compatibility)
-- [Installation](#installation)
-- [Technical notes for modders](#technical-notes-for-modders)
-- [Final remarks](#final-remarks)
-- [Change log & testing status](#change-log--testing-status)
-- [License](#license)
+
+* [Steam Workshop](#steam-workshop)  
+* [Overview](#overview)  
+* [Features](#features)  
+* [Optional gameplay system](#optional-gameplay-system)  
+* [Mod compatibility](#mod-compatibility)  
+* [Technical notes for modders](#technical-notes-for-modders)  
+* [Contributing](#contributing)  
+* [License](#license)
+
+---
+
+## Steam Workshop
+
+The player version of the mod is available on Steam:
+
+Workshop page:  
+https://steamcommunity.com/sharedfiles/filedetails/?id=PASTE_WORKSHOP_ID
 
 ---
 
 ## Overview
-Zoology is a comprehensive animal overhaul that maps in-game animal performance to real-world biology without breaking gameplay. All vanilla animals plus those added by the official DLCs have had their core stats recalculated from biological inputs — average body mass, gestation length, litter/clutch size, claw & tooth dimensions, bite force, growth rate, and more — assembled from scientific literature and automated into the mod’s data pipeline. The mod balances these more realistic numbers against RimWorld’s in-game formulas so animals feel stronger and faster in a way that still fits the game.
 
-## What’s changed (high level)
-•	Complete stat rewrite for every vanilla animal and animals from the official DLCs. All core stats (average body mass, gestation period, litter/clutch size, claw/fang lengths, bite force, etc.) were compiled from scientific literature and converted into in-game parameters. Melee DPS and movement speeds of animals are, on average, substantially increased compared to vanilla to reflect biologically realistic performance while Combat Power (used for in-game event generation) is still calculated using in-game formulas plus Mod Extension influences so balance with the rest of the game is preserved. Forget about omnivorous monitor lizards gobbling up your rice or bloodthirsty ostriches with a 100% manhunter chance, and be careful when dealing with a herd of boars.  
-•	Rebalanced animal economy — milk production, growth rates, gestation and litter sizes have been rescaled to produce a new husbandry balance: cows are now more viable as milk sources rather than meat (slow growth, low fertility), whereas highly fertile fast-growing pigs are far better for meat.  
-•	Animal sounds have been improved. Say goodbye to meowing cougars and tigers.  
-•	Ecology & distribution tweaks — biome distributions have been adjusted to remove glaring inaccuracies (e.g., tropical reptiles in deserts or wild alpacas). These changes are intentionally conservative and aimed at removing obvious zoological while preserving game balance.  
-•	Behavioral and physiological fixes — birds flee using flight rather than ground sprinting; ectotherms (reptiles, crabs, snails) suffer metabolic slowdown in cold rather than vanilla hypothermia mechanics (but they still can get frost bites); guinea pig fur replaced by squirrel pelt, and other biological corrections.
+Zoology is a comprehensive animal overhaul that maps in-game animal performance to real-world biology without breaking gameplay.
 
-## Optional, configurable mechanics (toggleable)
-Zoology offers many player options so you can pick realism without sacrificing fun. Every major behavioral change can be enabled or disabled via config to suit your preferred playstyle or to help compatibility testing. All of the below are optional and configurable via in-game settings.  
-•	Advanced predation logic — predators choose prey by size, kinship, age and combat strength (less emphasis on raw body size). Pack hunters can coordinate group attacks even if not all pack members are hungry. Enable predator-on-predator hunt check tightens predator targeting so a predator only attacks another predator if its Combat Power is >33% higher.  
-•	Prey fleeing — prey species attempt flight from hunting predators; predators will abandon pursuit if they cannot catch prey within some amount of time. Controlled by Enable prey fleeing from predators.  
-•	Custom flee-from-danger override — replace the vanilla ShouldAnimalFleeDanger with a scalable system controlling which sizes of animals flee on their home maps. Safe Body Size Thresholds, Safe Predator Body Size Threshold, and Safe Non-Predator Body Size Threshold let you tune which animals consider raiders and other dangers worth fleeing from.  
-•	Raiders ignore small pets — make raiders treat small, non-threatening pets (e.g., cats) like penned livestock unless they follow the master or go mad. Enable raiders ignoring small pets and Small Pet Body Size Threshold control this behavior; Enable small pets fleeing from raiders lets pets themselves react to raiders if desired.  
-•	Predator protection of kills — predators may guard their kills against scavengers and colonists within a configurable Prey protection range. Protection trigger size difference threshold stop large predators from needlessly attacking minor scavengers.  
-•	Scavenging — animals marked with ModExtension_ IsScavenger will eat spoiled or even partially skeletonized corpses (with reduced nutrition) if Enable scavengering (scavenger behavior) is enabled.  
-•	Human bionics on animals — Automatically enables many vanilla bionics on animals at runtime (excluding animals flagged ModExtension_CannotBeAugmented). Bionics scale with animal body size and apply appropriately scaled hediffs — useful for augmenting animals without installing separate augmentation mods; Combat Extended compatibility is preserved.  
-•	Agro at slaughter — animals marked with ModExtension_AgroAtSlaughter can become aggressive when slaughtering is attempted. Downed animals may still be safely slaughtered.  
-•	Mammal lactation & juvenile nursing — enable mammalian neonates to consume milk as the first diet and have mothers receive a lactation hediff that transfers nourishment to their young. This is separate from vanilla milking mechanics and includes an option to control how auto-slaughter treats lactating animals via Lactation auto-slaughter handling.  
-•	Animal damage reduction — optionally reduces injurious damage small animals inflict upon much larger animals (excluding genuine predator → prey interactions), to avoid unrealistic rapid bleeding from tiny attackers. This option is disabled when Combat Extended is installed (CE handles realistic damage through armor and armor penetration).
+The mod has undergone extensive in-game testing, though some systems are still evolving.  
+Bug reports and compatibility reports are welcome.
+
+---
+
+## Features
+
+### Complete biological stat overhaul
+
+Every vanilla animal and DLC animal has had its core stats recalculated. All animals (vanilla + official DLC) were recalculated from biological inputs:
+
+* average body mass  
+* gestation length  
+* litter / clutch size  
+* claw & tooth dimensions  
+* bite force  
+* growth rate
+
+These values were compiled from scientific literature and processed through an automated Python script that generates the mod’s XML patches.
+
+The resulting numbers are balanced against RimWorld’s internal formulas so animals feel stronger, faster and more believable while still fitting the game’s combat and event systems.
+
+Melee DPS and movement speeds of animals are, on average, substantially increased compared to vanilla to reflect biologically realistic performance while Combat Power (used for in-game event generation) is still calculated using in-game formulas plus Mod Extension influences so balance with the rest of the game is preserved.
+
+---
+
+### Improved ecology and animal distribution
+
+Biome distributions have been adjusted to remove obvious zoological inaccuracies. These changes are intentionally conservative and aim to improve ecological plausibility without disrupting RimWorld’s biome balance.
+
+---
+
+### Audio improvements
+
+Animal sounds have been corrected.
+
+---
+
+### Biological fixes
+
+Various biological inaccuracies in vanilla animals have been corrected. Examples include:
+
+* birds flee using flight instead of ground sprinting  
+* ectothermic animals (reptiles, crabs, snails) experience metabolic slowdown in cold instead of vanilla hypothermia behavior  
+* guinea pig fur replaced with squirrel pelt  
+* additional zoological corrections
+
+---
+
+## Optional gameplay system
+
+Many behavioral systems are configurable and can be enabled or disabled in mod settings. These systems allow players to tune the balance between realism and gameplay convenience.
+
+### Advanced predation logic
+
+Predators choose prey using multiple factors:
+
+* body size  
+* kinship  
+* age  
+* combat power
+
+Pack hunters can coordinate group attacks even if not all pack members are hungry.
+
+#### Optional setting
+
+**Enable predator-on-predator hunt check**  
+Predators will only attack other predators if their Combat Power is more than **33% higher**.
+
+---
+
+### Prey fleeing behavior
+
+Prey animals attempt to flee from hunting predators.
+
+Predators will abandon pursuit if they cannot catch prey within a certain time.
+
+**Controlled by**
+
+* **Enable prey fleeing from predators**
+
+---
+
+### Custom flee-from-danger override
+
+Replaces the vanilla `ShouldAnimalFleeDanger` logic.
+
+A scalable system determines which animals flee from threats on their home maps.
+
+**Configurable thresholds include**
+
+* **Safe Body Size Thresholds**  
+* **Safe Predator Body Size Threshold**  
+* **Safe Non-Predator Body Size Threshold**
+
+These allow fine control over which animals consider raiders or other dangers worth fleeing from.
+
+---
+
+### Raiders ignore small pets
+
+Raiders treat small non-threatening pets (for example cats) like penned livestock unless they:
+
+* follow a master  
+* go manhunter
+
+**Settings controlling this system**
+
+* **Enable raiders ignoring small pets**  
+* **Small Pet Body Size Threshold**  
+* **Enable small pets fleeing from raiders**
+
+---
+
+### Predator protection of kills
+
+Predators may guard their kills against scavengers and colonists.
+
+**Configurable settings**
+
+* **Prey protection range**  
+* **Enable predator defending their kills**
+
+A protection trigger threshold prevents large predators from attacking minor scavengers unnecessarily.
+
+---
+
+### Scavenging
+
+Animals marked with `ModExtension_IsScavenger` can consume:
+
+* spoiled corpses  
+* partially skeletonized corpses
+
+Nutrition value is reduced compared to fresh corpses.
+
+**Controlled by**
+
+* **Enable scavenging (scavenger behavior)**
+
+---
+
+### Human bionics on animals
+
+Allows many vanilla bionics to be installed on animals automatically via runtime patching.
+
+Excluded animals can be flagged using:
+
+* `ModExtension_CannotBeAugmented`
+
+Bionics scale with animal body size and apply appropriately scaled hediffs. This allows animal augmentation without requiring additional mods.
+
+Compatible with **Combat Extended**.
+
+---
+
+### Aggro at slaughter
+
+Animals marked with `ModExtension_AgroAtSlaughter` may become aggressive when slaughtering is attempted.
+
+**Setting**
+
+* **Enable aggro-at-slaughter**
+
+Downed animals can still be safely slaughtered.
+
+---
+
+### Mammal lactation and juvenile nursing
+
+Mammalian neonates can consume milk as their first diet.
+
+Mothers receive a lactation hediff that transfers nutrition to their young.
+
+**Controlled by**
+
+* **Enable mammals lactation**
+
+Includes a setting controlling auto-slaughter behavior:
+
+* **Lactation auto-slaughter handling**
+
+---
+
+### Animal damage reduction
+
+Optional system that reduces unrealistic damage from very small animals attacking much larger animals. Predator–prey interactions are excluded.
+
+**Controlled by**
+
+* **Enable animal damage reduction**
+
+Automatically disabled when **Combat Extended** is installed, since CE handles damage realism through armor and penetration mechanics.
+
+---
 
 ## Mod compatibility
-Zoology aims to be broadly compatible; most invasive behavior patches are toggleable to avoid conflicts. Explicit compatibility work has been done for the following:  
-•	All official DLCs — full compatibility (DLC animals and mechanics included in the stat overhaul).  
-•	Vanilla Expanded Framework — full compatibility.  
-•	Animal are fun — full compatibility.  
-•	Vanilla Animals Expanded — compatibility patches currently implemented for the included non-Odyssey animals.  
-•	Combat Extended — full compatibility. When CE is installed, animal attack damage, penetration, and defensive properties are recalculated using biological inputs (hide thickness and toughness, claw/teeth length, bite force, etc.) mapped onto CE formulas; only CE attack cooldown calculations have been adjusted by the mod author to fit animal mechanics. An option “Override CE Penetration for animal life stages” adjusts how size affects penetration to prevent juveniles from being unrealistically lethal compared to small adult animals. The combined effect with higher realistic speeds makes animals significantly more dangerous under CE.  
-Planned future compatibility with other mods like Alpha Animals and Dinosauria (not currently included).  
-Notes: no explicit conflicts are currently known; but because Zoology changes every animal’s stat and runtime behaviors, conflicts are possible with mods that do similar rewrites. Most behavior patches are optional and toggleable to help avoid those conflicts.
 
-## Installation
-•	Download the latest release package (Workshop or GitHub releases).  
-•	Unzip the mod folder into RimWorld/Mods/.  
-•	Enable Zoology in the in-game Mods menu and restart the game if required.  
-•	Configure options in the Mod options UI if you want something other than the defaults.
+Zoology aims to remain broadly compatible with the RimWorld mod ecosystem.
+
+Most invasive behavior systems can be disabled in mod settings if conflicts occur.
+
+**Explicit compatibility exists for**
+
+* All official DLCs  
+* Vanilla Expanded Framework  
+* Animals Are Fun  
+* Vanilla Animals Expanded (non-Odyssey animals)  
+* Combat Extended
+
+---
+
+### Combat Extended integration
+
+When **Combat Extended** is installed, animal combat stats are recalculated from biological inputs:
+
+* hide thickness and toughness  
+* claw and tooth length  
+* bite force
+
+These are mapped onto CE formulas to produce consistent results with CE’s combat system.
+
+The option **Override CE Penetration for animal life stages** modifies penetration scaling to prevent juveniles from becoming unrealistically lethal compared to small adult animals.
+
+---
+
+### Planned compatibility
+
+Future compatibility work is planned for additional animal mods such as:
+
+* Alpha Animals  
+* Dinosauria
+
+---
 
 ## Technical notes for modders
-•	ModExtensions & Comps: Zoology works as a framework for modding and ships multiple ModExtension types and Comp implementations that let other mods query animal reproduction, lactation state, scavenging, etc. These extensions are intended to be modder-friendly and are documented in the author’s repository.  
-•	Runtime autopathing: features such as human bionics on animals and certain behavioral patches are applied at runtime via autopathing/Harmony.  
-•	Automated, auditable pipeline — XML patches were generated from a TSV dataset and written via an automated Python pipeline to avoid manual XML errors and to speed up large-scale edits. Contributors can propose TSV updates rather than hand-editing XML  
-•	Harmony patch footprint: some features (notably scavenging and deep predation logic) require heavy Harmony patching and are more invasive — they can be disabled if you want a minimal footprint.
 
-## Final remarks
-Zoology is intended for players who want animals that behave and perform more like their real-world counterparts while preserving RimWorld’s tactical and balance considerations. Many of the realism features are optional — tune them to match the experience you want, from a conservative “fix obvious errors” setup to a full biological overhaul.  
-If you are a modder and want to integrate your animal additions, consult the ModExtension docs included with the mod and consider contributing TSV entries for your species so Zoology can incorporate them using the same generation pipeline.  
-Change log & testing status: The author reports extensive in-game testing. Some features are still being refined; watch the workshop page for updates and follow the included notes for known edge cases.
+### ToolWithGender support
+
+Similar to Combat Extended’s gender-specific weapons, Zoology implements a **ToolWithGender** type. This allows animals to have **sex-limited attacks** (for example male-only horns, tusks, or antlers) when **Combat Extended is not present**.
+
+---
+
+### Runtime autopatching
+
+Some systems are applied dynamically at runtime using **Harmony** patches, including:
+
+* behavioral overrides  
+* scavenger logic  
+* predator logic  
+* animal bionics
+
+---
+
+### Data generation pipeline
+
+Animal XML definitions are generated automatically.
+
+The mod uses a **TSV dataset** containing biological parameters such as:
+
+* body mass  
+* gestation length  
+* litter size  
+* bite force  
+* claw/tooth size  
+* growth rate
+
+A Python script converts the dataset into RimWorld XML patches.
+
+**Advantages**
+
+* prevents manual XML errors  
+* allows reproducible stat generation  
+* simplifies large-scale edits
+
+Contributors are encouraged to submit **TSV updates** instead of editing generated XML files directly.
+
+---
+
+### Framework components for modders
+
+The mod also acts as a **framework**, providing several Comps and ModExtensions that can be used by dependent mods. Some are primarily for mod integration rather than vanilla animal patches.
+
+#### Comp_Ageless
+
+Removes age-related hediffs periodically via `cleanupIntervalTicks`. Animals with this comp effectively **do not age**.
+
+The list of hediffs is generated at runtime for better compatibility with mods that add new age-related hediffs.
+
+```xml
+<comps>
+  <li Class="ZoologyMod.CompProperties_Ageless">
+    <cleanupIntervalTicks>6000</cleanupIntervalTicks>
+  </li>
+</comps>
+```
+
+#### Comp_DrugsImmune
+
+Removes drug/addiction hediffs via `cleanupIntervalTicks` and blocks them from being applied. This effectively makes the animal **immune to drugs**.
+
+```xml
+<comps>
+  <li Class="ZoologyMod.CompProperties_DrugsImmune">
+    <cleanupIntervalTicks>2000</cleanupIntervalTicks>
+  </li>
+</comps>
+```
+
+#### Comp_AnimalClotting
+
+Periodically treats bleeding hediffs similarly to the **Superclotting** gene.
+
+**Configurable:**
+
+* `tendingQuality`
+* `checkInterval`
+
+```xml
+<comps>
+  <li Class="ZoologyMod.CompProperties_AnimalClotting">
+    <checkInterval>360</checkInterval>
+    <tendingQuality>
+      <min>0.2</min>
+      <max>0.7</max>
+    </tendingQuality>
+  </li>
+</comps>
+```
+
+#### Comp_AnimalRegeneration
+
+Adds regeneration hediffs depending on life stage or body size.  
+The hediff changes dynamically if the animal moves between size thresholds.
+
+**Life stage fractions:**
+
+* `babyFraction` — fraction of regeneration for babies
+* `juvenileFraction` — fraction of regeneration for juveniles
+* `adultFraction` — fraction of regeneration for adults
+
+**Check interval:**  
+* `checkIntervalTicks` — how often regeneration is applied
+
+```xml
+<comps>
+  <li Class="ZoologyMod.CompProperties_AnimalRegeneration">
+    <hediffBaby>Zoology_Regen_Baby</hediffBaby>
+    <hediffJuvenile>Zoology_Regen_Juvenile</hediffJuvenile>
+    <hediffAdult>Zoology_Regen_Adult</hediffAdult>
+
+    <babyFraction>0.2</babyFraction>
+    <juvenileFraction>0.5</juvenileFraction>
+    <adultFraction>1.0</adultFraction>
+
+    <checkIntervalTicks>720</checkIntervalTicks>
+  </li>
+</comps>
+```
+
+#### ModExtension_IsMammal
+Marks an animal as a mammal. Mammals will nurse their young with milk. Offspring have a restricted diet, consuming only milk and similar products. Adult mammalian predators will **not** attack their own young (cross-breeding considered).
+
+```xml
+<modExtensions>
+  <li Class="ZoologyMod.ModExtension_IsMammal" />
+</modExtensions>
+```
+
+---
+
+#### ModExtension_AgroAtSlaughter
+Animals with this extension will become aggressive when a slaughter attempt is made. If `excludeFromRituals` is set to true, they are excluded from sacrifice rituals. This behavior only triggers if the animal is **not** downed. Use `verboseLogging` for debugging purposes.
+
+```xml
+<modExtensions>
+  <li Class="ZoologyMod.ModExtension_AgroAtSlaughter">
+    <verboseLogging>false</verboseLogging>
+    <excludeFromRituals>true</excludeFromRituals>
+  </li>
+</modExtensions>
+```
+
+---
+
+#### ModExtension_IsScavenger
+Allows the animal to feed on rotten corpses. If `allowVeryRotten` is set to true, the animal can even consume desiccated (skeletal) remains.
+
+```xml
+<modExtensions>
+  <li Class="ZoologyMod.ModExtension_IsScavenger">
+    <allowVeryRotten>false</allowVeryRotten>
+  </li>
+</modExtensions>
+```
+
+---
+
+#### ModExtension_NoFlee
+Blocks vanilla flee jobs and prevents the animal from entering panic or terror mental states. The animal will **not** run away from danger or environmental threats. Includes `verboseLogging` for debugging.
+
+```xml
+<modExtensions>
+  <li Class="ZoologyMod.ModExtension_NoFlee">
+    <verboseLogging>true</verboseLogging>
+  </li>
+</modExtensions>
+```
+
+---
+
+#### ModExtension_CannotBeMutated
+A marker extension that prevents the animal from being targeted by bio-mutations and related mechanics (specifically those introduced in the **Anomaly DLC**).
+
+```xml
+<modExtensions>
+  <li Class="ZoologyMod.ModExtension_CannotBeMutated" />
+</modExtensions>
+```
+
+---
+
+#### ModExtension_Ectothermic
+Replaces the standard hypothermia logic with a metabolism slowdown mechanic, similar to vanilla giant insects. While it changes how the animal reacts to cold, it still allows for **frostbite** damage.
+
+```xml
+<modExtensions>
+  <li Class="ZoologyMod.ModExtension_Ectothermic" />
+</modExtensions>
+```
+
+---
+
+#### ModExtension_NoPorcupineQuill
+A specific marker used to prevent the `PorcupineQuill` hediff from appearing or to remove it if it is already present on the animal.
+
+```xml
+<modExtensions>
+  <li Class="ZoologyMod.ModExtension_NoPorcupineQuill" />
+</modExtensions>
+```
+
+---
+
+#### ModExtension_FleeFromCarrier / CompProperties_FleeFromCarrier
+Makes the animal intimidating to others. Within a customizable `fleeRadius`, other animals will attempt to flee from the carrier. You can set a `fleeBodySizeLimit` to determine which animals are affected and `fleeDistance` to set how far they run. This can be applied as a global `modExtension` or a per-instance `comp`.
+
+```xml
+<!-- As a ModExtension -->
+<modExtensions>
+  <li Class="ZoologyMod.ModExtension_FleeFromCarrier">
+    <fleeRadius>18</fleeRadius>
+    <fleeBodySizeLimit>0</fleeBodySizeLimit>
+    <fleeDistance>24</fleeDistance>
+  </li>
+</modExtensions>
+
+<!-- As a Comp -->
+<comps>
+  <li Class="ZoologyMod.CompProperties_FleeFromCarrier">
+    <fleeRadius>18</fleeRadius>
+    <fleeBodySizeLimit>0</fleeBodySizeLimit>
+    <fleeDistance>24</fleeDistance>
+  </li>
+</comps>
+```
+
+---
+
+#### ModExtension_CannotBeAugmented
+A marker extension that prohibits the installation of bionics, implants, or any other augmentations on this animal.
+
+```xml
+<modExtensions>
+  <li Class="ZoologyMod.ModExtension_CannotBeAugmented" />
+</modExtensions>
+```
+
+## Contributing
+
+Contributions are welcome.
+
+**Possible contribution types:**
+
+* biological data improvements
+* compatibility patches
+* additional species datasets
+* bug fixes
+
+Issues and discussions can be opened in the repository.
 
 ## License
+
 MIT License
