@@ -95,6 +95,8 @@ Pack hunters can coordinate group attacks even if not all pack members are hungr
 **Enable predator-on-predator hunt check**  
 Predators will only attack other predators if their Combat Power is more than **33% higher than the other predator's**.
 
+<img src="https://i.ibb.co/k2KGvftk/Predation.gif">
+
 ---
 
 ### Prey fleeing behavior
@@ -106,6 +108,8 @@ Predators will abandon the pursuit if they cannot catch prey within a certain am
 **Controlled by**
 
 * **Enable prey fleeing from predators**
+
+<img src="https://i.ibb.co/BHFYfg2C/Chase.gif">
 
 ---
 
@@ -122,6 +126,8 @@ A scalable system determines which animals flee from threats on their home maps.
 
 These allow fine control over which animals consider raiders or other dangers worth fleeing from.
 
+<img src="https://i.ibb.co/1JrL0YNT/Chase-elephant.gif">
+
 ---
 
 ### Raiders ignore small pets
@@ -137,6 +143,8 @@ Raiders treat small, non-threatening pets (for example, cats) like penned livest
 * **Small Pet Body Size Threshold**  
 * **Enable small pets fleeing from raiders**
 
+<img src="https://i.ibb.co/wrjwtFwm/Raiders-Ignore.gif">
+
 ---
 
 ### Predator protection of kills
@@ -150,6 +158,8 @@ Predators may guard their kills against scavengers and colonists.
 * **Protection trigger size difference threshold**
 
 A protection trigger threshold prevents large predators from attacking minor scavengers unnecessarily.
+
+<img src="https://i.ibb.co/3YsfDp2m/Prey-Protection.gif">
 
 ---
 
@@ -166,6 +176,8 @@ The nutritional value of skeletonized corpses is reduced compared to fresh corps
 
 * **Enable scavenging (scavenger behavior)**
 
+<img src="https://i.ibb.co/TB48PStD/Scavengering.gif">
+
 ---
 
 ### Human bionics on animals
@@ -180,6 +192,8 @@ Bionics scale with animal body size and apply appropriately scaled hediffs. This
 
 Compatible with **Combat Extended**.
 
+<img src="https://i.ibb.co/4wjL9hCQ/2026-03-06-04-53-23.png">
+
 ---
 
 ### Aggro at slaughter
@@ -191,6 +205,8 @@ Animals marked with `ModExtension_AgroAtSlaughter` may become aggressive when sl
 * **Enable aggro-at-slaughter**
 
 Downed animals can still be safely slaughtered.
+
+<img src="https://i.ibb.co/6088m53d/Aggro.gif">
 
 ---
 
@@ -208,6 +224,8 @@ Includes a setting controlling auto-slaughter behavior:
 
 * **Lactation auto-slaughter handling**
 
+<img src="https://i.ibb.co/gL8150qZ/Lactation.gif">
+
 ---
 
 ### Animal damage reduction
@@ -219,6 +237,8 @@ Optional system that reduces unrealistic damage from very small animals attackin
 * **Enable animal damage reduction**
 
 Automatically disabled when **Combat Extended** is installed, since CE handles damage realism through armor and penetration mechanics.
+
+<img src="https://i.ibb.co/zhp6zK9V/2026-03-06-04-50-05.png">
 
 ---
 
