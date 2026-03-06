@@ -17,7 +17,7 @@
 
 The player version of the mod is available on Steam:
 
-Workshop page: https://steamcommunity.com/sharedfiles/filedetails/?id=3679368694
+Workshop page: https://steamcommunity.com/sharedfiles/filedetails/?id=3679396881
 
 ---
 
@@ -25,8 +25,11 @@ Workshop page: https://steamcommunity.com/sharedfiles/filedetails/?id=3679368694
 
 Zoology is a comprehensive animal overhaul that maps in-game animal performance to real-world biology without breaking gameplay.
 
-The mod has undergone extensive in-game testing, though some systems are still evolving.  
-Bug reports and compatibility reports are welcome.
+This mod recalculates core animal parameters using ecologically and physiologically meaningful inputs — for example, body mass, gestation length, bite force and claw/tooth dimensions — and transforms those inputs into RimWorld-compatible statistics via an automated data pipeline. Source data are collected from primary and secondary biological literature where available, processed in a reproducible TSV dataset and converted to XML by a Python script. The goal is to make animals behave and perform in ways that feel biologically plausible while preserving the game's tactical and balance constraints.
+
+All major gameplay-facing systems are configurable. If you prefer minimal changes, most behavioral systems can be turned off in mod settings; if you want a deep biological overhaul, enable the full feature set. Zoology is intended both for players who want more realistic animal interactions and for modders who want a data-driven framework to base their animal mods on.
+
+The mod has undergone extensive in-game testing, though some systems are still evolving. Bug reports and compatibility reports are welcome.
 
 ---
 
@@ -36,18 +39,16 @@ Bug reports and compatibility reports are welcome.
 
 Every vanilla animal and DLC animal has had its core stats recalculated. All animals (vanilla + official DLC) were recalculated from biological inputs:
 
-* average body mass  
-* gestation length  
-* litter / clutch size  
-* claw & tooth dimensions  
-* bite force  
-* growth rate
+* average body mass
+* gestation period
+* litter / clutch size
+* * growth rate
+* claw & tooth dimensions
+* bite force
 
 These values were compiled from scientific literature and processed through an automated Python script that generates the mod’s XML patches.
 
-The resulting numbers are balanced against RimWorld’s internal formulas so animals feel stronger, faster and more believable while still fitting the game’s combat and event systems.
-
-Melee DPS and movement speeds of animals are, on average, substantially increased compared to vanilla to reflect biologically realistic performance while Combat Power (used for in-game event generation) is still calculated using in-game formulas plus Mod Extension influences so balance with the rest of the game is preserved.
+The resulting numbers are balanced against RimWorld’s internal formulas so animals feel stronger, faster and more believable while still fitting the game’s combat and event systems. Melee DPS and movement speeds of animals are, on average, increased to better reflect biologically realistic performance. Combat Power (used for in-game event generation) is still calculated using RimWorld’s internal formulas, with ModExtension influences applied to preserve overall balance.
 
 ---
 
@@ -59,7 +60,7 @@ Biome distributions have been adjusted to remove obvious zoological inaccuracies
 
 ### Audio improvements
 
-Animal sounds have been corrected.
+Animal sounds have been corrected: several species now use more appropriate audio assets (for example, big cats no longer use domestic cat meows).
 
 ---
 
@@ -68,7 +69,7 @@ Animal sounds have been corrected.
 Various biological inaccuracies in vanilla animals have been corrected. Examples include:
 
 * birds flee using flight instead of ground sprinting  
-* ectothermic animals (reptiles, crabs, snails) experience metabolic slowdown in cold instead of vanilla hypothermia behavior  
+* ectothermic animals (reptiles, crabs, snails) experience metabolic slowdown in cold rather than vanilla hypothermia mechanics  
 * guinea pig fur replaced with squirrel pelt  
 * additional zoological corrections
 
@@ -92,7 +93,9 @@ Pack hunters can coordinate group attacks even if not all pack members are hungr
 #### Optional setting
 
 **Enable predator-on-predator hunt check**  
-Predators will only attack other predators if their Combat Power is more than **33% higher**.
+Predators will only attack other predators if their Combat Power is more than **33% higher than the other predator's**.
+
+<img src="https://i.ibb.co/k2KGvftk/Predation.gif">
 
 ---
 
@@ -100,11 +103,13 @@ Predators will only attack other predators if their Combat Power is more than **
 
 Prey animals attempt to flee from hunting predators.
 
-Predators will abandon pursuit if they cannot catch prey within a certain time.
+Predators will abandon the pursuit if they cannot catch prey within a certain amount of time.
 
 **Controlled by**
 
 * **Enable prey fleeing from predators**
+
+<img src="https://i.ibb.co/BHFYfg2C/Chase.gif">
 
 ---
 
@@ -121,13 +126,15 @@ A scalable system determines which animals flee from threats on their home maps.
 
 These allow fine control over which animals consider raiders or other dangers worth fleeing from.
 
+<img src="https://i.ibb.co/1JrL0YNT/Chase-elephant.gif">
+
 ---
 
 ### Raiders ignore small pets
 
-Raiders treat small non-threatening pets (for example cats) like penned livestock unless they:
+Raiders treat small, non-threatening pets (for example, cats) like penned livestock unless they:
 
-* follow a master  
+* follow their master
 * go manhunter
 
 **Settings controlling this system**
@@ -135,6 +142,8 @@ Raiders treat small non-threatening pets (for example cats) like penned livestoc
 * **Enable raiders ignoring small pets**  
 * **Small Pet Body Size Threshold**  
 * **Enable small pets fleeing from raiders**
+
+<img src="https://i.ibb.co/wrjwtFwm/Raiders-Ignore.gif">
 
 ---
 
@@ -146,8 +155,11 @@ Predators may guard their kills against scavengers and colonists.
 
 * **Prey protection range**  
 * **Enable predator defending their kills**
+* **Protection trigger size difference threshold**
 
 A protection trigger threshold prevents large predators from attacking minor scavengers unnecessarily.
+
+<img src="https://i.ibb.co/3YsfDp2m/Prey-Protection.gif">
 
 ---
 
@@ -155,20 +167,22 @@ A protection trigger threshold prevents large predators from attacking minor sca
 
 Animals marked with `ModExtension_IsScavenger` can consume:
 
-* spoiled corpses  
-* partially skeletonized corpses
+* rotten corpses  
+* skeletonized corpses if **allowVeryRotten** is set to true.
 
-Nutrition value is reduced compared to fresh corpses.
+The nutritional value of skeletonized corpses is reduced compared to fresh corpses.
 
 **Controlled by**
 
 * **Enable scavenging (scavenger behavior)**
 
+<img src="https://i.ibb.co/TB48PStD/Scavengering.gif">
+
 ---
 
 ### Human bionics on animals
 
-Allows many vanilla bionics to be installed on animals automatically via runtime patching.
+Allows many vanilla human bionics to be installed on animals, implemented through runtime patching.
 
 Excluded animals can be flagged using:
 
@@ -177,6 +191,8 @@ Excluded animals can be flagged using:
 Bionics scale with animal body size and apply appropriately scaled hediffs. This allows animal augmentation without requiring additional mods.
 
 Compatible with **Combat Extended**.
+
+<img src="https://i.ibb.co/4wjL9hCQ/2026-03-06-04-53-23.png">
 
 ---
 
@@ -189,6 +205,8 @@ Animals marked with `ModExtension_AgroAtSlaughter` may become aggressive when sl
 * **Enable aggro-at-slaughter**
 
 Downed animals can still be safely slaughtered.
+
+<img src="https://i.ibb.co/6088m53d/Aggro.gif">
 
 ---
 
@@ -206,6 +224,8 @@ Includes a setting controlling auto-slaughter behavior:
 
 * **Lactation auto-slaughter handling**
 
+<img src="https://i.ibb.co/gL8150qZ/Lactation.gif">
+
 ---
 
 ### Animal damage reduction
@@ -217,6 +237,8 @@ Optional system that reduces unrealistic damage from very small animals attackin
 * **Enable animal damage reduction**
 
 Automatically disabled when **Combat Extended** is installed, since CE handles damage realism through armor and penetration mechanics.
+
+<img src="https://i.ibb.co/zhp6zK9V/2026-03-06-04-50-05.png">
 
 ---
 
@@ -244,7 +266,7 @@ When **Combat Extended** is installed, animal combat stats are recalculated from
 * claw and tooth length  
 * bite force
 
-These are mapped onto CE formulas to produce consistent results with CE’s combat system.
+These values are mapped onto CE formulas to produce results consistent with CE’s combat system.
 
 The option **Override CE Penetration for animal life stages** modifies penetration scaling to prevent juveniles from becoming unrealistically lethal compared to small adult animals.
 
@@ -285,7 +307,7 @@ Animal XML definitions are generated automatically.
 The mod uses a **TSV dataset** containing biological parameters such as:
 
 * body mass  
-* gestation length  
+* gestation period  
 * litter size  
 * bite force  
 * claw/tooth size  
@@ -356,17 +378,17 @@ Periodically treats bleeding hediffs similarly to the **Superclotting** gene.
 
 #### Comp_AnimalRegeneration
 
-Adds regeneration hediffs depending on life stage or body size.  
-The hediff changes dynamically if the animal moves between size thresholds.
+Adds regeneration (or other) hediffs depending on life stage or body size.  
+The hediff changes dynamically when the animal crosses size thresholds.
 
 **Life stage fractions:**
 
-* `babyFraction` — fraction of regeneration for babies
-* `juvenileFraction` — fraction of regeneration for juveniles
-* `adultFraction` — fraction of regeneration for adults
+* `babyFraction` — fraction of body size to apply hediff for babies
+* `juvenileFraction` — fraction of body size to apply hediff for juveniles
+* `adultFraction` — fraction of body size to apply hediff for adults
 
 **Check interval:**  
-* `checkIntervalTicks` — how often regeneration is applied
+* `checkIntervalTicks` — how often regeneration hediff check is applied
 
 ```xml
 <comps>
@@ -469,7 +491,7 @@ A specific marker used to prevent the `PorcupineQuill` hediff from appearing or 
 ---
 
 #### ModExtension_FleeFromCarrier / CompProperties_FleeFromCarrier
-Makes the animal intimidating to others. Within a customizable `fleeRadius`, other animals will attempt to flee from the carrier. You can set a `fleeBodySizeLimit` to determine which animals are affected and `fleeDistance` to set how far they run. This can be applied as a global `modExtension` or a per-instance `comp`.
+Makes the animal intimidating to others. Within a customizable `fleeRadius`, other animals will attempt to flee from the carrier. You can set a `fleeBodySizeLimit` to determine which animals are affected and `fleeDistance` to set how far they run. This can be applied as a `modExtension` or a per-instance `comp`.
 
 ```xml
 <!-- As a ModExtension -->
