@@ -25,8 +25,11 @@ Workshop page: https://steamcommunity.com/sharedfiles/filedetails/?id=3679396881
 
 Zoology is a comprehensive animal overhaul that maps in-game animal performance to real-world biology without breaking gameplay.
 
-The mod has undergone extensive in-game testing, though some systems are still evolving.  
-Bug reports and compatibility reports are welcome.
+This mod recalculates core animal parameters using ecologically and physiologically meaningful inputs — for example, body mass, gestation length, bite force and claw/tooth dimensions — and transforms those inputs into RimWorld-compatible statistics via an automated data pipeline. Source data are collected from primary and secondary biological literature where available, processed in a reproducible TSV dataset and converted to XML by a Python script. The goal is to make animals behave and perform in ways that feel biologically plausible while preserving the game's tactical and balance constraints.
+
+All major gameplay-facing systems are configurable. If you prefer minimal changes, most behavioral systems can be turned off in mod settings; if you want a deep biological overhaul, enable the full feature set. Zoology is intended both for players who want more realistic animal interactions and for modders who want a data-driven framework to base their animal mods on.
+
+The mod has undergone extensive in-game testing, though some systems are still evolving. Bug reports and compatibility reports are welcome.
 
 ---
 
@@ -36,16 +39,16 @@ Bug reports and compatibility reports are welcome.
 
 Every vanilla animal and DLC animal has had its core stats recalculated. All animals (vanilla + official DLC) were recalculated from biological inputs:
 
-* average body mass  
-* gestation length  
-* litter / clutch size  
-* claw & tooth dimensions  
-* bite force  
-* growth rate
+* average body mass
+* gestation period
+* litter / clutch size
+* * growth rate
+* claw & tooth dimensions
+* bite force
 
 These values were compiled from scientific literature and processed through an automated Python script that generates the mod’s XML patches.
 
-The resulting numbers are balanced against RimWorld’s internal formulas so animals feel stronger, faster and more believable while still fitting the game’s combat and event systems. Melee DPS and movement speeds of animals are, on average, substantially increased compared to vanilla to reflect biologically realistic performance while Combat Power (used for in-game event generation) is still calculated using in-game formulas plus Mod Extension influences so balance with the rest of the game is preserved.
+The resulting numbers are balanced against RimWorld’s internal formulas so animals feel stronger, faster and more believable while still fitting the game’s combat and event systems. Melee DPS and movement speeds of animals are, on average, increased to better reflect biologically realistic performance. Combat Power (used for in-game event generation) is still calculated using RimWorld’s internal formulas, with ModExtension influences applied to preserve overall balance.
 
 ---
 
@@ -57,7 +60,7 @@ Biome distributions have been adjusted to remove obvious zoological inaccuracies
 
 ### Audio improvements
 
-Animal sounds have been corrected. Say goodbye to meowing cougars and tigers.
+Animal sounds have been corrected: several species now use more appropriate audio assets (for example, big cats no longer use domestic cat meows).
 
 ---
 
@@ -66,7 +69,7 @@ Animal sounds have been corrected. Say goodbye to meowing cougars and tigers.
 Various biological inaccuracies in vanilla animals have been corrected. Examples include:
 
 * birds flee using flight instead of ground sprinting  
-* ectothermic animals (reptiles, crabs, snails) experience metabolic slowdown in cold instead of vanilla hypothermia behavior  
+* ectothermic animals (reptiles, crabs, snails) experience metabolic slowdown in cold rather than vanilla hypothermia mechanics  
 * guinea pig fur replaced with squirrel pelt  
 * additional zoological corrections
 
@@ -90,7 +93,7 @@ Pack hunters can coordinate group attacks even if not all pack members are hungr
 #### Optional setting
 
 **Enable predator-on-predator hunt check**  
-Predators will only attack other predators if their Combat Power is more than **33% higher**.
+Predators will only attack other predators if their Combat Power is more than **33% higher than the other predator's**.
 
 ---
 
@@ -98,7 +101,7 @@ Predators will only attack other predators if their Combat Power is more than **
 
 Prey animals attempt to flee from hunting predators.
 
-Predators will abandon pursuit if they cannot catch prey within a certain time.
+Predators will abandon the pursuit if they cannot catch prey within a certain amount of time.
 
 **Controlled by**
 
@@ -123,9 +126,9 @@ These allow fine control over which animals consider raiders or other dangers wo
 
 ### Raiders ignore small pets
 
-Raiders treat small non-threatening pets (for example cats) like penned livestock unless they:
+Raiders treat small, non-threatening pets (for example, cats) like penned livestock unless they:
 
-* follow a master  
+* follow their master
 * go manhunter
 
 **Settings controlling this system**
@@ -144,7 +147,7 @@ Predators may guard their kills against scavengers and colonists.
 
 * **Prey protection range**  
 * **Enable predator defending their kills**
-* **Protection trigger size difference treshold**
+* **Protection trigger size difference threshold**
 
 A protection trigger threshold prevents large predators from attacking minor scavengers unnecessarily.
 
@@ -154,10 +157,10 @@ A protection trigger threshold prevents large predators from attacking minor sca
 
 Animals marked with `ModExtension_IsScavenger` can consume:
 
-* spoiled corpses  
-* skeletonized corpses
+* rotten corpses  
+* skeletonized corpses if **allowVeryRotten** is set to true.
 
-Nutrition value of skeletonized corpses is reduced compared to fresh corpses.
+The nutritional value of skeletonized corpses is reduced compared to fresh corpses.
 
 **Controlled by**
 
@@ -167,7 +170,7 @@ Nutrition value of skeletonized corpses is reduced compared to fresh corpses.
 
 ### Human bionics on animals
 
-Allows many vanilla bionics to be installed on animals automatically via runtime patching.
+Allows many vanilla human bionics to be installed on animals, implemented through runtime patching.
 
 Excluded animals can be flagged using:
 
@@ -243,7 +246,7 @@ When **Combat Extended** is installed, animal combat stats are recalculated from
 * claw and tooth length  
 * bite force
 
-These are mapped onto CE formulas to produce consistent results with CE’s combat system.
+These values are mapped onto CE formulas to produce results consistent with CE’s combat system.
 
 The option **Override CE Penetration for animal life stages** modifies penetration scaling to prevent juveniles from becoming unrealistically lethal compared to small adult animals.
 
@@ -355,8 +358,8 @@ Periodically treats bleeding hediffs similarly to the **Superclotting** gene.
 
 #### Comp_AnimalRegeneration
 
-Adds regeneration hediffs depending on life stage or body size.  
-The hediff changes dynamically if the animal moves between size thresholds.
+Adds regeneration (or other) hediffs depending on life stage or body size.  
+The hediff changes dynamically when the animal crosses size thresholds.
 
 **Life stage fractions:**
 
