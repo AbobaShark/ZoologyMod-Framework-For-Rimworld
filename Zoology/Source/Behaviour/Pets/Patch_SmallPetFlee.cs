@@ -10,6 +10,12 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(JobGiver_AnimalFlee), "TryGiveJob")]
     public static class Patch_SmallPetFleeFromRaiders
     {
+        public static bool Prepare()
+        {
+            var s = ZoologyModSettings.Instance;
+            return s == null || s.EnableSmallPetFleeFromRaiders;
+        }
+
         public static void Postfix(JobGiver_AnimalFlee __instance, Pawn pawn, ref Job __result)
         {
             

@@ -12,6 +12,12 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(JobGiver_AnimalFlee), "TryGiveJob")]
     public static class Patch_AnimalFleeFromPredators
     {
+        public static bool Prepare()
+        {
+            var s = ZoologyModSettings.Instance;
+            return s == null || s.EnablePreyFleeFromPredators;
+        }
+
         const float SEARCH_RADIUS = 12f;
         const int FLEE_DISTANCE_DEFAULT = 12;
         const int FLEE_DISTANCE_TARGET = 16;

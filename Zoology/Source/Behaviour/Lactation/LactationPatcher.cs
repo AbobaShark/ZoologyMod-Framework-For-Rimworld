@@ -17,6 +17,11 @@ namespace ZoologyMod
         {
             try
             {
+                if (!ZoologyModSettings.EnableMammalLactation)
+                {
+                    return;
+                }
+
                 var harmony = new Harmony("com.abobashark.zoology.lactation");
                 int patchedCount = 0;
                 List<string> patchedNames = new List<string>();

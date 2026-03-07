@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using HarmonyLib;
 using RimWorld;
 using Verse;
@@ -26,56 +25,24 @@ namespace ZoologyMod
         public int? fleeDistance = 24;
     }
 
-    
-    
-    
-    public class CompProperties_FleeFromCarrier : CompProperties
-    {
-        public float fleeRadius = 18f;
-        public float fleeBodySizeLimit = 0f;
-        public int? fleeDistance = 24;
-
-        public CompProperties_FleeFromCarrier()
-        {
-            this.compClass = typeof(CompFleeFromCarrier);
-        }
-    }
-
-    public class CompFleeFromCarrier : ThingComp
-    {
-        public CompProperties_FleeFromCarrier PropsFlee => (CompProperties_FleeFromCarrier)this.props;
-
-        
-        public bool enabled = true;
-
-        public override void PostExposeData()
-        {
-            base.PostExposeData();
-            Scribe_Values.Look(ref enabled, "enabled", true);
-            
-        }
-    }
-
-    
-    
-    
     public static class FleeFromCarrierUtil
     {
+        private static ModExtension_FleeFromCarrier GetExtension(Pawn pawn)
+        {
+            return pawn?.def?.GetModExtension<ModExtension_FleeFromCarrier>();
+        }
+
         
         public static bool IsCarrier(Pawn pawn)
         {
             if (pawn == null) return false;
-            if (pawn.GetComp<CompFleeFromCarrier>() != null) return true;
-            if (pawn.def?.GetModExtension<ModExtension_FleeFromCarrier>() != null) return true;
-            return false;
+            return GetExtension(pawn) != null;
         }
 
         public static float GetFleeRadius(Pawn carrier)
         {
             if (carrier == null) return 0f;
-            var comp = carrier.GetComp<CompFleeFromCarrier>();
-            if (comp != null && comp.enabled && comp.PropsFlee != null) return comp.PropsFlee.fleeRadius;
-            var ext = carrier.def?.GetModExtension<ModExtension_FleeFromCarrier>();
+            var ext = GetExtension(carrier);
             if (ext != null) return ext.fleeRadius;
             return 18f; 
         }
@@ -83,9 +50,7 @@ namespace ZoologyMod
         public static float GetFleeBodySizeLimit(Pawn carrier)
         {
             if (carrier == null) return 0f;
-            var comp = carrier.GetComp<CompFleeFromCarrier>();
-            if (comp != null && comp.enabled && comp.PropsFlee != null) return comp.PropsFlee.fleeBodySizeLimit;
-            var ext = carrier.def?.GetModExtension<ModExtension_FleeFromCarrier>();
+            var ext = GetExtension(carrier);
             if (ext != null) return ext.fleeBodySizeLimit;
             return 0f; 
         }
@@ -93,15 +58,66 @@ namespace ZoologyMod
         public static int GetFleeDistance(Pawn carrier)
         {
             if (carrier == null) return 24;
-            var comp = carrier.GetComp<CompFleeFromCarrier>();
-            if (comp != null && comp.enabled && comp.PropsFlee != null && comp.PropsFlee.fleeDistance.HasValue) return comp.PropsFlee.fleeDistance.Value;
-            var ext = carrier.def?.GetModExtension<ModExtension_FleeFromCarrier>();
-            if (ext != null && ext.fleeBodySizeLimit >= 0 && ext.fleeRadius >= 0 && ext.fleeBodySizeLimit != float.NaN)
+            var ext = GetExtension(carrier);
+            if (ext != null)
             {
-                if (ext.fleeRadius >= 0 && ext.fleeBodySizeLimit >= 0 && ext.fleeDistance.HasValue) return ext.fleeDistance.Value;
+                if (ext.fleeDistance.HasValue) return ext.fleeDistance.Value;
             }
             
             return 24;
+        }
+    }
+
+    internal static class FleeFromCarrierMapCache
+    {
+        private const int RebuildIntervalTicks = 240;
+
+        private sealed class Entry
+        {
+            public int lastBuildTick = int.MinValue;
+            public readonly List<Pawn> carriers = new List<Pawn>(8);
+        }
+
+        private static readonly Dictionary<int, Entry> entriesByMapId = new Dictionary<int, Entry>();
+        private static readonly List<Pawn> empty = new List<Pawn>(0);
+
+        public static List<Pawn> GetCarriers(Map map)
+        {
+            if (map == null) return empty;
+
+            int mapId = map.uniqueID;
+            if (!entriesByMapId.TryGetValue(mapId, out var entry))
+            {
+                entry = new Entry();
+                entriesByMapId[mapId] = entry;
+            }
+
+            int now = Find.TickManager?.TicksGame ?? 0;
+            if (entry.lastBuildTick == int.MinValue || now - entry.lastBuildTick >= RebuildIntervalTicks)
+            {
+                RebuildForMap(map, entry, now);
+            }
+
+            return entry.carriers;
+        }
+
+        private static void RebuildForMap(Map map, Entry entry, int now)
+        {
+            entry.carriers.Clear();
+
+            var pawns = map?.mapPawns?.AllPawnsSpawned;
+            if (pawns != null)
+            {
+                for (int i = 0; i < pawns.Count; i++)
+                {
+                    var p = pawns[i];
+                    if (p == null || p.Dead || p.Downed) continue;
+                    if (!FleeFromCarrierUtil.IsCarrier(p)) continue;
+                    entry.carriers.Add(p);
+                }
+            }
+
+            entry.lastBuildTick = now;
         }
     }
 
@@ -111,71 +127,67 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(JobGiver_AnimalFlee), "TryGiveJob")]
     public static class Patch_JobGiver_AnimalFlee_TryGiveJob_FleeFromCarrier
     {
+        public static bool Prepare()
+        {
+            var s = ZoologyModSettings.Instance;
+            return s == null || s.EnableFleeFromCarrier;
+        }
+
         public static void Postfix(JobGiver_AnimalFlee __instance, Pawn pawn, ref Job __result)
         {
             try
             {
-                
-                if (pawn != null && NoFleeUtil.IsNoFlee(pawn, out var noFleeExt))
+                var s = ZoologyModSettings.Instance;
+                if (s != null && !s.EnableFleeFromCarrier) return;
+
+                if (pawn == null || pawn.Map == null) return;
+                if (__result != null) return;
+                if (!pawn.RaceProps.Animal) return;
+                if (pawn.Dead || pawn.Downed) return;
+
+                if ((s == null || s.EnableNoFleeExtension) && NoFleeUtil.IsNoFlee(pawn, out var noFleeExt))
                 {
                     if (noFleeExt?.verboseLogging == true && Prefs.DevMode)
                         Log.Message($"[Zoology] Suppressed Carrier-induced flee for {pawn.LabelShort} due to ModExtension_NoFlee.");
                     return;
                 }
-                
-                if (__result != null) return;
-
-                if (pawn == null) return;
-                if (!pawn.RaceProps.Animal) return;
 
                 
                 
                 
                 if (FleeFromCarrierUtil.IsCarrier(pawn)) return;
 
-                
-                
-                
-                const int MaxPossibleSearchRadius = 50; 
+                var carriers = FleeFromCarrierMapCache.GetCarriers(pawn.Map);
+                if (carriers == null || carriers.Count == 0) return;
 
-                Pawn threat = GenClosest.ClosestThingReachable(
-                    pawn.Position,
-                    pawn.Map,
-                    ThingRequest.ForGroup(ThingRequestGroup.Pawn),
-                    PathEndMode.OnCell,
-                    TraverseParms.For(pawn, Danger.Deadly, TraverseMode.ByPawn),
-                    MaxPossibleSearchRadius,
-                    t =>
+                Pawn threat = null;
+                float bestDistSq = float.MaxValue;
+
+                for (int i = 0; i < carriers.Count; i++)
+                {
+                    var carrier = carriers[i];
+                    if (carrier == null || carrier == pawn) continue;
+                    if (!carrier.Spawned || carrier.Map != pawn.Map) continue;
+                    if (carrier.Dead || carrier.Downed) continue;
+
+                    float realRadius = FleeFromCarrierUtil.GetFleeRadius(carrier);
+                    if (realRadius <= 0f) continue;
+
+                    float distSq = (carrier.Position - pawn.Position).LengthHorizontalSquared;
+                    float radiusSq = realRadius * realRadius;
+                    if (distSq > radiusSq) continue;
+
+                    float bodySizeLimit = FleeFromCarrierUtil.GetFleeBodySizeLimit(carrier);
+                    if (bodySizeLimit > 0f && pawn.BodySize > bodySizeLimit) continue;
+
+                    if (distSq < bestDistSq)
                     {
-                        var p = t as Pawn;
-                        if (p == null) return false;
-                        if (p == pawn) return false;
-                        if (!FleeFromCarrierUtil.IsCarrier(p)) return false;
-                        if (p.Downed) return false;
-
-                        
-                        float realRadius = FleeFromCarrierUtil.GetFleeRadius(p);
-                        if (realRadius <= 0f) return false; 
-
-                        
-                        if (!pawn.Position.InHorDistOf(p.Position, realRadius)) return false;
-
-                        
-                        
-
-                        return true;
+                        bestDistSq = distSq;
+                        threat = carrier;
                     }
-                ) as Pawn;
+                }
 
                 if (threat == null) return;
-
-                
-                float bodySizeLimit = FleeFromCarrierUtil.GetFleeBodySizeLimit(threat);
-                if (bodySizeLimit > 0f && pawn.BodySize > bodySizeLimit)
-                {
-                    
-                    return;
-                }
 
                 
                 if (!FleeUtility.ShouldAnimalFleeDanger(pawn)) return;

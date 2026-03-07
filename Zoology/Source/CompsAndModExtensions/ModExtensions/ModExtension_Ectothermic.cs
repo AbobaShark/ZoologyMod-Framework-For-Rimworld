@@ -22,6 +22,12 @@ namespace ZoologyMod
     {
         static Ectothermic_HarmonyPatches()
         {
+            var settings = ZoologyModSettings.Instance;
+            if (settings != null && !settings.EnableEctothermicPatch)
+            {
+                return;
+            }
+
             var harmony = new Harmony("com.abobashark.zoology.ectothermic");
             var original = AccessTools.Method(typeof(HediffGiver_Hypothermia), nameof(HediffGiver_Hypothermia.OnIntervalPassed));
             var prefix = new HarmonyMethod(typeof(Ectothermic_HarmonyPatches), nameof(OnIntervalPassed_Prefix));
@@ -34,6 +40,12 @@ namespace ZoologyMod
         {
             try
             {
+                var settings = ZoologyModSettings.Instance;
+                if (settings != null && !settings.EnableEctothermicPatch)
+                {
+                    return true;
+                }
+
                 if (pawn == null) return true;
 
                 

@@ -14,6 +14,12 @@ namespace ZoologyMod.HarmonyPatches
     [HarmonyPatch(typeof(JobGiver_GetFood), "TryGiveJob")]
     public static class Patch_JobGiver_GetFood_TryGiveJob
     {
+        static bool Prepare()
+        {
+            var s = ZoologyModSettings.Instance;
+            return s == null || s.EnableScavengering;
+        }
+
         
         private static readonly Dictionary<int, int> lastAssignedTick = new Dictionary<int, int>();
 

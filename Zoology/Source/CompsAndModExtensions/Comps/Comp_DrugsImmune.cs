@@ -27,6 +27,9 @@ namespace ZoologyMod
 
         public override void CompTick()
         {
+            var settings = ZoologyModSettings.Instance;
+            if (settings != null && !settings.EnableDrugsImmunePatch) return;
+
             Pawn pawn = parent as Pawn;
             if (pawn == null) return;
             if (pawn.Destroyed || pawn.Dead) return;
@@ -462,6 +465,12 @@ namespace ZoologyMod
         {
             try
             {
+                var settings = ZoologyModSettings.Instance;
+                if (settings != null && !settings.EnableDrugsImmunePatch)
+                {
+                    return;
+                }
+
                 var harmony = new Harmony("zoology.drugsimmune");
 
                 MethodInfo targetMethod = null;
@@ -524,6 +533,12 @@ namespace ZoologyMod
         {
             try
             {
+                var settings = ZoologyModSettings.Instance;
+                if (settings != null && !settings.EnableDrugsImmunePatch)
+                {
+                    return true;
+                }
+
                 if (pawn == null) return true;
 
                 var comp = pawn.TryGetComp<CompDrugsImmune>();

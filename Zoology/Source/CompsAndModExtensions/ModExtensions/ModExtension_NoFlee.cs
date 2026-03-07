@@ -9,6 +9,15 @@ using Verse.AI;
 
 namespace ZoologyMod
 {
+    internal static class NoFleeSettingsGate
+    {
+        public static bool Enabled()
+        {
+            var s = ZoologyModSettings.Instance;
+            return s == null || s.EnableNoFleeExtension;
+        }
+    }
+
     
     
     
@@ -62,6 +71,8 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(JobGiver_AnimalFlee), "TryGiveJob")]
     public static class Patch_JobGiver_AnimalFlee_TryGiveJob_NoFlee
     {
+        public static bool Prepare() => NoFleeSettingsGate.Enabled();
+
         public static bool Prefix(JobGiver_AnimalFlee __instance, Pawn pawn, ref Job __result)
         {
             try
@@ -90,6 +101,8 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(FleeUtility), "ShouldAnimalFleeDanger")]
     public static class Patch_ShouldAnimalFleeDanger_NoFlee
     {
+        public static bool Prepare() => NoFleeSettingsGate.Enabled();
+
         public static bool Prefix(Pawn pawn, ref bool __result)
         {
             try
@@ -118,6 +131,8 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(MentalStateHandler), "TryStartMentalState")]
     public static class Patch_MentalStateHandler_TryStartMentalState_NoFlee
     {
+        public static bool Prepare() => NoFleeSettingsGate.Enabled();
+
         
         public static bool Prefix(
             MentalStateHandler __instance,

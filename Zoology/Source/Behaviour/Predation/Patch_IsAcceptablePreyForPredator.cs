@@ -11,6 +11,11 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(FoodUtility), "IsAcceptablePreyFor", new[] { typeof(Pawn), typeof(Pawn) })]
     public static class Patch_IsAcceptablePreyForPredator
     {
+        public static bool Prepare()
+        {
+            var s = ZoologyModSettings.Instance;
+            return s == null || s.EnableAdvancedPredationLogic;
+        }
 
         
         
@@ -38,6 +43,12 @@ namespace ZoologyMod
         {
             try
             {
+                var settings = ZoologyModSettings.Instance;
+                if (settings != null && !settings.EnableAdvancedPredationLogic)
+                {
+                    return true;
+                }
+
                 if (predator == null || prey == null)
                 {
                     __result = false;
@@ -45,7 +56,6 @@ namespace ZoologyMod
                 }
 
                 
-                var settings = ZoologyModSettings.Instance;
                 if (settings != null && ZoologyModSettings.EnableMammalLactation)
                 {
                     if (IsMammalBaby(predator))
@@ -123,7 +133,7 @@ namespace ZoologyMod
                     return false;
                 }
 
-                if (ModConstants.Settings.EnablePredatorOnPredatorHuntCheck && prey.RaceProps.predator && !prey.Downed)
+                if (prey.RaceProps.predator && !prey.Downed)
                 {
                     float requiredPredatorCP = prey.kindDef.combatPower * (4f / 3f);
                     if (predator.kindDef.combatPower < requiredPredatorCP)

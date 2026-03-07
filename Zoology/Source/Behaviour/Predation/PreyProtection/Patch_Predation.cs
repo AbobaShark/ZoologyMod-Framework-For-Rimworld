@@ -16,6 +16,12 @@ namespace ZoologyMod
     {
         static PredationHarmonyPatches()
         {
+            var s = ZoologyModSettings.Instance;
+            if (s != null && !s.EnablePredatorDefendCorpse)
+            {
+                return;
+            }
+
             var harmony = new Harmony("com.abobashark.zoology.predatorpairs");
             try
             {

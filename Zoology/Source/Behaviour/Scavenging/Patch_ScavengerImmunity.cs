@@ -16,6 +16,12 @@ namespace ZoologyMod.HarmonyPatches
         [HarmonyPatch(typeof(FoodUtility), nameof(FoodUtility.AddFoodPoisoningHediff))]
         private static class Inner_AddFoodPoisoningHediff
         {
+            static bool Prepare()
+            {
+                var s = ZoologyModSettings.Instance;
+                return s == null || s.EnableScavengering;
+            }
+
             static bool Prefix(Pawn pawn, Thing ingestible, FoodPoisonCause cause)
             {
                 try
@@ -51,6 +57,12 @@ namespace ZoologyMod.HarmonyPatches
         [HarmonyPatch(typeof(GasUtility), nameof(GasUtility.PawnGasEffectsTickInterval))]
         private static class Inner_PawnGasEffectsTickInterval
         {
+            static bool Prepare()
+            {
+                var s = ZoologyModSettings.Instance;
+                return s == null || s.EnableScavengering;
+            }
+
             static void Postfix(Pawn pawn, int delta)
             {
                 try

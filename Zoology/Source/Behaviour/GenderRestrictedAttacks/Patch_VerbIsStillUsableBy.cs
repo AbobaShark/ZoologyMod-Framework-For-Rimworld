@@ -10,6 +10,12 @@ namespace ZoologyMod
     [HarmonyLib.HarmonyPatch(typeof(Verb), "IsStillUsableBy")]
     internal static class Patch_VerbIsStillUsableBy
     {
+        internal static bool Prepare()
+        {
+            var s = ZoologyModSettings.Instance;
+            return s == null || s.EnableGenderRestrictedAttacks;
+        }
+
         
         internal static void Postfix(Verb __instance, ref bool __result, Pawn pawn)
         {

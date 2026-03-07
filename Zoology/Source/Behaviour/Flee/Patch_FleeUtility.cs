@@ -8,6 +8,12 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(FleeUtility), nameof(FleeUtility.ShouldAnimalFleeDanger))]
     public static class Patch_ShouldAnimalFleeDanger_PrefixReplace
     {
+        public static bool Prepare()
+        {
+            var s = ZoologyModSettings.Instance;
+            return s == null || s.EnableCustomFleeDanger;
+        }
+
         public static bool Prefix(Pawn pawn, ref bool __result)
         {
             if (!ModConstants.Settings.EnableCustomFleeDanger)

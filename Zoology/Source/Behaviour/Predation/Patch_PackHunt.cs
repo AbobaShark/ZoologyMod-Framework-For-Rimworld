@@ -15,6 +15,12 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(JobGiver_GetFood), "TryGiveJob")]
     public static class HerdPredatorHuntPatch
     {
+        public static bool Prepare()
+        {
+            var s = ZoologyModSettings.Instance;
+            return s == null || s.EnablePackHunt;
+        }
+
         
         private const float HerdRadius = 35f;
 
@@ -22,6 +28,9 @@ namespace ZoologyMod
         {
             try
             {
+                var s = ZoologyModSettings.Instance;
+                if (s != null && !s.EnablePackHunt) return;
+
                 if (pawn == null || __result == null) return;
                 if (__result.def != JobDefOf.PredatorHunt) return;
 

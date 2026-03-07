@@ -19,6 +19,12 @@ namespace ZoologyMod.HarmonyPatches
         [HarmonyPatch("IngestibleNow", MethodType.Getter)]
         private static class Inner_Corpse_IngestibleNow
         {
+            static bool Prepare()
+            {
+                var s = ZoologyModSettings.Instance;
+                return s == null || s.EnableScavengering;
+            }
+
             static bool Prefix(Corpse __instance, ref bool __result)
             {
                 try
@@ -144,6 +150,12 @@ namespace ZoologyMod.HarmonyPatches
         [HarmonyPatch]
         private static class Inner_TryGetIsFreshFactor
         {
+            static bool Prepare()
+            {
+                var s = ZoologyModSettings.Instance;
+                return s == null || s.EnableScavengering;
+            }
+
             static MethodBase TargetMethod() => TargetMethod_TryGetIsFreshFactor();
             static bool Prefix(StatRequest req, ref float factor) => Prefix_TryGetIsFreshFactor(req, ref factor);
         }
@@ -152,6 +164,12 @@ namespace ZoologyMod.HarmonyPatches
         [HarmonyPatch(typeof(FoodUtility), nameof(FoodUtility.GetBodyPartNutrition), new[] { typeof(Corpse), typeof(BodyPartRecord) })]
         private static class Inner_FoodUtility_GetBodyPartNutrition
         {
+            static bool Prepare()
+            {
+                var s = ZoologyModSettings.Instance;
+                return s == null || s.EnableScavengering;
+            }
+
             static bool Prefix(Corpse corpse, BodyPartRecord part, ref float __result)
             {
                 try
@@ -198,6 +216,12 @@ namespace ZoologyMod.HarmonyPatches
         [HarmonyPatch(typeof(Toils_Ingest), "FinalizeIngest")]
         private static class Inner_ToilsIngest_FinalizeIngest
         {
+            static bool Prepare()
+            {
+                var s = ZoologyModSettings.Instance;
+                return s == null || s.EnableScavengering;
+            }
+
             static void Postfix(ref Toil __result, Pawn ingester, TargetIndex ingestibleInd)
             {
                 try
@@ -308,6 +332,12 @@ namespace ZoologyMod.HarmonyPatches
         [HarmonyPatch]
         private static class Inner_IngestedCalculateAmounts
         {
+            static bool Prepare()
+            {
+                var s = ZoologyModSettings.Instance;
+                return s == null || s.EnableScavengering;
+            }
+
             static MethodBase TargetMethod() => TargetMethod_IngestedCalculateAmounts();
             static void Prefix(Pawn ingester) => Prefix_IngestedCalculateAmounts(ingester);
             static void Postfix(Pawn ingester) => Postfix_IngestedCalculateAmounts(ingester);

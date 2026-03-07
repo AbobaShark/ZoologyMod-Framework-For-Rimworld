@@ -13,6 +13,12 @@ namespace ZoologyMod
     [HarmonyPatch("ChewIngestible", new Type[] { typeof(Pawn), typeof(float), typeof(TargetIndex), typeof(TargetIndex) })]
     public static class Patch_ToilsIngest_ChewIngestible
     {
+        public static bool Prepare()
+        {
+            var s = ZoologyModSettings.Instance;
+            return s == null || s.EnablePredatorDefendCorpse;
+        }
+
         
         
         

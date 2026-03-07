@@ -275,6 +275,11 @@ namespace ZoologyMod
         {
             base.GameComponentTick();
 
+            if (ZoologyModSettings.Instance != null && !ZoologyModSettings.Instance.EnablePreyFleeFromPredators)
+            {
+                return;
+            }
+
             if (Find.TickManager == null) return;
             tickCounter++;
             long now = Find.TickManager.TicksGame;

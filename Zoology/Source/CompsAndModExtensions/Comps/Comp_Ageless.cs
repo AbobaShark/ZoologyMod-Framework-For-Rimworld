@@ -40,6 +40,9 @@ namespace ZoologyMod
         {
             base.CompTick();
 
+            var settings = ZoologyModSettings.Instance;
+            if (settings != null && !settings.EnableAgelessPatch) return;
+
             
             Pawn pawn = parent as Pawn;
             if (pawn == null) return;
@@ -239,6 +242,12 @@ namespace ZoologyMod
         {
             try
             {
+                var settings = ZoologyModSettings.Instance;
+                if (settings != null && !settings.EnableAgelessPatch)
+                {
+                    return;
+                }
+
                 var harmony = new Harmony("zoology.ageless");
                 
                 var hediffGiverType = typeof(HediffGiver);
@@ -273,6 +282,12 @@ namespace ZoologyMod
         {
             try
             {
+                var settings = ZoologyModSettings.Instance;
+                if (settings != null && !settings.EnableAgelessPatch)
+                {
+                    return true;
+                }
+
                 if (pawn == null) return true;
 
                 

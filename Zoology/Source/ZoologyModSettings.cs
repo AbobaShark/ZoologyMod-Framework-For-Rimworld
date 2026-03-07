@@ -18,9 +18,19 @@ namespace ZoologyMod
         public bool EnableSmallPetFleeFromRaiders = true;
         public bool EnableIgnoreSmallPetsByRaiders = true;
         public bool EnablePreyFleeFromPredators = true;
-        public bool EnablePredatorOnPredatorHuntCheck = true;
+        public bool EnablePackHunt = true;
+        public bool EnableAdvancedPredationLogic = true;
         public bool EnableHumanBionicOnAnimal = true;
         public bool EnableAgroAtSlaughter = true;
+        public bool EnableCannotBeMutatedProtection = true;
+        public bool EnableNoFleeExtension = true;
+        public bool EnableFleeFromCarrier = true;
+        public bool EnableFlyingFleeStart = true;
+        public bool EnableGenderRestrictedAttacks = true;
+        public bool EnableEctothermicPatch = true;
+        public bool EnableAgelessPatch = true;
+        public bool EnableDrugsImmunePatch = true;
+        public bool EnableNoPorcupineQuillPatch = true;
         public static bool EnableMammalLactation = true;
         public bool EnablePredatorDefendCorpse = true;
         public bool EnableScavengering = true;
@@ -151,7 +161,10 @@ namespace ZoologyMod
             list.CheckboxLabeled("Enable prey fleeing from predators", ref EnablePreyFleeFromPredators, "Makes prey animals flee from nearby hunting predators.");
 
             list.GapLine(12f);
-            list.CheckboxLabeled("Enable predator-on-predator hunt check", ref EnablePredatorOnPredatorHuntCheck, "Predators only hunt other predators if their combat power is at least 4/3 times stronger.");
+            list.CheckboxLabeled("Enable pack hunt behavior", ref EnablePackHunt, "Allows nearby herd predators to join an ongoing predator hunt.");
+
+            list.GapLine(12f);
+            list.CheckboxLabeled("Enable advanced prey selection logic", ref EnableAdvancedPredationLogic, "Enables the full Zoology override for FoodUtility.IsAcceptablePreyFor (mammal baby checks, pursuit block checks, and predator-vs-predator constraints). Disable for vanilla prey selection behavior.");
 
             list.GapLine(12f);
             list.CheckboxLabeled("Enable predators defending their kills", ref EnablePredatorDefendCorpse, "If disabled, predators will not defend owned corpses / kills — corpses will be treated as unowned for other predators.");
@@ -184,6 +197,33 @@ namespace ZoologyMod
 
             list.GapLine(12f);
             list.CheckboxLabeled("Enable agro-on-slaughter", ref EnableAgroAtSlaughter, "When enabled, animals with the AgroAtSlaughter comp will react aggressively to slaughter designations (only if not downed).");
+
+            list.GapLine(12f);
+            list.CheckboxLabeled("Enable cannot-be-mutated protection", ref EnableCannotBeMutatedProtection, "When disabled, Zoology will not patch mutation/biomutation target validation and related mutation protection hooks.");
+
+            list.GapLine(12f);
+            list.CheckboxLabeled("Enable no-flee extension behavior", ref EnableNoFleeExtension, "When disabled, Zoology will not patch NoFlee extension behavior in flee and panic mental-state logic.");
+
+            list.GapLine(12f);
+            list.CheckboxLabeled("Enable flee-from-carrier behavior", ref EnableFleeFromCarrier, "When disabled, Zoology will not patch carrier-based flee behavior.");
+
+            list.GapLine(12f);
+            list.CheckboxLabeled("Enable flying flee start patch", ref EnableFlyingFleeStart, "When disabled, Zoology will not patch Pawn_FlightTracker.Notify_JobStarted for forced flying flee.");
+
+            list.GapLine(12f);
+            list.CheckboxLabeled("Enable gender-restricted attacks patch", ref EnableGenderRestrictedAttacks, "When disabled, Zoology will not patch Verb.IsStillUsableBy for tool gender restrictions.");
+
+            list.GapLine(12f);
+            list.CheckboxLabeled("Enable ectothermic temperature patch", ref EnableEctothermicPatch, "When disabled, Zoology will unpatch ectothermic hypothermia handling.");
+
+            list.GapLine(12f);
+            list.CheckboxLabeled("Enable ageless hediff patch", ref EnableAgelessPatch, "When disabled, Zoology will unpatch HediffGiver.TryApply interception for CompAgeless.");
+
+            list.GapLine(12f);
+            list.CheckboxLabeled("Enable drugs-immune ingestion patch", ref EnableDrugsImmunePatch, "When disabled, Zoology will unpatch ingestion outcome interception for CompDrugsImmune.");
+
+            list.GapLine(12f);
+            list.CheckboxLabeled("Enable no-porcupine-quill patch", ref EnableNoPorcupineQuillPatch, "When disabled, Zoology will unpatch PorcupineQuill prevention/removal hooks.");
 
             list.GapLine(12f);
             list.CheckboxLabeled("Enable mammal lactation", ref EnableMammalLactation, "Enables lactation for female mammals, allowing them to produce milk for their offspring.");
@@ -334,8 +374,19 @@ namespace ZoologyMod
                 EnableSmallPetFleeFromRaiders = true;
                 EnableIgnoreSmallPetsByRaiders = true;
                 EnablePreyFleeFromPredators = true;
-                EnablePredatorOnPredatorHuntCheck = true;
+                EnablePackHunt = true;
+                EnableAdvancedPredationLogic = true;
                 EnableHumanBionicOnAnimal = true;
+                EnableAgroAtSlaughter = true;
+                EnableCannotBeMutatedProtection = true;
+                EnableNoFleeExtension = true;
+                EnableFleeFromCarrier = true;
+                EnableFlyingFleeStart = true;
+                EnableGenderRestrictedAttacks = true;
+                EnableEctothermicPatch = true;
+                EnableAgelessPatch = true;
+                EnableDrugsImmunePatch = true;
+                EnableNoPorcupineQuillPatch = true;
                 EnableMammalLactation = true;
                 _smallPetBodySizeThreshold = ModConstants.DefaultSmallPetBodySizeThreshold;
                 _safePredatorBodySizeThreshold = ModConstants.DefaultSafePredatorBodySizeThreshold;
@@ -371,8 +422,24 @@ namespace ZoologyMod
             Scribe_Values.Look(ref EnableSmallPetFleeFromRaiders, "EnableSmallPetFleeFromRaiders", true);
             Scribe_Values.Look(ref EnableIgnoreSmallPetsByRaiders, "EnableIgnoreSmallPetsByRaiders", true);
             Scribe_Values.Look(ref EnablePreyFleeFromPredators, "EnablePreyFleeFromPredators", true);
-            Scribe_Values.Look(ref EnablePredatorOnPredatorHuntCheck, "EnablePredatorOnPredatorHuntCheck", true);
+            Scribe_Values.Look(ref EnablePackHunt, "EnablePackHunt", true);
+            Scribe_Values.Look(ref EnableAdvancedPredationLogic, "EnableAdvancedPredationLogic", true);
+            bool legacyAdvancedPredation = EnableAdvancedPredationLogic;
+            Scribe_Values.Look(ref legacyAdvancedPredation, "EnablePredatorOnPredatorHuntCheck", EnableAdvancedPredationLogic);
+            if (!legacyAdvancedPredation)
+            {
+                EnableAdvancedPredationLogic = false;
+            }
             Scribe_Values.Look(ref EnableHumanBionicOnAnimal, "EnableHumanBionicOnAnimal", true);
+            Scribe_Values.Look(ref EnableCannotBeMutatedProtection, "EnableCannotBeMutatedProtection", true);
+            Scribe_Values.Look(ref EnableNoFleeExtension, "EnableNoFleeExtension", true);
+            Scribe_Values.Look(ref EnableFleeFromCarrier, "EnableFleeFromCarrier", true);
+            Scribe_Values.Look(ref EnableFlyingFleeStart, "EnableFlyingFleeStart", true);
+            Scribe_Values.Look(ref EnableGenderRestrictedAttacks, "EnableGenderRestrictedAttacks", true);
+            Scribe_Values.Look(ref EnableEctothermicPatch, "EnableEctothermicPatch", true);
+            Scribe_Values.Look(ref EnableAgelessPatch, "EnableAgelessPatch", true);
+            Scribe_Values.Look(ref EnableDrugsImmunePatch, "EnableDrugsImmunePatch", true);
+            Scribe_Values.Look(ref EnableNoPorcupineQuillPatch, "EnableNoPorcupineQuillPatch", true);
             Scribe_Values.Look(ref _smallPetBodySizeThreshold, "SmallPetBodySizeThreshold", ModConstants.DefaultSmallPetBodySizeThreshold);
             Scribe_Values.Look(ref _safePredatorBodySizeThreshold, "SafePredatorBodySizeThreshold", ModConstants.DefaultSafePredatorBodySizeThreshold);
             Scribe_Values.Look(ref _safeNonPredatorBodySizeThreshold, "SafeNonPredatorBodySizeThreshold", ModConstants.DefaultSafeNonPredatorBodySizeThreshold);
@@ -425,6 +492,32 @@ namespace ZoologyMod
             if (AllowSlaughterLactatingPerAnimal == null)
                 AllowSlaughterLactatingPerAnimal = new Dictionary<string, bool>();
             AllowSlaughterLactatingPerAnimal[animal.defName] = value;
+        }
+
+        public bool AreAllRuntimeTogglesDisabled()
+        {
+            return !EnableCustomFleeDanger
+                && !EnableSmallPetFleeFromRaiders
+                && !EnableIgnoreSmallPetsByRaiders
+                && !EnablePreyFleeFromPredators
+                && !EnablePackHunt
+                && !EnableAdvancedPredationLogic
+                && !EnableHumanBionicOnAnimal
+                && !EnableAgroAtSlaughter
+                && !EnableCannotBeMutatedProtection
+                && !EnableNoFleeExtension
+                && !EnableFleeFromCarrier
+                && !EnableFlyingFleeStart
+                && !EnableGenderRestrictedAttacks
+                && !EnableEctothermicPatch
+                && !EnableAgelessPatch
+                && !EnableDrugsImmunePatch
+                && !EnableNoPorcupineQuillPatch
+                && !EnableMammalLactation
+                && !EnablePredatorDefendCorpse
+                && !EnableScavengering
+                && !EnableAnimalDamageReduction
+                && !EnableOverrideCEPenetration;
         }
     }
 }

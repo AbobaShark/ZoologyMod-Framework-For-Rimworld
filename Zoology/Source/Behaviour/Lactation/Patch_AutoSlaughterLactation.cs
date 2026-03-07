@@ -15,6 +15,8 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(AutoSlaughterManager), "get_AnimalsToSlaughter")]
     static class Patch_AutoSlaughterManager_GetAnimalsToSlaughter
     {
+        static bool Prepare() => ZoologyModSettings.EnableMammalLactation;
+
         static bool Prefix(AutoSlaughterManager __instance, ref List<Pawn> __result)
         {
             try
@@ -335,6 +337,8 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(RimWorld.Dialog_AutoSlaughter), "RecalculateAnimals")]
     static class Patch_Dialog_AutoSlaughter_Recalculate
     {
+        static bool Prepare() => ZoologyModSettings.EnableMammalLactation;
+
         static bool Prefix(RimWorld.Dialog_AutoSlaughter __instance)
         {
             try
@@ -484,6 +488,8 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(RimWorld.Dialog_AutoSlaughter), "DoAnimalHeader")]
     static class Patch_Dialog_AutoSlaughter_DoAnimalHeader
     {
+        static bool Prepare() => ZoologyModSettings.EnableMammalLactation;
+
         static bool Prefix(RimWorld.Dialog_AutoSlaughter __instance, Rect rect1, Rect rect2)
         {
             try
@@ -602,6 +608,8 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(RimWorld.Dialog_AutoSlaughter), "DoAnimalRow")]
     static class Patch_Dialog_AutoSlaughter_DoAnimalRow
     {
+        static bool Prepare() => ZoologyModSettings.EnableMammalLactation;
+
         static bool Prefix(RimWorld.Dialog_AutoSlaughter __instance, Rect rect, AutoSlaughterConfig config, int index)
         {
             bool groupStarted = false;

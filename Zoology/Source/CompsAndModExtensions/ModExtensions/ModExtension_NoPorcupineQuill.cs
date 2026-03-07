@@ -17,13 +17,16 @@ namespace ZoologyMod
     [StaticConstructorOnStartup]
     public static class NoPorcupineQuill_HarmonyPatches
     {
-        
-        private const int CleanupIntervalTicks = 6000;
-
         static NoPorcupineQuill_HarmonyPatches()
         {
             try
             {
+                var settings = ZoologyModSettings.Instance;
+                if (settings != null && !settings.EnableNoPorcupineQuillPatch)
+                {
+                    return;
+                }
+
                 var harmony = new Harmony("com.abobashark.zoology.noporcupinequill");
 
                 
@@ -38,17 +41,15 @@ namespace ZoologyMod
                     Log.Warning("[Zoology.NoPorcupineQuill] HediffSet.AddDirect not found - can't patch add-blocking.");
                 }
 
-                
-                
-                var pawnTick = AccessTools.Method(typeof(Pawn), "Tick");
-                if (pawnTick != null)
+                var spawnSetup = AccessTools.Method(typeof(Pawn), "SpawnSetup", new Type[] { typeof(Map), typeof(bool) });
+                if (spawnSetup != null)
                 {
-                    var pawnTickPrefix = new HarmonyMethod(typeof(NoPorcupineQuill_HarmonyPatches), nameof(PawnTick_Prefix));
-                    harmony.Patch(pawnTick, prefix: pawnTickPrefix);
+                    var spawnSetupPostfix = new HarmonyMethod(typeof(NoPorcupineQuill_HarmonyPatches), nameof(PawnSpawnSetup_Postfix));
+                    harmony.Patch(spawnSetup, postfix: spawnSetupPostfix);
                 }
                 else
                 {
-                    Log.Warning("[Zoology.NoPorcupineQuill] Pawn.Tick not found - can't patch periodic cleanup.");
+                    Log.Warning("[Zoology.NoPorcupineQuill] Pawn.SpawnSetup not found - can't patch one-shot cleanup.");
                 }
             }
             catch (Exception e)
@@ -57,39 +58,59 @@ namespace ZoologyMod
             }
         }
 
-        
-        
+        private static bool IsNoPorcupineQuillEnabled()
+        {
+            var settings = ZoologyModSettings.Instance;
+            return settings == null || settings.EnableNoPorcupineQuillPatch;
+        }
+
+        private static bool IsTargetPorcupineQuill(Hediff hediff)
+        {
+            if (hediff?.def == null) return false;
+            return string.Equals(hediff.def.defName, "PorcupineQuill", StringComparison.Ordinal);
+        }
+
+        private static void TryRemoveExistingPorcupineQuill(Pawn pawn)
+        {
+            if (pawn == null) return;
+            if (pawn.def?.GetModExtension<ModExtension_NoPorcupineQuill>() == null) return;
+
+            var hediffSet = pawn.health?.hediffSet;
+            if (hediffSet == null) return;
+
+            var porcupineDef = DefDatabase<HediffDef>.GetNamedSilentFail("PorcupineQuill");
+            if (porcupineDef == null) return;
+
+            var existing = hediffSet.GetFirstHediffOfDef(porcupineDef, false);
+            if (existing != null)
+            {
+                pawn.health.RemoveHediff(existing);
+                if (Prefs.DevMode)
+                    Log.Message($"[Zoology.NoPorcupineQuill] removed {porcupineDef.defName} from {pawn.LabelShort} ({pawn.ThingID}) on spawn.");
+            }
+        }
+
         public static bool AddDirect_Prefix(HediffSet __instance, Hediff hediff)
         {
             try
             {
-                if (hediff == null || __instance?.pawn == null) return true;
-
-                var pawn = __instance.pawn;
-
-                
-                var ext = pawn.def?.GetModExtension<ModExtension_NoPorcupineQuill>();
-                if (ext == null) return true; 
-
-                
-                var porcupineDef = DefDatabase<HediffDef>.GetNamedSilentFail("PorcupineQuill");
-                if (porcupineDef == null)
+                if (!IsNoPorcupineQuillEnabled())
                 {
-                    
                     return true;
                 }
 
-                
-                if (hediff.def == porcupineDef)
-                {
-                    
-                    if (Prefs.DevMode)
-                        Log.Message($"[Zoology.NoPorcupineQuill] prevented adding {hediff.def.defName} to pawn {pawn.LabelShort} ({pawn.ThingID})");
+                if (!IsTargetPorcupineQuill(hediff)) return true;
+                if (__instance?.pawn == null) return true;
 
-                    return false; 
-                }
+                var pawn = __instance.pawn;
 
-                return true;
+                var ext = pawn.def?.GetModExtension<ModExtension_NoPorcupineQuill>();
+                if (ext == null) return true; 
+
+                if (Prefs.DevMode)
+                    Log.Message($"[Zoology.NoPorcupineQuill] prevented adding {hediff.def.defName} to pawn {pawn.LabelShort} ({pawn.ThingID})");
+
+                return false; 
             }
             catch (Exception e)
             {
@@ -99,42 +120,20 @@ namespace ZoologyMod
             }
         }
 
-        
-        
-        public static void PawnTick_Prefix(Pawn __instance)
+        public static void PawnSpawnSetup_Postfix(Pawn __instance)
         {
             try
             {
-                var pawn = __instance;
-                if (pawn == null) return;
-
-                
-                if (!pawn.IsHashIntervalTick(CleanupIntervalTicks)) return;
-
-                
-                var ext = pawn.def?.GetModExtension<ModExtension_NoPorcupineQuill>();
-                if (ext == null) return;
-
-                
-                var porcupineDef = DefDatabase<HediffDef>.GetNamedSilentFail("PorcupineQuill");
-                if (porcupineDef == null) return;
-
-                var hediffSet = pawn.health?.hediffSet;
-                if (hediffSet == null) return;
-
-                var existing = hediffSet.GetFirstHediffOfDef(porcupineDef, false);
-                if (existing != null)
+                if (!IsNoPorcupineQuillEnabled())
                 {
-                    
-                    pawn.health.RemoveHediff(existing);
-                    if (Prefs.DevMode)
-                        Log.Message($"[Zoology.NoPorcupineQuill] removed {porcupineDef.defName} from {pawn.LabelShort} ({pawn.ThingID})");
+                    return;
                 }
+
+                TryRemoveExistingPorcupineQuill(__instance);
             }
             catch (Exception e)
             {
-                
-                Log.Error($"[Zoology.NoPorcupineQuill] error in PawnTick_Prefix cleanup: {e}");
+                Log.Error($"[Zoology.NoPorcupineQuill] error in PawnSpawnSetup_Postfix cleanup: {e}");
             }
         }
     }

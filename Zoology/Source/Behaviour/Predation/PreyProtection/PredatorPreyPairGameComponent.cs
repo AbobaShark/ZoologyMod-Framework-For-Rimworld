@@ -361,6 +361,11 @@ namespace ZoologyMod
             base.GameComponentTick();
             try
             {
+                if (ZoologyModSettings.Instance != null && !ZoologyModSettings.Instance.EnablePredatorDefendCorpse)
+                {
+                    return;
+                }
+
                 long now = Find.TickManager?.TicksGame ?? 0L;
                 if (now % TICK_CHECK_INTERVAL != 0) return;
 

@@ -9,6 +9,15 @@ using Verse.AI;
 
 namespace ZoologyMod
 {
+    internal static class AgroAtSlaughterSettingsGate
+    {
+        public static bool Enabled()
+        {
+            var s = ZoologyModSettings.Instance;
+            return s == null || s.EnableAgroAtSlaughter;
+        }
+    }
+
     
     
     
@@ -71,6 +80,8 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(DesignationManager), "AddDesignation")]
     public static class Patch_DesignationManager_AddDesignation_Agro
     {
+        public static bool Prepare() => AgroAtSlaughterSettingsGate.Enabled();
+
         public static void Postfix(DesignationManager __instance, Designation newDes)
         {
             try
@@ -109,6 +120,8 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(JobDriver_Slaughter), "MakeNewToils")]
     public static class Patch_JobDriver_Slaughter_MakeNewToils_Agro
     {
+        public static bool Prepare() => AgroAtSlaughterSettingsGate.Enabled();
+
         public static void Postfix(JobDriver_Slaughter __instance, ref IEnumerable<Toil> __result)
         {
             try
@@ -188,6 +201,8 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(RitualRoleAnimal), "AppliesToPawn")]
     public static class Patch_RitualRoleAnimal_AppliesToPawn
     {
+        public static bool Prepare() => AgroAtSlaughterSettingsGate.Enabled();
+
         public static void Postfix(RitualRoleAnimal __instance, Pawn p, ref bool __result, ref string reason, TargetInfo selectedTarget, LordJob_Ritual ritual = null, RitualRoleAssignments assignments = null, Precept_Ritual precept = null, bool skipReason = false)
         {
             try

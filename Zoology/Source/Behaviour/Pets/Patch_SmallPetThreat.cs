@@ -12,6 +12,12 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(Pawn), "ThreatDisabledBecauseNonAggressiveRoamer")]
     public static class Patch_SmallPetThreatDisabled
     {
+        public static bool Prepare()
+        {
+            var s = ZoologyModSettings.Instance;
+            return s == null || s.EnableIgnoreSmallPetsByRaiders;
+        }
+
         public static void Postfix(Pawn __instance, Pawn otherPawn, ref bool __result)
         {
             

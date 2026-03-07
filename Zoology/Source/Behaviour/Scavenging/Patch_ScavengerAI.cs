@@ -17,6 +17,12 @@ namespace ZoologyMod.HarmonyPatches
         [HarmonyPatch("BestFoodSourceOnMap")]
         private static class Inner_FoodUtility_BestFoodSourceOnMap
         {
+            static bool Prepare()
+            {
+                var s = ZoologyModSettings.Instance;
+                return s == null || s.EnableScavengering;
+            }
+
             static void Postfix(Pawn getter, Pawn eater, bool desperate, ref Thing __result, ref ThingDef foodDef,
                 FoodPreferability maxPref = FoodPreferability.MealLavish, bool allowPlant = true, bool allowDrug = true,
                 bool allowCorpse = true, bool allowDispenserFull = true, bool allowDispenserEmpty = true,
@@ -132,6 +138,12 @@ namespace ZoologyMod.HarmonyPatches
         [HarmonyPatch(typeof(JobDriver_Ingest), "Notify_Starting")]
         private static class Inner_JobDriver_Ingest_NotifyStarting
         {
+            static bool Prepare()
+            {
+                var s = ZoologyModSettings.Instance;
+                return s == null || s.EnableScavengering;
+            }
+
             static void Postfix(JobDriver_Ingest __instance)
             {
                 try
@@ -171,6 +183,12 @@ namespace ZoologyMod.HarmonyPatches
         [HarmonyPatch(typeof(JobDriver), "EndJobWith")]
         private static class Inner_JobDriver_EndJobWith_ClearEatingContext
         {
+            static bool Prepare()
+            {
+                var s = ZoologyModSettings.Instance;
+                return s == null || s.EnableScavengering;
+            }
+
             static void Postfix(JobDriver __instance, JobCondition condition)
             {
                 try

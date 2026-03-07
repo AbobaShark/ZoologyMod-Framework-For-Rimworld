@@ -11,9 +11,20 @@ using Verse.AI;
 
 namespace ZoologyMod
 {
+    internal static class PredationSettingsGate
+    {
+        public static bool EnablePredatorDefendCorpse()
+        {
+            var s = ZoologyModSettings.Instance;
+            return s == null || s.EnablePredatorDefendCorpse;
+        }
+    }
+
     [HarmonyPatch(typeof(Faction), "Notify_MemberTookDamage")]
     public static class Patch_Faction_Notify_MemberTookDamage
     {
+        public static bool Prepare() => PredationSettingsGate.EnablePredatorDefendCorpse();
+
         static void Postfix(Faction __instance, Pawn member, DamageInfo dinfo)
         {
             try
@@ -87,6 +98,8 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(GenHostility), "GetPreyOfMyFaction", new Type[] { typeof(Pawn), typeof(Faction) })]
     public static class Patch_GenHostility_GetPreyOfMyFaction
     {
+        public static bool Prepare() => PredationSettingsGate.EnablePredatorDefendCorpse();
+
         static void Postfix(Pawn predator, Faction myFaction, ref Pawn __result)
         {
             try
@@ -145,6 +158,8 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(JobGiver_ReactToCloseMeleeThreat), "IsHunting", new Type[] { typeof(Pawn), typeof(Pawn) })]
     public static class Patch_ReactToCloseMeleeThreat_IsHunting
     {
+        public static bool Prepare() => PredationSettingsGate.EnablePredatorDefendCorpse();
+
         
         static void Postfix(Pawn pawn, Pawn prey, ref bool __result)
         {
@@ -196,6 +211,8 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(PawnUtility), "IsFighting", new Type[] { typeof(Pawn) })]
     public static class Patch_PawnUtility_IsFighting
     {
+        public static bool Prepare() => PredationSettingsGate.EnablePredatorDefendCorpse();
+
         static void Postfix(Pawn pawn, ref bool __result)
         {
             try
@@ -282,6 +299,8 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(Faction), "HasPredatorRecentlyAttackedAnyone", new Type[] { typeof(Pawn) })]
     public static class Patch_Faction_HasPredatorRecentlyAttackedAnyone
     {
+        public static bool Prepare() => PredationSettingsGate.EnablePredatorDefendCorpse();
+
         static void Postfix(Faction __instance, Pawn predator, ref bool __result)
         {
             try
@@ -345,6 +364,8 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(GenHostility), "IsPredatorHostileTo", new Type[] { typeof(Pawn), typeof(Faction) })]
     public static class Patch_GenHostility_IsPredatorHostileTo
     {
+        public static bool Prepare() => PredationSettingsGate.EnablePredatorDefendCorpse();
+
         static void Postfix(Pawn predator, Faction toFaction, ref bool __result)
         {
             try
@@ -394,6 +415,8 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(AttackTargetsCache), "GetPotentialTargetsFor", new Type[] { typeof(IAttackTargetSearcher) })]
     public static class Patch_AttackTargetsCache_GetPotentialTargetsFor
     {
+        public static bool Prepare() => PredationSettingsGate.EnablePredatorDefendCorpse();
+
         
         static void Postfix(AttackTargetsCache __instance, IAttackTargetSearcher th, ref List<IAttackTarget> __result)
         {

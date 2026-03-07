@@ -11,10 +11,20 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(Pawn_FlightTracker), "Notify_JobStarted")]
     public static class Patch_FlyingFleeStart
     {
+        public static bool Prepare()
+        {
+            var s = ZoologyModSettings.Instance;
+            return s == null || s.EnableFlyingFleeStart;
+        }
+
         public static bool Prefix(Pawn_FlightTracker __instance, Job job)
         {
             try
             {
+                var s = ZoologyModSettings.Instance;
+                if (s != null && !s.EnableFlyingFleeStart)
+                    return true;
+
                 
                 if (job == null || job.def == null)
                     return true; 

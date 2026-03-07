@@ -11,6 +11,12 @@ namespace ZoologyMod.Patches
     [HarmonyPatch]
     public static class DamageReduction_AnimalTypes_PawnTakeDamage
     {
+        public static bool Prepare()
+        {
+            var s = ZoologyModSettings.Instance;
+            return s == null || s.EnableAnimalDamageReduction;
+        }
+
         private static readonly Type ScratchWorkerType = AccessTools.TypeByName("DamageWorker_Scratch");
         private static readonly Type BiteWorkerType = AccessTools.TypeByName("DamageWorker_Bite");
         private static readonly Type BluntWorkerType = AccessTools.TypeByName("DamageWorker_Blunt");
