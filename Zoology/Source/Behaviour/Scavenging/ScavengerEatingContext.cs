@@ -14,8 +14,10 @@ namespace ZoologyMod
     public static class ScavengerEatingContext
     {
         [ThreadStatic] private static Dictionary<Pawn, Thing> pawnToTarget;
+        [ThreadStatic] private static List<Pawn> tempPawnsToRemove;
 
         private static Dictionary<Pawn, Thing> Map => pawnToTarget ?? (pawnToTarget = new Dictionary<Pawn, Thing>());
+        private static List<Pawn> TempPawnsToRemove => tempPawnsToRemove ?? (tempPawnsToRemove = new List<Pawn>(16));
 
         
         
@@ -69,7 +71,8 @@ namespace ZoologyMod
             {
                 if (corpse == null) return null;
                 var dict = Map;
-                var toRemove = new List<Pawn>();
+                var toRemove = TempPawnsToRemove;
+                toRemove.Clear();
 
                 foreach (var kv in dict)
                 {
@@ -118,6 +121,7 @@ namespace ZoologyMod
                 {
                     try { dict.Remove(rp); } catch { }
                 }
+                toRemove.Clear();
             }
             catch (Exception e)
             {

@@ -24,6 +24,20 @@ namespace ZoologyMod.HarmonyPatches
         
         
         private static readonly Dictionary<int, int> corpseAssignedTick = new Dictionary<int, int>();
+        private static readonly List<int> corpseCleanupKeys = new List<int>(256);
+        private static int lastCorpseCleanupTick = -1;
+        private const int CorpseCleanupIntervalTicks = 60;
+
+        private static readonly PropertyInfo FindReservationsProperty =
+            typeof(Find).GetProperty("Reservations", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+
+        private static readonly Dictionary<Type, MethodInfo[]> reserveMethodsByPawnType = new Dictionary<Type, MethodInfo[]>();
+        private static readonly Dictionary<Type, MethodInfo[]> reserveMethodsByReservationsType = new Dictionary<Type, MethodInfo[]>();
+        private static readonly Dictionary<Type, MethodInfo[]> releaseMethodsByReservationsType = new Dictionary<Type, MethodInfo[]>();
+        private static readonly Dictionary<Type, MethodInfo> firstReserverMethodByReservationsType = new Dictionary<Type, MethodInfo>();
+        private static readonly Dictionary<Type, ConstructorInfo> localTargetCtorByType = new Dictionary<Type, ConstructorInfo>();
+        private static readonly Dictionary<Type, ConstructorInfo> targetInfoCtorByType = new Dictionary<Type, ConstructorInfo>();
+        private static readonly Dictionary<Type, Func<object, Job>> queuedJobGetterByType = new Dictionary<Type, Func<object, Job>>();
 
         static void Postfix(Pawn pawn, ref Job __result)
         {
@@ -138,23 +152,7 @@ namespace ZoologyMod.HarmonyPatches
                 }
 
                 
-                if (pawn.jobs != null)
-                {
-                    Job cur = pawn.CurJob;
-                    if (cur != null && cur.def == JobDefOf.Ingest && cur.targetA.Thing == found) return;
-
-                    var queue = pawn.jobs.jobQueue;
-                    if (queue != null)
-                    {
-                        for (int i = 0; i < queue.Count; i++)
-                        {
-                            object queuedItem = queue[i];
-                            if (queuedItem == null) continue;
-                            Job queuedJob = GetJobFromQueuedItem(queuedItem);
-                            if (queuedJob != null && queuedJob.def == JobDefOf.Ingest && queuedJob.targetA.Thing == found) return;
-                        }
-                    }
-                }
+                if (HasIngestJobForTarget(pawn, found)) return;
 
                 ThingDef fd;
                 try { fd = FoodUtility.GetFinalIngestibleDef(found, false); }
@@ -212,23 +210,7 @@ namespace ZoologyMod.HarmonyPatches
                 }
 
                 
-                if (pawn.jobs != null)
-                {
-                    Job cur = pawn.CurJob;
-                    if (cur != null && cur.def == JobDefOf.Ingest && cur.targetA.Thing == found) return;
-
-                    var queue = pawn.jobs.jobQueue;
-                    if (queue != null)
-                    {
-                        for (int i = 0; i < queue.Count; i++)
-                        {
-                            object queuedItem = queue[i];
-                            if (queuedItem == null) continue;
-                            Job queuedJob = GetJobFromQueuedItem(queuedItem);
-                            if (queuedJob != null && queuedJob.def == JobDefOf.Ingest && queuedJob.targetA.Thing == found) return;
-                        }
-                    }
-                }
+                if (HasIngestJobForTarget(pawn, found)) return;
 
                 
                 if (found == null || !found.Spawned || found.Destroyed) return;
@@ -245,31 +227,7 @@ namespace ZoologyMod.HarmonyPatches
                 __result = job;
 
                 
-                try
-                {
-                    if (corpseAssignedTick.Count > 1000)
-                    {
-                        var keys = new List<int>(corpseAssignedTick.Keys);
-                        foreach (var k in keys)
-                        {
-                            if (corpseAssignedTick.TryGetValue(k, out int t) && t < currentTick - 1)
-                                corpseAssignedTick.Remove(k);
-                        }
-                    }
-                    else
-                    {
-                        var toRemove = new List<int>();
-                        foreach (var kv in corpseAssignedTick)
-                        {
-                            if (kv.Value < currentTick - 1) toRemove.Add(kv.Key);
-                        }
-                        foreach (var k in toRemove) corpseAssignedTick.Remove(k);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Log.Error("[Zoology] CorpseAssignedTickCleanupFailed: " + ex);
-                }
+                CleanupCorpseAssignedTick(currentTick);
             }
             catch (Exception e)
             {
@@ -278,6 +236,62 @@ namespace ZoologyMod.HarmonyPatches
         }
 
         
+
+        private static bool HasIngestJobForTarget(Pawn pawn, Thing target)
+        {
+            try
+            {
+                if (pawn?.jobs == null || target == null) return false;
+
+                Job cur = pawn.CurJob;
+                if (cur != null && cur.def == JobDefOf.Ingest && cur.targetA.Thing == target)
+                    return true;
+
+                var queue = pawn.jobs.jobQueue;
+                if (queue == null) return false;
+
+                for (int i = 0; i < queue.Count; i++)
+                {
+                    object queuedItem = queue[i];
+                    if (queuedItem == null) continue;
+                    Job queuedJob = GetJobFromQueuedItem(queuedItem);
+                    if (queuedJob != null && queuedJob.def == JobDefOf.Ingest && queuedJob.targetA.Thing == target)
+                        return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error("[Zoology] HasIngestJobForTarget failed: " + ex);
+            }
+            return false;
+        }
+
+        private static void CleanupCorpseAssignedTick(int currentTick)
+        {
+            try
+            {
+                if (corpseAssignedTick.Count == 0) return;
+                if (currentTick == lastCorpseCleanupTick) return;
+                if (corpseAssignedTick.Count < 1000 && currentTick - lastCorpseCleanupTick < CorpseCleanupIntervalTicks) return;
+
+                lastCorpseCleanupTick = currentTick;
+                corpseCleanupKeys.Clear();
+
+                foreach (var kv in corpseAssignedTick)
+                {
+                    if (kv.Value < currentTick - 1) corpseCleanupKeys.Add(kv.Key);
+                }
+
+                for (int i = 0; i < corpseCleanupKeys.Count; i++)
+                {
+                    corpseAssignedTick.Remove(corpseCleanupKeys[i]);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error("[Zoology] CorpseAssignedTickCleanupFailed: " + ex);
+            }
+        }
 
         private static bool AttemptReserveAndLog(Pawn pawn, Thing target, Job job)
         {
@@ -328,21 +342,6 @@ namespace ZoologyMod.HarmonyPatches
                     Log.Error("[Zoology] TryReserveViaFindReservations threw: " + ex);
                 }
 
-                
-                try
-                {
-                    Pawn cur = QueryCurrentReserverPawn(target);
-                    if (cur != null)
-                    {
-                        
-                    }
-                    else
-                    {
-                        
-                    }
-                }
-                catch { }
-
             }
             catch (Exception ex)
             {
@@ -351,45 +350,70 @@ namespace ZoologyMod.HarmonyPatches
             return false;
         }
 
-        
-        
-        
+        private static object GetReservationsManager()
+        {
+            try
+            {
+                if (FindReservationsProperty == null) return null;
+                return FindReservationsProperty.GetValue(null);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private static MethodInfo GetFirstReserverMethod(Type reservationsType)
+        {
+            if (reservationsType == null) return null;
+            if (firstReserverMethodByReservationsType.TryGetValue(reservationsType, out var cached)) return cached;
+
+            MethodInfo firstReserverMethod = null;
+            var methods = reservationsType.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            for (int i = 0; i < methods.Length; i++)
+            {
+                var m = methods[i];
+                if (!(m.ReturnType == typeof(Pawn) || m.ReturnType == typeof(object))) continue;
+                var pars = m.GetParameters();
+                if (pars.Length != 1) continue;
+                var pType = pars[0].ParameterType;
+                if (pType == typeof(Thing) || pType.Name.Contains("LocalTargetInfo") || pType.Name.Contains("TargetInfo"))
+                {
+                    string name = m.Name.ToLowerInvariant();
+                    if (name.Contains("firstreserver") || name.Contains("firstreserverof") || name.Contains("reserver"))
+                    {
+                        firstReserverMethod = m;
+                        break;
+                    }
+                    if (firstReserverMethod == null) firstReserverMethod = m;
+                }
+            }
+
+            firstReserverMethodByReservationsType[reservationsType] = firstReserverMethod;
+            return firstReserverMethod;
+        }
+
         private static Pawn QueryCurrentReserverPawn(Thing target)
         {
             try
             {
-                var findType = typeof(Find);
-                var prop = findType.GetProperty("Reservations", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
-                if (prop == null) return null;
-                var reservationsMgr = prop.GetValue(null);
+                if (target == null) return null;
+                var reservationsMgr = GetReservationsManager();
                 if (reservationsMgr == null) return null;
 
                 var resMgrType = reservationsMgr.GetType();
-                MethodInfo firstReserverMethod = null;
-                foreach (var m in resMgrType.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
-                {
-                    if (!(m.ReturnType == typeof(Pawn) || m.ReturnType == typeof(object))) continue;
-                    var pars = m.GetParameters();
-                    if (pars.Length != 1) continue;
-                    var pType = pars[0].ParameterType;
-                    if (pType == typeof(Thing) || pType.Name.Contains("LocalTargetInfo") || pType.Name.Contains("TargetInfo"))
-                    {
-                        string name = m.Name.ToLowerInvariant();
-                        if (name.Contains("firstreserver") || name.Contains("firstreserverof") || name.Contains("reserver"))
-                        {
-                            firstReserverMethod = m;
-                            break;
-                        }
-                        if (firstReserverMethod == null) firstReserverMethod = m;
-                    }
-                }
+                MethodInfo firstReserverMethod = GetFirstReserverMethod(resMgrType);
                 if (firstReserverMethod == null) return null;
 
                 object arg = target;
                 var paramType = firstReserverMethod.GetParameters()[0].ParameterType;
                 if (paramType != typeof(Thing) && paramType.Name.Contains("LocalTargetInfo"))
                 {
-                    var ctor = paramType.GetConstructor(new Type[] { typeof(Thing) });
+                    if (!localTargetCtorByType.TryGetValue(paramType, out var ctor))
+                    {
+                        ctor = paramType.GetConstructor(new Type[] { typeof(Thing) });
+                        localTargetCtorByType[paramType] = ctor;
+                    }
                     if (ctor != null) arg = ctor.Invoke(new object[] { target });
                 }
 
@@ -403,24 +427,40 @@ namespace ZoologyMod.HarmonyPatches
             }
         }
 
-        
-        
-        
+        private static MethodInfo[] GetReleaseMethods(Type reservationsType)
+        {
+            if (reservationsType == null) return Array.Empty<MethodInfo>();
+            if (releaseMethodsByReservationsType.TryGetValue(reservationsType, out var cached)) return cached;
+
+            var methods = reservationsType.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            var found = new List<MethodInfo>(8);
+            for (int i = 0; i < methods.Length; i++)
+            {
+                var m = methods[i];
+                string name = m.Name.ToLowerInvariant();
+                if (name.Contains("release") || name.Contains("remove"))
+                {
+                    found.Add(m);
+                }
+            }
+
+            cached = found.ToArray();
+            releaseMethodsByReservationsType[reservationsType] = cached;
+            return cached;
+        }
+
         private static void TryReleaseReservationsForTarget(Thing target)
         {
             try
             {
-                var findType = typeof(Find);
-                var prop = findType.GetProperty("Reservations", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
-                if (prop == null) return;
-                var reservationsMgr = prop.GetValue(null);
+                if (target == null) return;
+                var reservationsMgr = GetReservationsManager();
                 if (reservationsMgr == null) return;
 
-                var methods = reservationsMgr.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                foreach (var m in methods)
+                var methods = GetReleaseMethods(reservationsMgr.GetType());
+                for (int mi = 0; mi < methods.Length; mi++)
                 {
-                    string name = m.Name.ToLowerInvariant();
-                    if (!name.Contains("release") && !name.Contains("remove")) continue;
+                    var m = methods[mi];
                     var pars = m.GetParameters();
                     
                     if (pars.Length == 1)
@@ -429,7 +469,11 @@ namespace ZoologyMod.HarmonyPatches
                         object arg = target;
                         if (pType != typeof(Thing) && pType.Name.Contains("LocalTargetInfo"))
                         {
-                            var ctor = pType.GetConstructor(new Type[] { typeof(Thing) });
+                            if (!localTargetCtorByType.TryGetValue(pType, out var ctor))
+                            {
+                                ctor = pType.GetConstructor(new Type[] { typeof(Thing) });
+                                localTargetCtorByType[pType] = ctor;
+                            }
                             if (ctor != null) arg = ctor.Invoke(new object[] { target });
                         }
                         try { m.Invoke(reservationsMgr, new object[] { arg }); }
@@ -443,7 +487,11 @@ namespace ZoologyMod.HarmonyPatches
                         var pType = pars[1].ParameterType;
                         if (pType != typeof(Thing) && pType.Name.Contains("LocalTargetInfo"))
                         {
-                            var ctor = pType.GetConstructor(new Type[] { typeof(Thing) });
+                            if (!localTargetCtorByType.TryGetValue(pType, out var ctor))
+                            {
+                                ctor = pType.GetConstructor(new Type[] { typeof(Thing) });
+                                localTargetCtorByType[pType] = ctor;
+                            }
                             if (ctor != null) arg1 = ctor.Invoke(new object[] { target });
                         }
                         try { m.Invoke(reservationsMgr, new object[] { arg0, arg1 }); }
@@ -469,11 +517,19 @@ namespace ZoologyMod.HarmonyPatches
             if (name.Contains("LocalTargetInfo") || name.Contains("TargetInfo"))
             {
                 
-                var ctor1 = paramType.GetConstructor(new Type[] { typeof(Thing) });
+                if (!localTargetCtorByType.TryGetValue(paramType, out var ctor1))
+                {
+                    ctor1 = paramType.GetConstructor(new Type[] { typeof(Thing) });
+                    localTargetCtorByType[paramType] = ctor1;
+                }
                 if (ctor1 != null)
                     return ctor1.Invoke(new object[] { target });
                 
-                var ctor2 = paramType.GetConstructor(new Type[] { typeof(IntVec3), typeof(Map) });
+                if (!targetInfoCtorByType.TryGetValue(paramType, out var ctor2))
+                {
+                    ctor2 = paramType.GetConstructor(new Type[] { typeof(IntVec3), typeof(Map) });
+                    targetInfoCtorByType[paramType] = ctor2;
+                }
                 if (ctor2 != null)
                     return ctor2.Invoke(new object[] { target.PositionHeld, target.Map });
                 
@@ -484,11 +540,48 @@ namespace ZoologyMod.HarmonyPatches
             return null;
         }
 
+        private static MethodInfo[] GetPawnReserveMethods(Type pawnType)
+        {
+            if (pawnType == null) return Array.Empty<MethodInfo>();
+            if (reserveMethodsByPawnType.TryGetValue(pawnType, out var cached)) return cached;
+
+            var methods = pawnType.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            var found = new List<MethodInfo>(6);
+            for (int i = 0; i < methods.Length; i++)
+            {
+                var m = methods[i];
+                if (m.Name == "Reserve") found.Add(m);
+            }
+            cached = found.ToArray();
+            reserveMethodsByPawnType[pawnType] = cached;
+            return cached;
+        }
+
+        private static MethodInfo[] GetReservationsReserveMethods(Type reservationsType)
+        {
+            if (reservationsType == null) return Array.Empty<MethodInfo>();
+            if (reserveMethodsByReservationsType.TryGetValue(reservationsType, out var cached)) return cached;
+
+            var methods = reservationsType.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            var found = new List<MethodInfo>(10);
+            for (int i = 0; i < methods.Length; i++)
+            {
+                var m = methods[i];
+                if (m.Name.IndexOf("reserve", StringComparison.OrdinalIgnoreCase) >= 0) found.Add(m);
+            }
+            cached = found.ToArray();
+            reserveMethodsByReservationsType[reservationsType] = cached;
+            return cached;
+        }
+
         private static bool TryReserveViaPawnMethod(Pawn pawn, Thing target, Job job)
         {
-            var methods = pawn.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-            foreach (var m in methods)
+            if (pawn == null || target == null) return false;
+
+            var methods = GetPawnReserveMethods(pawn.GetType());
+            for (int mi = 0; mi < methods.Length; mi++)
             {
+                var m = methods[mi];
                 if (m.Name != "Reserve") continue;
                 var pars = m.GetParameters();
                 object[] args = new object[pars.Length];
@@ -515,16 +608,14 @@ namespace ZoologyMod.HarmonyPatches
         {
             try
             {
-                var findType = typeof(Find);
-                var prop = findType.GetProperty("Reservations", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
-                if (prop == null) return false;
-                var reservationsMgr = prop.GetValue(null);
+                if (target == null) return false;
+                var reservationsMgr = GetReservationsManager();
                 if (reservationsMgr == null) return false;
 
-                var methods = reservationsMgr.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                foreach (var m in methods)
+                var methods = GetReservationsReserveMethods(reservationsMgr.GetType());
+                for (int mi = 0; mi < methods.Length; mi++)
                 {
-                    if (!m.Name.ToLowerInvariant().Contains("reserve")) continue;
+                    var m = methods[mi];
                     var pars = m.GetParameters();
                     object[] args = new object[pars.Length];
 
@@ -556,15 +647,32 @@ namespace ZoologyMod.HarmonyPatches
             if (queuedItem == null) return null;
             Type t = queuedItem.GetType();
 
-            var p = t.GetProperty("job", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                ?? t.GetProperty("Job", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-            if (p != null) return p.GetValue(queuedItem) as Job;
+            if (!queuedJobGetterByType.TryGetValue(t, out var getter))
+            {
+                var p = t.GetProperty("job", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                    ?? t.GetProperty("Job", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                if (p != null)
+                {
+                    getter = obj => p.GetValue(obj) as Job;
+                }
+                else
+                {
+                    var f = t.GetField("job", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                        ?? t.GetField("Job", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                    if (f != null)
+                    {
+                        getter = obj => f.GetValue(obj) as Job;
+                    }
+                    else
+                    {
+                        getter = _ => null;
+                    }
+                }
 
-            var f = t.GetField("job", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                ?? t.GetField("Job", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-            if (f != null) return f.GetValue(queuedItem) as Job;
+                queuedJobGetterByType[t] = getter;
+            }
 
-            return null;
+            return getter(queuedItem);
         }
 
         private static int GetMaxRegionsToScan_Local(Pawn getter, bool forceScanWholeMap)
