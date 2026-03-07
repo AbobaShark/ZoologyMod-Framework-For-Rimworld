@@ -470,11 +470,10 @@ A specific marker used to prevent the `PorcupineQuill` hediff from appearing or 
 
 ---
 
-#### ModExtension_FleeFromCarrier / CompProperties_FleeFromCarrier
-Makes the animal intimidating to others. Within a customizable `fleeRadius`, other animals will attempt to flee from the carrier. You can set a `fleeBodySizeLimit` to determine which animals are affected and `fleeDistance` to set how far they run. This can be applied as a `modExtension` or a per-instance `comp`.
+#### ModExtension_FleeFromCarrier
+Makes the animal intimidating to others. Within a customizable `fleeRadius`, other animals will attempt to flee from the carrier. You can set a `fleeBodySizeLimit` to determine which animals are affected and `fleeDistance` to set how far they run.
 
 ```xml
-<!-- As a ModExtension -->
 <modExtensions>
   <li Class="ZoologyMod.ModExtension_FleeFromCarrier">
     <fleeRadius>18</fleeRadius>
@@ -482,15 +481,6 @@ Makes the animal intimidating to others. Within a customizable `fleeRadius`, oth
     <fleeDistance>24</fleeDistance>
   </li>
 </modExtensions>
-
-<!-- As a Comp -->
-<comps>
-  <li Class="ZoologyMod.CompProperties_FleeFromCarrier">
-    <fleeRadius>18</fleeRadius>
-    <fleeBodySizeLimit>0</fleeBodySizeLimit>
-    <fleeDistance>24</fleeDistance>
-  </li>
-</comps>
 ```
 
 ---
