@@ -1,6 +1,4 @@
-﻿
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using Verse;
 using RimWorld;
@@ -68,8 +66,18 @@ namespace ZoologyMod
         private float _safeNonPredatorBodySizeThreshold = ModConstants.DefaultSafeNonPredatorBodySizeThreshold;
 
         private Vector2 _scrollPosition = Vector2.zero;
+        private SettingsPage _activePage = SettingsPage.PredatorPreyInteraction;
 
         private readonly bool _cePresent;
+
+        private enum SettingsPage
+        {
+            PredatorPreyInteraction = 0,
+            Physiology = 1,
+            Combat = 2,
+            OtherBehavior = 3,
+            Dev = 4
+        }
 
         public float SmallPetBodySizeThreshold
         {
@@ -112,52 +120,110 @@ namespace ZoologyMod
             var prevFont = Text.Font;
             var prevAnchor = Text.Anchor;
 
-            float contentHeight = 1500f;
-            contentHeight += 7 * 28f;
-            contentHeight += 24f;
-            if (EnableCustomFleeDanger)
+            if (!EnableIgnoreSmallPetsByRaiders)
             {
-                contentHeight += 160f;
+                EnableSmallPetFleeFromRaiders = true;
             }
-            if (EnableIgnoreSmallPetsByRaiders)
-            {
-                contentHeight += 120f;
-            }
-            contentHeight += 120f;
-            if (EnablePredatorDefendCorpse) contentHeight += 48f;
 
-            float viewHeight = Mathf.Max(contentHeight, inRect.height);
-            Rect viewRect = new Rect(0f, 0f, inRect.width - 16f, Mathf.Max(inRect.height, 2000f));
+            Text.Font = GameFont.Medium;
+            Text.Anchor = TextAnchor.MiddleLeft;
+            Widgets.Label(new Rect(inRect.x, inRect.y, inRect.width, 32f), "Zoology Mod Settings");
+            Text.Font = GameFont.Small;
+            Text.Anchor = TextAnchor.UpperLeft;
 
-            Widgets.BeginScrollView(inRect, ref _scrollPosition, viewRect);
+            float tabY = inRect.y + 36f;
+            float tabHeight = 30f;
+            float tabGap = 6f;
+            float tabWidth = (inRect.width - tabGap * 4f) / 5f;
+
+            Rect predPreyTabRect = new Rect(inRect.x, tabY, tabWidth, tabHeight);
+            Rect physiologyTabRect = new Rect(predPreyTabRect.xMax + tabGap, tabY, tabWidth, tabHeight);
+            Rect combatTabRect = new Rect(physiologyTabRect.xMax + tabGap, tabY, tabWidth, tabHeight);
+            Rect otherBehaviorTabRect = new Rect(combatTabRect.xMax + tabGap, tabY, tabWidth, tabHeight);
+            Rect devTabRect = new Rect(otherBehaviorTabRect.xMax + tabGap, tabY, tabWidth, tabHeight);
+
+            DrawSettingsTabButton(predPreyTabRect, SettingsPage.PredatorPreyInteraction, "Predator-Prey");
+            DrawSettingsTabButton(physiologyTabRect, SettingsPage.Physiology, "Physiology");
+            DrawSettingsTabButton(combatTabRect, SettingsPage.Combat, "Combat");
+            DrawSettingsTabButton(otherBehaviorTabRect, SettingsPage.OtherBehavior, "Other behavior");
+            DrawSettingsTabButton(devTabRect, SettingsPage.Dev, "Dev");
+
+            float contentTop = tabY + tabHeight + 8f;
+            Rect outRect = new Rect(inRect.x, contentTop, inRect.width, inRect.yMax - contentTop);
+            float contentHeight = CalculatePageContentHeight(_activePage);
+            Rect viewRect = new Rect(0f, 0f, outRect.width - 16f, Mathf.Max(outRect.height, contentHeight));
+
+            Widgets.BeginScrollView(outRect, ref _scrollPosition, viewRect);
 
             var list = new Listing_Standard();
             list.Begin(viewRect);
 
-            list.GapLine(12f);
-            Text.Font = GameFont.Medium;
-            list.Label("Zoology Mod Settings");
-            Text.Font = GameFont.Small;
-            list.GapLine(12f);
-
-            if (!EnableIgnoreSmallPetsByRaiders)
+            switch (_activePage)
             {
-                EnableSmallPetFleeFromRaiders = false;
+                case SettingsPage.PredatorPreyInteraction:
+                    DrawPredatorPreySettings(list);
+                    break;
+                case SettingsPage.Physiology:
+                    DrawPhysiologySettings(list);
+                    break;
+                case SettingsPage.Combat:
+                    DrawCombatSettings(list);
+                    break;
+                case SettingsPage.OtherBehavior:
+                    DrawOtherBehaviorSettings(list);
+                    break;
+                case SettingsPage.Dev:
+                    DrawDevSettings(list);
+                    break;
             }
 
+            list.GapLine(24f);
+            if (list.ButtonText("Reset to defaults"))
+            {
+                ResetToDefaults();
+            }
+
+            list.End();
+            Widgets.EndScrollView();
+
+            Text.Font = prevFont;
+            Text.Anchor = prevAnchor;
+        }
+
+        private void DrawSettingsTabButton(Rect rect, SettingsPage page, string label)
+        {
+            string finalLabel = _activePage == page ? $"{label} ●" : label;
+            if (Widgets.ButtonText(rect, finalLabel))
+            {
+                if (_activePage != page)
+                {
+                    _activePage = page;
+                    _scrollPosition = Vector2.zero;
+                }
+            }
+        }
+
+        private float CalculatePageContentHeight(SettingsPage page)
+        {
+            switch (page)
+            {
+                case SettingsPage.PredatorPreyInteraction:
+                    return 900f + (EnablePredatorDefendCorpse ? 80f : 0f);
+                case SettingsPage.Physiology:
+                    return 900f + (LactationSlaughterHandling == LactationSlaughterMode.SeparateSetting ? 30f : 0f) + (!EnableMammalLactation ? 30f : 0f);
+                case SettingsPage.Combat:
+                    return 500f;
+                case SettingsPage.OtherBehavior:
+                    return 1000f + (EnableCustomFleeDanger ? 170f : 0f) + (EnableIgnoreSmallPetsByRaiders ? 150f : 0f);
+                case SettingsPage.Dev:
+                default:
+                    return 900f;
+            }
+        }
+
+        private void DrawPredatorPreySettings(Listing_Standard list)
+        {
             list.GapLine(8f);
-            list.CheckboxLabeled("Enable custom animal flee danger logic (override ShouldAnimalFleeDanger)", ref EnableCustomFleeDanger, "Replaces the vanilla logic for when animals flee from danger on player home maps.");
-
-            list.GapLine(12f);
-            list.CheckboxLabeled("Enable raiders ignoring small pets", ref EnableIgnoreSmallPetsByRaiders, "Makes raiders treat small pets (not following the master) as non-aggressive roamers, reducing targeting.");
-
-            list.GapLine(12f);
-            if (EnableIgnoreSmallPetsByRaiders)
-            {
-                list.CheckboxLabeled("Enable small pets fleeing from raiders", ref EnableSmallPetFleeFromRaiders, "Allows small pets to flee from nearby hostile humanlike pawns (raiders), even when not threatened.");
-            }
-
-            list.GapLine(12f);
             list.CheckboxLabeled("Enable prey fleeing from predators", ref EnablePreyFleeFromPredators, "Makes prey animals flee from nearby hunting predators.");
 
             list.GapLine(12f);
@@ -167,36 +233,144 @@ namespace ZoologyMod
             list.CheckboxLabeled("Enable advanced prey selection logic", ref EnableAdvancedPredationLogic, "Enables the full Zoology override for FoodUtility.IsAcceptablePreyFor (mammal baby checks, pursuit block checks, and predator-vs-predator constraints). Disable for vanilla prey selection behavior.");
 
             list.GapLine(12f);
+            list.CheckboxLabeled("Enable scavengering (scavenger behaviour)", ref EnableScavengering, "If disabled, all scavenger-related fallbacks are skipped and vanilla food selection/reservation logic is used for scavengers.");
+
+            list.GapLine(12f);
             list.CheckboxLabeled("Enable predators defending their kills", ref EnablePredatorDefendCorpse, "If disabled, predators will not defend owned corpses / kills — corpses will be treated as unowned for other predators.");
 
-            list.GapLine(6f);
             if (EnablePredatorDefendCorpse)
             {
-                Text.Font = GameFont.Small;
+                list.GapLine(6f);
                 list.Label($"Prey protection range: {PreyProtectionRange} tiles (min {PreyProtectionRangeMin}, max {PreyProtectionRangeMax})");
                 PreyProtectionRange = (int)list.Slider(PreyProtectionRange, PreyProtectionRangeMin, PreyProtectionRangeMax);
-                Text.Font = GameFont.Small;
-                list.GapLine(6f);
-            }
 
-            list.GapLine(6f);
-            if (EnablePredatorDefendCorpse)
-            {
-                Text.Font = GameFont.Small;
+                list.GapLine(6f);
                 list.Label($"Protection trigger size difference treshold: {CorpseUnownedSizeMultiplier} (min {CorpseUnownedSizeMultiplierMin}, max {CorpseUnownedSizeMultiplierMax})");
                 CorpseUnownedSizeMultiplier = (int)list.Slider(CorpseUnownedSizeMultiplier, CorpseUnownedSizeMultiplierMin, CorpseUnownedSizeMultiplierMax);
-                Text.Font = GameFont.Small;
+            }
+        }
+
+        private void DrawPhysiologySettings(Listing_Standard list)
+        {
+            list.GapLine(8f);
+            list.CheckboxLabeled("Enable mammal lactation", ref EnableMammalLactation, "Enables lactation for female mammals, allowing them to produce milk for their offspring.");
+            DrawLactationSettings(list);
+
+            list.GapLine(12f);
+            list.CheckboxLabeled(
+                "Enable ectothermic temperature patch",
+                ref EnableEctothermicPatch,
+                "When disabled, ectothermic animals such as reptiles and crabs will suffer hypothermia in cold weather instead of slowing metabolism, like in vanilla."
+            );
+        }
+
+        private void DrawCombatSettings(Listing_Standard list)
+        {
+            list.GapLine(8f);
+            if (_cePresent)
+            {
+                list.CheckboxLabeled(
+                    "Override CE Penetration for animal life stages",
+                    ref EnableOverrideCEPenetration,
+                    "When enabled, Zoology will override Combat Extended's life-stage-based AP modifier with custom factors from LifeStagePenetrationDef or fallback table."
+                );
+            }
+            else
+            {
+                list.Label("Disabled: Combat Extended not detected - CE override unavailable.");
                 list.GapLine(6f);
+                EnableOverrideCEPenetration = false;
             }
 
             list.GapLine(12f);
-            list.CheckboxLabeled("Enable scavengering (scavenger behaviour)", ref EnableScavengering, "If disabled, all scavenger-related fallbacks are skipped and vanilla food selection/reservation logic is used for scavengers.");
+            if (_cePresent)
+            {
+                EnableAnimalDamageReduction = false;
+            }
+
+            bool prevGuiEnabled = GUI.enabled;
+            if (_cePresent) GUI.enabled = false;
+
+            list.CheckboxLabeled(
+                "Enable animal damage reduction (halve animal-type damage for predators in defined cases)",
+                ref EnableAnimalDamageReduction,
+                "When enabled, animal damage types (Scratch/Bite and subclasses) will deal 50% damage to predator targets when: (1) target is predator and >=1.5x bodySize of attacker, or (2) target is predator and attacker is not predator."
+            );
+
+            GUI.enabled = prevGuiEnabled;
+
+            if (_cePresent)
+            {
+                list.Label("Disabled: Combat Extended detected - this option is not available while CE is installed.");
+                list.GapLine(6f);
+            }
+        }
+
+        private void DrawOtherBehaviorSettings(Listing_Standard list)
+        {
+            list.GapLine(8f);
+            list.CheckboxLabeled("Enable custom animal flee danger logic (override ShouldAnimalFleeDanger)", ref EnableCustomFleeDanger, "Replaces the vanilla logic for when animals flee from danger on player home maps.");
+
+            if (EnableCustomFleeDanger)
+            {
+                list.GapLine(6f);
+                Text.Font = GameFont.Small;
+                Text.Anchor = TextAnchor.MiddleCenter;
+                list.Label("Safe Body Size Thresholds (min: 0, max: 30)");
+                Text.Anchor = TextAnchor.UpperLeft;
+                list.GapLine(12f);
+
+                _safePredatorBodySizeThreshold = list.Slider(_safePredatorBodySizeThreshold, 0f, 30f);
+                list.Label($"Safe Predator Body Size Threshold: {SafePredatorBodySizeThreshold:F2} (predators >= this won't flee on home map)");
+                list.GapLine(12f);
+
+                _safeNonPredatorBodySizeThreshold = list.Slider(_safeNonPredatorBodySizeThreshold, 0f, 30f);
+                list.Label($"Safe Non-Predator Body Size Threshold: {SafeNonPredatorBodySizeThreshold:F2} (non-predators > this won't flee on home map)");
+                list.GapLine(12f);
+            }
+
+            list.GapLine(12f);
+            list.CheckboxLabeled("Enable raiders ignoring small pets", ref EnableIgnoreSmallPetsByRaiders, "Makes raiders treat small pets (not following the master) as non-aggressive roamers, reducing targeting.");
+
+            if (EnableIgnoreSmallPetsByRaiders)
+            {
+                list.GapLine(12f);
+                list.CheckboxLabeled("Enable small pets fleeing from raiders", ref EnableSmallPetFleeFromRaiders, "Allows small pets to flee from nearby hostile humanlike pawns (raiders), even when not threatened.");
+
+                list.GapLine(6f);
+                Text.Font = GameFont.Small;
+                Text.Anchor = TextAnchor.MiddleCenter;
+                list.Label("Small Pet Body Size Threshold (min: 0, max: 30)");
+                Text.Anchor = TextAnchor.UpperLeft;
+                list.GapLine(12f);
+
+                _smallPetBodySizeThreshold = list.Slider(_smallPetBodySizeThreshold, 0f, 30f);
+                list.Label($"Small Pet Body Size Threshold: {SmallPetBodySizeThreshold:F2} (pets smaller than this will be affected by raider ignoring)");
+                list.GapLine(12f);
+            }
+            else
+            {
+                EnableSmallPetFleeFromRaiders = true;
+            }
 
             list.GapLine(12f);
             list.CheckboxLabeled("Enable human bionic on animals", ref EnableHumanBionicOnAnimal, "Allows installing human bionic parts on animals if they have the matching body part. Requires restart to apply changes.");
 
             list.GapLine(12f);
             list.CheckboxLabeled("Enable agro-on-slaughter", ref EnableAgroAtSlaughter, "When enabled, animals with the AgroAtSlaughter comp will react aggressively to slaughter designations (only if not downed).");
+        }
+
+        private void DrawDevSettings(Listing_Standard list)
+        {
+            list.GapLine(8f);
+            var oldColor = GUI.color;
+            GUI.color = new Color(1f, 0.82f, 0.28f, 1f);
+            list.Label("Warning: disable these patches only when troubleshooting compatibility problems.");
+            GUI.color = oldColor;
+            list.GapLine(4f);
+            Text.Font = GameFont.Tiny;
+            list.Label("Any enabled Dev patch keeps runtime patching active (global runtime-off mode requires all toggles to be false).");
+            Text.Font = GameFont.Small;
 
             list.GapLine(12f);
             list.CheckboxLabeled("Enable cannot-be-mutated protection", ref EnableCannotBeMutatedProtection, "When disabled, Zoology will not patch mutation/biomutation target validation and related mutation protection hooks.");
@@ -214,9 +388,6 @@ namespace ZoologyMod
             list.CheckboxLabeled("Enable gender-restricted attacks patch", ref EnableGenderRestrictedAttacks, "When disabled, Zoology will not patch Verb.IsStillUsableBy for tool gender restrictions.");
 
             list.GapLine(12f);
-            list.CheckboxLabeled("Enable ectothermic temperature patch", ref EnableEctothermicPatch, "When disabled, Zoology will unpatch ectothermic hypothermia handling.");
-
-            list.GapLine(12f);
             list.CheckboxLabeled("Enable ageless hediff patch", ref EnableAgelessPatch, "When disabled, Zoology will unpatch HediffGiver.TryApply interception for CompAgeless.");
 
             list.GapLine(12f);
@@ -224,25 +395,21 @@ namespace ZoologyMod
 
             list.GapLine(12f);
             list.CheckboxLabeled("Enable no-porcupine-quill patch", ref EnableNoPorcupineQuillPatch, "When disabled, Zoology will unpatch PorcupineQuill prevention/removal hooks.");
+        }
 
-            list.GapLine(12f);
-            list.CheckboxLabeled("Enable mammal lactation", ref EnableMammalLactation, "Enables lactation for female mammals, allowing them to produce milk for their offspring.");
-
+        private void DrawLactationSettings(Listing_Standard list)
+        {
             list.GapLine(12f);
             list.Label("Lactation auto-slaughter handling:");
 
-            
             if (!EnableMammalLactation)
             {
                 LactationSlaughterHandling = LactationSlaughterMode.Ignore;
-                
             }
 
             bool prevGuiEnabledForLact = GUI.enabled;
-            if (!EnableMammalLactation)
-                GUI.enabled = false;
+            if (!EnableMammalLactation) GUI.enabled = false;
 
-            
             if (list.ButtonText(LactationSlaughterHandling == LactationSlaughterMode.TreatAsPregnant ? "● Treat lactating animals as PREGNANT (default)" : "○ Treat lactating animals as PREGNANT (default)"))
             {
                 LactationSlaughterHandling = LactationSlaughterMode.TreatAsPregnant;
@@ -263,7 +430,6 @@ namespace ZoologyMod
             list.GapLine(6f);
             if (LactationSlaughterHandling == LactationSlaughterMode.SeparateSetting)
             {
-                
                 list.Label("Per-animal toggle available in Auto Slaughter tab when SeparateSetting is enabled.");
                 list.GapLine(6f);
             }
@@ -277,139 +443,42 @@ namespace ZoologyMod
                 Text.Font = GameFont.Small;
                 list.GapLine(6f);
             }
+        }
 
-            
-            list.GapLine(16f);
+        private void ResetToDefaults()
+        {
+            EnableCustomFleeDanger = false;
+            EnableSmallPetFleeFromRaiders = true;
+            EnableIgnoreSmallPetsByRaiders = true;
+            EnablePreyFleeFromPredators = true;
+            EnablePackHunt = true;
+            EnableAdvancedPredationLogic = true;
+            EnableHumanBionicOnAnimal = true;
+            EnableAgroAtSlaughter = true;
+            EnableCannotBeMutatedProtection = true;
+            EnableNoFleeExtension = true;
+            EnableFleeFromCarrier = true;
+            EnableFlyingFleeStart = true;
+            EnableGenderRestrictedAttacks = true;
+            EnableEctothermicPatch = true;
+            EnableAgelessPatch = true;
+            EnableDrugsImmunePatch = true;
+            EnableNoPorcupineQuillPatch = true;
+            EnableMammalLactation = true;
+            _smallPetBodySizeThreshold = ModConstants.DefaultSmallPetBodySizeThreshold;
+            _safePredatorBodySizeThreshold = ModConstants.DefaultSafePredatorBodySizeThreshold;
+            _safeNonPredatorBodySizeThreshold = ModConstants.DefaultSafeNonPredatorBodySizeThreshold;
+            EnablePredatorDefendCorpse = true;
+            PreyProtectionRange = 20;
+            CorpseUnownedSizeMultiplier = 5;
+            EnableScavengering = true;
+            LactationSlaughterHandling = LactationSlaughterMode.TreatAsPregnant;
+            AllowSlaughterLactatingPerAnimal.Clear();
+            EnableAnimalDamageReduction = false;
+            EnableOverrideCEPenetration = _cePresent ? true : false;
 
-            if (_cePresent)
-            {
-                list.CheckboxLabeled(
-                    "Override CE Penetration for animal life stages",
-                    ref EnableOverrideCEPenetration,
-                    "When enabled, Zoology will override Combat Extended's life-stage-based AP modifier with custom factors from LifeStagePenetrationDef or fallback table."
-                );
-            }
-            else
-            {
-                
-                Text.Font = GameFont.Small;
-                Text.Anchor = TextAnchor.MiddleLeft;
-                list.Label("Disabled: Combat Extended not detected — CE override unavailable.");
-                Text.Anchor = TextAnchor.UpperLeft;
-                Text.Font = GameFont.Small;
-                list.GapLine(6f);
-
-                
-                EnableOverrideCEPenetration = false;
-            }
-
-            
-            list.GapLine(12f);
-
-            if (_cePresent)
-            {
-                EnableAnimalDamageReduction = false;
-            }
-
-            bool prevGuiEnabled = GUI.enabled;
-            if (_cePresent)
-            {
-                GUI.enabled = false;
-            }
-
-            list.CheckboxLabeled(
-                "Enable animal damage reduction (halve animal-type damage for predators in defined cases)",
-                ref EnableAnimalDamageReduction,
-                "When enabled, animal damage types (Scratch/Bite and subclasses) will deal 50% damage to predator targets when: (1) target is predator and >=1.5x bodySize of attacker, or (2) target is predator and attacker is not predator."
-            );
-
-            GUI.enabled = prevGuiEnabled;
-
-            if (_cePresent)
-            {
-                Text.Font = GameFont.Small;
-                Text.Anchor = TextAnchor.MiddleLeft;
-                list.Label("Disabled: Combat Extended detected — this option is not available while CE is installed.");
-                Text.Anchor = TextAnchor.UpperLeft;
-                Text.Font = GameFont.Small;
-                list.GapLine(6f);
-            }
-
-            list.GapLine(18f);
-
-            if (EnableCustomFleeDanger)
-            {
-                Text.Font = GameFont.Small;
-                Text.Anchor = TextAnchor.MiddleCenter;
-                list.Label("Safe Body Size Thresholds (min: 0, max: 30)");
-                Text.Anchor = TextAnchor.UpperLeft;
-                list.GapLine(16f);
-
-                _safePredatorBodySizeThreshold = list.Slider(_safePredatorBodySizeThreshold, 0f, 30f);
-                list.Label($"Safe Predator Body Size Threshold: {SafePredatorBodySizeThreshold:F2} (predators >= this won't flee on home map)");
-                list.GapLine(20f);
-
-                _safeNonPredatorBodySizeThreshold = list.Slider(_safeNonPredatorBodySizeThreshold, 0f, 30f);
-                list.Label($"Safe Non-Predator Body Size Threshold: {SafeNonPredatorBodySizeThreshold:F2} (non-predators > this won't flee on home map)");
-                list.GapLine(20f);
-            }
-
-            if (EnableIgnoreSmallPetsByRaiders)
-            {
-                Text.Font = GameFont.Small;
-                Text.Anchor = TextAnchor.MiddleCenter;
-                list.Label("Small Pet Body Size Threshold (min: 0, max: 30)");
-                Text.Anchor = TextAnchor.UpperLeft;
-                list.GapLine(16f);
-
-                _smallPetBodySizeThreshold = list.Slider(_smallPetBodySizeThreshold, 0f, 30f);
-                list.Label($"Small Pet Body Size Threshold: {SmallPetBodySizeThreshold:F2} (pets smaller than this will be affected by raider ignoring)");
-                list.GapLine(20f);
-            }
-
-            list.GapLine(24f);
-            if (list.ButtonText("Reset to defaults"))
-            {
-                EnableCustomFleeDanger = false;
-                EnableSmallPetFleeFromRaiders = true;
-                EnableIgnoreSmallPetsByRaiders = true;
-                EnablePreyFleeFromPredators = true;
-                EnablePackHunt = true;
-                EnableAdvancedPredationLogic = true;
-                EnableHumanBionicOnAnimal = true;
-                EnableAgroAtSlaughter = true;
-                EnableCannotBeMutatedProtection = true;
-                EnableNoFleeExtension = true;
-                EnableFleeFromCarrier = true;
-                EnableFlyingFleeStart = true;
-                EnableGenderRestrictedAttacks = true;
-                EnableEctothermicPatch = true;
-                EnableAgelessPatch = true;
-                EnableDrugsImmunePatch = true;
-                EnableNoPorcupineQuillPatch = true;
-                EnableMammalLactation = true;
-                _smallPetBodySizeThreshold = ModConstants.DefaultSmallPetBodySizeThreshold;
-                _safePredatorBodySizeThreshold = ModConstants.DefaultSafePredatorBodySizeThreshold;
-                _safeNonPredatorBodySizeThreshold = ModConstants.DefaultSafeNonPredatorBodySizeThreshold;
-                EnablePredatorDefendCorpse = true;
-                PreyProtectionRange = 20;
-                CorpseUnownedSizeMultiplier  = 5;
-                EnableScavengering= true;
-                LactationSlaughterHandling = LactationSlaughterMode.TreatAsPregnant;
-                AllowSlaughterLactatingPerAnimal.Clear();
-                EnableAnimalDamageReduction = false;
-                EnableOverrideCEPenetration = _cePresent ? true : false;
-
-                Write();
-
-                Messages.Message("Zoology Mod: settings reset to defaults.", MessageTypeDefOf.TaskCompletion, false);
-            }
-
-            list.End();
-            Widgets.EndScrollView();
-
-            Text.Font = prevFont;
-            Text.Anchor = prevAnchor;
+            Write();
+            Messages.Message("Zoology Mod: settings reset to defaults.", MessageTypeDefOf.TaskCompletion, false);
         }
 
         public override void ExposeData()
@@ -421,6 +490,10 @@ namespace ZoologyMod
             Scribe_Values.Look(ref EnableCustomFleeDanger, "EnableCustomFleeDanger", false);
             Scribe_Values.Look(ref EnableSmallPetFleeFromRaiders, "EnableSmallPetFleeFromRaiders", true);
             Scribe_Values.Look(ref EnableIgnoreSmallPetsByRaiders, "EnableIgnoreSmallPetsByRaiders", true);
+            if (!EnableIgnoreSmallPetsByRaiders)
+            {
+                EnableSmallPetFleeFromRaiders = true;
+            }
             Scribe_Values.Look(ref EnablePreyFleeFromPredators, "EnablePreyFleeFromPredators", true);
             Scribe_Values.Look(ref EnablePackHunt, "EnablePackHunt", true);
             Scribe_Values.Look(ref EnableAdvancedPredationLogic, "EnableAdvancedPredationLogic", true);
@@ -497,8 +570,8 @@ namespace ZoologyMod
         public bool AreAllRuntimeTogglesDisabled()
         {
             return !EnableCustomFleeDanger
-                && !EnableSmallPetFleeFromRaiders
                 && !EnableIgnoreSmallPetsByRaiders
+                && (!EnableIgnoreSmallPetsByRaiders || !EnableSmallPetFleeFromRaiders)
                 && !EnablePreyFleeFromPredators
                 && !EnablePackHunt
                 && !EnableAdvancedPredationLogic
@@ -521,3 +594,4 @@ namespace ZoologyMod
         }
     }
 }
+

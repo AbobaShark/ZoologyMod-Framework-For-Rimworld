@@ -1,6 +1,4 @@
-﻿
-
-using HarmonyLib;
+﻿using HarmonyLib;
 using RimWorld;
 using Verse;
 using Verse.AI;

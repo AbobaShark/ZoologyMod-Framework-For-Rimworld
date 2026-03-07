@@ -1,6 +1,4 @@
-﻿
-
-using Verse;
+﻿using Verse;
 
 namespace ZoologyMod
 {

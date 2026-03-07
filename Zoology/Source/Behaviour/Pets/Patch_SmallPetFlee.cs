@@ -1,6 +1,4 @@
-﻿
-
-using HarmonyLib;
+﻿using HarmonyLib;
 using RimWorld;
 using Verse;
 using Verse.AI;
@@ -13,13 +11,14 @@ namespace ZoologyMod
         public static bool Prepare()
         {
             var s = ZoologyModSettings.Instance;
-            return s == null || s.EnableSmallPetFleeFromRaiders;
+            return s == null || (s.EnableIgnoreSmallPetsByRaiders && s.EnableSmallPetFleeFromRaiders);
         }
 
         public static void Postfix(JobGiver_AnimalFlee __instance, Pawn pawn, ref Job __result)
         {
             
-            if (!ModConstants.Settings.EnableSmallPetFleeFromRaiders)
+            var settings = ModConstants.Settings;
+            if (settings == null || !settings.EnableIgnoreSmallPetsByRaiders || !settings.EnableSmallPetFleeFromRaiders)
                 return;
 
             if (__result != null || !pawn.RaceProps.Animal || pawn.Faction != Faction.OfPlayer)

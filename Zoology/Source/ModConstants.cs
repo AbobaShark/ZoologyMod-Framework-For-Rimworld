@@ -1,6 +1,4 @@
-﻿
-
-using Verse;
+﻿using Verse;
 using System.Linq;
 
 namespace ZoologyMod
