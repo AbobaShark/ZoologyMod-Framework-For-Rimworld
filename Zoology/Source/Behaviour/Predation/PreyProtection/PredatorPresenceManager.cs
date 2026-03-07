@@ -1,10 +1,10 @@
 ﻿
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using RimWorld;
 using Verse;
 using Verse.AI;
+using Verse.AI.Group;
 
 namespace ZoologyMod
 {
@@ -26,91 +26,65 @@ namespace ZoologyMod
                 long now = Find.TickManager?.TicksGame ?? 0L;
                 if (now % PRESENCE_CHECK_INTERVAL != 0) return;
 
-                var maps = Find.Maps;
-                if (maps == null || maps.Count == 0) return;
-
                 var comp = PredatorPreyPairGameComponent.Instance;
                 if (comp == null) return;
 
-                for (int mi = 0; mi < maps.Count; mi++)
+                var pairs = comp.GetRuntimePredatorToCorpseSnapshot();
+                if (pairs == null || pairs.Count == 0) return;
+
+                for (int i = 0; i < pairs.Count; i++)
                 {
-                    var map = maps[mi];
-                    var pawns = map.mapPawns.AllPawnsSpawned;
-                    for (int pi = 0; pi < pawns.Count; pi++)
+                    int predatorId = pairs[i].Key;
+                    int corpseId = pairs[i].Value;
+
+                    Pawn p = null;
+                    try { p = comp.GetSpawnedPawnById(predatorId); } catch { p = null; }
+                    if (p == null || !p.RaceProps.predator) continue;
+
+                    Corpse targetCorpse = null;
+                    try { targetCorpse = comp.GetCorpseById(corpseId, out _); } catch { targetCorpse = null; }
+                    if (targetCorpse == null) continue;
+
+                    string stayReason;
+                    if (!ShouldStayAtPrey(p, out stayReason))
                     {
-                        var p = pawns[pi];
-                        if (p == null) continue;
-                        if (!p.RaceProps.predator) continue;
-
-                        List<Corpse> corpses = null;
-                        try { corpses = comp.GetActivePairedCorpses(p); } catch { corpses = null; }
-
-                        Corpse targetCorpse = null;
-                        if (corpses != null && corpses.Count > 0)
-                        {
-                            targetCorpse = corpses[0];
-                        }
-                        else
-                        {
-                            try
-                            {
-                                targetCorpse = comp.GetPairedCorpse(p);
-                            }
-                            catch
-                            {
-                                targetCorpse = null;
-                            }
-                        }
-
-                        if (targetCorpse == null) continue;
-
-                        string stayReason;
-                        if (!ShouldStayAtPrey(p, out stayReason))
-                        {
-                            
-                            LogOnce(p, targetCorpse, $"Will NOT stay at prey: {stayReason}");
-                            continue;
-                        }
-
-                        IntVec3 targetPos;
-                        Map corpseMap = targetCorpse.Map;
-                        if (corpseMap != null)
-                        {
-                            targetPos = targetCorpse.Position;
-                        }
-                        else
-                        {
-                            var carrier = FindCarrierPawnForCorpse(targetCorpse);
-                            if (carrier != null && carrier.Map != null)
-                            {
-                                corpseMap = carrier.Map;
-                                targetPos = carrier.Position;
-                            }
-                            else
-                            {
-                                LogOnce(p, targetCorpse, "Corpse not on any map and no carrier found.");
-                                continue;
-                            }
-                        }
-
-                        if (p.Map == null || corpseMap == null || p.Map != corpseMap)
-                        {
-                            LogOnce(p, targetCorpse, $"Different maps (predatorMap {(p.Map == null ? "null" : p.Map.uniqueID.ToString())}, corpseMap {(corpseMap == null ? "null" : corpseMap.uniqueID.ToString())}).");
-                            continue;
-                        }
-
-                        
-                        
-                        if (p.Position.InHorDistOf(targetPos, PRESENCE_RADIUS))
-                        {
-                            
-                            
-                            continue;
-                        }
-
-                        
-                        TrySendPredatorToCorpse(p, targetCorpse, targetPos);
+                        LogOnce(p, targetCorpse, $"Will NOT stay at prey: {stayReason}");
+                        continue;
                     }
+
+                    IntVec3 targetPos;
+                    Map corpseMap = targetCorpse.Map;
+                    if (corpseMap != null)
+                    {
+                        targetPos = targetCorpse.Position;
+                    }
+                    else
+                    {
+                        var carrier = FindCarrierPawnForCorpse(targetCorpse);
+                        if (carrier != null && carrier.Map != null)
+                        {
+                            corpseMap = carrier.Map;
+                            targetPos = carrier.Position;
+                        }
+                        else
+                        {
+                            LogOnce(p, targetCorpse, "Corpse not on any map and no carrier found.");
+                            continue;
+                        }
+                    }
+
+                    if (p.Map == null || corpseMap == null || p.Map != corpseMap)
+                    {
+                        LogOnce(p, targetCorpse, $"Different maps (predatorMap {(p.Map == null ? "null" : p.Map.uniqueID.ToString())}, corpseMap {(corpseMap == null ? "null" : corpseMap.uniqueID.ToString())}).");
+                        continue;
+                    }
+
+                    if (p.Position.InHorDistOf(targetPos, PRESENCE_RADIUS))
+                    {
+                        continue;
+                    }
+
+                    TrySendPredatorToCorpse(p, targetCorpse, targetPos);
                 }
             }
             catch (Exception ex)
@@ -204,12 +178,7 @@ namespace ZoologyMod
         {
             try
             {
-                if (pawn == null) return false;
-                var t = pawn.GetType();
-                var m = t.GetMethod("GetLord", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                if (m == null) return false;
-                var lord = m.Invoke(pawn, null);
-                return lord != null;
+                return pawn != null && pawn.GetLord() != null;
             }
             catch { return false; }
         }

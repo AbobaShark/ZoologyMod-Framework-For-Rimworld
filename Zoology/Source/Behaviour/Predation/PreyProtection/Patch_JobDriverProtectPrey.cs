@@ -3,7 +3,6 @@
 using System;
 using System.Reflection;
 using System.Collections.Generic;
-using System.Linq;
 using HarmonyLib;
 using RimWorld;
 using Verse;
@@ -20,9 +19,124 @@ namespace ZoologyMod
         }
     }
 
+    internal static class ProtectPreyState
+    {
+        public const string ProtectPreyDefName = "Zoology_ProtectPrey";
+
+        public static bool IsProtectPreyJob(Pawn pawn)
+        {
+            if (pawn == null) return false;
+
+            var curJob = pawn.CurJob;
+            if (curJob == null) return false;
+
+            var defName = curJob.def?.defName;
+            if (!string.IsNullOrEmpty(defName) && defName.Equals(ProtectPreyDefName, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            var driver = pawn.jobs?.curDriver;
+            if (driver == null) return false;
+
+            var driverType = driver.GetType();
+            if (driverType.Name == "JobDriver_ProtectPrey") return true;
+            if (driverType.FullName != null && driverType.FullName.EndsWith(".JobDriver_ProtectPrey", StringComparison.Ordinal)) return true;
+
+            try
+            {
+                return typeof(JobDriver_ProtectPrey).IsAssignableFrom(driverType);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public static Pawn GetProtectedPawn(Pawn predator)
+        {
+            try
+            {
+                var curJob = predator?.CurJob;
+                if (curJob == null) return null;
+                return curJob.GetTarget(TargetIndex.A).Thing as Pawn;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+    }
+
+    internal static class ProtectPreyMapCache
+    {
+        internal readonly struct Entry
+        {
+            public Entry(Pawn predator, Pawn protectedPawn)
+            {
+                Predator = predator;
+                ProtectedPawn = protectedPawn;
+            }
+
+            public Pawn Predator { get; }
+            public Pawn ProtectedPawn { get; }
+        }
+
+        private sealed class CacheData
+        {
+            public long RefreshTick;
+            public readonly List<Entry> Entries = new List<Entry>(8);
+        }
+
+        private const int REFRESH_INTERVAL_TICKS = 60;
+        private static readonly Dictionary<int, CacheData> byMapId = new Dictionary<int, CacheData>();
+
+        public static List<Entry> Get(Map map, long now)
+        {
+            if (map == null) return null;
+
+            int mapId = map.uniqueID;
+            if (!byMapId.TryGetValue(mapId, out var data))
+            {
+                data = new CacheData();
+                byMapId[mapId] = data;
+            }
+
+            if (data.RefreshTick + REFRESH_INTERVAL_TICKS > now)
+            {
+                return data.Entries;
+            }
+
+            data.RefreshTick = now;
+            data.Entries.Clear();
+
+            var pawns = map.mapPawns?.AllPawnsSpawned;
+            if (pawns == null || pawns.Count == 0) return data.Entries;
+
+            for (int i = 0; i < pawns.Count; i++)
+            {
+                var p = pawns[i];
+                if (p == null || !p.Spawned || p.Dead || p.Destroyed) continue;
+                if (!p.RaceProps.predator) continue;
+                if (!ProtectPreyState.IsProtectPreyJob(p)) continue;
+
+                var protectedPawn = ProtectPreyState.GetProtectedPawn(p);
+                if (protectedPawn == null || protectedPawn.Dead || protectedPawn.Destroyed || !protectedPawn.Spawned) continue;
+
+                data.Entries.Add(new Entry(p, protectedPawn));
+            }
+
+            return data.Entries;
+        }
+    }
+
     [HarmonyPatch(typeof(Faction), "Notify_MemberTookDamage")]
     public static class Patch_Faction_Notify_MemberTookDamage
     {
+        private static readonly MethodInfo TookDamageFromPredatorMethod =
+            AccessTools.Method(typeof(Faction), "TookDamageFromPredator", new Type[] { typeof(Pawn) })
+            ?? AccessTools.Method(typeof(Faction), "TookDamageFromPredator");
+
         public static bool Prepare() => PredationSettingsGate.EnablePredatorDefendCorpse();
 
         static void Postfix(Faction __instance, Pawn member, DamageInfo dinfo)
@@ -46,36 +160,13 @@ namespace ZoologyMod
 
                 if (alreadyHandled) return;
 
-                
-                var driver = pawn.jobs?.curDriver;
-                bool isProtectPrey = false;
-                if (driver != null)
+                if (ProtectPreyState.IsProtectPreyJob(pawn))
                 {
-                    var t = driver.GetType();
-                    if (t.Name == "JobDriver_ProtectPrey" || t.FullName?.EndsWith(".JobDriver_ProtectPrey") == true
-                        || typeof(JobDriver_ProtectPrey).IsAssignableFrom(t))
-                    {
-                        isProtectPrey = true;
-                    }
-                }
-                if (!isProtectPrey)
-                {
-                    if (!string.IsNullOrEmpty(pawn.CurJob?.def?.defName) && pawn.CurJob.def.defName.Equals("Zoology_ProtectPrey", StringComparison.OrdinalIgnoreCase))
-                        isProtectPrey = true;
-                }
-
-                if (isProtectPrey)
-                {
-                    
                     try
                     {
-                        MethodInfo mi = AccessTools.Method(typeof(Faction), "TookDamageFromPredator", new Type[] { typeof(Pawn) });
-                        if (mi == null) 
-                            mi = AccessTools.Method(typeof(Faction), "TookDamageFromPredator");
-
-                        if (mi != null)
+                        if (TookDamageFromPredatorMethod != null)
                         {
-                            mi.Invoke(__instance, new object[] { pawn });
+                            TookDamageFromPredatorMethod.Invoke(__instance, new object[] { pawn });
                         }
                         else
                         {
@@ -108,34 +199,7 @@ namespace ZoologyMod
                 if (predator == null) return;
                 var curJob = predator.CurJob;
                 if (curJob == null) return;
-
-                
-                var driver = predator.jobs?.curDriver;
-                bool isProtectPrey = false;
-                if (driver != null)
-                {
-                    var t = driver.GetType();
-                    if (t.Name == "JobDriver_ProtectPrey" || t.FullName?.EndsWith(".JobDriver_ProtectPrey") == true
-                        || typeof(JobDriver_ProtectPrey).IsAssignableFrom(t))
-                    {
-                        
-                        var endedProp = t.GetProperty("ended");
-                        bool ended = false;
-                        try { if (endedProp != null) ended = (bool)endedProp.GetValue(driver); } catch { ended = false; }
-                        if (!ended) isProtectPrey = true;
-                    }
-                }
-
-                if (!isProtectPrey)
-                {
-                    
-                    if (!string.IsNullOrEmpty(curJob.def?.defName) && curJob.def.defName.Equals("Zoology_ProtectPrey", StringComparison.OrdinalIgnoreCase))
-                    {
-                        isProtectPrey = true;
-                    }
-                }
-
-                if (!isProtectPrey) return;
+                if (!ProtectPreyState.IsProtectPreyJob(predator)) return;
 
                 
                 try
@@ -166,37 +230,8 @@ namespace ZoologyMod
             try
             {
                 if (__result) return; 
-                if (pawn?.jobs?.curDriver == null) return;
-
-                var driver = pawn.jobs.curDriver;
-                var driverType = driver.GetType();
-
-                
-                Type protectPreyType = Type.GetType("YourModNamespace.JobDriver_ProtectPrey, YourModAssemblyName");
-                
-                if (protectPreyType == null)
-                {
-                    
-                    if (driverType.Name.Equals("JobDriver_ProtectPrey", StringComparison.Ordinal)
-                        || (driverType.FullName != null && driverType.FullName.EndsWith(".JobDriver_ProtectPrey", StringComparison.Ordinal)))
-                    {
-                        __result = true;
-                        return;
-                    }
-                }
-                else
-                {
-                    
-                    if (protectPreyType.IsAssignableFrom(driverType))
-                    {
-                        __result = true;
-                        return;
-                    }
-                }
-
-                
-                var defName = pawn.CurJob?.def?.defName;
-                if (!string.IsNullOrEmpty(defName) && defName.Equals("Zoology_ProtectPrey", StringComparison.OrdinalIgnoreCase))
+                if (pawn == null) return;
+                if (ProtectPreyState.IsProtectPreyJob(pawn))
                 {
                     __result = true;
                 }
@@ -218,75 +253,16 @@ namespace ZoologyMod
             try
             {
                 if (__result) return; 
-                if (pawn == null || pawn.CurJob == null) return;
+                if (pawn == null || !ProtectPreyState.IsProtectPreyJob(pawn)) return;
 
-                var curJob = pawn.CurJob;
-                var driver = pawn.jobs?.curDriver;
-
-                
-                bool DriverIsProtectPrey(Type driverType)
+                var targetPawn = ProtectPreyState.GetProtectedPawn(pawn);
+                if (targetPawn != null && targetPawn.Spawned)
                 {
-                    if (driverType == null) return false;
-                    if (driverType.Name == "JobDriver_ProtectPrey") return true;
-                    if (driverType.FullName != null && driverType.FullName.EndsWith(".JobDriver_ProtectPrey")) return true;
-                    try
+                    const float THREAT_RADIUS = 20f;
+                    if (pawn.Position.InHorDistOf(targetPawn.Position, THREAT_RADIUS))
                     {
-                        
-                        var protectType = typeof(JobDriver_ProtectPrey);
-                        if (protectType.IsAssignableFrom(driverType)) return true;
+                        __result = true;
                     }
-                    catch { }
-                    return false;
-                }
-
-                
-                if (driver != null)
-                {
-                    var dType = driver.GetType();
-                    if (DriverIsProtectPrey(dType))
-                    {
-                        try
-                        {
-                            
-                            LocalTargetInfo targInfo = curJob.GetTarget(TargetIndex.A);
-                            var targetPawn = targInfo.Thing as Pawn;
-                            if (targetPawn != null && targetPawn.Spawned)
-                            {
-                                
-                                
-                                const float THREAT_RADIUS = 20f;
-                                if (pawn.Position.InHorDistOf(targetPawn.Position, THREAT_RADIUS))
-                                {
-                                    __result = true;
-                                }
-                            }
-                        }
-                        catch
-                        {
-                            
-                        }
-                        return;
-                    }
-                }
-
-                
-                var defName = curJob.def?.defName;
-                if (!string.IsNullOrEmpty(defName) && defName.Equals("Zoology_ProtectPrey", StringComparison.OrdinalIgnoreCase))
-                {
-                    try
-                    {
-                        LocalTargetInfo targInfo = curJob.GetTarget(TargetIndex.A);
-                        var targetPawn = targInfo.Thing as Pawn;
-                        if (targetPawn != null && targetPawn.Spawned)
-                        {
-                            const float THREAT_RADIUS = 20f;
-                            if (pawn.Position.InHorDistOf(targetPawn.Position, THREAT_RADIUS))
-                            {
-                                __result = true;
-                            }
-                        }
-                    }
-                    catch { }
                 }
             }
             catch (Exception ex)
@@ -308,33 +284,7 @@ namespace ZoologyMod
                 if (__result) return; 
 
                 if (predator == null || __instance == null) return;
-
-                
-                var driver = predator.jobs?.curDriver;
-                bool isProtectPrey = false;
-                if (driver != null)
-                {
-                    var t = driver.GetType();
-                    if (t.Name == "JobDriver_ProtectPrey" || (t.FullName != null && t.FullName.EndsWith(".JobDriver_ProtectPrey")))
-                        isProtectPrey = true;
-                }
-
-                
-                if (!isProtectPrey)
-                {
-                    try
-                    {
-                        var cur = predator.CurJob;
-                        if (cur != null && !string.IsNullOrEmpty(cur.def?.defName)
-                            && cur.def.defName.Equals("Zoology_ProtectPrey", StringComparison.OrdinalIgnoreCase))
-                        {
-                            isProtectPrey = true;
-                        }
-                    }
-                    catch { /* ignore */ }
-                }
-
-                if (!isProtectPrey) return;
+                if (!ProtectPreyState.IsProtectPreyJob(predator)) return;
 
                 
                 
@@ -376,23 +326,7 @@ namespace ZoologyMod
 
                 var curJob = predator.CurJob;
                 if (curJob == null) return;
-
-                
-                var driver = predator.jobs?.curDriver;
-                bool isProtectPrey = false;
-                if (driver != null)
-                {
-                    var t = driver.GetType();
-                    if (t.Name == "JobDriver_ProtectPrey" || (t.FullName != null && t.FullName.EndsWith(".JobDriver_ProtectPrey")))
-                        isProtectPrey = true;
-                }
-                if (!isProtectPrey)
-                {
-                    if (!string.IsNullOrEmpty(curJob.def?.defName) && curJob.def.defName.Equals("Zoology_ProtectPrey", StringComparison.OrdinalIgnoreCase))
-                        isProtectPrey = true;
-                }
-
-                if (!isProtectPrey) return;
+                if (!ProtectPreyState.IsProtectPreyJob(predator)) return;
 
                 
                 try
@@ -442,16 +376,20 @@ namespace ZoologyMod
                 }
                 catch { /* ignore */ }
 
-                if (searcherPawn == null || searcherPawn.Map == null) return;
+                if (searcherPawn == null || !searcherPawn.Spawned || searcherPawn.Map == null || searcherPawn.Faction == null) return;
+
+                long now = Find.TickManager?.TicksGame ?? 0L;
+                var protectors = ProtectPreyMapCache.Get(searcherPawn.Map, now);
+                if (protectors == null || protectors.Count == 0) return;
 
                 const float ADD_RADIUS = 30f;
-                var pawns = searcherPawn.Map.mapPawns.AllPawnsSpawned;
-                for (int i = 0; i < pawns.Count; i++)
+                for (int i = 0; i < protectors.Count; i++)
                 {
-                    var p = pawns[i];
-                    if (p == null) continue;
-                    if (!p.RaceProps.predator) continue;
-                    if (!p.Spawned) continue;
+                    var p = protectors[i].Predator;
+                    var protectedPawn = protectors[i].ProtectedPawn;
+                    if (p == null || protectedPawn == null) continue;
+                    if (!p.Spawned || p.Dead || p.Destroyed) continue;
+                    if (protectedPawn.Faction != searcherPawn.Faction) continue;
                     if (!p.Position.InHorDistOf(searcherPawn.Position, ADD_RADIUS)) continue;
 
                     bool already = false;
@@ -460,54 +398,7 @@ namespace ZoologyMod
                         if (__result[j]?.Thing == p) { already = true; break; }
                     }
                     if (already) continue;
-
-                    bool isProtectPrey = false;
-                    try
-                    {
-                        var driver = p.jobs?.curDriver;
-                        if (driver != null)
-                        {
-                            var dt = driver.GetType();
-                            if (dt.Name == "JobDriver_ProtectPrey" || (dt.FullName != null && dt.FullName.EndsWith(".JobDriver_ProtectPrey")))
-                                isProtectPrey = true;
-                            else
-                            {
-                                try { if (typeof(JobDriver_ProtectPrey).IsAssignableFrom(dt)) isProtectPrey = true; } catch { }
-                            }
-                        }
-
-                        if (!isProtectPrey)
-                        {
-                            var cur = p.CurJob;
-                            if (cur != null && !string.IsNullOrEmpty(cur.def?.defName)
-                                && cur.def.defName.Equals("Zoology_ProtectPrey", StringComparison.OrdinalIgnoreCase))
-                            {
-                                isProtectPrey = true;
-                            }
-                        }
-                    }
-                    catch { }
-
-                    if (!isProtectPrey) continue;
-
-                    Pawn protectedPawn = null;
-                    try
-                    {
-                        var curJob = p.CurJob;
-                        if (curJob != null)
-                        {
-                            var targ = curJob.GetTarget(TargetIndex.A).Thing as Pawn;
-                            if (targ != null && !targ.Dead) protectedPawn = targ;
-                        }
-                    }
-                    catch { }
-
-                    if (protectedPawn == null) continue;
-
-                    if (searcherPawn.Faction != null && protectedPawn.Faction == searcherPawn.Faction)
-                    {
-                        __result.Add(p as IAttackTarget);
-                    }
+                    __result.Add(p as IAttackTarget);
                 }
             }
             catch (Exception ex)

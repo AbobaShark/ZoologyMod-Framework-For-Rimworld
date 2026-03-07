@@ -30,18 +30,8 @@ namespace ZoologyMod
                 if (comp == null) return IntVec3.Invalid;
 
                 
-                List<Corpse> corpses = null;
-                try { corpses = comp.GetActivePairedCorpses(pawn); } catch { corpses = null; }
-
                 Corpse targetCorpse = null;
-                if (corpses != null && corpses.Count > 0)
-                {
-                    targetCorpse = corpses[0];
-                }
-                else
-                {
-                    try { targetCorpse = comp.GetPairedCorpse(pawn); } catch { targetCorpse = null; }
-                }
+                try { targetCorpse = comp.GetPairedCorpse(pawn); } catch { targetCorpse = null; }
 
                 if (targetCorpse == null) return IntVec3.Invalid;
 

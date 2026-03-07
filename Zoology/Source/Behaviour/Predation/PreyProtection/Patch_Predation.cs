@@ -159,7 +159,6 @@ namespace ZoologyMod
         {
             if (eater == null || foodSource == null) return;
 
-            var comp = PredatorPreyPairGameComponent.Instance;
             var corpse = foodSource as Corpse;
             if (corpse == null)
             {
@@ -170,7 +169,9 @@ namespace ZoologyMod
                     corpse = maybePawn.Corpse; 
                 }
             }
+            if (corpse != null)
             {
+                var comp = PredatorPreyPairGameComponent.Instance;
                 try
                 {
                     if (comp != null && eater != null && comp.IsPaired(eater, corpse))
