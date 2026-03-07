@@ -88,12 +88,21 @@ Predators choose prey using multiple factors:
 * age  
 * combat power
 
+Predators will only attack other predators if their Combat Power is more than **33% higher than the other predator's**.
+
+**Controlled by**
+
+**Enable advanced prey selection logic**  
+
+---
+
+### Pack hunt behavior
+
 Pack hunters can coordinate group attacks even if not all pack members are hungry.
 
-#### Optional setting
+**Controlled by**
 
-**Enable predator-on-predator hunt check**  
-Predators will only attack other predators if their Combat Power is more than **33% higher than the other predator's**.
+* **Enable pack hunt behavior**
 
 ---
 
