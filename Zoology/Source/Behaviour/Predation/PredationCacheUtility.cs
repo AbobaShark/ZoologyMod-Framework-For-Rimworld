@@ -13,6 +13,10 @@ namespace ZoologyMod
         private const string PhotonozoaFactionDefName = "Photonozoa";
 
         private static readonly Dictionary<ThingDef, bool> photonozoaCache = new Dictionary<ThingDef, bool>();
+        private static readonly Dictionary<ThingDef, bool> insectoidCache = new Dictionary<ThingDef, bool>();
+        private static readonly Dictionary<ThingDef, bool> thrumboLikeCache = new Dictionary<ThingDef, bool>();
+        private static readonly Dictionary<ThingDef, bool> noFleeExtensionCache = new Dictionary<ThingDef, bool>();
+        private static readonly Dictionary<ThingDef, bool> fleeFromCarrierExtensionCache = new Dictionary<ThingDef, bool>();
         private static readonly Dictionary<OrderedDefPairKey, bool> crossbreedCache = new Dictionary<OrderedDefPairKey, bool>();
 
         private static FactionDef photonozoaFactionDef;
@@ -49,6 +53,92 @@ namespace ZoologyMod
 
             FactionDef factionDef = GetPhotonozoaFactionDef();
             return factionDef != null && first.Faction.def == factionDef && second.Faction.def == factionDef;
+        }
+
+        public static bool IsInsectoid(ThingDef def)
+        {
+            if (def == null)
+            {
+                return false;
+            }
+
+            if (insectoidCache.TryGetValue(def, out bool cached))
+            {
+                return cached;
+            }
+
+            bool result = def.race?.FleshType == FleshTypeDefOf.Insectoid;
+            insectoidCache[def] = result;
+            return result;
+        }
+
+        public static bool IsExcludedFromHumanFleeByDefault(ThingDef def)
+        {
+            return IsInsectoid(def)
+                || IsPhotonozoa(def)
+                || IsThrumboLike(def)
+                || HasNoFleeExtension(def)
+                || HasFleeFromCarrierExtension(def);
+        }
+
+        public static bool IsAnimalThingDef(ThingDef def)
+        {
+            RaceProperties race = def?.race;
+            return def != null && !def.IsCorpse && race != null && race.Animal && !race.Humanlike;
+        }
+
+        public static bool IsThrumboLike(ThingDef def)
+        {
+            if (def == null)
+            {
+                return false;
+            }
+
+            if (thrumboLikeCache.TryGetValue(def, out bool cached))
+            {
+                return cached;
+            }
+
+            string defName = def.defName;
+            bool result = !string.IsNullOrEmpty(defName)
+                && defName.IndexOf("Thrumbo", StringComparison.OrdinalIgnoreCase) >= 0;
+
+            thrumboLikeCache[def] = result;
+            return result;
+        }
+
+        public static bool HasNoFleeExtension(ThingDef def)
+        {
+            if (def == null)
+            {
+                return false;
+            }
+
+            if (noFleeExtensionCache.TryGetValue(def, out bool cached))
+            {
+                return cached;
+            }
+
+            bool result = DefModExtensionCache<ModExtension_NoFlee>.Get(def) != null;
+            noFleeExtensionCache[def] = result;
+            return result;
+        }
+
+        public static bool HasFleeFromCarrierExtension(ThingDef def)
+        {
+            if (def == null)
+            {
+                return false;
+            }
+
+            if (fleeFromCarrierExtensionCache.TryGetValue(def, out bool cached))
+            {
+                return cached;
+            }
+
+            bool result = DefModExtensionCache<ModExtension_FleeFromCarrier>.Get(def) != null;
+            fleeFromCarrierExtensionCache[def] = result;
+            return result;
         }
 
         public static bool AreCrossbreedRelated(ThingDef first, ThingDef second)

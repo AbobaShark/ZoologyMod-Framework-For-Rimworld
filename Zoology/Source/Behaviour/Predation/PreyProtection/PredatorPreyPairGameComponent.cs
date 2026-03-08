@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using HarmonyLib;
 using Verse;
 using RimWorld;
 using UnityEngine;
@@ -1064,13 +1065,51 @@ namespace ZoologyMod
             return false;
         }
 
+        private static readonly System.Reflection.PropertyInfo RacePropsIsMechanoidProperty =
+            AccessTools.Property(typeof(RaceProperties), "IsMechanoid");
+
+        private static bool IsHumanlikeOrMechanoid(Pawn pawn)
+        {
+            if (pawn?.RaceProps == null)
+            {
+                return false;
+            }
+
+            if (pawn.RaceProps.Humanlike)
+            {
+                return true;
+            }
+
+            if (RacePropsIsMechanoidProperty == null)
+            {
+                return false;
+            }
+
+            try
+            {
+                object value = RacePropsIsMechanoidProperty.GetValue(pawn.RaceProps, null);
+                return value is bool isMechanoid && isMechanoid;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public void TryTriggerDefendFor(Corpse corpse, Pawn interrupter)
         {
             try
             {
-                if (ZoologyModSettings.Instance != null && !ZoologyModSettings.Instance.EnablePredatorDefendCorpse) return;
+                ZoologyModSettings settings = ZoologyModSettings.Instance;
+                if (settings != null && !settings.EnablePredatorDefendCorpse) return;
                 if (corpse == null) return;
                 if (interrupter == null || !interrupter.Spawned || interrupter.Dead) return;
+
+                bool humanlikeOrMechanoidInterrupter = IsHumanlikeOrMechanoid(interrupter);
+                if (humanlikeOrMechanoidInterrupter && settings != null && !settings.EnablePredatorDefendPreyFromHumansAndMechanoids)
+                {
+                    return;
+                }
 
                 
                 if (interrupter != null && IsCorpseEffectivelyUnownedFor(interrupter, corpse))
@@ -1105,6 +1144,7 @@ namespace ZoologyMod
                     try { pred = FindPawnById(pairPid); } catch { pred = null; }
                     if (pred == null) continue;
                     if (interrupter != null && pred == interrupter) continue;
+                    if (humanlikeOrMechanoidInterrupter && !ZoologyModSettings.CanPredatorDefendPreyFromHumansAndMechanoidsNow(pred)) continue;
 
                     try
                     {
