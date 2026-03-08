@@ -40,7 +40,7 @@ namespace ZoologyMod.HarmonyPatches
                     }
 
                     
-                    var scav = eater.def.GetModExtension<ModExtension_IsScavenger>();
+                    var scav = DefModExtensionCache<ModExtension_IsScavenger>.Get(eater.def);
                     if (scav == null)
                     {
                         return true;
@@ -118,7 +118,7 @@ namespace ZoologyMod.HarmonyPatches
                 var eater = ScavengerEatingContext.GetEatingPawnForCorpse(corpse);
                 if (eater == null) return true;
 
-                var scav = eater.def.GetModExtension<ModExtension_IsScavenger>();
+                var scav = DefModExtensionCache<ModExtension_IsScavenger>.Get(eater.def);
                 if (scav == null) return true;
 
                 var rotComp = corpse.TryGetComp<CompRottable>();
@@ -179,7 +179,7 @@ namespace ZoologyMod.HarmonyPatches
                     var eater = ScavengerEatingContext.GetEatingPawnForCorpse(corpse);
                     if (eater == null) return true;
 
-                    var scav = eater.def.GetModExtension<ModExtension_IsScavenger>();
+                    var scav = DefModExtensionCache<ModExtension_IsScavenger>.Get(eater.def);
                     if (scav == null) return true;
 
                     var rotComp = corpse.TryGetComp<CompRottable>();
@@ -227,7 +227,7 @@ namespace ZoologyMod.HarmonyPatches
                     var settings = ZoologyModSettings.Instance;
                     if (settings != null && !settings.EnableScavengering) return;
                     if (__result == null) return;
-                    var scav = ingester?.def?.GetModExtension<ModExtension_IsScavenger>();
+                    var scav = DefModExtensionCache<ModExtension_IsScavenger>.Get(ingester?.def);
                     if (scav == null) return; 
 
                     Action oldInit = __result.initAction;

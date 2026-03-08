@@ -25,7 +25,9 @@ namespace ZoologyMod
                 if (__instance == null || __instance.map == null)
                     return true;
 
-                var lactDef = DefDatabase<HediffDef>.GetNamedSilentFail("Zoology_Lactating");
+                var settings = ZoologyModSettings.Instance;
+                var mode = settings?.LactationSlaughterHandling ?? ZoologyModSettings.LactationSlaughterMode.TreatAsPregnant;
+                var lactDef = AnimalChildcareUtility.LactatingHediffDef;
 
                 List<Pawn> tmpAnimals = new List<Pawn>();
                 List<Pawn> tmpAnimalsMale = new List<Pawn>();
@@ -33,12 +35,12 @@ namespace ZoologyMod
                 List<Pawn> tmpAnimalsFemale = new List<Pawn>();
                 List<Pawn> tmpAnimalsFemaleYoung = new List<Pawn>();
                 List<Pawn> tmpAnimalsPregnant = new List<Pawn>();
-                List<Pawn> tmpAnimalsLactating = new List<Pawn>();
 
                 List<Pawn> animalsToSlaughterCachedLocal = new List<Pawn>();
 
                 var configs = __instance.configs;
                 var map = __instance.map;
+                var spawnedColonyAnimals = map.mapPawns.SpawnedColonyAnimals;
 
                 foreach (AutoSlaughterConfig autoSlaughterConfig in configs)
                 {
@@ -51,9 +53,8 @@ namespace ZoologyMod
                     tmpAnimalsFemale.Clear();
                     tmpAnimalsFemaleYoung.Clear();
                     tmpAnimalsPregnant.Clear();
-                    tmpAnimalsLactating.Clear();
 
-                    foreach (Pawn pawn in map.mapPawns.SpawnedColonyAnimals)
+                    foreach (Pawn pawn in spawnedColonyAnimals)
                     {
                         if (pawn.def != autoSlaughterConfig.animal) continue;
                         if (!AutoSlaughterManager.CanAutoSlaughterNow(pawn)) continue;
@@ -74,13 +75,6 @@ namespace ZoologyMod
                                 bool isPreg = pawn.health.hediffSet.GetFirstHediffOfDef(HediffDefOf.Pregnant, false) != null;
                                 bool isLact = (lactDef != null && pawn.health.hediffSet.HasHediff(lactDef, false));
 
-                                var mode = ZoologyModSettings.Instance?.LactationSlaughterHandling ?? ZoologyModSettings.LactationSlaughterMode.TreatAsPregnant;
-
-                                
-                                if (isLact)
-                                    tmpAnimalsLactating.Add(pawn);
-
-                                
                                 if (!isPreg && !isLact)
                                 {
                                     tmpAnimalsFemale.Add(pawn);
@@ -105,7 +99,7 @@ namespace ZoologyMod
                                                 allowByLact = autoSlaughterConfig.allowSlaughterPregnant;
                                                 break;
                                             case ZoologyModSettings.LactationSlaughterMode.SeparateSetting:
-                                                allowByLact = ZoologyModSettings.Instance != null && ZoologyModSettings.Instance.GetAllowSlaughterLactatingFor(autoSlaughterConfig.animal);
+                                                allowByLact = settings != null && settings.GetAllowSlaughterLactatingFor(autoSlaughterConfig.animal);
                                                 break;
                                             case ZoologyModSettings.LactationSlaughterMode.Ignore:
                                                 allowByLact = true;
@@ -290,6 +284,9 @@ namespace ZoologyMod
         public static FieldInfo f_configsOrdered = typeof(RimWorld.Dialog_AutoSlaughter).GetField("configsOrdered", BindingFlags.Instance | BindingFlags.NonPublic);
         public static FieldInfo f_map = typeof(RimWorld.Dialog_AutoSlaughter).GetField("map", BindingFlags.Instance | BindingFlags.NonPublic);
         public static MethodInfo m_recalculateAnimals = typeof(RimWorld.Dialog_AutoSlaughter).GetMethod("RecalculateAnimals", BindingFlags.Instance | BindingFlags.NonPublic);
+        public static readonly MethodInfo m_calculateLabelWidth = typeof(RimWorld.Dialog_AutoSlaughter).GetMethod("CalculateLabelWidth", BindingFlags.Instance | BindingFlags.NonPublic);
+        public static readonly FieldInfo f_tmpMouseoverHighlightRects = typeof(RimWorld.Dialog_AutoSlaughter).GetField("tmpMouseoverHighlightRects", BindingFlags.Instance | BindingFlags.NonPublic);
+        public static readonly FieldInfo f_tmpGroupRects = typeof(RimWorld.Dialog_AutoSlaughter).GetField("tmpGroupRects", BindingFlags.Instance | BindingFlags.NonPublic);
 
         public static readonly Type dialogType = typeof(RimWorld.Dialog_AutoSlaughter);
         public static readonly Type animalCountRecordType = dialogType.GetNestedType("AnimalCountRecord", BindingFlags.Instance | BindingFlags.NonPublic);
@@ -330,6 +327,12 @@ namespace ZoologyMod
             if (rec == null || fi_total == null) return 0;
             return (int)(fi_total.GetValue(rec) ?? 0);
         }
+
+        public static float GetLabelWidth(RimWorld.Dialog_AutoSlaughter dialog, Rect rect)
+        {
+            object widthObj = m_calculateLabelWidth?.Invoke(dialog, new object[] { rect });
+            return (widthObj is float wf) ? wf : (rect.width - 24f - 4f - 4f - 64f * 7f - 420f - 32f);
+        }
     }
 
     [HarmonyPatch(typeof(RimWorld.Dialog_AutoSlaughter), "RecalculateAnimals")]
@@ -341,7 +344,8 @@ namespace ZoologyMod
         {
             try
             {
-                var mode = ZoologyModSettings.Instance?.LactationSlaughterHandling ?? ZoologyModSettings.LactationSlaughterMode.TreatAsPregnant;
+                var settings = ZoologyModSettings.Instance;
+                var mode = settings?.LactationSlaughterHandling ?? ZoologyModSettings.LactationSlaughterMode.TreatAsPregnant;
                 
                 if (mode == ZoologyModSettings.LactationSlaughterMode.Ignore)
                     return true;
@@ -359,16 +363,17 @@ namespace ZoologyMod
                 }
 
                 object localAnimalCountsObj = Activator.CreateInstance(DialogAS_Helper.dictAnimalCountType);
+                var lactDef = AnimalChildcareUtility.LactatingHediffDef;
+                var spawnedColonyAnimals = map.mapPawns.SpawnedColonyAnimals;
 
                 foreach (AutoSlaughterConfig config in manager.configs)
                 {
                     var def = config.animal;
                     int male = 0, maleYoung = 0, female = 0, femaleYoung = 0, total = 0, pregnant = 0, bonded = 0;
                     int lactating = 0;
+                    bool allowSlaughterLactating = settings != null && settings.GetAllowSlaughterLactatingFor(def);
 
-                    var lactDef = DefDatabase<HediffDef>.GetNamedSilentFail("Zoology_Lactating");
-
-                    foreach (Pawn pawn in map.mapPawns.SpawnedColonyAnimals)
+                    foreach (Pawn pawn in spawnedColonyAnimals)
                     {
                         if (pawn.def != def || !AutoSlaughterManager.CanEverAutoSlaughter(pawn)) continue;
 
@@ -421,7 +426,7 @@ namespace ZoologyMod
                                                 allowByLact = config.allowSlaughterPregnant;
                                                 break;
                                             case ZoologyModSettings.LactationSlaughterMode.SeparateSetting:
-                                                allowByLact = ZoologyModSettings.Instance != null && ZoologyModSettings.Instance.GetAllowSlaughterLactatingFor(def);
+                                                allowByLact = allowSlaughterLactating;
                                                 break;
                                             case ZoologyModSettings.LactationSlaughterMode.Ignore:
                                                 allowByLact = true;
@@ -468,9 +473,14 @@ namespace ZoologyMod
 
                 DialogAS_Helper.f_animalCounts.SetValue(__instance, localAnimalCountsObj);
 
-                var configsOrdered = (from c in manager.configs
-                                      orderby DialogAS_Helper.GetTotalFromDict(localAnimalCountsObj, c.animal) descending, c.animal.label
-                                      select c).ToList();
+                var configsOrdered = new List<AutoSlaughterConfig>(manager.configs);
+                configsOrdered.Sort((a, b) =>
+                {
+                    int totalCompare = DialogAS_Helper.GetTotalFromDict(localAnimalCountsObj, b.animal)
+                        .CompareTo(DialogAS_Helper.GetTotalFromDict(localAnimalCountsObj, a.animal));
+                    if (totalCompare != 0) return totalCompare;
+                    return string.Compare(a.animal.label, b.animal.label, StringComparison.CurrentCulture);
+                });
                 DialogAS_Helper.f_configsOrdered.SetValue(__instance, configsOrdered);
 
                 return false; 
@@ -492,20 +502,17 @@ namespace ZoologyMod
         {
             try
             {
-                if (ZoologyModSettings.Instance == null || ZoologyModSettings.Instance.LactationSlaughterHandling != ZoologyModSettings.LactationSlaughterMode.SeparateSetting)
+                var settings = ZoologyModSettings.Instance;
+                if (settings == null || settings.LactationSlaughterHandling != ZoologyModSettings.LactationSlaughterMode.SeparateSetting)
                     return true;
 
-                var miCalc = typeof(RimWorld.Dialog_AutoSlaughter).GetMethod("CalculateLabelWidth", BindingFlags.Instance | BindingFlags.NonPublic);
-                object widthObj = miCalc.Invoke(__instance, new object[] { rect1 });
-                float widthBase = (widthObj is float wf) ? wf : (rect1.width - 24f - 4f - 4f - 64f * 7f - 420f - 32f);
+                float widthBase = DialogAS_Helper.GetLabelWidth(__instance, rect1);
                 
                 float width = widthBase - 64f;
 
                 Widgets.BeginGroup(new Rect(rect1.x, rect1.y, rect1.width, rect1.height + rect2.height + 1f));
-                var tmpMouseoverField = typeof(RimWorld.Dialog_AutoSlaughter).GetField("tmpMouseoverHighlightRects", BindingFlags.Instance | BindingFlags.NonPublic);
-                var tmpGroupRectsField = typeof(RimWorld.Dialog_AutoSlaughter).GetField("tmpGroupRects", BindingFlags.Instance | BindingFlags.NonPublic);
-                var tmpMouseoverList = tmpMouseoverField.GetValue(__instance) as List<Rect>;
-                var tmpGroupRectsList = tmpGroupRectsField.GetValue(__instance) as List<Rect>;
+                var tmpMouseoverList = DialogAS_Helper.f_tmpMouseoverHighlightRects?.GetValue(__instance) as List<Rect>;
+                var tmpGroupRectsList = DialogAS_Helper.f_tmpGroupRects?.GetValue(__instance) as List<Rect>;
                 if (tmpMouseoverList != null && tmpGroupRectsList != null)
                 {
                     tmpMouseoverList.Clear();
@@ -522,8 +529,8 @@ namespace ZoologyMod
                 row.Label(string.Empty, width, "AutoSlaugtherHeaderTooltipLabel".Translate(), -1f);
                 Rect item = new Rect(startX, rect1.height, row.FinalX - startX, rect2.height);
 
-                var tmpMouseoverList2 = tmpMouseoverField.GetValue(__instance) as List<Rect>;
-                var tmpGroupRectsList2 = tmpGroupRectsField.GetValue(__instance) as List<Rect>;
+                var tmpMouseoverList2 = DialogAS_Helper.f_tmpMouseoverHighlightRects?.GetValue(__instance) as List<Rect>;
+                var tmpGroupRectsList2 = DialogAS_Helper.f_tmpGroupRects?.GetValue(__instance) as List<Rect>;
                 if (tmpMouseoverList2 != null && tmpGroupRectsList2 != null)
                 {
                     tmpMouseoverList2.Add(item);
@@ -615,11 +622,12 @@ namespace ZoologyMod
 
             try
             {
-                if (ZoologyModSettings.Instance == null || ZoologyModSettings.Instance.LactationSlaughterHandling != ZoologyModSettings.LactationSlaughterMode.SeparateSetting)
+                var settings = ZoologyModSettings.Instance;
+                if (settings == null || settings.LactationSlaughterHandling != ZoologyModSettings.LactationSlaughterMode.SeparateSetting)
                     return true;
 
                 
-                bool prevAllow = ZoologyModSettings.Instance.GetAllowSlaughterLactatingFor(config.animal);
+                bool prevAllow = settings.GetAllowSlaughterLactatingFor(config.animal);
 
                 object dictObj = DialogAS_Helper.f_animalCounts.GetValue(__instance);
 
@@ -648,9 +656,7 @@ namespace ZoologyMod
 
                 Color color = GUI.color;
 
-                var miCalc = typeof(RimWorld.Dialog_AutoSlaughter).GetMethod("CalculateLabelWidth", BindingFlags.Instance | BindingFlags.NonPublic);
-                object widthObj = miCalc.Invoke(__instance, new object[] { rect });
-                float widthBase = (widthObj is float wf) ? wf : (rect.width - 24f - 4f - 4f - 64f * 7f - 420f - 32f);
+                float widthBase = DialogAS_Helper.GetLabelWidth(__instance, rect);
                 float width = widthBase - 64f; 
 
                 Widgets.BeginGroup(rect);
@@ -716,7 +722,7 @@ namespace ZoologyMod
                 Widgets.Checkbox(checkboxX, 0f, ref newAllow, 24f, false, true, null, null);
                 if (newAllow != prevAllow)
                 {
-                    ZoologyModSettings.Instance.SetAllowSlaughterLactatingFor(config.animal, newAllow);
+                    settings.SetAllowSlaughterLactatingFor(config.animal, newAllow);
                     try { DialogAS_Helper.m_recalculateAnimals.Invoke(__instance, null); } catch { }
                 }
 

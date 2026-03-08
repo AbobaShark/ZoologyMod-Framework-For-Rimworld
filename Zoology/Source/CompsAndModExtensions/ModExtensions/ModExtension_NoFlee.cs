@@ -41,24 +41,7 @@ namespace ZoologyMod
 
         public static bool IsNoFlee(Pawn pawn, out ModExtension_NoFlee ext)
         {
-            ext = null;
-            if (pawn == null) return false;
-
-            var pk = pawn.kindDef;
-            if (pk != null)
-            {
-                ext = pk.GetModExtension<ModExtension_NoFlee>();
-                if (ext != null) return true;
-            }
-
-            var td = pawn.def;
-            if (td != null)
-            {
-                ext = td.GetModExtension<ModExtension_NoFlee>();
-                if (ext != null) return true;
-            }
-
-            return false;
+            return DefModExtensionCache<ModExtension_NoFlee>.TryGet(pawn, out ext);
         }
     }
 
@@ -129,6 +112,8 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(MentalStateHandler), "TryStartMentalState")]
     public static class Patch_MentalStateHandler_TryStartMentalState_NoFlee
     {
+        private static readonly FieldInfo PawnField = AccessTools.Field(typeof(MentalStateHandler), "pawn");
+
         public static bool Prepare() => NoFleeSettingsGate.Enabled();
 
         
@@ -152,9 +137,7 @@ namespace ZoologyMod
                 
                 if (stateDef == MentalStateDefOf.PanicFlee || stateDef == MentalStateDefOf.Terror)
                 {
-                    
-                    var pawnObj = AccessTools.Field(typeof(MentalStateHandler), "pawn")?.GetValue(__instance);
-                    var pawn = pawnObj as Pawn;
+                    var pawn = PawnField?.GetValue(__instance) as Pawn;
 
                     if (pawn != null && NoFleeUtil.IsNoFlee(pawn, out var ext))
                     {

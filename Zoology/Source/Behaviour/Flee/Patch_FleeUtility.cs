@@ -16,7 +16,8 @@ namespace ZoologyMod
 
         public static bool Prefix(Pawn pawn, ref bool __result)
         {
-            if (!ModConstants.Settings.EnableCustomFleeDanger)
+            var settings = ModConstants.Settings;
+            if (settings == null || !settings.EnableCustomFleeDanger)
                 return true;
 
             if (pawn == null)
@@ -25,46 +26,57 @@ namespace ZoologyMod
                 return false;
             }
 
-            bool isAnimal = pawn.IsAnimal;
-            bool notInMental = !pawn.InMentalState;
-            bool notFighting = !pawn.IsFighting();
-            bool notDowned = !pawn.Downed;
-            bool notDead = !pawn.Dead;
-            bool notFollowMaster = !ThinkNode_ConditionalShouldFollowMaster.ShouldFollowMaster(pawn);
-            bool noLord = pawn.GetLord() == null;
-
-            bool factionClause;
-            if (pawn.Faction != Faction.OfPlayer || pawn.Map == null || !pawn.Map.IsPlayerHome)
+            if (!pawn.IsAnimal || pawn.InMentalState || pawn.IsFighting() || pawn.Downed || pawn.Dead)
             {
-                factionClause = true;
+                __result = false;
+                return false;
             }
-            else
-            {
-                bool predator = pawn.RaceProps?.predator ?? false;
-                float baseSize = pawn.RaceProps?.baseBodySize ?? pawn.BodySize;
 
+            if (ThinkNode_ConditionalShouldFollowMaster.ShouldFollowMaster(pawn) || pawn.GetLord() != null)
+            {
+                __result = false;
+                return false;
+            }
+
+            var faction = pawn.Faction;
+            if (faction != null && !faction.def.animalsFleeDanger)
+            {
+                __result = false;
+                return false;
+            }
+
+            var map = pawn.Map;
+            if (faction == Faction.OfPlayer && map != null && map.IsPlayerHome)
+            {
+                var raceProps = pawn.RaceProps;
+                bool predator = raceProps?.predator ?? false;
+                float baseSize = raceProps?.baseBodySize ?? pawn.BodySize;
                 bool safeOnHome =
-                    (predator && baseSize >= ModConstants.SafePredatorBodySizeThreshold)
-                    || (!predator && baseSize > ModConstants.SafeNonPredatorBodySizeThreshold);
+                    (predator && baseSize >= settings.SafePredatorBodySizeThreshold)
+                    || (!predator && baseSize > settings.SafeNonPredatorBodySizeThreshold);
 
-                factionClause = !safeOnHome;
+                if (safeOnHome)
+                {
+                    __result = false;
+                    return false;
+                }
             }
 
-            bool factionAllows = (pawn.Faction == null || pawn.Faction.def.animalsFleeDanger);
-
-            bool jobAllows = true;
-            if (pawn.CurJob != null && pawn.CurJobDef != null && pawn.CurJobDef.neverFleeFromEnemies)
+            var curJob = pawn.CurJob;
+            var curJobDef = curJob?.def;
+            if (curJobDef != null && curJobDef.neverFleeFromEnemies)
             {
-                jobAllows = false;
+                __result = false;
+                return false;
             }
-            if (pawn.jobs != null && pawn.jobs.curJob != null && pawn.jobs.curJob.def == JobDefOf.Flee && pawn.jobs.curJob.startTick == Find.TickManager.TicksGame)
+
+            if (curJobDef == JobDefOf.Flee && curJob != null && curJob.startTick == Find.TickManager.TicksGame)
             {
-                jobAllows = false;
+                __result = false;
+                return false;
             }
 
-            bool final = isAnimal && notInMental && notFighting && notDowned && notDead && notFollowMaster && noLord && factionClause && factionAllows && jobAllows;
-
-            __result = final;
+            __result = true;
             return false;
         }
     }

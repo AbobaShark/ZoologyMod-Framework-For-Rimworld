@@ -28,7 +28,7 @@ namespace ZoologyMod
             try
             {
                 if (pawn == null) return;
-                var scav = pawn.def?.GetModExtension<ModExtension_IsScavenger>();
+                var scav = DefModExtensionCache<ModExtension_IsScavenger>.Get(pawn.def);
                 if (scav == null) return;
 
                 var dict = Map;

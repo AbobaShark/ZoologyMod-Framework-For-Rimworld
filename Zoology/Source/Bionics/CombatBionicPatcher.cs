@@ -26,31 +26,43 @@ namespace ZoologyMod
 
             ClearAnimalsFromRelevantRecipes();
 
-            
-            var allAnimalDefs = DefDatabase<ThingDef>.AllDefsListForReading
-                .Where(def => def.category == ThingCategory.Pawn && def.race != null && def.race.Animal && BionicPatcherUtils.CanBeAugmented(def))
-                .ToList();
-
-            var createdInstallRecipes = new List<RecipeDef>();
+            var allAnimalDefs = BionicPatcherUtils.GetAugmentableAnimalDefs();
 
             foreach (var config in CombatConfigs)
             {
                 var recipe = DefDatabase<RecipeDef>.GetNamedSilentFail(config.RecipeDefName);
                 if (recipe == null) continue;
 
+                bool isArmRecipe = config.RecipeDefName.IndexOf("Arm", StringComparison.Ordinal) >= 0;
                 string partNameToCheck = config.AnimalPartDefName ?? config.HumanPartDefName;
-                var compatibleAnimals = allAnimalDefs.Where(animal => BionicPatcherUtils.HasBodyPart(animal.race.body, partNameToCheck)).ToList();
+                var compatibleAnimals = new List<ThingDef>();
 
-                
-                if (config.RecipeDefName.Contains("Arm"))
+                foreach (var animal in allAnimalDefs)
                 {
-                    compatibleAnimals = allAnimalDefs.Where(animal =>
-                        BionicPatcherUtils.HasBodyPart(animal.race.body, "Shoulder") || BionicPatcherUtils.HasBodyPart(animal.race.body, "Arm")).ToList();
+                    if (animal.category != ThingCategory.Pawn)
+                    {
+                        continue;
+                    }
+
+                    if (isArmRecipe)
+                    {
+                        if (BionicPatcherUtils.HasBodyPart(animal.race.body, "Shoulder") || BionicPatcherUtils.HasBodyPart(animal.race.body, "Arm"))
+                        {
+                            compatibleAnimals.Add(animal);
+                        }
+                    }
+                    else if (BionicPatcherUtils.HasBodyPart(animal.race.body, partNameToCheck))
+                    {
+                        compatibleAnimals.Add(animal);
+                    }
                 }
 
                 if (compatibleAnimals.Count == 0) continue;
 
                 var groupedBySize = BionicPatcherUtils.GroupAnimalsBySize(compatibleAnimals);
+                var defaultAnimalBodyPart = BionicPatcherUtils.GetBodyPartDef(config.AnimalPartDefName ?? config.HumanPartDefName);
+                var shoulderPart = BionicPatcherUtils.GetBodyPartDef("Shoulder");
+                var armPart = BionicPatcherUtils.GetBodyPartDef("Arm");
 
                 foreach (var kvp in groupedBySize)
                 {
@@ -59,47 +71,47 @@ namespace ZoologyMod
 
                     if (animals.Count == 0) continue;
 
-                    var originalHediff = DefDatabase<HediffDef>.GetNamedSilentFail(config.HediffDefName);
-                    if (originalHediff == null) continue;
-
-                    
-                    var newHediffName = $"{config.HediffDefName}_Animal_{category}";
                     var newHediff = BionicPatcherUtils.GetCombatHediff(config, category);
                     if (newHediff == null) continue;
 
-                    
                     List<BodyPartDef> appliedParts = new List<BodyPartDef>();
-                    var animalBodyPart = DefDatabase<BodyPartDef>.GetNamedSilentFail(config.AnimalPartDefName ?? config.HumanPartDefName);
+                    var animalBodyPart = defaultAnimalBodyPart;
                     if (animalBodyPart != null)
                     {
                         appliedParts.Add(animalBodyPart);
                     }
 
-                    
-                    if (config.RecipeDefName.Contains("Arm"))
+                    if (isArmRecipe)
                     {
-                        var shoulderAnimals = animals.Where(a => BionicPatcherUtils.HasBodyPart(a.race.body, "Shoulder")).ToList();
-                        var armOnlyAnimals = animals.Where(a => !BionicPatcherUtils.HasBodyPart(a.race.body, "Shoulder") && BionicPatcherUtils.HasBodyPart(a.race.body, "Arm")).ToList();
+                        var shoulderAnimals = new List<ThingDef>();
+                        var armOnlyAnimals = new List<ThingDef>();
+                        foreach (var animal in animals)
+                        {
+                            if (BionicPatcherUtils.HasBodyPart(animal.race.body, "Shoulder"))
+                            {
+                                shoulderAnimals.Add(animal);
+                            }
+                            else if (BionicPatcherUtils.HasBodyPart(animal.race.body, "Arm"))
+                            {
+                                armOnlyAnimals.Add(animal);
+                            }
+                        }
 
-                        if (shoulderAnimals.Count > 0)
+                        if (shoulderAnimals.Count > 0 && shoulderPart != null)
                         {
-                            var shoulderParts = new List<BodyPartDef> { DefDatabase<BodyPartDef>.GetNamedSilentFail("Shoulder") };
-                            var newRecipe = CreateCombatRecipe(config, category, shoulderAnimals, shoulderParts, newHediff, recipe);
-                            if (newRecipe != null) createdInstallRecipes.Add(newRecipe);
+                            var shoulderParts = new List<BodyPartDef> { shoulderPart };
+                            CreateCombatRecipe(config, category, shoulderAnimals, shoulderParts, newHediff, recipe);
                         }
-                        if (armOnlyAnimals.Count > 0)
+                        if (armOnlyAnimals.Count > 0 && armPart != null)
                         {
-                            var armParts = new List<BodyPartDef> { DefDatabase<BodyPartDef>.GetNamedSilentFail("Arm") };
-                            var newRecipe = CreateCombatRecipe(config, category, armOnlyAnimals, armParts, newHediff, recipe);
-                            if (newRecipe != null) createdInstallRecipes.Add(newRecipe);
+                            var armParts = new List<BodyPartDef> { armPart };
+                            CreateCombatRecipe(config, category, armOnlyAnimals, armParts, newHediff, recipe);
                         }
-                        continue; 
+                        continue;
                     }
 
-                    
                     if (appliedParts.Count == 0) continue;
-                    var defaultRecipe = CreateCombatRecipe(config, category, animals, appliedParts, newHediff, recipe);
-                    if (defaultRecipe != null) createdInstallRecipes.Add(defaultRecipe);
+                    CreateCombatRecipe(config, category, animals, appliedParts, newHediff, recipe);
                 }
             }
 

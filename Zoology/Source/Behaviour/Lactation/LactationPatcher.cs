@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using HarmonyLib;
 using Verse;
@@ -11,6 +10,12 @@ namespace ZoologyMod
     [StaticConstructorOnStartup]
     public static class LactationPatcher
     {
+        private static readonly HashSet<string> CandidateMethodNameSet = new HashSet<string>(new[] { "DoBirthSpawn", "GiveBirth", "PostBirth", "FinishBirth", "DoBirth" }, StringComparer.Ordinal);
+        private static readonly string[] PregnancyTypeNameFragments = { "Pregnant", "Pregnancy", "BestialPregnancy", "BasePregnancy", "Birth" };
+        private static readonly string[] CandidateMotherMemberNames = { "mother", "pawn", "parent", "motherPawn", "motherThing" };
+        private static readonly MethodInfo PostfixVoid = typeof(LactationPatcher).GetMethod(nameof(BirthPostfix_Void), BindingFlags.Static | BindingFlags.NonPublic);
+        private static readonly MethodInfo PostfixWithResult = typeof(LactationPatcher).GetMethod(nameof(BirthPostfix_WithResult), BindingFlags.Static | BindingFlags.NonPublic);
+
         static LactationPatcher()
         {
             try
@@ -24,13 +29,7 @@ namespace ZoologyMod
                 int patchedCount = 0;
                 List<string> patchedNames = new List<string>();
 
-                string[] candidateMethodNames = new string[] { "DoBirthSpawn", "GiveBirth", "PostBirth", "FinishBirth", "DoBirth" };
-                string[] pregnancyTypeNameFragments = new string[] { "Pregnant", "Pregnancy", "BestialPregnancy", "BasePregnancy", "Birth" };
-
                 var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-
-                MethodInfo postfixVoid = typeof(LactationPatcher).GetMethod(nameof(BirthPostfix_Void), BindingFlags.Static | BindingFlags.NonPublic);
-                MethodInfo postfixWithResult = typeof(LactationPatcher).GetMethod(nameof(BirthPostfix_WithResult), BindingFlags.Static | BindingFlags.NonPublic);
 
                 foreach (var asm in assemblies)
                 {
@@ -41,7 +40,7 @@ namespace ZoologyMod
                     }
                     catch (ReflectionTypeLoadException rtle)
                     {
-                        types = rtle.Types.Where(t => t != null).ToArray();
+                        types = Array.FindAll(rtle.Types, t => t != null);
                     }
                     catch
                     {
@@ -51,8 +50,7 @@ namespace ZoologyMod
                     foreach (var t in types)
                     {
                         if (t == null) continue;
-                        bool nameMatches = pregnancyTypeNameFragments.Any(frag => t.Name.IndexOf(frag, StringComparison.OrdinalIgnoreCase) >= 0);
-                        if (!nameMatches) continue;
+                        if (!TypeNameMatches(t.Name)) continue;
 
                         MethodInfo[] methods;
                         try
@@ -67,11 +65,11 @@ namespace ZoologyMod
                         foreach (var m in methods)
                         {
                             if (m == null) continue;
-                            if (!candidateMethodNames.Contains(m.Name)) continue;
+                            if (!CandidateMethodNameSet.Contains(m.Name)) continue;
 
                             try
                             {
-                                MethodInfo chosenPostfix = (m.ReturnType == typeof(void)) ? postfixVoid : postfixWithResult;
+                                MethodInfo chosenPostfix = (m.ReturnType == typeof(void)) ? PostfixVoid : PostfixWithResult;
                                 if (chosenPostfix == null)
                                 {
                                     Log.Error("ZoologyMod: Could not find required postfix methods by reflection.");
@@ -100,6 +98,17 @@ namespace ZoologyMod
             {
                 Log.Error("ZoologyMod: LactationPatcher initialization failed: " + ex);
             }
+        }
+
+        private static bool TypeNameMatches(string typeName)
+        {
+            for (int i = 0; i < PregnancyTypeNameFragments.Length; i++)
+            {
+                if (typeName.IndexOf(PregnancyTypeNameFragments[i], StringComparison.OrdinalIgnoreCase) >= 0)
+                    return true;
+            }
+
+            return false;
         }
 
         static void BirthPostfix_Void(object __instance, object[] __args)
@@ -153,23 +162,6 @@ namespace ZoologyMod
 
                 if (mother == null)
                 {
-                    if (__instance != null)
-                    {
-                        var t = __instance.GetType();
-                        try
-                        {
-                            foreach (var f in t.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
-                            {
-                                object v = null;
-                                try { v = f.GetValue(__instance); } catch { v = "<err>"; }
-                                
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Log.Warning("ZoologyMod: Exception while dumping fields: " + ex);
-                        }
-                    }
                     return;
                 }
 
@@ -182,7 +174,7 @@ namespace ZoologyMod
                     return;
                 }
 
-                var lactDef = DefDatabase<HediffDef>.GetNamedSilentFail("Zoology_Lactating");
+                var lactDef = AnimalChildcareUtility.LactatingHediffDef;
                 if (lactDef == null)
                 {
                     Log.Warning("ZoologyMod: HediffDef 'Zoology_Lactating' not found.");
@@ -217,15 +209,16 @@ namespace ZoologyMod
                 if (result is Pawn rp) return rp;
                 if (result is IEnumerable<Pawn> rlist)
                 {
-                    var first = rlist.FirstOrDefault();
-                    if (first != null) return first;
+                    foreach (var pawn in rlist)
+                    {
+                        if (pawn != null) return pawn;
+                    }
                 }
 
                 var t = instance?.GetType();
                 if (t != null)
                 {
-                    string[] candidateNames = new string[] { "mother", "pawn", "parent", "motherPawn", "motherThing" };
-                    foreach (var name in candidateNames)
+                    foreach (var name in CandidateMotherMemberNames)
                     {
                         try
                         {

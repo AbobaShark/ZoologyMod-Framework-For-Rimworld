@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using RimWorld;
 using Verse;
 
@@ -32,6 +30,13 @@ namespace ZoologyMod
     public class Comp_AnimalRegeneration : ThingComp
     {
         private CompProperties_AnimalRegeneration Props => (CompProperties_AnimalRegeneration)this.props;
+        private HediffDef hediffBaby;
+        private HediffDef hediffJuvenile;
+        private HediffDef hediffAdult;
+        private int checkIntervalTicks = 720;
+        private float babyThreshold;
+        private float juvenileThreshold;
+        private float adultThreshold;
 
         
         private const float DefaultBabyFraction = 0.2f;
@@ -43,10 +48,7 @@ namespace ZoologyMod
         {
             base.PostSpawnSetup(respawningAfterLoad);
             ValidateAndFixFractions();
-            if (Props.checkIntervalTicks < MinIntervalTicks)
-            {
-                Props.checkIntervalTicks = MinIntervalTicks;
-            }
+            CacheRegenerationConfig();
         }
 
         
@@ -81,50 +83,58 @@ namespace ZoologyMod
             }
         }
 
+        private void CacheRegenerationConfig()
+        {
+            if (Props == null) return;
+
+            if (Props.checkIntervalTicks < MinIntervalTicks)
+            {
+                Props.checkIntervalTicks = MinIntervalTicks;
+            }
+
+            hediffBaby = Props.hediffBaby;
+            hediffJuvenile = Props.hediffJuvenile;
+            hediffAdult = Props.hediffAdult;
+            checkIntervalTicks = Props.checkIntervalTicks;
+
+            float baseBodySize = parent?.def?.race?.baseBodySize ?? 1.0f;
+            if (baseBodySize <= 0f)
+            {
+                baseBodySize = 1.0f;
+            }
+
+            babyThreshold = baseBodySize * Props.babyFraction;
+            juvenileThreshold = baseBodySize * Props.juvenileFraction;
+            adultThreshold = baseBodySize * Props.adultFraction;
+        }
+
         public override void CompTick()
         {
             base.CompTick();
 
             if (Props == null) return;
-            if (!parent.IsHashIntervalTick(Props.checkIntervalTicks)) return;
+            if (!parent.IsHashIntervalTick(checkIntervalTicks)) return;
 
             Pawn pawn = parent as Pawn;
             if (pawn == null) return;
             if (pawn.Dead) return;
             if (pawn.health?.hediffSet == null) return;
 
-            
-            float baseBodySize = 1.0f;
-            try
-            {
-                baseBodySize = pawn.RaceProps?.baseBodySize ?? 1.0f;
-                if (baseBodySize <= 0f) baseBodySize = 1.0f;
-            }
-            catch
-            {
-                baseBodySize = 1.0f;
-            }
-
-            
-            float babyThreshold = baseBodySize * Props.babyFraction;
-            float juvenileThreshold = baseBodySize * Props.juvenileFraction;
-            float adultThreshold = baseBodySize * Props.adultFraction;
-
             float currentBodySize = pawn.BodySize;
 
             
             HediffDef targetDef = null;
-            if (Props.hediffAdult != null && currentBodySize >= adultThreshold)
+            if (hediffAdult != null && currentBodySize >= adultThreshold)
             {
-                targetDef = Props.hediffAdult;
+                targetDef = hediffAdult;
             }
-            else if (Props.hediffJuvenile != null && currentBodySize >= juvenileThreshold)
+            else if (hediffJuvenile != null && currentBodySize >= juvenileThreshold)
             {
-                targetDef = Props.hediffJuvenile;
+                targetDef = hediffJuvenile;
             }
-            else if (Props.hediffBaby != null && currentBodySize >= babyThreshold)
+            else if (hediffBaby != null && currentBodySize >= babyThreshold)
             {
-                targetDef = Props.hediffBaby;
+                targetDef = hediffBaby;
             }
             else
             {
@@ -174,14 +184,14 @@ namespace ZoologyMod
             var hediffs = pawn.health.hediffSet.hediffs;
             if (hediffs == null || hediffs.Count == 0) return null;
 
-            var configured = new HashSet<HediffDef>();
-            if (Props.hediffBaby != null) configured.Add(Props.hediffBaby);
-            if (Props.hediffJuvenile != null) configured.Add(Props.hediffJuvenile);
-            if (Props.hediffAdult != null) configured.Add(Props.hediffAdult);
-
-            foreach (var h in hediffs)
+            for (int i = 0; i < hediffs.Count; i++)
             {
-                if (h?.def != null && configured.Contains(h.def)) return h;
+                Hediff h = hediffs[i];
+                HediffDef def = h?.def;
+                if (def != null && (def == hediffBaby || def == hediffJuvenile || def == hediffAdult))
+                {
+                    return h;
+                }
             }
 
             return null;

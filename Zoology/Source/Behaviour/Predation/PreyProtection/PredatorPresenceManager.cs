@@ -9,7 +9,6 @@ namespace ZoologyMod
 {
     public static class PredatorPresenceManager
     {
-        private static float PRESENCE_RADIUS => (ZoologyModSettings.Instance != null && ZoologyModSettings.Instance.EnablePredatorDefendCorpse) ? ZoologyModSettings.Instance.PreyProtectionRange : 20;
         private const int PRESENCE_CHECK_INTERVAL = 250;
 
         
@@ -30,6 +29,7 @@ namespace ZoologyMod
 
                 var pairs = comp.GetRuntimePredatorToCorpseSnapshot();
                 if (pairs == null || pairs.Count == 0) return;
+                int presenceRangeSquared = PreyProtectionUtility.GetProtectionRangeSquared();
 
                 for (int i = 0; i < pairs.Count; i++)
                 {
@@ -51,25 +51,10 @@ namespace ZoologyMod
                         continue;
                     }
 
-                    IntVec3 targetPos;
-                    Map corpseMap = targetCorpse.Map;
-                    if (corpseMap != null)
+                    if (!PreyProtectionUtility.TryGetProtectionAnchor(targetCorpse, out Map corpseMap, out IntVec3 targetPos))
                     {
-                        targetPos = targetCorpse.Position;
-                    }
-                    else
-                    {
-                        var carrier = FindCarrierPawnForCorpse(targetCorpse);
-                        if (carrier != null && carrier.Map != null)
-                        {
-                            corpseMap = carrier.Map;
-                            targetPos = carrier.Position;
-                        }
-                        else
-                        {
-                            LogOnce(p, targetCorpse, "Corpse not on any map and no carrier found.");
-                            continue;
-                        }
+                        LogOnce(p, targetCorpse, "Corpse has no valid protection anchor.");
+                        continue;
                     }
 
                     if (p.Map == null || corpseMap == null || p.Map != corpseMap)
@@ -78,7 +63,7 @@ namespace ZoologyMod
                         continue;
                     }
 
-                    if (p.Position.InHorDistOf(targetPos, PRESENCE_RADIUS))
+                    if (PreyProtectionUtility.IsPawnWithinProtectionRange(p, corpseMap, targetPos, presenceRangeSquared))
                     {
                         continue;
                     }
@@ -182,41 +167,6 @@ namespace ZoologyMod
             catch { return false; }
         }
 
-        private static Pawn FindCarrierPawnForCorpse(Corpse corpse)
-        {
-            try
-            {
-                if (corpse == null) return null;
-                var maps = Find.Maps;
-                for (int mi = 0; mi < maps.Count; mi++)
-                {
-                    var pawns = maps[mi].mapPawns.AllPawnsSpawned;
-                    for (int pi = 0; pi < pawns.Count; pi++)
-                    {
-                        var p = pawns[pi];
-                        if (p == null) continue;
-                        try
-                        {
-                            if (p.carryTracker != null && p.carryTracker.CarriedThing != null && p.carryTracker.CarriedThing.thingIDNumber == corpse.thingIDNumber)
-                                return p;
-                            var inv = p.inventory?.innerContainer;
-                            if (inv != null)
-                            {
-                                for (int j = 0; j < inv.Count; j++)
-                                {
-                                    var t = inv[j];
-                                    if (t != null && t.thingIDNumber == corpse.thingIDNumber) return p;
-                                }
-                            }
-                        }
-                        catch { }
-                    }
-                }
-            }
-            catch { }
-            return null;
-        }
-
         private static void TrySendPredatorToCorpse(Pawn pred, Corpse corpse, IntVec3 corpsePos)
         {
             try
@@ -253,7 +203,7 @@ namespace ZoologyMod
                     }
                 }
 
-                IntVec3 dest = FindClosestReachableCellNear(corpsePos, pred.Map, pred, (int)PRESENCE_RADIUS);
+                IntVec3 dest = FindClosestReachableCellNear(corpsePos, pred.Map, pred, PreyProtectionUtility.GetProtectionRange());
 
                 if (!dest.IsValid || dest == corpsePos)
                 {

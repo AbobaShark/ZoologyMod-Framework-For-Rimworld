@@ -13,8 +13,28 @@ namespace ZoologyMod
         public const int FullLactatingSeverityTicks = 10000;
         public const float feedingThreshold = 0.33f;
         private static Dictionary<int, int> lastFeedAttemptTick = new Dictionary<int, int>();
+        private static readonly Dictionary<ThingDef, HashSet<string>> crossBreedDefNamesCache = new Dictionary<ThingDef, HashSet<string>>();
+        private static HediffDef lactatingHediffDef;
+        private static JobDef breastfeedJobDef;
+        private static JobDef youngSuckleJobDef;
+        private static LifeStageDef animalBabyLifeStageDef;
         private const int FeedAttemptCooldownTicks = 100;
         public const float MotherMinFeedLevel = 0.15f;
+        public static HediffDef LactatingHediffDef => lactatingHediffDef ?? (lactatingHediffDef = DefDatabase<HediffDef>.GetNamedSilentFail("Zoology_Lactating"));
+        public static JobDef BreastfeedJobDef => breastfeedJobDef ?? (breastfeedJobDef = DefDatabase<JobDef>.GetNamedSilentFail("Zoology_Breastfeed"));
+        public static JobDef YoungSuckleJobDef => youngSuckleJobDef ?? (youngSuckleJobDef = DefDatabase<JobDef>.GetNamedSilentFail("Zoology_YoungSuckle"));
+
+        public static bool IsAnimalBabyLifeStage(LifeStageDef stage)
+        {
+            if (stage == null) return false;
+            var cached = animalBabyLifeStageDef ?? (animalBabyLifeStageDef = DefDatabase<LifeStageDef>.GetNamedSilentFail("AnimalBaby"));
+            return stage == cached || string.Equals(stage.defName, "AnimalBaby", StringComparison.OrdinalIgnoreCase);
+        }
+
+        public static bool IsAnimalBaby(Pawn pawn)
+        {
+            return pawn != null && IsAnimalBabyLifeStage(pawn.ageTracker?.CurLifeStage);
+        }
 
         public static bool MotherHasSufficientNutrition(Pawn mom)
         {
@@ -74,7 +94,7 @@ namespace ZoologyMod
                     return;
                 }
 
-                HediffDef hd = DefDatabase<HediffDef>.GetNamedSilentFail("Zoology_Lactating");
+                HediffDef hd = LactatingHediffDef;
                 if (hd == null)
                 {
                     Log.Warning("ZoologyMod: HediffDef 'Zoology_Lactating' not found in DefDatabase when trying to start lactation.");
@@ -119,8 +139,8 @@ namespace ZoologyMod
                 return false;
             }
 
-            var lactDef = DefDatabase<HediffDef>.GetNamedSilentFail("Zoology_Lactating");
-            if (!mom.health.hediffSet.HasHediff(lactDef)) { failReason = "Mom not lactating"; return false; }
+            var lactDef = LactatingHediffDef;
+            if (lactDef == null || !mom.health.hediffSet.HasHediff(lactDef)) { failReason = "Mom not lactating"; return false; }
 
             if (!MotherHasSufficientNutrition(mom))
             {
@@ -131,27 +151,55 @@ namespace ZoologyMod
             return true;
         }
 
+        public static bool CanMotherFeed(Pawn mom)
+        {
+            if (mom == null || mom.Dead || mom.Downed) return false;
+            if (!mom.IsMammal() || !ZoologyModSettings.EnableMammalLactation) return false;
+            if (mom.InMentalState) return false;
+
+            var lactDef = LactatingHediffDef;
+            if (lactDef == null || !mom.health.hediffSet.HasHediff(lactDef)) return false;
+
+            return MotherHasSufficientNutrition(mom);
+        }
+
+        private static HashSet<string> GetCrossBreedDefNames(ThingDef motherDef)
+        {
+            if (motherDef == null) return null;
+
+            HashSet<string> allowedDefNames;
+            if (crossBreedDefNamesCache.TryGetValue(motherDef, out allowedDefNames))
+                return allowedDefNames;
+
+            allowedDefNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var list = motherDef.race?.canCrossBreedWith;
+            if (list != null)
+            {
+                for (int i = 0; i < list.Count; i++)
+                {
+                    var td = list[i];
+                    if (td?.defName != null)
+                    {
+                        allowedDefNames.Add(td.defName);
+                    }
+                }
+            }
+
+            crossBreedDefNamesCache[motherDef] = allowedDefNames;
+            return allowedDefNames;
+        }
+
         public static bool IsCrossBreedCompatible(Pawn mother, Pawn pup)
         {
             if (mother == null || pup == null) return false;
 
-            if (pup.def == mother.def) return true;
+            ThingDef motherDef = mother.def;
+            ThingDef pupDef = pup.def;
+            if (motherDef == null || pupDef == null) return false;
+            if (pupDef == motherDef) return true;
 
-            var race = mother.def?.race;
-            if (race == null) return false;
-
-            var list = race.canCrossBreedWith;
-            if (list == null) return false;
-
-            for (int i = 0; i < list.Count; i++)
-            {
-                var td = list[i];
-                if (td == null) continue;
-                if (td == pup.def) return true;
-                if (string.Equals(td.defName, pup.def.defName, StringComparison.OrdinalIgnoreCase)) return true;
-            }
-
-            return false;
+            var allowedDefNames = GetCrossBreedDefNames(motherDef);
+            return allowedDefNames != null && allowedDefNames.Contains(pupDef.defName);
         }
 
         public static bool ChildWantsSuckle(Pawn pup)
@@ -163,8 +211,7 @@ namespace ZoologyMod
             if (!pup.IsMammal()) return false;
 
             var curStage = pup.ageTracker?.CurLifeStage;
-            if (curStage == null) return false;
-            if (!string.Equals(curStage.defName, "AnimalBaby", StringComparison.OrdinalIgnoreCase))
+            if (!IsAnimalBabyLifeStage(curStage))
             {
                 return false;
             }
@@ -180,8 +227,7 @@ namespace ZoologyMod
             foreach (Pawn p in pup.Map.mapPawns.AllPawnsSpawned)
             {
                 if (p == null || !p.Spawned || p.Dead) continue;
-                string reason;
-                if (!CanMotherFeed(p, out reason)) continue;
+                if (!CanMotherFeed(p)) continue;
 
                 if (!IsCrossBreedCompatible(p, pup)) continue;
 
@@ -198,7 +244,10 @@ namespace ZoologyMod
         public static Job MakeAnimalBreastfeedJob(Pawn pup, Pawn mom)
         {
             if (mom == null || mom.Dead || mom.Downed || pup == null || pup.Dead) return null;
-            Job job = JobMaker.MakeJob(DefDatabase<JobDef>.GetNamedSilentFail("Zoology_Breastfeed"));
+            var breastfeedDef = BreastfeedJobDef;
+            if (breastfeedDef == null) return null;
+
+            Job job = JobMaker.MakeJob(breastfeedDef);
             job.targetA = pup;
             job.targetB = mom;
             job.count = 1;
@@ -215,7 +264,9 @@ namespace ZoologyMod
 
                 if (!IsCrossBreedCompatible(mom, pup)) return false;
 
-                var lactDef = DefDatabase<HediffDef>.GetNamedSilentFail("Zoology_Lactating");
+                var lactDef = LactatingHediffDef;
+                if (lactDef == null) return false;
+
                 Hediff lact = mom.health?.hediffSet?.GetFirstHediffOfDef(lactDef);
                 if (lact == null) return false;
 

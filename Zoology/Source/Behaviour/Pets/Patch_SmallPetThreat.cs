@@ -3,7 +3,6 @@ using RimWorld;
 using Verse;
 using Verse.AI;
 using Verse.AI.Group;
-using System.Reflection;
 
 namespace ZoologyMod
 {
@@ -19,7 +18,8 @@ namespace ZoologyMod
         public static void Postfix(Pawn __instance, Pawn otherPawn, ref bool __result)
         {
             
-            if (!ModConstants.Settings.EnableIgnoreSmallPetsByRaiders)
+            var settings = ModConstants.Settings;
+            if (settings == null || !settings.EnableIgnoreSmallPetsByRaiders)
                 return;
 
             if (__result)
@@ -28,7 +28,7 @@ namespace ZoologyMod
             
             bool isSmallPet = __instance.RaceProps.Animal
                            && __instance.Faction == Faction.OfPlayer
-                           && __instance.RaceProps.baseBodySize < ModConstants.SmallPetBodySizeThreshold;
+                           && __instance.RaceProps.baseBodySize < settings.SmallPetBodySizeThreshold;
 
             if (!isSmallPet)
                 return;

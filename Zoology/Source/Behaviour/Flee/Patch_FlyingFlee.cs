@@ -9,6 +9,10 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(Pawn_FlightTracker), "Notify_JobStarted")]
     public static class Patch_FlyingFleeStart
     {
+        private static readonly FieldInfo PawnField = AccessTools.Field(typeof(Pawn_FlightTracker), "pawn");
+        private static readonly FieldInfo FlightCooldownField = AccessTools.Field(typeof(Pawn_FlightTracker), "flightCooldownTicks");
+        private static readonly MethodInfo StartFlyingInternalMethod = AccessTools.Method(typeof(Pawn_FlightTracker), "StartFlyingInternal");
+
         public static bool Prepare()
         {
             var s = ZoologyModSettings.Instance;
@@ -19,8 +23,8 @@ namespace ZoologyMod
         {
             try
             {
-                var s = ZoologyModSettings.Instance;
-                if (s != null && !s.EnableFlyingFleeStart)
+                var settings = ModConstants.Settings;
+                if (settings != null && !settings.EnableFlyingFleeStart)
                     return true;
 
                 
@@ -32,16 +36,14 @@ namespace ZoologyMod
                     return true;
 
                 
-                var pawnField = AccessTools.Field(typeof(Pawn_FlightTracker), "pawn");
-                if (pawnField == null)
+                if (PawnField == null)
                     return true; 
 
-                var pawn = pawnField.GetValue(__instance) as Pawn;
+                var pawn = PawnField.GetValue(__instance) as Pawn;
                 if (pawn == null)
                     return true; 
 
-                
-                if (!pawn.RaceProps?.Animal == true) 
+                if (pawn.RaceProps == null || !pawn.RaceProps.Animal)
                     return true;
                 if (!__instance.CanEverFly)
                     return true;
@@ -52,10 +54,9 @@ namespace ZoologyMod
                 job.flying = true;
 
                 
-                var cooldownField = AccessTools.Field(typeof(Pawn_FlightTracker), "flightCooldownTicks");
-                if (cooldownField != null)
+                if (FlightCooldownField != null)
                 {
-                    cooldownField.SetValue(__instance, 0);
+                    FlightCooldownField.SetValue(__instance, 0);
                 }
 
                 
@@ -73,10 +74,9 @@ namespace ZoologyMod
 
                 if (!isFlying)
                 {
-                    var startFlyingInternalMethod = AccessTools.Method(typeof(Pawn_FlightTracker), "StartFlyingInternal");
-                    if (startFlyingInternalMethod != null)
+                    if (StartFlyingInternalMethod != null)
                     {
-                        startFlyingInternalMethod.Invoke(__instance, null);
+                        StartFlyingInternalMethod.Invoke(__instance, null);
                     }
                 }
 

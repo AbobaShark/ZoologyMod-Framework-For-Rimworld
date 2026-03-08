@@ -21,7 +21,16 @@ namespace ZoologyMod
 
     public class CompDrugsImmune : ThingComp
     {
+        private int cleanupInterval = 2000;
+        private readonly List<Hediff> hediffRemovalBuffer = new List<Hediff>(4);
+
         private CompProperties_DrugsImmune PropsDrugsImmune => (CompProperties_DrugsImmune)props;
+
+        public override void PostSpawnSetup(bool respawningAfterLoad)
+        {
+            base.PostSpawnSetup(respawningAfterLoad);
+            cleanupInterval = Math.Max(60, PropsDrugsImmune?.cleanupIntervalTicks ?? 2000);
+        }
 
         public override void CompTick()
         {
@@ -33,8 +42,7 @@ namespace ZoologyMod
             if (pawn.Destroyed || pawn.Dead) return;
             if (pawn.health?.hediffSet == null) return;
 
-            int interval = Math.Max(60, PropsDrugsImmune?.cleanupIntervalTicks ?? 2000);
-            if (!parent.IsHashIntervalTick(interval)) return;
+            if (!parent.IsHashIntervalTick(cleanupInterval)) return;
 
             try
             {
@@ -50,21 +58,20 @@ namespace ZoologyMod
         {
             if (pawn?.health?.hediffSet == null) return;
 
-            
-            var hs = pawn.health.hediffSet.hediffs.ToList();
+            var hs = pawn.health.hediffSet.hediffs;
+            if (hs == null || hs.Count == 0) return;
 
-            bool removedAny = false;
-            foreach (var h in hs)
+            hediffRemovalBuffer.Clear();
+            for (int i = 0; i < hs.Count; i++)
             {
+                Hediff h = hs[i];
                 if (h == null || h.def == null) continue;
 
                 try
                 {
-                    
                     if (DrugUtils.IsHediffDrugOrAddiction(h.def))
                     {
-                        pawn.health.RemoveHediff(h);
-                        removedAny = true;
+                        hediffRemovalBuffer.Add(h);
                     }
                 }
                 catch (Exception e)
@@ -73,9 +80,28 @@ namespace ZoologyMod
                 }
             }
 
+            bool removedAny = false;
+            for (int i = 0; i < hediffRemovalBuffer.Count; i++)
+            {
+                try
+                {
+                    pawn.health.RemoveHediff(hediffRemovalBuffer[i]);
+                    removedAny = true;
+                }
+                catch (Exception e)
+                {
+                    Log.Error($"[Zoology] CompDrugsImmune failed to remove buffered hediff from {pawn}: {e}");
+                }
+            }
+
+            hediffRemovalBuffer.Clear();
+
             if (removedAny)
             {
-                Log.Message($"[Zoology] CompDrugsImmune: removed drug/addiction hediffs from {pawn.LabelShortCap}");
+                if (Prefs.DevMode)
+                {
+                    Log.Message($"[Zoology] CompDrugsImmune: removed drug/addiction hediffs from {pawn.LabelShortCap}");
+                }
             }
         }
     }
@@ -172,7 +198,12 @@ namespace ZoologyMod
         
         public static HashSet<HediffDef> GetAllDrugOutcomeHediffs()
         {
-            if (cachedDrugOutcomeHediffs != null) return new HashSet<HediffDef>(cachedDrugOutcomeHediffs);
+            return new HashSet<HediffDef>(EnsureDrugOutcomeHediffs());
+        }
+
+        private static HashSet<HediffDef> EnsureDrugOutcomeHediffs()
+        {
+            if (cachedDrugOutcomeHediffs != null) return cachedDrugOutcomeHediffs;
 
             var result = new HashSet<HediffDef>();
 
@@ -208,8 +239,8 @@ namespace ZoologyMod
                 Log.Error($"[Zoology] DrugUtils.GetAllDrugOutcomeHediffs exception: {e}");
             }
 
-            cachedDrugOutcomeHediffs = new HashSet<HediffDef>(result);
-            return new HashSet<HediffDef>(cachedDrugOutcomeHediffs);
+            cachedDrugOutcomeHediffs = result;
+            return cachedDrugOutcomeHediffs;
         }
 
         
@@ -217,9 +248,14 @@ namespace ZoologyMod
         
         public static HashSet<HediffDef> GetAllDrugOutcomeAndAddictionRelatedHediffs()
         {
-            if (cachedExpandedSet != null) return new HashSet<HediffDef>(cachedExpandedSet);
+            return new HashSet<HediffDef>(EnsureExpandedSet());
+        }
 
-            var result = new HashSet<HediffDef>(GetAllDrugOutcomeHediffs());
+        private static HashSet<HediffDef> EnsureExpandedSet()
+        {
+            if (cachedExpandedSet != null) return cachedExpandedSet;
+
+            var result = new HashSet<HediffDef>(EnsureDrugOutcomeHediffs());
 
             try
             {
@@ -235,8 +271,8 @@ namespace ZoologyMod
                 Log.Error($"[Zoology] DrugUtils.GetAllDrugOutcomeAndAddictionRelatedHediffs exception: {e}");
             }
 
-            cachedExpandedSet = new HashSet<HediffDef>(result);
-            return new HashSet<HediffDef>(cachedExpandedSet);
+            cachedExpandedSet = result;
+            return cachedExpandedSet;
         }
 
         
@@ -431,8 +467,7 @@ namespace ZoologyMod
         public static bool IsHediffFromDrug(HediffDef hediff)
         {
             if (hediff == null) return false;
-            var set = GetAllDrugOutcomeHediffs();
-            return set.Contains(hediff);
+            return EnsureDrugOutcomeHediffs().Contains(hediff);
         }
 
         
@@ -444,8 +479,7 @@ namespace ZoologyMod
 
             try
             {
-                if (IsHediffFromDrug(hediff)) return true;
-                if (IsHediffAddictionRelated(hediff)) return true;
+                return EnsureExpandedSet().Contains(hediff);
             }
             catch
             {
@@ -557,7 +591,10 @@ namespace ZoologyMod
                 
                 if (DrugUtils.IsHediffDrugOrAddiction(candidate))
                 {
-                    Log.Message($"[Zoology] blocked drug/addiction hediff {candidate.defName} being given to {pawn.LabelShortCap} (CompDrugsImmune present).");
+                    if (Prefs.DevMode)
+                    {
+                        Log.Message($"[Zoology] blocked drug/addiction hediff {candidate.defName} being given to {pawn.LabelShortCap} (CompDrugsImmune present).");
+                    }
                     return false;
                 }
 

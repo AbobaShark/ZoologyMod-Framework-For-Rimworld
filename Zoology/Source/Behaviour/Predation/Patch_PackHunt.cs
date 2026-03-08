@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using HarmonyLib;
 using Verse;
 using RimWorld;
@@ -46,7 +45,9 @@ namespace ZoologyMod
                 if (map == null) return;
 
                 
-                var all = map.mapPawns.AllPawnsSpawned; 
+                var all = map.mapPawns.AllPawnsSpawned;
+                IntVec3 pawnPosition = pawn.Position;
+                ThingDef pawnDef = pawn.def;
                 int herdRadiusSq = (int)(HerdRadius * HerdRadius);
 
                 for (int i = 0; i < all.Count; i++)
@@ -59,30 +60,17 @@ namespace ZoologyMod
                     if (!candidate.RaceProps.herdAnimal) continue;
                     if (candidate.Faction != null) continue; 
                     
-                    if ((candidate.Position - pawn.Position).LengthHorizontalSquared > herdRadiusSq) continue;
+                    if ((candidate.Position - pawnPosition).LengthHorizontalSquared > herdRadiusSq) continue;
 
                     
-                    bool sameDef = candidate.def == pawn.def;
-                    bool crossbreed = false;
+                    bool relatedToPack = false;
                     try
                     {
-                        if (candidate.def?.race?.canCrossBreedWith != null)
-                        {
-                            for (int k = 0; k < candidate.def.race.canCrossBreedWith.Count; k++)
-                            {
-                                ThingDef td = candidate.def.race.canCrossBreedWith[k];
-                                if (td == null) continue;
-                                if (td == pawn.def || string.Equals(td.defName, pawn.def?.defName, StringComparison.OrdinalIgnoreCase))
-                                {
-                                    crossbreed = true;
-                                    break;
-                                }
-                            }
-                        }
+                        relatedToPack = candidate.def == pawnDef || PredationCacheUtility.AreCrossbreedRelated(candidate.def, pawnDef);
                     }
-                    catch { crossbreed = false; }
+                    catch { relatedToPack = false; }
 
-                    if (!sameDef && !crossbreed) continue;
+                    if (!relatedToPack) continue;
 
                     
                     try

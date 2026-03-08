@@ -22,8 +22,8 @@ namespace ZoologyMod
     
     public class CompAgeless : ThingComp
     {
-        private int tickCounter = 0;
         private int cleanupInterval = 6000;
+        private readonly List<Hediff> hediffRemovalBuffer = new List<Hediff>(4);
 
         private CompProperties_Ageless PropsAgeless => (CompProperties_Ageless)props;
 
@@ -41,22 +41,19 @@ namespace ZoologyMod
             var settings = ZoologyModSettings.Instance;
             if (settings != null && !settings.EnableAgelessPatch) return;
 
-            
             Pawn pawn = parent as Pawn;
             if (pawn == null) return;
+            if (pawn.Dead) return;
+            if (pawn.health?.hediffSet == null) return;
+            if (!parent.IsHashIntervalTick(cleanupInterval)) return;
 
-            tickCounter++;
-            if (tickCounter >= cleanupInterval)
+            try
             {
-                tickCounter = 0;
-                try
-                {
-                    RemoveForbiddenAgeHediffs(pawn);
-                }
-                catch (Exception e)
-                {
-                    Log.ErrorOnce($"[Zoology] CompAgeless.RemoveForbiddenAgeHediffs exception: {e}", 21847231);
-                }
+                RemoveForbiddenAgeHediffs(pawn);
+            }
+            catch (Exception e)
+            {
+                Log.ErrorOnce($"[Zoology] CompAgeless.RemoveForbiddenAgeHediffs exception: {e}", 21847231);
             }
         }
 
@@ -64,29 +61,41 @@ namespace ZoologyMod
         {
             if (pawn?.health?.hediffSet == null) return;
 
-            
             HashSet<HediffDef> forb = AgelessUtils.GetAgeRelatedHediffDefsForPawn(pawn);
             if (forb == null || forb.Count == 0) return;
 
-            
-            List<Hediff> hs = pawn.health.hediffSet.hediffs.ToList();
-            foreach (var h in hs)
+            List<Hediff> hs = pawn.health.hediffSet.hediffs;
+            if (hs == null || hs.Count == 0) return;
+
+            hediffRemovalBuffer.Clear();
+            for (int i = 0; i < hs.Count; i++)
             {
+                Hediff h = hs[i];
                 if (h == null || h.def == null) continue;
                 if (forb.Contains(h.def))
                 {
-                    
-                    try
-                    {
-                        pawn.health.RemoveHediff(h);
-                        Log.Message($"[Zoology] CompAgeless removed age hediff {h.def.defName} from {pawn.LabelShortCap}");
-                    }
-                    catch (Exception e)
-                    {
-                        Log.Error($"[Zoology] CompAgeless failed to remove hediff {h.def.defName} from {pawn}: {e}");
-                    }
+                    hediffRemovalBuffer.Add(h);
                 }
             }
+
+            for (int i = 0; i < hediffRemovalBuffer.Count; i++)
+            {
+                Hediff h = hediffRemovalBuffer[i];
+                try
+                {
+                    pawn.health.RemoveHediff(h);
+                    if (Prefs.DevMode)
+                    {
+                        Log.Message($"[Zoology] CompAgeless removed age hediff {h.def.defName} from {pawn.LabelShortCap}");
+                    }
+                }
+                catch (Exception e)
+                {
+                    Log.Error($"[Zoology] CompAgeless failed to remove hediff {h.def.defName} from {pawn}: {e}");
+                }
+            }
+
+            hediffRemovalBuffer.Clear();
         }
     }
 
@@ -94,7 +103,9 @@ namespace ZoologyMod
     public static class AgelessUtils
     {
         
-        private static Dictionary<string, HashSet<HediffDef>> cache = new Dictionary<string, HashSet<HediffDef>>();
+        private static readonly Dictionary<string, HashSet<HediffDef>> setCache = new Dictionary<string, HashSet<HediffDef>>();
+        private static readonly Dictionary<string, HashSet<HediffDef>> pawnKindCache = new Dictionary<string, HashSet<HediffDef>>();
+        private const string FallbackHediffGiverSetDefName = "OrganicStandard";
 
         
         private static readonly HashSet<string> ageGiverTypeNames = new HashSet<string>
@@ -107,13 +118,19 @@ namespace ZoologyMod
         
         public static HashSet<HediffDef> GetAgeRelatedHediffsFromSet(HediffGiverSetDef set)
         {
-            if (set == null) return new HashSet<HediffDef>();
-            if (cache.TryGetValue(set.defName, out var cached)) return new HashSet<HediffDef>(cached);
+            HashSet<HediffDef> cached = GetAgeRelatedHediffsFromSetCached(set);
+            return cached != null ? new HashSet<HediffDef>(cached) : new HashSet<HediffDef>();
+        }
+
+        private static HashSet<HediffDef> GetAgeRelatedHediffsFromSetCached(HediffGiverSetDef set)
+        {
+            if (set == null) return null;
+            if (setCache.TryGetValue(set.defName, out var cached)) return cached;
 
             var result = new HashSet<HediffDef>();
             if (set.hediffGivers == null)
             {
-                cache[set.defName] = result;
+                setCache[set.defName] = result;
                 return result;
             }
 
@@ -152,7 +169,7 @@ namespace ZoologyMod
                 }
             }
 
-            cache[set.defName] = new HashSet<HediffDef>(result);
+            setCache[set.defName] = result;
             return result;
         }
 
@@ -161,10 +178,22 @@ namespace ZoologyMod
         
         public static HashSet<HediffDef> GetAgeRelatedHediffDefsForPawn(Pawn pawn)
         {
-            var result = new HashSet<HediffDef>();
-            if (pawn == null) return result;
+            HashSet<HediffDef> cached = GetAgeRelatedHediffDefsForPawnCached(pawn);
+            return cached != null ? new HashSet<HediffDef>(cached) : new HashSet<HediffDef>();
+        }
 
-            
+        private static HashSet<HediffDef> GetAgeRelatedHediffDefsForPawnCached(Pawn pawn)
+        {
+            if (pawn == null) return null;
+
+            string pawnKindKey = pawn.kindDef?.defName;
+            if (!string.IsNullOrEmpty(pawnKindKey) && pawnKindCache.TryGetValue(pawnKindKey, out var cached))
+            {
+                return cached;
+            }
+
+            var result = new HashSet<HediffDef>();
+
             try
             {
                 var pk = pawn.kindDef;
@@ -180,7 +209,8 @@ namespace ZoologyMod
                         {
                             foreach (var set in list)
                             {
-                                var setDefs = GetAgeRelatedHediffsFromSet(set);
+                                var setDefs = GetAgeRelatedHediffsFromSetCached(set);
+                                if (setDefs == null) continue;
                                 foreach (var s in setDefs) result.Add(s);
                             }
                         }
@@ -196,7 +226,8 @@ namespace ZoologyMod
                             {
                                 foreach (var set in list)
                                 {
-                                    var setDefs = GetAgeRelatedHediffsFromSet(set);
+                                    var setDefs = GetAgeRelatedHediffsFromSetCached(set);
+                                    if (setDefs == null) continue;
                                     foreach (var s in setDefs) result.Add(s);
                                 }
                             }
@@ -212,12 +243,20 @@ namespace ZoologyMod
             
             if (result.Count == 0)
             {
-                var fallback = DefDatabase<HediffGiverSetDef>.GetNamedSilentFail("OrganicStandard");
+                var fallback = DefDatabase<HediffGiverSetDef>.GetNamedSilentFail(FallbackHediffGiverSetDefName);
                 if (fallback != null)
                 {
-                    var setDefs = GetAgeRelatedHediffsFromSet(fallback);
-                    foreach (var s in setDefs) result.Add(s);
+                    var setDefs = GetAgeRelatedHediffsFromSetCached(fallback);
+                    if (setDefs != null)
+                    {
+                        foreach (var s in setDefs) result.Add(s);
+                    }
                 }
+            }
+
+            if (!string.IsNullOrEmpty(pawnKindKey))
+            {
+                pawnKindCache[pawnKindKey] = result;
             }
 
             return result;
@@ -227,8 +266,8 @@ namespace ZoologyMod
         public static bool IsHediffForbiddenForPawn(Pawn pawn, HediffDef hediff)
         {
             if (pawn == null || hediff == null) return false;
-            var forb = GetAgeRelatedHediffDefsForPawn(pawn);
-            return forb.Contains(hediff);
+            var forb = GetAgeRelatedHediffDefsForPawnCached(pawn);
+            return forb != null && forb.Contains(hediff);
         }
     }
 
@@ -314,15 +353,12 @@ namespace ZoologyMod
                 }
 
                 
-                var forbidden = AgelessUtils.GetAgeRelatedHediffDefsForPawn(pawn);
-                if (forbidden == null || forbidden.Count == 0) return true;
-
-                if (forbidden.Contains(candidate))
+                if (AgelessUtils.IsHediffForbiddenForPawn(pawn, candidate))
                 {
-                    
-                    
-                    
-                    Log.Message($"[Zoology] blocked applying {candidate.defName} to {pawn.LabelShortCap} from giver {gType.Name}");
+                    if (Prefs.DevMode)
+                    {
+                        Log.Message($"[Zoology] blocked applying {candidate.defName} to {pawn.LabelShortCap} from giver {gType.Name}");
+                    }
                     return false;
                 }
 

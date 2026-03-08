@@ -35,7 +35,7 @@ namespace ZoologyMod.HarmonyPatches
                     if (cause != FoodPoisonCause.Rotten) return true;
                     if (!(ingestible is Corpse)) return true;
 
-                    var scav = pawn.def?.GetModExtension<ModExtension_IsScavenger>();
+                    var scav = DefModExtensionCache<ModExtension_IsScavenger>.Get(pawn.def);
                     if (scav == null) return true;
 
                     
@@ -70,7 +70,7 @@ namespace ZoologyMod.HarmonyPatches
                     if (settings != null && !settings.EnableScavengering) return;
 
                     if (pawn == null) return;
-                    var scav = pawn.def?.GetModExtension<ModExtension_IsScavenger>();
+                    var scav = DefModExtensionCache<ModExtension_IsScavenger>.Get(pawn.def);
                     if (scav == null) return;
                     if (pawn.Map == null) return;
                     if (pawn.Position.GasDensity(pawn.Map, GasType.RotStink) <= 0) return;

@@ -25,9 +25,79 @@ namespace ZoologyMod
 
     public static class FleeFromCarrierUtil
     {
-        private static ModExtension_FleeFromCarrier GetExtension(Pawn pawn)
+        private static readonly Dictionary<ThingDef, ModExtension_FleeFromCarrier> extensionCache = new Dictionary<ThingDef, ModExtension_FleeFromCarrier>();
+
+        public static ModExtension_FleeFromCarrier GetExtension(Pawn pawn)
         {
-            return pawn?.def?.GetModExtension<ModExtension_FleeFromCarrier>();
+            ThingDef def = pawn?.def;
+            if (def == null)
+            {
+                return null;
+            }
+
+            if (extensionCache.TryGetValue(def, out ModExtension_FleeFromCarrier cached))
+            {
+                return cached;
+            }
+
+            ModExtension_FleeFromCarrier extension = def.GetModExtension<ModExtension_FleeFromCarrier>();
+            extensionCache[def] = extension;
+            return extension;
+        }
+
+        public static bool TryGetExtension(Pawn pawn, out ModExtension_FleeFromCarrier extension)
+        {
+            extension = GetExtension(pawn);
+            return extension != null;
+        }
+
+        public static bool SharesNonNullFaction(Pawn a, Pawn b)
+        {
+            if (a?.Faction == null || b?.Faction == null)
+            {
+                return false;
+            }
+
+            return ReferenceEquals(a.Faction, b.Faction);
+        }
+
+        public static bool HasLineOfSightOrReach(Pawn pawn, Pawn carrier)
+        {
+            if (pawn == null || carrier == null)
+            {
+                return false;
+            }
+
+            Map map = pawn.Map;
+            if (map == null || map != carrier.Map)
+            {
+                return false;
+            }
+
+            if (pawn.Position == carrier.Position)
+            {
+                return true;
+            }
+
+            try
+            {
+                if (GenSight.LineOfSight(pawn.Position, carrier.Position, map))
+                {
+                    return true;
+                }
+            }
+            catch
+            {
+            }
+
+            try
+            {
+                return carrier.CanReach(pawn, PathEndMode.Touch, Danger.Deadly);
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         
@@ -70,16 +140,34 @@ namespace ZoologyMod
     {
         private const int RebuildIntervalTicks = 240;
 
+        internal readonly struct CarrierEntry
+        {
+            public CarrierEntry(Pawn carrier, ModExtension_FleeFromCarrier extension)
+            {
+                Carrier = carrier;
+
+                float radius = extension?.fleeRadius ?? 0f;
+                RadiusSquared = radius > 0f ? radius * radius : 0f;
+                BodySizeLimit = extension?.fleeBodySizeLimit ?? 0f;
+                FleeDistance = extension?.fleeDistance ?? 24;
+            }
+
+            public Pawn Carrier { get; }
+            public float RadiusSquared { get; }
+            public float BodySizeLimit { get; }
+            public int FleeDistance { get; }
+        }
+
         private sealed class Entry
         {
             public int lastBuildTick = int.MinValue;
-            public readonly List<Pawn> carriers = new List<Pawn>(8);
+            public readonly List<CarrierEntry> carriers = new List<CarrierEntry>(8);
         }
 
         private static readonly Dictionary<int, Entry> entriesByMapId = new Dictionary<int, Entry>();
-        private static readonly List<Pawn> empty = new List<Pawn>(0);
+        private static readonly List<CarrierEntry> empty = new List<CarrierEntry>(0);
 
-        public static List<Pawn> GetCarriers(Map map)
+        public static List<CarrierEntry> GetCarriers(Map map)
         {
             if (map == null) return empty;
 
@@ -110,8 +198,11 @@ namespace ZoologyMod
                 {
                     var p = pawns[i];
                     if (p == null || p.Dead || p.Downed) continue;
-                    if (!FleeFromCarrierUtil.IsCarrier(p)) continue;
-                    entry.carriers.Add(p);
+
+                    var extension = FleeFromCarrierUtil.GetExtension(p);
+                    if (extension == null || extension.fleeRadius <= 0f) continue;
+
+                    entry.carriers.Add(new CarrierEntry(p, extension));
                 }
             }
 
@@ -154,44 +245,42 @@ namespace ZoologyMod
                 
                 
                 if (FleeFromCarrierUtil.IsCarrier(pawn)) return;
+                if (!FleeUtility.ShouldAnimalFleeDanger(pawn)) return;
 
                 var carriers = FleeFromCarrierMapCache.GetCarriers(pawn.Map);
                 if (carriers == null || carriers.Count == 0) return;
 
+                IntVec3 pawnPos = pawn.Position;
+                float pawnBodySize = pawn.BodySize;
                 Pawn threat = null;
-                float bestDistSq = float.MaxValue;
+                int fleeDistance = 24;
+                int bestDistSq = int.MaxValue;
 
                 for (int i = 0; i < carriers.Count; i++)
                 {
-                    var carrier = carriers[i];
+                    var carrierEntry = carriers[i];
+                    var carrier = carrierEntry.Carrier;
                     if (carrier == null || carrier == pawn) continue;
                     if (!carrier.Spawned || carrier.Map != pawn.Map) continue;
                     if (carrier.Dead || carrier.Downed) continue;
+                    if (FleeFromCarrierUtil.SharesNonNullFaction(pawn, carrier)) continue;
 
-                    float realRadius = FleeFromCarrierUtil.GetFleeRadius(carrier);
-                    if (realRadius <= 0f) continue;
+                    int distSq = (carrier.Position - pawnPos).LengthHorizontalSquared;
+                    if (distSq > carrierEntry.RadiusSquared) continue;
 
-                    float distSq = (carrier.Position - pawn.Position).LengthHorizontalSquared;
-                    float radiusSq = realRadius * realRadius;
-                    if (distSq > radiusSq) continue;
-
-                    float bodySizeLimit = FleeFromCarrierUtil.GetFleeBodySizeLimit(carrier);
-                    if (bodySizeLimit > 0f && pawn.BodySize > bodySizeLimit) continue;
+                    float bodySizeLimit = carrierEntry.BodySizeLimit;
+                    if (bodySizeLimit > 0f && pawnBodySize > bodySizeLimit) continue;
+                    if (!FleeFromCarrierUtil.HasLineOfSightOrReach(pawn, carrier)) continue;
 
                     if (distSq < bestDistSq)
                     {
                         bestDistSq = distSq;
                         threat = carrier;
+                        fleeDistance = carrierEntry.FleeDistance;
                     }
                 }
 
                 if (threat == null) return;
-
-                
-                if (!FleeUtility.ShouldAnimalFleeDanger(pawn)) return;
-
-                
-                int fleeDistance = FleeFromCarrierUtil.GetFleeDistance(threat);
                 __result = FleeUtility.FleeJob(pawn, threat, fleeDistance);
             }
             catch (Exception e)

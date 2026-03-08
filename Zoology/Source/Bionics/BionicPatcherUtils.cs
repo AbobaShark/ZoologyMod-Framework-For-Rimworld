@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using RimWorld;
 using Verse;
 using System.Reflection;
@@ -9,16 +8,41 @@ namespace ZoologyMod
 {
     public static class BionicPatcherUtils
     {
+        private static readonly Dictionary<BodyDef, HashSet<string>> bodyPartNameCache = new Dictionary<BodyDef, HashSet<string>>();
+        private static readonly Dictionary<Type, FieldInfo[]> publicInstanceFieldCache = new Dictionary<Type, FieldInfo[]>();
+        private static readonly Dictionary<string, HediffDef> combatHediffCache = new Dictionary<string, HediffDef>(StringComparer.Ordinal);
+        private static readonly Dictionary<string, BodyPartDef> bodyPartDefCache = new Dictionary<string, BodyPartDef>(StringComparer.Ordinal);
+        private static List<ThingDef> augmentableAnimalDefsCache;
+
         public static bool CanBeAugmented(ThingDef animal)
         {
             if (animal == null) return false;
             if (animal.race == null || !animal.race.Animal) return false;
 
-            
-            if (animal.GetModExtension<ModExtension_CannotBeAugmented>() != null)
+            if (DefModExtensionCache<ModExtension_CannotBeAugmented>.Get(animal) != null)
                 return false;
 
             return true;
+        }
+
+        public static List<ThingDef> GetAugmentableAnimalDefs()
+        {
+            if (augmentableAnimalDefsCache != null)
+            {
+                return augmentableAnimalDefsCache;
+            }
+
+            var animals = new List<ThingDef>();
+            foreach (var def in DefDatabase<ThingDef>.AllDefsListForReading)
+            {
+                if (def?.race != null && def.race.Animal && CanBeAugmented(def))
+                {
+                    animals.Add(def);
+                }
+            }
+
+            augmentableAnimalDefsCache = animals;
+            return animals;
         }
 
         public class BionicConfigSimple
@@ -37,17 +61,40 @@ namespace ZoologyMod
         public static HediffDef GetCombatHediff(BionicConfigSimple config, string category)
         {
             var newHediffName = $"{config.HediffDefName}_Animal_{category}";
-            var hediff = DefDatabase<HediffDef>.GetNamedSilentFail(newHediffName);
+            if (!combatHediffCache.TryGetValue(newHediffName, out var hediff))
+            {
+                hediff = DefDatabase<HediffDef>.GetNamedSilentFail(newHediffName);
+                combatHediffCache[newHediffName] = hediff;
+            }
             if (hediff == null)
             {
                 Log.Warning($"[ZoologyMod] Failed to load combat hediff: {newHediffName}");
             }
             return hediff;
         }
+        public static BodyPartDef GetBodyPartDef(string defName)
+        {
+            if (string.IsNullOrEmpty(defName))
+            {
+                return null;
+            }
+
+            if (bodyPartDefCache.TryGetValue(defName, out var partDef))
+            {
+                return partDef;
+            }
+
+            partDef = DefDatabase<BodyPartDef>.GetNamedSilentFail(defName);
+            bodyPartDefCache[defName] = partDef;
+            return partDef;
+        }
         public static void EnsureRemoveRecipe(BionicConfigSimple cfg, List<ThingDef> animals, RecipeDef originalInstall, List<BodyPartDef> appliedParts, HediffDef hediff, RecipeDef vanillaRemove, string sizeCategory = null)
         {
-            
-            
+            if (hediff == null || appliedParts == null || appliedParts.Count == 0)
+            {
+                return;
+            }
+
             if (hediff.addedPartProps != null)
             {
                 return;
@@ -103,7 +150,7 @@ namespace ZoologyMod
         private static RecipeDef DeepCloneDef(RecipeDef source)
         {
             var clone = new RecipeDef();
-            var fields = typeof(RecipeDef).GetFields(BindingFlags.Public | BindingFlags.Instance);
+            var fields = GetPublicInstanceFields(typeof(RecipeDef));
             foreach (var field in fields)
             {
                 var value = field.GetValue(source);
@@ -112,7 +159,7 @@ namespace ZoologyMod
                     field.SetValue(clone, null);
                     continue;
                 }
-                if (field.FieldType.IsValueType || field.FieldType == typeof(string))
+                if (IsShallowCopyType(field.FieldType))
                 {
                     field.SetValue(clone, value);
                 }
@@ -164,16 +211,12 @@ namespace ZoologyMod
         private static object DeepCloneDefItem(System.Type type, object value)
         {
             if (value == null) return null;
-            
-            if (type == typeof(Type) ||
-                typeof(Def).IsAssignableFrom(type) ||
-                typeof(Delegate).IsAssignableFrom(type) ||
-                type.IsEnum ||
-                type == typeof(string))
+
+            if (IsShallowCopyType(type))
             {
-                return value; 
+                return value;
             }
-            
+
             if (type == typeof(ThingFilter))
             {
                 return CloneFilter(value as ThingFilter);
@@ -185,15 +228,13 @@ namespace ZoologyMod
             }
             catch (MissingMethodException)
             {
-                
                 return value;
             }
             catch (Exception)
             {
-                
                 return value;
             }
-            var subFields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
+            var subFields = GetPublicInstanceFields(type);
             foreach (var subField in subFields)
             {
                 var subValue = subField.GetValue(value);
@@ -202,7 +243,7 @@ namespace ZoologyMod
                     subField.SetValue(newValue, null);
                     continue;
                 }
-                if (subField.FieldType.IsValueType || subField.FieldType == typeof(string))
+                if (IsShallowCopyType(subField.FieldType))
                 {
                     subField.SetValue(newValue, subValue);
                 }
@@ -243,12 +284,31 @@ namespace ZoologyMod
                 }
                 else
                 {
-                    
                     var subNewValue = DeepCloneDefItem(subField.FieldType, subValue);
                     subField.SetValue(newValue, subNewValue);
                 }
             }
             return newValue;
+        }
+        private static bool IsShallowCopyType(Type type)
+        {
+            return type.IsValueType
+                || type == typeof(string)
+                || type == typeof(Type)
+                || typeof(Def).IsAssignableFrom(type)
+                || typeof(Delegate).IsAssignableFrom(type)
+                || type.IsEnum;
+        }
+        private static FieldInfo[] GetPublicInstanceFields(Type type)
+        {
+            if (publicInstanceFieldCache.TryGetValue(type, out var fields))
+            {
+                return fields;
+            }
+
+            fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
+            publicInstanceFieldCache[type] = fields;
+            return fields;
         }
         public static ThingFilter CloneFilter(ThingFilter source)
         {
@@ -259,24 +319,71 @@ namespace ZoologyMod
         }
         public static bool HasBodyPart(BodyDef body, string partDefName)
         {
-            return body?.AllParts.Any(p => p.def.defName == partDefName) ?? false;
+            if (body == null || string.IsNullOrEmpty(partDefName))
+            {
+                return false;
+            }
+
+            if (!bodyPartNameCache.TryGetValue(body, out var partNames))
+            {
+                partNames = new HashSet<string>(StringComparer.Ordinal);
+                if (body.AllParts != null)
+                {
+                    foreach (var part in body.AllParts)
+                    {
+                        var defName = part?.def?.defName;
+                        if (defName != null)
+                        {
+                            partNames.Add(defName);
+                        }
+                    }
+                }
+
+                bodyPartNameCache[body] = partNames;
+            }
+
+            return partNames.Contains(partDefName);
         }
         public static void EnsureRecipeUsersContains(RecipeDef recipe, List<ThingDef> animals)
         {
-            recipe.recipeUsers ??= new List<ThingDef>();
+            var recipeUsers = recipe.recipeUsers ??= new List<ThingDef>();
+            var existingUsers = new HashSet<ThingDef>(recipeUsers);
             foreach (var animal in animals)
             {
-                
                 if (!CanBeAugmented(animal)) continue;
 
-                if (!recipe.recipeUsers.Contains(animal)) recipe.recipeUsers.Add(animal);
+                if (existingUsers.Add(animal))
+                {
+                    recipeUsers.Add(animal);
+                }
             }
         }
         public static bool AppliedPartsMatch(List<BodyPartDef> a, List<BodyPartDef> b)
         {
-            var listA = a ?? new List<BodyPartDef>();
-            var listB = b ?? new List<BodyPartDef>();
-            return listA.Count == listB.Count && !listA.Where((t, i) => t.defName != listB[i].defName).Any();
+            if (ReferenceEquals(a, b))
+            {
+                return true;
+            }
+
+            if (a == null || b == null)
+            {
+                return (a == null || a.Count == 0) && (b == null || b.Count == 0);
+            }
+
+            if (a.Count != b.Count)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < a.Count; i++)
+            {
+                if (!string.Equals(a[i]?.defName, b[i]?.defName, StringComparison.Ordinal))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
         public static Dictionary<string, List<ThingDef>> GroupAnimalsBySize(List<ThingDef> animals)
         {

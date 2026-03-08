@@ -10,6 +10,8 @@ namespace ZoologyMod.HarmonyPatches
 {
     public static class Patch_ScavengeringAI
     {
+        private static readonly ThingRequest FoodSourceRequest = ThingRequest.ForGroup(ThingRequestGroup.FoodSource);
+
         
         [HarmonyPatch(typeof(FoodUtility))]
         [HarmonyPatch("BestFoodSourceOnMap")]
@@ -37,7 +39,7 @@ namespace ZoologyMod.HarmonyPatches
                     if (eater == null || getter == null) return;
                     if (!allowCorpse) return;
 
-                    var scav = eater.def.GetModExtension<ModExtension_IsScavenger>();
+                    var scav = DefModExtensionCache<ModExtension_IsScavenger>.Get(eater.def);
                     if (scav == null) return; 
 
                     Predicate<Thing> validator = t =>
@@ -89,7 +91,7 @@ namespace ZoologyMod.HarmonyPatches
 
                     int maxRegionsToScan = GetMaxRegionsToScan_Local(getter, forceScanWholeMap);
 
-                    Thing found = GenClosest.ClosestThingReachable(getter.Position, getter.Map, ThingRequest.ForGroup(ThingRequestGroup.FoodSource),
+                    Thing found = GenClosest.ClosestThingReachable(getter.Position, getter.Map, FoodSourceRequest,
                         PathEndMode.OnCell, TraverseParms.For(getter, Danger.Deadly, TraverseMode.ByPawn, false, false, false, true),
                         9999f, validator, null, 0, maxRegionsToScan, false, RegionType.Set_Passable, false, false);
 
@@ -151,7 +153,7 @@ namespace ZoologyMod.HarmonyPatches
                     if (__instance == null) return;
                     Pawn pawn = __instance.pawn;
                     if (pawn == null) return;
-                    var scav = pawn.def.GetModExtension<ModExtension_IsScavenger>();
+                    var scav = DefModExtensionCache<ModExtension_IsScavenger>.Get(pawn.def);
                     if (scav == null) return;
 
                     

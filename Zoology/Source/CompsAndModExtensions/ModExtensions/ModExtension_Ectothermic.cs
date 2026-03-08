@@ -46,11 +46,8 @@ namespace ZoologyMod
 
                 if (pawn == null) return true;
 
-                
-                var ext = pawn.def?.GetModExtension<ModExtension_Ectothermic>();
-                if (ext == null)
+                if (DefModExtensionCache<ModExtension_Ectothermic>.Get(pawn.def) == null)
                 {
-                    
                     return true;
                 }
 

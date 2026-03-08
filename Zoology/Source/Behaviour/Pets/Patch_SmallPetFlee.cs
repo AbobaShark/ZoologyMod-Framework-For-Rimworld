@@ -25,13 +25,16 @@ namespace ZoologyMod
                 return;
 
             
-            bool isSmallPet = pawn.RaceProps.baseBodySize < ModConstants.SmallPetBodySizeThreshold;
+            bool isSmallPet = pawn.RaceProps.baseBodySize < settings.SmallPetBodySizeThreshold;
 
             if (!isSmallPet)
                 return;
 
             
             if (pawn.Roamer)
+                return;
+
+            if (!FleeUtility.ShouldAnimalFleeDanger(pawn))
                 return;
 
             const float MaxThreatDist = 18f;
@@ -47,7 +50,7 @@ namespace ZoologyMod
                 (Thing t) => t is Pawn p && p.RaceProps.Humanlike && p.HostileTo(Faction.OfPlayer) && p != pawn && !p.Downed
             ) as Pawn;
 
-            if (threat != null && FleeUtility.ShouldAnimalFleeDanger(pawn))
+            if (threat != null)
             {
                 __result = FleeUtility.FleeJob(pawn, threat, 24);
             }

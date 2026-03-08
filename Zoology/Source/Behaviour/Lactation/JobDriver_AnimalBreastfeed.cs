@@ -54,7 +54,7 @@ namespace ZoologyMod
                         return;
                     }
 
-                    JobDef jd = DefDatabase<JobDef>.GetNamedSilentFail("Zoology_YoungSuckle");
+                    JobDef jd = AnimalChildcareUtility.YoungSuckleJobDef;
                     if (jd == null)
                     {
                         Job fallback = JobMaker.MakeJob(JobDefOf.Wait, 2000);
@@ -125,7 +125,7 @@ namespace ZoologyMod
                         return;
                     }
 
-                    var lactDef = DefDatabase<HediffDef>.GetNamedSilentFail("Zoology_Lactating");
+                    var lactDef = AnimalChildcareUtility.LactatingHediffDef;
                     if (lactDef == null)
                     {
                         Log.Warning("ZoologyMod: suckle.tickAction: HediffDef 'Zoology_Lactating' not found.");
@@ -156,7 +156,7 @@ namespace ZoologyMod
         private void EndBabySuckleJob(Pawn baby)
         {
             if (baby == null || baby.jobs == null || baby.CurJob == null || baby.Dead) return;
-            JobDef suckleDef = DefDatabase<JobDef>.GetNamedSilentFail("Zoology_YoungSuckle");
+            JobDef suckleDef = AnimalChildcareUtility.YoungSuckleJobDef;
             if ((suckleDef != null && baby.CurJob.def == suckleDef) || baby.CurJob.def == JobDefOf.Wait)
             {
                 baby.jobs.EndCurrentJob(JobCondition.Succeeded);

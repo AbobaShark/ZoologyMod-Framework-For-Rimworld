@@ -12,6 +12,8 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(FoodUtility), "FoodIsSuitable", new Type[] { typeof(Pawn), typeof(ThingDef) })]
     static class Patch_FoodUtility_FoodIsSuitable
     {
+        private static readonly System.Reflection.PropertyInfo ThingDefIsCorpseProperty = AccessTools.Property(typeof(ThingDef), "IsCorpse");
+
         static bool Prepare() => ZoologyModSettings.EnableMammalLactation;
 
         static bool Prefix(Pawn p, ThingDef food, ref bool __result)
@@ -48,7 +50,7 @@ namespace ZoologyMod
                 
                 
                 
-                if (string.Equals(curStage.defName, "AnimalBaby", StringComparison.OrdinalIgnoreCase))
+                if (AnimalChildcareUtility.IsAnimalBabyLifeStage(curStage))
                 {
                     
                     bool ok = (food.ingestible != null && food.ingestible.babiesCanIngest) && p.RaceProps.CanEverEat(food);
@@ -99,7 +101,7 @@ namespace ZoologyMod
                 }
 
                 var curStage = pawn.ageTracker?.CurLifeStage;
-                if (curStage != null && string.Equals(curStage.defName, "AnimalBaby", StringComparison.OrdinalIgnoreCase))
+                if (AnimalChildcareUtility.IsAnimalBabyLifeStage(curStage))
                 {
                     
                     __result = null;
@@ -125,6 +127,8 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(FoodUtility), "WillEat", new Type[] { typeof(Pawn), typeof(Thing), typeof(Pawn), typeof(bool), typeof(bool) })]
     static class Patch_FoodUtility_WillEat_Thing_CorpseBlockForMammalBabies
     {
+        private static readonly System.Reflection.PropertyInfo ThingDefIsCorpseProperty = AccessTools.Property(typeof(ThingDef), "IsCorpse");
+
         static bool Prepare() => ZoologyModSettings.EnableMammalLactation;
 
         static bool Prefix(Pawn p, Thing food, Pawn getter, bool careIfNotAcceptableForTitle, bool allowVenerated, ref bool __result)
@@ -152,7 +156,7 @@ namespace ZoologyMod
                 var curStage = p.ageTracker?.CurLifeStage;
                 if (curStage == null) return true;
 
-                if (string.Equals(curStage.defName, "AnimalBaby", StringComparison.OrdinalIgnoreCase))
+                if (AnimalChildcareUtility.IsAnimalBabyLifeStage(curStage))
                 {
                     
                     
@@ -170,10 +174,9 @@ namespace ZoologyMod
                         if (td != null)
                         {
                             
-                            var prop = td.GetType().GetProperty("IsCorpse");
-                            if (prop != null)
+                            if (ThingDefIsCorpseProperty != null)
                             {
-                                var val = prop.GetValue(td, null);
+                                var val = ThingDefIsCorpseProperty.GetValue(td, null);
                                 if (val is bool b && b)
                                 {
                                     __result = false;

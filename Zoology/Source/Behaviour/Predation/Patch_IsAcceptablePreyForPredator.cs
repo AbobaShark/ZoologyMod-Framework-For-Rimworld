@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using HarmonyLib;
 using RimWorld;
 using Verse;
@@ -64,16 +63,10 @@ namespace ZoologyMod
                 }
 
                 var comp = ZoologyPursuitGameComponent.Instance;
-                if (comp != null)
+                if (comp != null && comp.IsPairBlockedNow(predator, prey))
                 {
-                    long pairKey = comp.PairKey(predator, prey);
-                    bool isBlockedNow = comp.IsPairBlockedNow(predator, prey);
-                    bool isAllowedNow = comp.IsPairAllowedNow(predator, prey);
-                    if (isBlockedNow)
-                    {
-                        __result = false;
-                        return false;
-                    }
+                    __result = false;
+                    return false;
                 }
                 
                 if (predator.kindDef == null || prey.kindDef == null)
@@ -87,11 +80,8 @@ namespace ZoologyMod
 				bool preyIsPhotonozoa = false;
 				try
 				{
-					
-					predIsPhotonozoa = predator.def.modExtensions != null && predator.def.modExtensions.Any(me =>
-						me != null && (me.GetType().Name == "PhotonozoaProperties" || me.GetType().FullName.EndsWith(".PhotonozoaProperties")));
-					preyIsPhotonozoa = prey.def.modExtensions != null && prey.def.modExtensions.Any(me =>
-						me != null && (me.GetType().Name == "PhotonozoaProperties" || me.GetType().FullName.EndsWith(".PhotonozoaProperties")));
+					predIsPhotonozoa = PredationCacheUtility.IsPhotonozoa(predator.def);
+					preyIsPhotonozoa = PredationCacheUtility.IsPhotonozoa(prey.def);
 				}
 				catch
 				{
@@ -107,23 +97,16 @@ namespace ZoologyMod
 				}
 
 				
-				bool photonozoaPairInTheirFaction = false;
-				if (predIsPhotonozoa && preyIsPhotonozoa)
-				{
-					var photFactionDef = DefDatabase<FactionDef>.GetNamedSilentFail("Photonozoa");
-					if (photFactionDef != null && predator.Faction != null && prey.Faction != null
-						&& predator.Faction.def == photFactionDef && prey.Faction.def == photFactionDef)
-					{
-						photonozoaPairInTheirFaction = true;
-					}
-				}
+				bool photonozoaPairInTheirFaction = predIsPhotonozoa
+					&& preyIsPhotonozoa
+					&& PredationCacheUtility.IsPhotonozoaPairInTheirFaction(predator, prey);
 				
 
                 bool predatorMammal = predator.IsMammal();
                 bool preyMammal = prey.IsMammal();
 
                 bool sameDef = predator.def == prey.def;
-                bool inCrossbreedRelation = IsInCrossbreedRelation(predator, prey);
+                bool inCrossbreedRelation = PredationCacheUtility.AreCrossbreedRelated(predator.def, prey.def);
 
                 if ((sameDef || inCrossbreedRelation) && predatorMammal && preyMammal)
                 {
@@ -186,37 +169,6 @@ namespace ZoologyMod
                 Log.Error($"[Zoology] Patch_IsAcceptablePreyForPredator error: {ex}");
                 return true; 
             }
-        }
-
-        static bool IsInCrossbreedRelation(Pawn a, Pawn b)
-        {
-            try
-            {
-                if (a?.def?.race?.canCrossBreedWith != null)
-                {
-                    foreach (var td in a.def.race.canCrossBreedWith)
-                    {
-                        if (td == null) continue;
-                        if (td == b.def || string.Equals(td.defName, b.def?.defName, StringComparison.OrdinalIgnoreCase))
-                            return true;
-                    }
-                }
-
-                if (b?.def?.race?.canCrossBreedWith != null)
-                {
-                    foreach (var td in b.def.race.canCrossBreedWith)
-                    {
-                        if (td == null) continue;
-                        if (td == a.def || string.Equals(td.defName, a.def?.defName, StringComparison.OrdinalIgnoreCase))
-                            return true;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Error($"[Zoology] IsInCrossbreedRelation error: {ex}");
-            }
-            return false;
         }
     }
 }

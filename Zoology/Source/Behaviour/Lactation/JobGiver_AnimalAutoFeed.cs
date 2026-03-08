@@ -10,15 +10,14 @@ namespace ZoologyMod
     {
         protected override Job TryGiveJob(Pawn pawn)
         {
-            string reason;
-            if (!AnimalChildcareUtility.CanMotherFeed(pawn, out reason)) return null;
+            if (!AnimalChildcareUtility.CanMotherFeed(pawn)) return null;
 
             if (!AnimalChildcareUtility.CanAttemptFeedNow(pawn)) return null;
 
             Pawn targetPup = FindNearestHungryPup(pawn);
             if (targetPup == null) return null;
 
-            var youngSuckleDef = DefDatabase<JobDef>.GetNamedSilentFail("Zoology_YoungSuckle");
+            var youngSuckleDef = AnimalChildcareUtility.YoungSuckleJobDef;
             if (targetPup.CurJob != null && (targetPup.CurJob.def == youngSuckleDef || targetPup.CurJob.def == JobDefOf.Wait))
                 return null;
 
@@ -56,6 +55,8 @@ namespace ZoologyMod
         private Pawn FindNearestHungryPup(Pawn mom)
         {
             if (mom == null || mom.Map == null) return null;
+            var momFaction = mom.Faction;
+            var momPosition = mom.Position;
             Pawn best = null;
             float bestFoodPerc = 1f; 
             float bestDistSqr = float.MaxValue;
@@ -65,26 +66,26 @@ namespace ZoologyMod
             {
                 if (p == mom || p.Dead) continue;
 
-                if (p.Faction != mom.Faction && p.HostFaction != mom.Faction) continue;
+                if (p.Faction != momFaction && p.HostFaction != momFaction) continue;
 
                 if (!AnimalChildcareUtility.IsCrossBreedCompatible(mom, p)) continue;
 
                 if (!p.IsMammal()) continue;
 
                 var curStage = p.ageTracker?.CurLifeStage;
-                if (curStage == null) continue;
-                if (!string.Equals(curStage.defName, "AnimalBaby", System.StringComparison.OrdinalIgnoreCase)) continue;
+                if (!AnimalChildcareUtility.IsAnimalBabyLifeStage(curStage)) continue;
 
                 if (p.InMentalState) continue;
 
-                if (!AnimalChildcareUtility.ChildWantsSuckle(p)) continue;
+                var foodNeed = p.needs?.food;
+                if (foodNeed == null || foodNeed.CurLevelPercentage >= AnimalChildcareUtility.feedingThreshold) continue;
 
                 
                 if (!mom.CanReserve(p)) continue;
                 if (!mom.CanReach(p, PathEndMode.Touch, Danger.Deadly, false, false, TraverseMode.ByPawn)) continue;
 
-                float foodPerc = (p.needs?.food != null) ? p.needs.food.CurLevelPercentage : 1f;
-                float distSqr = (p.Position - mom.Position).LengthHorizontalSquared;
+                float foodPerc = foodNeed.CurLevelPercentage;
+                float distSqr = (p.Position - momPosition).LengthHorizontalSquared;
 
                 
                 int malStage = 0;

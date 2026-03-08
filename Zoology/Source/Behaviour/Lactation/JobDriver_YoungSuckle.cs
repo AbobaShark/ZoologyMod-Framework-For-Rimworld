@@ -24,22 +24,29 @@ namespace ZoologyMod
             Toil wait = Toils_General.Wait(suckleDurationTicks, TargetIndex.None);
             wait.tickAction = () =>
             {
-                if (this.pawn == null || this.pawn.Dead)
+                var pawn = this.pawn;
+                if (pawn == null || pawn.Dead)
                 {
-                    this.pawn?.jobs?.EndCurrentJob(JobCondition.Incompletable);
+                    pawn?.jobs?.EndCurrentJob(JobCondition.Incompletable);
                     return;
                 }
 
-                if (this.pawn.needs?.food != null && this.pawn.needs.food.CurLevelPercentage >= 0.99f)
+                if (pawn.Map == null)
                 {
-                    this.pawn.jobs.EndCurrentJob(JobCondition.Succeeded);
+                    pawn.jobs?.EndCurrentJob(JobCondition.Incompletable);
                     return;
                 }
 
-                Pawn availableMom = AnimalChildcareUtility.FindNearestAvailableMother(this.pawn);
+                if (pawn.needs?.food != null && pawn.needs.food.CurLevelPercentage >= 0.99f)
+                {
+                    pawn.jobs.EndCurrentJob(JobCondition.Succeeded);
+                    return;
+                }
+
+                Pawn availableMom = AnimalChildcareUtility.FindNearestAvailableMother(pawn);
                 if (availableMom == null)
                 {
-                    this.pawn.jobs.EndCurrentJob(JobCondition.Succeeded);
+                    pawn.jobs.EndCurrentJob(JobCondition.Succeeded);
                     return;
                 }
             };

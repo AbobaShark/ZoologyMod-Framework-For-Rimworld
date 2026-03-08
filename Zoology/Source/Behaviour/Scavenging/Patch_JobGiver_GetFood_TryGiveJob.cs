@@ -12,6 +12,8 @@ namespace ZoologyMod.HarmonyPatches
     [HarmonyPatch(typeof(JobGiver_GetFood), "TryGiveJob")]
     public static class Patch_JobGiver_GetFood_TryGiveJob
     {
+        private static readonly ThingRequest FoodSourceRequest = ThingRequest.ForGroup(ThingRequestGroup.FoodSource);
+
         static bool Prepare()
         {
             var s = ZoologyModSettings.Instance;
@@ -53,7 +55,7 @@ namespace ZoologyMod.HarmonyPatches
                 if (__result != null && __result.def == JobDefOf.Ingest) return;
                 if (pawn == null) return;
 
-                var scav = pawn.def.GetModExtension<ModExtension_IsScavenger>();
+                var scav = DefModExtensionCache<ModExtension_IsScavenger>.Get(pawn.def);
                 if (scav == null) return; 
 
                 var hunger = pawn.needs?.food;
@@ -125,7 +127,7 @@ namespace ZoologyMod.HarmonyPatches
                 Thing found = GenClosest.ClosestThingReachable(
                     pawn.Position,
                     pawn.Map,
-                    ThingRequest.ForGroup(ThingRequestGroup.FoodSource),
+                    FoodSourceRequest,
                     PathEndMode.OnCell,
                     TraverseParms.For(pawn, Danger.Deadly, TraverseMode.ByPawn, false, false, false, true),
                     9999f,

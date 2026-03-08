@@ -34,26 +34,17 @@ namespace ZoologyMod
 
                 if (targetCorpse == null) return IntVec3.Invalid;
 
-                
-                Map corpseMap = targetCorpse.Map;
-                IntVec3 pos;
-                if (corpseMap != null)
+                if (!PreyProtectionUtility.TryGetProtectionAnchor(targetCorpse, out Map corpseMap, out IntVec3 pos))
                 {
-                    pos = targetCorpse.Position;
-                }
-                else
-                {
-                    var carrier = FindCarrierPawnForCorpse(targetCorpse);
-                    if (carrier == null || carrier.Map == null) return IntVec3.Invalid;
-                    pos = carrier.Position;
-                    corpseMap = carrier.Map;
+                    return IntVec3.Invalid;
                 }
 
                 if (pawn.Map != corpseMap) return IntVec3.Invalid;
 
-                
-                float radius = GetPresenceRadius();
-                if (!pawn.Position.InHorDistOf(pos, radius)) return IntVec3.Invalid;
+                if (!PreyProtectionUtility.IsPawnWithinProtectionRange(pawn, corpseMap, pos, PreyProtectionUtility.GetProtectionRangeSquared()))
+                {
+                    return IntVec3.Invalid;
+                }
 
                 
                 if (IsSleepingOrLyingDown(pawn)) return IntVec3.Invalid;
@@ -63,49 +54,6 @@ namespace ZoologyMod
                 return pos;
             }
             catch { return IntVec3.Invalid; }
-        }
-
-        
-        private static Pawn FindCarrierPawnForCorpse(Corpse corpse)
-        {
-            try
-            {
-                if (corpse == null) return null;
-                var maps = Find.Maps;
-                for (int mi = 0; mi < maps.Count; mi++)
-                {
-                    var pawns = maps[mi].mapPawns.AllPawnsSpawned;
-                    for (int pi = 0; pi < pawns.Count; pi++)
-                    {
-                        var p = pawns[pi];
-                        if (p == null) continue;
-                        try
-                        {
-                            if (p.carryTracker != null && p.carryTracker.CarriedThing != null && p.carryTracker.CarriedThing.thingIDNumber == corpse.thingIDNumber)
-                                return p;
-                            var inv = p.inventory?.innerContainer;
-                            if (inv != null)
-                            {
-                                for (int j = 0; j < inv.Count; j++)
-                                {
-                                    var t = inv[j];
-                                    if (t != null && t.thingIDNumber == corpse.thingIDNumber) return p;
-                                }
-                            }
-                        }
-                        catch { }
-                    }
-                }
-            }
-            catch { }
-            return null;
-        }
-
-        private static float GetPresenceRadius()
-        {
-            return (ZoologyModSettings.Instance != null && ZoologyModSettings.Instance.EnablePredatorDefendCorpse)
-                ? ZoologyModSettings.Instance.PreyProtectionRange
-                : 20f;
         }
 
         private static bool IsSleepingOrLyingDown(Pawn pawn)

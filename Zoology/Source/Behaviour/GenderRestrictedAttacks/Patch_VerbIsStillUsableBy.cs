@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Reflection;
 using Verse;
 
@@ -8,6 +9,9 @@ namespace ZoologyMod
     [HarmonyLib.HarmonyPatch(typeof(Verb), "IsStillUsableBy")]
     internal static class Patch_VerbIsStillUsableBy
     {
+        private static readonly ConcurrentDictionary<Type, FieldInfo> RestrictedGenderFieldCache = new ConcurrentDictionary<Type, FieldInfo>();
+        private static readonly ConcurrentDictionary<Type, byte> MissingRestrictedGenderFieldCache = new ConcurrentDictionary<Type, byte>();
+
         internal static bool Prepare()
         {
             var s = ZoologyModSettings.Instance;
@@ -35,7 +39,20 @@ namespace ZoologyMod
                 
                 
                 var t = tool.GetType();
-                var fld = t.GetField("restrictedGender", BindingFlags.Public | BindingFlags.Instance);
+                FieldInfo fld;
+                if (!RestrictedGenderFieldCache.TryGetValue(t, out fld) && !MissingRestrictedGenderFieldCache.ContainsKey(t))
+                {
+                    fld = t.GetField("restrictedGender", BindingFlags.Public | BindingFlags.Instance);
+                    if (fld != null && fld.FieldType == typeof(Gender))
+                    {
+                        RestrictedGenderFieldCache.TryAdd(t, fld);
+                    }
+                    else
+                    {
+                        MissingRestrictedGenderFieldCache.TryAdd(t, 0);
+                        fld = null;
+                    }
+                }
                 if (fld != null && fld.FieldType == typeof(Gender))
                 {
                     var val = (Gender)fld.GetValue(tool);

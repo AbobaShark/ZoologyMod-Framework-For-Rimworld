@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Verse;
 using RimWorld;
 using Verse.AI;
@@ -24,6 +23,9 @@ namespace ZoologyMod
 
         
         private readonly Dictionary<long, long> chaseStart = new Dictionary<long, long>();
+        private readonly List<long> keyRemovalBuffer = new List<long>(32);
+        private readonly List<PendingBlock> pendingBlocks = new List<PendingBlock>(8);
+        private readonly HashSet<int> inactivePredatorIdsBuffer = new HashSet<int>();
 
         
         private static ZoologyPursuitGameComponent singleton;
@@ -47,6 +49,7 @@ namespace ZoologyMod
                         var comp = Current.Game.GetComponent<ZoologyPursuitGameComponent>();
                         if (comp != null)
                         {
+                            comp.owningGame = Current.Game;
                             singleton = comp;
                             return singleton;
                         }
@@ -68,6 +71,7 @@ namespace ZoologyMod
         {
             try
             {
+                this.owningGame = Current.Game;
                 if (singleton == null)
                 {
                     singleton = this;
@@ -232,7 +236,7 @@ namespace ZoologyMod
                 }
 
                 allowedUntil[key] = until;
-                if (blockedUntil.ContainsKey(key)) blockedUntil.Remove(key);
+                blockedUntil.Remove(key);
             }
 
         }
@@ -287,7 +291,8 @@ namespace ZoologyMod
                 try
                 {
                     var maps = Find.Maps;
-                    var toBlock = new List<(long key, Pawn predator, Pawn prey)>();
+                    pendingBlocks.Clear();
+                    inactivePredatorIdsBuffer.Clear();
 
                     for (int mi = 0; mi < maps.Count; mi++)
                     {
@@ -306,7 +311,7 @@ namespace ZoologyMod
                                                 && typeof(JobDriver_PredatorHunt).IsAssignableFrom(curJob.def.driverClass);
                             if (!isHuntDriver)
                             {
-                                RemoveChaseStartForPredator(predator);
+                                inactivePredatorIdsBuffer.Add(predator.thingIDNumber);
                                 continue;
                             }
 
@@ -318,72 +323,68 @@ namespace ZoologyMod
                             long key = KeyFor(predator, prey);
                             if (key == 0L) continue;
 
-                            bool isBlocked;
                             lock (dictLock)
                             {
-                                isBlocked = blockedUntil.TryGetValue(key, out long bUntil) && now <= bUntil;
-                            }
-                            if (isBlocked)
-                            {
-                                lock (dictLock)
+                                if (blockedUntil.TryGetValue(key, out long bUntil) && now <= bUntil)
                                 {
-                                    if (chaseStart.ContainsKey(key)) chaseStart.Remove(key);
+                                    chaseStart.Remove(key);
+                                    continue;
                                 }
-                                continue;
-                            }
 
-                            lock (dictLock)
-                            {
                                 if (!chaseStart.TryGetValue(key, out long startTick) || startTick == 0L)
                                 {
                                     chaseStart[key] = now;
                                     continue;
                                 }
-                            }
 
-                            long elapsedLocal;
-                            lock (dictLock)
-                            {
-                                elapsedLocal = now - chaseStart[key];
-                            }
-
-                            if (elapsedLocal >= CHASE_TIMEOUT)
-                            {
-                                toBlock.Add((key, predator, prey));
+                                if (now - startTick >= CHASE_TIMEOUT)
+                                {
+                                    pendingBlocks.Add(new PendingBlock(key, predator, prey));
+                                }
                             }
                         }
                     }
 
-                    for (int i = 0; i < toBlock.Count; i++)
+                    if (inactivePredatorIdsBuffer.Count > 0)
                     {
-                        var (key, predator, prey) = toBlock[i];
-                        long now2 = Find.TickManager.TicksGame;
+                        lock (dictLock)
+                        {
+                            RemoveChaseStartsForPredatorsLocked(inactivePredatorIdsBuffer);
+                        }
+                        inactivePredatorIdsBuffer.Clear();
+                    }
+
+                    for (int i = 0; i < pendingBlocks.Count; i++)
+                    {
+                        PendingBlock block = pendingBlocks[i];
+                        long now2 = now;
+                        bool shouldStopPredator = false;
 
                         lock (dictLock)
                         {
-                            if (blockedUntil.TryGetValue(key, out long exist) && exist > now2)
+                            if (blockedUntil.TryGetValue(block.Key, out long exist) && exist > now2)
                             {
-                                if (chaseStart.ContainsKey(key)) chaseStart.Remove(key);
-                                continue;
+                                chaseStart.Remove(block.Key);
                             }
-
-                            blockedUntil[key] = now2 + (long)CHASE_TIMEOUT * BLOCK_MULTIPLIER;
-                            if (allowedUntil.ContainsKey(key))
+                            else
                             {
-                                allowedUntil.Remove(key);
+                                blockedUntil[block.Key] = now2 + (long)CHASE_TIMEOUT * BLOCK_MULTIPLIER;
+                                allowedUntil.Remove(block.Key);
+                                chaseStart.Remove(block.Key);
+                                shouldStopPredator = true;
                             }
-                            if (chaseStart.ContainsKey(key)) chaseStart.Remove(key);
                         }
 
-                        long blockUntil = now2 + (long)CHASE_TIMEOUT * BLOCK_MULTIPLIER;
-
-                        
-                        StopPredatorHuntIfNeeded(predator, prey);
+                        if (shouldStopPredator)
+                        {
+                            StopPredatorHuntIfNeeded(block.Predator, block.Prey);
+                        }
                     }
                 }
                 catch (Exception exScan)
                 {
                     Log.Error($"[Zoology] GameComponentTick scan error: {exScan}");
+                    inactivePredatorIdsBuffer.Clear();
                 }
             }
 
@@ -393,14 +394,9 @@ namespace ZoologyMod
                 long now3 = Find.TickManager?.TicksGame ?? 0L;
                 lock (dictLock)
                 {
-                    var removeB = blockedUntil.Where(kv => kv.Value < now3).Select(kv => kv.Key).ToList();
-                    foreach (var k in removeB) blockedUntil.Remove(k);
-
-                    var removeA = allowedUntil.Where(kv => kv.Value < now3).Select(kv => kv.Key).ToList();
-                    foreach (var k in removeA) allowedUntil.Remove(k);
-
-                    var chaseToRemove = chaseStart.Where(kv => kv.Value + CHASE_TIMEOUT * 5 < now3).Select(kv => kv.Key).ToList();
-                    foreach (var k in chaseToRemove) chaseStart.Remove(k);
+                    RemoveExpiredEntries(blockedUntil, now3);
+                    RemoveExpiredEntries(allowedUntil, now3);
+                    RemoveExpiredChases(now3);
                 }
             }
         }
@@ -410,12 +406,90 @@ namespace ZoologyMod
             if (predator == null) return;
             lock (dictLock)
             {
-                var keysToRemove = chaseStart.Keys
-                    .Where(k => (int)((uint)(k >> 32)) == predator.thingIDNumber)
-                    .ToList();
-                foreach (var k in keysToRemove)
-                    chaseStart.Remove(k);
+                RemoveChaseStartForPredatorLocked(predator.thingIDNumber);
             }
+        }
+
+        private void RemoveChaseStartForPredatorLocked(int predatorThingId)
+        {
+            keyRemovalBuffer.Clear();
+            foreach (var kv in chaseStart)
+            {
+                if ((int)((uint)(kv.Key >> 32)) == predatorThingId)
+                {
+                    keyRemovalBuffer.Add(kv.Key);
+                }
+            }
+
+            for (int i = 0; i < keyRemovalBuffer.Count; i++)
+            {
+                chaseStart.Remove(keyRemovalBuffer[i]);
+            }
+
+            keyRemovalBuffer.Clear();
+        }
+
+        private void RemoveChaseStartsForPredatorsLocked(HashSet<int> predatorThingIds)
+        {
+            if (predatorThingIds == null || predatorThingIds.Count == 0 || chaseStart.Count == 0)
+            {
+                return;
+            }
+
+            keyRemovalBuffer.Clear();
+            foreach (var kv in chaseStart)
+            {
+                int predatorId = (int)((uint)(kv.Key >> 32));
+                if (predatorThingIds.Contains(predatorId))
+                {
+                    keyRemovalBuffer.Add(kv.Key);
+                }
+            }
+
+            for (int i = 0; i < keyRemovalBuffer.Count; i++)
+            {
+                chaseStart.Remove(keyRemovalBuffer[i]);
+            }
+
+            keyRemovalBuffer.Clear();
+        }
+
+        private void RemoveExpiredEntries(Dictionary<long, long> source, long now)
+        {
+            keyRemovalBuffer.Clear();
+            foreach (var kv in source)
+            {
+                if (kv.Value < now)
+                {
+                    keyRemovalBuffer.Add(kv.Key);
+                }
+            }
+
+            for (int i = 0; i < keyRemovalBuffer.Count; i++)
+            {
+                source.Remove(keyRemovalBuffer[i]);
+            }
+
+            keyRemovalBuffer.Clear();
+        }
+
+        private void RemoveExpiredChases(long now)
+        {
+            keyRemovalBuffer.Clear();
+            foreach (var kv in chaseStart)
+            {
+                if (kv.Value + CHASE_TIMEOUT * 5 < now)
+                {
+                    keyRemovalBuffer.Add(kv.Key);
+                }
+            }
+
+            for (int i = 0; i < keyRemovalBuffer.Count; i++)
+            {
+                chaseStart.Remove(keyRemovalBuffer[i]);
+            }
+
+            keyRemovalBuffer.Clear();
         }
 
         private void StopPredatorHuntIfNeeded(Pawn predator, Pawn prey)
@@ -518,6 +592,20 @@ namespace ZoologyMod
             uint pid = (uint)predator.thingIDNumber;
             uint qid = (uint)prey.thingIDNumber;
             return (((long)pid) << 32) | (long)qid;
+        }
+
+        private struct PendingBlock
+        {
+            public readonly long Key;
+            public readonly Pawn Predator;
+            public readonly Pawn Prey;
+
+            public PendingBlock(long key, Pawn predator, Pawn prey)
+            {
+                Key = key;
+                Predator = predator;
+                Prey = prey;
+            }
         }
     }
 }

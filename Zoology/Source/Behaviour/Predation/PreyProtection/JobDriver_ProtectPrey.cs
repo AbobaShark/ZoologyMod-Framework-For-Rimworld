@@ -11,8 +11,7 @@ namespace ZoologyMod
         
         
 
-        private static int MAX_DISTANCE_FROM_PREY => (ZoologyModSettings.Instance != null && ZoologyModSettings.Instance.EnablePredatorDefendCorpse) ? ZoologyModSettings.Instance.PreyProtectionRange : 20;
-        private static readonly float MAX_DISTANCE_SQ = MAX_DISTANCE_FROM_PREY * MAX_DISTANCE_FROM_PREY;
+        private static int MAX_DISTANCE_SQ => PreyProtectionUtility.GetProtectionRangeSquared();
 
         private int startTickLocal = -1;
         private bool notifiedPlayer = false;
@@ -158,57 +157,28 @@ namespace ZoologyMod
                         return;
                     }
 
-                    
-                    if (!corpse.Spawned)
-                    {
-                        bool carriedByTarget = false;
-                        if (targ != null)
-                        {
-                            try
-                            {
-                                var ct = targ.carryTracker;
-                                if (ct != null && ct.CarriedThing == corpse) carriedByTarget = true;
-                                else
-                                {
-                                    var inv = targ.inventory?.innerContainer;
-                                    if (inv != null && inv.Contains(corpse)) carriedByTarget = true;
-                                }
-                            }
-                            catch { /* ignore */ }
-                        }
-                        if (!carriedByTarget)
-                        {
-                            actorPawn?.jobs?.EndCurrentJob(JobCondition.Succeeded, true, true);
-                            return;
-                        }
-                    }
-
-                    
                     if (targ == null || !targ.Spawned || targ.Dead)
                     {
                         actorPawn?.jobs?.EndCurrentJob(JobCondition.Succeeded, true, true);
                         return;
                     }
 
-                    
-                    if (corpse.Spawned)
+                    if (!PreyProtectionUtility.TryGetProtectionAnchor(corpse, targ, out Map anchorMap, out IntVec3 anchorPos))
                     {
-                        
-                        if (!targ.Position.InHorDistOf(corpse.Position, MAX_DISTANCE_FROM_PREY))
-                        {
-                            actorPawn?.jobs?.EndCurrentJob(JobCondition.Succeeded, true, true);
-                            return;
-                        }
+                        actorPawn?.jobs?.EndCurrentJob(JobCondition.Succeeded, true, true);
+                        return;
                     }
-                    else
+
+                    if (!PreyProtectionUtility.IsPawnWithinProtectionRange(targ, anchorMap, anchorPos, MAX_DISTANCE_SQ))
                     {
-                        
-                        if (actorPawn != null && targ != null &&
-                            actorPawn.Position.DistanceToSquared(targ.Position) > MAX_DISTANCE_SQ)
-                        {
-                            actorPawn.jobs?.EndCurrentJob(JobCondition.Succeeded, true, true);
-                            return;
-                        }
+                        actorPawn?.jobs?.EndCurrentJob(JobCondition.Succeeded, true, true);
+                        return;
+                    }
+
+                    if (!PreyProtectionUtility.IsPawnWithinProtectionRange(actorPawn, anchorMap, anchorPos, MAX_DISTANCE_SQ))
+                    {
+                        actorPawn?.jobs?.EndCurrentJob(JobCondition.Succeeded, true, true);
+                        return;
                     }
 
                     

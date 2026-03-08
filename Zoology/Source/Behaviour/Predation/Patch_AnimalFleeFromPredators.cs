@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using HarmonyLib;
 using RimWorld;
 using Verse;
@@ -10,6 +9,8 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(JobGiver_AnimalFlee), "TryGiveJob")]
     public static class Patch_AnimalFleeFromPredators
     {
+        private static readonly ThingRequest PawnRequest = ThingRequest.ForGroup(ThingRequestGroup.Pawn);
+
         public static bool Prepare()
         {
             var s = ZoologyModSettings.Instance;
@@ -25,34 +26,21 @@ namespace ZoologyMod
         {
             try
             {
-                if (!ModConstants.Settings.EnablePreyFleeFromPredators)
+                var settings = ZoologyModSettings.Instance;
+                if (settings != null && !settings.EnablePreyFleeFromPredators)
                     return;
 
                 
                 if (pawn == null || pawn.Map == null) return;
                 if (!pawn.RaceProps.Animal) return;
 
-                int fleeDistance = FLEE_DISTANCE_DEFAULT;
-
                 Pawn threat = FindNearestPredatorHuntingLivePrey(pawn, SEARCH_RADIUS);
-
-                if (threat != null)
-                {
-                    try
-                    {
-                        var threatJob = threat.CurJob;
-                        if (JobTargetsPawn(threatJob, pawn))
-                        {
-                            fleeDistance = FLEE_DISTANCE_TARGET;
-                        }
-                    }
-                    catch
-                    {
-                        fleeDistance = FLEE_DISTANCE_DEFAULT;
-                    }
-                }
-
                 if (threat == null) return;
+
+                int currentTick = Find.TickManager?.TicksGame ?? 0;
+                Job threatJob = threat.CurJob;
+                bool threatAimingAtPawn = JobTargetsPawn(threatJob, pawn);
+                int fleeDistance = threatAimingAtPawn ? FLEE_DISTANCE_TARGET : FLEE_DISTANCE_DEFAULT;
                 
                 bool bothPhotonozoaInTheirFaction = IsPhotonozoaPairInTheirFaction(threat, pawn);
 
@@ -76,15 +64,12 @@ namespace ZoologyMod
                         return;
                     if (pawn.jobs?.curJob != null
                         && pawn.jobs.curJob.def == JobDefOf.Flee
-                        && pawn.jobs.curJob.startTick == Find.TickManager.TicksGame)
+                        && pawn.jobs.curJob.startTick == currentTick)
                         return;
                 }
 
                 try
                 {
-                    var threatJob = threat.CurJob;
-                    bool threatAimingAtPawn = JobTargetsPawn(threatJob, pawn);
-
                     float distSq = (threat.Position - pawn.Position).LengthHorizontalSquared;
                     bool inMeleeProximity = distSq <= MELEE_ADJACENT_SQ;
 
@@ -95,7 +80,7 @@ namespace ZoologyMod
 
                     bool threatIsDoingMelee = threatJob != null
                                             && threatJob.def == JobDefOf.AttackMelee
-                                            && JobTargetsPawn(threatJob, pawn);
+                                            && threatAimingAtPawn;
 
                     
                     if (threatAimingAtPawn && (threatIsDoingMelee || inMeleeProximity))
@@ -133,7 +118,7 @@ namespace ZoologyMod
                 return GenClosest.ClosestThingReachable(
                     pawn.Position,
                     pawn.Map,
-                    ThingRequest.ForGroup(ThingRequestGroup.Pawn),
+                    PawnRequest,
                     PathEndMode.OnCell,
                     TraverseParms.For(pawn, Danger.Deadly, TraverseMode.ByPawn),
                     radius,
@@ -191,6 +176,9 @@ namespace ZoologyMod
                         if (!isHuntDriver && !isMeleeJob)
                             return false;
 
+                        if (ReferenceEquals(preyPawn, pawn))
+                            return true;
+
                         
                         
                         bool acceptablePrey = true;
@@ -213,20 +201,29 @@ namespace ZoologyMod
         {
             try
             {
-                float predatorSpeed = predator.GetStatValue(StatDefOf.MoveSpeed, true);
-                float preySpeed = prey.GetStatValue(StatDefOf.MoveSpeed, true);
-
-                if (preySpeed <= predatorSpeed) return;
-
-                
-                TryEnsurePursuitComponentRegistered();
-
                 var comp = ZoologyPursuitGameComponent.Instance;
                 if (comp == null)
                 {
-                    Log.Message("[Zoology] WARNING: ZoologyPursuitGameComponent.Instance is null - cannot AllowPursuit.");
+                    TryEnsurePursuitComponentRegistered();
+                    comp = ZoologyPursuitGameComponent.Instance;
+                    if (comp == null)
+                    {
+                        if (Prefs.DevMode)
+                        {
+                            Log.Message("[Zoology] WARNING: ZoologyPursuitGameComponent.Instance is null - cannot AllowPursuit.");
+                        }
+                        return;
+                    }
+                }
+
+                if (comp.IsPairAllowedNow(predator, prey) || comp.IsPairBlockedNow(predator, prey))
+                {
                     return;
                 }
+
+                float predatorSpeed = predator.GetStatValue(StatDefOf.MoveSpeed, true);
+                float preySpeed = prey.GetStatValue(StatDefOf.MoveSpeed, true);
+                if (preySpeed <= predatorSpeed) return;
 
                 comp.AllowPursuit(predator, prey, 2);
             }
@@ -243,12 +240,22 @@ namespace ZoologyMod
                 
                 if (ZoologyPursuitGameComponent.Instance != null) return;
 
-                if (Current.Game?.components == null) return;
+                Game game = Current.Game;
+                if (game?.components == null) return;
 
-                bool exists = Current.Game.components.Exists(c => c.GetType() == typeof(ZoologyPursuitGameComponent));
+                bool exists = false;
+                for (int i = 0; i < game.components.Count; i++)
+                {
+                    if (game.components[i] is ZoologyPursuitGameComponent)
+                    {
+                        exists = true;
+                        break;
+                    }
+                }
+
                 if (!exists)
                 {
-                    Current.Game.components.Add(new ZoologyPursuitGameComponent());
+                    game.components.Add(new ZoologyPursuitGameComponent(game));
                     Log.Message("[Zoology] Dynamically added ZoologyPursuitGameComponent to Current.Game.components.");
                 }
                 var _ = ZoologyPursuitGameComponent.Instance;
@@ -267,26 +274,7 @@ namespace ZoologyMod
             {
                 if (a == null || b == null) return false;
 
-                bool aIsPhot = false;
-                bool bIsPhot = false;
-                try
-                {
-                    aIsPhot = a.def.modExtensions != null && a.def.modExtensions.Any(me =>
-                        me != null && (me.GetType().Name == "PhotonozoaProperties" || me.GetType().FullName.EndsWith(".PhotonozoaProperties")));
-                    bIsPhot = b.def.modExtensions != null && b.def.modExtensions.Any(me =>
-                        me != null && (me.GetType().Name == "PhotonozoaProperties" || me.GetType().FullName.EndsWith(".PhotonozoaProperties")));
-                }
-                catch { aIsPhot = false; bIsPhot = false; }
-
-                if (!aIsPhot || !bIsPhot) return false;
-
-                var photFactionDef = DefDatabase<FactionDef>.GetNamedSilentFail("Photonozoa");
-                if (photFactionDef == null) return false;
-
-                if (a.Faction == null || b.Faction == null) return false;
-                if (a.Faction.def != photFactionDef || b.Faction.def != photFactionDef) return false;
-
-                return true;
+                return PredationCacheUtility.IsPhotonozoaPairInTheirFaction(a, b);
             }
             catch (Exception ex)
             {

@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using RimWorld;
 using Verse;
 namespace ZoologyMod
@@ -29,45 +28,56 @@ namespace ZoologyMod
         };
         public static void Patch()
         {
-        var allAnimalDefs = DefDatabase<ThingDef>.AllDefsListForReading
-            .Where(d => d.race != null && d.race.Animal && BionicPatcherUtils.CanBeAugmented(d))
-            .ToList();
+            var allAnimalDefs = BionicPatcherUtils.GetAugmentableAnimalDefs();
             foreach (var cfg in SimpleConfigs)
             {
                 var installRecipe = DefDatabase<RecipeDef>.GetNamedSilentFail(cfg.RecipeDefName);
                 if (installRecipe == null) continue;
                 var removeRecipe = DefDatabase<RecipeDef>.GetNamedSilentFail(cfg.RecipeDefName.Replace("Install", "Remove"));
-                
-                var torsoAnimals = allAnimalDefs.Where(a => BionicPatcherUtils.HasBodyPart(a.race.body, cfg.HumanPartDefName)).ToList();
-                if (torsoAnimals.Any())
+                var torsoAnimals = new List<ThingDef>();
+                var bodyAnimals = new List<ThingDef>();
+                bool hasAlternateAnimalPart = !string.IsNullOrEmpty(cfg.AnimalPartDefName) && cfg.AnimalPartDefName != cfg.HumanPartDefName;
+
+                foreach (var animal in allAnimalDefs)
+                {
+                    bool hasHumanPart = BionicPatcherUtils.HasBodyPart(animal.race.body, cfg.HumanPartDefName);
+                    if (hasHumanPart)
+                    {
+                        torsoAnimals.Add(animal);
+                        continue;
+                    }
+
+                    if (hasAlternateAnimalPart && BionicPatcherUtils.HasBodyPart(animal.race.body, cfg.AnimalPartDefName))
+                    {
+                        bodyAnimals.Add(animal);
+                    }
+                }
+
+                if (torsoAnimals.Count > 0)
                 {
                     BionicPatcherUtils.EnsureRecipeUsersContains(installRecipe, torsoAnimals);
                     if (removeRecipe != null) BionicPatcherUtils.EnsureRecipeUsersContains(removeRecipe, torsoAnimals);
                 }
-                
-                if (!string.IsNullOrEmpty(cfg.AnimalPartDefName) && cfg.AnimalPartDefName != cfg.HumanPartDefName)
+
+                if (hasAlternateAnimalPart && bodyAnimals.Count > 0)
                 {
-                    var bodyAnimals = allAnimalDefs.Where(a => BionicPatcherUtils.HasBodyPart(a.race.body, cfg.AnimalPartDefName) && !BionicPatcherUtils.HasBodyPart(a.race.body, cfg.HumanPartDefName)).ToList();
-                    if (bodyAnimals.Any())
+                    var bodyPart = BionicPatcherUtils.GetBodyPartDef(cfg.AnimalPartDefName);
+                    if (bodyPart == null) continue;
+                    var appliedParts = new List<BodyPartDef> { bodyPart };
+
+                    var newInstallDefName = $"{cfg.RecipeDefName}_Animal_{cfg.AnimalPartDefName}";
+                    var existingInstall = DefDatabase<RecipeDef>.GetNamedSilentFail(newInstallDefName);
+                    if (existingInstall == null)
                     {
-                        var bodyPart = DefDatabase<BodyPartDef>.GetNamedSilentFail(cfg.AnimalPartDefName);
-                        if (bodyPart == null) continue;
-                        var appliedParts = new List<BodyPartDef> { bodyPart };
-                        
-                        var newInstallDefName = $"{cfg.RecipeDefName}_Animal_{cfg.AnimalPartDefName}";
-                        var existingInstall = DefDatabase<RecipeDef>.GetNamedSilentFail(newInstallDefName);
-                        if (existingInstall == null)
-                        {
-                            var newInstall = BionicPatcherUtils.CloneAndModifyRecipe(installRecipe, newInstallDefName, appliedParts, null, bodyAnimals);
-                            DefDatabase<RecipeDef>.Add(newInstall);
-                        }
-                        else
-                        {
-                            BionicPatcherUtils.EnsureRecipeUsersContains(existingInstall, bodyAnimals);
-                        }
-                        
-                        BionicPatcherUtils.EnsureRemoveRecipe(cfg, bodyAnimals, installRecipe, appliedParts, installRecipe.addsHediff, removeRecipe);
+                        var newInstall = BionicPatcherUtils.CloneAndModifyRecipe(installRecipe, newInstallDefName, appliedParts, null, bodyAnimals);
+                        DefDatabase<RecipeDef>.Add(newInstall);
                     }
+                    else
+                    {
+                        BionicPatcherUtils.EnsureRecipeUsersContains(existingInstall, bodyAnimals);
+                    }
+
+                    BionicPatcherUtils.EnsureRemoveRecipe(cfg, bodyAnimals, installRecipe, appliedParts, installRecipe.addsHediff, removeRecipe);
                 }
             }
         }

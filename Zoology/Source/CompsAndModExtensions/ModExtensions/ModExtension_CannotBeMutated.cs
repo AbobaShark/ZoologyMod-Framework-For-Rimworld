@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using HarmonyLib;
 using RimWorld;
 using Verse;
@@ -30,15 +28,7 @@ namespace ZoologyMod
         
         public static bool IsCannotBeMutated(this Pawn pawn)
         {
-            if (pawn == null) return false;
-
-            
-            if (pawn.def?.GetModExtension<ModExtension_CannotBeMutated>() != null) return true;
-
-            
-            if (pawn.kindDef?.GetModExtension<ModExtension_CannotBeMutated>() != null) return true;
-
-            return false;
+            return DefModExtensionCache<ModExtension_CannotBeMutated>.Has(pawn);
         }
     }
 
@@ -113,22 +103,15 @@ namespace ZoologyMod
             mutatedAnimal = null;
             resultBeast = null;
 
-            if (__instance?.parent?.Map == null)
+            Map map = __instance?.parent?.Map;
+            if (map == null)
             {
                 __result = false;
                 return false; 
             }
 
-            
-            IEnumerable<Pawn> candidates = from pawn in __instance.parent.Map.mapPawns.AllPawnsSpawned
-                                           where pawn.Faction == null &&
-                                                 pawn.IsAnimal &&
-                                                 !pawn.IsCannotBeMutated() && 
-                                                 !pawn.Position.Fogged(__instance.parent.Map)
-                                           select pawn;
-
-            Pawn pawn3;
-            if (candidates.TryRandomElement(out pawn3))
+            Pawn pawn3 = TryGetRandomMutableAnimal(map);
+            if (pawn3 != null)
             {
                 mutatedAnimal = pawn3;
                 resultBeast = FleshbeastUtility.SpawnFleshbeastFromPawn(pawn3, false, false, Array.Empty<PawnKindDef>());
@@ -142,6 +125,36 @@ namespace ZoologyMod
 
             __result = false;
             return false;
+        }
+
+        private static Pawn TryGetRandomMutableAnimal(Map map)
+        {
+            var pawns = map?.mapPawns?.AllPawnsSpawned;
+            if (pawns == null || pawns.Count == 0)
+            {
+                return null;
+            }
+
+            Pawn selected = null;
+            int eligibleCount = 0;
+
+            for (int i = 0; i < pawns.Count; i++)
+            {
+                Pawn pawn = pawns[i];
+                if (pawn == null) continue;
+                if (pawn.Faction != null) continue;
+                if (!pawn.IsAnimal) continue;
+                if (pawn.IsCannotBeMutated()) continue;
+                if (pawn.Position.Fogged(map)) continue;
+
+                eligibleCount++;
+                if (Rand.Range(0, eligibleCount) == 0)
+                {
+                    selected = pawn;
+                }
+            }
+
+            return selected;
         }
     }
 

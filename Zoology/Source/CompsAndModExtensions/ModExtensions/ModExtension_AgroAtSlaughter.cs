@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using HarmonyLib;
 using RimWorld;
 using Verse;
@@ -43,26 +42,7 @@ namespace ZoologyMod
     {
         public static bool IsAgroAtSlaughter(Pawn pawn, out ModExtension_AgroAtSlaughter ext)
         {
-            ext = null;
-            if (pawn == null) return false;
-
-            
-            var pk = pawn.kindDef;
-            if (pk != null)
-            {
-                ext = pk.GetModExtension<ModExtension_AgroAtSlaughter>();
-                if (ext != null) return true;
-            }
-
-            
-            var td = pawn.def;
-            if (td != null)
-            {
-                ext = td.GetModExtension<ModExtension_AgroAtSlaughter>();
-                if (ext != null) return true;
-            }
-
-            return false;
+            return DefModExtensionCache<ModExtension_AgroAtSlaughter>.TryGet(pawn, out ext);
         }
 
         public static bool IsAgroAtSlaughter(Pawn pawn)
@@ -162,8 +142,17 @@ namespace ZoologyMod
                     {
                         if (target.Map != null)
                         {
-                            var des = target.Map.designationManager.AllDesignationsOn(target)
-                                        .FirstOrDefault(d => d.def == DesignationDefOf.Slaughter);
+                            Designation des = null;
+                            var designations = target.Map.designationManager.AllDesignationsOn(target);
+                            for (int i = 0; i < designations.Count; i++)
+                            {
+                                Designation candidate = designations[i];
+                                if (candidate != null && candidate.def == DesignationDefOf.Slaughter)
+                                {
+                                    des = candidate;
+                                    break;
+                                }
+                            }
                             if (des != null) target.Map.designationManager.RemoveDesignation(des);
                         }
                     }

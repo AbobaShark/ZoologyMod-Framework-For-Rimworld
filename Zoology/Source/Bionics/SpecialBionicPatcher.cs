@@ -9,6 +9,17 @@ namespace ZoologyMod
 {
     public static class SpecialBionicPatcher
     {
+        private static readonly Dictionary<string, float> HealingRegenBySize = new Dictionary<string, float>
+        {
+            { "VerySmall", 1f },
+            { "Small", 2f },
+            { "Medium", 4f },
+            { "Large", 8f },
+            { "VeryLarge", 16f },
+            { "Huge", 32f }
+        };
+        private static readonly FieldInfo[] HediffStageFields = typeof(HediffStage).GetFields(BindingFlags.Public | BindingFlags.Instance);
+
         private static readonly List<BionicPatcherUtils.BionicConfigSimple> GlandConfigs = new List<BionicPatcherUtils.BionicConfigSimple>
         {
             new BionicPatcherUtils.BionicConfigSimple("InstallToughskinGland", "Torso", "Body", "ToughskinGland", 0.9f),
@@ -21,74 +32,89 @@ namespace ZoologyMod
             Log.Message("[ZoologyMod] SpecialBionicPatcher: starting patch.");
 
             ClearAnimalsFromRelevantRecipes();
-            var allAnimalDefs = DefDatabase<ThingDef>.AllDefsListForReading
-                .Where(d => d.race != null && d.race.Animal && BionicPatcherUtils.CanBeAugmented(d))
-                .ToList();
-            var createdInstallRecipes = new List<RecipeDef>();
+            var allAnimalDefs = BionicPatcherUtils.GetAugmentableAnimalDefs();
+            var torsoPartDef = BionicPatcherUtils.GetBodyPartDef("Torso");
+            var bodyPartDef = BionicPatcherUtils.GetBodyPartDef("Body");
+            int createdInstallRecipeCount = 0;
             foreach (var cfg in GlandConfigs)
             {
                 var installRecipe = DefDatabase<RecipeDef>.GetNamedSilentFail(cfg.RecipeDefName);
                 if (installRecipe == null) continue;
                 var removeRecipe = DefDatabase<RecipeDef>.GetNamedSilentFail(cfg.RecipeDefName.Replace("Install", "Remove"));
-                var compatible = allAnimalDefs.Where(a => BionicPatcherUtils.HasBodyPart(a.race.body, cfg.HumanPartDefName) ||
-                                                           (!string.IsNullOrEmpty(cfg.AnimalPartDefName) && BionicPatcherUtils.HasBodyPart(a.race.body, cfg.AnimalPartDefName))).ToList();
-                if (!compatible.Any()) continue;
-                var torsoAnimals = compatible.Where(a => BionicPatcherUtils.HasBodyPart(a.race.body, "Torso")).ToList();
-                var bodyAnimals = compatible.Where(a => !BionicPatcherUtils.HasBodyPart(a.race.body, "Torso") && BionicPatcherUtils.HasBodyPart(a.race.body, "Body")).ToList();
+                var torsoAnimals = new List<ThingDef>();
+                var bodyAnimals = new List<ThingDef>();
+                bool hasAlternateAnimalPart = !string.IsNullOrEmpty(cfg.AnimalPartDefName);
+
+                foreach (var animal in allAnimalDefs)
+                {
+                    bool hasHumanPart = BionicPatcherUtils.HasBodyPart(animal.race.body, cfg.HumanPartDefName);
+                    bool hasAnimalPart = hasAlternateAnimalPart && BionicPatcherUtils.HasBodyPart(animal.race.body, cfg.AnimalPartDefName);
+                    if (!hasHumanPart && !hasAnimalPart) continue;
+
+                    if (BionicPatcherUtils.HasBodyPart(animal.race.body, "Torso"))
+                    {
+                        torsoAnimals.Add(animal);
+                    }
+                    else if (BionicPatcherUtils.HasBodyPart(animal.race.body, "Body"))
+                    {
+                        bodyAnimals.Add(animal);
+                    }
+                }
+
+                if (torsoAnimals.Count == 0 && bodyAnimals.Count == 0) continue;
                 var isHealing = cfg.HediffDefName == "HealingEnhancer";
                 HediffDef animalHediff = isHealing ? null : CreateOrGetAnimalGlandHediff(cfg);
                 
-                if (torsoAnimals.Any())
+                if (torsoAnimals.Count > 0)
                 {
-                    var torsoParts = installRecipe.appliedOnFixedBodyParts?.ToList() ?? new List<BodyPartDef> { DefDatabase<BodyPartDef>.GetNamed("Torso") };
+                    var torsoParts = installRecipe.appliedOnFixedBodyParts?.ToList() ?? new List<BodyPartDef> { torsoPartDef };
                     if (!isHealing)
                     {
                         var newRecipe = ProcessRecipeForAnimals(cfg, torsoAnimals, installRecipe, torsoParts, animalHediff, removeRecipe);
-                        if (newRecipe != null) createdInstallRecipes.Add(newRecipe);
+                        if (newRecipe != null) createdInstallRecipeCount++;
                     }
                     else
                     {
                         var grouped = BionicPatcherUtils.GroupAnimalsBySize(torsoAnimals);
                         foreach (var kvp in grouped)
                         {
-                            if (!kvp.Value.Any()) continue;
+                            if (kvp.Value.Count == 0) continue;
                             var size = kvp.Key;
                             var sizeAnimals = kvp.Value;
                             var hediff = CreateOrGetHealingHediff(cfg, size);
                             if (hediff == null) continue;
                             var newRecipe = ProcessRecipeForAnimals(cfg, sizeAnimals, installRecipe, torsoParts, hediff, removeRecipe, size);
-                            if (newRecipe != null) createdInstallRecipes.Add(newRecipe);
+                            if (newRecipe != null) createdInstallRecipeCount++;
                         }
                     }
                 }
                 
-                if (bodyAnimals.Any())
+                if (bodyAnimals.Count > 0 && bodyPartDef != null)
                 {
-                    var bodyParts = new List<BodyPartDef> { DefDatabase<BodyPartDef>.GetNamed("Body") };
+                    var bodyParts = new List<BodyPartDef> { bodyPartDef };
                     if (!isHealing)
                     {
                         var newRecipe = ProcessRecipeForAnimals(cfg, bodyAnimals, installRecipe, bodyParts, animalHediff, removeRecipe);
-                        if (newRecipe != null) createdInstallRecipes.Add(newRecipe);
+                        if (newRecipe != null) createdInstallRecipeCount++;
                     }
                     else
                     {
                         var grouped = BionicPatcherUtils.GroupAnimalsBySize(bodyAnimals);
                         foreach (var kvp in grouped)
                         {
-                            if (!kvp.Value.Any()) continue;
+                            if (kvp.Value.Count == 0) continue;
                             var size = kvp.Key;
                             var sizeAnimals = kvp.Value;
                             var hediff = CreateOrGetHealingHediff(cfg, size);
                             if (hediff == null) continue;
                             var newRecipe = ProcessRecipeForAnimals(cfg, sizeAnimals, installRecipe, bodyParts, hediff, removeRecipe, size);
-                            if (newRecipe != null) createdInstallRecipes.Add(newRecipe);
+                            if (newRecipe != null) createdInstallRecipeCount++;
                         }
                     }
                 }
             }
 
-            int added = createdInstallRecipes.Count;
-            Log.Message($"[ZoologyMod] SpecialBionicPatcher: created {added} animal-special install recipe(s).");
+            Log.Message($"[ZoologyMod] SpecialBionicPatcher: created {createdInstallRecipeCount} animal-special install recipe(s).");
 
             DefDatabase<RecipeDef>.ResolveAllReferences();
             Log.Message("[ZoologyMod] SpecialBionicPatcher: patch completed.");
@@ -119,7 +145,7 @@ namespace ZoologyMod
             var existing = DefDatabase<HediffDef>.GetNamedSilentFail(newName);
             if (existing != null) return existing;
             var baseDef = DefDatabase<HediffDef>.GetNamedSilentFail(cfg.HediffDefName);
-            if (baseDef == null || baseDef.stages == null || !baseDef.stages.Any()) return null;
+            if (baseDef == null || baseDef.stages == null || baseDef.stages.Count == 0) return null;
             var clone = CloneAndModifyHediff(baseDef, newName, false);
             var stage = clone.stages[0];
             
@@ -136,19 +162,10 @@ namespace ZoologyMod
             var existing = DefDatabase<HediffDef>.GetNamedSilentFail(newName);
             if (existing != null) return existing;
             var baseDef = DefDatabase<HediffDef>.GetNamedSilentFail(cfg.HediffDefName);
-            if (baseDef == null || baseDef.stages == null || !baseDef.stages.Any()) return null;
+            if (baseDef == null || baseDef.stages == null || baseDef.stages.Count == 0) return null;
             var clone = CloneAndModifyHediff(baseDef, newName, true);
             var stage = clone.stages[0];
-            var regenBySize = new Dictionary<string, float>
-            {
-                {"VerySmall", 1f},
-                {"Small", 2f},
-                {"Medium", 4f},
-                {"Large", 8f},
-                {"VeryLarge", 16f},
-                {"Huge", 32f}
-            };
-            if (regenBySize.TryGetValue(size, out float regen))
+            if (HealingRegenBySize.TryGetValue(size, out float regen))
             {
                 try
                 {
@@ -178,12 +195,14 @@ namespace ZoologyMod
                 hediffClass = source.hediffClass,
                 comps = source.comps?.ListFullCopyOrNull()
             };
-            clone.stages = source.stages.Select(s =>
+
+            clone.stages = new List<HediffStage>(source.stages.Count);
+            foreach (var s in source.stages)
             {
                 var newStage = new HediffStage();
-                foreach (var field in typeof(HediffStage).GetFields(BindingFlags.Public | BindingFlags.Instance))
+                foreach (var field in HediffStageFields)
                 {
-                    if (isHealing && field.Name == "naturalHealingFactor") continue; 
+                    if (isHealing && field.Name == "naturalHealingFactor") continue;
                     var value = field.GetValue(s);
                     if (value == null)
                     {
@@ -228,8 +247,8 @@ namespace ZoologyMod
                         field.SetValue(newStage, newValue);
                     }
                 }
-                return newStage;
-            }).ToList();
+                clone.stages.Add(newStage);
+            }
             return clone;
         }
         private static void ClearAnimalsFromRelevantRecipes()
