@@ -339,7 +339,7 @@ namespace ZoologyMod
         private const float HumanSearchRadius = 6f;
         private const int FleeDistanceDefault = 12;
         private const int FleeDistanceTarget = 16;
-        private const int NoThreatScanCooldownTicks = 30;
+        private const int NoThreatScanCooldownTicks = 60;
         private const int ThreatCacheDurationTicks = 10;
         private const int AcceptablePreyCacheDurationTicks = 30;
         private const int ThreatCacheCleanupIntervalTicks = 600;
@@ -363,23 +363,39 @@ namespace ZoologyMod
                 bool fleeFromHumansEnabled = settings != null && settings.AnimalsFreeFromHumans;
                 int currentTick = Find.TickManager?.TicksGame ?? 0;
 
-                if (!fleeFromPredatorsEnabled || pawn == null || pawn.Map == null || !pawn.RaceProps.Animal || pawn.Dead || pawn.Destroyed)
+                if (pawn == null || pawn.Map == null || !pawn.RaceProps.Animal || pawn.Dead || pawn.Destroyed)
                 {
-                    if (!fleeFromHumansEnabled || pawn == null || pawn.Map == null || !pawn.RaceProps.Animal || pawn.Dead || pawn.Destroyed || __result != null)
+                    return;
+                }
+
+                if (__result != null || pawn.jobs?.curJob?.def == JobDefOf.Flee)
+                {
+                    ClearNoThreatScanCache(pawn);
+                    return;
+                }
+
+                if (ShouldSkipThreatScan(pawn, currentTick, fleeFromPredatorsEnabled, fleeFromHumansEnabled))
+                {
+                    return;
+                }
+
+                if (!fleeFromPredatorsEnabled)
+                {
+                    if (!fleeFromHumansEnabled)
                     {
+                        RememberNoThreatScan(pawn, currentTick, fleeFromPredatorsEnabled, fleeFromHumansEnabled);
                         return;
                     }
 
                     Job humanFleeJob = TryCreateHumanFleeJob(pawn, settings);
                     if (humanFleeJob != null)
                     {
+                        ClearNoThreatScanCache(pawn);
                         __result = humanFleeJob;
+                        return;
                     }
-                    return;
-                }
-
-                if (ShouldSkipThreatScan(pawn, currentTick, fleeFromPredatorsEnabled, fleeFromHumansEnabled))
-                {
+                    
+                    RememberNoThreatScan(pawn, currentTick, fleeFromPredatorsEnabled, fleeFromHumansEnabled);
                     return;
                 }
 
@@ -424,9 +440,6 @@ namespace ZoologyMod
         private static bool TryHandlePredatorThreat(Pawn pawn, ZoologyModSettings settings, out Job fleeJob)
         {
             fleeJob = null;
-            bool foodJobActive = IsFoodSeekingOrEatingJob(pawn);
-            bool shouldAnimalFleeDanger = FleeUtility.ShouldAnimalFleeDanger(pawn);
-
             bool allowNonHostilePredators = settings != null
                 && settings.EnablePreyFleeFromPredators
                 && settings.AnimalsFleeFromNonHostlePredators;
@@ -442,13 +455,15 @@ namespace ZoologyMod
             }
 
             bool preyIsPhotonozoa = PredationCacheUtility.IsPhotonozoa(pawn.def);
-            if (!preyIsPhotonozoa && !shouldAnimalFleeDanger)
+            Pawn threat = FindNearestPredatorThreat(pawn, PredatorSearchRadius, allowNonHostilePredators);
+            if (threat == null)
             {
                 return false;
             }
 
-            Pawn threat = FindNearestPredatorThreat(pawn, PredatorSearchRadius, allowNonHostilePredators);
-            if (threat == null)
+            bool foodJobActive = IsFoodSeekingOrEatingJob(pawn);
+            bool shouldAnimalFleeDanger = FleeUtility.ShouldAnimalFleeDanger(pawn);
+            if (!preyIsPhotonozoa && !shouldAnimalFleeDanger)
             {
                 return false;
             }
