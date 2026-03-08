@@ -65,6 +65,8 @@ namespace ZoologyMod.HarmonyPatches
                 int pawnId = pawn.thingIDNumber;
                 int currentTick = Find.TickManager.TicksGame;
                 if (lastAssignedTick.TryGetValue(pawnId, out int lastTick) && lastTick == currentTick) return;
+                var reachTraverseParms = TraverseParms.For(pawn, Danger.Some, TraverseMode.ByPawn, false, false, false, true);
+                var searchTraverseParms = TraverseParms.For(pawn, Danger.Deadly, TraverseMode.ByPawn, false, false, false, true);
 
                 Predicate<Thing> validator = (Thing t) =>
                 {
@@ -105,7 +107,7 @@ namespace ZoologyMod.HarmonyPatches
                         }
 
                         if (!pawn.Map.reachability.CanReachNonLocal(pawn.Position, new TargetInfo(corpse.PositionHeld, corpse.Map, false),
-                            PathEndMode.OnCell, TraverseParms.For(pawn, Danger.Some, TraverseMode.ByPawn, false, false, false, true)))
+                            PathEndMode.OnCell, reachTraverseParms))
                         {
                             return false;
                         }
@@ -129,7 +131,7 @@ namespace ZoologyMod.HarmonyPatches
                     pawn.Map,
                     FoodSourceRequest,
                     PathEndMode.OnCell,
-                    TraverseParms.For(pawn, Danger.Deadly, TraverseMode.ByPawn, false, false, false, true),
+                    searchTraverseParms,
                     9999f,
                     validator,
                     null,

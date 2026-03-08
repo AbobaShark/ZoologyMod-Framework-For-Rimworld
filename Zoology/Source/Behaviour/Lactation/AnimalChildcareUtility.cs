@@ -224,6 +224,7 @@ namespace ZoologyMod
             if (pup == null || pup.Map == null || pup.Dead) return null;
             Pawn nearest = null;
             float bestDistSqr = float.MaxValue;
+            IntVec3 pupPosition = pup.Position;
             foreach (Pawn p in pup.Map.mapPawns.AllPawnsSpawned)
             {
                 if (p == null || !p.Spawned || p.Dead) continue;
@@ -231,11 +232,13 @@ namespace ZoologyMod
 
                 if (!IsCrossBreedCompatible(p, pup)) continue;
 
+                float d = (p.Position - pupPosition).LengthHorizontalSquared;
+                if (d >= bestDistSqr) continue;
+
                 if (!p.CanReserve(pup)) continue;
 
                 if (!p.CanReach(pup, PathEndMode.Touch, Danger.Deadly, false, false, TraverseMode.ByPawn)) continue;
 
-                float d = (p.Position - pup.Position).LengthHorizontalSquared;
                 if (d < bestDistSqr) { bestDistSqr = d; nearest = p; }
             }
             return nearest;

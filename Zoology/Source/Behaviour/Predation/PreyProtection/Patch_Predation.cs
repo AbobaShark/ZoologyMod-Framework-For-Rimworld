@@ -284,22 +284,7 @@ namespace ZoologyMod
                     }
                 }
 
-                Corpse corpse = __instance.Corpse;
-                if (corpse == null)
-                {
-                    var maps = Find.Maps;
-                    for (int mi = 0; mi < maps.Count; mi++)
-                    {
-                        var map = maps[mi];
-                        var all = map.listerThings.AllThings;
-                        for (int ti = 0; ti < all.Count; ti++)
-                        {
-                            var t = all[ti] as Corpse;
-                            if (t != null && t.InnerPawn == __instance) { corpse = t; break; }
-                        }
-                        if (corpse != null) break;
-                    }
-                }
+                Corpse corpse = __instance.Corpse ?? PredationLookupUtility.FindSpawnedCorpseForInnerPawn(__instance);
 
                 if (corpse == null)
                 {
@@ -332,52 +317,10 @@ namespace ZoologyMod
                 var corpse = item as Corpse;
                 if (corpse == null) return;
 
-                Pawn carrier = null;
-                try
-                {
-                    var instType = __instance.GetType();
-                    var pawnField = instType.GetField("pawn", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-                    if (pawnField != null)
-                    {
-                        var val = pawnField.GetValue(__instance);
-                        if (val is Pawn p) carrier = p;
-                    }
-                }
-                catch { carrier = null; }
-
+                Pawn carrier = PredationLookupUtility.TryGetCarrierPawn(__instance);
                 if (carrier == null)
                 {
-                    var maps = Find.Maps;
-                    for (int mi = 0; mi < maps.Count; mi++)
-                    {
-                        var pawns = maps[mi].mapPawns.AllPawnsSpawned;
-                        for (int pi = 0; pi < pawns.Count; pi++)
-                        {
-                            var p = pawns[pi];
-                            if (p == null) continue;
-                            try
-                            {
-                                var ct = p.carryTracker;
-                                if (ct != null)
-                                {
-                                    var ctThing = ct.CarriedThing;
-                                    if (ctThing != null && ctThing.thingIDNumber == item.thingIDNumber) { carrier = p; break; }
-                                }
-                                var inv = p.inventory?.innerContainer;
-                                if (inv != null)
-                                {
-                                    for (int j = 0; j < inv.Count; j++)
-                                    {
-                                        var t = inv[j];
-                                        if (t != null && t.thingIDNumber == item.thingIDNumber) { carrier = p; break; }
-                                    }
-                                    if (carrier != null) break;
-                                }
-                            }
-                            catch { }
-                        }
-                        if (carrier != null) break;
-                    }
+                    carrier = PredationLookupUtility.FindPawnHoldingThing(item.thingIDNumber);
                 }
 
                 if (carrier == null) return;
@@ -403,52 +346,10 @@ namespace ZoologyMod
                 var corpse = item as Corpse;
                 if (corpse == null) return;
 
-                Pawn carrier = null;
-                try
-                {
-                    var instType = __instance.GetType();
-                    var pawnField = instType.GetField("pawn", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-                    if (pawnField != null)
-                    {
-                        var val = pawnField.GetValue(__instance);
-                        if (val is Pawn p) carrier = p;
-                    }
-                }
-                catch { carrier = null; }
-
+                Pawn carrier = PredationLookupUtility.TryGetCarrierPawn(__instance);
                 if (carrier == null)
                 {
-                    var maps = Find.Maps;
-                    for (int mi = 0; mi < maps.Count; mi++)
-                    {
-                        var pawns = maps[mi].mapPawns.AllPawnsSpawned;
-                        for (int pi = 0; pi < pawns.Count; pi++)
-                        {
-                            var p = pawns[pi];
-                            if (p == null) continue;
-                            try
-                            {
-                                var ct = p.carryTracker;
-                                if (ct != null)
-                                {
-                                    var ctThing = ct.CarriedThing;
-                                    if (ctThing != null && ctThing.thingIDNumber == item.thingIDNumber) { carrier = p; break; }
-                                }
-                                var inv = p.inventory?.innerContainer;
-                                if (inv != null)
-                                {
-                                    for (int j = 0; j < inv.Count; j++)
-                                    {
-                                        var t = inv[j];
-                                        if (t != null && t.thingIDNumber == item.thingIDNumber) { carrier = p; break; }
-                                    }
-                                    if (carrier != null) break;
-                                }
-                            }
-                            catch { }
-                        }
-                        if (carrier != null) break;
-                    }
+                    carrier = PredationLookupUtility.FindPawnHoldingThing(item.thingIDNumber);
                 }
 
                 if (carrier == null) return;

@@ -61,7 +61,7 @@ namespace ZoologyMod
         {
             if (pawn?.health?.hediffSet == null) return;
 
-            HashSet<HediffDef> forb = AgelessUtils.GetAgeRelatedHediffDefsForPawn(pawn);
+            HashSet<HediffDef> forb = AgelessUtils.GetAgeRelatedHediffDefsForPawnView(pawn);
             if (forb == null || forb.Count == 0) return;
 
             List<Hediff> hs = pawn.health.hediffSet.hediffs;
@@ -180,6 +180,11 @@ namespace ZoologyMod
         {
             HashSet<HediffDef> cached = GetAgeRelatedHediffDefsForPawnCached(pawn);
             return cached != null ? new HashSet<HediffDef>(cached) : new HashSet<HediffDef>();
+        }
+
+        internal static HashSet<HediffDef> GetAgeRelatedHediffDefsForPawnView(Pawn pawn)
+        {
+            return GetAgeRelatedHediffDefsForPawnCached(pawn);
         }
 
         private static HashSet<HediffDef> GetAgeRelatedHediffDefsForPawnCached(Pawn pawn)

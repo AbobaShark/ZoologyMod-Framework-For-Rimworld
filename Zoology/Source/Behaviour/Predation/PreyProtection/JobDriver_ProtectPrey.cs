@@ -8,9 +8,7 @@ namespace ZoologyMod
 {
     public class JobDriver_ProtectPrey : JobDriver
     {
-        
-        
-
+        private const int MinimumProtectDurationTicks = 360;
         private static int MAX_DISTANCE_SQ => PreyProtectionUtility.GetProtectionRangeSquared();
 
         private int startTickLocal = -1;
@@ -30,6 +28,39 @@ namespace ZoologyMod
         {
             
             return true;
+        }
+
+        private bool IsInMinimumProtectDuration()
+        {
+            int now = Find.TickManager?.TicksGame ?? 0;
+            int startedAt = startTickLocal;
+            if (startedAt < 0)
+            {
+                startTickLocal = now;
+                return true;
+            }
+
+            return now - startedAt < MinimumProtectDurationTicks;
+        }
+
+        private bool IsValidPursuitTarget(Pawn target)
+        {
+            if (target == null)
+            {
+                return false;
+            }
+
+            if (!target.Spawned || target.Destroyed || target.Dead || target.Downed)
+            {
+                return false;
+            }
+
+            if (pawn == null || pawn.Map == null)
+            {
+                return target.Map != null;
+            }
+
+            return target.Map == pawn.Map;
         }
 
         protected override IEnumerable<Toil> MakeNewToils()
@@ -116,16 +147,14 @@ namespace ZoologyMod
                         var targ = this.TargetPawn;
                         
                         if (corp == null) return true;
+                        if (IsInMinimumProtectDuration()) return false;
 
                         
                         if (!corp.Spawned && targ != null)
                         {
                             try
                             {
-                                var ct = targ.carryTracker;
-                                if (ct != null && ct.CarriedThing == corp) return false;
-                                var inv = targ.inventory?.innerContainer;
-                                if (inv != null && inv.Contains(corp)) return false;
+                                if (PreyProtectionUtility.IsThingHeldByPawn(targ, corp)) return false;
                             }
                             catch { /* ignore inventory anomalies */ }
                             
@@ -157,9 +186,15 @@ namespace ZoologyMod
                         return;
                     }
 
-                    if (targ == null || !targ.Spawned || targ.Dead)
+                    if (!IsValidPursuitTarget(targ))
                     {
                         actorPawn?.jobs?.EndCurrentJob(JobCondition.Succeeded, true, true);
+                        return;
+                    }
+
+                    if (IsInMinimumProtectDuration())
+                    {
+                        if (actorPawn?.Map != null) actorPawn.Map.attackTargetsCache.UpdateTarget(actorPawn);
                         return;
                     }
 

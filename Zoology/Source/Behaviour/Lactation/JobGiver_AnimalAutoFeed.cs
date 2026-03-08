@@ -80,45 +80,45 @@ namespace ZoologyMod
                 var foodNeed = p.needs?.food;
                 if (foodNeed == null || foodNeed.CurLevelPercentage >= AnimalChildcareUtility.feedingThreshold) continue;
 
-                
-                if (!mom.CanReserve(p)) continue;
-                if (!mom.CanReach(p, PathEndMode.Touch, Danger.Deadly, false, false, TraverseMode.ByPawn)) continue;
-
                 float foodPerc = foodNeed.CurLevelPercentage;
                 float distSqr = (p.Position - momPosition).LengthHorizontalSquared;
-
-                
-                int malStage = 0;
-                try
-                {
-                    var mal = p.health.hediffSet.GetFirstHediffOfDef(HediffDefOf.Malnutrition, false);
-                    if (mal != null && mal.def != null && mal.def.stages != null && mal.def.stages.Count > 0)
-                    {
-                        
-                        for (int si = 0; si < mal.def.stages.Count; si++)
-                        {
-                            var s = mal.def.stages[si];
-                            
-                            if (mal.Severity >= s.minSeverity)
-                                malStage = si;
-                        }
-                    }
-                }
-                catch
-                {
-                    
-                    malStage = 0;
-                }
-
-                
-                
-                
-                
-                
-                bool isBetter = false;
                 const float eps = 1e-6f;
                 bool candidateEmpty = foodPerc <= eps;
                 bool bestEmpty = best != null && bestFoodPerc <= eps;
+
+                if (best != null)
+                {
+                    if (!candidateEmpty && bestEmpty) continue;
+                    if (!candidateEmpty && !bestEmpty && foodPerc > bestFoodPerc + eps) continue;
+                    if (!candidateEmpty && !bestEmpty && Mathf.Abs(foodPerc - bestFoodPerc) <= eps && distSqr >= bestDistSqr) continue;
+                }
+
+                if (!mom.CanReserve(p)) continue;
+                if (!mom.CanReach(p, PathEndMode.Touch, Danger.Deadly, false, false, TraverseMode.ByPawn)) continue;
+
+                int malStage = 0;
+                if (candidateEmpty)
+                {
+                    try
+                    {
+                        var mal = p.health.hediffSet.GetFirstHediffOfDef(HediffDefOf.Malnutrition, false);
+                        if (mal != null && mal.def != null && mal.def.stages != null && mal.def.stages.Count > 0)
+                        {
+                            for (int si = 0; si < mal.def.stages.Count; si++)
+                            {
+                                var s = mal.def.stages[si];
+                                if (mal.Severity >= s.minSeverity)
+                                    malStage = si;
+                            }
+                        }
+                    }
+                    catch
+                    {
+                        malStage = 0;
+                    }
+                }
+
+                bool isBetter = false;
 
                 if (candidateEmpty && !bestEmpty)
                 {

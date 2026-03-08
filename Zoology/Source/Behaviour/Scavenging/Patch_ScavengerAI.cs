@@ -41,6 +41,8 @@ namespace ZoologyMod.HarmonyPatches
 
                     var scav = DefModExtensionCache<ModExtension_IsScavenger>.Get(eater.def);
                     if (scav == null) return; 
+                    var reachTraverseParms = TraverseParms.For(getter, Danger.Some, TraverseMode.ByPawn, false, false, false, true);
+                    var searchTraverseParms = TraverseParms.For(getter, Danger.Deadly, TraverseMode.ByPawn, false, false, false, true);
 
                     Predicate<Thing> validator = t =>
                     {
@@ -81,7 +83,7 @@ namespace ZoologyMod.HarmonyPatches
                         }
 
                         if (!getter.Map.reachability.CanReachNonLocal(getter.Position, new TargetInfo(t.PositionHeld, t.Map, false),
-                            PathEndMode.OnCell, TraverseParms.For(getter, Danger.Some, TraverseMode.ByPawn, false, false, false, true)))
+                            PathEndMode.OnCell, reachTraverseParms))
                         {
                             return false;
                         }
@@ -92,7 +94,7 @@ namespace ZoologyMod.HarmonyPatches
                     int maxRegionsToScan = GetMaxRegionsToScan_Local(getter, forceScanWholeMap);
 
                     Thing found = GenClosest.ClosestThingReachable(getter.Position, getter.Map, FoodSourceRequest,
-                        PathEndMode.OnCell, TraverseParms.For(getter, Danger.Deadly, TraverseMode.ByPawn, false, false, false, true),
+                        PathEndMode.OnCell, searchTraverseParms,
                         9999f, validator, null, 0, maxRegionsToScan, false, RegionType.Set_Passable, false, false);
 
                     if (found != null)

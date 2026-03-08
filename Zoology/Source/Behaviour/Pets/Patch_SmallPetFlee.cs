@@ -8,6 +8,8 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(JobGiver_AnimalFlee), "TryGiveJob")]
     public static class Patch_SmallPetFleeFromRaiders
     {
+        private static readonly ThingRequest PawnRequest = ThingRequest.ForGroup(ThingRequestGroup.Pawn);
+
         public static bool Prepare()
         {
             var s = ZoologyModSettings.Instance;
@@ -43,7 +45,7 @@ namespace ZoologyMod
             Pawn threat = GenClosest.ClosestThingReachable(
                 pawn.Position,
                 pawn.Map,
-                ThingRequest.ForGroup(ThingRequestGroup.Pawn),
+                PawnRequest,
                 PathEndMode.OnCell,
                 TraverseParms.For(pawn, Danger.Deadly, TraverseMode.ByPawn),
                 MaxThreatDist,

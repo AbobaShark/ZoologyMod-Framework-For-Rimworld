@@ -115,12 +115,13 @@ namespace ZoologyMod
         {
             try
             {
+                var traverseParms = TraverseParms.For(pawn, Danger.Deadly, TraverseMode.ByPawn);
                 return GenClosest.ClosestThingReachable(
                     pawn.Position,
                     pawn.Map,
                     PawnRequest,
                     PathEndMode.OnCell,
-                    TraverseParms.For(pawn, Danger.Deadly, TraverseMode.ByPawn),
+                    traverseParms,
                     radius,
                     (Thing t) =>
                     {
@@ -129,51 +130,17 @@ namespace ZoologyMod
 
                         Job curJob = p.CurJob;
                         if (curJob == null || !curJob.targetA.HasThing) return false;
+                        JobDef curJobDef = curJob.def;
+                        if (curJobDef == null) return false;
 
                         Thing target = curJob.GetTarget(TargetIndex.A).Thing;
                         if (target is not Pawn preyPawn || preyPawn.Dead) return false;
 
-                        
-                        bool isHuntDriver = false;
-                        bool isMeleeJob = false;
-                        try
-                        {
-                            isMeleeJob = curJob.def == JobDefOf.AttackMelee;
-                            var driverClass = curJob.def.driverClass;
-
-                            if (driverClass != null)
-                            {
-                                if (typeof(JobDriver_PredatorHunt).IsAssignableFrom(driverClass))
-                                    isHuntDriver = true;
-
-                                
-                                try
-                                {
-                                    if (!isHuntDriver && typeof(JobDriver_ProtectPrey).IsAssignableFrom(driverClass))
-                                        isHuntDriver = true;
-                                }
-                                catch { }
-                            }
-
-                            
-                            if (!isHuntDriver)
-                            {
-                                var defName = curJob.def?.defName;
-                                if (!string.IsNullOrEmpty(defName) &&
-                                    string.Equals(defName, "Zoology_ProtectPrey", StringComparison.OrdinalIgnoreCase))
-                                {
-                                    isHuntDriver = true;
-                                }
-                            }
-                        }
-                        catch
-                        {
-                            isHuntDriver = false;
-                            isMeleeJob = false;
-                        }
-
-                        
-                        if (!isHuntDriver && !isMeleeJob)
+                        bool isMeleeJob = curJobDef == JobDefOf.AttackMelee;
+                        bool isThreatJob = isMeleeJob
+                            || typeof(JobDriver_PredatorHunt).IsAssignableFrom(curJobDef.driverClass)
+                            || ProtectPreyState.IsProtectPreyJob(curJob, p.jobs?.curDriver);
+                        if (!isThreatJob)
                             return false;
 
                         if (ReferenceEquals(preyPawn, pawn))

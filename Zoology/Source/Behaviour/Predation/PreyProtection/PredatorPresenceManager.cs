@@ -16,6 +16,8 @@ namespace ZoologyMod
 
         private static readonly Dictionary<string, long> _lastLogTick = new Dictionary<string, long>();
         private static readonly Dictionary<int, long> _transientBlockTick = new Dictionary<int, long>();
+        private static readonly List<KeyValuePair<int, int>> _pairSnapshotBuffer = new List<KeyValuePair<int, int>>(32);
+        private static readonly List<int> _transientCleanupBuffer = new List<int>(16);
 
         public static void TickPresence()
         {
@@ -27,14 +29,15 @@ namespace ZoologyMod
                 var comp = PredatorPreyPairGameComponent.Instance;
                 if (comp == null) return;
 
-                var pairs = comp.GetRuntimePredatorToCorpseSnapshot();
-                if (pairs == null || pairs.Count == 0) return;
+                _pairSnapshotBuffer.Clear();
+                comp.FillRuntimePredatorToCorpseSnapshot(_pairSnapshotBuffer);
+                if (_pairSnapshotBuffer.Count == 0) return;
                 int presenceRangeSquared = PreyProtectionUtility.GetProtectionRangeSquared();
 
-                for (int i = 0; i < pairs.Count; i++)
+                for (int i = 0; i < _pairSnapshotBuffer.Count; i++)
                 {
-                    int predatorId = pairs[i].Key;
-                    int corpseId = pairs[i].Value;
+                    int predatorId = _pairSnapshotBuffer[i].Key;
+                    int corpseId = _pairSnapshotBuffer[i].Value;
 
                     Pawn p = null;
                     try { p = comp.GetSpawnedPawnById(predatorId); } catch { p = null; }
@@ -74,6 +77,10 @@ namespace ZoologyMod
             catch (Exception ex)
             {
                 Log.Warning($"Zoology: PredatorPresenceManager.TickPresence exception: {ex}");
+            }
+            finally
+            {
+                _pairSnapshotBuffer.Clear();
             }
         }
 
@@ -148,12 +155,16 @@ namespace ZoologyMod
                 int pid = pawn.thingIDNumber;
                 _transientBlockTick[pid] = now;
 
-                var toRemove = new List<int>();
+                _transientCleanupBuffer.Clear();
                 foreach (var kv in _transientBlockTick)
                 {
-                    if (kv.Value < now) toRemove.Add(kv.Key);
+                    if (kv.Value < now) _transientCleanupBuffer.Add(kv.Key);
                 }
-                foreach (var k in toRemove) _transientBlockTick.Remove(k);
+                for (int i = 0; i < _transientCleanupBuffer.Count; i++)
+                {
+                    _transientBlockTick.Remove(_transientCleanupBuffer[i]);
+                }
+                _transientCleanupBuffer.Clear();
             }
             catch { }
         }
