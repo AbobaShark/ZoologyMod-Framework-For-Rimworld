@@ -72,33 +72,47 @@ namespace ZoologyMod
             public int Tick { get; }
         }
 
-        private readonly struct ActivePredatorThreatEntry
-        {
-            public ActivePredatorThreatEntry(Pawn predator, Pawn targetPawn)
-            {
-                Predator = predator;
-                TargetPawn = targetPawn;
-            }
-
-            public Pawn Predator { get; }
-            public Pawn TargetPawn { get; }
-        }
-
         private sealed class ThreatMapCacheData
         {
             public int RefreshTick = -ThreatMapRefreshIntervalTicks;
-            public readonly Dictionary<int, List<Pawn>> HumanlikeThreatsByCell = new Dictionary<int, List<Pawn>>(256);
-            public readonly Dictionary<int, List<Pawn>> PassivePredatorsByCell = new Dictionary<int, List<Pawn>>(256);
-            public readonly Dictionary<int, List<ActivePredatorThreatEntry>> ActivePredatorsByCell = new Dictionary<int, List<ActivePredatorThreatEntry>>(256);
-            public readonly List<List<Pawn>> PawnListPool = new List<List<Pawn>>(128);
-            public readonly List<List<ActivePredatorThreatEntry>> ActivePredatorListPool = new List<List<ActivePredatorThreatEntry>>(64);
+            public readonly Dictionary<int, List<Pawn>> HumanlikeThreatsByBucket = new Dictionary<int, List<Pawn>>(32);
+            public readonly Dictionary<int, List<Pawn>> ActivePredatorThreatsByBucket = new Dictionary<int, List<Pawn>>(32);
+            public readonly Dictionary<int, List<Pawn>> PassivePredatorThreatsByBucket = new Dictionary<int, List<Pawn>>(32);
+            public readonly Dictionary<int, Pawn> CloseMeleeHumanlikeThreatByPreyId = new Dictionary<int, Pawn>(16);
+            public readonly Dictionary<int, Pawn> CloseMeleePredatorThreatByPreyId = new Dictionary<int, Pawn>(16);
+
+            public void Clear()
+            {
+                ThreatMapCache.ReturnBucketLists(HumanlikeThreatsByBucket);
+                ThreatMapCache.ReturnBucketLists(ActivePredatorThreatsByBucket);
+                ThreatMapCache.ReturnBucketLists(PassivePredatorThreatsByBucket);
+                CloseMeleeHumanlikeThreatByPreyId.Clear();
+                CloseMeleePredatorThreatByPreyId.Clear();
+            }
         }
 
         private static class ThreatMapCache
         {
             private static readonly Dictionary<int, ThreatMapCacheData> byMapId = new Dictionary<int, ThreatMapCacheData>();
+            private static readonly Stack<List<Pawn>> pawnListPool = new Stack<List<Pawn>>(32);
 
-            public static ThreatMapCacheData Get(Map map, int currentTick)
+            public static bool TryGetFresh(Map map, int currentTick, out ThreatMapCacheData data)
+            {
+                data = null;
+                if (map == null)
+                {
+                    return false;
+                }
+
+                if (!byMapId.TryGetValue(map.uniqueID, out data))
+                {
+                    return false;
+                }
+
+                return currentTick > 0 && currentTick - data.RefreshTick < ThreatMapRefreshIntervalTicks;
+            }
+
+            public static ThreatMapCacheData GetOrRefresh(Map map, int currentTick)
             {
                 if (map == null)
                 {
@@ -112,181 +126,219 @@ namespace ZoologyMod
                     byMapId[mapId] = data;
                 }
 
-                if (currentTick - data.RefreshTick < ThreatMapRefreshIntervalTicks)
+                if (currentTick > 0 && currentTick - data.RefreshTick < ThreatMapRefreshIntervalTicks)
                 {
                     return data;
                 }
 
+                RefreshMap(map, data, currentTick);
+                return data;
+            }
+
+            public static void CleanupStaleMaps()
+            {
+                List<Map> maps = Find.Maps;
+                HashSet<int> activeMapIds = new HashSet<int>();
+                if (maps != null)
+                {
+                    for (int i = 0; i < maps.Count; i++)
+                    {
+                        Map map = maps[i];
+                        if (map != null)
+                        {
+                            activeMapIds.Add(map.uniqueID);
+                        }
+                    }
+                }
+
+                List<int> staleMapIds = null;
+                foreach (KeyValuePair<int, ThreatMapCacheData> entry in byMapId)
+                {
+                    if (activeMapIds.Contains(entry.Key))
+                    {
+                        continue;
+                    }
+
+                    if (staleMapIds == null)
+                    {
+                        staleMapIds = new List<int>(4);
+                    }
+
+                    entry.Value.Clear();
+                    staleMapIds.Add(entry.Key);
+                }
+
+                if (staleMapIds == null)
+                {
+                    return;
+                }
+
+                for (int i = 0; i < staleMapIds.Count; i++)
+                {
+                    byMapId.Remove(staleMapIds[i]);
+                }
+            }
+
+            private static void RefreshMap(Map map, ThreatMapCacheData data, int currentTick)
+            {
+                if (map == null || data == null)
+                {
+                    return;
+                }
+
                 data.RefreshTick = currentTick;
-                RecyclePawnCellIndex(data.HumanlikeThreatsByCell, data.PawnListPool);
-                RecyclePawnCellIndex(data.PassivePredatorsByCell, data.PawnListPool);
-                RecycleActivePredatorCellIndex(data.ActivePredatorsByCell, data.ActivePredatorListPool);
+                data.Clear();
 
                 IReadOnlyList<Pawn> pawns = map.mapPawns?.AllPawnsSpawned;
                 if (pawns == null || pawns.Count == 0)
                 {
-                    return data;
+                    return;
                 }
 
                 for (int i = 0; i < pawns.Count; i++)
                 {
-                    Pawn candidate = pawns[i];
-                    if (candidate == null || !candidate.Spawned || candidate.Dead || candidate.Destroyed || candidate.Downed)
+                    Pawn threat = pawns[i];
+                    if (!IsValidThreatSource(threat))
                     {
                         continue;
                     }
 
-                    if (PawnThreatUtility.IsHumanlikeOrMechanoid(candidate))
+                    if (PawnThreatUtility.IsHumanlikeOrMechanoid(threat) && !IsHumanDoingAnimalTamingJob(threat))
                     {
-                        AddPawnThreatToCells(data.HumanlikeThreatsByCell, data.PawnListPool, map, candidate, HumanSearchRadius);
+                        AddHumanlikeThreatInfluence(data, threat);
                     }
 
-                    if (candidate.RaceProps?.predator != true)
+                    if (threat.RaceProps?.predator != true)
                     {
                         continue;
                     }
 
-                    if (TryGetThreatTargetPawn(candidate, out Pawn targetPawn))
+                    if (TryGetThreatTargetPawn(threat, out Pawn targetPawn))
                     {
-                        AddActivePredatorThreatToCells(
-                            data.ActivePredatorsByCell,
-                            data.ActivePredatorListPool,
-                            map,
-                            new ActivePredatorThreatEntry(candidate, targetPawn),
-                            PredatorSearchRadius);
+                        AddActivePredatorThreatInfluence(data, threat, targetPawn);
                     }
                     else
                     {
-                        AddPawnThreatToCells(
-                            data.PassivePredatorsByCell,
-                            data.PawnListPool,
-                            map,
-                            candidate,
-                            PredatorSearchRadius * NonHostilePredatorSearchRadiusFactor);
+                        AddPassivePredatorThreatInfluence(data, threat);
                     }
                 }
-
-                return data;
             }
 
-            private static void AddPawnThreatToCells(
-                Dictionary<int, List<Pawn>> byCell,
-                List<List<Pawn>> pool,
-                Map map,
-                Pawn threat,
-                float radius)
+            private static void AddHumanlikeThreatInfluence(ThreatMapCacheData data, Pawn threat)
             {
-                if (map == null || threat == null)
+                AddThreat(data.HumanlikeThreatsByBucket, threat);
+
+                Pawn targetPawn = GetThreatTargetPawnOrNull(threat);
+                if (IsThreatMeleeAttackingPawn(threat, targetPawn, IsHumanlikeThreat))
+                {
+                    MarkCloseMeleeThreat(data.CloseMeleeHumanlikeThreatByPreyId, targetPawn, threat);
+                }
+            }
+
+            private static void AddActivePredatorThreatInfluence(ThreatMapCacheData data, Pawn threat, Pawn targetPawn)
+            {
+                AddThreat(data.ActivePredatorThreatsByBucket, threat);
+
+                if (targetPawn != null && IsThreatMeleeAttackingPawn(threat, targetPawn, IsPredatorLikeThreat))
+                {
+                    MarkCloseMeleeThreat(data.CloseMeleePredatorThreatByPreyId, targetPawn, threat);
+                }
+            }
+
+            private static void AddPassivePredatorThreatInfluence(ThreatMapCacheData data, Pawn threat)
+            {
+                AddThreat(data.PassivePredatorThreatsByBucket, threat);
+            }
+
+            private static void AddThreat(Dictionary<int, List<Pawn>> buckets, Pawn threat)
+            {
+                if (buckets == null || threat == null || !threat.Spawned)
                 {
                     return;
                 }
 
-                int cellCount = GenRadial.NumCellsInRadius(radius);
-                for (int i = 0; i < cellCount; i++)
+                int key = MakeBucketKey(threat.Position);
+                if (!buckets.TryGetValue(key, out List<Pawn> list))
                 {
-                    IntVec3 cell = threat.Position + GenRadial.RadialPattern[i];
-                    if (!cell.InBounds(map))
-                    {
-                        continue;
-                    }
-
-                    int cellIndex = CellIndex(map, cell);
-                    if (!byCell.TryGetValue(cellIndex, out List<Pawn> list))
-                    {
-                        list = RentPawnList(pool);
-                        byCell[cellIndex] = list;
-                    }
-
-                    list.Add(threat);
+                    list = RentPawnList();
+                    buckets[key] = list;
                 }
+
+                list.Add(threat);
             }
 
-            private static void AddActivePredatorThreatToCells(
-                Dictionary<int, List<ActivePredatorThreatEntry>> byCell,
-                List<List<ActivePredatorThreatEntry>> pool,
-                Map map,
-                ActivePredatorThreatEntry threat,
-                float radius)
+            private static void MarkCloseMeleeThreat(Dictionary<int, Pawn> threatsByPreyId, Pawn prey, Pawn threat)
             {
-                Pawn predator = threat.Predator;
-                if (map == null || predator == null)
+                if (threatsByPreyId == null || prey == null || threat == null || !IsValidNearbyPrey(prey, threat))
                 {
                     return;
                 }
 
-                int cellCount = GenRadial.NumCellsInRadius(radius);
-                for (int i = 0; i < cellCount; i++)
+                threatsByPreyId[prey.thingIDNumber] = threat;
+            }
+
+            public static void ReturnBucketLists(Dictionary<int, List<Pawn>> buckets)
+            {
+                if (buckets == null)
                 {
-                    IntVec3 cell = predator.Position + GenRadial.RadialPattern[i];
-                    if (!cell.InBounds(map))
+                    return;
+                }
+
+                foreach (List<Pawn> list in buckets.Values)
+                {
+                    if (list == null)
                     {
                         continue;
                     }
 
-                    int cellIndex = CellIndex(map, cell);
-                    if (!byCell.TryGetValue(cellIndex, out List<ActivePredatorThreatEntry> list))
-                    {
-                        list = RentActivePredatorList(pool);
-                        byCell[cellIndex] = list;
-                    }
-
-                    list.Add(threat);
-                }
-            }
-
-            private static void RecyclePawnCellIndex(Dictionary<int, List<Pawn>> byCell, List<List<Pawn>> pool)
-            {
-                foreach (List<Pawn> list in byCell.Values)
-                {
                     list.Clear();
-                    pool.Add(list);
+                    pawnListPool.Push(list);
                 }
 
-                byCell.Clear();
+                buckets.Clear();
             }
 
-            private static void RecycleActivePredatorCellIndex(
-                Dictionary<int, List<ActivePredatorThreatEntry>> byCell,
-                List<List<ActivePredatorThreatEntry>> pool)
+            private static List<Pawn> RentPawnList()
             {
-                foreach (List<ActivePredatorThreatEntry> list in byCell.Values)
+                if (pawnListPool.Count > 0)
                 {
-                    list.Clear();
-                    pool.Add(list);
+                    return pawnListPool.Pop();
                 }
 
-                byCell.Clear();
+                return new List<Pawn>(4);
             }
 
-            private static List<Pawn> RentPawnList(List<List<Pawn>> pool)
+            private static bool IsValidThreatSource(Pawn threat)
             {
-                int count = pool.Count;
-                if (count == 0)
-                {
-                    return new List<Pawn>(4);
-                }
-
-                List<Pawn> list = pool[count - 1];
-                pool.RemoveAt(count - 1);
-                return list;
+                return threat != null
+                    && threat.Spawned
+                    && !threat.Dead
+                    && !threat.Destroyed
+                    && !threat.Downed;
             }
 
-            private static List<ActivePredatorThreatEntry> RentActivePredatorList(List<List<ActivePredatorThreatEntry>> pool)
+            private static bool IsValidNearbyPrey(Pawn prey, Pawn threat)
             {
-                int count = pool.Count;
-                if (count == 0)
-                {
-                    return new List<ActivePredatorThreatEntry>(4);
-                }
-
-                List<ActivePredatorThreatEntry> list = pool[count - 1];
-                pool.RemoveAt(count - 1);
-                return list;
+                return prey != null
+                    && threat != null
+                    && prey != threat
+                    && prey.RaceProps?.Animal == true
+                    && prey.Spawned
+                    && !prey.Dead
+                    && !prey.Destroyed
+                    && prey.Map == threat.Map;
             }
 
-            private static int CellIndex(Map map, IntVec3 cell)
+            private static Pawn GetThreatTargetPawnOrNull(Pawn threat)
             {
-                return cell.z * map.Size.x + cell.x;
+                return threat?.CurJob?.GetTarget(TargetIndex.A).Thing as Pawn;
+            }
+
+            private static int MakeBucketKey(IntVec3 cell)
+            {
+                int bucketX = cell.x / ThreatBucketSize;
+                int bucketZ = cell.z / ThreatBucketSize;
+                return ((bucketZ & 0xFFFF) << 16) | (bucketX & 0xFFFF);
             }
         }
 
@@ -299,9 +351,10 @@ namespace ZoologyMod
         private const int FleeDistanceDefault = 12;
         private const int FleeDistanceTarget = 16;
         private const int NoThreatScanCooldownTicks = 60;
-        private const int ThreatMapRefreshIntervalTicks = 30;
+        private const int ThreatMapRefreshIntervalTicks = 90;
         private const int AcceptablePreyCacheDurationTicks = 30;
         private const int ThreatCacheCleanupIntervalTicks = 600;
+        private const int ThreatBucketSize = 8;
 
         private static int lastThreatCacheCleanupTick = -ThreatCacheCleanupIntervalTicks;
 
@@ -546,7 +599,7 @@ namespace ZoologyMod
             }
 
             if (predatorsEnabled
-                && HasActiveCloseMeleeThreatFromPredator(pawn))
+                && HasActiveCloseMeleeThreatFromPredator(pawn, refreshIfNeeded: false))
             {
                 ClearNoThreatScanCache(pawn);
                 return false;
@@ -680,50 +733,24 @@ namespace ZoologyMod
 
         private static bool HasActiveCloseMeleeThreatFromPredator(Pawn pawn)
         {
-            return HasActiveCloseMeleeThreat(pawn, IsPredatorLikeThreat);
+            return HasActiveCloseMeleeThreatFromPredator(pawn, refreshIfNeeded: true);
+        }
+
+        private static bool HasActiveCloseMeleeThreatFromPredator(Pawn pawn, bool refreshIfNeeded)
+        {
+            return TryGetCloseMeleeThreat(pawn, isPredatorThreat: true, refreshIfNeeded, out Pawn threat)
+                && IsThreatMeleeAttackingPawn(threat, pawn, IsPredatorLikeThreat);
         }
 
         private static bool HasActiveCloseMeleeThreatFromHumanlike(Pawn pawn)
         {
-            return HasActiveCloseMeleeThreat(pawn, IsHumanlikeThreat);
+            return HasActiveCloseMeleeThreatFromHumanlike(pawn, refreshIfNeeded: true);
         }
 
-        private static bool HasActiveCloseMeleeThreat(Pawn pawn, Predicate<Pawn> threatPredicate)
+        private static bool HasActiveCloseMeleeThreatFromHumanlike(Pawn pawn, bool refreshIfNeeded)
         {
-            if (pawn == null || pawn.Map == null || !pawn.Spawned || threatPredicate == null)
-            {
-                return false;
-            }
-
-            Map map = pawn.Map;
-            IntVec3 position = pawn.Position;
-            for (int dx = -1; dx <= 1; dx++)
-            {
-                for (int dz = -1; dz <= 1; dz++)
-                {
-                    IntVec3 cell = new IntVec3(position.x + dx, position.y, position.z + dz);
-                    if (!cell.InBounds(map))
-                    {
-                        continue;
-                    }
-
-                    List<Thing> things = map.thingGrid.ThingsListAtFast(cell);
-                    for (int i = 0; i < things.Count; i++)
-                    {
-                        if (!(things[i] is Pawn otherPawn) || otherPawn == pawn)
-                        {
-                            continue;
-                        }
-
-                        if (IsThreatMeleeAttackingPawn(otherPawn, pawn, threatPredicate))
-                        {
-                            return true;
-                        }
-                    }
-                }
-            }
-
-            return false;
+            return TryGetCloseMeleeThreat(pawn, isPredatorThreat: false, refreshIfNeeded, out Pawn threat)
+                && IsThreatMeleeAttackingPawn(threat, pawn, IsHumanlikeThreat);
         }
 
         private static bool IsThreatMeleeAttackingPawn(Pawn threat, Pawn pawn, Predicate<Pawn> threatPredicate)
@@ -829,6 +856,35 @@ namespace ZoologyMod
                     || jobName.IndexOf("Train", StringComparison.OrdinalIgnoreCase) >= 0);
         }
 
+        private static bool TryGetThreatCache(Pawn pawn, bool refreshIfNeeded, out ThreatMapCacheData cache)
+        {
+            cache = null;
+            if (pawn?.Map == null)
+            {
+                return false;
+            }
+
+            int currentTick = Find.TickManager?.TicksGame ?? 0;
+            cache = refreshIfNeeded
+                ? ThreatMapCache.GetOrRefresh(pawn.Map, currentTick)
+                : ThreatMapCache.TryGetFresh(pawn.Map, currentTick, out ThreatMapCacheData freshCache) ? freshCache : null;
+            return cache != null;
+        }
+
+        private static bool TryGetCloseMeleeThreat(Pawn pawn, bool isPredatorThreat, bool refreshIfNeeded, out Pawn threat)
+        {
+            threat = null;
+            if (!TryGetThreatCache(pawn, refreshIfNeeded, out ThreatMapCacheData cache))
+            {
+                return false;
+            }
+
+            Dictionary<int, Pawn> threatsByPreyId = isPredatorThreat
+                ? cache.CloseMeleePredatorThreatByPreyId
+                : cache.CloseMeleeHumanlikeThreatByPreyId;
+            return threatsByPreyId.TryGetValue(pawn.thingIDNumber, out threat) && threat != null;
+        }
+
         private static Pawn FindNearestHumanlikeThreat(Pawn pawn, float radius)
         {
             if (pawn?.Map == null)
@@ -838,51 +894,35 @@ namespace ZoologyMod
 
             try
             {
-                int currentTick = Find.TickManager?.TicksGame ?? 0;
-                ThreatMapCacheData snapshot = ThreatMapCache.Get(pawn.Map, currentTick);
-                if (snapshot == null
-                    || !TryGetPawnThreatCandidatesForCell(snapshot.HumanlikeThreatsByCell, pawn, out List<Pawn> candidates))
+                if (!TryGetThreatCache(pawn, refreshIfNeeded: true, out ThreatMapCacheData cache))
                 {
                     return null;
                 }
 
-                return FindNearestHumanlikeThreatFromSnapshot(candidates, pawn, radius);
+                Pawn nearestThreat = null;
+                float bestDistanceSquared = radius * radius;
+                ForEachThreatInRange(
+                    cache.HumanlikeThreatsByBucket,
+                    pawn,
+                    radius,
+                    (threat, distanceSquared) =>
+                    {
+                        if (distanceSquared >= bestDistanceSquared || !IsHumanlikeThreatCandidate(threat, pawn))
+                        {
+                            return;
+                        }
+
+                        nearestThreat = threat;
+                        bestDistanceSquared = distanceSquared;
+                    });
+
+                return nearestThreat;
             }
             catch (Exception ex)
             {
                 Log.Error($"[ZoologyMod] FindNearestHumanlikeThreat failed: {ex}");
                 return null;
             }
-        }
-
-        private static Pawn FindNearestHumanlikeThreatFromSnapshot(List<Pawn> candidates, Pawn pawn, float radius)
-        {
-            if (candidates == null || pawn == null)
-            {
-                return null;
-            }
-
-            float bestDistanceSquared = radius * radius;
-            Pawn bestThreat = null;
-            for (int i = 0; i < candidates.Count; i++)
-            {
-                Pawn candidate = candidates[i];
-                if (candidate == null)
-                {
-                    continue;
-                }
-
-                float distanceSquared = (candidate.Position - pawn.Position).LengthHorizontalSquared;
-                if (distanceSquared > bestDistanceSquared || !IsHumanlikeThreatCandidate(candidate, pawn))
-                {
-                    continue;
-                }
-
-                bestDistanceSquared = distanceSquared;
-                bestThreat = candidate;
-            }
-
-            return bestThreat;
         }
 
         private static bool IsHumanlikeThreatCandidate(Pawn human, Pawn animal)
@@ -956,24 +996,52 @@ namespace ZoologyMod
 
             try
             {
-                int currentTick = Find.TickManager?.TicksGame ?? 0;
-                ThreatMapCacheData snapshot = ThreatMapCache.Get(pawn.Map, currentTick);
-                if (snapshot == null)
+                if (!TryGetThreatCache(pawn, refreshIfNeeded: true, out ThreatMapCacheData cache))
                 {
                     return null;
                 }
 
-                List<ActivePredatorThreatEntry> activeCandidates = null;
-                TryGetActivePredatorThreatCandidatesForCell(snapshot.ActivePredatorsByCell, pawn, out activeCandidates);
-                Pawn activeThreat = FindNearestActivePredatorThreatFromSnapshot(activeCandidates, pawn, radius);
-                if (activeThreat != null || !allowNonHostilePredators)
+                Pawn nearestActiveThreat = null;
+                float bestActiveDistanceSquared = radius * radius;
+                ForEachThreatInRange(
+                    cache.ActivePredatorThreatsByBucket,
+                    pawn,
+                    radius,
+                    (threat, distanceSquared) =>
+                    {
+                        if (distanceSquared >= bestActiveDistanceSquared || !IsTrackedActivePredatorThreatStillValid(threat, pawn, radius))
+                        {
+                            return;
+                        }
+
+                        nearestActiveThreat = threat;
+                        bestActiveDistanceSquared = distanceSquared;
+                    });
+
+                if (nearestActiveThreat != null || !allowNonHostilePredators)
                 {
-                    return activeThreat;
+                    return nearestActiveThreat;
                 }
 
-                List<Pawn> passiveCandidates = null;
-                TryGetPawnThreatCandidatesForCell(snapshot.PassivePredatorsByCell, pawn, out passiveCandidates);
-                return FindNearestPassivePredatorThreatFromSnapshot(passiveCandidates, pawn, radius * NonHostilePredatorSearchRadiusFactor);
+                float passiveRadius = radius * NonHostilePredatorSearchRadiusFactor;
+                Pawn nearestPassiveThreat = null;
+                float bestPassiveDistanceSquared = passiveRadius * passiveRadius;
+                ForEachThreatInRange(
+                    cache.PassivePredatorThreatsByBucket,
+                    pawn,
+                    passiveRadius,
+                    (threat, distanceSquared) =>
+                    {
+                        if (distanceSquared >= bestPassiveDistanceSquared || !IsTrackedPassivePredatorThreatStillValid(threat, pawn, passiveRadius))
+                        {
+                            return;
+                        }
+
+                        nearestPassiveThreat = threat;
+                        bestPassiveDistanceSquared = distanceSquared;
+                    });
+
+                return nearestPassiveThreat;
             }
             catch (Exception ex)
             {
@@ -982,115 +1050,91 @@ namespace ZoologyMod
             }
         }
 
-        private static bool TryGetPawnThreatCandidatesForCell(Dictionary<int, List<Pawn>> byCell, Pawn pawn, out List<Pawn> candidates)
+        private static void ForEachThreatInRange(
+            Dictionary<int, List<Pawn>> threatsByBucket,
+            Pawn prey,
+            float radius,
+            Action<Pawn, float> action)
         {
-            candidates = null;
-            if (byCell == null || pawn?.Map == null)
+            if (threatsByBucket == null || prey?.Map == null || action == null)
+            {
+                return;
+            }
+
+            int radiusCeiling = (int)Math.Ceiling(radius);
+            IntVec3 preyPosition = prey.Position;
+            int minBucketX = Math.Max(0, (preyPosition.x - radiusCeiling) / ThreatBucketSize);
+            int maxBucketX = Math.Max(0, (preyPosition.x + radiusCeiling) / ThreatBucketSize);
+            int minBucketZ = Math.Max(0, (preyPosition.z - radiusCeiling) / ThreatBucketSize);
+            int maxBucketZ = Math.Max(0, (preyPosition.z + radiusCeiling) / ThreatBucketSize);
+            float radiusSquared = radius * radius;
+
+            for (int bucketZ = minBucketZ; bucketZ <= maxBucketZ; bucketZ++)
+            {
+                for (int bucketX = minBucketX; bucketX <= maxBucketX; bucketX++)
+                {
+                    if (!threatsByBucket.TryGetValue(MakeThreatBucketKey(bucketX, bucketZ), out List<Pawn> threats))
+                    {
+                        continue;
+                    }
+
+                    for (int i = 0; i < threats.Count; i++)
+                    {
+                        Pawn threat = threats[i];
+                        if (threat == null)
+                        {
+                            continue;
+                        }
+
+                        float distanceSquared = (threat.Position - preyPosition).LengthHorizontalSquared;
+                        if (distanceSquared > radiusSquared)
+                        {
+                            continue;
+                        }
+
+                        action(threat, distanceSquared);
+                    }
+                }
+            }
+        }
+
+        private static int MakeThreatBucketKey(int bucketX, int bucketZ)
+        {
+            return ((bucketZ & 0xFFFF) << 16) | (bucketX & 0xFFFF);
+        }
+
+        private static bool IsTrackedActivePredatorThreatStillValid(Pawn predator, Pawn prey, float radius)
+        {
+            if (predator == null || prey == null)
             {
                 return false;
             }
 
-            return byCell.TryGetValue(GetCellIndex(pawn.Map, pawn.Position), out candidates) && candidates != null && candidates.Count > 0;
+            return predator.Spawned
+                && !predator.Dead
+                && !predator.Destroyed
+                && !predator.Downed
+                && predator.Map == prey.Map
+                && predator.RaceProps?.predator == true
+                && TryGetThreatTargetPawn(predator, out _)
+                && (predator.Position - prey.Position).LengthHorizontalSquared <= radius * radius;
         }
 
-        private static bool TryGetActivePredatorThreatCandidatesForCell(
-            Dictionary<int, List<ActivePredatorThreatEntry>> byCell,
-            Pawn pawn,
-            out List<ActivePredatorThreatEntry> candidates)
+        private static bool IsTrackedPassivePredatorThreatStillValid(Pawn predator, Pawn prey, float radius)
         {
-            candidates = null;
-            if (byCell == null || pawn?.Map == null)
+            if (predator == null || prey == null)
             {
                 return false;
             }
 
-            return byCell.TryGetValue(GetCellIndex(pawn.Map, pawn.Position), out candidates) && candidates != null && candidates.Count > 0;
-        }
-
-        private static int GetCellIndex(Map map, IntVec3 cell)
-        {
-            return cell.z * map.Size.x + cell.x;
-        }
-
-        private static Pawn FindNearestActivePredatorThreatFromSnapshot(List<ActivePredatorThreatEntry> candidates, Pawn prey, float radius)
-        {
-            if (candidates == null || prey == null)
-            {
-                return null;
-            }
-
-            float bestDistanceSquared = radius * radius;
-            Pawn bestThreat = null;
-            for (int i = 0; i < candidates.Count; i++)
-            {
-                ActivePredatorThreatEntry entry = candidates[i];
-                Pawn predator = entry.Predator;
-                if (predator == null
-                    || predator == prey
-                    || predator.Dead
-                    || predator.Destroyed
-                    || predator.Downed
-                    || !predator.Spawned
-                    || predator.Map != prey.Map
-                    || predator.RaceProps?.predator != true)
-                {
-                    continue;
-                }
-
-                float distanceSquared = (predator.Position - prey.Position).LengthHorizontalSquared;
-                if (distanceSquared > bestDistanceSquared)
-                {
-                    continue;
-                }
-
-                Pawn targetPawn = entry.TargetPawn;
-                if (targetPawn == null || targetPawn.Dead)
-                {
-                    continue;
-                }
-
-                bestDistanceSquared = distanceSquared;
-                bestThreat = predator;
-            }
-
-            return bestThreat;
-        }
-
-        private static Pawn FindNearestPassivePredatorThreatFromSnapshot(List<Pawn> candidates, Pawn prey, float radius)
-        {
-            if (candidates == null || prey == null)
-            {
-                return null;
-            }
-
-            float bestDistanceSquared = radius * radius;
-            Pawn bestThreat = null;
-            for (int i = 0; i < candidates.Count; i++)
-            {
-                Pawn predator = candidates[i];
-                if (predator == null
-                    || predator == prey
-                    || predator.Dead
-                    || predator.Destroyed
-                    || predator.Downed
-                    || !predator.Spawned
-                    || predator.Map != prey.Map
-                    || predator.RaceProps?.predator != true)
-                {
-                    continue;
-                }
-
-                float distanceSquared = (predator.Position - prey.Position).LengthHorizontalSquared;
-                if (distanceSquared > bestDistanceSquared || !IsAcceptablePrey(predator, prey))
-                {
-                    continue;
-                }
-
-                bestDistanceSquared = distanceSquared;
-                bestThreat = predator;
-            }
-
-            return bestThreat;
+            return predator.Spawned
+                && !predator.Dead
+                && !predator.Destroyed
+                && !predator.Downed
+                && predator.Map == prey.Map
+                && predator.RaceProps?.predator == true
+                && (predator.Position - prey.Position).LengthHorizontalSquared <= radius * radius
+                && IsAcceptablePrey(predator, prey);
         }
 
         private static void CleanupThreatCachesIfNeeded(int currentTick)
@@ -1103,6 +1147,7 @@ namespace ZoologyMod
             lastThreatCacheCleanupTick = currentTick;
             CleanupNoThreatScanCache(currentTick);
             CleanupAcceptablePreyCache(currentTick);
+            ThreatMapCache.CleanupStaleMaps();
         }
 
         private static void CleanupNoThreatScanCache(int currentTick)
@@ -1358,4 +1403,5 @@ namespace ZoologyMod
             }
         }
     }
+
 }
