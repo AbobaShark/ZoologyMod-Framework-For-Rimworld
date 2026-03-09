@@ -10,6 +10,7 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(Pawn), "ThreatDisabledBecauseNonAggressiveRoamer")]
     public static class Patch_SmallPetThreatDisabled
     {
+        private const int SettingsSnapshotRefreshIntervalTicks = 60;
         private const int SmallPetStateCacheDurationTicks = 15;
         private const int SmallPetStateCacheCleanupIntervalTicks = 600;
 
@@ -18,7 +19,10 @@ namespace ZoologyMod
         private static readonly Dictionary<int, CachedThreatState> cachedThreatStateByPawnId = new Dictionary<int, CachedThreatState>(32);
         private static readonly List<int> cachedSmallPetStateCleanupBuffer = new List<int>(32);
         private static ZoologyModSettings cachedSettings;
+        private static bool cachedIgnoreSmallPetsByRaidersEnabled = true;
+        private static float cachedSmallPetThresholdSnapshot = ModConstants.DefaultSmallPetBodySizeThreshold;
         private static int lastSmallPetStateCacheCleanupTick = -SmallPetStateCacheCleanupIntervalTicks;
+        private static int lastSettingsSnapshotTick = -SettingsSnapshotRefreshIntervalTicks;
         private static float cachedSmallPetThreshold = -1f;
 
         public static bool Prepare()
@@ -29,20 +33,32 @@ namespace ZoologyMod
 
         public static bool Prefix(Pawn __instance, Pawn otherPawn, ref bool __result)
         {
-            var settings = GetSettingsFast();
-            if (settings == null || !settings.EnableIgnoreSmallPetsByRaiders)
+            if (__instance == null
+                || otherPawn == null
+                || Current.ProgramState != ProgramState.Playing
+                || Current.Game == null)
+            {
+                return true;
+            }
+
+            if (!IsPotentialThreatPawn(otherPawn, __instance))
+            {
+                return true;
+            }
+
+            if (!IsPotentialSmallPetCandidate(__instance))
             {
                 return true;
             }
 
             int currentTick = Find.TickManager?.TicksGame ?? 0;
-            float smallPetThreshold = settings.SmallPetBodySizeThreshold;
-            if (!CanEverUseSmallPetRaiderIgnore(__instance, smallPetThreshold))
+            if (!TryGetSettingsSnapshot(currentTick, out float smallPetThreshold)
+                || !IsEligibleSmallPetDef(__instance.def, smallPetThreshold))
             {
                 return true;
             }
 
-            if (!CanSuppressThreatForSmallPets(otherPawn, currentTick))
+            if (!CanSuppressThreatForSmallPets(otherPawn, __instance, currentTick))
             {
                 return true;
             }
@@ -56,30 +72,65 @@ namespace ZoologyMod
             return false;
         }
 
-        private static ZoologyModSettings GetSettingsFast()
+        private static bool IsPotentialThreatPawn(Pawn otherPawn, Pawn smallPet)
         {
-            if (cachedSettings != null)
-            {
-                return cachedSettings;
-            }
-
-            cachedSettings = ZoologyMod.Settings ?? ZoologyModSettings.Instance;
-            return cachedSettings;
+            return otherPawn != null
+                && smallPet != null
+                && otherPawn != smallPet
+                && otherPawn.Spawned
+                && !otherPawn.Dead
+                && !otherPawn.Destroyed
+                && !otherPawn.Downed
+                && otherPawn.Map != null
+                && otherPawn.Map == smallPet.Map
+                && otherPawn.RaceProps?.Humanlike == true;
         }
 
-        private static bool CanEverUseSmallPetRaiderIgnore(Pawn pawn, float smallPetThreshold)
+        private static bool IsPotentialSmallPetCandidate(Pawn pawn)
         {
-            if (pawn == null || pawn.Faction != Faction.OfPlayer)
+            Faction pawnFaction = pawn?.Faction;
+            if (pawn == null
+                || !pawn.Spawned
+                || pawn.Dead
+                || pawn.Destroyed
+                || pawn.Downed
+                || pawn.Roamer
+                || pawnFaction == null
+                || !pawnFaction.IsPlayer)
             {
                 return false;
             }
 
-            return IsEligibleSmallPetDef(pawn.def, smallPetThreshold);
+            return pawn.RaceProps?.Animal == true;
         }
 
-        private static bool CanSuppressThreatForSmallPets(Pawn otherPawn, int currentTick)
+        private static bool TryGetSettingsSnapshot(int currentTick, out float smallPetThreshold)
         {
-            if (otherPawn == null)
+            smallPetThreshold = cachedSmallPetThresholdSnapshot;
+            bool needsRefresh = cachedSettings == null
+                || currentTick <= 0
+                || currentTick - lastSettingsSnapshotTick >= SettingsSnapshotRefreshIntervalTicks;
+
+            if (needsRefresh)
+            {
+                cachedSettings = ZoologyMod.Settings ?? ZoologyModSettings.Instance;
+                if (cachedSettings == null)
+                {
+                    return false;
+                }
+
+                cachedIgnoreSmallPetsByRaidersEnabled = cachedSettings.EnableIgnoreSmallPetsByRaiders;
+                cachedSmallPetThresholdSnapshot = cachedSettings.SmallPetBodySizeThreshold;
+                lastSettingsSnapshotTick = currentTick > 0 ? currentTick : 0;
+            }
+
+            smallPetThreshold = cachedSmallPetThresholdSnapshot;
+            return cachedIgnoreSmallPetsByRaidersEnabled;
+        }
+
+        private static bool CanSuppressThreatForSmallPets(Pawn otherPawn, Pawn smallPet, int currentTick)
+        {
+            if (otherPawn == null || smallPet == null)
             {
                 return false;
             }
@@ -97,7 +148,7 @@ namespace ZoologyMod
                 && !otherPawn.Destroyed
                 && !otherPawn.Downed
                 && otherPawn.RaceProps?.Humanlike == true
-                && otherPawn.HostileTo(Faction.OfPlayer);
+                && otherPawn.HostileTo(smallPet);
 
             if (canSuppressThreat)
             {
@@ -159,7 +210,9 @@ namespace ZoologyMod
                 return cached;
             }
 
-            bool result = def.race.Animal && def.race.baseBodySize < threshold;
+            bool result = def.race.Animal
+                && def.race.baseBodySize < threshold
+                && def.race.roamMtbDays <= 0f;
             cachedEligibleSmallPetDefs[def] = result;
             return result;
         }

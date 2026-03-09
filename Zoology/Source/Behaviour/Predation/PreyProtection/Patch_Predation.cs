@@ -269,13 +269,29 @@ namespace ZoologyMod
                     return;
                 }
 
-                Corpse corpse = __result as Corpse;
-                if (corpse == null && __result is Pawn deadPawn && deadPawn.Dead)
+                var comp = PredatorPreyPairGameComponent.Instance;
+                if (comp == null)
                 {
-                    corpse = deadPawn.Corpse;
+                    return;
                 }
 
-                if (corpse == null || !ShouldPreferLivePreyOverCorpse(predator, corpse))
+                Corpse corpse = TryGetCorpseFromThing(__result);
+                if (corpse == null)
+                {
+                    return;
+                }
+
+                if (TryGetPreferredPairedCorpse(comp, predator, corpse, out Corpse preferredPairedCorpse, out ThingDef preferredFoodDef))
+                {
+                    __result = preferredPairedCorpse;
+                    if (preferredFoodDef != null)
+                    {
+                        foodDef = preferredFoodDef;
+                    }
+                    return;
+                }
+
+                if (!ShouldPreferLivePreyOverCorpse(predator, corpse))
                 {
                     return;
                 }
@@ -292,6 +308,172 @@ namespace ZoologyMod
             catch (Exception ex)
             {
                 Log.Warning($"Zoology: BestFoodSourceOnMap_Postfix exception: {ex}");
+            }
+        }
+
+        private static Corpse TryGetCorpseFromThing(Thing thing)
+        {
+            if (thing == null)
+            {
+                return null;
+            }
+
+            if (thing is Corpse corpse)
+            {
+                return corpse;
+            }
+
+            if (thing is Pawn deadPawn && deadPawn.Dead)
+            {
+                return deadPawn.Corpse;
+            }
+
+            return null;
+        }
+
+        private static bool TryGetPreferredPairedCorpse(
+            PredatorPreyPairGameComponent comp,
+            Pawn predator,
+            Corpse selectedCorpse,
+            out Corpse preferredCorpse,
+            out ThingDef preferredFoodDef)
+        {
+            preferredCorpse = null;
+            preferredFoodDef = null;
+
+            if (comp == null || predator == null || selectedCorpse == null)
+            {
+                return false;
+            }
+
+            Corpse pairedCorpse;
+            try
+            {
+                pairedCorpse = comp.GetPairedCorpse(predator);
+            }
+            catch
+            {
+                return false;
+            }
+
+            if (pairedCorpse == null || pairedCorpse == selectedCorpse || pairedCorpse.Destroyed || pairedCorpse.Map != predator.Map)
+            {
+                return false;
+            }
+
+            try
+            {
+                if (!comp.IsPaired(predator, pairedCorpse))
+                {
+                    return false;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+
+            if (!TryGetCorpseFoodDefForPredator(predator, pairedCorpse, out ThingDef pairedFoodDef))
+            {
+                return false;
+            }
+
+            bool canReserveAndReach;
+            try
+            {
+                canReserveAndReach = predator.CanReserveAndReach(pairedCorpse, PathEndMode.OnCell, Danger.Some, 1, -1, null, false);
+            }
+            catch
+            {
+                canReserveAndReach = false;
+            }
+
+            if (!canReserveAndReach)
+            {
+                try
+                {
+                    canReserveAndReach = predator.CanReserveAndReach(pairedCorpse, PathEndMode.OnCell, Danger.Deadly, 1, -1, null, false);
+                }
+                catch
+                {
+                    canReserveAndReach = false;
+                }
+            }
+
+            if (!canReserveAndReach)
+            {
+                return false;
+            }
+
+            preferredCorpse = pairedCorpse;
+            preferredFoodDef = pairedFoodDef;
+            return true;
+        }
+
+        private static bool TryGetCorpseFoodDefForPredator(Pawn predator, Corpse corpse, out ThingDef foodDef)
+        {
+            foodDef = null;
+            if (predator == null || corpse == null || corpse.Destroyed)
+            {
+                return false;
+            }
+
+            try
+            {
+                if (corpse.IsDessicated())
+                {
+                    return false;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+
+            try
+            {
+                if (!corpse.IngestibleNow)
+                {
+                    return false;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+
+            try
+            {
+                if (corpse.IsForbidden(predator))
+                {
+                    return false;
+                }
+            }
+            catch
+            {
+            }
+
+            try
+            {
+                foodDef = FoodUtility.GetFinalIngestibleDef(corpse, false);
+            }
+            catch
+            {
+                foodDef = null;
+            }
+
+            if (foodDef == null || !foodDef.IsNutritionGivingIngestible)
+            {
+                return false;
+            }
+
+            try
+            {
+                return predator.RaceProps == null || predator.RaceProps.CanEverEat(foodDef);
+            }
+            catch
+            {
+                return false;
             }
         }
 

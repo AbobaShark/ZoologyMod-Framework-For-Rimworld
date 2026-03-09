@@ -13,6 +13,30 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(AutoSlaughterManager), "get_AnimalsToSlaughter")]
     static class Patch_AutoSlaughterManager_GetAnimalsToSlaughter
     {
+        private readonly struct PriorityFemaleEntry
+        {
+            public PriorityFemaleEntry(Pawn pawn, float priority)
+            {
+                Pawn = pawn;
+                Priority = priority;
+            }
+
+            public Pawn Pawn { get; }
+            public float Priority { get; }
+        }
+
+        private static readonly Dictionary<ThingDef, List<Pawn>> groupedAnimalsByDef = new Dictionary<ThingDef, List<Pawn>>(64);
+        private static readonly HashSet<ThingDef> relevantAnimalDefs = new HashSet<ThingDef>();
+        private static readonly Stack<List<Pawn>> pawnListPool = new Stack<List<Pawn>>(64);
+
+        private static readonly List<Pawn> tmpMaleAdults = new List<Pawn>(64);
+        private static readonly List<Pawn> tmpMaleYoung = new List<Pawn>(64);
+        private static readonly List<Pawn> tmpFemaleAdults = new List<Pawn>(64);
+        private static readonly List<Pawn> tmpFemaleYoung = new List<Pawn>(64);
+        private static readonly List<Pawn> tmpRegularTotal = new List<Pawn>(128);
+        private static readonly List<PriorityFemaleEntry> tmpPriorityFemales = new List<PriorityFemaleEntry>(32);
+        private static readonly HashSet<int> tmpSelectedPawnIds = new HashSet<int>();
+
         static bool Prepare() => ZoologyModSettings.EnableMammalLactation;
 
         static bool Prefix(AutoSlaughterManager __instance, ref List<Pawn> __result)
@@ -29,251 +53,395 @@ namespace ZoologyMod
                 var mode = settings?.LactationSlaughterHandling ?? ZoologyModSettings.LactationSlaughterMode.TreatAsPregnant;
                 var lactDef = AnimalChildcareUtility.LactatingHediffDef;
 
-                List<Pawn> tmpAnimals = new List<Pawn>();
-                List<Pawn> tmpAnimalsMale = new List<Pawn>();
-                List<Pawn> tmpAnimalsMaleYoung = new List<Pawn>();
-                List<Pawn> tmpAnimalsFemale = new List<Pawn>();
-                List<Pawn> tmpAnimalsFemaleYoung = new List<Pawn>();
-                List<Pawn> tmpAnimalsPregnant = new List<Pawn>();
-
-                List<Pawn> animalsToSlaughterCachedLocal = new List<Pawn>();
-
-                var configs = __instance.configs;
                 var map = __instance.map;
-                var spawnedColonyAnimals = map.mapPawns.SpawnedColonyAnimals;
-
-                foreach (AutoSlaughterConfig autoSlaughterConfig in configs)
+                var configs = __instance.configs;
+                if (map == null || configs == null || configs.Count == 0)
                 {
-                    if (!autoSlaughterConfig.AnyLimit)
+                    __result = new List<Pawn>();
+                    return false;
+                }
+
+                BuildRelevantDefSet(configs);
+                if (relevantAnimalDefs.Count == 0)
+                {
+                    __result = new List<Pawn>();
+                    return false;
+                }
+
+                BuildGroupedAnimalsByDef(map.mapPawns?.SpawnedColonyAnimals);
+
+                List<Pawn> animalsToSlaughter = new List<Pawn>(64);
+                for (int i = 0; i < configs.Count; i++)
+                {
+                    AutoSlaughterConfig config = configs[i];
+                    if (config == null || !config.AnyLimit || config.animal == null)
+                    {
                         continue;
-
-                    tmpAnimals.Clear();
-                    tmpAnimalsMale.Clear();
-                    tmpAnimalsMaleYoung.Clear();
-                    tmpAnimalsFemale.Clear();
-                    tmpAnimalsFemaleYoung.Clear();
-                    tmpAnimalsPregnant.Clear();
-
-                    foreach (Pawn pawn in spawnedColonyAnimals)
-                    {
-                        if (pawn.def != autoSlaughterConfig.animal) continue;
-                        if (!AutoSlaughterManager.CanAutoSlaughterNow(pawn)) continue;
-                        if (!autoSlaughterConfig.allowSlaughterBonded && pawn.relations.GetDirectRelationsCount(PawnRelationDefOf.Bond, null) > 0) continue;
-
-                        if (pawn.gender == Gender.Male)
-                        {
-                            if (pawn.ageTracker.CurLifeStage.reproductive)
-                                tmpAnimalsMale.Add(pawn);
-                            else
-                                tmpAnimalsMaleYoung.Add(pawn);
-                            tmpAnimals.Add(pawn);
-                        }
-                        else if (pawn.gender == Gender.Female)
-                        {
-                            if (pawn.ageTracker.CurLifeStage.reproductive)
-                            {
-                                bool isPreg = pawn.health.hediffSet.GetFirstHediffOfDef(HediffDefOf.Pregnant, false) != null;
-                                bool isLact = (lactDef != null && pawn.health.hediffSet.HasHediff(lactDef, false));
-
-                                if (!isPreg && !isLact)
-                                {
-                                    tmpAnimalsFemale.Add(pawn);
-                                    tmpAnimals.Add(pawn);
-                                }
-                                else
-                                {
-                                    
-                                    bool allowByPreg = true;
-                                    bool allowByLact = true;
-
-                                    if (isPreg)
-                                    {
-                                        allowByPreg = autoSlaughterConfig.allowSlaughterPregnant;
-                                    }
-
-                                    if (isLact)
-                                    {
-                                        switch (mode)
-                                        {
-                                            case ZoologyModSettings.LactationSlaughterMode.TreatAsPregnant:
-                                                allowByLact = autoSlaughterConfig.allowSlaughterPregnant;
-                                                break;
-                                            case ZoologyModSettings.LactationSlaughterMode.SeparateSetting:
-                                                allowByLact = settings != null && settings.GetAllowSlaughterLactatingFor(autoSlaughterConfig.animal);
-                                                break;
-                                            case ZoologyModSettings.LactationSlaughterMode.Ignore:
-                                                allowByLact = true;
-                                                break;
-                                            case ZoologyModSettings.LactationSlaughterMode.DisableSlaughterLactatingGlobal:
-                                                allowByLact = false;
-                                                break;
-                                            default:
-                                                allowByLact = true;
-                                                break;
-                                        }
-                                    }
-
-                                    
-                                    bool allowedOverall = true;
-                                    if (isPreg && !allowByPreg) allowedOverall = false;
-                                    if (isLact && !allowByLact) allowedOverall = false;
-
-                                    if (!allowedOverall)
-                                    {
-                                        
-                                        continue;
-                                    }
-
-                                    
-                                    
-                                    
-                                    tmpAnimalsFemale.Add(pawn);
-                                    tmpAnimals.Add(pawn);
-
-                                    if (isPreg)
-                                    {
-                                        tmpAnimalsPregnant.Add(pawn);
-                                    }
-                                    else if (isLact)
-                                    {
-                                        
-                                        if (mode == ZoologyModSettings.LactationSlaughterMode.TreatAsPregnant)
-                                        {
-                                            tmpAnimalsPregnant.Add(pawn);
-                                        }
-                                        else if (mode == ZoologyModSettings.LactationSlaughterMode.SeparateSetting)
-                                        {
-                                            
-                                            
-                                            tmpAnimalsPregnant.Add(pawn);
-                                        }
-                                        else if (mode == ZoologyModSettings.LactationSlaughterMode.Ignore)
-                                        {
-                                            
-                                        }
-                                        
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                tmpAnimalsFemaleYoung.Add(pawn);
-                                tmpAnimals.Add(pawn);
-                            }
-                        }
-                        else
-                        {
-                            tmpAnimals.Add(pawn);
-                        }
-                    } 
-
-                    tmpAnimals.SortByDescending((Pawn a) => a.ageTracker.AgeBiologicalTicks);
-                    tmpAnimalsMale.SortByDescending((Pawn a) => a.ageTracker.AgeBiologicalTicks);
-                    tmpAnimalsMaleYoung.SortByDescending((Pawn a) => a.ageTracker.AgeBiologicalTicks);
-                    tmpAnimalsFemale.SortByDescending((Pawn a) => a.ageTracker.AgeBiologicalTicks);
-                    tmpAnimalsFemaleYoung.SortByDescending((Pawn a) => a.ageTracker.AgeBiologicalTicks);
-
-                    if (tmpAnimalsPregnant.Count > 0)
-                    {
-                        tmpAnimalsPregnant.SortByDescending((Pawn a) =>
-                        {
-                            var hd = a.health.hediffSet.GetFirstHediffOfDef(HediffDefOf.Pregnant, false);
-                            return hd?.Severity ?? 0f;
-                        });
-                        
-                        
-                        
-                        
-
-                        
-                        foreach (var p in tmpAnimalsPregnant)
-                        {
-                            if (tmpAnimalsFemale.Remove(p))
-                            {
-                                
-                            }
-                        }
-                        
-                        tmpAnimalsFemale.InsertRange(0, tmpAnimalsPregnant);
-                        foreach (var p in tmpAnimalsPregnant)
-                        {
-                            if (tmpAnimals.Remove(p))
-                            {
-                                
-                            }
-                        }
-                        tmpAnimals.InsertRange(0, tmpAnimalsPregnant);
                     }
 
-                    
-                    if (autoSlaughterConfig.maxFemales != -1)
+                    if (!groupedAnimalsByDef.TryGetValue(config.animal, out List<Pawn> sameDefAnimals)
+                        || sameDefAnimals.Count == 0)
                     {
-                        while (tmpAnimalsFemale.Count > autoSlaughterConfig.maxFemales)
-                        {
-                            Pawn item = tmpAnimalsFemale.PopFront();
-                            tmpAnimals.Remove(item);
-                            animalsToSlaughterCachedLocal.Add(item);
-                        }
+                        continue;
                     }
-                    if (autoSlaughterConfig.maxFemalesYoung != -1)
-                    {
-                        while (tmpAnimalsFemaleYoung.Count > autoSlaughterConfig.maxFemalesYoung)
-                        {
-                            Pawn item2 = tmpAnimalsFemaleYoung.PopFront();
-                            tmpAnimals.Remove(item2);
-                            animalsToSlaughterCachedLocal.Add(item2);
-                        }
-                    }
-                    if (autoSlaughterConfig.maxMales != -1)
-                    {
-                        while (tmpAnimalsMale.Count > autoSlaughterConfig.maxMales)
-                        {
-                            Pawn item3 = tmpAnimalsMale.PopFront();
-                            tmpAnimals.Remove(item3);
-                            animalsToSlaughterCachedLocal.Add(item3);
-                        }
-                    }
-                    if (autoSlaughterConfig.maxMalesYoung != -1)
-                    {
-                        while (tmpAnimalsMaleYoung.Count > autoSlaughterConfig.maxMalesYoung)
-                        {
-                            Pawn item4 = tmpAnimalsMaleYoung.PopFront();
-                            tmpAnimals.Remove(item4);
-                            animalsToSlaughterCachedLocal.Add(item4);
-                        }
-                    }
-                    if (autoSlaughterConfig.maxTotal != -1)
-                    {
-                        while (tmpAnimals.Count > autoSlaughterConfig.maxTotal)
-                        {
-                            Pawn pawn2 = tmpAnimals.PopFront();
-                            if (pawn2.gender == Gender.Male)
-                            {
-                                if (pawn2.ageTracker.CurLifeStage.reproductive)
-                                    tmpAnimalsMale.Remove(pawn2);
-                                else
-                                    tmpAnimalsMaleYoung.Remove(pawn2);
-                            }
-                            else if (pawn2.gender == Gender.Female)
-                            {
-                                if (pawn2.ageTracker.CurLifeStage.reproductive)
-                                    tmpAnimalsFemale.Remove(pawn2);
-                                else
-                                    tmpAnimalsFemaleYoung.Remove(pawn2);
-                            }
-                            animalsToSlaughterCachedLocal.Add(pawn2);
-                        }
-                    }
-                } 
 
-                __result = animalsToSlaughterCachedLocal;
-                return false; 
+                    ProcessConfig(config, sameDefAnimals, settings, mode, lactDef, animalsToSlaughter);
+                }
+
+                __result = animalsToSlaughter;
+                return false;
             }
             catch (Exception ex)
             {
                 Log.Error($"[Zoology] Patch_AutoSlaughterManager_GetAnimalsToSlaughter Prefix failed: {ex}");
                 return true;
             }
+            finally
+            {
+                ClearScratchData();
+            }
+        }
+
+        private static void ProcessConfig(
+            AutoSlaughterConfig config,
+            List<Pawn> sameDefAnimals,
+            ZoologyModSettings settings,
+            ZoologyModSettings.LactationSlaughterMode mode,
+            HediffDef lactDef,
+            List<Pawn> animalsToSlaughter)
+        {
+            if (config == null || sameDefAnimals == null || animalsToSlaughter == null)
+            {
+                return;
+            }
+
+            tmpMaleAdults.Clear();
+            tmpMaleYoung.Clear();
+            tmpFemaleAdults.Clear();
+            tmpFemaleYoung.Clear();
+            tmpRegularTotal.Clear();
+            tmpPriorityFemales.Clear();
+            tmpSelectedPawnIds.Clear();
+
+            bool allowLactatingInSeparateMode = settings != null
+                && mode == ZoologyModSettings.LactationSlaughterMode.SeparateSetting
+                && settings.GetAllowSlaughterLactatingFor(config.animal);
+
+            for (int i = 0; i < sameDefAnimals.Count; i++)
+            {
+                Pawn pawn = sameDefAnimals[i];
+                if (pawn == null)
+                {
+                    continue;
+                }
+
+                if (!config.allowSlaughterBonded
+                    && pawn.relations.GetDirectRelationsCount(PawnRelationDefOf.Bond, null) > 0)
+                {
+                    continue;
+                }
+
+                if (pawn.gender == Gender.Male)
+                {
+                    if (pawn.ageTracker.CurLifeStage.reproductive)
+                    {
+                        tmpMaleAdults.Add(pawn);
+                    }
+                    else
+                    {
+                        tmpMaleYoung.Add(pawn);
+                    }
+
+                    tmpRegularTotal.Add(pawn);
+                    continue;
+                }
+
+                if (pawn.gender != Gender.Female)
+                {
+                    tmpRegularTotal.Add(pawn);
+                    continue;
+                }
+
+                if (!pawn.ageTracker.CurLifeStage.reproductive)
+                {
+                    tmpFemaleYoung.Add(pawn);
+                    tmpRegularTotal.Add(pawn);
+                    continue;
+                }
+
+                HediffSet hediffSet = pawn.health?.hediffSet;
+                Hediff pregnancyHediff = hediffSet?.GetFirstHediffOfDef(HediffDefOf.Pregnant, false);
+                bool isPregnant = pregnancyHediff != null;
+                bool isLactating = lactDef != null && hediffSet != null && hediffSet.HasHediff(lactDef, false);
+
+                if (!isPregnant && !isLactating)
+                {
+                    tmpFemaleAdults.Add(pawn);
+                    tmpRegularTotal.Add(pawn);
+                    continue;
+                }
+
+                bool allowByPregnancy = !isPregnant || config.allowSlaughterPregnant;
+                bool allowByLactation = true;
+                if (isLactating)
+                {
+                    switch (mode)
+                    {
+                        case ZoologyModSettings.LactationSlaughterMode.TreatAsPregnant:
+                            allowByLactation = config.allowSlaughterPregnant;
+                            break;
+                        case ZoologyModSettings.LactationSlaughterMode.SeparateSetting:
+                            allowByLactation = allowLactatingInSeparateMode;
+                            break;
+                        case ZoologyModSettings.LactationSlaughterMode.Ignore:
+                            allowByLactation = true;
+                            break;
+                        case ZoologyModSettings.LactationSlaughterMode.DisableSlaughterLactatingGlobal:
+                            allowByLactation = false;
+                            break;
+                        default:
+                            allowByLactation = true;
+                            break;
+                    }
+                }
+
+                if (!allowByPregnancy || !allowByLactation)
+                {
+                    continue;
+                }
+
+                bool prioritizeFemale = isPregnant
+                    || (isLactating
+                        && (mode == ZoologyModSettings.LactationSlaughterMode.TreatAsPregnant
+                            || mode == ZoologyModSettings.LactationSlaughterMode.SeparateSetting));
+                if (prioritizeFemale)
+                {
+                    float priority = pregnancyHediff?.Severity ?? 0f;
+                    tmpPriorityFemales.Add(new PriorityFemaleEntry(pawn, priority));
+                }
+                else
+                {
+                    tmpFemaleAdults.Add(pawn);
+                    tmpRegularTotal.Add(pawn);
+                }
+            }
+
+            tmpMaleAdults.Sort(ComparePawnAgeDesc);
+            tmpMaleYoung.Sort(ComparePawnAgeDesc);
+            tmpFemaleAdults.Sort(ComparePawnAgeDesc);
+            tmpFemaleYoung.Sort(ComparePawnAgeDesc);
+            tmpRegularTotal.Sort(ComparePawnAgeDesc);
+            if (tmpPriorityFemales.Count > 1)
+            {
+                tmpPriorityFemales.Sort(ComparePriorityFemalesDesc);
+            }
+
+            CullFemaleAdults(config.maxFemales, animalsToSlaughter);
+            CullFromList(tmpFemaleYoung, config.maxFemalesYoung, animalsToSlaughter);
+            CullFromList(tmpMaleAdults, config.maxMales, animalsToSlaughter);
+            CullFromList(tmpMaleYoung, config.maxMalesYoung, animalsToSlaughter);
+            CullTotal(config.maxTotal, animalsToSlaughter);
+        }
+
+        private static void CullFemaleAdults(int maxCount, List<Pawn> animalsToSlaughter)
+        {
+            if (maxCount == -1)
+            {
+                return;
+            }
+
+            int currentCount = tmpPriorityFemales.Count + tmpFemaleAdults.Count;
+            int toCull = currentCount - maxCount;
+            if (toCull <= 0)
+            {
+                return;
+            }
+
+            for (int i = 0; i < tmpPriorityFemales.Count && toCull > 0; i++)
+            {
+                if (TryMarkForSlaughter(tmpPriorityFemales[i].Pawn, animalsToSlaughter))
+                {
+                    toCull--;
+                }
+            }
+
+            for (int i = 0; i < tmpFemaleAdults.Count && toCull > 0; i++)
+            {
+                if (TryMarkForSlaughter(tmpFemaleAdults[i], animalsToSlaughter))
+                {
+                    toCull--;
+                }
+            }
+        }
+
+        private static void CullFromList(List<Pawn> pawns, int maxCount, List<Pawn> animalsToSlaughter)
+        {
+            if (pawns == null || maxCount == -1)
+            {
+                return;
+            }
+
+            int toCull = pawns.Count - maxCount;
+            if (toCull <= 0)
+            {
+                return;
+            }
+
+            for (int i = 0; i < pawns.Count && toCull > 0; i++)
+            {
+                if (TryMarkForSlaughter(pawns[i], animalsToSlaughter))
+                {
+                    toCull--;
+                }
+            }
+        }
+
+        private static void CullTotal(int maxCount, List<Pawn> animalsToSlaughter)
+        {
+            if (maxCount == -1)
+            {
+                return;
+            }
+
+            int currentCount = tmpPriorityFemales.Count + tmpRegularTotal.Count;
+            int toCull = currentCount - tmpSelectedPawnIds.Count - maxCount;
+            if (toCull <= 0)
+            {
+                return;
+            }
+
+            for (int i = 0; i < tmpPriorityFemales.Count && toCull > 0; i++)
+            {
+                if (TryMarkForSlaughter(tmpPriorityFemales[i].Pawn, animalsToSlaughter))
+                {
+                    toCull--;
+                }
+            }
+
+            for (int i = 0; i < tmpRegularTotal.Count && toCull > 0; i++)
+            {
+                if (TryMarkForSlaughter(tmpRegularTotal[i], animalsToSlaughter))
+                {
+                    toCull--;
+                }
+            }
+        }
+
+        private static bool TryMarkForSlaughter(Pawn pawn, List<Pawn> animalsToSlaughter)
+        {
+            if (pawn == null || animalsToSlaughter == null)
+            {
+                return false;
+            }
+
+            if (!tmpSelectedPawnIds.Add(pawn.thingIDNumber))
+            {
+                return false;
+            }
+
+            animalsToSlaughter.Add(pawn);
+            return true;
+        }
+
+        private static void BuildRelevantDefSet(List<AutoSlaughterConfig> configs)
+        {
+            relevantAnimalDefs.Clear();
+            if (configs == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < configs.Count; i++)
+            {
+                AutoSlaughterConfig config = configs[i];
+                if (config != null && config.AnyLimit && config.animal != null)
+                {
+                    relevantAnimalDefs.Add(config.animal);
+                }
+            }
+        }
+
+        private static void BuildGroupedAnimalsByDef(IEnumerable<Pawn> spawnedColonyAnimals)
+        {
+            if (spawnedColonyAnimals == null || relevantAnimalDefs.Count == 0)
+            {
+                return;
+            }
+
+            foreach (Pawn pawn in spawnedColonyAnimals)
+            {
+                if (pawn == null)
+                {
+                    continue;
+                }
+
+                ThingDef def = pawn.def;
+                if (def == null || !relevantAnimalDefs.Contains(def) || !AutoSlaughterManager.CanAutoSlaughterNow(pawn))
+                {
+                    continue;
+                }
+
+                if (!groupedAnimalsByDef.TryGetValue(def, out List<Pawn> bucket))
+                {
+                    bucket = RentPawnList();
+                    groupedAnimalsByDef[def] = bucket;
+                }
+
+                bucket.Add(pawn);
+            }
+        }
+
+        private static int ComparePawnAgeDesc(Pawn a, Pawn b)
+        {
+            long aAge = a?.ageTracker?.AgeBiologicalTicks ?? long.MinValue;
+            long bAge = b?.ageTracker?.AgeBiologicalTicks ?? long.MinValue;
+            return bAge.CompareTo(aAge);
+        }
+
+        private static int ComparePriorityFemalesDesc(PriorityFemaleEntry a, PriorityFemaleEntry b)
+        {
+            return b.Priority.CompareTo(a.Priority);
+        }
+
+        private static List<Pawn> RentPawnList()
+        {
+            if (pawnListPool.Count > 0)
+            {
+                List<Pawn> list = pawnListPool.Pop();
+                list.Clear();
+                return list;
+            }
+
+            return new List<Pawn>(16);
+        }
+
+        private static void ReturnPawnList(List<Pawn> list)
+        {
+            if (list == null)
+            {
+                return;
+            }
+
+            list.Clear();
+            pawnListPool.Push(list);
+        }
+
+        private static void ClearScratchData()
+        {
+            foreach (KeyValuePair<ThingDef, List<Pawn>> entry in groupedAnimalsByDef)
+            {
+                ReturnPawnList(entry.Value);
+            }
+
+            groupedAnimalsByDef.Clear();
+            relevantAnimalDefs.Clear();
+            tmpMaleAdults.Clear();
+            tmpMaleYoung.Clear();
+            tmpFemaleAdults.Clear();
+            tmpFemaleYoung.Clear();
+            tmpRegularTotal.Clear();
+            tmpPriorityFemales.Clear();
+            tmpSelectedPawnIds.Clear();
         }
     }
 

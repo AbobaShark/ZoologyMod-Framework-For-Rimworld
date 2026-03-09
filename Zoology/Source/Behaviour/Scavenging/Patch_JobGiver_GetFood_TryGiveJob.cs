@@ -127,22 +127,42 @@ namespace ZoologyMod.HarmonyPatches
 
                 int maxRegionsToScan = GetMaxRegionsToScan_Local(pawn, forceScanWholeMap: false);
 
-                Thing found = GenClosest.ClosestThingReachable(
-                    pawn.Position,
-                    pawn.Map,
-                    FoodSourceRequest,
-                    PathEndMode.OnCell,
-                    searchTraverseParms,
-                    9999f,
-                    validator,
-                    null,
-                    0,
-                    maxRegionsToScan,
-                    false,
-                    RegionType.Set_Passable,
-                    false,
-                    false
-                );
+                Thing found = null;
+                if (pawn.RaceProps?.predator == true)
+                {
+                    try
+                    {
+                        Corpse pairedCorpse = PredatorPreyPairGameComponent.Instance?.GetPairedCorpse(pawn);
+                        if (pairedCorpse != null && validator(pairedCorpse))
+                        {
+                            found = pairedCorpse;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error("[Zoology] PairedCorpseScavengerCheckFailed: " + ex);
+                    }
+                }
+
+                if (found == null)
+                {
+                    found = GenClosest.ClosestThingReachable(
+                        pawn.Position,
+                        pawn.Map,
+                        FoodSourceRequest,
+                        PathEndMode.OnCell,
+                        searchTraverseParms,
+                        9999f,
+                        validator,
+                        null,
+                        0,
+                        maxRegionsToScan,
+                        false,
+                        RegionType.Set_Passable,
+                        false,
+                        false
+                    );
+                }
 
                 if (found == null) return;
 

@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using HarmonyLib;
 using RimWorld;
 using UnityEngine;
@@ -6,19 +7,29 @@ using Verse;
 
 namespace ZoologyMod
 {
-    
     public class ModExtension_Ectothermic : DefModExtension
     {
-        
-        
     }
 
-    
     [StaticConstructorOnStartup]
     public static class Ectothermic_HarmonyPatches
     {
-        private static readonly System.Collections.Generic.Dictionary<BodyDef, System.Collections.Generic.List<BodyPartRecord>> frostbitePartsByBodyDef
-            = new System.Collections.Generic.Dictionary<BodyDef, System.Collections.Generic.List<BodyPartRecord>>(16);
+        private readonly struct FrostbitePartEntry
+        {
+            public FrostbitePartEntry(BodyPartRecord part, float vulnerability, int damageAmount)
+            {
+                Part = part;
+                Vulnerability = vulnerability;
+                DamageAmount = damageAmount;
+            }
+
+            public BodyPartRecord Part { get; }
+            public float Vulnerability { get; }
+            public int DamageAmount { get; }
+        }
+
+        private static readonly Dictionary<BodyDef, List<FrostbitePartEntry>> frostbitePartsByBodyDef
+            = new Dictionary<BodyDef, List<FrostbitePartEntry>>(16);
 
         static Ectothermic_HarmonyPatches()
         {
@@ -34,8 +45,6 @@ namespace ZoologyMod
             harmony.Patch(original, prefix: prefix);
         }
 
-        
-        
         public static bool OnIntervalPassed_Prefix(HediffGiver_Hypothermia __instance, Pawn pawn, Hediff cause)
         {
             ThingDef def = pawn?.def;
@@ -51,6 +60,11 @@ namespace ZoologyMod
         {
             try
             {
+                if (giver == null || pawn == null)
+                {
+                    return true;
+                }
+
                 HediffSet hediffSet = pawn.health?.hediffSet;
                 if (hediffSet == null)
                 {
@@ -58,43 +72,71 @@ namespace ZoologyMod
                 }
 
                 HediffDef hediffDef = giver.hediffInsectoid ?? giver.hediff;
-                float ambientTemperature = pawn.AmbientTemperature;
-                FloatRange safe = pawn.SafeTemperatureRange();
-                bool belowSafe = ambientTemperature < safe.min;
-                Hediff firstHediffOfDef = hediffSet.GetFirstHediffOfDef(hediffDef, false);
-
-                if (belowSafe)
+                if (hediffDef == null)
                 {
-                    float num = Mathf.Abs(ambientTemperature - safe.min) * 6.45E-05f;
-                    num = Mathf.Max(num, 0.00075f);
-                    HealthUtility.AdjustSeverity(pawn, hediffDef, num);
+                    return false;
+                }
+
+                float ambientTemperature = pawn.AmbientTemperature;
+                FloatRange safeRange = pawn.SafeTemperatureRange();
+                Hediff hypothermia = hediffSet.GetFirstHediffOfDef(hediffDef, false);
+
+                if (ambientTemperature < safeRange.min)
+                {
+                    float addedSeverity = Mathf.Abs(ambientTemperature - safeRange.min) * 6.45E-05f;
+                    if (addedSeverity < 0.00075f)
+                    {
+                        addedSeverity = 0.00075f;
+                    }
+
+                    HealthUtility.AdjustSeverity(pawn, hediffDef, addedSeverity);
                     if (pawn.Dead)
                     {
                         return false;
                     }
                 }
 
-                if (firstHediffOfDef == null)
+                if (hypothermia == null)
                 {
                     return false;
                 }
 
-                FloatRange comfortable = pawn.ComfortableTemperatureRange();
-                if (ambientTemperature > comfortable.min || !pawn.SpawnedOrAnyParentSpawned || TerrainProvidesHeat(pawn))
+                if (!pawn.SpawnedOrAnyParentSpawned || TerrainProvidesHeat(pawn))
                 {
-                    float num2 = firstHediffOfDef.Severity * 0.027f;
-                    num2 = Mathf.Clamp(num2, 0.0015f, 0.015f);
-                    firstHediffOfDef.Severity -= num2;
+                    ReduceHypothermiaSeverity(hypothermia);
                     return false;
                 }
 
-                if (pawn.RaceProps.FleshType != FleshTypeDefOf.Insectoid && ambientTemperature < 0f && firstHediffOfDef.Severity > 0.37f)
+                if (ambientTemperature > pawn.ComfortableTemperatureRange().min)
                 {
-                    float num3 = 0.025f * firstHediffOfDef.Severity;
-                    if (Rand.Value < num3 && TryGetRandomFrostbitePart(pawn, hediffSet, out BodyPartRecord bodyPartRecord))
+                    ReduceHypothermiaSeverity(hypothermia);
+                    return false;
+                }
+
+                if (pawn.RaceProps.FleshType != FleshTypeDefOf.Insectoid
+                    && ambientTemperature < 0f
+                    && hypothermia.Severity > 0.37f)
+                {
+                    float frostbiteChance = 0.025f * hypothermia.Severity;
+                    if (frostbiteChance > 0f
+                        && Rand.Value < frostbiteChance
+                        && TryGetRandomFrostbitePart(pawn, hediffSet, out FrostbitePartEntry part))
                     {
-                        int num4 = Mathf.CeilToInt((float)bodyPartRecord.def.hitPoints * 0.5f);
-                        DamageInfo dinfo = new DamageInfo(DamageDefOf.Frostbite, (float)num4, 0f, -1f, null, bodyPartRecord, null, DamageInfo.SourceCategory.ThingOrUnknown, null, true, true, QualityCategory.Normal, true, false);
+                        DamageInfo dinfo = new DamageInfo(
+                            DamageDefOf.Frostbite,
+                            part.DamageAmount,
+                            0f,
+                            -1f,
+                            null,
+                            part.Part,
+                            null,
+                            DamageInfo.SourceCategory.ThingOrUnknown,
+                            null,
+                            true,
+                            true,
+                            QualityCategory.Normal,
+                            true,
+                            false);
                         pawn.TakeDamage(dinfo);
                     }
                 }
@@ -108,87 +150,119 @@ namespace ZoologyMod
             }
         }
 
+        private static void ReduceHypothermiaSeverity(Hediff hediff)
+        {
+            if (hediff == null)
+            {
+                return;
+            }
+
+            float reduction = hediff.Severity * 0.027f;
+            if (reduction < 0.0015f)
+            {
+                reduction = 0.0015f;
+            }
+            else if (reduction > 0.015f)
+            {
+                reduction = 0.015f;
+            }
+
+            hediff.Severity -= reduction;
+        }
+
         private static bool TerrainProvidesHeat(Pawn pawn)
         {
-            Map map = pawn?.MapHeld;
-            if (map == null || !pawn.SpawnedOrAnyParentSpawned)
+            if (pawn == null || !pawn.SpawnedOrAnyParentSpawned)
             {
                 return false;
             }
 
-            TerrainDef terrain = pawn.PositionHeld.GetTerrain(map);
+            Map map = pawn.MapHeld;
+            if (map?.terrainGrid == null)
+            {
+                return false;
+            }
+
+            TerrainDef terrain = map.terrainGrid.TerrainAt(pawn.PositionHeld);
             return terrain != null && terrain.heatPerTick > 0f;
         }
 
-        private static bool TryGetRandomFrostbitePart(Pawn pawn, HediffSet hediffSet, out BodyPartRecord result)
+        private static bool TryGetRandomFrostbitePart(Pawn pawn, HediffSet hediffSet, out FrostbitePartEntry result)
         {
-            result = null;
-            if (pawn?.RaceProps?.body == null || hediffSet == null)
+            result = default(FrostbitePartEntry);
+            BodyDef bodyDef = pawn?.RaceProps?.body;
+            if (bodyDef == null || hediffSet == null)
             {
                 return false;
             }
 
-            var parts = GetFrostbiteParts(pawn.RaceProps.body);
+            List<FrostbitePartEntry> parts = GetFrostbiteParts(bodyDef);
+            if (parts == null || parts.Count == 0)
+            {
+                return false;
+            }
+
             float totalWeight = 0f;
+            bool found = false;
+            FrostbitePartEntry selected = default(FrostbitePartEntry);
             for (int i = 0; i < parts.Count; i++)
             {
-                BodyPartRecord part = parts[i];
-                if (part == null || hediffSet.PartIsMissing(part))
+                FrostbitePartEntry entry = parts[i];
+                BodyPartRecord part = entry.Part;
+                if (part == null || entry.Vulnerability <= 0f || hediffSet.PartIsMissing(part))
                 {
                     continue;
                 }
 
-                totalWeight += part.def.frostbiteVulnerability;
+                totalWeight += entry.Vulnerability;
+                if (Rand.Value * totalWeight <= entry.Vulnerability)
+                {
+                    selected = entry;
+                    found = true;
+                }
             }
 
-            if (totalWeight <= 0f)
+            if (!found)
             {
                 return false;
             }
 
-            float roll = Rand.Value * totalWeight;
-            for (int i = 0; i < parts.Count; i++)
-            {
-                BodyPartRecord part = parts[i];
-                if (part == null || hediffSet.PartIsMissing(part))
-                {
-                    continue;
-                }
-
-                roll -= part.def.frostbiteVulnerability;
-                if (roll <= 0f)
-                {
-                    result = part;
-                    return true;
-                }
-            }
-
-            return false;
+            result = selected;
+            return true;
         }
 
-        private static System.Collections.Generic.List<BodyPartRecord> GetFrostbiteParts(BodyDef bodyDef)
+        private static List<FrostbitePartEntry> GetFrostbiteParts(BodyDef bodyDef)
         {
             if (bodyDef == null)
             {
-                return new System.Collections.Generic.List<BodyPartRecord>(0);
+                return null;
             }
 
-            if (frostbitePartsByBodyDef.TryGetValue(bodyDef, out var cached))
+            if (frostbitePartsByBodyDef.TryGetValue(bodyDef, out List<FrostbitePartEntry> cached))
             {
                 return cached;
             }
 
-            var parts = new System.Collections.Generic.List<BodyPartRecord>();
-            var source = bodyDef.AllPartsVulnerableToFrostbite;
+            List<FrostbitePartEntry> parts = new List<FrostbitePartEntry>();
+            List<BodyPartRecord> source = bodyDef.AllPartsVulnerableToFrostbite;
             if (source != null)
             {
                 for (int i = 0; i < source.Count; i++)
                 {
                     BodyPartRecord part = source[i];
-                    if (part != null)
+                    if (part?.def == null)
                     {
-                        parts.Add(part);
+                        continue;
                     }
+
+                    float vulnerability = part.def.frostbiteVulnerability;
+                    if (vulnerability <= 0f)
+                    {
+                        continue;
+                    }
+
+                    int damageAmount = Mathf.Max(1, Mathf.CeilToInt(part.def.hitPoints * 0.5f));
+                    parts.Add(new FrostbitePartEntry(part, vulnerability, damageAmount));
                 }
             }
 

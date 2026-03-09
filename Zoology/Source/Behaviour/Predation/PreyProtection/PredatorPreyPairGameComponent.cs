@@ -617,14 +617,74 @@ namespace ZoologyMod
 
         private bool IsCorpseSuitableForPredator(Pawn pred, Corpse corpse)
         {
-            if (pred == null || corpse == null) return false;
-            bool ingestible = false;
-            try { ingestible = corpse.IngestibleNow; } catch { ingestible = false; }
-            if (!ingestible) return false;
+            if (pred == null || corpse == null)
+            {
+                return false;
+            }
 
-            bool willEat = false;
-            try { willEat = pred.WillEat(corpse); } catch { willEat = false; }
-            return willEat;
+            if (corpse.Destroyed)
+            {
+                return false;
+            }
+
+            try
+            {
+                if (corpse.IsDessicated())
+                {
+                    return false;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+
+            ThingDef finalDef;
+            try
+            {
+                finalDef = FoodUtility.GetFinalIngestibleDef(corpse, false);
+            }
+            catch
+            {
+                return false;
+            }
+
+            if (finalDef == null || !finalDef.IsNutritionGivingIngestible)
+            {
+                return false;
+            }
+
+            try
+            {
+                if (pred.RaceProps != null && !pred.RaceProps.CanEverEat(finalDef))
+                {
+                    return false;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+
+            try
+            {
+                return corpse.IngestibleNow;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private bool IsCorpseLookupTemporarilySuppressed(int corpseId, long now)
+        {
+            if (corpseId <= 0)
+            {
+                return false;
+            }
+
+            return corpseNegativeLookupUntil.TryGetValue(corpseId, out long cooldownUntil)
+                && cooldownUntil > now;
         }
 
         private void ClearInaccessibleFlagIfPresent(long key)
@@ -708,6 +768,7 @@ namespace ZoologyMod
                     bool foundNonSpawned = false;
                     Corpse corpse = FindCorpseById(cid, out foundNonSpawned);
                     bool foundCorpse = corpse != null || foundNonSpawned;
+                    bool corpseLookupTemporarilySuppressed = !foundCorpse && IsCorpseLookupTemporarilySuppressed(cid, now);
 
                     bool remove = false;
 
@@ -719,7 +780,7 @@ namespace ZoologyMod
                         }
                     }
 
-                    if (!remove && (!foundPred || predDead || !foundCorpse))
+                    if (!remove && (!foundPred || predDead || (!foundCorpse && !corpseLookupTemporarilySuppressed)))
                     {
                         remove = true;
                     }
@@ -738,6 +799,11 @@ namespace ZoologyMod
                         {
                             pairRemovalBuffer.Add(key);
                             ClearInaccessibleFlagIfPresent(key);
+                            continue;
+                        }
+
+                        if (corpseLookupTemporarilySuppressed)
+                        {
                             continue;
                         }
 
@@ -889,17 +955,24 @@ namespace ZoologyMod
                     return false;
                 }
 
-                if (!runtimePredatorToCorpse.TryGetValue(predator.thingIDNumber, out int mappedCorpseId) || mappedCorpseId != corpse.thingIDNumber)
-                {
-                    return false;
-                }
-
-                long key = PairKeyFor(predator.thingIDNumber, corpse.thingIDNumber);
+                int predatorId = predator.thingIDNumber;
+                int corpseId = corpse.thingIDNumber;
+                long key = PairKeyFor(predatorId, corpseId);
                 if (key == 0) return false;
                 long now = Find.TickManager?.TicksGame ?? 0L;
                 lock (dictLock)
                 {
-                    return pairsUntil.TryGetValue(key, out long until) && now <= until;
+                    if (!pairsUntil.TryGetValue(key, out long until) || now > until)
+                    {
+                        return false;
+                    }
+
+                    if (!runtimePredatorToCorpse.TryGetValue(predatorId, out int mappedCorpseId) || mappedCorpseId != corpseId)
+                    {
+                        AddRuntimePairMapping(predatorId, corpseId, predator);
+                    }
+
+                    return true;
                 }
             }
             catch (Exception ex)
@@ -922,9 +995,43 @@ namespace ZoologyMod
 
                 int predId = predator.thingIDNumber;
                 int corpseId = 0;
+                long now = Find.TickManager?.TicksGame ?? 0L;
                 lock (dictLock)
                 {
                     runtimePredatorToCorpse.TryGetValue(predId, out corpseId);
+
+                    if (corpseId > 0)
+                    {
+                        long mappedKey = PairKeyFor(predId, corpseId);
+                        if (mappedKey == 0L || !pairsUntil.TryGetValue(mappedKey, out long mappedUntil) || mappedUntil < now)
+                        {
+                            corpseId = 0;
+                        }
+                    }
+
+                    if (corpseId <= 0)
+                    {
+                        foreach (var kv in pairsUntil)
+                        {
+                            if (kv.Value < now)
+                            {
+                                continue;
+                            }
+
+                            if (PredatorIdFromKey(kv.Key) != predId)
+                            {
+                                continue;
+                            }
+
+                            corpseId = CorpseIdFromKey(kv.Key);
+                            break;
+                        }
+
+                        if (corpseId > 0)
+                        {
+                            AddRuntimePairMapping(predId, corpseId, predator);
+                        }
+                    }
                 }
 
                 if (corpseId > 0)
