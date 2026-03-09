@@ -1,6 +1,4 @@
-// Patch_ScavengerAI.cs
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using HarmonyLib;
 using RimWorld;
@@ -12,11 +10,19 @@ namespace ZoologyMod.HarmonyPatches
 {
     public static class Patch_ScavengeringAI
     {
-        // BestFoodSourceOnMap postfix: только fallback для падальщиков (не изменяет логику не-падальщиков).
+        private static readonly ThingRequest FoodSourceRequest = ThingRequest.ForGroup(ThingRequestGroup.FoodSource);
+
+        
         [HarmonyPatch(typeof(FoodUtility))]
         [HarmonyPatch("BestFoodSourceOnMap")]
         private static class Inner_FoodUtility_BestFoodSourceOnMap
         {
+            static bool Prepare()
+            {
+                var s = ZoologyModSettings.Instance;
+                return s == null || s.EnableScavengering;
+            }
+
             static void Postfix(Pawn getter, Pawn eater, bool desperate, ref Thing __result, ref ThingDef foodDef,
                 FoodPreferability maxPref = FoodPreferability.MealLavish, bool allowPlant = true, bool allowDrug = true,
                 bool allowCorpse = true, bool allowDispenserFull = true, bool allowDispenserEmpty = true,
@@ -33,8 +39,11 @@ namespace ZoologyMod.HarmonyPatches
                     if (eater == null || getter == null) return;
                     if (!allowCorpse) return;
 
-                    var scav = eater.def.GetModExtension<ModExtension_IsScavenger>();
-                    if (scav == null) return; // fallback только для падальщиков
+                    if (eater.def == null || !ZoologyCacheUtility.HasScavengerExtension(eater.def)) return;
+                    var scav = DefModExtensionCache<ModExtension_IsScavenger>.Get(eater.def);
+                    if (scav == null) return; 
+                    var reachTraverseParms = TraverseParms.For(getter, Danger.Some, TraverseMode.ByPawn, false, false, false, true);
+                    var searchTraverseParms = TraverseParms.For(getter, Danger.Deadly, TraverseMode.ByPawn, false, false, false, true);
 
                     Predicate<Thing> validator = t =>
                     {
@@ -70,12 +79,12 @@ namespace ZoologyMod.HarmonyPatches
 
                         if (!ignoreReservations)
                         {
-                            // Используем тот же стиль проверки резервации, что и ваниль при поиске еды.
+                            
                             if (!getter.CanReserveAndReach(t, PathEndMode.OnCell, Danger.Some, 1, -1, null, false)) return false;
                         }
 
                         if (!getter.Map.reachability.CanReachNonLocal(getter.Position, new TargetInfo(t.PositionHeld, t.Map, false),
-                            PathEndMode.OnCell, TraverseParms.For(getter, Danger.Some, TraverseMode.ByPawn, false, false, false, true)))
+                            PathEndMode.OnCell, reachTraverseParms))
                         {
                             return false;
                         }
@@ -85,8 +94,8 @@ namespace ZoologyMod.HarmonyPatches
 
                     int maxRegionsToScan = GetMaxRegionsToScan_Local(getter, forceScanWholeMap);
 
-                    Thing found = GenClosest.ClosestThingReachable(getter.Position, getter.Map, ThingRequest.ForGroup(ThingRequestGroup.FoodSource),
-                        PathEndMode.OnCell, TraverseParms.For(getter, Danger.Deadly, TraverseMode.ByPawn, false, false, false, true),
+                    Thing found = GenClosest.ClosestThingReachable(getter.Position, getter.Map, FoodSourceRequest,
+                        PathEndMode.OnCell, searchTraverseParms,
                         9999f, validator, null, 0, maxRegionsToScan, false, RegionType.Set_Passable, false, false);
 
                     if (found != null)
@@ -99,7 +108,7 @@ namespace ZoologyMod.HarmonyPatches
                         var corp = found as Corpse;
                         var fd = FoodUtility.GetFinalIngestibleDef(found, false);
 
-                        // НЕ claim'им — context будет создан в Notify_Starting / FinalizeIngest.initAction
+                        
                         __result = found;
                         foodDef = fd;
                     }
@@ -128,10 +137,16 @@ namespace ZoologyMod.HarmonyPatches
             }
         }
 
-        // Notify_Starting: только устанавливаем контекст для реального падальщика (никаких force)
+        
         [HarmonyPatch(typeof(JobDriver_Ingest), "Notify_Starting")]
         private static class Inner_JobDriver_Ingest_NotifyStarting
         {
+            static bool Prepare()
+            {
+                var s = ZoologyModSettings.Instance;
+                return s == null || s.EnableScavengering;
+            }
+
             static void Postfix(JobDriver_Ingest __instance)
             {
                 try
@@ -141,16 +156,17 @@ namespace ZoologyMod.HarmonyPatches
                     if (__instance == null) return;
                     Pawn pawn = __instance.pawn;
                     if (pawn == null) return;
-                    var scav = pawn.def.GetModExtension<ModExtension_IsScavenger>();
+                    if (pawn.def == null || !ZoologyCacheUtility.HasScavengerExtension(pawn.def)) return;
+                    var scav = DefModExtensionCache<ModExtension_IsScavenger>.Get(pawn.def);
                     if (scav == null) return;
 
-                    // Устанавливаем явную пару pawn -> target (если есть target в CurJob)
+                    
                     try
                     {
                         Thing targetThing = null;
                         if (__instance.job != null)
                         {
-                            // job.targetA — LocalTargetInfo (struct). Берём Thing напрямую.
+                            
                             targetThing = __instance.job.targetA.Thing;
                         }
                         ScavengerEatingContext.SetEating(pawn, targetThing);
@@ -167,10 +183,16 @@ namespace ZoologyMod.HarmonyPatches
             }
         }
 
-        // EndJobWith: очистка контекста при завершении Ingest
+        
         [HarmonyPatch(typeof(JobDriver), "EndJobWith")]
         private static class Inner_JobDriver_EndJobWith_ClearEatingContext
         {
+            static bool Prepare()
+            {
+                var s = ZoologyModSettings.Instance;
+                return s == null || s.EnableScavengering;
+            }
+
             static void Postfix(JobDriver __instance, JobCondition condition)
             {
                 try

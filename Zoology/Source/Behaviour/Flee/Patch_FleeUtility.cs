@@ -1,5 +1,3 @@
-// Patch_FleeUtility.cs
-
 using HarmonyLib;
 using RimWorld;
 using Verse;
@@ -10,68 +8,76 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(FleeUtility), nameof(FleeUtility.ShouldAnimalFleeDanger))]
     public static class Patch_ShouldAnimalFleeDanger_PrefixReplace
     {
+        public static bool Prepare()
+        {
+            var s = ZoologyModSettings.Instance;
+            return s == null || s.EnableCustomFleeDanger;
+        }
+
         public static bool Prefix(Pawn pawn, ref bool __result)
         {
-            // Если функция отключена, запускаем оригинал
-            if (!ModConstants.Settings.EnableCustomFleeDanger)
+            var settings = ModConstants.Settings;
+            if (settings == null || !settings.EnableCustomFleeDanger)
                 return true;
 
-            // Защита
             if (pawn == null)
             {
                 __result = false;
-                return false; // пропускаем оригинал
+                return false;
             }
 
-            // Начальные условия (как в оригинале)
-            bool isAnimal = pawn.IsAnimal;
-            bool notInMental = !pawn.InMentalState;
-            bool notFighting = !pawn.IsFighting();
-            bool notDowned = !pawn.Downed;
-            bool notDead = !pawn.Dead;
-            bool notFollowMaster = !ThinkNode_ConditionalShouldFollowMaster.ShouldFollowMaster(pawn);
-            bool noLord = pawn.GetLord() == null;
-
-            // --- заменяем оригинальную часть (pawn.Faction != Faction.OfPlayer || !pawn.Map.IsPlayerHome)
-            bool factionClause;
-            if (pawn.Faction != Faction.OfPlayer || pawn.Map == null || !pawn.Map.IsPlayerHome)
+            if (!pawn.IsAnimal || pawn.InMentalState || pawn.IsFighting() || pawn.Downed || pawn.Dead)
             {
-                // как и раньше — не принадлежит игроку или не на домашней карте => может пугаться
-                factionClause = true;
+                __result = false;
+                return false;
             }
-            else
-            {
-                // pawn принадлежит игроку и на домашней карте -> разрешаем пугаться только если НЕ безопасен
-                bool predator = pawn.RaceProps?.predator ?? false;
-                float baseSize = pawn.RaceProps?.baseBodySize ?? pawn.BodySize;
 
+            if (ThinkNode_ConditionalShouldFollowMaster.ShouldFollowMaster(pawn) || pawn.GetLord() != null)
+            {
+                __result = false;
+                return false;
+            }
+
+            var faction = pawn.Faction;
+            if (faction != null && !faction.def.animalsFleeDanger)
+            {
+                __result = false;
+                return false;
+            }
+
+            var map = pawn.Map;
+            if (faction == Faction.OfPlayer && map != null && map.IsPlayerHome)
+            {
+                var raceProps = pawn.RaceProps;
+                bool predator = raceProps?.predator ?? false;
+                float baseSize = raceProps?.baseBodySize ?? pawn.BodySize;
                 bool safeOnHome =
-                    (predator && baseSize >= ModConstants.SafePredatorBodySizeThreshold)
-                    || (!predator && baseSize > ModConstants.SafeNonPredatorBodySizeThreshold);
+                    (predator && baseSize >= settings.SafePredatorBodySizeThreshold)
+                    || (!predator && baseSize > settings.SafeNonPredatorBodySizeThreshold);
 
-                // если safeOnHome == true => на домашней карте приручённый НЕ пугаться => factionClause = false
-                // иначе factionClause = true (оно МОЖЕТ пугаться)
-                factionClause = !safeOnHome;
+                if (safeOnHome)
+                {
+                    __result = false;
+                    return false;
+                }
             }
 
-            // Остальные оригинальные проверки:
-            bool factionAllows = (pawn.Faction == null || pawn.Faction.def.animalsFleeDanger);
-
-            // Проверки по работе (jobs)
-            bool jobAllows = true;
-            if (pawn.CurJob != null && pawn.CurJobDef != null && pawn.CurJobDef.neverFleeFromEnemies)
+            var curJob = pawn.CurJob;
+            var curJobDef = curJob?.def;
+            if (curJobDef != null && curJobDef.neverFleeFromEnemies)
             {
-                jobAllows = false;
+                __result = false;
+                return false;
             }
-            if (pawn.jobs != null && pawn.jobs.curJob != null && pawn.jobs.curJob.def == JobDefOf.Flee && pawn.jobs.curJob.startTick == Find.TickManager.TicksGame)
+
+            if (curJobDef == JobDefOf.Flee && curJob != null && curJob.startTick == Find.TickManager.TicksGame)
             {
-                jobAllows = false;
+                __result = false;
+                return false;
             }
 
-            bool final = isAnimal && notInMental && notFighting && notDowned && notDead && notFollowMaster && noLord && factionClause && factionAllows && jobAllows;
-
-            __result = final;
-            return false; // запретить выполнение оригинального метода (мы полностью заменили его)
+            __result = true;
+            return false;
         }
     }
 }

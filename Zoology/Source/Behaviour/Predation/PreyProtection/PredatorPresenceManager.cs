@@ -1,23 +1,23 @@
-// PredatorPresenceManager.cs
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Reflection;
 using RimWorld;
 using Verse;
 using Verse.AI;
+using Verse.AI.Group;
 
 namespace ZoologyMod
 {
     public static class PredatorPresenceManager
     {
-        private static float PRESENCE_RADIUS => (ZoologyModSettings.Instance != null && ZoologyModSettings.Instance.EnablePredatorDefendCorpse) ? ZoologyModSettings.Instance.PreyProtectionRange : 20;
         private const int PRESENCE_CHECK_INTERVAL = 250;
 
-        // Логирование: минимальный интервал между одинаковыми сообщениями для одной пары pawn/corpse (в тиках)
+        
         private const int LOG_COOLDOWN_TICKS = 2000;
 
         private static readonly Dictionary<string, long> _lastLogTick = new Dictionary<string, long>();
         private static readonly Dictionary<int, long> _transientBlockTick = new Dictionary<int, long>();
+        private static readonly List<KeyValuePair<int, int>> _pairSnapshotBuffer = new List<KeyValuePair<int, int>>(32);
+        private static readonly List<int> _transientCleanupBuffer = new List<int>(16);
 
         public static void TickPresence()
         {
@@ -26,96 +26,61 @@ namespace ZoologyMod
                 long now = Find.TickManager?.TicksGame ?? 0L;
                 if (now % PRESENCE_CHECK_INTERVAL != 0) return;
 
-                var maps = Find.Maps;
-                if (maps == null || maps.Count == 0) return;
-
                 var comp = PredatorPreyPairGameComponent.Instance;
                 if (comp == null) return;
 
-                for (int mi = 0; mi < maps.Count; mi++)
+                _pairSnapshotBuffer.Clear();
+                comp.FillRuntimePredatorToCorpseSnapshot(_pairSnapshotBuffer);
+                if (_pairSnapshotBuffer.Count == 0) return;
+                int presenceRangeSquared = PreyProtectionUtility.GetProtectionRangeSquared();
+
+                for (int i = 0; i < _pairSnapshotBuffer.Count; i++)
                 {
-                    var map = maps[mi];
-                    var pawns = map.mapPawns.AllPawnsSpawned;
-                    for (int pi = 0; pi < pawns.Count; pi++)
+                    int predatorId = _pairSnapshotBuffer[i].Key;
+                    int corpseId = _pairSnapshotBuffer[i].Value;
+
+                    Pawn p = null;
+                    try { p = comp.GetSpawnedPawnById(predatorId); } catch { p = null; }
+                    if (p == null || !p.RaceProps.predator) continue;
+
+                    Corpse targetCorpse = null;
+                    try { targetCorpse = comp.GetCorpseById(corpseId, out _); } catch { targetCorpse = null; }
+                    if (targetCorpse == null) continue;
+
+                    string stayReason;
+                    if (!ShouldStayAtPrey(p, out stayReason))
                     {
-                        var p = pawns[pi];
-                        if (p == null) continue;
-                        if (!p.RaceProps.predator) continue;
-
-                        List<Corpse> corpses = null;
-                        try { corpses = comp.GetActivePairedCorpses(p); } catch { corpses = null; }
-
-                        Corpse targetCorpse = null;
-                        if (corpses != null && corpses.Count > 0)
-                        {
-                            targetCorpse = corpses[0];
-                        }
-                        else
-                        {
-                            try
-                            {
-                                targetCorpse = comp.GetPairedCorpse(p);
-                            }
-                            catch
-                            {
-                                targetCorpse = null;
-                            }
-                        }
-
-                        if (targetCorpse == null) continue;
-
-                        string stayReason;
-                        if (!ShouldStayAtPrey(p, out stayReason))
-                        {
-                            // логим только критичные сообщения: LogOnce внутри делает троттлинг
-                            LogOnce(p, targetCorpse, $"Will NOT stay at prey: {stayReason}");
-                            continue;
-                        }
-
-                        IntVec3 targetPos;
-                        Map corpseMap = targetCorpse.Map;
-                        if (corpseMap != null)
-                        {
-                            targetPos = targetCorpse.Position;
-                        }
-                        else
-                        {
-                            var carrier = FindCarrierPawnForCorpse(targetCorpse);
-                            if (carrier != null && carrier.Map != null)
-                            {
-                                corpseMap = carrier.Map;
-                                targetPos = carrier.Position;
-                            }
-                            else
-                            {
-                                LogOnce(p, targetCorpse, "Corpse not on any map and no carrier found.");
-                                continue;
-                            }
-                        }
-
-                        if (p.Map == null || corpseMap == null || p.Map != corpseMap)
-                        {
-                            LogOnce(p, targetCorpse, $"Different maps (predatorMap {(p.Map == null ? "null" : p.Map.uniqueID.ToString())}, corpseMap {(corpseMap == null ? "null" : corpseMap.uniqueID.ToString())}).");
-                            continue;
-                        }
-
-                        // Если уже в радиусе удержания — НЕ выдаём задания прямо здесь.
-                        // Поведение «бродить рядом» выполняется через JobGiver_WanderNearPrey (в ThinkTree).
-                        if (p.Position.InHorDistOf(targetPos, PRESENCE_RADIUS))
-                        {
-                            // ничего не делаем — JobGiver_WanderNearPrey будет брать на себя бродилки.
-                            // Логируем редко только исключительные состояния
-                            continue;
-                        }
-
-                        // Если хищник вне радиуса — отправляем его к трупу (как раньше).
-                        TrySendPredatorToCorpse(p, targetCorpse, targetPos);
+                        LogOnce(p, targetCorpse, $"Will NOT stay at prey: {stayReason}");
+                        continue;
                     }
+
+                    if (!PreyProtectionUtility.TryGetProtectionAnchor(targetCorpse, out Map corpseMap, out IntVec3 targetPos))
+                    {
+                        LogOnce(p, targetCorpse, "Corpse has no valid protection anchor.");
+                        continue;
+                    }
+
+                    if (p.Map == null || corpseMap == null || p.Map != corpseMap)
+                    {
+                        LogOnce(p, targetCorpse, $"Different maps (predatorMap {(p.Map == null ? "null" : p.Map.uniqueID.ToString())}, corpseMap {(corpseMap == null ? "null" : corpseMap.uniqueID.ToString())}).");
+                        continue;
+                    }
+
+                    if (PreyProtectionUtility.IsPawnWithinProtectionRange(p, corpseMap, targetPos, presenceRangeSquared))
+                    {
+                        continue;
+                    }
+
+                    TrySendPredatorToCorpse(p, targetCorpse, targetPos);
                 }
             }
             catch (Exception ex)
             {
                 Log.Warning($"Zoology: PredatorPresenceManager.TickPresence exception: {ex}");
+            }
+            finally
+            {
+                _pairSnapshotBuffer.Clear();
             }
         }
 
@@ -147,7 +112,7 @@ namespace ZoologyMod
                     return false;
                 }
 
-                if (pawn.IsFighting())
+                if (pawn.IsFighting() || ProtectPreyState.IsActivelyProtectingNearbyPrey(pawn, 20f))
                 {
                     reason = "is fighting (transient)";
                     RecordTransientBlock(pawn, now);
@@ -190,12 +155,16 @@ namespace ZoologyMod
                 int pid = pawn.thingIDNumber;
                 _transientBlockTick[pid] = now;
 
-                var toRemove = new List<int>();
+                _transientCleanupBuffer.Clear();
                 foreach (var kv in _transientBlockTick)
                 {
-                    if (kv.Value < now) toRemove.Add(kv.Key);
+                    if (kv.Value < now) _transientCleanupBuffer.Add(kv.Key);
                 }
-                foreach (var k in toRemove) _transientBlockTick.Remove(k);
+                for (int i = 0; i < _transientCleanupBuffer.Count; i++)
+                {
+                    _transientBlockTick.Remove(_transientCleanupBuffer[i]);
+                }
+                _transientCleanupBuffer.Clear();
             }
             catch { }
         }
@@ -204,49 +173,9 @@ namespace ZoologyMod
         {
             try
             {
-                if (pawn == null) return false;
-                var t = pawn.GetType();
-                var m = t.GetMethod("GetLord", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                if (m == null) return false;
-                var lord = m.Invoke(pawn, null);
-                return lord != null;
+                return pawn != null && pawn.GetLord() != null;
             }
             catch { return false; }
-        }
-
-        private static Pawn FindCarrierPawnForCorpse(Corpse corpse)
-        {
-            try
-            {
-                if (corpse == null) return null;
-                var maps = Find.Maps;
-                for (int mi = 0; mi < maps.Count; mi++)
-                {
-                    var pawns = maps[mi].mapPawns.AllPawnsSpawned;
-                    for (int pi = 0; pi < pawns.Count; pi++)
-                    {
-                        var p = pawns[pi];
-                        if (p == null) continue;
-                        try
-                        {
-                            if (p.carryTracker != null && p.carryTracker.CarriedThing != null && p.carryTracker.CarriedThing.thingIDNumber == corpse.thingIDNumber)
-                                return p;
-                            var inv = p.inventory?.innerContainer;
-                            if (inv != null)
-                            {
-                                for (int j = 0; j < inv.Count; j++)
-                                {
-                                    var t = inv[j];
-                                    if (t != null && t.thingIDNumber == corpse.thingIDNumber) return p;
-                                }
-                            }
-                        }
-                        catch { }
-                    }
-                }
-            }
-            catch { }
-            return null;
         }
 
         private static void TrySendPredatorToCorpse(Pawn pred, Corpse corpse, IntVec3 corpsePos)
@@ -285,7 +214,7 @@ namespace ZoologyMod
                     }
                 }
 
-                IntVec3 dest = FindClosestReachableCellNear(corpsePos, pred.Map, pred, (int)PRESENCE_RADIUS);
+                IntVec3 dest = FindClosestReachableCellNear(corpsePos, pred.Map, pred, PreyProtectionUtility.GetProtectionRange());
 
                 if (!dest.IsValid || dest == corpsePos)
                 {

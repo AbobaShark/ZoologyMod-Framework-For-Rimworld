@@ -1,27 +1,23 @@
-// Comp_AnimalRegeneration.cs
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System;
 using RimWorld;
 using Verse;
 
 namespace ZoologyMod
 {
-    // CompProperties — настраивается в XML
+    
     public class CompProperties_AnimalRegeneration : CompProperties
     {
-        // Hediff'ы для трёх стадий (можно указывать null — тогда стадия игнорируется)
+        
         public HediffDef hediffBaby;
         public HediffDef hediffJuvenile;
         public HediffDef hediffAdult;
 
-        // Пороги в долях от race.baseBodySize (например 0.2, 0.5, 1.0)
+        
         public float babyFraction = 0.2f;
         public float juvenileFraction = 0.5f;
         public float adultFraction = 1.0f;
 
-        // Интервал проверки в тиках
+        
         public int checkIntervalTicks = 720;
 
         public CompProperties_AnimalRegeneration()
@@ -30,12 +26,19 @@ namespace ZoologyMod
         }
     }
 
-    // Сам компонент, помещаем в AnimalRegeneration.cs
+    
     public class Comp_AnimalRegeneration : ThingComp
     {
         private CompProperties_AnimalRegeneration Props => (CompProperties_AnimalRegeneration)this.props;
+        private HediffDef hediffBaby;
+        private HediffDef hediffJuvenile;
+        private HediffDef hediffAdult;
+        private int checkIntervalTicks = 720;
+        private float babyThreshold;
+        private float juvenileThreshold;
+        private float adultThreshold;
 
-        // Стандартные значения (в случае некорректных в XML)
+        
         private const float DefaultBabyFraction = 0.2f;
         private const float DefaultJuvenileFraction = 0.5f;
         private const float DefaultAdultFraction = 1.0f;
@@ -45,13 +48,10 @@ namespace ZoologyMod
         {
             base.PostSpawnSetup(respawningAfterLoad);
             ValidateAndFixFractions();
-            if (Props.checkIntervalTicks < MinIntervalTicks)
-            {
-                Props.checkIntervalTicks = MinIntervalTicks;
-            }
+            CacheRegenerationConfig();
         }
 
-        // Проверяем и корректируем дроби; логируем если были некорректности
+        
         private void ValidateAndFixFractions()
         {
             if (Props == null) return;
@@ -62,13 +62,13 @@ namespace ZoologyMod
             float j = Props.juvenileFraction;
             float a = Props.adultFraction;
 
-            // Любая дробь должна быть > 0 (нулевая/отрицательная бессмысленна).
+            
             if (!(b > 0f) || !(j > 0f) || !(a > 0f))
             {
                 needFix = true;
             }
 
-            // Также необходимо, чтобы b < j < a (строго возрастающие), иначе — фиксим.
+            
             if (!(b < j && j < a))
             {
                 needFix = true;
@@ -83,60 +83,68 @@ namespace ZoologyMod
             }
         }
 
+        private void CacheRegenerationConfig()
+        {
+            if (Props == null) return;
+
+            if (Props.checkIntervalTicks < MinIntervalTicks)
+            {
+                Props.checkIntervalTicks = MinIntervalTicks;
+            }
+
+            hediffBaby = Props.hediffBaby;
+            hediffJuvenile = Props.hediffJuvenile;
+            hediffAdult = Props.hediffAdult;
+            checkIntervalTicks = Props.checkIntervalTicks;
+
+            float baseBodySize = parent?.def?.race?.baseBodySize ?? 1.0f;
+            if (baseBodySize <= 0f)
+            {
+                baseBodySize = 1.0f;
+            }
+
+            babyThreshold = baseBodySize * Props.babyFraction;
+            juvenileThreshold = baseBodySize * Props.juvenileFraction;
+            adultThreshold = baseBodySize * Props.adultFraction;
+        }
+
         public override void CompTick()
         {
             base.CompTick();
 
             if (Props == null) return;
-            if (!parent.IsHashIntervalTick(Props.checkIntervalTicks)) return;
+            if (!parent.IsHashIntervalTick(checkIntervalTicks)) return;
 
             Pawn pawn = parent as Pawn;
             if (pawn == null) return;
             if (pawn.Dead) return;
             if (pawn.health?.hediffSet == null) return;
 
-            // Получаем базовый размер расы (baseBodySize). За счёт этого пороги одинаковы для всех экземпляров расы.
-            float baseBodySize = 1.0f;
-            try
-            {
-                baseBodySize = pawn.RaceProps?.baseBodySize ?? 1.0f;
-                if (baseBodySize <= 0f) baseBodySize = 1.0f;
-            }
-            catch
-            {
-                baseBodySize = 1.0f;
-            }
-
-            // Вычисляем абсолютные пороги в тех же единицах, что и pawn.BodySize
-            float babyThreshold = baseBodySize * Props.babyFraction;
-            float juvenileThreshold = baseBodySize * Props.juvenileFraction;
-            float adultThreshold = baseBodySize * Props.adultFraction;
-
             float currentBodySize = pawn.BodySize;
 
-            // Определяем целевой hediff (приоритет сверху вниз)
+            
             HediffDef targetDef = null;
-            if (Props.hediffAdult != null && currentBodySize >= adultThreshold)
+            if (hediffAdult != null && currentBodySize >= adultThreshold)
             {
-                targetDef = Props.hediffAdult;
+                targetDef = hediffAdult;
             }
-            else if (Props.hediffJuvenile != null && currentBodySize >= juvenileThreshold)
+            else if (hediffJuvenile != null && currentBodySize >= juvenileThreshold)
             {
-                targetDef = Props.hediffJuvenile;
+                targetDef = hediffJuvenile;
             }
-            else if (Props.hediffBaby != null && currentBodySize >= babyThreshold)
+            else if (hediffBaby != null && currentBodySize >= babyThreshold)
             {
-                targetDef = Props.hediffBaby;
+                targetDef = hediffBaby;
             }
             else
             {
                 targetDef = null;
             }
 
-            // Текущий реген хеддиф (если есть один из настроенных) — выбираем любой из трёх если присутствует.
+            
             Hediff current = GetCurrentRegenerationHediff(pawn);
 
-            // Если текущий отличается от целевого — меняем
+            
             if ((current == null && targetDef != null) || (current != null && current.def != targetDef))
             {
                 if (current != null)
@@ -165,10 +173,10 @@ namespace ZoologyMod
                 }
             }
 
-            // Иначе — ничего не делаем (чтобы не спамить)
+            
         }
 
-        // Ищем любой из настроенных hediff'ов на pawn
+        
         private Hediff GetCurrentRegenerationHediff(Pawn pawn)
         {
             if (pawn == null || pawn.health?.hediffSet == null) return null;
@@ -176,14 +184,14 @@ namespace ZoologyMod
             var hediffs = pawn.health.hediffSet.hediffs;
             if (hediffs == null || hediffs.Count == 0) return null;
 
-            var configured = new HashSet<HediffDef>();
-            if (Props.hediffBaby != null) configured.Add(Props.hediffBaby);
-            if (Props.hediffJuvenile != null) configured.Add(Props.hediffJuvenile);
-            if (Props.hediffAdult != null) configured.Add(Props.hediffAdult);
-
-            foreach (var h in hediffs)
+            for (int i = 0; i < hediffs.Count; i++)
             {
-                if (h?.def != null && configured.Contains(h.def)) return h;
+                Hediff h = hediffs[i];
+                HediffDef def = h?.def;
+                if (def != null && (def == hediffBaby || def == hediffJuvenile || def == hediffAdult))
+                {
+                    return h;
+                }
             }
 
             return null;

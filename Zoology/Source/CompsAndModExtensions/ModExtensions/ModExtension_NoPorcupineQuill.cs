@@ -1,32 +1,35 @@
-// ModExtension_NoPorcupineQuill.cs
-
 using System;
+using System.Collections.Generic;
 using HarmonyLib;
 using RimWorld;
 using Verse;
 
 namespace ZoologyMod
 {
-    // Маркер/настройки на уровне def — можно расширить полями в будущем
     public class ModExtension_NoPorcupineQuill : DefModExtension
     {
-        // Для будущих опций, например:
-        // public int cleanupIntervalTicks = 6000;
     }
 
     [StaticConstructorOnStartup]
     public static class NoPorcupineQuill_HarmonyPatches
     {
-        // интервал (в тиках) для периодической очистки (примерно 6000 тиков ~ 100 секунд)
-        private const int CleanupIntervalTicks = 6000;
+        private const string PorcupineQuillDefName = "PorcupineQuill";
+
+        private static HediffDef porcupineQuillDef;
+        private static bool porcupineQuillResolved;
 
         static NoPorcupineQuill_HarmonyPatches()
         {
             try
             {
+                var settings = ZoologyModSettings.Instance;
+                if (settings != null && !settings.EnableNoPorcupineQuillPatch)
+                {
+                    return;
+                }
+
                 var harmony = new Harmony("com.abobashark.zoology.noporcupinequill");
 
-                // Патчим HediffSet.AddDirect чтобы предотвращать добавление хедиффа
                 var addDirect = AccessTools.Method(typeof(HediffSet), "AddDirect");
                 if (addDirect != null)
                 {
@@ -38,17 +41,15 @@ namespace ZoologyMod
                     Log.Warning("[Zoology.NoPorcupineQuill] HediffSet.AddDirect not found - can't patch add-blocking.");
                 }
 
-                // Патчим Pawn.Tick — в префиксе будем иногда проверять и удалять хедифф у конкретного pawn'а.
-                // Используем IsHashIntervalTick, чтобы распределить нагрузку.
-                var pawnTick = AccessTools.Method(typeof(Pawn), "Tick");
-                if (pawnTick != null)
+                var spawnSetup = AccessTools.Method(typeof(Pawn), "SpawnSetup", new Type[] { typeof(Map), typeof(bool) });
+                if (spawnSetup != null)
                 {
-                    var pawnTickPrefix = new HarmonyMethod(typeof(NoPorcupineQuill_HarmonyPatches), nameof(PawnTick_Prefix));
-                    harmony.Patch(pawnTick, prefix: pawnTickPrefix);
+                    var spawnSetupPostfix = new HarmonyMethod(typeof(NoPorcupineQuill_HarmonyPatches), nameof(PawnSpawnSetup_Postfix));
+                    harmony.Patch(spawnSetup, postfix: spawnSetupPostfix);
                 }
                 else
                 {
-                    Log.Warning("[Zoology.NoPorcupineQuill] Pawn.Tick not found - can't patch periodic cleanup.");
+                    Log.Warning("[Zoology.NoPorcupineQuill] Pawn.SpawnSetup not found - can't patch one-shot cleanup.");
                 }
             }
             catch (Exception e)
@@ -57,84 +58,103 @@ namespace ZoologyMod
             }
         }
 
-        // Prefix для HediffSet.AddDirect: если pawn имеет ModExtension_NoPorcupineQuill и добавляемый hediff — PorcupineQuill,
-        // то блокируем добавление (return false).
+        private static bool IsNoPorcupineQuillEnabled()
+        {
+            var settings = ZoologyModSettings.Instance;
+            return settings == null || settings.EnableNoPorcupineQuillPatch;
+        }
+
+        private static HediffDef GetPorcupineQuillDef()
+        {
+            if (!porcupineQuillResolved)
+            {
+                porcupineQuillDef = DefDatabase<HediffDef>.GetNamedSilentFail(PorcupineQuillDefName);
+                porcupineQuillResolved = true;
+            }
+
+            return porcupineQuillDef;
+        }
+
+        private static bool IsTargetPorcupineQuill(Hediff hediff)
+        {
+            if (hediff?.def == null) return false;
+
+            HediffDef targetDef = GetPorcupineQuillDef();
+            return targetDef != null
+                ? hediff.def == targetDef
+                : string.Equals(hediff.def.defName, PorcupineQuillDefName, StringComparison.Ordinal);
+        }
+
+        private static bool HasNoPorcupineQuill(Pawn pawn)
+        {
+            return pawn?.def != null && ZoologyCacheUtility.HasNoPorcupineQuillExtension(pawn.def);
+        }
+
+        private static void TryRemoveExistingPorcupineQuill(Pawn pawn)
+        {
+            if (pawn == null) return;
+            if (!HasNoPorcupineQuill(pawn)) return;
+
+            var hediffSet = pawn.health?.hediffSet;
+            if (hediffSet == null) return;
+
+            var targetDef = GetPorcupineQuillDef();
+            if (targetDef == null) return;
+
+            var existing = hediffSet.GetFirstHediffOfDef(targetDef, false);
+            if (existing != null)
+            {
+                pawn.health.RemoveHediff(existing);
+                if (Prefs.DevMode)
+                {
+                    Log.Message($"[Zoology.NoPorcupineQuill] removed {targetDef.defName} from {pawn.LabelShort} ({pawn.ThingID}) on spawn.");
+                }
+            }
+        }
+
         public static bool AddDirect_Prefix(HediffSet __instance, Hediff hediff)
         {
             try
             {
-                if (hediff == null || __instance?.pawn == null) return true;
-
-                var pawn = __instance.pawn;
-
-                // Проверяем наличие нашего ModExtension на дефе pawn'а
-                var ext = pawn.def?.GetModExtension<ModExtension_NoPorcupineQuill>();
-                if (ext == null) return true; // нет маркера — выполняем оригинал
-
-                // Проверяем наличие дефина порк-иглы (без выброса исключений, если DLC нет)
-                var porcupineDef = DefDatabase<HediffDef>.GetNamedSilentFail("PorcupineQuill");
-                if (porcupineDef == null)
+                if (!IsNoPorcupineQuillEnabled())
                 {
-                    // DLC/hediff не установлен — просто ничего не делаем
                     return true;
                 }
 
-                // Блокировка по дефу (наиболее безопасно)
-                if (hediff.def == porcupineDef)
-                {
-                    // логируем только в режиме разработчика, чтобы не засорять лог
-                    if (Prefs.DevMode)
-                        Log.Message($"[Zoology.NoPorcupineQuill] prevented adding {hediff.def.defName} to pawn {pawn.LabelShort} ({pawn.ThingID})");
+                if (!IsTargetPorcupineQuill(hediff)) return true;
+                if (__instance?.pawn == null) return true;
 
-                    return false; // отменяем AddDirect
+                var pawn = __instance.pawn;
+                if (!HasNoPorcupineQuill(pawn)) return true;
+
+                if (Prefs.DevMode)
+                {
+                    Log.Message($"[Zoology.NoPorcupineQuill] prevented adding {hediff.def.defName} to pawn {pawn.LabelShort} ({pawn.ThingID})");
                 }
 
-                return true;
+                return false;
             }
             catch (Exception e)
             {
                 Log.Error($"[Zoology.NoPorcupineQuill] error in AddDirect_Prefix: {e}");
-                // В случае ошибки не ломать игру — дать выполниться оригиналу
                 return true;
             }
         }
 
-        // Prefix для Pawn.Tick: раз в CleanupIntervalTicks у этого pawn'а (распределённо) — удаляем hediff, если он есть.
-        // Возвращаем true чтобы оригинальный Tick выполнялся как обычно.
-        public static void PawnTick_Prefix(Pawn __instance)
+        public static void PawnSpawnSetup_Postfix(Pawn __instance)
         {
             try
             {
-                var pawn = __instance;
-                if (pawn == null) return;
-
-                // быстрый и лёгкий спрединг проверки: IsHashIntervalTick использует thingID чтобы равномерно распределять
-                if (!pawn.IsHashIntervalTick(CleanupIntervalTicks)) return;
-
-                // Проверяем маркер мод-расширения на дефе (только тогда будем продолжать)
-                var ext = pawn.def?.GetModExtension<ModExtension_NoPorcupineQuill>();
-                if (ext == null) return;
-
-                // Проверяем наличие дефина порк-иглы (без исключений, если DLC не установлен)
-                var porcupineDef = DefDatabase<HediffDef>.GetNamedSilentFail("PorcupineQuill");
-                if (porcupineDef == null) return;
-
-                var hediffSet = pawn.health?.hediffSet;
-                if (hediffSet == null) return;
-
-                var existing = hediffSet.GetFirstHediffOfDef(porcupineDef, false);
-                if (existing != null)
+                if (!IsNoPorcupineQuillEnabled())
                 {
-                    // удаляем безопасно
-                    pawn.health.RemoveHediff(existing);
-                    if (Prefs.DevMode)
-                        Log.Message($"[Zoology.NoPorcupineQuill] removed {porcupineDef.defName} from {pawn.LabelShort} ({pawn.ThingID})");
+                    return;
                 }
+
+                TryRemoveExistingPorcupineQuill(__instance);
             }
             catch (Exception e)
             {
-                // не ломаем игру при ошибках
-                Log.Error($"[Zoology.NoPorcupineQuill] error in PawnTick_Prefix cleanup: {e}");
+                Log.Error($"[Zoology.NoPorcupineQuill] error in PawnSpawnSetup_Postfix cleanup: {e}");
             }
         }
     }

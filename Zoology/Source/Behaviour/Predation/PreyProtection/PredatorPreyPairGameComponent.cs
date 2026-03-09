@@ -1,8 +1,6 @@
-// PredatorPreyPairGameComponent.cs
-
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using HarmonyLib;
 using Verse;
 using RimWorld;
 using UnityEngine;
@@ -15,31 +13,42 @@ namespace ZoologyMod
 {
     public class PredatorPreyPairGameComponent : GameComponent
     {
-        private const int DEFAULT_PAIR_TICKS = 60 * 60 * 2; // 2 игровых часа
-        private const int HERD_RADIUS = 35; // tiles
-        private const long INACCESSIBLE_REMOVE_TICKS = 3600; // ~1 игровой hour
+        private const int DEFAULT_PAIR_TICKS = 60 * 60 * 2; 
+        private const int HERD_RADIUS = 35; 
+        private const long INACCESSIBLE_REMOVE_TICKS = 3600; 
         private const int TICK_CHECK_INTERVAL = 250;
 
-        private const int NOTIFICATION_SUPPRESSION_TICKS = 600; // ~10 секунд (можно подправить)
+        private const int NOTIFICATION_SUPPRESSION_TICKS = 600; 
         private static readonly Dictionary<int, long> notificationSuppressedUntil = new Dictionary<int, long>();
 
-        // key: pairKey(predatorThingID, corpseThingID) -> untilTick
+        
         private static Dictionary<long, long> pairsUntil = new Dictionary<long, long>();
 
-        // runtime non-persisted map to speed-up lookups: predatorThingID -> corpseThingID (last registered)
+        
         private Dictionary<int, int> runtimePredatorToCorpse = new Dictionary<int, int>();
+        private Dictionary<int, HashSet<int>> runtimeCorpseToPredators = new Dictionary<int, HashSet<int>>();
+        private readonly Dictionary<int, Faction> runtimePredatorFactionById = new Dictionary<int, Faction>();
+        private readonly Dictionary<int, Pawn> pawnLookupCache = new Dictionary<int, Pawn>();
+        private readonly Dictionary<int, Corpse> corpseLookupCache = new Dictionary<int, Corpse>();
+        private readonly Dictionary<int, long> corpseNegativeLookupUntil = new Dictionary<int, long>();
+        private readonly List<KeyValuePair<long, long>> pairSnapshotBuffer = new List<KeyValuePair<long, long>>(128);
+        private readonly List<long> pairRemovalBuffer = new List<long>(32);
+        private readonly List<long> predatorPairCleanupBuffer = new List<long>(8);
+        private readonly List<int> activePredatorIdBuffer = new List<int>(8);
+        private readonly List<int> ownerPredatorIdBuffer = new List<int>(4);
+        private readonly List<Pawn> predatorsToRegisterBuffer = new List<Pawn>(8);
+        private readonly List<DefendCandidate> defendCandidateBuffer = new List<DefendCandidate>(8);
 
-        // key(pairKey) -> tickFirstDetectedInaccessible (runtime only)
+        
         private static Dictionary<long, long> inaccessibleSince = new Dictionary<long, long>();
-        // runtime cooldowns: чтобы не триггерить защиту одной и той же пары слишком часто
+        
         private static Dictionary<long, long> lastTriggerAttempt = new Dictionary<long, long>();
-        private const int TRIGGER_COOLDOWN_TICKS = 250; // не триггерить чаще ~250 тиков (настройка)
-        private static int TRIGGER_MAX_DISTANCE => (ZoologyModSettings.Instance != null && ZoologyModSettings.Instance.EnablePredatorDefendCorpse) ? ZoologyModSettings.Instance.PreyProtectionRange : 20;
-        private static float TRIGGER_MAX_DISTANCE_SQ => (float)TRIGGER_MAX_DISTANCE * (float)TRIGGER_MAX_DISTANCE;
+        private const int TRIGGER_COOLDOWN_TICKS = 250; 
 
         private Game owningGame;
         private static object dictLock = new object();
         private static PredatorPreyPairGameComponent singleton;
+        private const int NEGATIVE_LOOKUP_COOLDOWN_TICKS = TICK_CHECK_INTERVAL;
 
         public static PredatorPreyPairGameComponent Instance {
             get {
@@ -61,10 +70,14 @@ namespace ZoologyMod
                     pairsUntil = new Dictionary<long,long>();
                     inaccessibleSince = new Dictionary<long,long>();
                 }
+                runtimePredatorToCorpse.Clear();
+                runtimeCorpseToPredators.Clear();
+                runtimePredatorFactionById.Clear();
+                ClearLookupCaches();
             }
         }
 
-        // parameterless ctor (required API)
+        
         public PredatorPreyPairGameComponent() { }
 
         public override void FinalizeInit()
@@ -83,13 +96,16 @@ namespace ZoologyMod
                 inaccessibleSince = new Dictionary<long,long>();
             }
             runtimePredatorToCorpse.Clear();
+            runtimeCorpseToPredators.Clear();
+            runtimePredatorFactionById.Clear();
+            ClearLookupCaches();
             singleton = this;
         }
 
         public override void LoadedGame()
         {
             base.LoadedGame();
-            // ensure singleton reference
+            
             singleton = this;
         }
 
@@ -98,34 +114,32 @@ namespace ZoologyMod
             base.ExposeData();
             try
             {
-                // Serialize dictionary directly (keys=long, values=long)
+                
                 lock (dictLock)
                 {
                     if (pairsUntil == null) pairsUntil = new Dictionary<long, long>();
                     Scribe_Collections.Look(ref pairsUntil, "Zoology_pairsUntil", LookMode.Value, LookMode.Value);
                 }
 
-                // After load finishes, rebuild runtime caches
+                
                 if (Scribe.mode == LoadSaveMode.PostLoadInit)
                 {
                     if (pairsUntil == null) pairsUntil = new Dictionary<long, long>();
 
                     runtimePredatorToCorpse.Clear();
+                    runtimeCorpseToPredators.Clear();
+                    runtimePredatorFactionById.Clear();
                     inaccessibleSince = new Dictionary<long, long>();
+                    ClearLookupCaches();
 
                     long now = Find.TickManager?.TicksGame ?? 0L;
 
-                    // Rebuild runtimePredatorToCorpse from pairsUntil for still-active pairs
-                    // исправлено: используем ToArray() вместо несуществующего CopyTo
-                    KeyValuePair<long,long>[] entries;
-                    lock (dictLock)
+                    
+                    
+                    FillPairSnapshot(pairSnapshotBuffer);
+                    for (int i = 0; i < pairSnapshotBuffer.Count; i++)
                     {
-                        entries = pairsUntil.ToArray();
-                    }
-
-                    for (int i = 0; i < entries.Length; i++)
-                    {
-                        var kv = entries[i];
+                        var kv = pairSnapshotBuffer[i];
                         long key = kv.Key;
                         long until = kv.Value;
                         if (until < now) continue;
@@ -133,9 +147,11 @@ namespace ZoologyMod
                         int cid = (int)((uint)(key & 0xFFFFFFFF));
                         if (pid > 0 && cid > 0)
                         {
-                            runtimePredatorToCorpse[pid] = cid;
+                            AddRuntimePairMapping(pid, cid, FindPawnById(pid));
                         }
                     }
+
+                    pairSnapshotBuffer.Clear();
                 }
             }
             catch (Exception ex)
@@ -152,7 +168,136 @@ namespace ZoologyMod
             return (((long)p) << 32) | (long)c;
         }
 
-        // ====== Регистрация пары ======
+        private static int PredatorIdFromKey(long key)
+        {
+            return (int)((uint)(key >> 32));
+        }
+
+        private static int CorpseIdFromKey(long key)
+        {
+            return (int)((uint)(key & 0xFFFFFFFF));
+        }
+
+        private void ClearLookupCaches()
+        {
+            pawnLookupCache.Clear();
+            corpseLookupCache.Clear();
+            corpseNegativeLookupUntil.Clear();
+        }
+
+        private void AddRuntimePairMapping(int predatorId, int corpseId, Pawn predator = null)
+        {
+            if (predatorId <= 0 || corpseId <= 0) return;
+
+            if (runtimePredatorToCorpse.TryGetValue(predatorId, out int previousCorpseId) && previousCorpseId != corpseId)
+            {
+                RemoveRuntimePairMapping(predatorId, previousCorpseId);
+            }
+
+            runtimePredatorToCorpse[predatorId] = corpseId;
+
+            if (!runtimeCorpseToPredators.TryGetValue(corpseId, out var predators))
+            {
+                predators = new HashSet<int>();
+                runtimeCorpseToPredators[corpseId] = predators;
+            }
+            predators.Add(predatorId);
+
+            if (predator != null)
+            {
+                runtimePredatorFactionById[predatorId] = predator.Faction;
+            }
+        }
+
+        private void RemoveRuntimePairMapping(int predatorId, int corpseId)
+        {
+            if (predatorId > 0)
+            {
+                if (corpseId <= 0)
+                {
+                    runtimePredatorToCorpse.Remove(predatorId);
+                }
+                else if (runtimePredatorToCorpse.TryGetValue(predatorId, out int mappedCorpseId) && mappedCorpseId == corpseId)
+                {
+                    runtimePredatorToCorpse.Remove(predatorId);
+                }
+
+                if (!runtimePredatorToCorpse.ContainsKey(predatorId))
+                {
+                    runtimePredatorFactionById.Remove(predatorId);
+                }
+            }
+
+            if (corpseId > 0 && runtimeCorpseToPredators.TryGetValue(corpseId, out var predators))
+            {
+                predators.Remove(predatorId);
+                if (predators.Count == 0)
+                {
+                    runtimeCorpseToPredators.Remove(corpseId);
+                }
+            }
+        }
+
+        public List<KeyValuePair<int, int>> GetRuntimePredatorToCorpseSnapshot()
+        {
+            var result = new List<KeyValuePair<int, int>>();
+            FillRuntimePredatorToCorpseSnapshot(result);
+            return result;
+        }
+
+        public void FillRuntimePredatorToCorpseSnapshot(List<KeyValuePair<int, int>> result)
+        {
+            if (result == null)
+            {
+                return;
+            }
+
+            result.Clear();
+            long now = Find.TickManager?.TicksGame ?? 0L;
+            lock (dictLock)
+            {
+                foreach (var kv in runtimePredatorToCorpse)
+                {
+                    long key = PairKeyFor(kv.Key, kv.Value);
+                    if (key == 0) continue;
+                    if (pairsUntil.TryGetValue(key, out long until) && until >= now)
+                    {
+                        result.Add(kv);
+                    }
+                }
+            }
+        }
+
+        private void RemoveAllPairsForPredatorLocked(int predatorId)
+        {
+            if (predatorId <= 0)
+            {
+                return;
+            }
+
+            predatorPairCleanupBuffer.Clear();
+            foreach (var entry in pairsUntil)
+            {
+                if (PredatorIdFromKey(entry.Key) == predatorId)
+                {
+                    predatorPairCleanupBuffer.Add(entry.Key);
+                }
+            }
+
+            for (int i = 0; i < predatorPairCleanupBuffer.Count; i++)
+            {
+                long key = predatorPairCleanupBuffer[i];
+                pairsUntil.Remove(key);
+                int corpseId = CorpseIdFromKey(key);
+                RemoveRuntimePairMapping(predatorId, corpseId);
+                inaccessibleSince.Remove(key);
+                lastTriggerAttempt.Remove(key);
+            }
+
+            predatorPairCleanupBuffer.Clear();
+        }
+
+        
 
         public void RegisterPairFromKill(Pawn predator, Pawn killedPawn, int durationTicks = DEFAULT_PAIR_TICKS)
         {
@@ -163,26 +308,12 @@ namespace ZoologyMod
 
                 try
                 {
-                    var ectoExt = predator.def.GetModExtension<ModExtension_Ectothermic>();
+                    var ectoExt = DefModExtensionCache<ModExtension_Ectothermic>.Get(predator.def);
                     if (ectoExt != null) return;
                 }
                 catch { }
 
-                Corpse corpse = killedPawn.Corpse;
-                if (corpse == null)
-                {
-                    var maps = Find.Maps;
-                    for (int mi = 0; mi < maps.Count; mi++)
-                    {
-                        var all = maps[mi].listerThings.AllThings;
-                        for (int ti = 0; ti < all.Count; ti++)
-                        {
-                            var c = all[ti] as Corpse;
-                            if (c != null && c.InnerPawn == killedPawn) { corpse = c; break; }
-                        }
-                        if (corpse != null) break;
-                    }
-                }
+                Corpse corpse = killedPawn.Corpse ?? PredationLookupUtility.FindSpawnedCorpseForInnerPawn(killedPawn);
 
                 if (corpse == null)
                 {
@@ -190,7 +321,7 @@ namespace ZoologyMod
                     return;
                 }
 
-                RegisterPairFromKill(predator, corpse, durationTicks);
+                RegisterPairFromKill(predator, corpse, durationTicks, killedPawn);
             }
             catch (Exception ex)
             {
@@ -199,6 +330,11 @@ namespace ZoologyMod
         }
 
         public void RegisterPairFromKill(Pawn predator, Corpse corpse, int durationTicks = DEFAULT_PAIR_TICKS)
+        {
+            RegisterPairFromKill(predator, corpse, durationTicks, corpse?.InnerPawn);
+        }
+
+        private void RegisterPairFromKill(Pawn predator, Corpse corpse, int durationTicks, Pawn killedPawn)
         {
             try
             {
@@ -209,60 +345,150 @@ namespace ZoologyMod
                 long now = Find.TickManager?.TicksGame ?? 0L;
                 long until = now + durationTicks;
 
-                List<Pawn> predatorsToRegister = CollectPredatorsToRegister(predator);
+                FillPredatorsToRegister(predator, killedPawn, corpse, predatorsToRegisterBuffer);
 
                 lock (dictLock)
                 {
-                    for (int i = 0; i < predatorsToRegister.Count; i++)
+                    for (int i = 0; i < predatorsToRegisterBuffer.Count; i++)
                     {
-                        var pred = predatorsToRegister[i];
+                        var pred = predatorsToRegisterBuffer[i];
+                        RemoveAllPairsForPredatorLocked(pred.thingIDNumber);
                         long key = PairKeyFor(pred.thingIDNumber, corpseId);
                         if (key == 0) continue;
                         pairsUntil[key] = until;
-                        runtimePredatorToCorpse[pred.thingIDNumber] = corpseId;
+                        AddRuntimePairMapping(pred.thingIDNumber, corpseId, pred);
                         if (inaccessibleSince.ContainsKey(key)) inaccessibleSince.Remove(key);
                     }
                 }
+
+                if (corpseId > 0)
+                {
+                    corpseLookupCache[corpseId] = corpse;
+                    corpseNegativeLookupUntil.Remove(corpseId);
+                }
+
+                predatorsToRegisterBuffer.Clear();
             }
             catch (Exception ex)
             {
                 Log.Warning($"Zoology: RegisterPairFromKill (corpse) exception: {ex}");
+                predatorsToRegisterBuffer.Clear();
             }
         }
 
-        private List<Pawn> CollectPredatorsToRegister(Pawn predator)
+        private void FillPredatorsToRegister(Pawn predator, List<Pawn> result)
         {
-            var list = new List<Pawn>();
-            if (predator == null) return list;
+            FillPredatorsToRegister(predator, null, null, result);
+        }
 
-            if (predator.RaceProps.herdAnimal)
+        private void FillPredatorsToRegister(Pawn predator, Pawn killedPawn, Corpse corpse, List<Pawn> result)
+        {
+            result.Clear();
+            if (predator == null) return;
+
+            if (predator.Map == null)
             {
-                var all = predator.Map.mapPawns.AllPawnsSpawned;
-                long radSq = (long)HERD_RADIUS * HERD_RADIUS;
-                for (int i = 0; i < all.Count; i++)
+                result.Add(predator);
+                return;
+            }
+
+            if (!predator.RaceProps.herdAnimal)
+            {
+                result.Add(predator);
+                return;
+            }
+
+            var all = predator.Map.mapPawns.AllPawnsSpawned;
+            long radSq = (long)HERD_RADIUS * HERD_RADIUS;
+            for (int i = 0; i < all.Count; i++)
+            {
+                var p = all[i];
+                if (!IsPredatorEligibleForSharedCorpseRegistration(predator, p))
                 {
-                    var p = all[i];
-                    if (p == null) continue;
-                    if (!p.RaceProps.predator) continue;
-                    if (p.def != predator.def) continue;
-                    if (p.Faction != predator.Faction) continue;
-                    if ((p.Position - predator.Position).LengthHorizontalSquared <= radSq)
-                        list.Add(p);
+                    continue;
+                }
+
+                bool nearPredator = (p.Position - predator.Position).LengthHorizontalSquared <= radSq;
+                bool huntingSameTarget = IsActivelyHuntingSamePreyOrCorpse(p, killedPawn, corpse);
+                if (nearPredator || huntingSameTarget)
+                {
+                    result.Add(p);
                 }
             }
-            else
-            {
-                list.Add(predator);
-            }
 
-            return list;
+            if (!result.Contains(predator))
+            {
+                result.Add(predator);
+            }
         }
 
-        // ====== Проверки/поиск вещей ======
+        private bool IsPredatorEligibleForSharedCorpseRegistration(Pawn leader, Pawn candidate)
+        {
+            if (leader == null || candidate == null)
+            {
+                return false;
+            }
+
+            if (!candidate.Spawned || candidate.Dead || candidate.Destroyed || candidate.Downed)
+            {
+                return false;
+            }
+
+            if (!candidate.RaceProps.predator || candidate.Map != leader.Map)
+            {
+                return false;
+            }
+
+            if (!ReferenceEquals(candidate.Faction, leader.Faction))
+            {
+                return false;
+            }
+
+            return candidate.def == leader.def
+                || ZoologyCacheUtility.AreCrossbreedRelated(candidate.def, leader.def);
+        }
+
+        private static bool IsActivelyHuntingSamePreyOrCorpse(Pawn predator, Pawn killedPawn, Corpse corpse)
+        {
+            if (predator?.CurJob == null)
+            {
+                return false;
+            }
+
+            Job curJob = predator.CurJob;
+            Thing targetThing = null;
+            try { targetThing = curJob.targetA.Thing; } catch { targetThing = null; }
+
+            if (targetThing != null && (targetThing == killedPawn || targetThing == corpse))
+            {
+                return true;
+            }
+
+            Type driverClass = curJob.def?.driverClass;
+            if (driverClass == null || !typeof(JobDriver_PredatorHunt).IsAssignableFrom(driverClass))
+            {
+                return false;
+            }
+
+            Pawn prey = predator.jobs?.curDriver is JobDriver_PredatorHunt huntDriver ? huntDriver.Prey : null;
+            return prey == killedPawn;
+        }
+
+        
 
         private Pawn FindPawnById(int pid)
         {
             if (pid <= 0) return null;
+
+            if (pawnLookupCache.TryGetValue(pid, out var cachedPawn))
+            {
+                if (cachedPawn != null && !cachedPawn.Destroyed && cachedPawn.Spawned && cachedPawn.Map != null && cachedPawn.thingIDNumber == pid)
+                {
+                    return cachedPawn;
+                }
+                pawnLookupCache.Remove(pid);
+            }
+
             var maps = Find.Maps;
             for (int mi = 0; mi < maps.Count; mi++)
             {
@@ -270,9 +496,15 @@ namespace ZoologyMod
                 for (int pi = 0; pi < pawns.Count; pi++)
                 {
                     var p = pawns[pi];
-                    if (p != null && p.thingIDNumber == pid) return p;
+                    if (p != null && p.thingIDNumber == pid)
+                    {
+                        pawnLookupCache[pid] = p;
+                        return p;
+                    }
                 }
             }
+
+            pawnLookupCache.Remove(pid);
             return null;
         }
 
@@ -281,20 +513,45 @@ namespace ZoologyMod
             foundNonSpawned = false;
             if (cid <= 0) return null;
 
+            long now = Find.TickManager?.TicksGame ?? 0L;
+            if (corpseNegativeLookupUntil.TryGetValue(cid, out long cooldownUntil) && cooldownUntil > now)
+            {
+                return null;
+            }
+
+            if (corpseLookupCache.TryGetValue(cid, out var cachedCorpse))
+            {
+                if (cachedCorpse != null && !cachedCorpse.Destroyed && cachedCorpse.thingIDNumber == cid)
+                {
+                    foundNonSpawned = !cachedCorpse.Spawned;
+                    return cachedCorpse;
+                }
+                corpseLookupCache.Remove(cid);
+            }
+
             var maps = Find.Maps;
 
-            // spawned
+            
             for (int mi = 0; mi < maps.Count; mi++)
             {
-                var all = maps[mi].listerThings.AllThings;
-                for (int ti = 0; ti < all.Count; ti++)
+                var corpses = maps[mi].listerThings?.ThingsInGroup(ThingRequestGroup.Corpse);
+                if (corpses == null)
                 {
-                    var t = all[ti];
-                    if (t != null && t.thingIDNumber == cid && t is Corpse c) return c;
+                    continue;
+                }
+
+                for (int ci = 0; ci < corpses.Count; ci++)
+                {
+                    if (corpses[ci] is Corpse corpse && corpse.thingIDNumber == cid)
+                    {
+                        corpseLookupCache[cid] = corpse;
+                        corpseNegativeLookupUntil.Remove(cid);
+                        return corpse;
+                    }
                 }
             }
 
-            // inventories / carried
+            
             for (int mi = 0; mi < maps.Count; mi++)
             {
                 var pawns = maps[mi].mapPawns.AllPawnsSpawned;
@@ -311,7 +568,12 @@ namespace ZoologyMod
                             if (carried != null && carried.thingIDNumber == cid)
                             {
                                 foundNonSpawned = true;
-                                if (carried is Corpse cCarried) return cCarried;
+                                if (carried is Corpse cCarried)
+                                {
+                                    corpseLookupCache[cid] = cCarried;
+                                    corpseNegativeLookupUntil.Remove(cid);
+                                    return cCarried;
+                                }
                                 return null;
                             }
                         }
@@ -324,7 +586,12 @@ namespace ZoologyMod
                                 if (t2 != null && t2.thingIDNumber == cid)
                                 {
                                     foundNonSpawned = true;
-                                    if (t2 is Corpse cInv) return cInv;
+                                    if (t2 is Corpse cInv)
+                                    {
+                                        corpseLookupCache[cid] = cInv;
+                                        corpseNegativeLookupUntil.Remove(cid);
+                                        return cInv;
+                                    }
                                     return null;
                                 }
                             }
@@ -334,19 +601,90 @@ namespace ZoologyMod
                 }
             }
 
+            corpseNegativeLookupUntil[cid] = now + NEGATIVE_LOOKUP_COOLDOWN_TICKS;
             return null;
+        }
+
+        public Pawn GetSpawnedPawnById(int pawnId)
+        {
+            return FindPawnById(pawnId);
+        }
+
+        public Corpse GetCorpseById(int corpseId, out bool foundNonSpawned)
+        {
+            return FindCorpseById(corpseId, out foundNonSpawned);
         }
 
         private bool IsCorpseSuitableForPredator(Pawn pred, Corpse corpse)
         {
-            if (pred == null || corpse == null) return false;
-            bool ingestible = false;
-            try { ingestible = corpse.IngestibleNow; } catch { ingestible = false; }
-            if (!ingestible) return false;
+            if (pred == null || corpse == null)
+            {
+                return false;
+            }
 
-            bool willEat = false;
-            try { willEat = pred.WillEat(corpse); } catch { willEat = false; }
-            return willEat;
+            if (corpse.Destroyed)
+            {
+                return false;
+            }
+
+            try
+            {
+                if (corpse.IsDessicated())
+                {
+                    return false;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+
+            ThingDef finalDef;
+            try
+            {
+                finalDef = FoodUtility.GetFinalIngestibleDef(corpse, false);
+            }
+            catch
+            {
+                return false;
+            }
+
+            if (finalDef == null || !finalDef.IsNutritionGivingIngestible)
+            {
+                return false;
+            }
+
+            try
+            {
+                if (pred.RaceProps != null && !pred.RaceProps.CanEverEat(finalDef))
+                {
+                    return false;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+
+            try
+            {
+                return corpse.IngestibleNow;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private bool IsCorpseLookupTemporarilySuppressed(int corpseId, long now)
+        {
+            if (corpseId <= 0)
+            {
+                return false;
+            }
+
+            return corpseNegativeLookupUntil.TryGetValue(corpseId, out long cooldownUntil)
+                && cooldownUntil > now;
         }
 
         private void ClearInaccessibleFlagIfPresent(long key)
@@ -354,29 +692,69 @@ namespace ZoologyMod
             if (inaccessibleSince.ContainsKey(key)) inaccessibleSince.Remove(key);
         }
 
-        // ====== Основная проверка пар (рефакторинг) ======
+        private void FillPairSnapshot(List<KeyValuePair<long, long>> result)
+        {
+            result.Clear();
+            lock (dictLock)
+            {
+                foreach (var kv in pairsUntil)
+                {
+                    result.Add(kv);
+                }
+            }
+        }
+
+        private void FillActivePredatorIdsForCorpse(int corpseId, long now, List<int> result)
+        {
+            result.Clear();
+            if (corpseId <= 0) return;
+
+            lock (dictLock)
+            {
+                if (!runtimeCorpseToPredators.TryGetValue(corpseId, out var predators) || predators == null || predators.Count == 0)
+                {
+                    return;
+                }
+
+                foreach (var pid in predators)
+                {
+                    long key = PairKeyFor(pid, corpseId);
+                    if (key == 0) continue;
+                    if (pairsUntil.TryGetValue(key, out long until)
+                        && until >= now
+                        && runtimePredatorToCorpse.TryGetValue(pid, out int mappedCorpseId)
+                        && mappedCorpseId == corpseId)
+                    {
+                        result.Add(pid);
+                    }
+                }
+            }
+        }
+
+        
 
         public override void GameComponentTick()
         {
             base.GameComponentTick();
             try
             {
+                if (ZoologyModSettings.Instance != null && !ZoologyModSettings.Instance.EnablePredatorDefendCorpse)
+                {
+                    return;
+                }
+
                 long now = Find.TickManager?.TicksGame ?? 0L;
                 if (now % TICK_CHECK_INTERVAL != 0) return;
 
-                List<long> toRemove = new List<long>();
+                pairRemovalBuffer.Clear();
 
                 PredatorPresenceManager.TickPresence();
 
-                KeyValuePair<long, long>[] entries;
-                lock (dictLock)
-                {
-                    entries = pairsUntil.ToArray(); // snapshot
-                }
+                FillPairSnapshot(pairSnapshotBuffer);
 
-                for (int ei = 0; ei < entries.Length; ei++)
+                for (int ei = 0; ei < pairSnapshotBuffer.Count; ei++)
                 {
-                    var kv = entries[ei];
+                    var kv = pairSnapshotBuffer[ei];
                     long key = kv.Key;
                     long until = kv.Value;
 
@@ -390,19 +768,45 @@ namespace ZoologyMod
                     bool foundNonSpawned = false;
                     Corpse corpse = FindCorpseById(cid, out foundNonSpawned);
                     bool foundCorpse = corpse != null || foundNonSpawned;
+                    bool corpseLookupTemporarilySuppressed = !foundCorpse && IsCorpseLookupTemporarilySuppressed(cid, now);
 
                     bool remove = false;
 
-                    if (!foundPred || predDead || !foundCorpse)
+                    lock (dictLock)
+                    {
+                        if (runtimePredatorToCorpse.TryGetValue(pid, out int mappedCorpseId) && mappedCorpseId != cid)
+                        {
+                            remove = true;
+                        }
+                    }
+
+                    if (!remove && (!foundPred || predDead || (!foundCorpse && !corpseLookupTemporarilySuppressed)))
                     {
                         remove = true;
                     }
-                    else if (corpse != null && corpse.IsDessicated())
+                    else if (!remove && corpse != null && corpse.IsDessicated())
                     {
                         remove = true;
                     }
                     else
                     {
+                        if (!remove && pred != null && HasPredatorFactionChanged(pred))
+                        {
+                            remove = true;
+                        }
+
+                        if (remove)
+                        {
+                            pairRemovalBuffer.Add(key);
+                            ClearInaccessibleFlagIfPresent(key);
+                            continue;
+                        }
+
+                        if (corpseLookupTemporarilySuppressed)
+                        {
+                            continue;
+                        }
+
                         if (foundNonSpawned && corpse != null)
                         {
                             ClearInaccessibleFlagIfPresent(key);
@@ -415,13 +819,13 @@ namespace ZoologyMod
 
                             if (!canReach)
                             {
-                                // Если хищник в mental state (например manhunter), не начинаем таймер
-                                // inaccessibleSince: мы считаем недоступность только если pawn не в mentalState.
+                                
+                                
                                 try
                                 {
                                     if (pred.InMentalState)
                                     {
-                                        // держим пару активной — не помечаем как inaccessible и не ставим remove = true
+                                        
                                         remove = false;
                                     }
                                     else
@@ -442,7 +846,7 @@ namespace ZoologyMod
                                 }
                                 catch
                                 {
-                                    // в случае ошибок — fallback к прежней логике, чтобы не терять пары по ошибке
+                                    
                                     if (!inaccessibleSince.ContainsKey(key))
                                     {
                                         inaccessibleSince[key] = now;
@@ -483,16 +887,14 @@ namespace ZoologyMod
                         }
                     }
 
-                    // --- START: ensure runtimePredatorToCorpse contains active mapping so presence/other systems can find it --- 
+                    
                     if (!remove)
                     {
                         try
                         {
                             lock (dictLock)
                             {
-                                // pid и cid определены выше в этом цикле и видимы здесь
-                                if (!runtimePredatorToCorpse.ContainsKey(pid) || runtimePredatorToCorpse[pid] != cid)
-                                    runtimePredatorToCorpse[pid] = cid;
+                                AddRuntimePairMapping(pid, cid, pred);
                             }
                         }
                         catch { /* fail-safe: не мешаем основной логике при ошибках */ }
@@ -500,25 +902,29 @@ namespace ZoologyMod
 
                     if (remove)
                     {
-                        toRemove.Add(key);
+                        pairRemovalBuffer.Add(key);
                         ClearInaccessibleFlagIfPresent(key);
                     }
                 }
 
-                if (toRemove.Count > 0)
+                if (pairRemovalBuffer.Count > 0)
                 {
                     lock (dictLock)
                     {
-                        for (int i = 0; i < toRemove.Count; i++)
+                        for (int i = 0; i < pairRemovalBuffer.Count; i++)
                         {
-                            var k = toRemove[i];
+                            var k = pairRemovalBuffer[i];
                             pairsUntil.Remove(k);
-                            int pid = (int)((uint)(k >> 32));
-                            if (runtimePredatorToCorpse.ContainsKey(pid)) runtimePredatorToCorpse.Remove(pid);
+                            int pid = PredatorIdFromKey(k);
+                            int cid = CorpseIdFromKey(k);
+                            RemoveRuntimePairMapping(pid, cid);
                             if (inaccessibleSince.ContainsKey(k)) inaccessibleSince.Remove(k);
                         }
                     }
                 }
+
+                pairSnapshotBuffer.Clear();
+                pairRemovalBuffer.Clear();
             }
             catch (Exception ex)
             {
@@ -536,19 +942,37 @@ namespace ZoologyMod
             try { return c.IngestibleNow; } catch { return false; }
         }
 
-        // ====== Прочие публичные методы (используются извне) ======
+        
 
         public bool IsPaired(Pawn predator, Corpse corpse)
         {
             try
             {
                 if (predator == null || corpse == null) return false;
-                long key = PairKeyFor(predator.thingIDNumber, corpse.thingIDNumber);
+                if (HasPredatorFactionChanged(predator))
+                {
+                    ClearPairsForPredator(predator);
+                    return false;
+                }
+
+                int predatorId = predator.thingIDNumber;
+                int corpseId = corpse.thingIDNumber;
+                long key = PairKeyFor(predatorId, corpseId);
                 if (key == 0) return false;
                 long now = Find.TickManager?.TicksGame ?? 0L;
                 lock (dictLock)
                 {
-                    return pairsUntil.TryGetValue(key, out long until) && now <= until;
+                    if (!pairsUntil.TryGetValue(key, out long until) || now > until)
+                    {
+                        return false;
+                    }
+
+                    if (!runtimePredatorToCorpse.TryGetValue(predatorId, out int mappedCorpseId) || mappedCorpseId != corpseId)
+                    {
+                        AddRuntimePairMapping(predatorId, corpseId, predator);
+                    }
+
+                    return true;
                 }
             }
             catch (Exception ex)
@@ -563,100 +987,57 @@ namespace ZoologyMod
             try
             {
                 if (predator == null) return null;
-                int predId = predator.thingIDNumber;
-                if (runtimePredatorToCorpse.TryGetValue(predId, out int corpseId))
+                if (HasPredatorFactionChanged(predator))
                 {
-                    var maps = Find.Maps;
-                    for (int mi = 0; mi < maps.Count; mi++)
-                    {
-                        var all = maps[mi].listerThings.AllThings;
-                        for (int ti = 0; ti < all.Count; ti++)
-                        {
-                            var t = all[ti];
-                            if (t != null && t.thingIDNumber == corpseId && t is Corpse c) return c;
-                        }
-                    }
-
-                    for (int mi = 0; mi < maps.Count; mi++)
-                    {
-                        var pawns = maps[mi].mapPawns.AllPawnsSpawned;
-                        for (int pi = 0; pi < pawns.Count; pi++)
-                        {
-                            var p = pawns[pi];
-                            if (p == null) continue;
-                            try
-                            {
-                                var ct = p.carryTracker;
-                                if (ct != null && ct.CarriedThing != null && ct.CarriedThing.thingIDNumber == corpseId)
-                                {
-                                    if (ct.CarriedThing is Corpse cCarried) return cCarried;
-                                }
-                                var inv = p.inventory?.innerContainer;
-                                if (inv != null)
-                                {
-                                    for (int j = 0; j < inv.Count; j++)
-                                    {
-                                        var t2 = inv[j];
-                                        if (t2 != null && t2.thingIDNumber == corpseId && t2 is Corpse cInv) return cInv;
-                                    }
-                                }
-                            }
-                            catch { }
-                        }
-                    }
+                    ClearPairsForPredator(predator);
+                    return null;
                 }
 
+                int predId = predator.thingIDNumber;
+                int corpseId = 0;
                 long now = Find.TickManager?.TicksGame ?? 0L;
-                KeyValuePair<long,long>[] snapshot;
                 lock (dictLock)
                 {
-                    snapshot = pairsUntil.ToArray();
-                }
+                    runtimePredatorToCorpse.TryGetValue(predId, out corpseId);
 
-                for (int k = 0; k < snapshot.Length; k++)
-                {
-                    var kv = snapshot[k];
-                    long key = kv.Key;
-                    int pid = (int)((uint)(key >> 32));
-                    int cid = (int)((uint)(key & 0xFFFFFFFF));
-                    if (pid == predId && kv.Value >= now)
+                    if (corpseId > 0)
                     {
-                        var maps = Find.Maps;
-                        for (int mi = 0; mi < maps.Count; mi++)
+                        long mappedKey = PairKeyFor(predId, corpseId);
+                        if (mappedKey == 0L || !pairsUntil.TryGetValue(mappedKey, out long mappedUntil) || mappedUntil < now)
                         {
-                            var all = maps[mi].listerThings.AllThings;
-                            for (int ti = 0; ti < all.Count; ti++)
-                            {
-                                var t = all[ti];
-                                if (t != null && t.thingIDNumber == cid && t is Corpse cCorpse) return cCorpse;
-                            }
-
-                            var pawns = maps[mi].mapPawns.AllPawnsSpawned;
-                            for (int pi = 0; pi < pawns.Count; pi++)
-                            {
-                                var p = pawns[pi];
-                                if (p == null) continue;
-                                try
-                                {
-                                    var ct = p.carryTracker;
-                                    if (ct != null && ct.CarriedThing != null && ct.CarriedThing.thingIDNumber == cid)
-                                    {
-                                        if (ct.CarriedThing is Corpse cCarried) return cCarried;
-                                    }
-                                    var inv = p.inventory?.innerContainer;
-                                    if (inv != null)
-                                    {
-                                        for (int j = 0; j < inv.Count; j++)
-                                        {
-                                            var it = inv[j];
-                                            if (it != null && it.thingIDNumber == cid && it is Corpse cInv) return cInv;
-                                        }
-                                    }
-                                }
-                                catch { }
-                            }
+                            corpseId = 0;
                         }
                     }
+
+                    if (corpseId <= 0)
+                    {
+                        foreach (var kv in pairsUntil)
+                        {
+                            if (kv.Value < now)
+                            {
+                                continue;
+                            }
+
+                            if (PredatorIdFromKey(kv.Key) != predId)
+                            {
+                                continue;
+                            }
+
+                            corpseId = CorpseIdFromKey(kv.Key);
+                            break;
+                        }
+
+                        if (corpseId > 0)
+                        {
+                            AddRuntimePairMapping(predId, corpseId, predator);
+                        }
+                    }
+                }
+
+                if (corpseId > 0)
+                {
+                    bool foundNonSpawned;
+                    return FindCorpseById(corpseId, out foundNonSpawned);
                 }
 
                 return null;
@@ -673,12 +1054,14 @@ namespace ZoologyMod
             try
             {
                 if (predator == null || corpse == null) return;
-                long key = PairKeyFor(predator.thingIDNumber, corpse.thingIDNumber);
+                int pid = predator.thingIDNumber;
+                int cid = corpse.thingIDNumber;
+                long key = PairKeyFor(pid, cid);
                 if (key == 0) return;
                 lock (dictLock)
                 {
                     if (pairsUntil.ContainsKey(key)) pairsUntil.Remove(key);
-                    if (runtimePredatorToCorpse.ContainsKey(predator.thingIDNumber)) runtimePredatorToCorpse.Remove(predator.thingIDNumber);
+                    RemoveRuntimePairMapping(pid, cid);
                     if (inaccessibleSince.ContainsKey(key)) inaccessibleSince.Remove(key);
                 }
             }
@@ -695,33 +1078,27 @@ namespace ZoologyMod
                 if (corpse == null) return null;
                 int cid = corpse.thingIDNumber;
                 long now = Find.TickManager?.TicksGame ?? 0L;
-                KeyValuePair<long,long>[] snapshot;
-                lock (dictLock)
+                ownerPredatorIdBuffer.Clear();
+                FillActivePredatorIdsForCorpse(cid, now, ownerPredatorIdBuffer);
+                for (int i = 0; i < ownerPredatorIdBuffer.Count; i++)
                 {
-                    snapshot = pairsUntil.ToArray();
-                }
-
-                for (int i = 0; i < snapshot.Length; i++)
-                {
-                    var kv = snapshot[i];
-                    long key = kv.Key;
-                    long until = kv.Value;
-                    if (until < now) continue; // пара уже истёкла
-                    int pairCid = (int)((uint)(key & 0xFFFFFFFF));
-                    if (pairCid != cid) continue;
-                    int pairPid = (int)((uint)(key >> 32));
-                    var owner = FindPawnById(pairPid);
-                    if (owner != null) return owner;
+                    var owner = FindPawnById(ownerPredatorIdBuffer[i]);
+                    if (owner != null)
+                    {
+                        ownerPredatorIdBuffer.Clear();
+                        return owner;
+                    }
                 }
             }
             catch (Exception ex)
             {
                 Log.Warning($"Zoology: GetOwnerOfCorpse exception: {ex}");
             }
+            ownerPredatorIdBuffer.Clear();
             return null;
         }
 
-        // ====== Helpers: faction/species checks (unchanged) ======
+        
 
         private bool AreFactionsEffectivelySame(Pawn a, Pawn b)
         {
@@ -801,8 +1178,8 @@ namespace ZoologyMod
             try
             {
                 if (corpse == null) return true;
-                // --- если сам eater уже зарегистрирован как парный для этого трупа,
-                // считать труп "не защищённым" для этого eater (он может есть/защищать его).
+                
+                
                 try
                 {
                     if (eater != null)
@@ -818,10 +1195,10 @@ namespace ZoologyMod
 
                 try { if (AreFactionsEffectivelySame(owner, eater)) return true; } catch { }
 
-            // --- size-ratio check ---
+            
             try
             {
-                // взять множитель из настроек, иначе дефолт 5f
+                
                 float sizeMultiplier = 5f;
                 try
                 {
@@ -847,7 +1224,7 @@ namespace ZoologyMod
             catch (Exception exSize)
             {
                 Log.Warning($"Zoology: IsCorpseEffectivelyUnownedFor size-check failed: {exSize}");
-                // fall through to other checks
+                
             }
 
             try
@@ -874,7 +1251,7 @@ namespace ZoologyMod
             }
             catch (Exception)
             {
-                // continue silently — не ломаем логику при ошибках
+                
             }
 
                 try
@@ -924,7 +1301,7 @@ namespace ZoologyMod
             }
         }
 
-        // reuse dictLock, lastTriggerAttempt и т.п. для синхронизации
+        
         public static void MarkProtectionNotificationSentForCorpse(int corpseThingID)
         {
             try
@@ -957,78 +1334,121 @@ namespace ZoologyMod
             return false;
         }
 
+        private static readonly System.Reflection.PropertyInfo RacePropsIsMechanoidProperty =
+            AccessTools.Property(typeof(RaceProperties), "IsMechanoid");
+
+        private static bool IsHumanlikeOrMechanoid(Pawn pawn)
+        {
+            if (pawn?.RaceProps == null)
+            {
+                return false;
+            }
+
+            if (pawn.RaceProps.Humanlike)
+            {
+                return true;
+            }
+
+            if (RacePropsIsMechanoidProperty == null)
+            {
+                return false;
+            }
+
+            try
+            {
+                object value = RacePropsIsMechanoidProperty.GetValue(pawn.RaceProps, null);
+                return value is bool isMechanoid && isMechanoid;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public void ClearPairsForPredator(Pawn predator)
+        {
+            try
+            {
+                if (predator == null)
+                {
+                    return;
+                }
+
+                lock (dictLock)
+                {
+                    RemoveAllPairsForPredatorLocked(predator.thingIDNumber);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Warning($"Zoology: ClearPairsForPredator exception: {ex}");
+            }
+        }
+
+        private bool HasPredatorFactionChanged(Pawn predator)
+        {
+            if (predator == null)
+            {
+                return false;
+            }
+
+            return runtimePredatorFactionById.TryGetValue(predator.thingIDNumber, out Faction trackedFaction)
+                && !ReferenceEquals(trackedFaction, predator.Faction);
+        }
+
         public void TryTriggerDefendFor(Corpse corpse, Pawn interrupter)
         {
             try
             {
-                if (ZoologyModSettings.Instance != null && !ZoologyModSettings.Instance.EnablePredatorDefendCorpse) return;
+                ZoologyModSettings settings = ZoologyModSettings.Instance;
+                if (settings != null && !settings.EnablePredatorDefendCorpse) return;
                 if (corpse == null) return;
+                if (interrupter == null || !interrupter.Spawned || interrupter.Dead) return;
 
-                // если для interrupter этот труп "практически не принадлежит" — не триггерим вообще
+                bool humanlikeOrMechanoidInterrupter = IsHumanlikeOrMechanoid(interrupter);
+                if (humanlikeOrMechanoidInterrupter && settings != null && !settings.EnablePredatorDefendPreyFromHumansAndMechanoids)
+                {
+                    return;
+                }
+
+                
                 if (interrupter != null && IsCorpseEffectivelyUnownedFor(interrupter, corpse))
                     return;
 
                 int cid = corpse.thingIDNumber;
                 long now = Find.TickManager?.TicksGame ?? 0L;
+                int triggerRangeSquared = PreyProtectionUtility.GetProtectionRangeSquared();
 
-                Map corpseMap = corpse.Map;
-                if (corpseMap == null)
+                if (!PreyProtectionUtility.TryGetProtectionAnchor(corpse, interrupter, out Map corpseMap, out IntVec3 protectionAnchor))
                 {
-                    var maps = Find.Maps;
-                    for (int mi = 0; mi < maps.Count; mi++)
-                    {
-                        var pawns = maps[mi].mapPawns.AllPawnsSpawned;
-                        for (int pi = 0; pi < pawns.Count; pi++)
-                        {
-                            var p = pawns[pi];
-                            if (p == null) continue;
-                            try
-                            {
-                                var ct = p.carryTracker;
-                                if (ct != null && ct.CarriedThing != null && ct.CarriedThing.thingIDNumber == cid) { corpseMap = p.Map; break; }
-                                var inv = p.inventory?.innerContainer;
-                                if (inv != null)
-                                {
-                                    for (int j = 0; j < inv.Count; j++)
-                                    {
-                                        var t = inv[j];
-                                        if (t != null && t.thingIDNumber == cid) { corpseMap = p.Map; break; }
-                                    }
-                                    if (corpseMap != null) break;
-                                }
-                            }
-                            catch { }
-                        }
-                        if (corpseMap != null) break;
-                    }
+                    return;
                 }
 
-                if (corpseMap == null && interrupter != null && interrupter.Map != null) corpseMap = interrupter.Map;
-
-                KeyValuePair<long,long>[] snapshot;
-                lock (dictLock) { snapshot = pairsUntil.ToArray(); }
-
-                var candidatePredatorPairs = new List<Tuple<int, Pawn, long>>(); // (pid, pawn, pairKey)
-
-                // Первый проход: отфильтровать всех хищников, которые должны реагировать
-                for (int i = 0; i < snapshot.Length; i++)
+                if (!PreyProtectionUtility.IsPawnWithinProtectionRange(interrupter, corpseMap, protectionAnchor, triggerRangeSquared))
                 {
-                    var kv = snapshot[i];
-                    long key = kv.Key;
-                    long until = kv.Value;
-                    if (until < now) continue;
-                    int pairCid = (int)((uint)(key & 0xFFFFFFFF));
-                    if (pairCid != cid) continue;
-                    int pairPid = (int)((uint)(key >> 32));
+                    return;
+                }
+
+                FillActivePredatorIdsForCorpse(cid, now, activePredatorIdBuffer);
+                if (activePredatorIdBuffer.Count == 0) return;
+
+                defendCandidateBuffer.Clear();
+                var protectJobDef = DefDatabase<JobDef>.GetNamedSilentFail("Zoology_ProtectPrey");
+
+                for (int i = 0; i < activePredatorIdBuffer.Count; i++)
+                {
+                    int pairPid = activePredatorIdBuffer[i];
+                    long pairKey = PairKeyFor(pairPid, cid);
 
                     Pawn pred = null;
                     try { pred = FindPawnById(pairPid); } catch { pred = null; }
                     if (pred == null) continue;
                     if (interrupter != null && pred == interrupter) continue;
+                    if (humanlikeOrMechanoidInterrupter && !ZoologyModSettings.CanPredatorDefendPreyFromHumansAndMechanoidsNow(pred)) continue;
 
                     try
                     {
-                        // базовые фильтры
+                        
                         if (interrupter != null)
                         {
                             if (AreFactionsEffectivelySame(pred, interrupter)) continue;
@@ -1039,47 +1459,31 @@ namespace ZoologyMod
 
                     try
                     {
-                        // не даём триггерить если предатор не в состоянии действовать ИЛИ находится в Lord (группа/задача)
+                        
                         if (pred.Dead || pred.Destroyed || pred.Downed || pred.InMentalState || !pred.Spawned || pred.GetLord() != null) continue;
 
-                        // различные карты — пропускаем
+                        
                         if (corpseMap != null && pred.Map != corpseMap) continue;
+                        if (!PreyProtectionUtility.IsPawnWithinProtectionRange(pred, corpseMap, protectionAnchor, triggerRangeSquared)) continue;
 
-                        // compute pair key and check cooldown
-                        long pairKey = PairKeyFor(pairPid, cid);
+                        
                         if (pairKey != 0)
                         {
                             long lastAttempt = 0;
                             if (lastTriggerAttempt.TryGetValue(pairKey, out lastAttempt))
                             {
-                                if (now - lastAttempt < TRIGGER_COOLDOWN_TICKS) continue; // недавно уже пытались
+                                if (now - lastAttempt < TRIGGER_COOLDOWN_TICKS) continue; 
                             }
                         }
 
-                        // Проверка расстояния (до трупа или до interrupter)
-                        bool distanceOk = false;
-                        try
-                        {
-                            if (corpse != null && corpse.Spawned)
-                                distanceOk = pred.Position.DistanceToSquared(corpse.Position) <= TRIGGER_MAX_DISTANCE_SQ;
-                            else if (interrupter != null && interrupter.Spawned)
-                                distanceOk = pred.Position.DistanceToSquared(interrupter.Position) <= TRIGGER_MAX_DISTANCE_SQ;
-                            else
-                                distanceOk = false;
-                        }
-                        catch { distanceOk = false; }
-
-                        if (!distanceOk) continue;
-
-                        // Проверка CanReach interrupter
+                        
                         bool canReachInterrupter = true;
                         try { canReachInterrupter = pred.CanReach(interrupter, PathEndMode.Touch, Danger.Deadly); } catch { canReachInterrupter = true; }
                         if (!canReachInterrupter) continue;
 
-                        // Проверки текущей работы:
+                        
                         var cur = pred.CurJob;
                         var curDriver = pred.jobs?.curDriver;
-                        var protectJobDef = DefDatabase<JobDef>.GetNamedSilentFail("Zoology_ProtectPrey");
                         if (cur != null)
                         {
                             if (cur.def == JobDefOf.AttackMelee) continue;
@@ -1087,9 +1491,7 @@ namespace ZoologyMod
                             if (curDriver != null && curDriver.GetType().Name == "JobDriver_ProtectPrey") continue;
                         }
 
-                        // Всё прошло — добавляем в список кандидатов
-                        long storedPairKey = PairKeyFor(pairPid, cid);
-                        candidatePredatorPairs.Add(new Tuple<int, Pawn, long>(pairPid, pred, storedPairKey));
+                        defendCandidateBuffer.Add(new DefendCandidate(pairPid, pred, pairKey));
                     }
                     catch (Exception innerEx)
                     {
@@ -1097,21 +1499,21 @@ namespace ZoologyMod
                     }
                 }
 
-                if (candidatePredatorPairs.Count == 0) return;
+                if (defendCandidateBuffer.Count == 0) return;
 
-                // Если несколько хищников из одной пары реагируют — покажем одно агрегированное сообщение (и пометим подавление для этого трупа),
-                // чтобы не получать письмо от каждого JobDriver отдельно.
-                bool needAggregateNotification = candidatePredatorPairs.Count > 1 && interrupter != null && interrupter.Faction == Faction.OfPlayer;
+                
+                
+                bool needAggregateNotification = defendCandidateBuffer.Count > 1 && interrupter != null && interrupter.Faction == Faction.OfPlayer;
 
                 if (needAggregateNotification)
                 {
                     try
                     {
-                        Pawn exemplar = candidatePredatorPairs[0].Item2;
+                        Pawn exemplar = defendCandidateBuffer[0].Predator;
                         string label = "LetterLabelPredatorProtectingPreyPack".Translate(exemplar.GetKindLabelPlural(), exemplar.Named("PREDATOR"));
                         string text = "LetterPredatorProtectingPreyPack".Translate(exemplar.GetKindLabelPlural(), interrupter.LabelDefinite(), exemplar.Named("PREDATOR"), interrupter.Named("PREY"));
 
-                        // Fallbacks (если перевод отсутствует)
+                        
                         if (label.NullOrEmpty() || label.Contains("LetterLabelPredatorProtectingPreyPack"))
                             label = $"{exemplar.GetKindLabelPlural()} is protecting its prey";
                         if (text.NullOrEmpty() || text.Contains("LetterPredatorProtectingPreyPack"))
@@ -1126,7 +1528,7 @@ namespace ZoologyMod
                             Messages.Message(text.CapitalizeFirst(), exemplar, MessageTypeDefOf.ThreatBig, true);
                         }
 
-                        // пометить подавление уведомлений для этого трупа (чтобы JobDriver_ProtectPrey не слал свои письма)
+                        
                         MarkProtectionNotificationSentForCorpse(cid);
                     }
                     catch (Exception exNotify)
@@ -1135,17 +1537,16 @@ namespace ZoologyMod
                     }
                 }
 
-                // Второй проход: аккуратно раздать job'ы и записать время попытки в lastTriggerAttempt
-                for (int i = 0; i < candidatePredatorPairs.Count; i++)
+                
+                for (int i = 0; i < defendCandidateBuffer.Count; i++)
                 {
-                    int pid = candidatePredatorPairs[i].Item1;
-                    Pawn pred = candidatePredatorPairs[i].Item2;
-                    long pairKey = candidatePredatorPairs[i].Item3;
+                    int pid = defendCandidateBuffer[i].PredatorId;
+                    Pawn pred = defendCandidateBuffer[i].Predator;
+                    long pairKey = defendCandidateBuffer[i].PairKey;
 
                     try
                     {
                         bool taken = false;
-                        var protectJobDef = DefDatabase<JobDef>.GetNamedSilentFail("Zoology_ProtectPrey");
                         if (protectJobDef != null)
                         {
                             Job protectJob = JobMaker.MakeJob(protectJobDef, interrupter, corpse);
@@ -1163,7 +1564,7 @@ namespace ZoologyMod
                         Log.Warning($"Zoology: TryTriggerDefendFor: failed to order job for predator (pid={pid}): {exJob}");
                     }
 
-                    // записываем время попытки, даже если взяли job неудачно — чтобы не спамить
+                    
                     try
                     {
                         if (pairKey != 0)
@@ -1173,53 +1574,100 @@ namespace ZoologyMod
                     }
                     catch { }
                 }
+
+                activePredatorIdBuffer.Clear();
+                defendCandidateBuffer.Clear();
             }
             catch (Exception ex)
             {
                 Log.Warning($"Zoology: TryTriggerDefendFor exception: {ex}");
+                activePredatorIdBuffer.Clear();
+                defendCandidateBuffer.Clear();
             }
         }
 
-        /// <summary>
-        /// Возвращает активные (неистёкшие) corpses, связанные с данным predator.
-        /// Сортировка: по возрастанию значения "until" (т.е. ранее зарегистрированные пары первыми).
-        /// </summary>
+        
+        
+        
+        
         public List<Corpse> GetActivePairedCorpses(Pawn predator)
         {
             var result = new List<Corpse>();
             if (predator == null) return result;
 
-            int pid = predator.thingIDNumber;
-            long now = Find.TickManager?.TicksGame ?? 0L;
-
-            var idList = new List<KeyValuePair<int, long>>(8); // (corpseId, until)
-
-            lock (dictLock)
+            if (HasPredatorFactionChanged(predator))
             {
-                foreach (var kv in pairsUntil)
-                {
-                    long pairKey = kv.Key;
-                    long until = kv.Value;
-                    if (until < now) continue;
-                    int pairPid = (int)((uint)(pairKey >> 32));
-                    if (pairPid != pid) continue;
-                    int cid = (int)((uint)(pairKey & 0xFFFFFFFF));
-                    idList.Add(new KeyValuePair<int, long>(cid, until));
-                }
+                ClearPairsForPredator(predator);
+                return result;
             }
 
-            if (idList.Count == 0) return result;
+            int pid = predator.thingIDNumber;
+            int cid = 0;
+            lock (dictLock)
+            {
+                runtimePredatorToCorpse.TryGetValue(pid, out cid);
+            }
 
-            idList.Sort((a, b) => a.Value.CompareTo(b.Value));
-
-            for (int i = 0; i < idList.Count; i++)
+            if (cid > 0)
             {
                 bool foundNonSpawned;
-                var c = FindCorpseById(idList[i].Key, out foundNonSpawned);
+                var c = FindCorpseById(cid, out foundNonSpawned);
                 if (c != null) result.Add(c);
             }
 
             return result;
+        }
+
+        private readonly struct DefendCandidate
+        {
+            public readonly int PredatorId;
+            public readonly Pawn Predator;
+            public readonly long PairKey;
+
+            public DefendCandidate(int predatorId, Pawn predator, long pairKey)
+            {
+                PredatorId = predatorId;
+                Predator = predator;
+                PairKey = pairKey;
+            }
+        }
+    }
+
+    [HarmonyPatch(typeof(Pawn), nameof(Pawn.SetFaction), new[] { typeof(Faction), typeof(Pawn) })]
+    public static class Patch_Pawn_SetFaction_ClearPredatorPairs
+    {
+        public static void Prefix(Pawn __instance, out Faction __state)
+        {
+            __state = __instance?.Faction;
+        }
+
+        public static void Postfix(Pawn __instance, Faction __state)
+        {
+            if (__instance == null || ReferenceEquals(__state, __instance.Faction))
+            {
+                return;
+            }
+
+            PredatorPreyPairGameComponent.Instance?.ClearPairsForPredator(__instance);
+        }
+    }
+
+    [HarmonyPatch(typeof(Thing), nameof(Thing.SetFactionDirect), new[] { typeof(Faction) })]
+    public static class Patch_Pawn_SetFactionDirect_ClearPredatorPairs
+    {
+        public static void Prefix(Thing __instance, out Faction __state)
+        {
+            __state = __instance?.Faction;
+        }
+
+        public static void Postfix(Thing __instance, Faction __state)
+        {
+            if (!(__instance is Pawn pawn) || ReferenceEquals(__state, pawn.Faction))
+            {
+                return;
+            }
+
+            PredatorPreyPairGameComponent.Instance?.ClearPairsForPredator(pawn);
         }
     }
 }

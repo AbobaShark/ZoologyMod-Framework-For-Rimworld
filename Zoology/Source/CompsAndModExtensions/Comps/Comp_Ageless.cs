@@ -1,6 +1,4 @@
-// Comp_Ageless.cs
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -10,7 +8,7 @@ using Verse;
 
 namespace ZoologyMod
 {
-    // Свойства для компа, чтобы можно было их прописать в XML (CompProperties_Ageless)
+    
     public class CompProperties_Ageless : CompProperties
     {
         public int cleanupIntervalTicks = 6000;
@@ -21,11 +19,11 @@ namespace ZoologyMod
         }
     }
 
-    // Комп, который добавляется к Pawn (ThingComp на Pawn)
+    
     public class CompAgeless : ThingComp
     {
-        private int tickCounter = 0;
         private int cleanupInterval = 6000;
+        private readonly List<Hediff> hediffRemovalBuffer = new List<Hediff>(4);
 
         private CompProperties_Ageless PropsAgeless => (CompProperties_Ageless)props;
 
@@ -40,22 +38,22 @@ namespace ZoologyMod
         {
             base.CompTick();
 
-            // работает только если parent — Pawn
+            var settings = ZoologyModSettings.Instance;
+            if (settings != null && !settings.EnableAgelessPatch) return;
+
             Pawn pawn = parent as Pawn;
             if (pawn == null) return;
+            if (pawn.Dead) return;
+            if (pawn.health?.hediffSet == null) return;
+            if (!parent.IsHashIntervalTick(cleanupInterval)) return;
 
-            tickCounter++;
-            if (tickCounter >= cleanupInterval)
+            try
             {
-                tickCounter = 0;
-                try
-                {
-                    RemoveForbiddenAgeHediffs(pawn);
-                }
-                catch (Exception e)
-                {
-                    Log.ErrorOnce($"[Zoology] CompAgeless.RemoveForbiddenAgeHediffs exception: {e}", 21847231);
-                }
+                RemoveForbiddenAgeHediffs(pawn);
+            }
+            catch (Exception e)
+            {
+                Log.ErrorOnce($"[Zoology] CompAgeless.RemoveForbiddenAgeHediffs exception: {e}", 21847231);
             }
         }
 
@@ -63,39 +61,53 @@ namespace ZoologyMod
         {
             if (pawn?.health?.hediffSet == null) return;
 
-            // получаем набор HediffDef'ов, которые нужно запретить/удалять для этого pawn
-            HashSet<HediffDef> forb = AgelessUtils.GetAgeRelatedHediffDefsForPawn(pawn);
+            HashSet<HediffDef> forb = AgelessUtils.GetAgeRelatedHediffDefsForPawnView(pawn);
             if (forb == null || forb.Count == 0) return;
 
-            // Собираем список текущих hediff'ов (копия), чтобы можно было безопасно удалять
-            List<Hediff> hs = pawn.health.hediffSet.hediffs.ToList();
-            foreach (var h in hs)
+            List<Hediff> hs = pawn.health.hediffSet.hediffs;
+            if (hs == null || hs.Count == 0) return;
+
+            hediffRemovalBuffer.Clear();
+            for (int i = 0; i < hs.Count; i++)
             {
+                Hediff h = hs[i];
                 if (h == null || h.def == null) continue;
                 if (forb.Contains(h.def))
                 {
-                    // Удаляем — безопасный метод API
-                    try
-                    {
-                        pawn.health.RemoveHediff(h);
-                        Log.Message($"[Zoology] CompAgeless removed age hediff {h.def.defName} from {pawn.LabelShortCap}");
-                    }
-                    catch (Exception e)
-                    {
-                        Log.Error($"[Zoology] CompAgeless failed to remove hediff {h.def.defName} from {pawn}: {e}");
-                    }
+                    hediffRemovalBuffer.Add(h);
                 }
             }
+
+            for (int i = 0; i < hediffRemovalBuffer.Count; i++)
+            {
+                Hediff h = hediffRemovalBuffer[i];
+                try
+                {
+                    pawn.health.RemoveHediff(h);
+                    if (Prefs.DevMode)
+                    {
+                        Log.Message($"[Zoology] CompAgeless removed age hediff {h.def.defName} from {pawn.LabelShortCap}");
+                    }
+                }
+                catch (Exception e)
+                {
+                    Log.Error($"[Zoology] CompAgeless failed to remove hediff {h.def.defName} from {pawn}: {e}");
+                }
+            }
+
+            hediffRemovalBuffer.Clear();
         }
     }
 
-    // Вспомогательные утилиты: сбор hediff'ов из HediffGiverSetDef
+    
     public static class AgelessUtils
     {
-        // Кэш для ускорения: HediffGiverSetDef.defName -> HashSet<HediffDef>
-        private static Dictionary<string, HashSet<HediffDef>> cache = new Dictionary<string, HashSet<HediffDef>>();
+        
+        private static readonly Dictionary<string, HashSet<HediffDef>> setCache = new Dictionary<string, HashSet<HediffDef>>();
+        private static readonly Dictionary<string, HashSet<HediffDef>> pawnKindCache = new Dictionary<string, HashSet<HediffDef>>();
+        private const string FallbackHediffGiverSetDefName = "OrganicStandard";
 
-        // Имена классов givers, которые считаем "возрастными"
+        
         private static readonly HashSet<string> ageGiverTypeNames = new HashSet<string>
         {
             "HediffGiver_Birthday",
@@ -103,16 +115,22 @@ namespace ZoologyMod
             "HediffGiver_RandomAgeCurved"
         };
 
-        // Возвращает набор HediffDef, которые назначаются возрастными givers у заданного HediffGiverSetDef
+        
         public static HashSet<HediffDef> GetAgeRelatedHediffsFromSet(HediffGiverSetDef set)
         {
-            if (set == null) return new HashSet<HediffDef>();
-            if (cache.TryGetValue(set.defName, out var cached)) return new HashSet<HediffDef>(cached);
+            HashSet<HediffDef> cached = GetAgeRelatedHediffsFromSetCached(set);
+            return cached != null ? new HashSet<HediffDef>(cached) : new HashSet<HediffDef>();
+        }
+
+        private static HashSet<HediffDef> GetAgeRelatedHediffsFromSetCached(HediffGiverSetDef set)
+        {
+            if (set == null) return null;
+            if (setCache.TryGetValue(set.defName, out var cached)) return cached;
 
             var result = new HashSet<HediffDef>();
             if (set.hediffGivers == null)
             {
-                cache[set.defName] = result;
+                setCache[set.defName] = result;
                 return result;
             }
 
@@ -122,9 +140,9 @@ namespace ZoologyMod
                 var gType = giver.GetType();
                 if (!ageGiverTypeNames.Contains(gType.Name)) continue;
 
-                // Попытка получить hediff через публичное поле/свойство
+                
                 HediffDef hd = null;
-                // часто поле называется "hediff"
+                
                 var f = gType.GetField("hediff", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
                 if (f != null)
                 {
@@ -132,7 +150,7 @@ namespace ZoologyMod
                 }
                 else
                 {
-                    // или свойство
+                    
                     var p = gType.GetProperty("hediff", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
                     if (p != null)
                         hd = p.GetValue(giver) as HediffDef;
@@ -144,32 +162,49 @@ namespace ZoologyMod
                 }
                 else
                 {
-                    // В некоторых случаях giver не хранит hediff в поле, тогда пробуем вызвать HediffGiverUtility (редко).
-                    // Чтобы не ломать, просто пропускаем такие случаи.
-                    // Логим для отладки, но делаем это редким логом.
+                    
+                    
+                    
                     Log.Message($"[Zoology] AgelessUtils: couldn't get HediffDef from giver {gType.Name} in set {set.defName}");
                 }
             }
 
-            cache[set.defName] = new HashSet<HediffDef>(result);
+            setCache[set.defName] = result;
             return result;
         }
 
-        // Для данного pawn собираем запрещённые hediff'ы:
-        //  - смотрим его hediffGiverSet(ы), вытаскиваем оттуда age-related hediff'ы;
-        //  - если ничего не найдено, используем fallback 'OrganicStandard' (если есть).
+        
+        
+        
         public static HashSet<HediffDef> GetAgeRelatedHediffDefsForPawn(Pawn pawn)
         {
-            var result = new HashSet<HediffDef>();
-            if (pawn == null) return result;
+            HashSet<HediffDef> cached = GetAgeRelatedHediffDefsForPawnCached(pawn);
+            return cached != null ? new HashSet<HediffDef>(cached) : new HashSet<HediffDef>();
+        }
 
-            // Попытка достать PawnKindDef.hediffGiverSets (рефлексивно, т.к. поле/свойство может меняться)
+        internal static HashSet<HediffDef> GetAgeRelatedHediffDefsForPawnView(Pawn pawn)
+        {
+            return GetAgeRelatedHediffDefsForPawnCached(pawn);
+        }
+
+        private static HashSet<HediffDef> GetAgeRelatedHediffDefsForPawnCached(Pawn pawn)
+        {
+            if (pawn == null) return null;
+
+            string pawnKindKey = pawn.kindDef?.defName;
+            if (!string.IsNullOrEmpty(pawnKindKey) && pawnKindCache.TryGetValue(pawnKindKey, out var cached))
+            {
+                return cached;
+            }
+
+            var result = new HashSet<HediffDef>();
+
             try
             {
                 var pk = pawn.kindDef;
                 if (pk != null)
                 {
-                    // чаще всего имя поля - "hediffGiverSets" и тип - List<HediffGiverSetDef>
+                    
                     var t = pk.GetType();
                     var f = t.GetField("hediffGiverSets", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
                     if (f != null)
@@ -179,14 +214,15 @@ namespace ZoologyMod
                         {
                             foreach (var set in list)
                             {
-                                var setDefs = GetAgeRelatedHediffsFromSet(set);
+                                var setDefs = GetAgeRelatedHediffsFromSetCached(set);
+                                if (setDefs == null) continue;
                                 foreach (var s in setDefs) result.Add(s);
                             }
                         }
                     }
                     else
                     {
-                        // пробуем свойство
+                        
                         var p = t.GetProperty("hediffGiverSets", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
                         if (p != null)
                         {
@@ -195,7 +231,8 @@ namespace ZoologyMod
                             {
                                 foreach (var set in list)
                                 {
-                                    var setDefs = GetAgeRelatedHediffsFromSet(set);
+                                    var setDefs = GetAgeRelatedHediffsFromSetCached(set);
+                                    if (setDefs == null) continue;
                                     foreach (var s in setDefs) result.Add(s);
                                 }
                             }
@@ -208,30 +245,38 @@ namespace ZoologyMod
                 Log.Error($"[Zoology] AgelessUtils.GetAgeRelatedHediffDefsForPawn reflection error: {ex}");
             }
 
-            // Если ничего не нашли — fallback на OrganicStandard (как вы просили)
+            
             if (result.Count == 0)
             {
-                var fallback = DefDatabase<HediffGiverSetDef>.GetNamedSilentFail("OrganicStandard");
+                var fallback = DefDatabase<HediffGiverSetDef>.GetNamedSilentFail(FallbackHediffGiverSetDefName);
                 if (fallback != null)
                 {
-                    var setDefs = GetAgeRelatedHediffsFromSet(fallback);
-                    foreach (var s in setDefs) result.Add(s);
+                    var setDefs = GetAgeRelatedHediffsFromSetCached(fallback);
+                    if (setDefs != null)
+                    {
+                        foreach (var s in setDefs) result.Add(s);
+                    }
                 }
+            }
+
+            if (!string.IsNullOrEmpty(pawnKindKey))
+            {
+                pawnKindCache[pawnKindKey] = result;
             }
 
             return result;
         }
 
-        // Вспомогательный тестовый метод для внешнего использования (например, в консоли)
+        
         public static bool IsHediffForbiddenForPawn(Pawn pawn, HediffDef hediff)
         {
             if (pawn == null || hediff == null) return false;
-            var forb = GetAgeRelatedHediffDefsForPawn(pawn);
-            return forb.Contains(hediff);
+            var forb = GetAgeRelatedHediffDefsForPawnCached(pawn);
+            return forb != null && forb.Contains(hediff);
         }
     }
 
-    // Статический класс, который устанавливает Harmony-патч при загрузке
+    
     [StaticConstructorOnStartup]
     public static class AgelessHarmonyInit
     {
@@ -239,13 +284,19 @@ namespace ZoologyMod
         {
             try
             {
+                var settings = ZoologyModSettings.Instance;
+                if (settings != null && !settings.EnableAgelessPatch)
+                {
+                    return;
+                }
+
                 var harmony = new Harmony("zoology.ageless");
-                // Патчим метод TryApply у HediffGiver — префикс, который может отменять применение
+                
                 var hediffGiverType = typeof(HediffGiver);
                 var method = AccessTools.Method(hediffGiverType, "TryApply");
                 if (method == null)
                 {
-                    // Если прямой метод не найден — попробуем искать перегрузки по имени
+                    
                     var ms = hediffGiverType.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
                         .Where(m => m.Name == "TryApply").ToArray();
                     method = ms.FirstOrDefault();
@@ -267,19 +318,25 @@ namespace ZoologyMod
             }
         }
 
-        // Prefix: если pawn имеет CompAgeless и hediff от данного giver входит в запрещённый набор — блокируем (return false)
-        // Harmony подпараметры: берем __instance (HediffGiver) и pawn; остальное не обязательно для префикса
+        
+        
         private static bool TryApply_Prefix(HediffGiver __instance, Pawn pawn)
         {
             try
             {
+                var settings = ZoologyModSettings.Instance;
+                if (settings != null && !settings.EnableAgelessPatch)
+                {
+                    return true;
+                }
+
                 if (pawn == null) return true;
 
-                // Проверим наличие компа Ageless
+                
                 var comp = pawn.TryGetComp<CompAgeless>();
                 if (comp == null) return true;
 
-                // Получить HediffDef, который пытается назначить этот HediffGiver
+                
                 HediffDef candidate = null;
                 var gType = __instance.GetType();
                 var f = gType.GetField("hediff", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
@@ -296,20 +353,17 @@ namespace ZoologyMod
 
                 if (candidate == null)
                 {
-                    // Если сюда попали — возможно giver генерирует не через поле "hediff" — ничего не делаем
+                    
                     return true;
                 }
 
-                // Получаем для pawn набор age-related hediff'ов
-                var forbidden = AgelessUtils.GetAgeRelatedHediffDefsForPawn(pawn);
-                if (forbidden == null || forbidden.Count == 0) return true;
-
-                if (forbidden.Contains(candidate))
+                
+                if (AgelessUtils.IsHediffForbiddenForPawn(pawn, candidate))
                 {
-                    // Заблокировать применение
-                    // (возвращаем false — Harmony пропустит оригинал)
-                    // Можно логировать единоразово для отладки
-                    Log.Message($"[Zoology] blocked applying {candidate.defName} to {pawn.LabelShortCap} from giver {gType.Name}");
+                    if (Prefs.DevMode)
+                    {
+                        Log.Message($"[Zoology] blocked applying {candidate.defName} to {pawn.LabelShortCap} from giver {gType.Name}");
+                    }
                     return false;
                 }
 
@@ -318,7 +372,7 @@ namespace ZoologyMod
             catch (Exception e)
             {
                 Log.Error($"[Zoology] TryApply_Prefix exception: {e}");
-                return true; // не мешаем игре в случае ошибки
+                return true; 
             }
         }
     }

@@ -1,6 +1,4 @@
-// Patch_ScavengerCore.cs
-
-using System;
+﻿using System;
 using System.Reflection;
 using HarmonyLib;
 using RimWorld;
@@ -13,30 +11,41 @@ namespace ZoologyMod.HarmonyPatches
     [HarmonyPatch]
     public static class Patch_ScavengeringCore
     {
-        // --- Corpse.IngestibleNow getter: если для этого трупа у нас записан scavenger, и он реально ест этот труп,
-        // то разрешаем гнилые/не-fresh стадии для него.
+        
+        
         [HarmonyPatch(typeof(Corpse))]
         [HarmonyPatch("IngestibleNow", MethodType.Getter)]
         private static class Inner_Corpse_IngestibleNow
         {
+            static bool Prepare()
+            {
+                var s = ZoologyModSettings.Instance;
+                return s == null || s.EnableScavengering;
+            }
+
             static bool Prefix(Corpse __instance, ref bool __result)
             {
                 try
                 {
                     var settings = ZoologyModSettings.Instance;
-                    // Если опция выключена — позволяем ваниле полностью выполнять логику.
+                    
                     if (settings != null && !settings.EnableScavengering) return true;
 
                     var eater = ScavengerEatingContext.GetEatingPawnForCorpse(__instance);
 
-                    // Если контекст пуст — ваниль
+                    
                     if (eater == null)
                     {
-                        return true; // ваниль
+                        return true; 
                     }
 
-                    // Теперь eater гарантированно тот pawn, который в CurJob Ingest с target == __instance
-                    var scav = eater.def.GetModExtension<ModExtension_IsScavenger>();
+                    
+                    if (eater.def == null || !ZoologyCacheUtility.HasScavengerExtension(eater.def))
+                    {
+                        return true;
+                    }
+
+                    var scav = DefModExtensionCache<ModExtension_IsScavenger>.Get(eater.def);
                     if (scav == null)
                     {
                         return true;
@@ -82,7 +91,7 @@ namespace ZoologyMod.HarmonyPatches
             }
         }
 
-        // --- StatPart_IsCorpseFresh.TryGetIsFreshFactor
+        
         static MethodBase TargetMethod_TryGetIsFreshFactor()
         {
             try
@@ -114,7 +123,12 @@ namespace ZoologyMod.HarmonyPatches
                 var eater = ScavengerEatingContext.GetEatingPawnForCorpse(corpse);
                 if (eater == null) return true;
 
-                var scav = eater.def.GetModExtension<ModExtension_IsScavenger>();
+                if (eater.def == null || !ZoologyCacheUtility.HasScavengerExtension(eater.def))
+                {
+                    return true;
+                }
+
+                var scav = DefModExtensionCache<ModExtension_IsScavenger>.Get(eater.def);
                 if (scav == null) return true;
 
                 var rotComp = corpse.TryGetComp<CompRottable>();
@@ -144,14 +158,26 @@ namespace ZoologyMod.HarmonyPatches
         [HarmonyPatch]
         private static class Inner_TryGetIsFreshFactor
         {
+            static bool Prepare()
+            {
+                var s = ZoologyModSettings.Instance;
+                return s == null || s.EnableScavengering;
+            }
+
             static MethodBase TargetMethod() => TargetMethod_TryGetIsFreshFactor();
             static bool Prefix(StatRequest req, ref float factor) => Prefix_TryGetIsFreshFactor(req, ref factor);
         }
 
-        // --- FoodUtility.GetBodyPartNutrition (только для текущего едящего падальщика)
+        
         [HarmonyPatch(typeof(FoodUtility), nameof(FoodUtility.GetBodyPartNutrition), new[] { typeof(Corpse), typeof(BodyPartRecord) })]
         private static class Inner_FoodUtility_GetBodyPartNutrition
         {
+            static bool Prepare()
+            {
+                var s = ZoologyModSettings.Instance;
+                return s == null || s.EnableScavengering;
+            }
+
             static bool Prefix(Corpse corpse, BodyPartRecord part, ref float __result)
             {
                 try
@@ -163,7 +189,12 @@ namespace ZoologyMod.HarmonyPatches
                     var eater = ScavengerEatingContext.GetEatingPawnForCorpse(corpse);
                     if (eater == null) return true;
 
-                    var scav = eater.def.GetModExtension<ModExtension_IsScavenger>();
+                    if (eater.def == null || !ZoologyCacheUtility.HasScavengerExtension(eater.def))
+                    {
+                        return true;
+                    }
+
+                    var scav = DefModExtensionCache<ModExtension_IsScavenger>.Get(eater.def);
                     if (scav == null) return true;
 
                     var rotComp = corpse.TryGetComp<CompRottable>();
@@ -171,7 +202,7 @@ namespace ZoologyMod.HarmonyPatches
 
                     if (rotStage == RotStage.Dessicated && !scav.allowVeryRotten)
                     {
-                        return true; // vanilla
+                        return true; 
                     }
 
                     float nutritionRaw = corpse.GetStatValue(StatDefOf.Nutrition, false, -1);
@@ -182,7 +213,7 @@ namespace ZoologyMod.HarmonyPatches
                     else
                         adjusted = nutritionRaw;
 
-                    // вызов оригинальной логики с уже скорректированным nutrition
+                    
                     __result = FoodUtility.GetBodyPartNutrition(adjusted, corpse.InnerPawn, part);
                     return false;
                 }
@@ -194,10 +225,16 @@ namespace ZoologyMod.HarmonyPatches
             }
         }
 
-        // --- Toils_Ingest.FinalizeIngest обёртка: гарантированно выставить/очистить локальный контекст (только для scav)
+        
         [HarmonyPatch(typeof(Toils_Ingest), "FinalizeIngest")]
         private static class Inner_ToilsIngest_FinalizeIngest
         {
+            static bool Prepare()
+            {
+                var s = ZoologyModSettings.Instance;
+                return s == null || s.EnableScavengering;
+            }
+
             static void Postfix(ref Toil __result, Pawn ingester, TargetIndex ingestibleInd)
             {
                 try
@@ -205,21 +242,22 @@ namespace ZoologyMod.HarmonyPatches
                     var settings = ZoologyModSettings.Instance;
                     if (settings != null && !settings.EnableScavengering) return;
                     if (__result == null) return;
-                    var scav = ingester?.def?.GetModExtension<ModExtension_IsScavenger>();
-                    if (scav == null) return; // только для падальщиков
+                    if (ingester?.def == null || !ZoologyCacheUtility.HasScavengerExtension(ingester.def)) return;
+                    var scav = DefModExtensionCache<ModExtension_IsScavenger>.Get(ingester.def);
+                    if (scav == null) return; 
 
                     Action oldInit = __result.initAction;
                     __result.initAction = () =>
                     {
                         try
                         {
-                            // Устанавливаем явную пару pawn -> target (взяли текущий target из CurJob, если есть)
+                            
                             try
                             {
                                 Thing target = null;
                                 if (ingester != null && ingester.CurJob != null)
                                 {
-                                    // CurJob.targetA — LocalTargetInfo (struct). Берём .Thing напрямую.
+                                    
                                     target = ingester.CurJob.targetA.Thing;
                                 }
                                 ScavengerEatingContext.SetEating(ingester, target);
@@ -257,7 +295,7 @@ namespace ZoologyMod.HarmonyPatches
             }
         }
 
-        // --- IngestedCalculateAmounts wrapper: для безопасности (контекст установлен в FinalizeIngest или Notify_Starting)
+        
         static MethodBase TargetMethod_IngestedCalculateAmounts()
         {
             try
@@ -284,7 +322,7 @@ namespace ZoologyMod.HarmonyPatches
         {
             try
             {
-                // Do not create context here — it should already be created in FinalizeIngest.initAction or Notify_Starting.
+                
             }
             catch (Exception e)
             {
@@ -296,7 +334,7 @@ namespace ZoologyMod.HarmonyPatches
         {
             try
             {
-                // Если по какой-то причине контекст остался — аккуратно сбросим именно этого pawn'а.
+                
                 ScavengerEatingContext.Clear(ingester);
             }
             catch (Exception e)
@@ -308,6 +346,12 @@ namespace ZoologyMod.HarmonyPatches
         [HarmonyPatch]
         private static class Inner_IngestedCalculateAmounts
         {
+            static bool Prepare()
+            {
+                var s = ZoologyModSettings.Instance;
+                return s == null || s.EnableScavengering;
+            }
+
             static MethodBase TargetMethod() => TargetMethod_IngestedCalculateAmounts();
             static void Prefix(Pawn ingester) => Prefix_IngestedCalculateAmounts(ingester);
             static void Postfix(Pawn ingester) => Postfix_IngestedCalculateAmounts(ingester);

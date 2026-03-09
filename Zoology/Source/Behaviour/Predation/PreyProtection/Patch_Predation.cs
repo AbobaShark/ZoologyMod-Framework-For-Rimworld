@@ -1,6 +1,4 @@
-// Patch_Predation.cs
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
@@ -14,14 +12,51 @@ namespace ZoologyMod
     [StaticConstructorOnStartup]
     public static class PredationHarmonyPatches
     {
+        private readonly struct CorpseFoodStateCacheEntry
+        {
+            public CorpseFoodStateCacheEntry(bool isPaired, bool isEffectivelyUnowned, int tick)
+            {
+                IsPaired = isPaired;
+                IsEffectivelyUnowned = isEffectivelyUnowned;
+                Tick = tick;
+            }
+
+            public bool IsPaired { get; }
+
+            public bool IsEffectivelyUnowned { get; }
+
+            public int Tick { get; }
+        }
+
+        private static readonly MethodInfo BestPawnToHuntForPredatorMethod =
+            AccessTools.Method(typeof(FoodUtility), "BestPawnToHuntForPredator", new[] { typeof(Pawn), typeof(bool) });
+        private static readonly Dictionary<long, CorpseFoodStateCacheEntry> corpseFoodStateCacheByPairKey = new Dictionary<long, CorpseFoodStateCacheEntry>(256);
+
+        private const float OwnedCorpseBonus = 10000f;
+        private const float UnpairedCorpseBonus = 300f;
+        private const float GuardedCorpsePenalty = -10000f;
+        private const float LiveAcceptablePreyBonus = 600f;
+        private const int CorpseFoodStateCacheDurationTicks = 60;
+        private const int CorpseFoodStateCacheCleanupIntervalTicks = 600;
+
+        private static int lastCorpseFoodStateCacheCleanupTick = -CorpseFoodStateCacheCleanupIntervalTicks;
+
         static PredationHarmonyPatches()
         {
+            var s = ZoologyModSettings.Instance;
+            if (s != null && !s.EnablePredatorDefendCorpse)
+            {
+                return;
+            }
+
             var harmony = new Harmony("com.abobashark.zoology.predatorpairs");
             try
             {
-                // Patch FoodUtility.FoodOptimality
+                
                 var targetFoodOpt = AccessTools.Method(typeof(FoodUtility), nameof(FoodUtility.FoodOptimality));
                 var postfixFood = typeof(PredationHarmonyPatches).GetMethod(nameof(FoodOptimality_Postfix), BindingFlags.Static | BindingFlags.Public);
+                var targetBestFoodSource = AccessTools.Method(typeof(FoodUtility), nameof(FoodUtility.BestFoodSourceOnMap));
+                var postfixBestFoodSource = typeof(PredationHarmonyPatches).GetMethod(nameof(BestFoodSourceOnMap_Postfix), BindingFlags.Static | BindingFlags.Public);
                 if (targetFoodOpt != null && postfixFood != null)
                 {
                     harmony.Patch(targetFoodOpt, null, new HarmonyMethod(postfixFood));
@@ -31,7 +66,16 @@ namespace ZoologyMod
                     Log.Warning("Zoology: FoodUtility.FoodOptimality method or postfix not found; skipping patch.");
                 }
 
-                // Patch Pawn.Kill
+                if (targetBestFoodSource != null && postfixBestFoodSource != null)
+                {
+                    harmony.Patch(targetBestFoodSource, null, new HarmonyMethod(postfixBestFoodSource));
+                }
+                else
+                {
+                    Log.Warning("Zoology: FoodUtility.BestFoodSourceOnMap method or postfix not found; skipping patch.");
+                }
+
+                
                 MethodInfo pawnKillMethod = null;
 
                 var killMethods = typeof(Pawn).GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
@@ -79,7 +123,7 @@ namespace ZoologyMod
                     Log.Warning("Zoology: Pawn.Kill overload not found for patching.");
                 }
 
-                // Patch Pawn_CarryTracker.TryStartCarry overloads (реальный класс — Pawn_CarryTracker)
+                
                 try
                 {
                     Type carryType = AppDomain.CurrentDomain.GetAssemblies()
@@ -91,7 +135,7 @@ namespace ZoologyMod
 
                     if (carryType != null)
                     {
-                        // overload 1: TryStartCarry(Thing) -> bool
+                        
                         var method1 = carryType.GetMethod("TryStartCarry", new Type[] { typeof(Thing) });
                         if (method1 != null)
                         {
@@ -99,7 +143,7 @@ namespace ZoologyMod
                             harmony.Patch(method1, null, new HarmonyMethod(postfix1));
                         }
 
-                        // overload 2: TryStartCarry(Thing, int, bool) -> int
+                        
                         var method2 = carryType.GetMethod("TryStartCarry", new Type[] { typeof(Thing), typeof(int), typeof(bool) });
                         if (method2 != null)
                         {
@@ -117,7 +161,7 @@ namespace ZoologyMod
                     Log.Warning($"Zoology: Exception while trying to patch TryStartCarry: {ex}");
                 }
 
-                // Patch Thing.Ingested to trigger defend on actual ingestion
+                
                 try
                 {
                     var targetIngested = AccessTools.Method(typeof(Thing), "Ingested", new Type[] { typeof(Pawn), typeof(float) });
@@ -148,56 +192,42 @@ namespace ZoologyMod
             }
         }
 
-        // FoodOptimality postfix — hot path, минимизируем аллокации/логирование/рефлексию
+        
         public static void FoodOptimality_Postfix(Pawn eater, Thing foodSource, ThingDef foodDef, float dist, bool takingToInventory, ref float __result)
         {
             if (eater == null || foodSource == null) return;
 
-            var comp = PredatorPreyPairGameComponent.Instance;
             var corpse = foodSource as Corpse;
             if (corpse == null)
             {
                 var maybePawn = foodSource as Pawn;
                 if (maybePawn != null && maybePawn.Dead)
                 {
-                    // попытка найти соответствующий объект Corpse на карте (вдруг FoodOptimality вызван с Pawn вместо Corpse)
-                    corpse = maybePawn.Corpse; // если API доступен; или искать по InnerPawn
+                    
+                    corpse = maybePawn.Corpse; 
                 }
             }
+            if (corpse != null)
             {
+                var comp = PredatorPreyPairGameComponent.Instance;
                 try
                 {
-                    if (comp != null && eater != null && comp.IsPaired(eater, corpse))
+                    if (TryGetCorpseFoodState(comp, eater, corpse, out CorpseFoodStateCacheEntry state))
                     {
-                        __result += 10000f; // own (paired) corpse — явный приоритет для самого участника пары
+                        if (state.IsPaired)
+                        {
+                            __result += OwnedCorpseBonus;
+                        }
+                        else if (state.IsEffectivelyUnowned)
+                        {
+                            __result += UnpairedCorpseBonus;
+                        }
+                        else
+                        {
+                            __result += GuardedCorpsePenalty;
+                        }
                         return;
                     }
-
-                    bool effectivelyUnowned = true;
-                    if (comp != null)
-                    {
-                        try
-                        {
-                            effectivelyUnowned = comp.IsCorpseEffectivelyUnownedFor(eater, corpse);
-                        }
-                        catch
-                        {
-                            // fail-safe: если что-то пошло не так — считаем свободным (чтобы не ломать AI)
-                            effectivelyUnowned = true;
-                        }
-                    }
-
-                    if (effectivelyUnowned)
-                    {
-                        const float UNPAIRED_CORPSE_BONUS = 300f;
-                        __result += UNPAIRED_CORPSE_BONUS;
-                    }
-                    else
-                    {
-                        const float GUARDED_CORPSE_PENALTY = -10000f;
-                        __result += GUARDED_CORPSE_PENALTY;
-                    }
-                    return;
                 }
                 catch (Exception exCorp)
                 {
@@ -208,7 +238,14 @@ namespace ZoologyMod
             var livePawn = foodSource as Pawn;
             if (livePawn != null && !livePawn.Dead)
             {
-                __result -= 200f;
+                bool isAcceptable = eater.RaceProps?.predator == true
+                    && (PredationDecisionCache.TryGetAcceptablePrey(eater, livePawn, out bool cachedAcceptable)
+                        ? cachedAcceptable
+                        : FoodUtility.IsAcceptablePreyFor(eater, livePawn));
+                if (isAcceptable)
+                {
+                    __result += LiveAcceptablePreyBonus;
+                }
                 return;
             }
 
@@ -222,7 +259,344 @@ namespace ZoologyMod
             }
         }
 
-        // Pawn.Kill postfix
+        public static void BestFoodSourceOnMap_Postfix(Pawn getter, Pawn eater, bool desperate, ref Thing __result, ref ThingDef foodDef)
+        {
+            try
+            {
+                Pawn predator = eater ?? getter;
+                if (predator?.RaceProps?.predator != true || __result == null)
+                {
+                    return;
+                }
+
+                var comp = PredatorPreyPairGameComponent.Instance;
+                if (comp == null)
+                {
+                    return;
+                }
+
+                Corpse corpse = TryGetCorpseFromThing(__result);
+                if (corpse == null)
+                {
+                    return;
+                }
+
+                if (TryGetPreferredPairedCorpse(comp, predator, corpse, out Corpse preferredPairedCorpse, out ThingDef preferredFoodDef))
+                {
+                    __result = preferredPairedCorpse;
+                    if (preferredFoodDef != null)
+                    {
+                        foodDef = preferredFoodDef;
+                    }
+                    return;
+                }
+
+                if (!ShouldPreferLivePreyOverCorpse(predator, corpse))
+                {
+                    return;
+                }
+
+                Pawn huntTarget = TryGetVanillaHuntTarget(predator, desperate);
+                if (huntTarget == null)
+                {
+                    return;
+                }
+
+                __result = null;
+                foodDef = null;
+            }
+            catch (Exception ex)
+            {
+                Log.Warning($"Zoology: BestFoodSourceOnMap_Postfix exception: {ex}");
+            }
+        }
+
+        private static Corpse TryGetCorpseFromThing(Thing thing)
+        {
+            if (thing == null)
+            {
+                return null;
+            }
+
+            if (thing is Corpse corpse)
+            {
+                return corpse;
+            }
+
+            if (thing is Pawn deadPawn && deadPawn.Dead)
+            {
+                return deadPawn.Corpse;
+            }
+
+            return null;
+        }
+
+        private static bool TryGetPreferredPairedCorpse(
+            PredatorPreyPairGameComponent comp,
+            Pawn predator,
+            Corpse selectedCorpse,
+            out Corpse preferredCorpse,
+            out ThingDef preferredFoodDef)
+        {
+            preferredCorpse = null;
+            preferredFoodDef = null;
+
+            if (comp == null || predator == null || selectedCorpse == null)
+            {
+                return false;
+            }
+
+            Corpse pairedCorpse;
+            try
+            {
+                pairedCorpse = comp.GetPairedCorpse(predator);
+            }
+            catch
+            {
+                return false;
+            }
+
+            if (pairedCorpse == null || pairedCorpse == selectedCorpse || pairedCorpse.Destroyed || pairedCorpse.Map != predator.Map)
+            {
+                return false;
+            }
+
+            try
+            {
+                if (!comp.IsPaired(predator, pairedCorpse))
+                {
+                    return false;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+
+            if (!TryGetCorpseFoodDefForPredator(predator, pairedCorpse, out ThingDef pairedFoodDef))
+            {
+                return false;
+            }
+
+            bool canReserveAndReach;
+            try
+            {
+                canReserveAndReach = predator.CanReserveAndReach(pairedCorpse, PathEndMode.OnCell, Danger.Some, 1, -1, null, false);
+            }
+            catch
+            {
+                canReserveAndReach = false;
+            }
+
+            if (!canReserveAndReach)
+            {
+                try
+                {
+                    canReserveAndReach = predator.CanReserveAndReach(pairedCorpse, PathEndMode.OnCell, Danger.Deadly, 1, -1, null, false);
+                }
+                catch
+                {
+                    canReserveAndReach = false;
+                }
+            }
+
+            if (!canReserveAndReach)
+            {
+                return false;
+            }
+
+            preferredCorpse = pairedCorpse;
+            preferredFoodDef = pairedFoodDef;
+            return true;
+        }
+
+        private static bool TryGetCorpseFoodDefForPredator(Pawn predator, Corpse corpse, out ThingDef foodDef)
+        {
+            foodDef = null;
+            if (predator == null || corpse == null || corpse.Destroyed)
+            {
+                return false;
+            }
+
+            try
+            {
+                if (corpse.IsDessicated())
+                {
+                    return false;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+
+            try
+            {
+                if (!corpse.IngestibleNow)
+                {
+                    return false;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+
+            try
+            {
+                if (corpse.IsForbidden(predator))
+                {
+                    return false;
+                }
+            }
+            catch
+            {
+            }
+
+            try
+            {
+                foodDef = FoodUtility.GetFinalIngestibleDef(corpse, false);
+            }
+            catch
+            {
+                foodDef = null;
+            }
+
+            if (foodDef == null || !foodDef.IsNutritionGivingIngestible)
+            {
+                return false;
+            }
+
+            try
+            {
+                return predator.RaceProps == null || predator.RaceProps.CanEverEat(foodDef);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private static bool ShouldPreferLivePreyOverCorpse(Pawn predator, Corpse corpse)
+        {
+            if (predator == null || corpse == null)
+            {
+                return false;
+            }
+
+            return TryGetCorpseFoodState(PredatorPreyPairGameComponent.Instance, predator, corpse, out CorpseFoodStateCacheEntry state)
+                && !state.IsPaired
+                && !state.IsEffectivelyUnowned;
+        }
+
+        private static Pawn TryGetVanillaHuntTarget(Pawn predator, bool desperate)
+        {
+            if (BestPawnToHuntForPredatorMethod == null || predator == null)
+            {
+                return null;
+            }
+
+            try
+            {
+                return BestPawnToHuntForPredatorMethod.Invoke(null, new object[] { predator, desperate }) as Pawn;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private static bool TryGetCorpseFoodState(PredatorPreyPairGameComponent comp, Pawn eater, Corpse corpse, out CorpseFoodStateCacheEntry state)
+        {
+            state = default;
+            if (comp == null || eater == null || corpse == null)
+            {
+                return false;
+            }
+
+            int currentTick = Find.TickManager?.TicksGame ?? 0;
+            long pairKey = CorpseFoodPairKey(eater, corpse);
+            if (pairKey != 0L
+                && currentTick > 0
+                && corpseFoodStateCacheByPairKey.TryGetValue(pairKey, out CorpseFoodStateCacheEntry cached)
+                && currentTick - cached.Tick <= CorpseFoodStateCacheDurationTicks)
+            {
+                state = cached;
+                return true;
+            }
+
+            bool isPaired = comp.IsPaired(eater, corpse);
+            bool isEffectivelyUnowned = !isPaired;
+            if (!isPaired)
+            {
+                try
+                {
+                    isEffectivelyUnowned = comp.IsCorpseEffectivelyUnownedFor(eater, corpse);
+                }
+                catch
+                {
+                    isEffectivelyUnowned = true;
+                }
+            }
+
+            state = new CorpseFoodStateCacheEntry(isPaired, isEffectivelyUnowned, currentTick);
+            if (pairKey != 0L && currentTick > 0)
+            {
+                corpseFoodStateCacheByPairKey[pairKey] = state;
+                CleanupCorpseFoodStateCacheIfNeeded(currentTick);
+            }
+
+            return true;
+        }
+
+        private static void CleanupCorpseFoodStateCacheIfNeeded(int currentTick)
+        {
+            if (currentTick - lastCorpseFoodStateCacheCleanupTick < CorpseFoodStateCacheCleanupIntervalTicks)
+            {
+                return;
+            }
+
+            lastCorpseFoodStateCacheCleanupTick = currentTick;
+            List<long> staleKeys = null;
+            foreach (KeyValuePair<long, CorpseFoodStateCacheEntry> entry in corpseFoodStateCacheByPairKey)
+            {
+                if (currentTick - entry.Value.Tick <= CorpseFoodStateCacheDurationTicks)
+                {
+                    continue;
+                }
+
+                if (staleKeys == null)
+                {
+                    staleKeys = new List<long>(64);
+                }
+
+                staleKeys.Add(entry.Key);
+            }
+
+            if (staleKeys == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < staleKeys.Count; i++)
+            {
+                corpseFoodStateCacheByPairKey.Remove(staleKeys[i]);
+            }
+        }
+
+        private static long CorpseFoodPairKey(Pawn eater, Corpse corpse)
+        {
+            if (eater == null || corpse == null)
+            {
+                return 0L;
+            }
+
+            uint eaterId = (uint)eater.thingIDNumber;
+            uint corpseId = (uint)corpse.thingIDNumber;
+            return ((long)eaterId << 32) | corpseId;
+        }
+
+        
         public static void Pawn_Kill_Postfix(Pawn __instance, object[] __args)
         {
             try
@@ -279,22 +653,7 @@ namespace ZoologyMod
                     }
                 }
 
-                Corpse corpse = __instance.Corpse;
-                if (corpse == null)
-                {
-                    var maps = Find.Maps;
-                    for (int mi = 0; mi < maps.Count; mi++)
-                    {
-                        var map = maps[mi];
-                        var all = map.listerThings.AllThings;
-                        for (int ti = 0; ti < all.Count; ti++)
-                        {
-                            var t = all[ti] as Corpse;
-                            if (t != null && t.InnerPawn == __instance) { corpse = t; break; }
-                        }
-                        if (corpse != null) break;
-                    }
-                }
+                Corpse corpse = __instance.Corpse ?? PredationLookupUtility.FindSpawnedCorpseForInnerPawn(__instance);
 
                 if (corpse == null)
                 {
@@ -318,7 +677,7 @@ namespace ZoologyMod
             }
         }
 
-        // Postfix for Pawn_CarryTracker.TryStartCarry(Thing) -> bool
+        
         public static void PawnCarry_TryStartCarry_Postfix(object __instance, Thing item, bool __result)
         {
             try
@@ -327,52 +686,10 @@ namespace ZoologyMod
                 var corpse = item as Corpse;
                 if (corpse == null) return;
 
-                Pawn carrier = null;
-                try
-                {
-                    var instType = __instance.GetType();
-                    var pawnField = instType.GetField("pawn", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-                    if (pawnField != null)
-                    {
-                        var val = pawnField.GetValue(__instance);
-                        if (val is Pawn p) carrier = p;
-                    }
-                }
-                catch { carrier = null; }
-
+                Pawn carrier = PredationLookupUtility.TryGetCarrierPawn(__instance);
                 if (carrier == null)
                 {
-                    var maps = Find.Maps;
-                    for (int mi = 0; mi < maps.Count; mi++)
-                    {
-                        var pawns = maps[mi].mapPawns.AllPawnsSpawned;
-                        for (int pi = 0; pi < pawns.Count; pi++)
-                        {
-                            var p = pawns[pi];
-                            if (p == null) continue;
-                            try
-                            {
-                                var ct = p.carryTracker;
-                                if (ct != null)
-                                {
-                                    var ctThing = ct.CarriedThing;
-                                    if (ctThing != null && ctThing.thingIDNumber == item.thingIDNumber) { carrier = p; break; }
-                                }
-                                var inv = p.inventory?.innerContainer;
-                                if (inv != null)
-                                {
-                                    for (int j = 0; j < inv.Count; j++)
-                                    {
-                                        var t = inv[j];
-                                        if (t != null && t.thingIDNumber == item.thingIDNumber) { carrier = p; break; }
-                                    }
-                                    if (carrier != null) break;
-                                }
-                            }
-                            catch { }
-                        }
-                        if (carrier != null) break;
-                    }
+                    carrier = PredationLookupUtility.FindPawnHoldingThing(item.thingIDNumber);
                 }
 
                 if (carrier == null) return;
@@ -389,7 +706,7 @@ namespace ZoologyMod
             }
         }
 
-        // Postfix for Pawn_CarryTracker.TryStartCarry(Thing, int, bool) -> int
+        
         public static void PawnCarry_TryStartCarry_Int_Postfix(object __instance, Thing item, int count, bool reserve, int __result)
         {
             try
@@ -398,52 +715,10 @@ namespace ZoologyMod
                 var corpse = item as Corpse;
                 if (corpse == null) return;
 
-                Pawn carrier = null;
-                try
-                {
-                    var instType = __instance.GetType();
-                    var pawnField = instType.GetField("pawn", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-                    if (pawnField != null)
-                    {
-                        var val = pawnField.GetValue(__instance);
-                        if (val is Pawn p) carrier = p;
-                    }
-                }
-                catch { carrier = null; }
-
+                Pawn carrier = PredationLookupUtility.TryGetCarrierPawn(__instance);
                 if (carrier == null)
                 {
-                    var maps = Find.Maps;
-                    for (int mi = 0; mi < maps.Count; mi++)
-                    {
-                        var pawns = maps[mi].mapPawns.AllPawnsSpawned;
-                        for (int pi = 0; pi < pawns.Count; pi++)
-                        {
-                            var p = pawns[pi];
-                            if (p == null) continue;
-                            try
-                            {
-                                var ct = p.carryTracker;
-                                if (ct != null)
-                                {
-                                    var ctThing = ct.CarriedThing;
-                                    if (ctThing != null && ctThing.thingIDNumber == item.thingIDNumber) { carrier = p; break; }
-                                }
-                                var inv = p.inventory?.innerContainer;
-                                if (inv != null)
-                                {
-                                    for (int j = 0; j < inv.Count; j++)
-                                    {
-                                        var t = inv[j];
-                                        if (t != null && t.thingIDNumber == item.thingIDNumber) { carrier = p; break; }
-                                    }
-                                    if (carrier != null) break;
-                                }
-                            }
-                            catch { }
-                        }
-                        if (carrier != null) break;
-                    }
+                    carrier = PredationLookupUtility.FindPawnHoldingThing(item.thingIDNumber);
                 }
 
                 if (carrier == null) return;
@@ -460,7 +735,7 @@ namespace ZoologyMod
             }
         }
 
-        // Thing.Ingested postfix
+        
         public static void Thing_Ingested_Postfix(Thing __instance, Pawn ingester, float nutritionWanted)
         {
             try

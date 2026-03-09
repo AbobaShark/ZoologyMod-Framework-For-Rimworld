@@ -1,5 +1,3 @@
-// Patch_ScavengerImmunity.cs
-
 using System;
 using HarmonyLib;
 using RimWorld;
@@ -10,32 +8,46 @@ namespace ZoologyMod.HarmonyPatches
     [HarmonyPatch]
     public static class Patch_ScavengerImmunity
     {
-        // ---------------------------
-        // 1) Block food poisoning when pawn (scavenger) eats a Corpse AND cause == Rotten
-        // ---------------------------
+        private static readonly AccessTools.FieldRef<Pawn_HealthTracker, Pawn> HealthTrackerPawnRef =
+            AccessTools.FieldRefAccess<Pawn_HealthTracker, Pawn>("pawn");
+
+        private static bool IsScavenger(Pawn pawn)
+        {
+            return pawn?.RaceProps?.Animal == true
+                && pawn.def != null
+                && ZoologyCacheUtility.HasScavengerExtension(pawn.def);
+        }
+
         [HarmonyPatch(typeof(FoodUtility), nameof(FoodUtility.AddFoodPoisoningHediff))]
         private static class Inner_AddFoodPoisoningHediff
         {
+            static bool Prepare()
+            {
+                var s = ZoologyModSettings.Instance;
+                return s == null || s.EnableScavengering;
+            }
+
             static bool Prefix(Pawn pawn, Thing ingestible, FoodPoisonCause cause)
             {
                 try
                 {
-                    // Respect settings: если опция выключена — не вмешиваемся (ваниль).
                     var settings = ZoologyModSettings.Instance;
-                    if (settings != null && !settings.EnableScavengering) return true;
+                    if (settings != null && !settings.EnableScavengering)
+                    {
+                        return true;
+                    }
 
-                    if (pawn == null || ingestible == null) return true;
+                    if (pawn == null || ingestible == null)
+                    {
+                        return true;
+                    }
 
-                    // Блокируем ТОЛЬКО пищевое отравление, вызванное гниением (Rotten) от трупа,
-                    // и только для падальщиков (ModExtension IsScavenger).
-                    if (cause != FoodPoisonCause.Rotten) return true;
-                    if (!(ingestible is Corpse)) return true;
+                    if (cause != FoodPoisonCause.Rotten || !(ingestible is Corpse))
+                    {
+                        return true;
+                    }
 
-                    var scav = pawn.def?.GetModExtension<ModExtension_IsScavenger>();
-                    if (scav == null) return true;
-
-                    // Падальщик + источник — труп + причина Rotten => блокируем ванильное добавление FoodPoisoning.
-                    return false;
+                    return !IsScavenger(pawn);
                 }
                 catch (Exception e)
                 {
@@ -45,35 +57,109 @@ namespace ZoologyMod.HarmonyPatches
             }
         }
 
-        // ---------------------------
-        // 2) Remove LungRotExposure caused by RotStink (gas) for scavengers
-        // ---------------------------
-        [HarmonyPatch(typeof(GasUtility), nameof(GasUtility.PawnGasEffectsTickInterval))]
-        private static class Inner_PawnGasEffectsTickInterval
+        [HarmonyPatch(typeof(Pawn_HealthTracker), nameof(Pawn_HealthTracker.AddHediff), new[] { typeof(HediffDef), typeof(BodyPartRecord), typeof(DamageInfo?), typeof(DamageWorker.DamageResult) })]
+        private static class Inner_PawnHealthTracker_AddHediffDef
         {
-            static void Postfix(Pawn pawn, int delta)
+            static bool Prepare()
+            {
+                var s = ZoologyModSettings.Instance;
+                return s == null || s.EnableScavengering;
+            }
+
+            static bool Prefix(Pawn_HealthTracker __instance, HediffDef def)
             {
                 try
                 {
-                    // Respect settings: если опция выключена — не вмешиваемся (ваниль).
                     var settings = ZoologyModSettings.Instance;
-                    if (settings != null && !settings.EnableScavengering) return;
+                    if (settings != null && !settings.EnableScavengering)
+                    {
+                        return true;
+                    }
 
-                    if (pawn == null) return;
-                    var scav = pawn.def?.GetModExtension<ModExtension_IsScavenger>();
-                    if (scav == null) return;
-                    if (pawn.Map == null) return;
-                    if (pawn.Position.GasDensity(pawn.Map, GasType.RotStink) <= 0) return;
+                    if (def != HediffDefOf.LungRotExposure)
+                    {
+                        return true;
+                    }
 
-                    var hediff = pawn.health?.hediffSet?.GetFirstHediffOfDef(HediffDefOf.LungRotExposure, false);
+                    Pawn pawn = HealthTrackerPawnRef(__instance);
+                    return !IsScavenger(pawn);
+                }
+                catch (Exception e)
+                {
+                    Log.Error("[Zoology] Error in Pawn_HealthTracker.AddHediff(HediffDef) prefix: " + e);
+                    return true;
+                }
+            }
+        }
+
+        [HarmonyPatch(typeof(Pawn_HealthTracker), nameof(Pawn_HealthTracker.AddHediff), new[] { typeof(Hediff), typeof(BodyPartRecord), typeof(DamageInfo?), typeof(DamageWorker.DamageResult) })]
+        private static class Inner_PawnHealthTracker_AddHediff
+        {
+            static bool Prepare()
+            {
+                var s = ZoologyModSettings.Instance;
+                return s == null || s.EnableScavengering;
+            }
+
+            static bool Prefix(Pawn_HealthTracker __instance, Hediff hediff)
+            {
+                try
+                {
+                    var settings = ZoologyModSettings.Instance;
+                    if (settings != null && !settings.EnableScavengering)
+                    {
+                        return true;
+                    }
+
+                    if (hediff?.def != HediffDefOf.LungRotExposure)
+                    {
+                        return true;
+                    }
+
+                    Pawn pawn = HealthTrackerPawnRef(__instance);
+                    return !IsScavenger(pawn);
+                }
+                catch (Exception e)
+                {
+                    Log.Error("[Zoology] Error in Pawn_HealthTracker.AddHediff(Hediff) prefix: " + e);
+                    return true;
+                }
+            }
+        }
+
+        [HarmonyPatch(typeof(Pawn), nameof(Pawn.SpawnSetup), new[] { typeof(Map), typeof(bool) })]
+        private static class Inner_Pawn_SpawnSetup
+        {
+            static bool Prepare()
+            {
+                var s = ZoologyModSettings.Instance;
+                return s == null || s.EnableScavengering;
+            }
+
+            static void Postfix(Pawn __instance)
+            {
+                try
+                {
+                    var settings = ZoologyModSettings.Instance;
+                    if (settings != null && !settings.EnableScavengering)
+                    {
+                        return;
+                    }
+
+                    if (!IsScavenger(__instance))
+                    {
+                        return;
+                    }
+
+                    Hediff hediff = __instance.health?.hediffSet?.GetFirstHediffOfDef(HediffDefOf.LungRotExposure, false);
                     if (hediff != null)
                     {
-                        pawn.health.RemoveHediff(hediff);
+                        __instance.health.RemoveHediff(hediff);
                     }
                 }
                 catch (Exception e)
                 {
-                    Log.Error("[Zoology] Error in PawnGasEffectsTickInterval postfix: " + e);
+                    Log.Error("[Zoology] Error in Pawn.SpawnSetup postfix: " + e);
                 }
             }
         }

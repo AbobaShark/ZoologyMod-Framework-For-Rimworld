@@ -1,6 +1,4 @@
-// Patch_FlyingFlee.cs
-
-using HarmonyLib;
+﻿using HarmonyLib;
 using RimWorld;
 using Verse;
 using Verse.AI;
@@ -11,73 +9,83 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(Pawn_FlightTracker), "Notify_JobStarted")]
     public static class Patch_FlyingFleeStart
     {
+        private static readonly FieldInfo PawnField = AccessTools.Field(typeof(Pawn_FlightTracker), "pawn");
+        private static readonly FieldInfo FlightCooldownField = AccessTools.Field(typeof(Pawn_FlightTracker), "flightCooldownTicks");
+        private static readonly MethodInfo StartFlyingInternalMethod = AccessTools.Method(typeof(Pawn_FlightTracker), "StartFlyingInternal");
+
+        public static bool Prepare()
+        {
+            var s = ZoologyModSettings.Instance;
+            return s == null || s.EnableFlyingFleeStart;
+        }
+
         public static bool Prefix(Pawn_FlightTracker __instance, Job job)
         {
             try
             {
-                // Защита от null: иногда job или job.def может быть null — не лезем в оригинал.
-                if (job == null || job.def == null)
-                    return true; // Отдаём управление оригинальному методу
+                var settings = ModConstants.Settings;
+                if (settings != null && !settings.EnableFlyingFleeStart)
+                    return true;
 
-                // Нас интересует только JobDefOf.Flee
+                
+                if (job == null || job.def == null)
+                    return true; 
+
+                
                 if (job.def != JobDefOf.Flee)
                     return true;
 
-                // Получаем поле pawn приватно через Reflection
-                var pawnField = AccessTools.Field(typeof(Pawn_FlightTracker), "pawn");
-                if (pawnField == null)
-                    return true; // Если по какой-то причине поле не найдено — не вмешиваемся
+                
+                if (PawnField == null)
+                    return true; 
 
-                var pawn = pawnField.GetValue(__instance) as Pawn;
+                var pawn = PawnField.GetValue(__instance) as Pawn;
                 if (pawn == null)
-                    return true; // Неизвестный pawn — пропускаем
+                    return true; 
 
-                // Только для животных, которые вообще могут летать
-                if (!pawn.RaceProps?.Animal == true) // защита на случай null RaceProps (очень редко)
+                if (pawn.RaceProps == null || !pawn.RaceProps.Animal)
                     return true;
                 if (!__instance.CanEverFly)
                     return true;
 
-                // Теперь — действительно Flee + животное + может летать.
-                // Заставляем flee всегда использовать полёт и пытаемся мгновенно стартовать,
-                // при этом пропуская оригинальный код, чтобы избежать ForceLand() в некоторых ситуациях.
+                
+                
+                
                 job.flying = true;
 
-                // Попробуем сбросить cooldown (если поле присутствует)
-                var cooldownField = AccessTools.Field(typeof(Pawn_FlightTracker), "flightCooldownTicks");
-                if (cooldownField != null)
+                
+                if (FlightCooldownField != null)
                 {
-                    cooldownField.SetValue(__instance, 0);
+                    FlightCooldownField.SetValue(__instance, 0);
                 }
 
-                // Если не летим сейчас — запустить взлёт внутренним методом
+                
                 bool isFlying;
-                // Доступ к свойству Flying может выбросить, но в нормальных условиях безопасен
+                
                 try
                 {
                     isFlying = __instance.Flying;
                 }
                 catch
                 {
-                    // Если по какой-то причине нельзя прочитать свойство — просто не вызывать StartFlyingInternal
-                    return false; // мы уже установили job.flying = true, пропускаем оригинал
+                    
+                    return false; 
                 }
 
                 if (!isFlying)
                 {
-                    var startFlyingInternalMethod = AccessTools.Method(typeof(Pawn_FlightTracker), "StartFlyingInternal");
-                    if (startFlyingInternalMethod != null)
+                    if (StartFlyingInternalMethod != null)
                     {
-                        startFlyingInternalMethod.Invoke(__instance, null);
+                        StartFlyingInternalMethod.Invoke(__instance, null);
                     }
                 }
 
-                // Возвращаем false — чтобы оригинал не выполнял свою логику (включая ForceLand).
+                
                 return false;
             }
             catch (System.Exception ex)
             {
-                // В случае любой ошибки — логируем и не вмешиваемся (чтобы не крашить игру).
+                
                 Log.ErrorOnce($"ZoologyMod: exception in Patch_FlyingFleeStart Prefix: {ex}\nPatch will defer to original method to avoid crashes.", 1234567);
                 return true;
             }

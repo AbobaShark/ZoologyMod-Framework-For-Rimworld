@@ -1,19 +1,37 @@
-// DamageReduction_AnimalTypes.cs
-
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using HarmonyLib;
-using Verse;
 using RimWorld;
+using Verse;
 
 namespace ZoologyMod.Patches
 {
     [HarmonyPatch]
     public static class DamageReduction_AnimalTypes_PawnTakeDamage
     {
+        private const string AnimalThingBaseDefName = "AnimalThingBase";
+
         private static readonly Type ScratchWorkerType = AccessTools.TypeByName("DamageWorker_Scratch");
         private static readonly Type BiteWorkerType = AccessTools.TypeByName("DamageWorker_Bite");
         private static readonly Type BluntWorkerType = AccessTools.TypeByName("DamageWorker_Blunt");
+
+        private static readonly FieldInfo ParentNameField =
+            AccessTools.Field(typeof(ThingDef), "parentName") ?? AccessTools.Field(typeof(Def), "parentName");
+
+        private static readonly PropertyInfo ParentNameProperty =
+            ParentNameField == null
+                ? AccessTools.Property(typeof(ThingDef), "ParentName") ?? AccessTools.Property(typeof(Def), "ParentName")
+                : null;
+
+        private static readonly Dictionary<ThingDef, bool> strictAnimalCache = new Dictionary<ThingDef, bool>();
+        private static readonly Dictionary<Type, bool> supportedWorkerCache = new Dictionary<Type, bool>();
+
+        public static bool Prepare()
+        {
+            var s = ZoologyModSettings.Instance;
+            return s == null || s.EnableAnimalDamageReduction;
+        }
 
         static MethodBase TargetMethod()
         {
@@ -22,6 +40,7 @@ namespace ZoologyMod.Patches
             {
                 Log.Error("[ZoologyMod] DamageReduction_AnimalTypes: не найден целевой метод Pawn.TakeDamage(DamageInfo). Патч не будет применён.");
             }
+
             return method;
         }
 
@@ -35,108 +54,18 @@ namespace ZoologyMod.Patches
 
                 if (dinfo.Def == null) return;
 
-                var workerClass = dinfo.Def.workerClass;
-                bool isScratch = ScratchWorkerType != null && (workerClass == ScratchWorkerType || workerClass.IsSubclassOf(ScratchWorkerType));
-                bool isBite = BiteWorkerType != null && (workerClass == BiteWorkerType || workerClass.IsSubclassOf(BiteWorkerType));
-                bool isBlunt = BluntWorkerType != null && (workerClass == BluntWorkerType || workerClass.IsSubclassOf(BluntWorkerType));
-                if (!isScratch && !isBite && !isBlunt) return;
+                Type workerClass = dinfo.Def.workerClass;
+                if (!IsSupportedWorkerClass(workerClass)) return;
 
                 Pawn victim = __instance;
                 if (victim == null) return;
 
                 Thing instigator = dinfo.Instigator;
-                if (instigator == null) return; // требуем атакующего
+                if (instigator == null) return;
 
-                // ---- новая, более надёжная проверка животного по родителю с диагностикой ----
-                bool IsThingAnimalStrictByParent(Thing t, out string diagnostic)
-                {
-                    diagnostic = "";
-                    if (t == null || t.def == null)
-                    {
-                        diagnostic = "null/undef";
-                        return false;
-                    }
+                if (!IsThingAnimalStrict(victim)) return;
+                if (!IsThingAnimalStrict(instigator)) return;
 
-                    try
-                    {
-                        // 1) Пройти цепочку ParentName через DefDatabase (если возможно)
-                        ThingDef current = t.def;
-                        string chain = current.defName ?? "(no defName)";
-                        while (current != null)
-                        {
-                            if (!string.IsNullOrEmpty(current.defName) && current.defName == "AnimalThingBase")
-                            {
-                                diagnostic = "found_by_parent_chain: " + chain;
-                                return true;
-                            }
-
-                            // Попытка получить поле parentName или свойство ParentName (через рефлексию)
-                            string parentName = null;
-                            var field = typeof(ThingDef).GetField("parentName", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                            if (field != null)
-                                parentName = field.GetValue(current) as string;
-                            else
-                            {
-                                var prop = typeof(ThingDef).GetProperty("ParentName", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                                if (prop != null)
-                                    parentName = prop.GetValue(current) as string;
-                            }
-
-                            if (string.IsNullOrEmpty(parentName))
-                            {
-                                // не удалось получить parentName — прервём попытку и перейдём к fallback
-                                chain += " -> (no parentName)";
-                                break;
-                            }
-
-                            chain += " -> " + parentName;
-                            var parentDef = DefDatabase<ThingDef>.GetNamedSilentFail(parentName);
-                            if (parentDef == null)
-                            {
-                                chain += " (parent not found)";
-                                break;
-                            }
-
-                            current = parentDef;
-                        }
-
-                        // 2) Если цепочка parentName не дала result, делаем осторожный fallback:
-                        //    считаем "животным" если у def.race есть thinkTreeMain с "Animal" в имени
-                        if (t.def.race != null)
-                        {
-                            var thinkMainName = t.def.race.thinkTreeMain?.defName;
-                            if (!string.IsNullOrEmpty(thinkMainName)
-                                && thinkMainName.IndexOf("Animal", StringComparison.OrdinalIgnoreCase) >= 0)
-                            {
-                                diagnostic = "found_by_race_thinkTreeMain: " + thinkMainName + " (chain: " + chain + ")";
-                                return true;
-                            }
-                        }
-
-                        // Никто не подтвердил как Animal
-                        diagnostic = "not_animal (chain: " + chain + (t.def.race != null ? ", race.thinkTreeMain=" + (t.def.race.thinkTreeMain?.defName ?? "(null)") : ", race=null") + ")";
-                        return false;
-                    }
-                    catch (Exception ex)
-                    {
-                        diagnostic = "exception: " + ex.Message;
-                        return false;
-                    }
-                }
-                // ---- конец проверки ----
-
-                // Выполняем проверку для victim и instigator, и собираем диагностический текст если что-то не так
-                if (!IsThingAnimalStrictByParent(victim, out string diagVictim))
-                {
-                    return;
-                }
-
-                if (!IsThingAnimalStrictByParent(instigator, out string diagInst))
-                {
-                    return;
-                }
-
-                // далее — прежняя логика расчёта размера/предаторности/факторов
                 Pawn attackerPawn = instigator as Pawn;
 
                 bool victimIsPredator = victim.RaceProps?.predator ?? false;
@@ -148,29 +77,36 @@ namespace ZoologyMod.Patches
                 float victimBaseSize = 1f;
                 float attackerBaseSize = 1f;
 
-                if (victim.def != null && victim.def.race != null)
+                if (victim.def?.race != null)
                     victimBaseSize = victim.def.race.baseBodySize;
 
                 if (attackerPawn != null)
                 {
                     attackerBodySizeActual = attackerPawn.BodySize;
                     attackerIsPredator = attackerPawn.RaceProps?.predator ?? false;
-                    if (attackerPawn.def != null && attackerPawn.def.race != null)
+                    if (attackerPawn.def?.race != null)
                         attackerBaseSize = attackerPawn.def.race.baseBodySize;
                 }
                 else
                 {
-                    var idef = instigator.def;
-                    if (idef != null)
+                    ThingDef attackerDef = instigator.def;
+                    if (attackerDef != null)
                     {
-                        attackerIsPredator = idef.race?.predator ?? false;
-                        attackerBaseSize = idef.race?.baseBodySize ?? 1f;
-                        attackerBodySizeActual = idef.race?.baseBodySize ?? 1f;
+                        attackerIsPredator = attackerDef.race?.predator ?? false;
+                        attackerBaseSize = attackerDef.race?.baseBodySize ?? 1f;
+                        attackerBodySizeActual = attackerDef.race?.baseBodySize ?? 1f;
                     }
                 }
 
                 float beforeAmount;
-                try { beforeAmount = dinfo.Amount; } catch { beforeAmount = float.NaN; }
+                try
+                {
+                    beforeAmount = dinfo.Amount;
+                }
+                catch
+                {
+                    beforeAmount = float.NaN;
+                }
 
                 bool sizeThreshold = victimBodySizeActual >= 1.2f * attackerBodySizeActual;
                 float factor = 1f;
@@ -182,21 +118,15 @@ namespace ZoologyMod.Patches
                     {
                         applied = false;
                     }
-                    else
+                    else if (attackerBaseSize > victimBaseSize)
                     {
-                        if (attackerBaseSize > victimBaseSize)
-                        {
-                            factor = 0.5f;
-                            applied = true;
-                        }
-                        else
-                        {
-                            if (victimBaseSize > 0f)
-                            {
-                                factor = attackerBaseSize / victimBaseSize;
-                                applied = true;
-                            }
-                        }
+                        factor = 0.5f;
+                        applied = true;
+                    }
+                    else if (victimBaseSize > 0f)
+                    {
+                        factor = attackerBaseSize / victimBaseSize;
+                        applied = true;
                     }
                 }
                 else if (attackerIsPredator == victimIsPredator && sizeThreshold)
@@ -206,10 +136,6 @@ namespace ZoologyMod.Patches
                         factor = attackerBaseSize / victimBaseSize;
                         applied = true;
                     }
-                }
-                else
-                {
-                    applied = false;
                 }
 
                 if (!applied) return;
@@ -238,15 +164,15 @@ namespace ZoologyMod.Patches
                     {
                         newDinfo = (DamageInfo)Activator.CreateInstance(
                             typeof(DamageInfo),
-                            new object[] {
+                            new object[]
+                            {
                                 dinfo.Def,
                                 newAmount,
                                 dinfo.ArmorPenetrationInt,
                                 dinfo.Instigator,
                                 dinfo.HitPart,
                                 dinfo.Weapon
-                            }
-                        );
+                            });
                     }
                     catch
                     {
@@ -264,15 +190,109 @@ namespace ZoologyMod.Patches
                 }
 
                 dinfo = newDinfo;
-
-                string attackerLabel = instigator != null ? instigator.LabelShort : "(null instigator)";
-                string victimLabel = victim != null ? victim.LabelShort : "(null victim)";
-                string workerType = workerClass != null ? workerClass.Name : "(unknown worker)";
             }
             catch (Exception ex)
             {
                 Log.Error($"[ZoologyMod] Exception in DamageReduction_AnimalTypes_Prefix: {ex}");
             }
+        }
+
+        private static bool IsSupportedWorkerClass(Type workerClass)
+        {
+            if (workerClass == null)
+            {
+                return false;
+            }
+
+            if (supportedWorkerCache.TryGetValue(workerClass, out bool cached))
+            {
+                return cached;
+            }
+
+            bool isScratch = ScratchWorkerType != null && (workerClass == ScratchWorkerType || workerClass.IsSubclassOf(ScratchWorkerType));
+            bool isBite = BiteWorkerType != null && (workerClass == BiteWorkerType || workerClass.IsSubclassOf(BiteWorkerType));
+            bool isBlunt = BluntWorkerType != null && (workerClass == BluntWorkerType || workerClass.IsSubclassOf(BluntWorkerType));
+
+            bool result = isScratch || isBite || isBlunt;
+            supportedWorkerCache[workerClass] = result;
+            return result;
+        }
+
+        private static bool IsThingAnimalStrict(Thing thing)
+        {
+            return IsThingAnimalStrict(thing?.def);
+        }
+
+        private static bool IsThingAnimalStrict(ThingDef def)
+        {
+            if (def == null)
+            {
+                return false;
+            }
+
+            if (strictAnimalCache.TryGetValue(def, out bool cached))
+            {
+                return cached;
+            }
+
+            bool result = false;
+            try
+            {
+                ThingDef current = def;
+                while (current != null)
+                {
+                    if (string.Equals(current.defName, AnimalThingBaseDefName, StringComparison.Ordinal))
+                    {
+                        result = true;
+                        break;
+                    }
+
+                    string parentName = GetParentName(current);
+                    if (string.IsNullOrEmpty(parentName))
+                    {
+                        break;
+                    }
+
+                    current = DefDatabase<ThingDef>.GetNamedSilentFail(parentName);
+                }
+
+                if (!result && def.race != null)
+                {
+                    string thinkMainName = def.race.thinkTreeMain?.defName;
+                    if (!string.IsNullOrEmpty(thinkMainName)
+                        && thinkMainName.IndexOf("Animal", StringComparison.OrdinalIgnoreCase) >= 0)
+                    {
+                        result = true;
+                    }
+                }
+            }
+            catch
+            {
+                result = false;
+            }
+
+            strictAnimalCache[def] = result;
+            return result;
+        }
+
+        private static string GetParentName(ThingDef def)
+        {
+            if (def == null)
+            {
+                return null;
+            }
+
+            if (ParentNameField != null)
+            {
+                return ParentNameField.GetValue(def) as string;
+            }
+
+            if (ParentNameProperty != null)
+            {
+                return ParentNameProperty.GetValue(def) as string;
+            }
+
+            return null;
         }
     }
 }
