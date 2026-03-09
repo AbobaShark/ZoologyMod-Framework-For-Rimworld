@@ -40,6 +40,11 @@ namespace ZoologyMod.HarmonyPatches
                     }
 
                     
+                    if (eater.def == null || !ZoologyCacheUtility.HasScavengerExtension(eater.def))
+                    {
+                        return true;
+                    }
+
                     var scav = DefModExtensionCache<ModExtension_IsScavenger>.Get(eater.def);
                     if (scav == null)
                     {
@@ -118,6 +123,11 @@ namespace ZoologyMod.HarmonyPatches
                 var eater = ScavengerEatingContext.GetEatingPawnForCorpse(corpse);
                 if (eater == null) return true;
 
+                if (eater.def == null || !ZoologyCacheUtility.HasScavengerExtension(eater.def))
+                {
+                    return true;
+                }
+
                 var scav = DefModExtensionCache<ModExtension_IsScavenger>.Get(eater.def);
                 if (scav == null) return true;
 
@@ -179,6 +189,11 @@ namespace ZoologyMod.HarmonyPatches
                     var eater = ScavengerEatingContext.GetEatingPawnForCorpse(corpse);
                     if (eater == null) return true;
 
+                    if (eater.def == null || !ZoologyCacheUtility.HasScavengerExtension(eater.def))
+                    {
+                        return true;
+                    }
+
                     var scav = DefModExtensionCache<ModExtension_IsScavenger>.Get(eater.def);
                     if (scav == null) return true;
 
@@ -227,7 +242,8 @@ namespace ZoologyMod.HarmonyPatches
                     var settings = ZoologyModSettings.Instance;
                     if (settings != null && !settings.EnableScavengering) return;
                     if (__result == null) return;
-                    var scav = DefModExtensionCache<ModExtension_IsScavenger>.Get(ingester?.def);
+                    if (ingester?.def == null || !ZoologyCacheUtility.HasScavengerExtension(ingester.def)) return;
+                    var scav = DefModExtensionCache<ModExtension_IsScavenger>.Get(ingester.def);
                     if (scav == null) return; 
 
                     Action oldInit = __result.initAction;

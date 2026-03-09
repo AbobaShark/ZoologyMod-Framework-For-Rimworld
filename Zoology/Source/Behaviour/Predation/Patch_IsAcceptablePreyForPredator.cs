@@ -188,7 +188,14 @@ namespace ZoologyMod
                     return;
                 }
 
+                if (PredationDecisionCache.TryGetPreyScore(predator, prey, out float cachedScore))
+                {
+                    __result = cachedScore;
+                    return;
+                }
+
                 __result = LargeMammalPredationUtility.GetPreySelectionScore(predator, prey);
+                PredationDecisionCache.StorePreyScore(predator, prey, __result);
             }
             catch (Exception ex)
             {
@@ -238,6 +245,12 @@ namespace ZoologyMod
                     return true;
                 }
 
+                if (PredationDecisionCache.TryGetAcceptablePrey(predator, prey, out bool cachedAcceptable))
+                {
+                    __result = cachedAcceptable;
+                    return false;
+                }
+
                 if (predator == null || prey == null)
                 {
                     __result = false;
@@ -250,6 +263,7 @@ namespace ZoologyMod
                     if (IsMammalBaby(predator))
                     {
                         __result = false;
+                        PredationDecisionCache.StoreAcceptablePrey(predator, prey, false);
                         return false; 
                     }
                 }
@@ -258,12 +272,14 @@ namespace ZoologyMod
                 if (comp != null && comp.IsPairBlockedNow(predator, prey))
                 {
                     __result = false;
+                    PredationDecisionCache.StoreAcceptablePrey(predator, prey, false);
                     return false;
                 }
                 
                 if (predator.kindDef == null || prey.kindDef == null)
                 {
                     __result = false;
+                    PredationDecisionCache.StoreAcceptablePrey(predator, prey, false);
                     return false;
                 }
 				
@@ -272,8 +288,8 @@ namespace ZoologyMod
 				bool preyIsPhotonozoa = false;
 				try
 				{
-					predIsPhotonozoa = PredationCacheUtility.IsPhotonozoa(predator.def);
-					preyIsPhotonozoa = PredationCacheUtility.IsPhotonozoa(prey.def);
+					predIsPhotonozoa = ZoologyCacheUtility.IsPhotonozoa(predator.def);
+					preyIsPhotonozoa = ZoologyCacheUtility.IsPhotonozoa(prey.def);
 				}
 				catch
 				{
@@ -285,24 +301,26 @@ namespace ZoologyMod
 				if (preyIsPhotonozoa && !predIsPhotonozoa)
 				{
 					__result = false;
+                    PredationDecisionCache.StoreAcceptablePrey(predator, prey, false);
 					return false;
 				}
 
 				
 				bool photonozoaPairInTheirFaction = predIsPhotonozoa
 					&& preyIsPhotonozoa
-					&& PredationCacheUtility.IsPhotonozoaPairInTheirFaction(predator, prey);
+					&& ZoologyCacheUtility.IsPhotonozoaPairInTheirFaction(predator, prey);
 				
 
                 bool predatorMammal = predator.IsMammal();
                 bool preyMammal = prey.IsMammal();
 
                 bool sameDef = predator.def == prey.def;
-                bool inCrossbreedRelation = PredationCacheUtility.AreCrossbreedRelated(predator.def, prey.def);
+                bool inCrossbreedRelation = ZoologyCacheUtility.AreCrossbreedRelated(predator.def, prey.def);
 
                 if ((sameDef || inCrossbreedRelation) && predatorMammal && preyMammal)
                 {
                     __result = false;
+                    PredationDecisionCache.StoreAcceptablePrey(predator, prey, false);
                     return false;
                 }
 
@@ -312,14 +330,15 @@ namespace ZoologyMod
                     if (predator.kindDef.combatPower < requiredPredatorCP)
                     {
                         __result = false;
+                        PredationDecisionCache.StoreAcceptablePrey(predator, prey, false);
                         return false;
                     }
                 }
 
-                if (!prey.RaceProps.canBePredatorPrey) { __result = false; return false; }
-                if (!prey.RaceProps.IsFlesh) { __result = false; return false; }
-                if (!Find.Storyteller.difficulty.predatorsHuntHumanlikes && prey.RaceProps.Humanlike) { __result = false; return false; }
-                if (prey.BodySize > predator.RaceProps.maxPreyBodySize) {__result = false; return false; }
+                if (!prey.RaceProps.canBePredatorPrey) { __result = false; PredationDecisionCache.StoreAcceptablePrey(predator, prey, false); return false; }
+                if (!prey.RaceProps.IsFlesh) { __result = false; PredationDecisionCache.StoreAcceptablePrey(predator, prey, false); return false; }
+                if (!Find.Storyteller.difficulty.predatorsHuntHumanlikes && prey.RaceProps.Humanlike) { __result = false; PredationDecisionCache.StoreAcceptablePrey(predator, prey, false); return false; }
+                if (prey.BodySize > predator.RaceProps.maxPreyBodySize) {__result = false; PredationDecisionCache.StoreAcceptablePrey(predator, prey, false); return false; }
 
                 if (!prey.Downed)
                 {
@@ -332,12 +351,14 @@ namespace ZoologyMod
                         if (preyCombatPower > predatorCombatPower)
                         {
                             __result = false;
+                            PredationDecisionCache.StoreAcceptablePrey(predator, prey, false);
                             return false;
                         }
                     }
                     else if (preyCombatPower > 2f * predatorCombatPower)
                     {
                         __result = false;
+                        PredationDecisionCache.StoreAcceptablePrey(predator, prey, false);
                         return false;
                     }
 
@@ -350,6 +371,7 @@ namespace ZoologyMod
                     if (preyScore >= predatorScore)
                     {
                         __result = false;
+                        PredationDecisionCache.StoreAcceptablePrey(predator, prey, false);
                         return false;
                     }
                 }
@@ -365,10 +387,12 @@ namespace ZoologyMod
 					&& (!ModsConfig.AnomalyActive || !prey.IsMutant || prey.mutant.Def.canBleed)))
 				{
 					__result = false;
+                    PredationDecisionCache.StoreAcceptablePrey(predator, prey, false);
 					return false;
 				}
 
                 __result = true;
+                PredationDecisionCache.StoreAcceptablePrey(predator, prey, true);
                 return false; 
             }
             catch (Exception ex)

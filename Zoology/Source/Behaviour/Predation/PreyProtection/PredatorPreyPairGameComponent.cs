@@ -445,7 +445,7 @@ namespace ZoologyMod
             }
 
             return candidate.def == leader.def
-                || PredationCacheUtility.AreCrossbreedRelated(candidate.def, leader.def);
+                || ZoologyCacheUtility.AreCrossbreedRelated(candidate.def, leader.def);
         }
 
         private static bool IsActivelyHuntingSamePreyOrCorpse(Pawn predator, Pawn killedPawn, Corpse corpse)

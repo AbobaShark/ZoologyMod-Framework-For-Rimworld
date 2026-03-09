@@ -15,8 +15,6 @@ namespace ZoologyMod
     {
         private const string PorcupineQuillDefName = "PorcupineQuill";
 
-        private static readonly Dictionary<ThingDef, bool> extensionCache = new Dictionary<ThingDef, bool>();
-
         private static HediffDef porcupineQuillDef;
         private static bool porcupineQuillResolved;
 
@@ -89,20 +87,7 @@ namespace ZoologyMod
 
         private static bool HasNoPorcupineQuill(Pawn pawn)
         {
-            ThingDef def = pawn?.def;
-            if (def == null)
-            {
-                return false;
-            }
-
-            if (extensionCache.TryGetValue(def, out bool cached))
-            {
-                return cached;
-            }
-
-            bool result = def.GetModExtension<ModExtension_NoPorcupineQuill>() != null;
-            extensionCache[def] = result;
-            return result;
+            return pawn?.def != null && ZoologyCacheUtility.HasNoPorcupineQuillExtension(pawn.def);
         }
 
         private static void TryRemoveExistingPorcupineQuill(Pawn pawn)

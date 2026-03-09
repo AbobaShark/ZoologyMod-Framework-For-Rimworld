@@ -242,7 +242,7 @@ namespace ZoologyMod
             for (int i = 0; i < allDefs.Count; i++)
             {
                 ThingDef def = allDefs[i];
-                if (PredationCacheUtility.IsAnimalThingDef(def))
+                if (ZoologyCacheUtility.IsAnimalThingDef(def))
                 {
                     cachedAnimalDefs.Add(def);
                 }

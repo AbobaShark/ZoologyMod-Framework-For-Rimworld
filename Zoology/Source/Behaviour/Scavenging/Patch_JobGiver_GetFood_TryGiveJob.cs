@@ -55,6 +55,7 @@ namespace ZoologyMod.HarmonyPatches
                 if (__result != null && __result.def == JobDefOf.Ingest) return;
                 if (pawn == null) return;
 
+                if (pawn.def == null || !ZoologyCacheUtility.HasScavengerExtension(pawn.def)) return;
                 var scav = DefModExtensionCache<ModExtension_IsScavenger>.Get(pawn.def);
                 if (scav == null) return; 
 

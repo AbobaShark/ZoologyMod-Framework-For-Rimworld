@@ -66,7 +66,7 @@ namespace ZoologyMod
                     bool relatedToPack = false;
                     try
                     {
-                        relatedToPack = candidate.def == pawnDef || PredationCacheUtility.AreCrossbreedRelated(candidate.def, pawnDef);
+                        relatedToPack = candidate.def == pawnDef || ZoologyCacheUtility.AreCrossbreedRelated(candidate.def, pawnDef);
                     }
                     catch { relatedToPack = false; }
 

@@ -659,7 +659,7 @@ namespace ZoologyMod
 
         public bool GetAnimalsFreeFromHumansFor(ThingDef animal)
         {
-            if (!PredationCacheUtility.IsAnimalThingDef(animal))
+            if (!ZoologyCacheUtility.IsAnimalThingDef(animal))
                 return false;
 
             if (AnimalsFreeFromHumansPerAnimal == null)
@@ -668,18 +668,18 @@ namespace ZoologyMod
             if (AnimalsFreeFromHumansPerAnimal.TryGetValue(animal.defName, out bool value))
                 return value;
 
-            return !PredationCacheUtility.IsExcludedFromHumanFleeByDefault(animal);
+            return !ZoologyCacheUtility.IsExcludedFromHumanFleeByDefault(animal);
         }
 
         public void SetAnimalsFreeFromHumansFor(ThingDef animal, bool value)
         {
-            if (!PredationCacheUtility.IsAnimalThingDef(animal))
+            if (!ZoologyCacheUtility.IsAnimalThingDef(animal))
                 return;
 
             if (AnimalsFreeFromHumansPerAnimal == null)
                 AnimalsFreeFromHumansPerAnimal = new Dictionary<string, bool>();
 
-            bool defaultValue = !PredationCacheUtility.IsExcludedFromHumanFleeByDefault(animal);
+            bool defaultValue = !ZoologyCacheUtility.IsExcludedFromHumanFleeByDefault(animal);
             if (value == defaultValue)
             {
                 AnimalsFreeFromHumansPerAnimal.Remove(animal.defName);
@@ -708,7 +708,7 @@ namespace ZoologyMod
             foreach (KeyValuePair<string, bool> entry in AnimalsFreeFromHumansPerAnimal)
             {
                 ThingDef def = DefDatabase<ThingDef>.GetNamedSilentFail(entry.Key);
-                if (PredationCacheUtility.IsAnimalThingDef(def))
+                if (ZoologyCacheUtility.IsAnimalThingDef(def))
                 {
                     continue;
                 }

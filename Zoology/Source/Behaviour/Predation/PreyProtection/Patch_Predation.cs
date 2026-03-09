@@ -12,13 +12,34 @@ namespace ZoologyMod
     [StaticConstructorOnStartup]
     public static class PredationHarmonyPatches
     {
+        private readonly struct CorpseFoodStateCacheEntry
+        {
+            public CorpseFoodStateCacheEntry(bool isPaired, bool isEffectivelyUnowned, int tick)
+            {
+                IsPaired = isPaired;
+                IsEffectivelyUnowned = isEffectivelyUnowned;
+                Tick = tick;
+            }
+
+            public bool IsPaired { get; }
+
+            public bool IsEffectivelyUnowned { get; }
+
+            public int Tick { get; }
+        }
+
         private static readonly MethodInfo BestPawnToHuntForPredatorMethod =
             AccessTools.Method(typeof(FoodUtility), "BestPawnToHuntForPredator", new[] { typeof(Pawn), typeof(bool) });
+        private static readonly Dictionary<long, CorpseFoodStateCacheEntry> corpseFoodStateCacheByPairKey = new Dictionary<long, CorpseFoodStateCacheEntry>(256);
 
         private const float OwnedCorpseBonus = 10000f;
         private const float UnpairedCorpseBonus = 300f;
         private const float GuardedCorpsePenalty = -10000f;
         private const float LiveAcceptablePreyBonus = 600f;
+        private const int CorpseFoodStateCacheDurationTicks = 60;
+        private const int CorpseFoodStateCacheCleanupIntervalTicks = 600;
+
+        private static int lastCorpseFoodStateCacheCleanupTick = -CorpseFoodStateCacheCleanupIntervalTicks;
 
         static PredationHarmonyPatches()
         {
@@ -191,35 +212,22 @@ namespace ZoologyMod
                 var comp = PredatorPreyPairGameComponent.Instance;
                 try
                 {
-                    if (comp != null && eater != null && comp.IsPaired(eater, corpse))
+                    if (TryGetCorpseFoodState(comp, eater, corpse, out CorpseFoodStateCacheEntry state))
                     {
-                        __result += OwnedCorpseBonus; 
+                        if (state.IsPaired)
+                        {
+                            __result += OwnedCorpseBonus;
+                        }
+                        else if (state.IsEffectivelyUnowned)
+                        {
+                            __result += UnpairedCorpseBonus;
+                        }
+                        else
+                        {
+                            __result += GuardedCorpsePenalty;
+                        }
                         return;
                     }
-
-                    bool effectivelyUnowned = true;
-                    if (comp != null)
-                    {
-                        try
-                        {
-                            effectivelyUnowned = comp.IsCorpseEffectivelyUnownedFor(eater, corpse);
-                        }
-                        catch
-                        {
-                            
-                            effectivelyUnowned = true;
-                        }
-                    }
-
-                    if (effectivelyUnowned)
-                    {
-                        __result += UnpairedCorpseBonus;
-                    }
-                    else
-                    {
-                        __result += GuardedCorpsePenalty;
-                    }
-                    return;
                 }
                 catch (Exception exCorp)
                 {
@@ -230,7 +238,11 @@ namespace ZoologyMod
             var livePawn = foodSource as Pawn;
             if (livePawn != null && !livePawn.Dead)
             {
-                if (eater.RaceProps?.predator == true && FoodUtility.IsAcceptablePreyFor(eater, livePawn))
+                bool isAcceptable = eater.RaceProps?.predator == true
+                    && (PredationDecisionCache.TryGetAcceptablePrey(eater, livePawn, out bool cachedAcceptable)
+                        ? cachedAcceptable
+                        : FoodUtility.IsAcceptablePreyFor(eater, livePawn));
+                if (isAcceptable)
                 {
                     __result += LiveAcceptablePreyBonus;
                 }
@@ -290,25 +302,9 @@ namespace ZoologyMod
                 return false;
             }
 
-            var comp = PredatorPreyPairGameComponent.Instance;
-            if (comp == null)
-            {
-                return false;
-            }
-
-            try
-            {
-                if (comp.IsPaired(predator, corpse))
-                {
-                    return false;
-                }
-
-                return !comp.IsCorpseEffectivelyUnownedFor(predator, corpse);
-            }
-            catch
-            {
-                return false;
-            }
+            return TryGetCorpseFoodState(PredatorPreyPairGameComponent.Instance, predator, corpse, out CorpseFoodStateCacheEntry state)
+                && !state.IsPaired
+                && !state.IsEffectivelyUnowned;
         }
 
         private static Pawn TryGetVanillaHuntTarget(Pawn predator, bool desperate)
@@ -326,6 +322,96 @@ namespace ZoologyMod
             {
                 return null;
             }
+        }
+
+        private static bool TryGetCorpseFoodState(PredatorPreyPairGameComponent comp, Pawn eater, Corpse corpse, out CorpseFoodStateCacheEntry state)
+        {
+            state = default;
+            if (comp == null || eater == null || corpse == null)
+            {
+                return false;
+            }
+
+            int currentTick = Find.TickManager?.TicksGame ?? 0;
+            long pairKey = CorpseFoodPairKey(eater, corpse);
+            if (pairKey != 0L
+                && currentTick > 0
+                && corpseFoodStateCacheByPairKey.TryGetValue(pairKey, out CorpseFoodStateCacheEntry cached)
+                && currentTick - cached.Tick <= CorpseFoodStateCacheDurationTicks)
+            {
+                state = cached;
+                return true;
+            }
+
+            bool isPaired = comp.IsPaired(eater, corpse);
+            bool isEffectivelyUnowned = !isPaired;
+            if (!isPaired)
+            {
+                try
+                {
+                    isEffectivelyUnowned = comp.IsCorpseEffectivelyUnownedFor(eater, corpse);
+                }
+                catch
+                {
+                    isEffectivelyUnowned = true;
+                }
+            }
+
+            state = new CorpseFoodStateCacheEntry(isPaired, isEffectivelyUnowned, currentTick);
+            if (pairKey != 0L && currentTick > 0)
+            {
+                corpseFoodStateCacheByPairKey[pairKey] = state;
+                CleanupCorpseFoodStateCacheIfNeeded(currentTick);
+            }
+
+            return true;
+        }
+
+        private static void CleanupCorpseFoodStateCacheIfNeeded(int currentTick)
+        {
+            if (currentTick - lastCorpseFoodStateCacheCleanupTick < CorpseFoodStateCacheCleanupIntervalTicks)
+            {
+                return;
+            }
+
+            lastCorpseFoodStateCacheCleanupTick = currentTick;
+            List<long> staleKeys = null;
+            foreach (KeyValuePair<long, CorpseFoodStateCacheEntry> entry in corpseFoodStateCacheByPairKey)
+            {
+                if (currentTick - entry.Value.Tick <= CorpseFoodStateCacheDurationTicks)
+                {
+                    continue;
+                }
+
+                if (staleKeys == null)
+                {
+                    staleKeys = new List<long>(64);
+                }
+
+                staleKeys.Add(entry.Key);
+            }
+
+            if (staleKeys == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < staleKeys.Count; i++)
+            {
+                corpseFoodStateCacheByPairKey.Remove(staleKeys[i]);
+            }
+        }
+
+        private static long CorpseFoodPairKey(Pawn eater, Corpse corpse)
+        {
+            if (eater == null || corpse == null)
+            {
+                return 0L;
+            }
+
+            uint eaterId = (uint)eater.thingIDNumber;
+            uint corpseId = (uint)corpse.thingIDNumber;
+            return ((long)eaterId << 32) | corpseId;
         }
 
         

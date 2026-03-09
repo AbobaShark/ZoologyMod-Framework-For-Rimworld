@@ -6,7 +6,7 @@ using Verse;
 
 namespace ZoologyMod
 {
-    internal static class PredationCacheUtility
+    internal static class ZoologyCacheUtility
     {
         private const string PhotonozoaPropertiesTypeName = "PhotonozoaProperties";
         private const string PhotonozoaPropertiesSuffix = ".PhotonozoaProperties";
@@ -17,6 +17,14 @@ namespace ZoologyMod
         private static readonly Dictionary<ThingDef, bool> thrumboLikeCache = new Dictionary<ThingDef, bool>();
         private static readonly Dictionary<ThingDef, bool> noFleeExtensionCache = new Dictionary<ThingDef, bool>();
         private static readonly Dictionary<ThingDef, bool> fleeFromCarrierExtensionCache = new Dictionary<ThingDef, bool>();
+        private static readonly Dictionary<ThingDef, bool> ectothermicExtensionCache = new Dictionary<ThingDef, bool>();
+        private static readonly Dictionary<ThingDef, bool> scavengerExtensionCache = new Dictionary<ThingDef, bool>();
+        private static readonly Dictionary<ThingDef, bool> agroAtSlaughterExtensionCache = new Dictionary<ThingDef, bool>();
+        private static readonly Dictionary<ThingDef, bool> cannotBeMutatedExtensionCache = new Dictionary<ThingDef, bool>();
+        private static readonly Dictionary<ThingDef, bool> cannotBeAugmentedExtensionCache = new Dictionary<ThingDef, bool>();
+        private static readonly Dictionary<ThingDef, bool> noPorcupineQuillExtensionCache = new Dictionary<ThingDef, bool>();
+        private static readonly Dictionary<ThingDef, bool> mammalThingDefExtensionCache = new Dictionary<ThingDef, bool>();
+        private static readonly Dictionary<PawnKindDef, bool> mammalPawnKindExtensionCache = new Dictionary<PawnKindDef, bool>();
         private static readonly Dictionary<OrderedDefPairKey, bool> crossbreedCache = new Dictionary<OrderedDefPairKey, bool>();
 
         private static FactionDef photonozoaFactionDef;
@@ -138,6 +146,142 @@ namespace ZoologyMod
 
             bool result = DefModExtensionCache<ModExtension_FleeFromCarrier>.Get(def) != null;
             fleeFromCarrierExtensionCache[def] = result;
+            return result;
+        }
+
+        public static bool HasEctothermicExtension(ThingDef def)
+        {
+            if (def == null)
+            {
+                return false;
+            }
+
+            if (ectothermicExtensionCache.TryGetValue(def, out bool cached))
+            {
+                return cached;
+            }
+
+            bool result = DefModExtensionCache<ModExtension_Ectothermic>.Get(def) != null;
+            ectothermicExtensionCache[def] = result;
+            return result;
+        }
+
+        public static bool HasScavengerExtension(ThingDef def)
+        {
+            if (def == null)
+            {
+                return false;
+            }
+
+            if (scavengerExtensionCache.TryGetValue(def, out bool cached))
+            {
+                return cached;
+            }
+
+            bool result = DefModExtensionCache<ModExtension_IsScavenger>.Get(def) != null;
+            scavengerExtensionCache[def] = result;
+            return result;
+        }
+
+        public static bool HasAgroAtSlaughterExtension(ThingDef def)
+        {
+            if (def == null)
+            {
+                return false;
+            }
+
+            if (agroAtSlaughterExtensionCache.TryGetValue(def, out bool cached))
+            {
+                return cached;
+            }
+
+            bool result = DefModExtensionCache<ModExtension_AgroAtSlaughter>.Get(def) != null;
+            agroAtSlaughterExtensionCache[def] = result;
+            return result;
+        }
+
+        public static bool HasCannotBeMutatedExtension(ThingDef def)
+        {
+            if (def == null)
+            {
+                return false;
+            }
+
+            if (cannotBeMutatedExtensionCache.TryGetValue(def, out bool cached))
+            {
+                return cached;
+            }
+
+            bool result = DefModExtensionCache<ModExtension_CannotBeMutated>.Get(def) != null;
+            cannotBeMutatedExtensionCache[def] = result;
+            return result;
+        }
+
+        public static bool HasCannotBeAugmentedExtension(ThingDef def)
+        {
+            if (def == null)
+            {
+                return false;
+            }
+
+            if (cannotBeAugmentedExtensionCache.TryGetValue(def, out bool cached))
+            {
+                return cached;
+            }
+
+            bool result = DefModExtensionCache<ModExtension_CannotBeAugmented>.Get(def) != null;
+            cannotBeAugmentedExtensionCache[def] = result;
+            return result;
+        }
+
+        public static bool HasNoPorcupineQuillExtension(ThingDef def)
+        {
+            if (def == null)
+            {
+                return false;
+            }
+
+            if (noPorcupineQuillExtensionCache.TryGetValue(def, out bool cached))
+            {
+                return cached;
+            }
+
+            bool result = DefModExtensionCache<ModExtension_NoPorcupineQuill>.Get(def) != null;
+            noPorcupineQuillExtensionCache[def] = result;
+            return result;
+        }
+
+        public static bool HasMammalExtension(ThingDef def)
+        {
+            if (def == null)
+            {
+                return false;
+            }
+
+            if (mammalThingDefExtensionCache.TryGetValue(def, out bool cached))
+            {
+                return cached;
+            }
+
+            bool result = DefModExtensionCache<ModExtension_IsMammal>.Get(def) != null;
+            mammalThingDefExtensionCache[def] = result;
+            return result;
+        }
+
+        public static bool HasMammalExtension(PawnKindDef kindDef)
+        {
+            if (kindDef == null)
+            {
+                return false;
+            }
+
+            if (mammalPawnKindExtensionCache.TryGetValue(kindDef, out bool cached))
+            {
+                return cached;
+            }
+
+            bool result = DefModExtensionCache<ModExtension_IsMammal>.Get(kindDef) != null;
+            mammalPawnKindExtensionCache[kindDef] = result;
             return result;
         }
 

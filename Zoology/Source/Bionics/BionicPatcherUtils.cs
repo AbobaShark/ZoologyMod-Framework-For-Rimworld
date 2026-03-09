@@ -19,7 +19,7 @@ namespace ZoologyMod
             if (animal == null) return false;
             if (animal.race == null || !animal.race.Animal) return false;
 
-            if (DefModExtensionCache<ModExtension_CannotBeAugmented>.Get(animal) != null)
+            if (ZoologyCacheUtility.HasCannotBeAugmentedExtension(animal))
                 return false;
 
             return true;

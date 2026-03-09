@@ -13,9 +13,13 @@ namespace ZoologyMod
         private const int SmallPetStateCacheDurationTicks = 15;
         private const int SmallPetStateCacheCleanupIntervalTicks = 600;
 
+        private static readonly Dictionary<ThingDef, bool> cachedEligibleSmallPetDefs = new Dictionary<ThingDef, bool>(64);
         private static readonly Dictionary<int, CachedSmallPetState> cachedSmallPetStateByPawnId = new Dictionary<int, CachedSmallPetState>(32);
+        private static readonly Dictionary<int, CachedThreatState> cachedThreatStateByPawnId = new Dictionary<int, CachedThreatState>(32);
         private static readonly List<int> cachedSmallPetStateCleanupBuffer = new List<int>(32);
+        private static ZoologyModSettings cachedSettings;
         private static int lastSmallPetStateCacheCleanupTick = -SmallPetStateCacheCleanupIntervalTicks;
+        private static float cachedSmallPetThreshold = -1f;
 
         public static bool Prepare()
         {
@@ -25,26 +29,25 @@ namespace ZoologyMod
 
         public static bool Prefix(Pawn __instance, Pawn otherPawn, ref bool __result)
         {
-            var settings = ModConstants.Settings;
+            var settings = GetSettingsFast();
             if (settings == null || !settings.EnableIgnoreSmallPetsByRaiders)
             {
                 return true;
             }
 
-            if (!IsPotentialRaiderIgnoringThreat(otherPawn))
-            {
-                return true;
-            }
-
             int currentTick = Find.TickManager?.TicksGame ?? 0;
-            if (!CanIgnoreSmallPetThreat(__instance, settings, currentTick))
+            float smallPetThreshold = settings.SmallPetBodySizeThreshold;
+            if (!CanEverUseSmallPetRaiderIgnore(__instance, smallPetThreshold))
             {
                 return true;
             }
 
-            Lord lord = otherPawn.GetLord();
-            bool allowAggressive = lord != null && lord.CurLordToil.AllowAggressiveTargetingOfRoamers;
-            if (allowAggressive)
+            if (!CanSuppressThreatForSmallPets(otherPawn, currentTick))
+            {
+                return true;
+            }
+
+            if (!CanIgnoreSmallPetThreat(__instance, currentTick))
             {
                 return true;
             }
@@ -53,24 +56,66 @@ namespace ZoologyMod
             return false;
         }
 
-        private static bool IsPotentialRaiderIgnoringThreat(Pawn otherPawn)
+        private static ZoologyModSettings GetSettingsFast()
         {
-            return otherPawn != null
-                && otherPawn.Spawned
+            if (cachedSettings != null)
+            {
+                return cachedSettings;
+            }
+
+            cachedSettings = ZoologyMod.Settings ?? ZoologyModSettings.Instance;
+            return cachedSettings;
+        }
+
+        private static bool CanEverUseSmallPetRaiderIgnore(Pawn pawn, float smallPetThreshold)
+        {
+            if (pawn == null || pawn.Faction != Faction.OfPlayer)
+            {
+                return false;
+            }
+
+            return IsEligibleSmallPetDef(pawn.def, smallPetThreshold);
+        }
+
+        private static bool CanSuppressThreatForSmallPets(Pawn otherPawn, int currentTick)
+        {
+            if (otherPawn == null)
+            {
+                return false;
+            }
+
+            int pawnId = otherPawn.thingIDNumber;
+            if (currentTick > 0
+                && cachedThreatStateByPawnId.TryGetValue(pawnId, out CachedThreatState cached)
+                && cached.ValidUntilTick >= currentTick)
+            {
+                return cached.CanSuppressThreat;
+            }
+
+            bool canSuppressThreat = otherPawn.Spawned
                 && !otherPawn.Dead
                 && !otherPawn.Destroyed
                 && !otherPawn.Downed
                 && otherPawn.RaceProps?.Humanlike == true
                 && otherPawn.HostileTo(Faction.OfPlayer);
+
+            if (canSuppressThreat)
+            {
+                Lord lord = otherPawn.GetLord();
+                canSuppressThreat = lord?.CurLordToil == null || !lord.CurLordToil.AllowAggressiveTargetingOfRoamers;
+            }
+
+            if (currentTick > 0)
+            {
+                cachedThreatStateByPawnId[pawnId] = new CachedThreatState(currentTick + SmallPetStateCacheDurationTicks, canSuppressThreat);
+            }
+
+            return canSuppressThreat;
         }
 
-        private static bool CanIgnoreSmallPetThreat(Pawn pawn, ZoologyModSettings settings, int currentTick)
+        private static bool CanIgnoreSmallPetThreat(Pawn pawn, int currentTick)
         {
-            if (pawn == null
-                || settings == null
-                || !pawn.RaceProps.Animal
-                || pawn.Faction != Faction.OfPlayer
-                || pawn.RaceProps.baseBodySize >= settings.SmallPetBodySizeThreshold)
+            if (pawn == null)
             {
                 return false;
             }
@@ -94,6 +139,29 @@ namespace ZoologyMod
             }
 
             return canIgnoreThreat;
+        }
+
+        private static bool IsEligibleSmallPetDef(ThingDef def, float threshold)
+        {
+            if (def?.race == null)
+            {
+                return false;
+            }
+
+            if (cachedSmallPetThreshold != threshold)
+            {
+                cachedEligibleSmallPetDefs.Clear();
+                cachedSmallPetThreshold = threshold;
+            }
+
+            if (cachedEligibleSmallPetDefs.TryGetValue(def, out bool cached))
+            {
+                return cached;
+            }
+
+            bool result = def.race.Animal && def.race.baseBodySize < threshold;
+            cachedEligibleSmallPetDefs[def] = result;
+            return result;
         }
 
         private static void CleanupCacheIfNeeded(int currentTick)
@@ -120,6 +188,21 @@ namespace ZoologyMod
             {
                 cachedSmallPetStateByPawnId.Remove(cachedSmallPetStateCleanupBuffer[i]);
             }
+
+            cachedSmallPetStateCleanupBuffer.Clear();
+
+            foreach (KeyValuePair<int, CachedThreatState> entry in cachedThreatStateByPawnId)
+            {
+                if (entry.Value.ValidUntilTick < currentTick)
+                {
+                    cachedSmallPetStateCleanupBuffer.Add(entry.Key);
+                }
+            }
+
+            for (int i = 0; i < cachedSmallPetStateCleanupBuffer.Count; i++)
+            {
+                cachedThreatStateByPawnId.Remove(cachedSmallPetStateCleanupBuffer[i]);
+            }
         }
 
         private readonly struct CachedSmallPetState
@@ -133,6 +216,19 @@ namespace ZoologyMod
             public int ValidUntilTick { get; }
 
             public bool CanIgnoreThreat { get; }
+        }
+
+        private readonly struct CachedThreatState
+        {
+            public CachedThreatState(int validUntilTick, bool canSuppressThreat)
+            {
+                ValidUntilTick = validUntilTick;
+                CanSuppressThreat = canSuppressThreat;
+            }
+
+            public int ValidUntilTick { get; }
+
+            public bool CanSuppressThreat { get; }
         }
     }
 }

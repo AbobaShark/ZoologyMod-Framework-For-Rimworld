@@ -15,9 +15,9 @@ namespace ZoologyMod
         {
             if (pawn == null) return false;
 
-            if (DefModExtensionCache<ModExtension_IsMammal>.Get(pawn.def) != null) return true;
+            if (ZoologyCacheUtility.HasMammalExtension(pawn.def)) return true;
 
-            if (DefModExtensionCache<ModExtension_IsMammal>.Get(pawn.kindDef) != null) return true;
+            if (ZoologyCacheUtility.HasMammalExtension(pawn.kindDef)) return true;
 
             return false;
         }

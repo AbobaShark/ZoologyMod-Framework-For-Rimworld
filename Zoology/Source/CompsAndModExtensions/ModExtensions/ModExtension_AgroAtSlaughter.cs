@@ -42,6 +42,12 @@ namespace ZoologyMod
     {
         public static bool IsAgroAtSlaughter(Pawn pawn, out ModExtension_AgroAtSlaughter ext)
         {
+            ext = null;
+            if (pawn?.def == null || !ZoologyCacheUtility.HasAgroAtSlaughterExtension(pawn.def))
+            {
+                return false;
+            }
+
             return DefModExtensionCache<ModExtension_AgroAtSlaughter>.TryGet(pawn, out ext);
         }
 

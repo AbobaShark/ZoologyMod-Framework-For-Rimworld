@@ -41,6 +41,12 @@ namespace ZoologyMod
 
         public static bool IsNoFlee(Pawn pawn, out ModExtension_NoFlee ext)
         {
+            ext = null;
+            if (pawn?.def == null || !ZoologyCacheUtility.HasNoFleeExtension(pawn.def))
+            {
+                return false;
+            }
+
             return DefModExtensionCache<ModExtension_NoFlee>.TryGet(pawn, out ext);
         }
     }
@@ -58,7 +64,13 @@ namespace ZoologyMod
         {
             try
             {
-                if (pawn != null && NoFleeUtil.IsNoFlee(pawn, out var ext))
+                if (pawn?.def == null || !ZoologyCacheUtility.HasNoFleeExtension(pawn.def))
+                {
+                    return true;
+                }
+
+                ModExtension_NoFlee ext = Prefs.DevMode ? DefModExtensionCache<ModExtension_NoFlee>.Get(pawn.def) : null;
+                if (pawn != null)
                 {
                     __result = null;
                     if (ext?.verboseLogging == true && Prefs.DevMode)
@@ -88,7 +100,13 @@ namespace ZoologyMod
         {
             try
             {
-                if (pawn != null && NoFleeUtil.IsNoFlee(pawn, out var ext))
+                if (pawn?.def == null || !ZoologyCacheUtility.HasNoFleeExtension(pawn.def))
+                {
+                    return true;
+                }
+
+                ModExtension_NoFlee ext = Prefs.DevMode ? DefModExtensionCache<ModExtension_NoFlee>.Get(pawn.def) : null;
+                if (pawn != null)
                 {
                     __result = false;
                     if (ext?.verboseLogging == true && Prefs.DevMode)
@@ -139,7 +157,9 @@ namespace ZoologyMod
                 {
                     var pawn = PawnField?.GetValue(__instance) as Pawn;
 
-                    if (pawn != null && NoFleeUtil.IsNoFlee(pawn, out var ext))
+                    if (pawn?.def != null
+                        && ZoologyCacheUtility.HasNoFleeExtension(pawn.def)
+                        && NoFleeUtil.IsNoFlee(pawn, out var ext))
                     {
                         if (Prefs.DevMode && ext?.verboseLogging == true)
                         {

@@ -28,7 +28,7 @@ namespace ZoologyMod
         
         public static bool IsCannotBeMutated(this Pawn pawn)
         {
-            return DefModExtensionCache<ModExtension_CannotBeMutated>.Has(pawn);
+            return pawn?.def != null && ZoologyCacheUtility.HasCannotBeMutatedExtension(pawn.def);
         }
     }
 

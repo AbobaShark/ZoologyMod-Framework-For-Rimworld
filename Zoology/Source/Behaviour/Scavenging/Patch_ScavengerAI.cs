@@ -39,6 +39,7 @@ namespace ZoologyMod.HarmonyPatches
                     if (eater == null || getter == null) return;
                     if (!allowCorpse) return;
 
+                    if (eater.def == null || !ZoologyCacheUtility.HasScavengerExtension(eater.def)) return;
                     var scav = DefModExtensionCache<ModExtension_IsScavenger>.Get(eater.def);
                     if (scav == null) return; 
                     var reachTraverseParms = TraverseParms.For(getter, Danger.Some, TraverseMode.ByPawn, false, false, false, true);
@@ -155,6 +156,7 @@ namespace ZoologyMod.HarmonyPatches
                     if (__instance == null) return;
                     Pawn pawn = __instance.pawn;
                     if (pawn == null) return;
+                    if (pawn.def == null || !ZoologyCacheUtility.HasScavengerExtension(pawn.def)) return;
                     var scav = DefModExtensionCache<ModExtension_IsScavenger>.Get(pawn.def);
                     if (scav == null) return;
 

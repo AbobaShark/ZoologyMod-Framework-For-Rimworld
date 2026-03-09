@@ -13,7 +13,9 @@ namespace ZoologyMod.HarmonyPatches
 
         private static bool IsScavenger(Pawn pawn)
         {
-            return pawn?.RaceProps?.Animal == true && DefModExtensionCache<ModExtension_IsScavenger>.Has(pawn);
+            return pawn?.RaceProps?.Animal == true
+                && pawn.def != null
+                && ZoologyCacheUtility.HasScavengerExtension(pawn.def);
         }
 
         [HarmonyPatch(typeof(FoodUtility), nameof(FoodUtility.AddFoodPoisoningHediff))]
