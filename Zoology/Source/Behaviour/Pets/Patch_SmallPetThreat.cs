@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System;
 using HarmonyLib;
 using RimWorld;
 using Verse;
@@ -16,14 +17,17 @@ namespace ZoologyMod
 
         private static readonly Dictionary<ThingDef, bool> cachedEligibleSmallPetDefs = new Dictionary<ThingDef, bool>(64);
         private static readonly Dictionary<int, CachedSmallPetState> cachedSmallPetStateByPawnId = new Dictionary<int, CachedSmallPetState>(32);
-        private static readonly Dictionary<int, CachedThreatState> cachedThreatStateByPawnId = new Dictionary<int, CachedThreatState>(32);
+        private static readonly Dictionary<long, CachedThreatState> cachedThreatStateByPairKey = new Dictionary<long, CachedThreatState>(64);
         private static readonly List<int> cachedSmallPetStateCleanupBuffer = new List<int>(32);
+        private static readonly List<long> cachedThreatStateCleanupBuffer = new List<long>(32);
         private static ZoologyModSettings cachedSettings;
         private static bool cachedIgnoreSmallPetsByRaidersEnabled = true;
         private static float cachedSmallPetThresholdSnapshot = ModConstants.DefaultSmallPetBodySizeThreshold;
         private static int lastSmallPetStateCacheCleanupTick = -SmallPetStateCacheCleanupIntervalTicks;
         private static int lastSettingsSnapshotTick = -SettingsSnapshotRefreshIntervalTicks;
         private static float cachedSmallPetThreshold = -1f;
+        [ThreadStatic]
+        private static bool isInsidePrefix;
 
         public static bool Prepare()
         {
@@ -41,34 +45,64 @@ namespace ZoologyMod
                 return true;
             }
 
-            if (!IsPotentialThreatPawn(otherPawn, __instance))
+            if (isInsidePrefix)
             {
                 return true;
             }
 
-            if (!IsPotentialSmallPetCandidate(__instance))
+            isInsidePrefix = true;
+            try
             {
+                if (!TryResolveSmallPetAndThreat(__instance, otherPawn, out Pawn smallPet, out Pawn threatPawn))
+                {
+                    return true;
+                }
+
+                int currentTick = Find.TickManager?.TicksGame ?? 0;
+                if (!TryGetSettingsSnapshot(currentTick, out float smallPetThreshold)
+                    || !IsEligibleSmallPetDef(smallPet.def, smallPetThreshold))
+                {
+                    return true;
+                }
+
+                if (!CanSuppressThreatForSmallPets(threatPawn, smallPet, currentTick))
+                {
+                    return true;
+                }
+
+                if (!CanIgnoreSmallPetThreat(smallPet, currentTick))
+                {
+                    return true;
+                }
+
+                __result = true;
+                return false;
+            }
+            finally
+            {
+                isInsidePrefix = false;
+            }
+        }
+
+        private static bool TryResolveSmallPetAndThreat(Pawn firstPawn, Pawn secondPawn, out Pawn smallPet, out Pawn threatPawn)
+        {
+            smallPet = null;
+            threatPawn = null;
+
+            if (IsPotentialSmallPetCandidate(firstPawn) && IsPotentialThreatPawn(secondPawn, firstPawn))
+            {
+                smallPet = firstPawn;
+                threatPawn = secondPawn;
                 return true;
             }
 
-            int currentTick = Find.TickManager?.TicksGame ?? 0;
-            if (!TryGetSettingsSnapshot(currentTick, out float smallPetThreshold)
-                || !IsEligibleSmallPetDef(__instance.def, smallPetThreshold))
+            if (IsPotentialSmallPetCandidate(secondPawn) && IsPotentialThreatPawn(firstPawn, secondPawn))
             {
+                smallPet = secondPawn;
+                threatPawn = firstPawn;
                 return true;
             }
 
-            if (!CanSuppressThreatForSmallPets(otherPawn, __instance, currentTick))
-            {
-                return true;
-            }
-
-            if (!CanIgnoreSmallPetThreat(__instance, currentTick))
-            {
-                return true;
-            }
-
-            __result = true;
             return false;
         }
 
@@ -135,9 +169,10 @@ namespace ZoologyMod
                 return false;
             }
 
-            int pawnId = otherPawn.thingIDNumber;
+            long pairKey = MakeThreatPairKey(otherPawn, smallPet);
             if (currentTick > 0
-                && cachedThreatStateByPawnId.TryGetValue(pawnId, out CachedThreatState cached)
+                && pairKey != 0L
+                && cachedThreatStateByPairKey.TryGetValue(pairKey, out CachedThreatState cached)
                 && cached.ValidUntilTick >= currentTick)
             {
                 return cached.CanSuppressThreat;
@@ -148,7 +183,7 @@ namespace ZoologyMod
                 && !otherPawn.Destroyed
                 && !otherPawn.Downed
                 && otherPawn.RaceProps?.Humanlike == true
-                && otherPawn.HostileTo(smallPet);
+                && IsHostileToSmallPetFaction(otherPawn, smallPet);
 
             if (canSuppressThreat)
             {
@@ -158,10 +193,47 @@ namespace ZoologyMod
 
             if (currentTick > 0)
             {
-                cachedThreatStateByPawnId[pawnId] = new CachedThreatState(currentTick + SmallPetStateCacheDurationTicks, canSuppressThreat);
+                if (pairKey != 0L)
+                {
+                    cachedThreatStateByPairKey[pairKey] = new CachedThreatState(currentTick + SmallPetStateCacheDurationTicks, canSuppressThreat);
+                }
             }
 
             return canSuppressThreat;
+        }
+
+        private static bool IsHostileToSmallPetFaction(Pawn threatPawn, Pawn smallPet)
+        {
+            if (threatPawn == null || smallPet == null)
+            {
+                return false;
+            }
+
+            Faction smallPetFaction = smallPet.Faction;
+            if (smallPetFaction == null)
+            {
+                return false;
+            }
+
+            Faction threatFaction = threatPawn.Faction;
+            if (threatFaction != null)
+            {
+                return threatFaction.HostileTo(smallPetFaction);
+            }
+
+            return threatPawn.HostileTo(smallPetFaction);
+        }
+
+        private static long MakeThreatPairKey(Pawn threatPawn, Pawn smallPet)
+        {
+            if (threatPawn == null || smallPet == null)
+            {
+                return 0L;
+            }
+
+            uint threatId = (uint)threatPawn.thingIDNumber;
+            uint smallPetId = (uint)smallPet.thingIDNumber;
+            return ((long)threatId << 32) | smallPetId;
         }
 
         private static bool CanIgnoreSmallPetThreat(Pawn pawn, int currentTick)
@@ -211,8 +283,7 @@ namespace ZoologyMod
             }
 
             bool result = def.race.Animal
-                && def.race.baseBodySize < threshold
-                && def.race.roamMtbDays <= 0f;
+                && def.race.baseBodySize < threshold;
             cachedEligibleSmallPetDefs[def] = result;
             return result;
         }
@@ -244,17 +315,19 @@ namespace ZoologyMod
 
             cachedSmallPetStateCleanupBuffer.Clear();
 
-            foreach (KeyValuePair<int, CachedThreatState> entry in cachedThreatStateByPawnId)
+            cachedThreatStateCleanupBuffer.Clear();
+
+            foreach (KeyValuePair<long, CachedThreatState> entry in cachedThreatStateByPairKey)
             {
                 if (entry.Value.ValidUntilTick < currentTick)
                 {
-                    cachedSmallPetStateCleanupBuffer.Add(entry.Key);
+                    cachedThreatStateCleanupBuffer.Add(entry.Key);
                 }
             }
 
-            for (int i = 0; i < cachedSmallPetStateCleanupBuffer.Count; i++)
+            for (int i = 0; i < cachedThreatStateCleanupBuffer.Count; i++)
             {
-                cachedThreatStateByPawnId.Remove(cachedSmallPetStateCleanupBuffer[i]);
+                cachedThreatStateByPairKey.Remove(cachedThreatStateCleanupBuffer[i]);
             }
         }
 

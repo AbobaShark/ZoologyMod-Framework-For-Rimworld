@@ -76,24 +76,20 @@ namespace ZoologyMod
             public int Tick { get; }
         }
 
-        private readonly struct NearbyThreatBucketsCacheEntry
+        private readonly struct NearbyThreatBucketCacheKey : IEquatable<NearbyThreatBucketCacheKey>
         {
-            public NearbyThreatBucketsCacheEntry(
+            public NearbyThreatBucketCacheKey(
                 int mapId,
                 int mapRefreshTick,
                 int bucketX,
                 int bucketZ,
-                int flagsMask,
-                bool hasNearbyThreatBuckets,
-                int tick)
+                int flagsMask)
             {
                 MapId = mapId;
                 MapRefreshTick = mapRefreshTick;
                 BucketX = bucketX;
                 BucketZ = bucketZ;
                 FlagsMask = flagsMask;
-                HasNearbyThreatBuckets = hasNearbyThreatBuckets;
-                Tick = tick;
             }
 
             public int MapId { get; }
@@ -101,6 +97,42 @@ namespace ZoologyMod
             public int BucketX { get; }
             public int BucketZ { get; }
             public int FlagsMask { get; }
+            public bool Equals(NearbyThreatBucketCacheKey other)
+            {
+                return MapId == other.MapId
+                    && MapRefreshTick == other.MapRefreshTick
+                    && BucketX == other.BucketX
+                    && BucketZ == other.BucketZ
+                    && FlagsMask == other.FlagsMask;
+            }
+
+            public override bool Equals(object obj)
+            {
+                return obj is NearbyThreatBucketCacheKey other && Equals(other);
+            }
+
+            public override int GetHashCode()
+            {
+                unchecked
+                {
+                    int hash = MapId;
+                    hash = (hash * 397) ^ MapRefreshTick;
+                    hash = (hash * 397) ^ BucketX;
+                    hash = (hash * 397) ^ BucketZ;
+                    hash = (hash * 397) ^ FlagsMask;
+                    return hash;
+                }
+            }
+        }
+
+        private readonly struct NearbyThreatBucketsCacheEntry
+        {
+            public NearbyThreatBucketsCacheEntry(bool hasNearbyThreatBuckets, int tick)
+            {
+                HasNearbyThreatBuckets = hasNearbyThreatBuckets;
+                Tick = tick;
+            }
+
             public bool HasNearbyThreatBuckets { get; }
             public int Tick { get; }
         }
@@ -153,6 +185,8 @@ namespace ZoologyMod
             public bool HasActivePredatorThreats;
             public bool HasPassivePredatorThreats;
             public bool HasCarrierThreats;
+            public bool HasCloseMeleeHumanlikeThreats;
+            public bool HasCloseMeleePredatorThreats;
 
             public void Clear()
             {
@@ -169,6 +203,8 @@ namespace ZoologyMod
                 HasActivePredatorThreats = false;
                 HasPassivePredatorThreats = false;
                 HasCarrierThreats = false;
+                HasCloseMeleeHumanlikeThreats = false;
+                HasCloseMeleePredatorThreats = false;
             }
         }
 
@@ -333,9 +369,10 @@ namespace ZoologyMod
                 AddThreat(data.HumanlikeThreatsByBucket, threat);
 
                 Pawn targetPawn = GetThreatTargetPawnOrNull(threat);
-                if (IsThreatMeleeAttackingPawn(threat, targetPawn, IsHumanlikeThreat))
+                if (IsThreatMeleeAttackingPawn(threat, targetPawn)
+                    && MarkCloseMeleeThreat(data.CloseMeleeHumanlikeThreatByPreyId, targetPawn, threat))
                 {
-                    MarkCloseMeleeThreat(data.CloseMeleeHumanlikeThreatByPreyId, targetPawn, threat);
+                    data.HasCloseMeleeHumanlikeThreats = true;
                 }
             }
 
@@ -343,9 +380,11 @@ namespace ZoologyMod
             {
                 AddThreat(data.ActivePredatorThreatsByBucket, threat);
 
-                if (targetPawn != null && IsThreatMeleeAttackingPawn(threat, targetPawn, IsPredatorLikeThreat))
+                if (targetPawn != null
+                    && IsThreatMeleeAttackingPawn(threat, targetPawn)
+                    && MarkCloseMeleeThreat(data.CloseMeleePredatorThreatByPreyId, targetPawn, threat))
                 {
-                    MarkCloseMeleeThreat(data.CloseMeleePredatorThreatByPreyId, targetPawn, threat);
+                    data.HasCloseMeleePredatorThreats = true;
                 }
             }
 
@@ -380,14 +419,15 @@ namespace ZoologyMod
                 list.Add(threat);
             }
 
-            private static void MarkCloseMeleeThreat(Dictionary<int, Pawn> threatsByPreyId, Pawn prey, Pawn threat)
+            private static bool MarkCloseMeleeThreat(Dictionary<int, Pawn> threatsByPreyId, Pawn prey, Pawn threat)
             {
                 if (threatsByPreyId == null || prey == null || threat == null || !IsValidNearbyPrey(prey, threat))
                 {
-                    return;
+                    return false;
                 }
 
                 threatsByPreyId[prey.thingIDNumber] = threat;
+                return true;
             }
 
             public static void ReturnBucketLists(Dictionary<int, List<Pawn>> buckets)
@@ -468,7 +508,7 @@ namespace ZoologyMod
         private static readonly Dictionary<int, NoThreatScanCacheEntry> noThreatScanCacheByPawnId = new Dictionary<int, NoThreatScanCacheEntry>(128);
         private static readonly Dictionary<long, ThreatVisibilityCacheEntry> lineOfSightAndReachCacheByPairKey = new Dictionary<long, ThreatVisibilityCacheEntry>(512);
         private static readonly Dictionary<long, ThreatVisibilityCacheEntry> lineOfSightOrReachCacheByPairKey = new Dictionary<long, ThreatVisibilityCacheEntry>(256);
-        private static readonly Dictionary<int, NearbyThreatBucketsCacheEntry> nearbyThreatBucketsCacheByPawnId = new Dictionary<int, NearbyThreatBucketsCacheEntry>(256);
+        private static readonly Dictionary<NearbyThreatBucketCacheKey, NearbyThreatBucketsCacheEntry> nearbyThreatBucketsCacheByBucketKey = new Dictionary<NearbyThreatBucketCacheKey, NearbyThreatBucketsCacheEntry>(256);
         private static readonly Dictionary<int, NearestPredatorThreatCacheEntry> nearestPredatorThreatCacheByPawnId = new Dictionary<int, NearestPredatorThreatCacheEntry>(256);
 
         private const float PredatorSearchRadius = 12f;
@@ -488,6 +528,10 @@ namespace ZoologyMod
         private const int ThreatBucketSize = 8;
 
         private static int lastThreatCacheCleanupTick = -ThreatCacheCleanupIntervalTicks;
+        private static int lastFreshThreatCacheTick = int.MinValue;
+        private static int lastFreshThreatCacheMapId = int.MinValue;
+        private static bool lastFreshThreatCacheWasFresh;
+        private static ThreatMapCacheData lastFreshThreatCacheData;
 
         public static bool Prepare()
         {
@@ -641,7 +685,8 @@ namespace ZoologyMod
                 return false;
             }
 
-            if (HasActiveCloseMeleeThreatFromPredator(pawn, threatCache))
+            if (threatCache.HasCloseMeleePredatorThreats
+                && HasActiveCloseMeleeThreatFromPredator(pawn, threatCache))
             {
                 return true;
             }
@@ -906,7 +951,7 @@ namespace ZoologyMod
             Map map = pawn.Map;
             int pawnId = pawn.thingIDNumber;
             int mapId = map.uniqueID;
-            bool hasFreshThreatCache = ThreatMapCache.TryGetFresh(map, currentTick, out ThreatMapCacheData freshThreatCache);
+            bool hasFreshThreatCache = TryGetFreshThreatCacheFast(map, currentTick, out ThreatMapCacheData freshThreatCache);
 
             if (TryUseNoThreatScanCache(
                 pawnId,
@@ -923,6 +968,7 @@ namespace ZoologyMod
                 }
 
                 if (predatorsEnabled
+                    && freshThreatCache.HasCloseMeleePredatorThreats
                     && HasActiveCloseMeleeThreatFromPredator(pawn, freshThreatCache))
                 {
                     ClearNoThreatScanCache(pawn);
@@ -930,6 +976,7 @@ namespace ZoologyMod
                 }
 
                 if ((humansEnabled || smallPetRaidersEnabled)
+                    && freshThreatCache.HasCloseMeleeHumanlikeThreats
                     && HasActiveCloseMeleeThreatFromHumanlike(pawn, freshThreatCache))
                 {
                     ClearNoThreatScanCache(pawn);
@@ -940,6 +987,8 @@ namespace ZoologyMod
             }
 
             if (predatorsEnabled
+                && hasFreshThreatCache
+                && freshThreatCache.HasCloseMeleePredatorThreats
                 && HasActiveCloseMeleeThreatFromPredator(pawn, freshThreatCache))
             {
                 ClearNoThreatScanCache(pawn);
@@ -947,6 +996,8 @@ namespace ZoologyMod
             }
 
             if ((humansEnabled || smallPetRaidersEnabled)
+                && hasFreshThreatCache
+                && freshThreatCache.HasCloseMeleeHumanlikeThreats
                 && HasActiveCloseMeleeThreatFromHumanlike(pawn, freshThreatCache))
             {
                 ClearNoThreatScanCache(pawn);
@@ -1044,6 +1095,39 @@ namespace ZoologyMod
             return true;
         }
 
+        private static bool TryGetFreshThreatCacheFast(Map map, int currentTick, out ThreatMapCacheData cache)
+        {
+            cache = null;
+            if (map == null || currentTick <= 0)
+            {
+                return false;
+            }
+
+            int mapId = map.uniqueID;
+            if (lastFreshThreatCacheWasFresh
+                && lastFreshThreatCacheTick == currentTick
+                && lastFreshThreatCacheMapId == mapId
+                && lastFreshThreatCacheData != null
+                && currentTick - lastFreshThreatCacheData.RefreshTick < ThreatMapRefreshIntervalTicks)
+            {
+                cache = lastFreshThreatCacheData;
+                return true;
+            }
+
+            bool hasFresh = ThreatMapCache.TryGetFresh(map, currentTick, out ThreatMapCacheData freshCache);
+            if (hasFresh)
+            {
+                lastFreshThreatCacheTick = currentTick;
+                lastFreshThreatCacheMapId = mapId;
+                lastFreshThreatCacheWasFresh = true;
+                lastFreshThreatCacheData = freshCache;
+                cache = freshCache;
+                return true;
+            }
+
+            return false;
+        }
+
         private static bool HasRelevantThreats(
             ThreatMapCacheData cache,
             bool predatorsEnabled,
@@ -1136,12 +1220,6 @@ namespace ZoologyMod
                 return false;
             }
 
-            int pawnId = pawn.thingIDNumber;
-            if (!nearbyThreatBucketsCacheByPawnId.TryGetValue(pawnId, out NearbyThreatBucketsCacheEntry cached))
-            {
-                return false;
-            }
-
             IntVec3 position = pawn.Position;
             int bucketX = position.x / ThreatBucketSize;
             int bucketZ = position.z / ThreatBucketSize;
@@ -1151,15 +1229,20 @@ namespace ZoologyMod
                 humansEnabled,
                 carriersEnabled,
                 smallPetRaidersEnabled);
-
-            if (cached.MapId != pawn.Map.uniqueID
-                || cached.MapRefreshTick != cache.RefreshTick
-                || cached.BucketX != bucketX
-                || cached.BucketZ != bucketZ
-                || cached.FlagsMask != flagsMask
-                || currentTick - cached.Tick > NearbyThreatBucketsCacheDurationTicks)
+            var key = new NearbyThreatBucketCacheKey(
+                pawn.Map.uniqueID,
+                cache.RefreshTick,
+                bucketX,
+                bucketZ,
+                flagsMask);
+            if (!nearbyThreatBucketsCacheByBucketKey.TryGetValue(key, out NearbyThreatBucketsCacheEntry cached))
             {
-                nearbyThreatBucketsCacheByPawnId.Remove(pawnId);
+                return false;
+            }
+
+            if (currentTick - cached.Tick > NearbyThreatBucketsCacheDurationTicks)
+            {
+                nearbyThreatBucketsCacheByBucketKey.Remove(key);
                 return false;
             }
 
@@ -1190,15 +1273,13 @@ namespace ZoologyMod
                 humansEnabled,
                 carriersEnabled,
                 smallPetRaidersEnabled);
-
-            nearbyThreatBucketsCacheByPawnId[pawn.thingIDNumber] = new NearbyThreatBucketsCacheEntry(
+            var key = new NearbyThreatBucketCacheKey(
                 pawn.Map.uniqueID,
                 cache.RefreshTick,
                 position.x / ThreatBucketSize,
                 position.z / ThreatBucketSize,
-                flagsMask,
-                hasNearbyThreatBuckets,
-                currentTick);
+                flagsMask);
+            nearbyThreatBucketsCacheByBucketKey[key] = new NearbyThreatBucketsCacheEntry(hasNearbyThreatBuckets, currentTick);
         }
 
         private static bool TryGetCachedNearestPredatorThreat(
@@ -1434,13 +1515,13 @@ namespace ZoologyMod
         private static bool HasActiveCloseMeleeThreatFromPredator(Pawn pawn, bool refreshIfNeeded)
         {
             return TryGetCloseMeleeThreat(pawn, isPredatorThreat: true, refreshIfNeeded, out Pawn threat)
-                && IsThreatMeleeAttackingPawn(threat, pawn, IsPredatorLikeThreat);
+                && IsThreatMeleeAttackingPawn(threat, pawn);
         }
 
         private static bool HasActiveCloseMeleeThreatFromPredator(Pawn pawn, ThreatMapCacheData cache)
         {
             return TryGetCloseMeleeThreat(pawn, isPredatorThreat: true, cache, out Pawn threat)
-                && IsThreatMeleeAttackingPawn(threat, pawn, IsPredatorLikeThreat);
+                && IsThreatMeleeAttackingPawn(threat, pawn);
         }
 
         private static bool HasActiveCloseMeleeThreatFromHumanlike(Pawn pawn)
@@ -1451,57 +1532,38 @@ namespace ZoologyMod
         private static bool HasActiveCloseMeleeThreatFromHumanlike(Pawn pawn, bool refreshIfNeeded)
         {
             return TryGetCloseMeleeThreat(pawn, isPredatorThreat: false, refreshIfNeeded, out Pawn threat)
-                && IsThreatMeleeAttackingPawn(threat, pawn, IsHumanlikeThreat);
+                && IsThreatMeleeAttackingPawn(threat, pawn);
         }
 
         private static bool HasActiveCloseMeleeThreatFromHumanlike(Pawn pawn, ThreatMapCacheData cache)
         {
             return TryGetCloseMeleeThreat(pawn, isPredatorThreat: false, cache, out Pawn threat)
-                && IsThreatMeleeAttackingPawn(threat, pawn, IsHumanlikeThreat);
+                && IsThreatMeleeAttackingPawn(threat, pawn);
         }
 
-        private static bool IsThreatMeleeAttackingPawn(Pawn threat, Pawn pawn, Predicate<Pawn> threatPredicate)
+        private static bool IsThreatMeleeAttackingPawn(Pawn threat, Pawn pawn)
         {
-            if (threat?.CurJob?.def != JobDefOf.AttackMelee)
+            if (threat == null
+                || pawn == null
+                || threat == pawn
+                || !threat.Spawned
+                || !pawn.Spawned
+                || threat.Dead
+                || threat.Destroyed
+                || threat.Downed
+                || threat.Map != pawn.Map
+                || !threat.Position.AdjacentTo8WayOrInside(pawn.Position))
             {
                 return false;
             }
 
-            Pawn targetPawn = threat.CurJob.GetTarget(TargetIndex.A).Thing as Pawn;
-            return targetPawn == pawn
-                && IsValidActiveMeleeThreatPair(threat, pawn, threatPredicate)
-                && IsExplicitlyHostileToPawn(threat, pawn);
-        }
-
-        private static bool IsValidActiveMeleeThreatPair(Pawn threat, Pawn pawn, Predicate<Pawn> threatPredicate)
-        {
-            return threat != null
-                && pawn != null
-                && threat != pawn
-                && !threat.Dead
-                && !threat.Destroyed
-                && !threat.Downed
-                && threat.Spawned
-                && pawn.Spawned
-                && threat.Map == pawn.Map
-                && threat.Position.AdjacentTo8WayOrInside(pawn.Position)
-                && threatPredicate(threat);
-        }
-
-        private static bool IsExplicitlyHostileToPawn(Pawn threat, Pawn pawn)
-        {
-            if (threat == null || pawn == null)
+            Job curJob = threat.CurJob;
+            if (curJob?.def != JobDefOf.AttackMelee || !curJob.targetA.HasThing)
             {
                 return false;
             }
 
-            if (threat.HostileTo(pawn))
-            {
-                return true;
-            }
-
-            return threat.CurJob?.def == JobDefOf.AttackMelee
-                && threat.CurJob.GetTarget(TargetIndex.A).Thing == pawn;
+            return ReferenceEquals(curJob.GetTarget(TargetIndex.A).Thing, pawn);
         }
 
         private static bool IsHumanlikeThreat(Pawn pawn)
@@ -1574,7 +1636,16 @@ namespace ZoologyMod
             int currentTick = Find.TickManager?.TicksGame ?? 0;
             cache = refreshIfNeeded
                 ? ThreatMapCache.GetOrRefresh(pawn.Map, currentTick)
-                : ThreatMapCache.TryGetFresh(pawn.Map, currentTick, out ThreatMapCacheData freshCache) ? freshCache : null;
+                : TryGetFreshThreatCacheFast(pawn.Map, currentTick, out ThreatMapCacheData freshCache) ? freshCache : null;
+
+            if (refreshIfNeeded && cache != null && currentTick > 0)
+            {
+                lastFreshThreatCacheTick = currentTick;
+                lastFreshThreatCacheMapId = pawn.Map.uniqueID;
+                lastFreshThreatCacheWasFresh = true;
+                lastFreshThreatCacheData = cache;
+            }
+
             return cache != null;
         }
 
@@ -2234,13 +2305,13 @@ namespace ZoologyMod
 
         private static void CleanupNearbyThreatBucketsCache(int currentTick)
         {
-            if (nearbyThreatBucketsCacheByPawnId.Count == 0)
+            if (nearbyThreatBucketsCacheByBucketKey.Count == 0)
             {
                 return;
             }
 
-            List<int> staleKeys = null;
-            foreach (KeyValuePair<int, NearbyThreatBucketsCacheEntry> entry in nearbyThreatBucketsCacheByPawnId)
+            List<NearbyThreatBucketCacheKey> staleKeys = null;
+            foreach (KeyValuePair<NearbyThreatBucketCacheKey, NearbyThreatBucketsCacheEntry> entry in nearbyThreatBucketsCacheByBucketKey)
             {
                 if (currentTick - entry.Value.Tick <= NearbyThreatBucketsCacheDurationTicks)
                 {
@@ -2249,7 +2320,7 @@ namespace ZoologyMod
 
                 if (staleKeys == null)
                 {
-                    staleKeys = new List<int>(64);
+                    staleKeys = new List<NearbyThreatBucketCacheKey>(64);
                 }
 
                 staleKeys.Add(entry.Key);
@@ -2262,7 +2333,7 @@ namespace ZoologyMod
 
             for (int i = 0; i < staleKeys.Count; i++)
             {
-                nearbyThreatBucketsCacheByPawnId.Remove(staleKeys[i]);
+                nearbyThreatBucketsCacheByBucketKey.Remove(staleKeys[i]);
             }
         }
 
