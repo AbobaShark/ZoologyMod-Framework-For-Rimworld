@@ -22,6 +22,25 @@ namespace ZoologyMod
         public const string ProtectPreyDefName = "Zoology_ProtectPrey";
         private static readonly Dictionary<Type, bool> protectDriverTypeCache = new Dictionary<Type, bool>();
         private static readonly Dictionary<Type, PropertyInfo> thingPropertyBySearcherType = new Dictionary<Type, PropertyInfo>();
+        private readonly struct ProtectedPawnCacheEntry
+        {
+            public ProtectedPawnCacheEntry(Job job, Pawn protectedPawn, int mapId)
+            {
+                Job = job;
+                ProtectedPawn = protectedPawn;
+                MapId = mapId;
+            }
+
+            public Job Job { get; }
+            public Pawn ProtectedPawn { get; }
+            public int MapId { get; }
+        }
+
+        private static readonly Dictionary<int, ProtectedPawnCacheEntry> protectedPawnCacheByPredatorId =
+            new Dictionary<int, ProtectedPawnCacheEntry>(64);
+        private static readonly List<int> protectedPawnCacheCleanupBuffer = new List<int>(16);
+        private const int ProtectedPawnCacheCleanupIntervalTicks = 600;
+        private static int lastProtectedPawnCacheCleanupTick = -ProtectedPawnCacheCleanupIntervalTicks;
 
         private static bool IsProtectPreyDriverType(Type driverType)
         {
@@ -102,19 +121,90 @@ namespace ZoologyMod
             var curJob = predator.CurJob;
             if (!IsProtectPreyJob(curJob, predator.jobs?.curDriver))
             {
+                protectedPawnCacheByPredatorId.Remove(predator.thingIDNumber);
                 return false;
+            }
+
+            int predatorId = predator.thingIDNumber;
+            if (curJob != null
+                && protectedPawnCacheByPredatorId.TryGetValue(predatorId, out ProtectedPawnCacheEntry cached)
+                && ReferenceEquals(cached.Job, curJob)
+                && cached.MapId == (predator.Map?.uniqueID ?? -1)
+                && IsValidProtectedPawn(predator, cached.ProtectedPawn))
+            {
+                protectedPawn = cached.ProtectedPawn;
+                return true;
             }
 
             try
             {
                 protectedPawn = curJob.GetTarget(TargetIndex.A).Thing as Pawn;
-                return protectedPawn != null;
+                if (!IsValidProtectedPawn(predator, protectedPawn))
+                {
+                    protectedPawnCacheByPredatorId.Remove(predatorId);
+                    return false;
+                }
+
+                protectedPawnCacheByPredatorId[predatorId] = new ProtectedPawnCacheEntry(
+                    curJob,
+                    protectedPawn,
+                    predator.Map?.uniqueID ?? -1);
+                CleanupProtectedPawnCacheIfNeeded(Find.TickManager?.TicksGame ?? 0);
+                return true;
             }
             catch
             {
+                protectedPawnCacheByPredatorId.Remove(predatorId);
                 protectedPawn = null;
                 return false;
             }
+        }
+
+        private static bool IsValidProtectedPawn(Pawn predator, Pawn protectedPawn)
+        {
+            return predator != null
+                && protectedPawn != null
+                && !protectedPawn.Dead
+                && !protectedPawn.Destroyed
+                && protectedPawn.Spawned
+                && predator.Map != null
+                && protectedPawn.Map == predator.Map;
+        }
+
+        public static bool IsActivelyProtectingNearbyPrey(Pawn predator, float threatRadius)
+        {
+            if (!TryGetProtectedPawn(predator, out Pawn protectedPawn) || !protectedPawn.Spawned)
+            {
+                return false;
+            }
+
+            return predator.Position.InHorDistOf(protectedPawn.Position, threatRadius);
+        }
+
+        private static void CleanupProtectedPawnCacheIfNeeded(int currentTick)
+        {
+            if (currentTick - lastProtectedPawnCacheCleanupTick < ProtectedPawnCacheCleanupIntervalTicks)
+            {
+                return;
+            }
+
+            lastProtectedPawnCacheCleanupTick = currentTick;
+            protectedPawnCacheCleanupBuffer.Clear();
+            foreach (KeyValuePair<int, ProtectedPawnCacheEntry> entry in protectedPawnCacheByPredatorId)
+            {
+                ProtectedPawnCacheEntry cached = entry.Value;
+                if (cached.Job == null || cached.ProtectedPawn == null || cached.ProtectedPawn.Dead || cached.ProtectedPawn.Destroyed)
+                {
+                    protectedPawnCacheCleanupBuffer.Add(entry.Key);
+                }
+            }
+
+            for (int i = 0; i < protectedPawnCacheCleanupBuffer.Count; i++)
+            {
+                protectedPawnCacheByPredatorId.Remove(protectedPawnCacheCleanupBuffer[i]);
+            }
+
+            protectedPawnCacheCleanupBuffer.Clear();
         }
 
         public static Pawn TryGetSearcherPawn(IAttackTargetSearcher searcher)
@@ -306,33 +396,6 @@ namespace ZoologyMod
             catch (Exception ex)
             {
                 Log.Error($"[ZoologyMod] Patch_ReactToCloseMeleeThreat_IsHunting Postfix error: {ex}");
-            }
-        }
-    }
-
-    [HarmonyPatch(typeof(PawnUtility), "IsFighting", new Type[] { typeof(Pawn) })]
-    public static class Patch_PawnUtility_IsFighting
-    {
-        public static bool Prepare() => PredationSettingsGate.EnablePredatorDefendCorpse();
-
-        static void Postfix(Pawn pawn, ref bool __result)
-        {
-            try
-            {
-                if (__result) return; 
-                if (!ProtectPreyState.TryGetProtectedPawn(pawn, out var targetPawn)) return;
-                if (targetPawn.Spawned)
-                {
-                    const float THREAT_RADIUS = 20f;
-                    if (pawn.Position.InHorDistOf(targetPawn.Position, THREAT_RADIUS))
-                    {
-                        __result = true;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Error($"[ZoologyMod] Patch_PawnUtility_IsFighting Postfix error: {ex}");
             }
         }
     }

@@ -27,11 +27,13 @@ namespace ZoologyMod
         
         private Dictionary<int, int> runtimePredatorToCorpse = new Dictionary<int, int>();
         private Dictionary<int, HashSet<int>> runtimeCorpseToPredators = new Dictionary<int, HashSet<int>>();
+        private readonly Dictionary<int, Faction> runtimePredatorFactionById = new Dictionary<int, Faction>();
         private readonly Dictionary<int, Pawn> pawnLookupCache = new Dictionary<int, Pawn>();
         private readonly Dictionary<int, Corpse> corpseLookupCache = new Dictionary<int, Corpse>();
         private readonly Dictionary<int, long> corpseNegativeLookupUntil = new Dictionary<int, long>();
         private readonly List<KeyValuePair<long, long>> pairSnapshotBuffer = new List<KeyValuePair<long, long>>(128);
         private readonly List<long> pairRemovalBuffer = new List<long>(32);
+        private readonly List<long> predatorPairCleanupBuffer = new List<long>(8);
         private readonly List<int> activePredatorIdBuffer = new List<int>(8);
         private readonly List<int> ownerPredatorIdBuffer = new List<int>(4);
         private readonly List<Pawn> predatorsToRegisterBuffer = new List<Pawn>(8);
@@ -70,6 +72,7 @@ namespace ZoologyMod
                 }
                 runtimePredatorToCorpse.Clear();
                 runtimeCorpseToPredators.Clear();
+                runtimePredatorFactionById.Clear();
                 ClearLookupCaches();
             }
         }
@@ -94,6 +97,7 @@ namespace ZoologyMod
             }
             runtimePredatorToCorpse.Clear();
             runtimeCorpseToPredators.Clear();
+            runtimePredatorFactionById.Clear();
             ClearLookupCaches();
             singleton = this;
         }
@@ -124,6 +128,7 @@ namespace ZoologyMod
 
                     runtimePredatorToCorpse.Clear();
                     runtimeCorpseToPredators.Clear();
+                    runtimePredatorFactionById.Clear();
                     inaccessibleSince = new Dictionary<long, long>();
                     ClearLookupCaches();
 
@@ -142,7 +147,7 @@ namespace ZoologyMod
                         int cid = (int)((uint)(key & 0xFFFFFFFF));
                         if (pid > 0 && cid > 0)
                         {
-                            AddRuntimePairMapping(pid, cid);
+                            AddRuntimePairMapping(pid, cid, FindPawnById(pid));
                         }
                     }
 
@@ -180,7 +185,7 @@ namespace ZoologyMod
             corpseNegativeLookupUntil.Clear();
         }
 
-        private void AddRuntimePairMapping(int predatorId, int corpseId)
+        private void AddRuntimePairMapping(int predatorId, int corpseId, Pawn predator = null)
         {
             if (predatorId <= 0 || corpseId <= 0) return;
 
@@ -197,6 +202,11 @@ namespace ZoologyMod
                 runtimeCorpseToPredators[corpseId] = predators;
             }
             predators.Add(predatorId);
+
+            if (predator != null)
+            {
+                runtimePredatorFactionById[predatorId] = predator.Faction;
+            }
         }
 
         private void RemoveRuntimePairMapping(int predatorId, int corpseId)
@@ -210,6 +220,11 @@ namespace ZoologyMod
                 else if (runtimePredatorToCorpse.TryGetValue(predatorId, out int mappedCorpseId) && mappedCorpseId == corpseId)
                 {
                     runtimePredatorToCorpse.Remove(predatorId);
+                }
+
+                if (!runtimePredatorToCorpse.ContainsKey(predatorId))
+                {
+                    runtimePredatorFactionById.Remove(predatorId);
                 }
             }
 
@@ -253,6 +268,35 @@ namespace ZoologyMod
             }
         }
 
+        private void RemoveAllPairsForPredatorLocked(int predatorId)
+        {
+            if (predatorId <= 0)
+            {
+                return;
+            }
+
+            predatorPairCleanupBuffer.Clear();
+            foreach (var entry in pairsUntil)
+            {
+                if (PredatorIdFromKey(entry.Key) == predatorId)
+                {
+                    predatorPairCleanupBuffer.Add(entry.Key);
+                }
+            }
+
+            for (int i = 0; i < predatorPairCleanupBuffer.Count; i++)
+            {
+                long key = predatorPairCleanupBuffer[i];
+                pairsUntil.Remove(key);
+                int corpseId = CorpseIdFromKey(key);
+                RemoveRuntimePairMapping(predatorId, corpseId);
+                inaccessibleSince.Remove(key);
+                lastTriggerAttempt.Remove(key);
+            }
+
+            predatorPairCleanupBuffer.Clear();
+        }
+
         
 
         public void RegisterPairFromKill(Pawn predator, Pawn killedPawn, int durationTicks = DEFAULT_PAIR_TICKS)
@@ -277,7 +321,7 @@ namespace ZoologyMod
                     return;
                 }
 
-                RegisterPairFromKill(predator, corpse, durationTicks);
+                RegisterPairFromKill(predator, corpse, durationTicks, killedPawn);
             }
             catch (Exception ex)
             {
@@ -286,6 +330,11 @@ namespace ZoologyMod
         }
 
         public void RegisterPairFromKill(Pawn predator, Corpse corpse, int durationTicks = DEFAULT_PAIR_TICKS)
+        {
+            RegisterPairFromKill(predator, corpse, durationTicks, corpse?.InnerPawn);
+        }
+
+        private void RegisterPairFromKill(Pawn predator, Corpse corpse, int durationTicks, Pawn killedPawn)
         {
             try
             {
@@ -296,17 +345,18 @@ namespace ZoologyMod
                 long now = Find.TickManager?.TicksGame ?? 0L;
                 long until = now + durationTicks;
 
-                FillPredatorsToRegister(predator, predatorsToRegisterBuffer);
+                FillPredatorsToRegister(predator, killedPawn, corpse, predatorsToRegisterBuffer);
 
                 lock (dictLock)
                 {
                     for (int i = 0; i < predatorsToRegisterBuffer.Count; i++)
                     {
                         var pred = predatorsToRegisterBuffer[i];
+                        RemoveAllPairsForPredatorLocked(pred.thingIDNumber);
                         long key = PairKeyFor(pred.thingIDNumber, corpseId);
                         if (key == 0) continue;
                         pairsUntil[key] = until;
-                        AddRuntimePairMapping(pred.thingIDNumber, corpseId);
+                        AddRuntimePairMapping(pred.thingIDNumber, corpseId, pred);
                         if (inaccessibleSince.ContainsKey(key)) inaccessibleSince.Remove(key);
                     }
                 }
@@ -328,28 +378,100 @@ namespace ZoologyMod
 
         private void FillPredatorsToRegister(Pawn predator, List<Pawn> result)
         {
+            FillPredatorsToRegister(predator, null, null, result);
+        }
+
+        private void FillPredatorsToRegister(Pawn predator, Pawn killedPawn, Corpse corpse, List<Pawn> result)
+        {
             result.Clear();
             if (predator == null) return;
 
-            if (predator.RaceProps.herdAnimal)
+            if (predator.Map == null)
             {
-                var all = predator.Map.mapPawns.AllPawnsSpawned;
-                long radSq = (long)HERD_RADIUS * HERD_RADIUS;
-                for (int i = 0; i < all.Count; i++)
+                result.Add(predator);
+                return;
+            }
+
+            if (!predator.RaceProps.herdAnimal)
+            {
+                result.Add(predator);
+                return;
+            }
+
+            var all = predator.Map.mapPawns.AllPawnsSpawned;
+            long radSq = (long)HERD_RADIUS * HERD_RADIUS;
+            for (int i = 0; i < all.Count; i++)
+            {
+                var p = all[i];
+                if (!IsPredatorEligibleForSharedCorpseRegistration(predator, p))
                 {
-                    var p = all[i];
-                    if (p == null) continue;
-                    if (!p.RaceProps.predator) continue;
-                    if (p.def != predator.def) continue;
-                    if (p.Faction != predator.Faction) continue;
-                    if ((p.Position - predator.Position).LengthHorizontalSquared <= radSq)
-                        result.Add(p);
+                    continue;
+                }
+
+                bool nearPredator = (p.Position - predator.Position).LengthHorizontalSquared <= radSq;
+                bool huntingSameTarget = IsActivelyHuntingSamePreyOrCorpse(p, killedPawn, corpse);
+                if (nearPredator || huntingSameTarget)
+                {
+                    result.Add(p);
                 }
             }
-            else
+
+            if (!result.Contains(predator))
             {
                 result.Add(predator);
             }
+        }
+
+        private bool IsPredatorEligibleForSharedCorpseRegistration(Pawn leader, Pawn candidate)
+        {
+            if (leader == null || candidate == null)
+            {
+                return false;
+            }
+
+            if (!candidate.Spawned || candidate.Dead || candidate.Destroyed || candidate.Downed)
+            {
+                return false;
+            }
+
+            if (!candidate.RaceProps.predator || candidate.Map != leader.Map)
+            {
+                return false;
+            }
+
+            if (!ReferenceEquals(candidate.Faction, leader.Faction))
+            {
+                return false;
+            }
+
+            return candidate.def == leader.def
+                || PredationCacheUtility.AreCrossbreedRelated(candidate.def, leader.def);
+        }
+
+        private static bool IsActivelyHuntingSamePreyOrCorpse(Pawn predator, Pawn killedPawn, Corpse corpse)
+        {
+            if (predator?.CurJob == null)
+            {
+                return false;
+            }
+
+            Job curJob = predator.CurJob;
+            Thing targetThing = null;
+            try { targetThing = curJob.targetA.Thing; } catch { targetThing = null; }
+
+            if (targetThing != null && (targetThing == killedPawn || targetThing == corpse))
+            {
+                return true;
+            }
+
+            Type driverClass = curJob.def?.driverClass;
+            if (driverClass == null || !typeof(JobDriver_PredatorHunt).IsAssignableFrom(driverClass))
+            {
+                return false;
+            }
+
+            Pawn prey = predator.jobs?.curDriver is JobDriver_PredatorHunt huntDriver ? huntDriver.Prey : null;
+            return prey == killedPawn;
         }
 
         
@@ -538,7 +660,10 @@ namespace ZoologyMod
                 {
                     long key = PairKeyFor(pid, corpseId);
                     if (key == 0) continue;
-                    if (pairsUntil.TryGetValue(key, out long until) && until >= now)
+                    if (pairsUntil.TryGetValue(key, out long until)
+                        && until >= now
+                        && runtimePredatorToCorpse.TryGetValue(pid, out int mappedCorpseId)
+                        && mappedCorpseId == corpseId)
                     {
                         result.Add(pid);
                     }
@@ -586,16 +711,36 @@ namespace ZoologyMod
 
                     bool remove = false;
 
-                    if (!foundPred || predDead || !foundCorpse)
+                    lock (dictLock)
+                    {
+                        if (runtimePredatorToCorpse.TryGetValue(pid, out int mappedCorpseId) && mappedCorpseId != cid)
+                        {
+                            remove = true;
+                        }
+                    }
+
+                    if (!remove && (!foundPred || predDead || !foundCorpse))
                     {
                         remove = true;
                     }
-                    else if (corpse != null && corpse.IsDessicated())
+                    else if (!remove && corpse != null && corpse.IsDessicated())
                     {
                         remove = true;
                     }
                     else
                     {
+                        if (!remove && pred != null && HasPredatorFactionChanged(pred))
+                        {
+                            remove = true;
+                        }
+
+                        if (remove)
+                        {
+                            pairRemovalBuffer.Add(key);
+                            ClearInaccessibleFlagIfPresent(key);
+                            continue;
+                        }
+
                         if (foundNonSpawned && corpse != null)
                         {
                             ClearInaccessibleFlagIfPresent(key);
@@ -683,7 +828,7 @@ namespace ZoologyMod
                         {
                             lock (dictLock)
                             {
-                                AddRuntimePairMapping(pid, cid);
+                                AddRuntimePairMapping(pid, cid, pred);
                             }
                         }
                         catch { /* fail-safe: не мешаем основной логике при ошибках */ }
@@ -738,6 +883,17 @@ namespace ZoologyMod
             try
             {
                 if (predator == null || corpse == null) return false;
+                if (HasPredatorFactionChanged(predator))
+                {
+                    ClearPairsForPredator(predator);
+                    return false;
+                }
+
+                if (!runtimePredatorToCorpse.TryGetValue(predator.thingIDNumber, out int mappedCorpseId) || mappedCorpseId != corpse.thingIDNumber)
+                {
+                    return false;
+                }
+
                 long key = PairKeyFor(predator.thingIDNumber, corpse.thingIDNumber);
                 if (key == 0) return false;
                 long now = Find.TickManager?.TicksGame ?? 0L;
@@ -758,6 +914,12 @@ namespace ZoologyMod
             try
             {
                 if (predator == null) return null;
+                if (HasPredatorFactionChanged(predator))
+                {
+                    ClearPairsForPredator(predator);
+                    return null;
+                }
+
                 int predId = predator.thingIDNumber;
                 int corpseId = 0;
                 lock (dictLock)
@@ -1096,6 +1258,37 @@ namespace ZoologyMod
             }
         }
 
+        public void ClearPairsForPredator(Pawn predator)
+        {
+            try
+            {
+                if (predator == null)
+                {
+                    return;
+                }
+
+                lock (dictLock)
+                {
+                    RemoveAllPairsForPredatorLocked(predator.thingIDNumber);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Warning($"Zoology: ClearPairsForPredator exception: {ex}");
+            }
+        }
+
+        private bool HasPredatorFactionChanged(Pawn predator)
+        {
+            if (predator == null)
+            {
+                return false;
+            }
+
+            return runtimePredatorFactionById.TryGetValue(predator.thingIDNumber, out Faction trackedFaction)
+                && !ReferenceEquals(trackedFaction, predator.Faction);
+        }
+
         public void TryTriggerDefendFor(Corpse corpse, Pawn interrupter)
         {
             try
@@ -1295,6 +1488,12 @@ namespace ZoologyMod
             var result = new List<Corpse>();
             if (predator == null) return result;
 
+            if (HasPredatorFactionChanged(predator))
+            {
+                ClearPairsForPredator(predator);
+                return result;
+            }
+
             int pid = predator.thingIDNumber;
             int cid = 0;
             lock (dictLock)
@@ -1324,6 +1523,44 @@ namespace ZoologyMod
                 Predator = predator;
                 PairKey = pairKey;
             }
+        }
+    }
+
+    [HarmonyPatch(typeof(Pawn), nameof(Pawn.SetFaction), new[] { typeof(Faction), typeof(Pawn) })]
+    public static class Patch_Pawn_SetFaction_ClearPredatorPairs
+    {
+        public static void Prefix(Pawn __instance, out Faction __state)
+        {
+            __state = __instance?.Faction;
+        }
+
+        public static void Postfix(Pawn __instance, Faction __state)
+        {
+            if (__instance == null || ReferenceEquals(__state, __instance.Faction))
+            {
+                return;
+            }
+
+            PredatorPreyPairGameComponent.Instance?.ClearPairsForPredator(__instance);
+        }
+    }
+
+    [HarmonyPatch(typeof(Thing), nameof(Thing.SetFactionDirect), new[] { typeof(Faction) })]
+    public static class Patch_Pawn_SetFactionDirect_ClearPredatorPairs
+    {
+        public static void Prefix(Thing __instance, out Faction __state)
+        {
+            __state = __instance?.Faction;
+        }
+
+        public static void Postfix(Thing __instance, Faction __state)
+        {
+            if (!(__instance is Pawn pawn) || ReferenceEquals(__state, pawn.Faction))
+            {
+                return;
+            }
+
+            PredatorPreyPairGameComponent.Instance?.ClearPairsForPredator(pawn);
         }
     }
 }

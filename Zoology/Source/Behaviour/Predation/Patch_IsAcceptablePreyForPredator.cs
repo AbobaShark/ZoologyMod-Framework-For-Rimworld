@@ -22,6 +22,7 @@ namespace ZoologyMod
         private const float PreferredSizeScore = 38f;
         private const float CombatEaseScore = 18f;
         private const float VulnerabilityScore = 16f;
+        private const float PredatorPreyNeutralSizeFit = 0.45f;
 
         public static bool UsesLargeMammalSizing(Pawn predator)
         {
@@ -38,6 +39,11 @@ namespace ZoologyMod
             if (predatorBodySize <= 0f || preyBodySize <= 0f)
             {
                 return preyBodySize > 0f ? preyBodySize : 1f;
+            }
+
+            if (prey?.RaceProps?.predator == true)
+            {
+                return preyBodySize;
             }
 
             float preyToPredatorRatio = preyBodySize / predatorBodySize;
@@ -80,7 +86,9 @@ namespace ZoologyMod
                 healthPercent = Mathf.Min(healthPercent, 0.2f);
             }
 
-            float sizeFit = GetPreySizeFit(predatorBodySize, preyBodySize);
+            float sizeFit = prey.RaceProps?.predator == true
+                ? GetPredatorPreySizeFit(predatorBodySize, preyBodySize)
+                : GetPreySizeFit(predatorBodySize, preyBodySize);
             float combatEase = Mathf.Clamp01(1f - preyCombatPower / predatorCombatPower);
             float vulnerability = 1f - healthPercent * healthPercent;
             float score = PreferredSizeScore * sizeFit
@@ -98,6 +106,25 @@ namespace ZoologyMod
             }
 
             return score;
+        }
+
+        private static float GetPredatorPreySizeFit(float predatorBodySize, float preyBodySize)
+        {
+            float preyToPredatorRatio = preyBodySize / predatorBodySize;
+            if (preyToPredatorRatio < PreferredPreyRatioMin)
+            {
+                float normalized = preyToPredatorRatio / PreferredPreyRatioMin;
+                return PredatorPreyNeutralSizeFit * normalized * normalized;
+            }
+
+            if (preyToPredatorRatio <= PreferredPreyRatioMax)
+            {
+                return PredatorPreyNeutralSizeFit;
+            }
+
+            float oversizeDelta = preyToPredatorRatio - PreferredPreyRatioMax;
+            float result = PredatorPreyNeutralSizeFit / (1f + oversizeDelta * OversizedSelectionFalloff);
+            return result < MinScoreFactor ? MinScoreFactor : result;
         }
 
         private static float GetPreySizeFit(float predatorBodySize, float preyBodySize)

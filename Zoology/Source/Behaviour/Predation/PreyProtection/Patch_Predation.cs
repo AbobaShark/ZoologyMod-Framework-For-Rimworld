@@ -12,6 +12,14 @@ namespace ZoologyMod
     [StaticConstructorOnStartup]
     public static class PredationHarmonyPatches
     {
+        private static readonly MethodInfo BestPawnToHuntForPredatorMethod =
+            AccessTools.Method(typeof(FoodUtility), "BestPawnToHuntForPredator", new[] { typeof(Pawn), typeof(bool) });
+
+        private const float OwnedCorpseBonus = 10000f;
+        private const float UnpairedCorpseBonus = 300f;
+        private const float GuardedCorpsePenalty = -10000f;
+        private const float LiveAcceptablePreyBonus = 600f;
+
         static PredationHarmonyPatches()
         {
             var s = ZoologyModSettings.Instance;
@@ -26,6 +34,8 @@ namespace ZoologyMod
                 
                 var targetFoodOpt = AccessTools.Method(typeof(FoodUtility), nameof(FoodUtility.FoodOptimality));
                 var postfixFood = typeof(PredationHarmonyPatches).GetMethod(nameof(FoodOptimality_Postfix), BindingFlags.Static | BindingFlags.Public);
+                var targetBestFoodSource = AccessTools.Method(typeof(FoodUtility), nameof(FoodUtility.BestFoodSourceOnMap));
+                var postfixBestFoodSource = typeof(PredationHarmonyPatches).GetMethod(nameof(BestFoodSourceOnMap_Postfix), BindingFlags.Static | BindingFlags.Public);
                 if (targetFoodOpt != null && postfixFood != null)
                 {
                     harmony.Patch(targetFoodOpt, null, new HarmonyMethod(postfixFood));
@@ -33,6 +43,15 @@ namespace ZoologyMod
                 else
                 {
                     Log.Warning("Zoology: FoodUtility.FoodOptimality method or postfix not found; skipping patch.");
+                }
+
+                if (targetBestFoodSource != null && postfixBestFoodSource != null)
+                {
+                    harmony.Patch(targetBestFoodSource, null, new HarmonyMethod(postfixBestFoodSource));
+                }
+                else
+                {
+                    Log.Warning("Zoology: FoodUtility.BestFoodSourceOnMap method or postfix not found; skipping patch.");
                 }
 
                 
@@ -174,7 +193,7 @@ namespace ZoologyMod
                 {
                     if (comp != null && eater != null && comp.IsPaired(eater, corpse))
                     {
-                        __result += 10000f; 
+                        __result += OwnedCorpseBonus; 
                         return;
                     }
 
@@ -194,13 +213,11 @@ namespace ZoologyMod
 
                     if (effectivelyUnowned)
                     {
-                        const float UNPAIRED_CORPSE_BONUS = 300f;
-                        __result += UNPAIRED_CORPSE_BONUS;
+                        __result += UnpairedCorpseBonus;
                     }
                     else
                     {
-                        const float GUARDED_CORPSE_PENALTY = -10000f;
-                        __result += GUARDED_CORPSE_PENALTY;
+                        __result += GuardedCorpsePenalty;
                     }
                     return;
                 }
@@ -213,7 +230,10 @@ namespace ZoologyMod
             var livePawn = foodSource as Pawn;
             if (livePawn != null && !livePawn.Dead)
             {
-                __result -= 200f;
+                if (eater.RaceProps?.predator == true && FoodUtility.IsAcceptablePreyFor(eater, livePawn))
+                {
+                    __result += LiveAcceptablePreyBonus;
+                }
                 return;
             }
 
@@ -224,6 +244,87 @@ namespace ZoologyMod
                     float prefBoost = (float)foodSource.def.ingestible.preferability * 4f;
                     __result += prefBoost;
                 }
+            }
+        }
+
+        public static void BestFoodSourceOnMap_Postfix(Pawn getter, Pawn eater, bool desperate, ref Thing __result, ref ThingDef foodDef)
+        {
+            try
+            {
+                Pawn predator = eater ?? getter;
+                if (predator?.RaceProps?.predator != true || __result == null)
+                {
+                    return;
+                }
+
+                Corpse corpse = __result as Corpse;
+                if (corpse == null && __result is Pawn deadPawn && deadPawn.Dead)
+                {
+                    corpse = deadPawn.Corpse;
+                }
+
+                if (corpse == null || !ShouldPreferLivePreyOverCorpse(predator, corpse))
+                {
+                    return;
+                }
+
+                Pawn huntTarget = TryGetVanillaHuntTarget(predator, desperate);
+                if (huntTarget == null)
+                {
+                    return;
+                }
+
+                __result = null;
+                foodDef = null;
+            }
+            catch (Exception ex)
+            {
+                Log.Warning($"Zoology: BestFoodSourceOnMap_Postfix exception: {ex}");
+            }
+        }
+
+        private static bool ShouldPreferLivePreyOverCorpse(Pawn predator, Corpse corpse)
+        {
+            if (predator == null || corpse == null)
+            {
+                return false;
+            }
+
+            var comp = PredatorPreyPairGameComponent.Instance;
+            if (comp == null)
+            {
+                return false;
+            }
+
+            try
+            {
+                if (comp.IsPaired(predator, corpse))
+                {
+                    return false;
+                }
+
+                return !comp.IsCorpseEffectivelyUnownedFor(predator, corpse);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private static Pawn TryGetVanillaHuntTarget(Pawn predator, bool desperate)
+        {
+            if (BestPawnToHuntForPredatorMethod == null || predator == null)
+            {
+                return null;
+            }
+
+            try
+            {
+                return BestPawnToHuntForPredatorMethod.Invoke(null, new object[] { predator, desperate }) as Pawn;
+            }
+            catch
+            {
+                return null;
             }
         }
 

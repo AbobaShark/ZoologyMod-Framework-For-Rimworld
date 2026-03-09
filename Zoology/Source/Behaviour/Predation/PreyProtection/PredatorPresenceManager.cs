@@ -112,7 +112,7 @@ namespace ZoologyMod
                     return false;
                 }
 
-                if (pawn.IsFighting())
+                if (pawn.IsFighting() || ProtectPreyState.IsActivelyProtectingNearbyPrey(pawn, 20f))
                 {
                     reason = "is fighting (transient)";
                     RecordTransientBlock(pawn, now);
