@@ -169,6 +169,12 @@ namespace ZoologyMod
             public int Tick { get; }
         }
 
+        private sealed class ThreatScanBudgetEntry
+        {
+            public int Tick;
+            public int Remaining;
+        }
+
         private sealed class ThreatMapCacheData
         {
             public int RefreshTick = -ThreatMapRefreshIntervalTicks;
@@ -510,6 +516,7 @@ namespace ZoologyMod
         private static readonly Dictionary<long, ThreatVisibilityCacheEntry> lineOfSightOrReachCacheByPairKey = new Dictionary<long, ThreatVisibilityCacheEntry>(256);
         private static readonly Dictionary<NearbyThreatBucketCacheKey, NearbyThreatBucketsCacheEntry> nearbyThreatBucketsCacheByBucketKey = new Dictionary<NearbyThreatBucketCacheKey, NearbyThreatBucketsCacheEntry>(256);
         private static readonly Dictionary<int, NearestPredatorThreatCacheEntry> nearestPredatorThreatCacheByPawnId = new Dictionary<int, NearestPredatorThreatCacheEntry>(256);
+        private static readonly Dictionary<int, ThreatScanBudgetEntry> threatScanBudgetByMapId = new Dictionary<int, ThreatScanBudgetEntry>(8);
 
         private const float PredatorSearchRadius = 12f;
         private const float NonHostilePredatorSearchRadiusFactor = 0.5f;
@@ -519,19 +526,28 @@ namespace ZoologyMod
         private const int SmallPetFleeDistanceDefault = 24;
         private const int FleeDistanceDefault = 12;
         private const int FleeDistanceTarget = 16;
-        private const int NoThreatScanCooldownTicks = 60;
-        private const int ThreatMapRefreshIntervalTicks = 90;
-        private const int ThreatVisibilityCacheDurationTicks = 15;
-        private const int NearbyThreatBucketsCacheDurationTicks = 120;
-        private const int NearestPredatorThreatCacheDurationTicks = 15;
-        private const int ThreatCacheCleanupIntervalTicks = 600;
+        private const int NoThreatScanCooldownTicks = ZoologyTickLimiter.FleeThreat.NoThreatScanCooldownTicks;
+        private const int ThreatMapRefreshIntervalTicks = ZoologyTickLimiter.FleeThreat.ThreatMapRefreshIntervalTicks;
+        private const int ThreatVisibilityCacheDurationTicks = ZoologyTickLimiter.FleeThreat.ThreatVisibilityCacheDurationTicks;
+        private const int NearbyThreatBucketsCacheDurationTicks = ZoologyTickLimiter.FleeThreat.NearbyThreatBucketsCacheDurationTicks;
+        private const int NearestPredatorThreatCacheDurationTicks = ZoologyTickLimiter.FleeThreat.NearestPredatorThreatCacheDurationTicks;
+        private const int ThreatCacheCleanupIntervalTicks = ZoologyTickLimiter.FleeThreat.ThreatCacheCleanupIntervalTicks;
         private const int ThreatBucketSize = 8;
+        private const int MinThreatScanIntervalTicks = ZoologyTickLimiter.FleeThreat.MinThreatScanIntervalTicks;
+        private const int ThreatScanBudgetMin = 8;
+        private const int ThreatScanBudgetBase = 12;
+        private const int ThreatScanBudgetPer50Animals = 4;
+        private const int ThreatScanBudgetMax = 96;
+        private const int ThreatScanBudgetCooldownTicks = ZoologyTickLimiter.FleeThreat.ThreatScanBudgetCooldownTicks;
+        private const int FallbackThreatScanBudgetPerTick = ZoologyTickLimiter.FleeThreat.FallbackThreatScanBudgetPerTick;
 
         private static int lastThreatCacheCleanupTick = -ThreatCacheCleanupIntervalTicks;
         private static int lastFreshThreatCacheTick = int.MinValue;
         private static int lastFreshThreatCacheMapId = int.MinValue;
         private static bool lastFreshThreatCacheWasFresh;
         private static ThreatMapCacheData lastFreshThreatCacheData;
+        private static int fallbackThreatScanBudgetTick = -1;
+        private static int fallbackThreatScanBudgetRemaining = 0;
 
         public static bool Prepare()
         {
@@ -556,7 +572,13 @@ namespace ZoologyMod
                     && settings.EnableSmallPetFleeFromRaiders;
                 int currentTick = Find.TickManager?.TicksGame ?? 0;
 
-                if (pawn == null || pawn.Map == null || !pawn.RaceProps.Animal || pawn.Dead || pawn.Destroyed)
+                RaceProperties raceProps = pawn?.RaceProps;
+                if (pawn == null || pawn.Map == null || raceProps == null || !raceProps.Animal || pawn.Dead || pawn.Destroyed)
+                {
+                    return;
+                }
+
+                if (NoFleeUtil.IsNoFlee(pawn))
                 {
                     return;
                 }
@@ -680,8 +702,16 @@ namespace ZoologyMod
             }
 
             bool preyIsPhotonozoa = ZoologyCacheUtility.IsPhotonozoa(pawn.def);
+            bool foodJobActive = IsFoodSeekingOrEatingJob(pawn);
+            int currentTick = Find.TickManager?.TicksGame ?? 0;
             if (!TryGetThreatCache(pawn, refreshIfNeeded: true, out ThreatMapCacheData threatCache))
             {
+                if (TryConsumeFallbackThreatScanBudget(currentTick))
+                {
+                    Pawn fallbackThreat = FindNearestPredatorThreatFallback(pawn, PredatorSearchRadius, allowNonHostilePredators);
+                    return TryBuildPredatorFleeJob(pawn, fallbackThreat, preyIsPhotonozoa, foodJobActive, out fleeJob);
+                }
+
                 return false;
             }
 
@@ -694,17 +724,21 @@ namespace ZoologyMod
             if (!threatCache.HasActivePredatorThreats
                 && (!allowNonHostilePredators || !threatCache.HasPassivePredatorThreats))
             {
+                if (TryConsumeFallbackThreatScanBudget(currentTick))
+                {
+                    Pawn fallbackThreat = FindNearestPredatorThreatFallback(pawn, PredatorSearchRadius, allowNonHostilePredators);
+                    return TryBuildPredatorFleeJob(pawn, fallbackThreat, preyIsPhotonozoa, foodJobActive, out fleeJob);
+                }
+
                 return false;
             }
 
-            bool foodJobActive = IsFoodSeekingOrEatingJob(pawn);
             if (foodJobActive && !threatCache.HasActivePredatorThreats)
             {
                 return false;
             }
 
             Pawn threat;
-            int currentTick = Find.TickManager?.TicksGame ?? 0;
             if (!TryGetCachedNearestPredatorThreat(
                 pawn,
                 threatCache,
@@ -721,7 +755,18 @@ namespace ZoologyMod
                 return false;
             }
 
-            if (threat == null)
+            return TryBuildPredatorFleeJob(pawn, threat, preyIsPhotonozoa, foodJobActive, out fleeJob);
+        }
+
+        private static bool TryBuildPredatorFleeJob(
+            Pawn pawn,
+            Pawn threat,
+            bool preyIsPhotonozoa,
+            bool foodJobActive,
+            out Job fleeJob)
+        {
+            fleeJob = null;
+            if (pawn == null || threat == null)
             {
                 return false;
             }
@@ -765,6 +810,7 @@ namespace ZoologyMod
                     return false;
                 }
 
+                int currentTick = Find.TickManager?.TicksGame ?? 0;
                 if (HasFreshFleeJob(pawn, currentTick))
                 {
                     return false;
@@ -782,10 +828,38 @@ namespace ZoologyMod
 
         private static Job TryCreateHumanFleeJob(Pawn pawn, ZoologyModSettings settings)
         {
-            if (!TryGetThreatCache(pawn, refreshIfNeeded: true, out ThreatMapCacheData threatCache)
-                || !threatCache.HasHumanlikeThreats)
+            if (!TryGetThreatCache(pawn, refreshIfNeeded: true, out ThreatMapCacheData threatCache))
             {
-                return null;
+                int currentTick = Find.TickManager?.TicksGame ?? 0;
+                if (!TryConsumeFallbackThreatScanBudget(currentTick))
+                {
+                    return null;
+                }
+
+                if (!CanAnimalFleeFromHumans(pawn, settings, null))
+                {
+                    return null;
+                }
+
+                Pawn fallbackThreat = FindNearestHumanlikeThreatFallback(pawn, HumanSearchRadius);
+                return fallbackThreat != null ? FleeUtility.FleeJob(pawn, fallbackThreat, FleeDistanceDefault) : null;
+            }
+
+            if (!threatCache.HasHumanlikeThreats)
+            {
+                int currentTick = Find.TickManager?.TicksGame ?? 0;
+                if (!TryConsumeFallbackThreatScanBudget(currentTick))
+                {
+                    return null;
+                }
+
+                if (!CanAnimalFleeFromHumans(pawn, settings, threatCache))
+                {
+                    return null;
+                }
+
+                Pawn fallbackThreat = FindNearestHumanlikeThreatFallback(pawn, HumanSearchRadius);
+                return fallbackThreat != null ? FleeUtility.FleeJob(pawn, fallbackThreat, FleeDistanceDefault) : null;
             }
 
             if (!CanAnimalFleeFromHumans(pawn, settings, threatCache))
@@ -951,7 +1025,6 @@ namespace ZoologyMod
             Map map = pawn.Map;
             int pawnId = pawn.thingIDNumber;
             int mapId = map.uniqueID;
-            bool hasFreshThreatCache = TryGetFreshThreatCacheFast(map, currentTick, out ThreatMapCacheData freshThreatCache);
 
             if (TryUseNoThreatScanCache(
                 pawnId,
@@ -962,97 +1035,15 @@ namespace ZoologyMod
                 carriersEnabled,
                 smallPetRaidersEnabled))
             {
-                if (!hasFreshThreatCache)
-                {
-                    return true;
-                }
-
-                if (predatorsEnabled
-                    && freshThreatCache.HasCloseMeleePredatorThreats
-                    && HasActiveCloseMeleeThreatFromPredator(pawn, freshThreatCache))
-                {
-                    ClearNoThreatScanCache(pawn);
-                    return false;
-                }
-
-                if ((humansEnabled || smallPetRaidersEnabled)
-                    && freshThreatCache.HasCloseMeleeHumanlikeThreats
-                    && HasActiveCloseMeleeThreatFromHumanlike(pawn, freshThreatCache))
-                {
-                    ClearNoThreatScanCache(pawn);
-                    return false;
-                }
-
                 return true;
             }
 
-            if (predatorsEnabled
-                && hasFreshThreatCache
-                && freshThreatCache.HasCloseMeleePredatorThreats
-                && HasActiveCloseMeleeThreatFromPredator(pawn, freshThreatCache))
-            {
-                ClearNoThreatScanCache(pawn);
-                return false;
-            }
-
-            if ((humansEnabled || smallPetRaidersEnabled)
-                && hasFreshThreatCache
-                && freshThreatCache.HasCloseMeleeHumanlikeThreats
-                && HasActiveCloseMeleeThreatFromHumanlike(pawn, freshThreatCache))
-            {
-                ClearNoThreatScanCache(pawn);
-                return false;
-            }
-
-            if (!hasFreshThreatCache)
+            if (!TryGetFreshThreatCacheFast(map, currentTick, out ThreatMapCacheData freshThreatCache))
             {
                 return false;
             }
 
             if (!HasRelevantThreats(freshThreatCache, predatorsEnabled, humansEnabled, carriersEnabled, smallPetRaidersEnabled))
-            {
-                return true;
-            }
-
-            int scanIntervalTicks = freshThreatCache.ScanIntervalTicks;
-            if (scanIntervalTicks > 1 && ((currentTick + pawnId) % scanIntervalTicks) != 0)
-            {
-                return true;
-            }
-
-            bool hasNearbyRelevantThreatBuckets;
-            if (!TryGetNearbyThreatBucketsCache(
-                pawn,
-                freshThreatCache,
-                predatorsEnabled,
-                allowNonHostilePredators,
-                humansEnabled,
-                carriersEnabled,
-                smallPetRaidersEnabled,
-                currentTick,
-                out hasNearbyRelevantThreatBuckets))
-            {
-                hasNearbyRelevantThreatBuckets = HasNearbyRelevantThreatBuckets(
-                    freshThreatCache,
-                    pawn,
-                    predatorsEnabled,
-                    allowNonHostilePredators,
-                    humansEnabled,
-                    carriersEnabled,
-                    smallPetRaidersEnabled);
-                StoreNearbyThreatBucketsCache(
-                    pawn,
-                    freshThreatCache,
-                    predatorsEnabled,
-                    allowNonHostilePredators,
-                    humansEnabled,
-                    carriersEnabled,
-                    smallPetRaidersEnabled,
-                    hasNearbyRelevantThreatBuckets,
-                    currentTick);
-            }
-
-            if (!hasNearbyRelevantThreatBuckets)
             {
                 RememberNoThreatScan(
                     pawn,
@@ -1061,6 +1052,30 @@ namespace ZoologyMod
                     humansEnabled,
                     carriersEnabled,
                     smallPetRaidersEnabled);
+                return true;
+            }
+
+            int scanIntervalTicks = freshThreatCache.ScanIntervalTicks;
+            if (scanIntervalTicks < MinThreatScanIntervalTicks)
+            {
+                scanIntervalTicks = MinThreatScanIntervalTicks;
+            }
+
+            if (scanIntervalTicks > 1 && ((currentTick + pawnId) % scanIntervalTicks) != 0)
+            {
+                return true;
+            }
+
+            if (!TryConsumeThreatScanBudget(map, currentTick))
+            {
+                RememberNoThreatScan(
+                    pawn,
+                    currentTick,
+                    predatorsEnabled,
+                    humansEnabled,
+                    carriersEnabled,
+                    smallPetRaidersEnabled,
+                    ThreatScanBudgetCooldownTicks);
                 return true;
             }
 
@@ -1399,13 +1414,32 @@ namespace ZoologyMod
             bool carriersEnabled,
             bool smallPetRaidersEnabled)
         {
-            if (pawn?.Map == null || currentTick <= 0)
+            RememberNoThreatScan(
+                pawn,
+                currentTick,
+                predatorsEnabled,
+                humansEnabled,
+                carriersEnabled,
+                smallPetRaidersEnabled,
+                NoThreatScanCooldownTicks);
+        }
+
+        private static void RememberNoThreatScan(
+            Pawn pawn,
+            int currentTick,
+            bool predatorsEnabled,
+            bool humansEnabled,
+            bool carriersEnabled,
+            bool smallPetRaidersEnabled,
+            int cooldownTicks)
+        {
+            if (pawn?.Map == null || currentTick <= 0 || cooldownTicks <= 0)
             {
                 return;
             }
 
             noThreatScanCacheByPawnId[pawn.thingIDNumber] = new NoThreatScanCacheEntry(
-                currentTick + NoThreatScanCooldownTicks,
+                currentTick + cooldownTicks,
                 pawn.Map.uniqueID,
                 predatorsEnabled,
                 humansEnabled,
@@ -1688,7 +1722,10 @@ namespace ZoologyMod
 
             if (!TryGetThreatCache(pawn, refreshIfNeeded: true, out ThreatMapCacheData cache))
             {
-                return null;
+                int currentTick = Find.TickManager?.TicksGame ?? 0;
+                return TryConsumeFallbackThreatScanBudget(currentTick)
+                    ? FindNearestHumanlikeThreatFallback(pawn, radius)
+                    : null;
             }
 
             return FindNearestHumanlikeThreat(pawn, cache, radius);
@@ -1727,6 +1764,39 @@ namespace ZoologyMod
                 Log.Error($"[ZoologyMod] FindNearestHumanlikeThreat failed: {ex}");
                 return null;
             }
+        }
+
+        private static Pawn FindNearestHumanlikeThreatFallback(Pawn pawn, float radius)
+        {
+            if (pawn?.Map?.mapPawns?.AllPawnsSpawned == null)
+            {
+                return null;
+            }
+
+            Pawn nearestThreat = null;
+            float bestDistanceSquared = radius * radius;
+            IReadOnlyList<Pawn> pawns = pawn.Map.mapPawns.AllPawnsSpawned;
+            IntVec3 pawnPosition = pawn.Position;
+
+            for (int i = 0; i < pawns.Count; i++)
+            {
+                Pawn threat = pawns[i];
+                if (threat == null || !IsHumanlikeThreatCandidate(threat, pawn))
+                {
+                    continue;
+                }
+
+                float distanceSquared = (threat.Position - pawnPosition).LengthHorizontalSquared;
+                if (distanceSquared >= bestDistanceSquared)
+                {
+                    continue;
+                }
+
+                nearestThreat = threat;
+                bestDistanceSquared = distanceSquared;
+            }
+
+            return nearestThreat;
         }
 
         private static Pawn FindNearestSmallPetRaiderThreat(Pawn pawn)
@@ -2042,7 +2112,10 @@ namespace ZoologyMod
 
             if (!TryGetThreatCache(pawn, refreshIfNeeded: true, out ThreatMapCacheData cache))
             {
-                return null;
+                int currentTick = Find.TickManager?.TicksGame ?? 0;
+                return TryConsumeFallbackThreatScanBudget(currentTick)
+                    ? FindNearestPredatorThreatFallback(pawn, radius, allowNonHostilePredators)
+                    : null;
             }
 
             return FindNearestPredatorThreat(pawn, cache, radius, allowNonHostilePredators);
@@ -2110,6 +2183,64 @@ namespace ZoologyMod
                 Log.Error($"[ZoologyMod] FindNearestPredatorThreat failed: {ex}");
                 return null;
             }
+        }
+
+        private static Pawn FindNearestPredatorThreatFallback(Pawn pawn, float radius, bool allowNonHostilePredators)
+        {
+            if (pawn?.Map?.mapPawns?.AllPawnsSpawned == null)
+            {
+                return null;
+            }
+
+            float bestActiveDistanceSquared = radius * radius;
+            Pawn nearestActiveThreat = null;
+
+            float passiveRadius = radius * NonHostilePredatorSearchRadiusFactor;
+            float bestPassiveDistanceSquared = passiveRadius * passiveRadius;
+            Pawn nearestPassiveThreat = null;
+
+            IReadOnlyList<Pawn> pawns = pawn.Map.mapPawns.AllPawnsSpawned;
+            IntVec3 pawnPosition = pawn.Position;
+
+            for (int i = 0; i < pawns.Count; i++)
+            {
+                Pawn threat = pawns[i];
+                if (threat == null
+                    || !threat.Spawned
+                    || threat.Dead
+                    || threat.Destroyed
+                    || threat.Downed
+                    || threat.RaceProps?.predator != true)
+                {
+                    continue;
+                }
+
+                float distanceSquared = (threat.Position - pawnPosition).LengthHorizontalSquared;
+                if (distanceSquared <= bestActiveDistanceSquared && IsTrackedActivePredatorThreatStillValid(threat, pawn, radius))
+                {
+                    nearestActiveThreat = threat;
+                    bestActiveDistanceSquared = distanceSquared;
+                    continue;
+                }
+
+                if (!allowNonHostilePredators || distanceSquared > bestPassiveDistanceSquared)
+                {
+                    continue;
+                }
+
+                if (IsTrackedPassivePredatorThreatStillValid(threat, pawn, passiveRadius))
+                {
+                    nearestPassiveThreat = threat;
+                    bestPassiveDistanceSquared = distanceSquared;
+                }
+            }
+
+            if (nearestActiveThreat != null || !allowNonHostilePredators)
+            {
+                return nearestActiveThreat;
+            }
+
+            return nearestPassiveThreat;
         }
 
         private static void ForEachThreatInRange(
@@ -2243,6 +2374,7 @@ namespace ZoologyMod
             CleanupNearbyThreatBucketsCache(currentTick);
             CleanupNearestPredatorThreatCache(currentTick);
             ThreatMapCache.CleanupStaleMaps();
+            CleanupThreatScanBudget();
         }
 
         private static void CleanupNoThreatScanCache(int currentTick)
@@ -2369,6 +2501,134 @@ namespace ZoologyMod
             {
                 nearestPredatorThreatCacheByPawnId.Remove(staleKeys[i]);
             }
+        }
+
+        private static void CleanupThreatScanBudget()
+        {
+            if (threatScanBudgetByMapId.Count == 0)
+            {
+                return;
+            }
+
+            List<Map> maps = Find.Maps;
+            if (maps == null || maps.Count == 0)
+            {
+                threatScanBudgetByMapId.Clear();
+                return;
+            }
+
+            HashSet<int> activeMapIds = new HashSet<int>();
+            for (int i = 0; i < maps.Count; i++)
+            {
+                Map map = maps[i];
+                if (map != null)
+                {
+                    activeMapIds.Add(map.uniqueID);
+                }
+            }
+
+            List<int> staleKeys = null;
+            foreach (KeyValuePair<int, ThreatScanBudgetEntry> entry in threatScanBudgetByMapId)
+            {
+                if (activeMapIds.Contains(entry.Key))
+                {
+                    continue;
+                }
+
+                if (staleKeys == null)
+                {
+                    staleKeys = new List<int>(4);
+                }
+
+                staleKeys.Add(entry.Key);
+            }
+
+            if (staleKeys == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < staleKeys.Count; i++)
+            {
+                threatScanBudgetByMapId.Remove(staleKeys[i]);
+            }
+        }
+
+        private static bool TryConsumeThreatScanBudget(Map map, int currentTick)
+        {
+            if (map == null || currentTick <= 0)
+            {
+                return true;
+            }
+
+            int mapId = map.uniqueID;
+            if (!threatScanBudgetByMapId.TryGetValue(mapId, out ThreatScanBudgetEntry budget))
+            {
+                budget = new ThreatScanBudgetEntry();
+                threatScanBudgetByMapId[mapId] = budget;
+            }
+
+            if (budget.Tick != currentTick)
+            {
+                budget.Tick = currentTick;
+                budget.Remaining = CalculateThreatScanBudget(map);
+            }
+
+            if (budget.Remaining <= 0)
+            {
+                return false;
+            }
+
+            budget.Remaining--;
+            return true;
+        }
+
+        private static bool TryConsumeFallbackThreatScanBudget(int currentTick)
+        {
+            if (currentTick <= 0)
+            {
+                return false;
+            }
+
+            if (fallbackThreatScanBudgetTick != currentTick)
+            {
+                fallbackThreatScanBudgetTick = currentTick;
+                fallbackThreatScanBudgetRemaining = FallbackThreatScanBudgetPerTick;
+            }
+
+            if (fallbackThreatScanBudgetRemaining <= 0)
+            {
+                return false;
+            }
+
+            fallbackThreatScanBudgetRemaining--;
+            return true;
+        }
+
+        private static int CalculateThreatScanBudget(Map map)
+        {
+            int animalCount = 0;
+            if (map != null && ThreatMapCache.TryGetLastKnown(map, out ThreatMapCacheData data) && data != null)
+            {
+                animalCount = data.AnimalCount;
+            }
+            else if (map?.mapPawns?.AllPawnsSpawned != null)
+            {
+                animalCount = map.mapPawns.AllPawnsSpawned.Count;
+            }
+
+            int budget = ThreatScanBudgetBase + (animalCount / 50) * ThreatScanBudgetPer50Animals;
+            if (budget < ThreatScanBudgetMin)
+            {
+                budget = ThreatScanBudgetMin;
+            }
+
+            if (budget > ThreatScanBudgetMax)
+            {
+                budget = ThreatScanBudgetMax;
+            }
+
+            return budget;
         }
 
         private static bool IsActivePredatorThreat(Pawn predator, Pawn prey, out bool targetsPreyDirectly)

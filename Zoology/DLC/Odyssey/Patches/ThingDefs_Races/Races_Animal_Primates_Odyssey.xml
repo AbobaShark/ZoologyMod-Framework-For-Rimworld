@@ -38,13 +38,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Gorilla"]/statBases/Wildness</xpath>
       <value>
-        <Wildness>0.85</Wildness>
+        <Wildness>0.9</Wildness>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Gorilla"]/statBases</xpath>
       <value>
-        <Wildness>0.85</Wildness>
+        <Wildness>0.9</Wildness>
       </value>
     </nomatch>
   </Operation>
@@ -68,13 +68,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Gorilla"]/statBases/ComfyTemperatureMin</xpath>
       <value>
-        <ComfyTemperatureMin>0</ComfyTemperatureMin>
+        <ComfyTemperatureMin>-5</ComfyTemperatureMin>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Gorilla"]/statBases</xpath>
       <value>
-        <ComfyTemperatureMin>0</ComfyTemperatureMin>
+        <ComfyTemperatureMin>-5</ComfyTemperatureMin>
       </value>
     </nomatch>
   </Operation>
@@ -127,7 +127,7 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>7.5</power>
+          <power>9.5</power>
           <cooldownTime>2.30</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
           <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
@@ -139,8 +139,8 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>11.5</power>
-          <cooldownTime>1.35</cooldownTime>
+          <power>12.0</power>
+          <cooldownTime>1.50</cooldownTime>
           <linkedBodyPartsGroup>LeftHand</linkedBodyPartsGroup>
         </li>
         <li>
@@ -149,8 +149,8 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>11.5</power>
-          <cooldownTime>1.35</cooldownTime>
+          <power>12.0</power>
+          <cooldownTime>1.50</cooldownTime>
           <linkedBodyPartsGroup>RightHand</linkedBodyPartsGroup>
         </li>
         <li>
@@ -158,7 +158,7 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>18.5</power>
+          <power>14.5</power>
           <cooldownTime>1.95</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
         </li>
@@ -297,13 +297,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/manhunterOnTameFailChance</xpath>
       <value>
-        <manhunterOnTameFailChance>0.05</manhunterOnTameFailChance>
+        <manhunterOnTameFailChance>0.025</manhunterOnTameFailChance>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Gorilla"]/race</xpath>
       <value>
-        <manhunterOnTameFailChance>0.05</manhunterOnTameFailChance>
+        <manhunterOnTameFailChance>0.025</manhunterOnTameFailChance>
       </value>
     </nomatch>
   </Operation>
@@ -493,27 +493,10 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/specialTrainables/li[text()="SludgeSpew" or text()="EggSpew" or text()="TerrorRoar" or text()="WarTrumpet" or text()="Forage" or text()="Comfort" or text()="AttackTarget" or text()="Dig"]</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/specialTrainables/li[text()="SludgeSpew" or text()="EggSpew" or text()="TerrorRoar" or text()="WarTrumpet" or text()="Forage" or text()="Comfort" or text()="AttackTarget" or text()="Dig"]</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/specialTrainables</xpath>
-    <match Class="PatchOperationAdd">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/specialTrainables</xpath>
-      <value>
-        <li MayRequire="Ludeon.RimWorld.Odyssey">AttackTarget</li>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Gorilla"]/race</xpath>
-      <value>
-        <specialTrainables>
-          <li MayRequire="Ludeon.RimWorld.Odyssey">AttackTarget</li>
-        </specialTrainables>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Gorilla"]/tradeTags/li[text()="AnimalCommon" or text()="AnimalUncommon" or text()="AnimalExotic" or text()="AnimalFighter" or text()="AnimalInsect" or text()="AnimalPet" or text()="AnimalFarm"]</xpath>
@@ -552,13 +535,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "Gorilla"]/combatPower</xpath>
       <value>
-        <combatPower>130</combatPower>
+        <combatPower>120</combatPower>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "Gorilla"]</xpath>
       <value>
-        <combatPower>130</combatPower>
+        <combatPower>120</combatPower>
       </value>
     </nomatch>
   </Operation>
@@ -582,13 +565,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "Gorilla"]/canArriveManhunter</xpath>
       <value>
-        <canArriveManhunter>true</canArriveManhunter>
+        <canArriveManhunter>false</canArriveManhunter>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "Gorilla"]</xpath>
       <value>
-        <canArriveManhunter>true</canArriveManhunter>
+        <canArriveManhunter>false</canArriveManhunter>
       </value>
     </nomatch>
   </Operation>
@@ -626,13 +609,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Gorilla"]/statBases/MeleeDodgeChance</xpath>
             <value>
-              <MeleeDodgeChance>0.33</MeleeDodgeChance>
+              <MeleeDodgeChance>0.44</MeleeDodgeChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Gorilla"]/statBases</xpath>
             <value>
-              <MeleeDodgeChance>0.33</MeleeDodgeChance>
+              <MeleeDodgeChance>0.44</MeleeDodgeChance>
             </value>
           </nomatch>
         </li>
@@ -641,13 +624,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Gorilla"]/statBases/MeleeCritChance</xpath>
             <value>
-              <MeleeCritChance>0.34</MeleeCritChance>
+              <MeleeCritChance>0.04</MeleeCritChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Gorilla"]/statBases</xpath>
             <value>
-              <MeleeCritChance>0.34</MeleeCritChance>
+              <MeleeCritChance>0.04</MeleeCritChance>
             </value>
           </nomatch>
         </li>
@@ -656,13 +639,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Gorilla"]/statBases/MeleeParryChance</xpath>
             <value>
-              <MeleeParryChance>0.23</MeleeParryChance>
+              <MeleeParryChance>0.04</MeleeParryChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Gorilla"]/statBases</xpath>
             <value>
-              <MeleeParryChance>0.23</MeleeParryChance>
+              <MeleeParryChance>0.04</MeleeParryChance>
             </value>
           </nomatch>
         </li>
@@ -671,13 +654,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Gorilla"]/statBases/ArmorRating_Sharp</xpath>
             <value>
-              <ArmorRating_Sharp>0.06</ArmorRating_Sharp>
+              <ArmorRating_Sharp>0.05</ArmorRating_Sharp>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Gorilla"]/statBases</xpath>
             <value>
-              <ArmorRating_Sharp>0.06</ArmorRating_Sharp>
+              <ArmorRating_Sharp>0.05</ArmorRating_Sharp>
             </value>
           </nomatch>
         </li>
@@ -686,13 +669,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Gorilla"]/statBases/ArmorRating_Blunt</xpath>
             <value>
-              <ArmorRating_Blunt>0.26</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0.29</ArmorRating_Blunt>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Gorilla"]/statBases</xpath>
             <value>
-              <ArmorRating_Blunt>0.26</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0.29</ArmorRating_Blunt>
             </value>
           </nomatch>
         </li>
@@ -771,9 +754,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>8.5</power>
-                <armorPenetrationBlunt>2.96</armorPenetrationBlunt>
-                <cooldownTime>1.75</cooldownTime>
+                <power>5.50</power>
+                <armorPenetrationBlunt>2.30</armorPenetrationBlunt>
+                <cooldownTime>1.35</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                 <chanceFactor>0.2</chanceFactor>
@@ -784,9 +767,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>10.3</power>
-                <armorPenetrationBlunt>3.72</armorPenetrationBlunt>
-                <cooldownTime>1.35</cooldownTime>
+                <power>10</power>
+                <armorPenetrationBlunt>3.05</armorPenetrationBlunt>
+                <cooldownTime>1.4</cooldownTime>
                 <linkedBodyPartsGroup>LeftHand</linkedBodyPartsGroup>
               </li>
               <li Class="CombatExtended.ToolCE">
@@ -795,9 +778,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>10.3</power>
-                <armorPenetrationBlunt>3.72</armorPenetrationBlunt>
-                <cooldownTime>1.35</cooldownTime>
+                <power>10</power>
+                <armorPenetrationBlunt>3.05</armorPenetrationBlunt>
+                <cooldownTime>1.4</cooldownTime>
                 <linkedBodyPartsGroup>RightHand</linkedBodyPartsGroup>
               </li>
               <li Class="CombatExtended.ToolCE">
@@ -805,10 +788,10 @@
                 <capacities>
                   <li>Bite</li>
                 </capacities>
-                <power>17.4</power>
-                <armorPenetrationBlunt>3.33</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.3</armorPenetrationSharp>
-                <cooldownTime>1.6</cooldownTime>
+                <power>16</power>
+                <armorPenetrationBlunt>2.65</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.24</armorPenetrationSharp>
+                <cooldownTime>1.15</cooldownTime>
                 <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
               </li>
             </tools>

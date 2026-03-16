@@ -9,10 +9,10 @@ namespace ZoologyMod
 {
     public static class PredatorPresenceManager
     {
-        private const int PRESENCE_CHECK_INTERVAL = 250;
+        private const int PRESENCE_CHECK_INTERVAL = ZoologyTickLimiter.PreyProtection.PresenceCheckInterval;
 
         
-        private const int LOG_COOLDOWN_TICKS = 2000;
+        private const int LOG_COOLDOWN_TICKS = ZoologyTickLimiter.PreyProtection.PresenceLogCooldownTicks;
 
         private static readonly Dictionary<string, long> _lastLogTick = new Dictionary<string, long>();
         private static readonly Dictionary<int, long> _transientBlockTick = new Dictionary<int, long>();

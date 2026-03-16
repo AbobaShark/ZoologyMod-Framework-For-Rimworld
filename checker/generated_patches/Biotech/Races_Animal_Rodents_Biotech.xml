@@ -8,13 +8,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "WasteRat"]/statBases/MarketValue</xpath>
       <value>
-        <MarketValue>150</MarketValue>
+        <MarketValue>100</MarketValue>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "WasteRat"]/statBases</xpath>
       <value>
-        <MarketValue>150</MarketValue>
+        <MarketValue>100</MarketValue>
       </value>
     </nomatch>
   </Operation>
@@ -38,13 +38,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "WasteRat"]/statBases/Wildness</xpath>
       <value>
-        <Wildness>0.5</Wildness>
+        <Wildness>0.6</Wildness>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "WasteRat"]/statBases</xpath>
       <value>
-        <Wildness>0.5</Wildness>
+        <Wildness>0.6</Wildness>
       </value>
     </nomatch>
   </Operation>
@@ -68,13 +68,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "WasteRat"]/statBases/ComfyTemperatureMin</xpath>
       <value>
-        <ComfyTemperatureMin>-5</ComfyTemperatureMin>
+        <ComfyTemperatureMin>-35</ComfyTemperatureMin>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "WasteRat"]/statBases</xpath>
       <value>
-        <ComfyTemperatureMin>-5</ComfyTemperatureMin>
+        <ComfyTemperatureMin>-35</ComfyTemperatureMin>
       </value>
     </nomatch>
   </Operation>
@@ -83,13 +83,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "WasteRat"]/statBases/ComfyTemperatureMax</xpath>
       <value>
-        <ComfyTemperatureMax>35</ComfyTemperatureMax>
+        <ComfyTemperatureMax>50</ComfyTemperatureMax>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "WasteRat"]/statBases</xpath>
       <value>
-        <ComfyTemperatureMax>35</ComfyTemperatureMax>
+        <ComfyTemperatureMax>50</ComfyTemperatureMax>
       </value>
     </nomatch>
   </Operation>
@@ -107,9 +107,18 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "WasteRat"]/statBases/ToxicEnvironmentResistance</xpath>
-    <match Class="PatchOperationRemove">
+    <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "WasteRat"]/statBases/ToxicEnvironmentResistance</xpath>
+      <value>
+        <ToxicEnvironmentResistance>1</ToxicEnvironmentResistance>
+      </value>
     </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "WasteRat"]/statBases</xpath>
+      <value>
+        <ToxicEnvironmentResistance>1</ToxicEnvironmentResistance>
+      </value>
+    </nomatch>
   </Operation>
   <!-- WasteRat tools -->
   <Operation Class="PatchOperationConditional">
@@ -127,7 +136,7 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>2.5</power>
+          <power>3.5</power>
           <cooldownTime>1.45</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
           <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
@@ -136,9 +145,9 @@
         <li>
           <label>Incisors</label>
           <capacities>
-            <li>ToxicBite</li>
+            <li>Bite</li>
           </capacities>
-          <power>7.0</power>
+          <power>8.5</power>
           <cooldownTime>1.30</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
         </li>
@@ -256,13 +265,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "WasteRat"]/race/foodType</xpath>
       <value>
-        <foodType>OmnivoreRoughAnimal, OvivoreAnimal</foodType>
+        <foodType>OmnivoreAnimal, OvivoreAnimal</foodType>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "WasteRat"]/race</xpath>
       <value>
-        <foodType>OmnivoreRoughAnimal, OvivoreAnimal</foodType>
+        <foodType>OmnivoreAnimal, OvivoreAnimal</foodType>
       </value>
     </nomatch>
   </Operation>
@@ -277,13 +286,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "WasteRat"]/race/manhunterOnTameFailChance</xpath>
       <value>
-        <manhunterOnTameFailChance>0.05</manhunterOnTameFailChance>
+        <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "WasteRat"]/race</xpath>
       <value>
-        <manhunterOnTameFailChance>0.05</manhunterOnTameFailChance>
+        <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
       </value>
     </nomatch>
   </Operation>
@@ -292,13 +301,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "WasteRat"]/race/manhunterOnDamageChance</xpath>
       <value>
-        <manhunterOnDamageChance>0.1</manhunterOnDamageChance>
+        <manhunterOnDamageChance>0</manhunterOnDamageChance>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "WasteRat"]/race</xpath>
       <value>
-        <manhunterOnDamageChance>0.1</manhunterOnDamageChance>
+        <manhunterOnDamageChance>0</manhunterOnDamageChance>
       </value>
     </nomatch>
   </Operation>
@@ -340,18 +349,9 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "WasteRat"]/race/trainability</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "WasteRat"]/race/trainability</xpath>
-      <value>
-        <trainability>Intermediate</trainability>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "WasteRat"]/race</xpath>
-      <value>
-        <trainability>Intermediate</trainability>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "WasteRat"]/race/packAnimal</xpath>
@@ -394,13 +394,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "WasteRat"]/race/nameOnTameChance</xpath>
       <value>
-        <nameOnTameChance>1</nameOnTameChance>
+        <nameOnTameChance>0</nameOnTameChance>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "WasteRat"]/race</xpath>
       <value>
-        <nameOnTameChance>1</nameOnTameChance>
+        <nameOnTameChance>0</nameOnTameChance>
       </value>
     </nomatch>
   </Operation>
@@ -538,10 +538,29 @@
     </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "WasteRat"]/race/specialTrainables</xpath>
+    <xpath>/Defs/ThingDef[defName = "WasteRat"]/race/specialTrainables/li[text()="SludgeSpew" or text()="EggSpew" or text()="TerrorRoar" or text()="WarTrumpet" or text()="Forage" or text()="Comfort" or text()="AttackTarget" or text()="Dig"]</xpath>
     <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "WasteRat"]/race/specialTrainables</xpath>
+      <xpath>/Defs/ThingDef[defName = "WasteRat"]/race/specialTrainables/li[text()="SludgeSpew" or text()="EggSpew" or text()="TerrorRoar" or text()="WarTrumpet" or text()="Forage" or text()="Comfort" or text()="AttackTarget" or text()="Dig"]</xpath>
     </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "WasteRat"]/race/specialTrainables</xpath>
+    <match Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "WasteRat"]/race/specialTrainables</xpath>
+      <value>
+        <li MayRequire="Ludeon.RimWorld.Odyssey">Forage</li>
+        <li MayRequire="Ludeon.RimWorld.Odyssey">Comfort</li>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "WasteRat"]/race</xpath>
+      <value>
+        <specialTrainables>
+          <li MayRequire="Ludeon.RimWorld.Odyssey">Forage</li>
+          <li MayRequire="Ludeon.RimWorld.Odyssey">Comfort</li>
+        </specialTrainables>
+      </value>
+    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "WasteRat"]/tradeTags/li[text()="AnimalCommon" or text()="AnimalUncommon" or text()="AnimalExotic" or text()="AnimalFighter" or text()="AnimalInsect" or text()="AnimalPet" or text()="AnimalFarm"]</xpath>
@@ -554,14 +573,14 @@
     <match Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "WasteRat"]/tradeTags</xpath>
       <value>
-        <li>AnimalUncommon</li>
+        <li>AnimalCommon</li>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "WasteRat"]</xpath>
       <value>
         <tradeTags Inherit="False">
-          <li>AnimalUncommon</li>
+          <li>AnimalCommon</li>
         </tradeTags>
       </value>
     </nomatch>
@@ -575,7 +594,9 @@
   <Operation Class="PatchOperationAddModExtension">
     <xpath>/Defs/ThingDef[defName = "WasteRat"]</xpath>
     <value>
-      <li Class="ZoologyMod.ModExtension_IsScavenger, ZoologyMod"/>
+      <li Class="ZoologyMod.ModExtension_IsScavenger, ZoologyMod">
+        <allowVeryRotten>true</allowVeryRotten>
+      </li>
     </value>
   </Operation>
   <!-- WasteRat PawnKindDef -->
@@ -584,13 +605,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "WasteRat"]/combatPower</xpath>
       <value>
-        <combatPower>50</combatPower>
+        <combatPower>55</combatPower>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "WasteRat"]</xpath>
       <value>
-        <combatPower>50</combatPower>
+        <combatPower>55</combatPower>
       </value>
     </nomatch>
   </Operation>
@@ -658,13 +679,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="WasteRat"]/statBases/MeleeDodgeChance</xpath>
             <value>
-              <MeleeDodgeChance>0.51</MeleeDodgeChance>
+              <MeleeDodgeChance>0.48</MeleeDodgeChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="WasteRat"]/statBases</xpath>
             <value>
-              <MeleeDodgeChance>0.51</MeleeDodgeChance>
+              <MeleeDodgeChance>0.48</MeleeDodgeChance>
             </value>
           </nomatch>
         </li>
@@ -673,13 +694,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="WasteRat"]/statBases/MeleeCritChance</xpath>
             <value>
-              <MeleeCritChance>0.22</MeleeCritChance>
+              <MeleeCritChance>0.07</MeleeCritChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="WasteRat"]/statBases</xpath>
             <value>
-              <MeleeCritChance>0.22</MeleeCritChance>
+              <MeleeCritChance>0.07</MeleeCritChance>
             </value>
           </nomatch>
         </li>
@@ -703,13 +724,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="WasteRat"]/statBases/ArmorRating_Sharp</xpath>
             <value>
-              <ArmorRating_Sharp>0.03</ArmorRating_Sharp>
+              <ArmorRating_Sharp>0.02</ArmorRating_Sharp>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="WasteRat"]/statBases</xpath>
             <value>
-              <ArmorRating_Sharp>0.03</ArmorRating_Sharp>
+              <ArmorRating_Sharp>0.02</ArmorRating_Sharp>
             </value>
           </nomatch>
         </li>
@@ -718,13 +739,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="WasteRat"]/statBases/ArmorRating_Blunt</xpath>
             <value>
-              <ArmorRating_Blunt>0.12</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0.13</ArmorRating_Blunt>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="WasteRat"]/statBases</xpath>
             <value>
-              <ArmorRating_Blunt>0.12</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0.13</ArmorRating_Blunt>
             </value>
           </nomatch>
         </li>
@@ -767,13 +788,13 @@
                 <match Class="PatchOperationReplace">
                   <xpath>Defs/ThingDef[defName="WasteRat"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
                   <value>
-                    <bodyShape>Quadruped</bodyShape>
+                    <bodyShape>QuadrupedLow</bodyShape>
                   </value>
                 </match>
                 <nomatch Class="PatchOperationAdd">
                   <xpath>Defs/ThingDef[defName="WasteRat"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
                   <value>
-                    <bodyShape>Quadruped</bodyShape>
+                    <bodyShape>QuadrupedLow</bodyShape>
                   </value>
                 </nomatch>
               </li>
@@ -783,7 +804,7 @@
             <xpath>Defs/ThingDef[defName="WasteRat"]</xpath>
             <value>
               <li Class="CombatExtended.RacePropertiesExtensionCE">
-                <bodyShape>Quadruped</bodyShape>
+                <bodyShape>QuadrupedLow</bodyShape>
               </li>
             </value>
           </nomatch>
@@ -803,9 +824,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>2</power>
-                <armorPenetrationBlunt>0.45</armorPenetrationBlunt>
-                <cooldownTime>1.15</cooldownTime>
+                <power>1.00</power>
+                <armorPenetrationBlunt>0.25</armorPenetrationBlunt>
+                <cooldownTime>1.35</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                 <chanceFactor>0.2</chanceFactor>
@@ -813,12 +834,12 @@
               <li Class="CombatExtended.ToolCE">
                 <label>Incisors</label>
                 <capacities>
-                  <li>ToxicBite</li>
+                  <li>Bite</li>
                 </capacities>
-                <power>8.6</power>
-                <armorPenetrationBlunt>0.49</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.13</armorPenetrationSharp>
-                <cooldownTime>1.1</cooldownTime>
+                <power>6.5</power>
+                <armorPenetrationBlunt>0.30</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.07</armorPenetrationSharp>
+                <cooldownTime>1.15</cooldownTime>
                 <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
               </li>
             </tools>

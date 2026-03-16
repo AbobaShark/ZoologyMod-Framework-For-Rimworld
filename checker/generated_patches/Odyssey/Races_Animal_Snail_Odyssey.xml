@@ -8,13 +8,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "LavaSnail"]/statBases/MarketValue</xpath>
       <value>
-        <MarketValue>175</MarketValue>
+        <MarketValue>200</MarketValue>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "LavaSnail"]/statBases</xpath>
       <value>
-        <MarketValue>175</MarketValue>
+        <MarketValue>200</MarketValue>
       </value>
     </nomatch>
   </Operation>
@@ -38,13 +38,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "LavaSnail"]/statBases/Wildness</xpath>
       <value>
-        <Wildness>0.55</Wildness>
+        <Wildness>0.3</Wildness>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "LavaSnail"]/statBases</xpath>
       <value>
-        <Wildness>0.55</Wildness>
+        <Wildness>0.3</Wildness>
       </value>
     </nomatch>
   </Operation>
@@ -53,13 +53,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "LavaSnail"]/statBases/FilthRate</xpath>
       <value>
-        <FilthRate>1</FilthRate>
+        <FilthRate>10</FilthRate>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "LavaSnail"]/statBases</xpath>
       <value>
-        <FilthRate>1</FilthRate>
+        <FilthRate>10</FilthRate>
       </value>
     </nomatch>
   </Operation>
@@ -113,13 +113,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "LavaSnail"]/statBases/ArmorRating_Sharp</xpath>
       <value>
-        <ArmorRating_Sharp>0.05</ArmorRating_Sharp>
+        <ArmorRating_Sharp>0.60</ArmorRating_Sharp>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "LavaSnail"]/statBases</xpath>
       <value>
-        <ArmorRating_Sharp>0.05</ArmorRating_Sharp>
+        <ArmorRating_Sharp>0.60</ArmorRating_Sharp>
       </value>
     </nomatch>
   </Operation>
@@ -160,18 +160,18 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>4.5</power>
+          <power>6.5</power>
           <cooldownTime>1.90</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
           <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
           <chanceFactor>0.2</chanceFactor>
         </li>
         <li>
-          <label>teeth</label>
+          <label>radula</label>
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>9.0</power>
+          <power>9.5</power>
           <cooldownTime>1.90</cooldownTime>
           <linkedBodyPartsGroup>Mouth</linkedBodyPartsGroup>
         </li>
@@ -301,18 +301,9 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "LavaSnail"]/race/roamMtbDays</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "LavaSnail"]/race/roamMtbDays</xpath>
-      <value>
-        <roamMtbDays>4</roamMtbDays>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "LavaSnail"]/race</xpath>
-      <value>
-        <roamMtbDays>4</roamMtbDays>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "LavaSnail"]/race/LeatherDef</xpath>
@@ -556,7 +547,6 @@
       <xpath>/Defs/ThingDef[defName = "LavaSnail"]/tradeTags</xpath>
       <value>
         <li>AnimalCommon</li>
-        <li>AnimalFarm</li>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
@@ -564,7 +554,6 @@
       <value>
         <tradeTags>
           <li>AnimalCommon</li>
-          <li>AnimalFarm</li>
         </tradeTags>
       </value>
     </nomatch>
@@ -581,13 +570,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "LavaSnail"]/combatPower</xpath>
       <value>
-        <combatPower>55</combatPower>
+        <combatPower>80</combatPower>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "LavaSnail"]</xpath>
       <value>
-        <combatPower>55</combatPower>
+        <combatPower>80</combatPower>
       </value>
     </nomatch>
   </Operation>
@@ -646,13 +635,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="LavaSnail"]/statBases/MeleeDodgeChance</xpath>
             <value>
-              <MeleeDodgeChance>0.00</MeleeDodgeChance>
+              <MeleeDodgeChance>0.13</MeleeDodgeChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="LavaSnail"]/statBases</xpath>
             <value>
-              <MeleeDodgeChance>0.00</MeleeDodgeChance>
+              <MeleeDodgeChance>0.13</MeleeDodgeChance>
             </value>
           </nomatch>
         </li>
@@ -691,13 +680,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="LavaSnail"]/statBases/ArmorRating_Sharp</xpath>
             <value>
-              <ArmorRating_Sharp>0.05</ArmorRating_Sharp>
+              <ArmorRating_Sharp>1.12</ArmorRating_Sharp>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="LavaSnail"]/statBases</xpath>
             <value>
-              <ArmorRating_Sharp>0.05</ArmorRating_Sharp>
+              <ArmorRating_Sharp>1.12</ArmorRating_Sharp>
             </value>
           </nomatch>
         </li>
@@ -706,13 +695,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="LavaSnail"]/statBases/ArmorRating_Blunt</xpath>
             <value>
-              <ArmorRating_Blunt>0.19</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0.03</ArmorRating_Blunt>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="LavaSnail"]/statBases</xpath>
             <value>
-              <ArmorRating_Blunt>0.19</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0.03</ArmorRating_Blunt>
             </value>
           </nomatch>
         </li>
@@ -791,22 +780,22 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>4.5</power>
-                <armorPenetrationBlunt>1.36</armorPenetrationBlunt>
-                <cooldownTime>1.45</cooldownTime>
+                <power>1.00</power>
+                <armorPenetrationBlunt>0.35</armorPenetrationBlunt>
+                <cooldownTime>1.95</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                 <chanceFactor>0.2</chanceFactor>
               </li>
               <li Class="CombatExtended.ToolCE">
-                <label>teeth</label>
+                <label>radula</label>
                 <capacities>
                   <li>Bite</li>
                 </capacities>
-                <power>7.4</power>
-                <armorPenetrationBlunt>0.83</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.12</armorPenetrationSharp>
-                <cooldownTime>1.45</cooldownTime>
+                <power>5</power>
+                <armorPenetrationBlunt>0.35</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.05</armorPenetrationSharp>
+                <cooldownTime>1.85</cooldownTime>
                 <linkedBodyPartsGroup>Mouth</linkedBodyPartsGroup>
               </li>
             </tools>

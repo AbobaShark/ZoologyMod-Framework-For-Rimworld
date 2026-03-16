@@ -8,7 +8,7 @@ namespace ZoologyMod
 {
     public class JobDriver_ProtectPrey : JobDriver
     {
-        private const int MinimumProtectDurationTicks = 360;
+        private const int MinimumProtectDurationTicks = ZoologyTickLimiter.PreyProtection.MinimumProtectDurationTicks;
         private static int MAX_DISTANCE_SQ => PreyProtectionUtility.GetProtectionRangeSquared();
 
         private int startTickLocal = -1;
@@ -22,6 +22,17 @@ namespace ZoologyMod
             base.ExposeData();
             Scribe_Values.Look(ref startTickLocal, "startTickLocal", -1, false);
             Scribe_Values.Look(ref notifiedPlayer, "notifiedPlayer", false, false);
+            if (Scribe.mode == LoadSaveMode.PostLoadInit)
+            {
+                try
+                {
+                    if (pawn != null && TargetPawn != null)
+                    {
+                        ProtectPreyState.NotifyProtectPreyJobStarted(pawn, TargetPawn, this.job);
+                    }
+                }
+                catch { }
+            }
         }
 
         public override bool TryMakePreToilReservations(bool errorOnFailed)
@@ -73,6 +84,7 @@ namespace ZoologyMod
             {
                 try
                 {
+                    ProtectPreyState.NotifyProtectPreyJobEnded(actorPawn, this.job);
                     if (actorPawn != null && actorPawn.Map != null)
                         actorPawn.Map.attackTargetsCache.UpdateTarget(actorPawn);
                 }
@@ -111,6 +123,11 @@ namespace ZoologyMod
 
                     TryWarnPlayer();
                     startTickLocal = Find.TickManager?.TicksGame ?? 0;
+                    try
+                    {
+                        ProtectPreyState.NotifyProtectPreyJobStarted(actor, this.TargetPawn, actor?.CurJob);
+                    }
+                    catch { }
                 }
                 catch (Exception ex)
                 {

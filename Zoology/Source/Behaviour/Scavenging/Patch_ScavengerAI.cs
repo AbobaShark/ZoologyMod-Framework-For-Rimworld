@@ -4,13 +4,28 @@ using HarmonyLib;
 using RimWorld;
 using Verse;
 using Verse.AI;
-using UnityEngine;
 
 namespace ZoologyMod.HarmonyPatches
 {
     public static class Patch_ScavengeringAI
     {
-        private static readonly ThingRequest FoodSourceRequest = ThingRequest.ForGroup(ThingRequestGroup.FoodSource);
+        private const int ScavengerSearchCooldownTicks = ZoologyTickLimiter.Scavenging.SearchCooldownTicks;
+        private const int ScavengerSearchCooldownFailTicks = ZoologyTickLimiter.Scavenging.SearchCooldownFailTicks;
+        private const int ScavengerCachedResultTicks = ZoologyTickLimiter.Scavenging.CachedResultTicks;
+        private const int ScavengerMaxScansPerTickPerMap = ZoologyTickLimiter.Scavenging.MaxScansPerTickPerMap;
+
+        private struct ScavengerSearchState
+        {
+            public int LastSearchTick;
+            public int LastFoundTick;
+            public Thing LastFound;
+            public ThingDef LastFoodDef;
+            public bool LastSearchHadResult;
+        }
+
+        private static readonly Dictionary<int, ScavengerSearchState> scavengerSearchStates = new Dictionary<int, ScavengerSearchState>(256);
+        private static readonly Dictionary<int, int> mapScansThisTick = new Dictionary<int, int>(8);
+        private static int mapScansTick = -1;
 
         
         [HarmonyPatch(typeof(FoodUtility))]
@@ -37,81 +52,76 @@ namespace ZoologyMod.HarmonyPatches
                     if (settings != null && !settings.EnableScavengering) return;
                     if (__result != null) return;
                     if (eater == null || getter == null) return;
-                    if (!allowCorpse) return;
 
                     if (eater.def == null || !ZoologyCacheUtility.HasScavengerExtension(eater.def)) return;
                     var scav = DefModExtensionCache<ModExtension_IsScavenger>.Get(eater.def);
                     if (scav == null) return; 
-                    var reachTraverseParms = TraverseParms.For(getter, Danger.Some, TraverseMode.ByPawn, false, false, false, true);
-                    var searchTraverseParms = TraverseParms.For(getter, Danger.Deadly, TraverseMode.ByPawn, false, false, false, true);
+                    int currentTick = Find.TickManager?.TicksGame ?? 0;
 
-                    Predicate<Thing> validator = t =>
+                    int pawnId = eater.thingIDNumber;
+                    if (!scavengerSearchStates.TryGetValue(pawnId, out ScavengerSearchState state))
                     {
-                        var corpse = t as Corpse;
-                        if (corpse == null) return false;
-                        if (corpse.InnerPawn == null) return false;
-                        if (corpse.Map == null) return false;
-
-                        ThingDef finalDef;
-                        try { finalDef = FoodUtility.GetFinalIngestibleDef(corpse, false); }
-                        catch { return false; }
-                        if (finalDef == null) return false;
-
-                        if (minNutrition.HasValue)
+                        state = new ScavengerSearchState
                         {
-                            float nut = FoodUtility.NutritionForEater(eater, corpse);
-                            if (nut < minNutrition.Value) return false;
-                        }
+                            LastSearchTick = -999999,
+                            LastFoundTick = -999999,
+                            LastFound = null,
+                            LastFoodDef = null,
+                            LastSearchHadResult = false
+                        };
+                    }
 
-                        if (!eater.WillEat(finalDef, getter, true, allowVenerated)) return false;
-                        if (!finalDef.IsNutritionGivingIngestible) return false;
-                        if (!allowForbidden && t.IsForbidden(getter)) return false;
+                    if (TryUseCachedResult(currentTick, getter, eater, allowForbidden, allowVenerated, ignoreReservations, minNutrition, scav, ref state, out Thing cached, out ThingDef cachedDef))
+                    {
+                        __result = cached;
+                        foodDef = cachedDef;
+                        scavengerSearchStates[pawnId] = state;
+                        return;
+                    }
 
-                        if (!scav.allowVeryRotten)
-                        {
-                            var rotComp = t.TryGetComp<CompRottable>();
-                            if (rotComp != null)
-                            {
-                                if (rotComp.Stage == RotStage.Dessicated) return false;
-                            }
-                            else if (t.IsDessicated()) return false;
-                        }
+                    var corpseLister = getter.Map?.listerThings?.ThingsInGroup(ThingRequestGroup.Corpse);
+                    if (corpseLister == null || corpseLister.Count == 0)
+                    {
+                        state.LastSearchTick = currentTick;
+                        state.LastSearchHadResult = false;
+                        scavengerSearchStates[pawnId] = state;
+                        return;
+                    }
 
-                        if (!ignoreReservations)
-                        {
-                            
-                            if (!getter.CanReserveAndReach(t, PathEndMode.OnCell, Danger.Some, 1, -1, null, false)) return false;
-                        }
+                    int cooldown = state.LastSearchHadResult ? ScavengerSearchCooldownTicks : ScavengerSearchCooldownFailTicks;
+                    if (currentTick - state.LastSearchTick < cooldown)
+                    {
+                        scavengerSearchStates[pawnId] = state;
+                        return;
+                    }
 
-                        if (!getter.Map.reachability.CanReachNonLocal(getter.Position, new TargetInfo(t.PositionHeld, t.Map, false),
-                            PathEndMode.OnCell, reachTraverseParms))
-                        {
-                            return false;
-                        }
+                    if (!TryConsumeMapScanBudget(getter.Map, currentTick))
+                    {
+                        return;
+                    }
 
-                        return true;
-                    };
-
-                    int maxRegionsToScan = GetMaxRegionsToScan_Local(getter, forceScanWholeMap);
-
-                    Thing found = GenClosest.ClosestThingReachable(getter.Position, getter.Map, FoodSourceRequest,
-                        PathEndMode.OnCell, searchTraverseParms,
-                        9999f, validator, null, 0, maxRegionsToScan, false, RegionType.Set_Passable, false, false);
+                    state.LastSearchTick = currentTick;
+                    ThingDef foundDef;
+                    Thing found = FindClosestCorpseByDistance(getter, eater, allowForbidden, allowVenerated,
+                        ignoreReservations, minNutrition, scav, corpseLister, out foundDef);
 
                     if (found != null)
                     {
-                        if (!ignoreReservations && !getter.CanReserveAndReach(found, PathEndMode.OnCell, Danger.Some, 1, -1, null, false))
-                        {
-                            return;
-                        }
-
-                        var corp = found as Corpse;
-                        var fd = FoodUtility.GetFinalIngestibleDef(found, false);
-
-                        
                         __result = found;
-                        foodDef = fd;
+                        foodDef = foundDef;
+
+                        state.LastFound = found;
+                        state.LastFoodDef = foundDef;
+                        state.LastFoundTick = currentTick;
+                        state.LastSearchHadResult = true;
+                        scavengerSearchStates[pawnId] = state;
+                        return;
                     }
+
+                    state.LastSearchHadResult = false;
+                    state.LastFound = null;
+                    state.LastFoodDef = null;
+                    scavengerSearchStates[pawnId] = state;
                 }
                 catch (Exception e)
                 {
@@ -119,21 +129,188 @@ namespace ZoologyMod.HarmonyPatches
                 }
             }
 
-            private static int GetMaxRegionsToScan_Local(Pawn getter, bool forceScanWholeMap)
+            private static bool TryConsumeMapScanBudget(Map map, int currentTick)
             {
-                if (getter.RaceProps.Humanlike) return -1;
-                if (forceScanWholeMap) return -1;
-                if (getter.Faction == Faction.OfPlayer)
+                if (map == null) return false;
+                if (mapScansTick != currentTick)
                 {
-                    if (getter.Roamer && AnimalPenUtility.GetFixedAnimalFilter().Allows(getter))
-                    {
-                        CompAnimalPenMarker currentPenOf = AnimalPenUtility.GetCurrentPenOf(getter, false);
-                        if (currentPenOf != null)
-                            return Mathf.Min(currentPenOf.PenState.ConnectedRegions.Count, 100);
-                    }
-                    return 100;
+                    mapScansTick = currentTick;
+                    mapScansThisTick.Clear();
                 }
-                return 30;
+
+                int mapId = map.uniqueID;
+                mapScansThisTick.TryGetValue(mapId, out int count);
+                if (count >= ScavengerMaxScansPerTickPerMap)
+                    return false;
+
+                mapScansThisTick[mapId] = count + 1;
+                return true;
+            }
+
+            private static Thing FindClosestCorpseByDistance(
+                Pawn getter,
+                Pawn eater,
+                bool allowForbidden,
+                bool allowVenerated,
+                bool ignoreReservations,
+                float? minNutrition,
+                ModExtension_IsScavenger scav,
+                List<Thing> corpseLister,
+                out ThingDef foodDef)
+            {
+                foodDef = null;
+                if (corpseLister == null || corpseLister.Count == 0 || getter == null || eater == null) return null;
+
+                IntVec3 root = getter.Position;
+                Corpse best = null;
+                int bestDistSq = int.MaxValue;
+
+                for (int i = 0; i < corpseLister.Count; i++)
+                {
+                    var corpse = corpseLister[i] as Corpse;
+                    if (corpse == null) continue;
+                    if (corpse.Destroyed || !corpse.Spawned) continue;
+                    if (corpse.Bugged) continue;
+                    if (corpse.Map != getter.Map) continue;
+                    if (corpse.InnerPawn == null) continue;
+                    if (!corpse.InnerPawn.RaceProps.IsFlesh) continue;
+                    if (!allowForbidden && corpse.IsForbidden(getter)) continue;
+
+                    if (!scav.allowVeryRotten)
+                    {
+                        var rotComp = corpse.TryGetComp<CompRottable>();
+                        if (rotComp != null)
+                        {
+                            if (rotComp.Stage == RotStage.Dessicated) continue;
+                        }
+                        else if (corpse.IsDessicated()) continue;
+                    }
+
+                    int dx = root.x - corpse.Position.x;
+                    int dz = root.z - corpse.Position.z;
+                    int distSq = dx * dx + dz * dz;
+                    if (distSq < bestDistSq)
+                    {
+                        bestDistSq = distSq;
+                        best = corpse;
+                    }
+                }
+
+                if (best == null) return null;
+
+                ThingDef finalDef;
+                try { finalDef = FoodUtility.GetFinalIngestibleDef(best, false); }
+                catch { return null; }
+                if (finalDef == null || !finalDef.IsNutritionGivingIngestible) return null;
+
+                if (minNutrition.HasValue)
+                {
+                    float nut = FoodUtility.NutritionForEater(eater, best);
+                    if (nut < minNutrition.Value) return null;
+                }
+
+                if (!eater.WillEat(finalDef, getter, true, allowVenerated)) return null;
+
+                if (ignoreReservations)
+                {
+                    if (!getter.CanReach(best, PathEndMode.OnCell, Danger.Some))
+                    {
+                        return null;
+                    }
+                }
+                else
+                {
+                    if (!getter.CanReserveAndReach(best, PathEndMode.OnCell, Danger.Some, 1, -1, null, false))
+                    {
+                        return null;
+                    }
+                }
+
+                foodDef = finalDef;
+                return best;
+            }
+
+            private static bool TryUseCachedResult(
+                int currentTick,
+                Pawn getter,
+                Pawn eater,
+                bool allowForbidden,
+                bool allowVenerated,
+                bool ignoreReservations,
+                float? minNutrition,
+                ModExtension_IsScavenger scav,
+                ref ScavengerSearchState state,
+                out Thing result,
+                out ThingDef foodDef)
+            {
+                result = null;
+                foodDef = null;
+
+                if (state.LastFound == null)
+                    return false;
+                if (currentTick - state.LastFoundTick > ScavengerCachedResultTicks)
+                    return false;
+
+                var corpse = state.LastFound as Corpse;
+                if (corpse == null || corpse.Destroyed || !corpse.Spawned)
+                {
+                    state.LastFound = null;
+                    state.LastFoodDef = null;
+                    return false;
+                }
+
+                if (getter == null || eater == null || corpse.Map != getter.Map)
+                {
+                    state.LastFound = null;
+                    state.LastFoodDef = null;
+                    return false;
+                }
+
+                if (!allowForbidden && corpse.IsForbidden(getter))
+                {
+                    return false;
+                }
+
+                if (!scav.allowVeryRotten)
+                {
+                    var rotComp = corpse.TryGetComp<CompRottable>();
+                    if (rotComp != null)
+                    {
+                        if (rotComp.Stage == RotStage.Dessicated) return false;
+                    }
+                    else if (corpse.IsDessicated()) return false;
+                }
+
+                ThingDef finalDef = state.LastFoodDef;
+                if (finalDef == null)
+                {
+                    try { finalDef = FoodUtility.GetFinalIngestibleDef(corpse, false); }
+                    catch { finalDef = null; }
+                }
+                if (finalDef == null || !finalDef.IsNutritionGivingIngestible)
+                {
+                    state.LastFound = null;
+                    state.LastFoodDef = null;
+                    return false;
+                }
+
+                if (minNutrition.HasValue)
+                {
+                    float nut = FoodUtility.NutritionForEater(eater, corpse);
+                    if (nut < minNutrition.Value) return false;
+                }
+
+                if (!eater.WillEat(finalDef, getter, true, allowVenerated)) return false;
+
+                if (!ignoreReservations && !getter.CanReserveAndReach(corpse, PathEndMode.OnCell, Danger.Some, 1, -1, null, false))
+                {
+                    return false;
+                }
+
+                state.LastFoodDef = finalDef;
+                result = corpse;
+                foodDef = finalDef;
+                return true;
             }
         }
 

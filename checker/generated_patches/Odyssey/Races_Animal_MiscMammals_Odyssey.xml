@@ -8,13 +8,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Armadillo"]/statBases/MarketValue</xpath>
       <value>
-        <MarketValue>75</MarketValue>
+        <MarketValue>150</MarketValue>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Armadillo"]/statBases</xpath>
       <value>
-        <MarketValue>75</MarketValue>
+        <MarketValue>150</MarketValue>
       </value>
     </nomatch>
   </Operation>
@@ -38,13 +38,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Armadillo"]/statBases/Wildness</xpath>
       <value>
-        <Wildness>0.7</Wildness>
+        <Wildness>0.55</Wildness>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Armadillo"]/statBases</xpath>
       <value>
-        <Wildness>0.7</Wildness>
+        <Wildness>0.55</Wildness>
       </value>
     </nomatch>
   </Operation>
@@ -95,22 +95,31 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Armadillo"]/statBases/ArmorRating_Blunt</xpath>
-    <match Class="PatchOperationRemove">
+    <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Armadillo"]/statBases/ArmorRating_Blunt</xpath>
+      <value>
+        <ArmorRating_Blunt>0.20</ArmorRating_Blunt>
+      </value>
     </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "Armadillo"]/statBases</xpath>
+      <value>
+        <ArmorRating_Blunt>0.20</ArmorRating_Blunt>
+      </value>
+    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Armadillo"]/statBases/ArmorRating_Sharp</xpath>
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Armadillo"]/statBases/ArmorRating_Sharp</xpath>
       <value>
-        <ArmorRating_Sharp>0.15</ArmorRating_Sharp>
+        <ArmorRating_Sharp>0.25</ArmorRating_Sharp>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Armadillo"]/statBases</xpath>
       <value>
-        <ArmorRating_Sharp>0.15</ArmorRating_Sharp>
+        <ArmorRating_Sharp>0.25</ArmorRating_Sharp>
       </value>
     </nomatch>
   </Operation>
@@ -136,38 +145,18 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>2.0</power>
+          <power>2.5</power>
           <cooldownTime>1.25</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
           <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
           <chanceFactor>0.2</chanceFactor>
         </li>
         <li>
-          <label>left claw</label>
-          <labelNoLocation>claw</labelNoLocation>
-          <capacities>
-            <li>Scratch</li>
-          </capacities>
-          <power>3.0</power>
-          <cooldownTime>0.90</cooldownTime>
-          <linkedBodyPartsGroup>FrontRightPaw</linkedBodyPartsGroup>
-        </li>
-        <li>
-          <label>right claw</label>
-          <labelNoLocation>claw</labelNoLocation>
-          <capacities>
-            <li>Scratch</li>
-          </capacities>
-          <power>3.0</power>
-          <cooldownTime>0.90</cooldownTime>
-          <linkedBodyPartsGroup>FrontRightPaw</linkedBodyPartsGroup>
-        </li>
-        <li>
           <label>teeth</label>
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>5.5</power>
+          <power>6.0</power>
           <cooldownTime>1.10</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
         </li>
@@ -520,10 +509,27 @@
     </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Armadillo"]/race/specialTrainables</xpath>
+    <xpath>/Defs/ThingDef[defName = "Armadillo"]/race/specialTrainables/li[text()="SludgeSpew" or text()="EggSpew" or text()="TerrorRoar" or text()="WarTrumpet" or text()="Forage" or text()="Comfort" or text()="AttackTarget" or text()="Dig"]</xpath>
     <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Armadillo"]/race/specialTrainables</xpath>
+      <xpath>/Defs/ThingDef[defName = "Armadillo"]/race/specialTrainables/li[text()="SludgeSpew" or text()="EggSpew" or text()="TerrorRoar" or text()="WarTrumpet" or text()="Forage" or text()="Comfort" or text()="AttackTarget" or text()="Dig"]</xpath>
     </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Armadillo"]/race/specialTrainables</xpath>
+    <match Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "Armadillo"]/race/specialTrainables</xpath>
+      <value>
+        <li MayRequire="Ludeon.RimWorld.Odyssey">Forage</li>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "Armadillo"]/race</xpath>
+      <value>
+        <specialTrainables>
+          <li MayRequire="Ludeon.RimWorld.Odyssey">Forage</li>
+        </specialTrainables>
+      </value>
+    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Armadillo"]/tradeTags/li[text()="AnimalCommon" or text()="AnimalUncommon" or text()="AnimalExotic" or text()="AnimalFighter" or text()="AnimalInsect" or text()="AnimalPet" or text()="AnimalFarm"]</xpath>
@@ -560,13 +566,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "Armadillo"]/combatPower</xpath>
       <value>
-        <combatPower>45</combatPower>
+        <combatPower>60</combatPower>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "Armadillo"]</xpath>
       <value>
-        <combatPower>45</combatPower>
+        <combatPower>60</combatPower>
       </value>
     </nomatch>
   </Operation>
@@ -625,13 +631,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Armadillo"]/statBases/MeleeDodgeChance</xpath>
             <value>
-              <MeleeDodgeChance>0.32</MeleeDodgeChance>
+              <MeleeDodgeChance>0.39</MeleeDodgeChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Armadillo"]/statBases</xpath>
             <value>
-              <MeleeDodgeChance>0.32</MeleeDodgeChance>
+              <MeleeDodgeChance>0.39</MeleeDodgeChance>
             </value>
           </nomatch>
         </li>
@@ -640,13 +646,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Armadillo"]/statBases/MeleeCritChance</xpath>
             <value>
-              <MeleeCritChance>0.19</MeleeCritChance>
+              <MeleeCritChance>0</MeleeCritChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Armadillo"]/statBases</xpath>
             <value>
-              <MeleeCritChance>0.19</MeleeCritChance>
+              <MeleeCritChance>0</MeleeCritChance>
             </value>
           </nomatch>
         </li>
@@ -670,13 +676,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Armadillo"]/statBases/ArmorRating_Sharp</xpath>
             <value>
-              <ArmorRating_Sharp>0.55</ArmorRating_Sharp>
+              <ArmorRating_Sharp>0.43</ArmorRating_Sharp>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Armadillo"]/statBases</xpath>
             <value>
-              <ArmorRating_Sharp>0.55</ArmorRating_Sharp>
+              <ArmorRating_Sharp>0.43</ArmorRating_Sharp>
             </value>
           </nomatch>
         </li>
@@ -685,13 +691,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Armadillo"]/statBases/ArmorRating_Blunt</xpath>
             <value>
-              <ArmorRating_Blunt>0.28</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0.31</ArmorRating_Blunt>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Armadillo"]/statBases</xpath>
             <value>
-              <ArmorRating_Blunt>0.28</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0.31</ArmorRating_Blunt>
             </value>
           </nomatch>
         </li>
@@ -770,46 +776,22 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>1.4</power>
-                <armorPenetrationBlunt>0.24</armorPenetrationBlunt>
-                <cooldownTime>1.05</cooldownTime>
+                <power>1.00</power>
+                <armorPenetrationBlunt>0.15</armorPenetrationBlunt>
+                <cooldownTime>1.25</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                 <chanceFactor>0.2</chanceFactor>
-              </li>
-              <li Class="CombatExtended.ToolCE">
-                <label>left claw</label>
-                <labelNoLocation>claw</labelNoLocation>
-                <capacities>
-                  <li>Scratch</li>
-                </capacities>
-                <power>4.8</power>
-                <armorPenetrationBlunt>0.27</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.07</armorPenetrationSharp>
-                <cooldownTime>0.85</cooldownTime>
-                <linkedBodyPartsGroup>FrontRightPaw</linkedBodyPartsGroup>
-              </li>
-              <li Class="CombatExtended.ToolCE">
-                <label>right claw</label>
-                <labelNoLocation>claw</labelNoLocation>
-                <capacities>
-                  <li>Scratch</li>
-                </capacities>
-                <power>4.8</power>
-                <armorPenetrationBlunt>0.27</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.07</armorPenetrationSharp>
-                <cooldownTime>0.85</cooldownTime>
-                <linkedBodyPartsGroup>FrontRightPaw</linkedBodyPartsGroup>
               </li>
               <li Class="CombatExtended.ToolCE">
                 <label>teeth</label>
                 <capacities>
                   <li>Bite</li>
                 </capacities>
-                <power>5.2</power>
-                <armorPenetrationBlunt>0.27</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.1</armorPenetrationSharp>
-                <cooldownTime>0.95</cooldownTime>
+                <power>4</power>
+                <armorPenetrationBlunt>0.15</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.06</armorPenetrationSharp>
+                <cooldownTime>1.05</cooldownTime>
                 <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
               </li>
             </tools>

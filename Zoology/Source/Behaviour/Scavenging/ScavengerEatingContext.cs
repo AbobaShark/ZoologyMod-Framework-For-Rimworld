@@ -1,142 +1,86 @@
-﻿using System;
 using System.Collections.Generic;
-using UnityEngine;
-using Verse;
 using RimWorld;
+using Verse;
+using Verse.AI;
 
 namespace ZoologyMod
 {
-    
-    
-    
-    
-    
     public static class ScavengerEatingContext
     {
-        [ThreadStatic] private static Dictionary<Pawn, Thing> pawnToTarget;
-        [ThreadStatic] private static List<Pawn> tempPawnsToRemove;
+        private static readonly Dictionary<int, int> pawnToCorpseId = new Dictionary<int, int>(128);
+        private static readonly Dictionary<int, Pawn> corpseToPawn = new Dictionary<int, Pawn>(128);
 
-        private static Dictionary<Pawn, Thing> Map => pawnToTarget ?? (pawnToTarget = new Dictionary<Pawn, Thing>());
-        private static List<Pawn> TempPawnsToRemove => tempPawnsToRemove ?? (tempPawnsToRemove = new List<Pawn>(16));
-
-        
-        
-        
-        
         public static void SetEating(Pawn pawn, Thing target)
         {
-            try
-            {
-                if (pawn == null) return;
-                if (pawn.def == null || !ZoologyCacheUtility.HasScavengerExtension(pawn.def)) return;
+            if (pawn == null) return;
+            if (pawn.def == null || !ZoologyCacheUtility.HasScavengerExtension(pawn.def)) return;
 
-                var dict = Map;
-                dict[pawn] = target;
-            }
-            catch (Exception e)
+            int pawnId = pawn.thingIDNumber;
+
+            if (pawnToCorpseId.TryGetValue(pawnId, out int oldCorpseId))
             {
-                Debug.LogError("[Zoology] Error in ScavengerEatingContext.SetEating: " + e);
+                pawnToCorpseId.Remove(pawnId);
+                corpseToPawn.Remove(oldCorpseId);
             }
+
+            var corpse = target as Corpse;
+            if (corpse == null) return;
+
+            int corpseId = corpse.thingIDNumber;
+            if (corpseToPawn.TryGetValue(corpseId, out Pawn existing) && existing != pawn)
+            {
+                pawnToCorpseId.Remove(existing.thingIDNumber);
+            }
+
+            pawnToCorpseId[pawnId] = corpseId;
+            corpseToPawn[corpseId] = pawn;
         }
 
-        
-        
-        
         public static void Clear(Pawn pawn)
         {
-            try
+            if (pawn == null) return;
+            int pawnId = pawn.thingIDNumber;
+            if (pawnToCorpseId.TryGetValue(pawnId, out int corpseId))
             {
-                if (pawn == null) return;
-                var dict = Map;
-                if (dict.Remove(pawn))
-                {
-                    
-                }
-            }
-            catch (Exception e)
-            {
-                Debug.LogError("[Zoology] Error in ScavengerEatingContext.Clear: " + e);
+                pawnToCorpseId.Remove(pawnId);
+                corpseToPawn.Remove(corpseId);
             }
         }
 
-        
-        
-        
-        
-        
         public static Pawn GetEatingPawnForCorpse(Corpse corpse)
         {
-            try
+            if (corpse == null) return null;
+
+            int corpseId = corpse.thingIDNumber;
+            if (!corpseToPawn.TryGetValue(corpseId, out Pawn pawn) || pawn == null)
             {
-                if (corpse == null) return null;
-                var dict = Map;
-                var toRemove = TempPawnsToRemove;
-                toRemove.Clear();
-
-                foreach (var kv in dict)
-                {
-                    var p = kv.Key;
-                    var t = kv.Value;
-
-                    
-                    if (p == null || p.Dead)
-                    {
-                        toRemove.Add(p);
-                        continue;
-                    }
-
-                    if (t == null)
-                    {
-                        toRemove.Add(p);
-                        continue;
-                    }
-
-                    try
-                    {
-                        var cj = p.CurJob;
-                        if (cj == null || cj.def != JobDefOf.Ingest)
-                        {
-                            toRemove.Add(p);
-                            continue;
-                        }
-                        var curTarget = cj.targetA.Thing;
-                        if (curTarget == null || curTarget != t)
-                        {
-                            toRemove.Add(p);
-                            continue;
-                        }
-
-                        if (t == corpse) return p;
-                    }
-                    catch
-                    {
-                        toRemove.Add(p);
-                        continue;
-                    }
-                }
-
-                
-                foreach (var rp in toRemove)
-                {
-                    try { dict.Remove(rp); } catch { }
-                }
-                toRemove.Clear();
+                corpseToPawn.Remove(corpseId);
+                return null;
             }
-            catch (Exception e)
+
+            if (corpse.Destroyed || !corpse.Spawned)
             {
-                Debug.LogError("[Zoology] Error in ScavengerEatingContext.GetEatingPawnForCorpse: " + e);
+                corpseToPawn.Remove(corpseId);
+                pawnToCorpseId.Remove(pawn.thingIDNumber);
+                return null;
             }
-            return null;
-        }
 
-        private static string ShortPawn(Pawn p)
-        {
-            try { return $"{(p.LabelShort ?? p.ToString())}_id{p.thingIDNumber}"; } catch { return "pawn?"; }
-        }
+            if (pawn.Dead || pawn.Destroyed)
+            {
+                corpseToPawn.Remove(corpseId);
+                pawnToCorpseId.Remove(pawn.thingIDNumber);
+                return null;
+            }
 
-        private static string ShortThing(Thing t)
-        {
-            try { return $"{t.def?.defName ?? "thing"}_id{t.thingIDNumber}"; } catch { return "thing?"; }
+            Job curJob = pawn.CurJob;
+            if (curJob == null || curJob.def != JobDefOf.Ingest || curJob.targetA.Thing != corpse)
+            {
+                corpseToPawn.Remove(corpseId);
+                pawnToCorpseId.Remove(pawn.thingIDNumber);
+                return null;
+            }
+
+            return pawn;
         }
     }
 }

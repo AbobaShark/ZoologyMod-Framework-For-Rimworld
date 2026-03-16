@@ -9,8 +9,8 @@ namespace ZoologyMod
 {
     public static class AnimalChildcareUtility
     {
-        public const int FullFeedSessionTicks = 2000;
-        public const int FullLactatingSeverityTicks = 10000;
+        public const int FullFeedSessionTicks = ZoologyTickLimiter.Lactation.FullFeedSessionTicks;
+        public const int FullLactatingSeverityTicks = ZoologyTickLimiter.Lactation.FullLactatingSeverityTicks;
         public const float feedingThreshold = 0.33f;
         private static Dictionary<int, int> lastFeedAttemptTick = new Dictionary<int, int>();
         private static readonly Dictionary<ThingDef, HashSet<string>> crossBreedDefNamesCache = new Dictionary<ThingDef, HashSet<string>>();
@@ -18,7 +18,7 @@ namespace ZoologyMod
         private static JobDef breastfeedJobDef;
         private static JobDef youngSuckleJobDef;
         private static LifeStageDef animalBabyLifeStageDef;
-        private const int FeedAttemptCooldownTicks = 100;
+        private const int FeedAttemptCooldownTicks = ZoologyTickLimiter.Lactation.FeedAttemptCooldownTicks;
         public const float MotherMinFeedLevel = 0.15f;
         public static HediffDef LactatingHediffDef => lactatingHediffDef ?? (lactatingHediffDef = DefDatabase<HediffDef>.GetNamedSilentFail("Zoology_Lactating"));
         public static JobDef BreastfeedJobDef => breastfeedJobDef ?? (breastfeedJobDef = DefDatabase<JobDef>.GetNamedSilentFail("Zoology_Breastfeed"));
@@ -255,7 +255,7 @@ namespace ZoologyMod
             job.targetB = mom;
             job.count = 1;
             job.checkOverrideOnExpire = false;
-            job.expiryInterval = 2000;
+            job.expiryInterval = ZoologyTickLimiter.Lactation.FullFeedSessionTicks;
             return job;
         }
 

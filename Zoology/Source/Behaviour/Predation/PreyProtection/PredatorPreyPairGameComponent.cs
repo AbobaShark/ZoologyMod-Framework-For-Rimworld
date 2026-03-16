@@ -13,12 +13,13 @@ namespace ZoologyMod
 {
     public class PredatorPreyPairGameComponent : GameComponent
     {
-        private const int DEFAULT_PAIR_TICKS = 60 * 60 * 2; 
+        private const int DEFAULT_PAIR_TICKS = ZoologyTickLimiter.PreyProtection.DefaultPairTicks; 
         private const int HERD_RADIUS = 35; 
-        private const long INACCESSIBLE_REMOVE_TICKS = 3600; 
-        private const int TICK_CHECK_INTERVAL = 250;
+        private const long INACCESSIBLE_REMOVE_TICKS = ZoologyTickLimiter.PreyProtection.InaccessibleRemoveTicks; 
+        private const long UNSUITABLE_REMOVE_TICKS = ZoologyTickLimiter.PreyProtection.UnsuitableRemoveTicks;
+        private const int TICK_CHECK_INTERVAL = ZoologyTickLimiter.PreyProtection.TickCheckInterval;
 
-        private const int NOTIFICATION_SUPPRESSION_TICKS = 600; 
+        private const int NOTIFICATION_SUPPRESSION_TICKS = ZoologyTickLimiter.PreyProtection.NotificationSuppressionTicks; 
         private static readonly Dictionary<int, long> notificationSuppressedUntil = new Dictionary<int, long>();
 
         
@@ -41,14 +42,15 @@ namespace ZoologyMod
 
         
         private static Dictionary<long, long> inaccessibleSince = new Dictionary<long, long>();
+        private static Dictionary<long, long> unsuitableSince = new Dictionary<long, long>();
         
         private static Dictionary<long, long> lastTriggerAttempt = new Dictionary<long, long>();
-        private const int TRIGGER_COOLDOWN_TICKS = 250; 
+        private const int TRIGGER_COOLDOWN_TICKS = ZoologyTickLimiter.PreyProtection.TriggerCooldownTicks; 
 
         private Game owningGame;
         private static object dictLock = new object();
         private static PredatorPreyPairGameComponent singleton;
-        private const int NEGATIVE_LOOKUP_COOLDOWN_TICKS = TICK_CHECK_INTERVAL;
+        private const int NEGATIVE_LOOKUP_COOLDOWN_TICKS = ZoologyTickLimiter.PreyProtection.TickCheckInterval;
 
         public static PredatorPreyPairGameComponent Instance {
             get {
@@ -69,6 +71,7 @@ namespace ZoologyMod
                 {
                     pairsUntil = new Dictionary<long,long>();
                     inaccessibleSince = new Dictionary<long,long>();
+                    unsuitableSince = new Dictionary<long,long>();
                 }
                 runtimePredatorToCorpse.Clear();
                 runtimeCorpseToPredators.Clear();
@@ -94,6 +97,7 @@ namespace ZoologyMod
             {
                 pairsUntil = new Dictionary<long,long>();
                 inaccessibleSince = new Dictionary<long,long>();
+                unsuitableSince = new Dictionary<long,long>();
             }
             runtimePredatorToCorpse.Clear();
             runtimeCorpseToPredators.Clear();
@@ -130,6 +134,7 @@ namespace ZoologyMod
                     runtimeCorpseToPredators.Clear();
                     runtimePredatorFactionById.Clear();
                     inaccessibleSince = new Dictionary<long, long>();
+                    unsuitableSince = new Dictionary<long, long>();
                     ClearLookupCaches();
 
                     long now = Find.TickManager?.TicksGame ?? 0L;
@@ -291,6 +296,7 @@ namespace ZoologyMod
                 int corpseId = CorpseIdFromKey(key);
                 RemoveRuntimePairMapping(predatorId, corpseId);
                 inaccessibleSince.Remove(key);
+                unsuitableSince.Remove(key);
                 lastTriggerAttempt.Remove(key);
             }
 
@@ -692,6 +698,11 @@ namespace ZoologyMod
             if (inaccessibleSince.ContainsKey(key)) inaccessibleSince.Remove(key);
         }
 
+        private void ClearUnsuitableFlagIfPresent(long key)
+        {
+            if (unsuitableSince.ContainsKey(key)) unsuitableSince.Remove(key);
+        }
+
         private void FillPairSnapshot(List<KeyValuePair<long, long>> result)
         {
             result.Clear();
@@ -864,21 +875,60 @@ namespace ZoologyMod
                             else
                             {
                                 bool suitable = IsCorpseSuitableForPredator(pred, corpse);
-                                if (!suitable) remove = true;
-                                else { ClearInaccessibleFlagIfPresent(key); remove = false; }
+                                if (!suitable)
+                                {
+                                    if (!unsuitableSince.ContainsKey(key))
+                                    {
+                                        unsuitableSince[key] = now;
+                                        remove = false;
+                                    }
+                                    else
+                                    {
+                                        long firstTick = unsuitableSince[key];
+                                        long delta = now - firstTick;
+                                        if (delta >= UNSUITABLE_REMOVE_TICKS) remove = true;
+                                        else remove = false;
+                                    }
+                                }
+                                else
+                                {
+                                    ClearInaccessibleFlagIfPresent(key);
+                                    ClearUnsuitableFlagIfPresent(key);
+                                    remove = false;
+                                }
                             }
                         }
                     }
 
                     if (!remove && until < now)
                     {
-                        if (foundNonSpawned || (corpse != null && IsCorpseSuitableForPredator(pred, corpse) && pred.Map == corpse.Map))
+                        bool canExtend = false;
+                        if (foundNonSpawned)
+                        {
+                            canExtend = true;
+                        }
+                        else if (corpse != null && pred.Map == corpse.Map)
+                        {
+                            bool suitableNow = IsCorpseSuitableForPredator(pred, corpse);
+                            if (suitableNow)
+                            {
+                                canExtend = true;
+                                ClearUnsuitableFlagIfPresent(key);
+                            }
+                            else if (unsuitableSince.TryGetValue(key, out long firstUnsuitable))
+                            {
+                                canExtend = now - firstUnsuitable < UNSUITABLE_REMOVE_TICKS;
+                            }
+                        }
+
+                        if (canExtend)
                         {
                             lock (dictLock)
                             {
                                 pairsUntil[key] = now + DEFAULT_PAIR_TICKS;
                             }
                             ClearInaccessibleFlagIfPresent(key);
+                            ClearUnsuitableFlagIfPresent(key);
                             continue;
                         }
                         else
@@ -904,6 +954,7 @@ namespace ZoologyMod
                     {
                         pairRemovalBuffer.Add(key);
                         ClearInaccessibleFlagIfPresent(key);
+                        ClearUnsuitableFlagIfPresent(key);
                     }
                 }
 

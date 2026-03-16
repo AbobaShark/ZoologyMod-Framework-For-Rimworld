@@ -8,7 +8,7 @@ namespace ZoologyMod
 {
     public class JobDriver_YoungSuckle : JobDriver
     {
-        private const int suckleDurationTicks = 2000;
+        private const int suckleDurationTicks = ZoologyTickLimiter.Lactation.YoungSuckleDurationTicks;
 
         public override bool TryMakePreToilReservations(bool errorOnFailed)
         {

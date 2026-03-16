@@ -24,23 +24,39 @@ namespace ZoologyMod
         private static readonly Dictionary<Type, PropertyInfo> thingPropertyBySearcherType = new Dictionary<Type, PropertyInfo>();
         private readonly struct ProtectedPawnCacheEntry
         {
-            public ProtectedPawnCacheEntry(Job job, Pawn protectedPawn, int mapId)
+            public ProtectedPawnCacheEntry(Pawn predator, Job job, Pawn protectedPawn, int mapId, int validUntilTick)
             {
+                Predator = predator;
                 Job = job;
                 ProtectedPawn = protectedPawn;
                 MapId = mapId;
+                ValidUntilTick = validUntilTick;
             }
 
+            public Pawn Predator { get; }
             public Job Job { get; }
             public Pawn ProtectedPawn { get; }
             public int MapId { get; }
+            public int ValidUntilTick { get; }
         }
 
         private static readonly Dictionary<int, ProtectedPawnCacheEntry> protectedPawnCacheByPredatorId =
             new Dictionary<int, ProtectedPawnCacheEntry>(64);
+        private static readonly Dictionary<int, int> activeProtectorsByMapId = new Dictionary<int, int>(4);
+        private static int activeProtectorsTotal;
+        private static readonly Dictionary<int, BackgroundResyncState> backgroundResyncByMapId = new Dictionary<int, BackgroundResyncState>(4);
         private static readonly List<int> protectedPawnCacheCleanupBuffer = new List<int>(16);
-        private const int ProtectedPawnCacheCleanupIntervalTicks = 600;
+        private const int ProtectedPawnCacheCleanupIntervalTicks = ZoologyTickLimiter.PreyProtection.ProtectedPawnCacheCleanupIntervalTicks;
+        private const int ProtectedPawnCacheDurationTicks = ZoologyTickLimiter.PreyProtection.ProtectedPawnCacheDurationTicks;
+        private const int ProtectedPawnCacheRefreshMarginTicks = ZoologyTickLimiter.PreyProtection.ProtectedPawnCacheRefreshMarginTicks;
+        private const int BackgroundResyncScanMin = 4;
+        private const int BackgroundResyncScanMax = 8;
         private static int lastProtectedPawnCacheCleanupTick = -ProtectedPawnCacheCleanupIntervalTicks;
+        private sealed class BackgroundResyncState
+        {
+            public int NextIndex;
+            public long LastTick = -1;
+        }
 
         private static bool IsProtectPreyDriverType(Type driverType)
         {
@@ -118,46 +134,105 @@ namespace ZoologyMod
                 return false;
             }
 
-            var curJob = predator.CurJob;
-            if (!IsProtectPreyJob(curJob, predator.jobs?.curDriver))
+            Job curJob = predator.CurJob;
+            int currentTick = Find.TickManager?.TicksGame ?? 0;
+            int mapId = predator.Map?.uniqueID ?? -1;
+            int predatorId = predator.thingIDNumber;
+
+            if (currentTick > 0
+                && protectedPawnCacheByPredatorId.TryGetValue(predatorId, out ProtectedPawnCacheEntry cached)
+                && ReferenceEquals(cached.Job, curJob)
+                && cached.MapId == mapId
+                && cached.ValidUntilTick >= currentTick)
             {
-                protectedPawnCacheByPredatorId.Remove(predator.thingIDNumber);
+                if (IsValidProtectedPawn(predator, cached.ProtectedPawn))
+                {
+                    protectedPawn = cached.ProtectedPawn;
+                    if (cached.ValidUntilTick - currentTick <= ProtectedPawnCacheRefreshMarginTicks)
+                    {
+                        protectedPawnCacheByPredatorId[predatorId] = new ProtectedPawnCacheEntry(
+                            predator,
+                            cached.Job,
+                            cached.ProtectedPawn,
+                            cached.MapId,
+                            currentTick + ProtectedPawnCacheDurationTicks);
+                    }
+                    return true;
+                }
+
+                protectedPawnCacheByPredatorId.Remove(predatorId);
+            }
+
+            return false;
+        }
+
+        internal static bool TryGetProtectedPawnCachedNoTick(Pawn predator, out Pawn protectedPawn)
+        {
+            protectedPawn = null;
+            if (predator == null)
+            {
                 return false;
             }
 
             int predatorId = predator.thingIDNumber;
-            if (curJob != null
-                && protectedPawnCacheByPredatorId.TryGetValue(predatorId, out ProtectedPawnCacheEntry cached)
-                && ReferenceEquals(cached.Job, curJob)
-                && cached.MapId == (predator.Map?.uniqueID ?? -1)
-                && IsValidProtectedPawn(predator, cached.ProtectedPawn))
+            if (!protectedPawnCacheByPredatorId.TryGetValue(predatorId, out ProtectedPawnCacheEntry cached))
             {
-                protectedPawn = cached.ProtectedPawn;
-                return true;
+                return false;
             }
 
+            if (!ReferenceEquals(cached.Job, predator.CurJob))
+            {
+                RemoveProtectedPawnCacheEntry(predatorId);
+                return false;
+            }
+
+            if (!IsValidProtectedPawn(predator, cached.ProtectedPawn))
+            {
+                RemoveProtectedPawnCacheEntry(predatorId);
+                return false;
+            }
+
+            protectedPawn = cached.ProtectedPawn;
+            return true;
+        }
+
+        internal static bool TryGetProtectedPawnFast(Pawn predator, out Pawn protectedPawn)
+        {
+            if (TryGetProtectedPawnCachedNoTick(predator, out protectedPawn))
+            {
+                return protectedPawn != null;
+            }
+
+            protectedPawn = null;
+            if (predator == null)
+            {
+                return false;
+            }
+
+            Job curJob = predator.CurJob;
+            if (!IsProtectPreyJobFast(curJob, predator.jobs?.curDriver))
+            {
+                return false;
+            }
+
+            Pawn candidate = null;
             try
             {
-                protectedPawn = curJob.GetTarget(TargetIndex.A).Thing as Pawn;
-                if (!IsValidProtectedPawn(predator, protectedPawn))
-                {
-                    protectedPawnCacheByPredatorId.Remove(predatorId);
-                    return false;
-                }
-
-                protectedPawnCacheByPredatorId[predatorId] = new ProtectedPawnCacheEntry(
-                    curJob,
-                    protectedPawn,
-                    predator.Map?.uniqueID ?? -1);
-                CleanupProtectedPawnCacheIfNeeded(Find.TickManager?.TicksGame ?? 0);
-                return true;
+                candidate = curJob.GetTarget(TargetIndex.A).Thing as Pawn;
             }
             catch
             {
-                protectedPawnCacheByPredatorId.Remove(predatorId);
-                protectedPawn = null;
                 return false;
             }
+
+            if (!IsValidProtectedPawn(predator, candidate))
+            {
+                return false;
+            }
+
+            NotifyProtectPreyJobStarted(predator, candidate, curJob);
+            protectedPawn = candidate;
+            return true;
         }
 
         private static bool IsValidProtectedPawn(Pawn predator, Pawn protectedPawn)
@@ -193,7 +268,21 @@ namespace ZoologyMod
             foreach (KeyValuePair<int, ProtectedPawnCacheEntry> entry in protectedPawnCacheByPredatorId)
             {
                 ProtectedPawnCacheEntry cached = entry.Value;
-                if (cached.Job == null || cached.ProtectedPawn == null || cached.ProtectedPawn.Dead || cached.ProtectedPawn.Destroyed)
+                if (cached.ValidUntilTick < currentTick)
+                {
+                    protectedPawnCacheCleanupBuffer.Add(entry.Key);
+                    continue;
+                }
+
+                Pawn predator = cached.Predator;
+                Pawn pawn = cached.ProtectedPawn;
+                if (predator == null || pawn == null || predator.Dead || predator.Destroyed || pawn.Dead || pawn.Destroyed)
+                {
+                    protectedPawnCacheCleanupBuffer.Add(entry.Key);
+                    continue;
+                }
+
+                if (!ReferenceEquals(predator.CurJob, cached.Job))
                 {
                     protectedPawnCacheCleanupBuffer.Add(entry.Key);
                 }
@@ -201,10 +290,295 @@ namespace ZoologyMod
 
             for (int i = 0; i < protectedPawnCacheCleanupBuffer.Count; i++)
             {
-                protectedPawnCacheByPredatorId.Remove(protectedPawnCacheCleanupBuffer[i]);
+                RemoveProtectedPawnCacheEntry(protectedPawnCacheCleanupBuffer[i]);
             }
 
             protectedPawnCacheCleanupBuffer.Clear();
+        }
+
+        private static void StoreProtectedPawnCache(
+            Pawn predator,
+            Job job,
+            Pawn protectedPawn,
+            int mapId,
+            int currentTick)
+        {
+            if (predator == null || protectedPawn == null || currentTick <= 0)
+            {
+                return;
+            }
+
+            int predatorId = predator.thingIDNumber;
+            if (protectedPawnCacheByPredatorId.TryGetValue(predatorId, out ProtectedPawnCacheEntry existing))
+            {
+                if (existing.MapId != mapId)
+                {
+                    DecrementMapCount(existing.MapId);
+                    IncrementMapCount(mapId);
+                }
+            }
+            else
+            {
+                IncrementMapCount(mapId);
+            }
+
+            protectedPawnCacheByPredatorId[predatorId] = new ProtectedPawnCacheEntry(
+                predator,
+                job,
+                protectedPawn,
+                mapId,
+                currentTick + ProtectedPawnCacheDurationTicks);
+            CleanupProtectedPawnCacheIfNeeded(currentTick);
+        }
+
+        private static void RemoveProtectedPawnCacheEntry(int predatorId)
+        {
+            if (protectedPawnCacheByPredatorId.TryGetValue(predatorId, out ProtectedPawnCacheEntry existing))
+            {
+                protectedPawnCacheByPredatorId.Remove(predatorId);
+                DecrementMapCount(existing.MapId);
+            }
+        }
+
+        private static void IncrementMapCount(int mapId)
+        {
+            if (mapId < 0)
+            {
+                return;
+            }
+
+            activeProtectorsTotal++;
+            if (activeProtectorsByMapId.TryGetValue(mapId, out int count))
+            {
+                activeProtectorsByMapId[mapId] = count + 1;
+            }
+            else
+            {
+                activeProtectorsByMapId[mapId] = 1;
+            }
+        }
+
+        private static void DecrementMapCount(int mapId)
+        {
+            if (mapId < 0)
+            {
+                return;
+            }
+
+            if (!activeProtectorsByMapId.TryGetValue(mapId, out int count))
+            {
+                return;
+            }
+
+            if (activeProtectorsTotal > 0)
+            {
+                activeProtectorsTotal--;
+            }
+            count--;
+            if (count <= 0)
+            {
+                activeProtectorsByMapId.Remove(mapId);
+            }
+            else
+            {
+                activeProtectorsByMapId[mapId] = count;
+            }
+        }
+
+        internal static bool HasActiveProtectorsForMap(Map map)
+        {
+            if (map == null)
+            {
+                return false;
+            }
+
+            return activeProtectorsByMapId.TryGetValue(map.uniqueID, out int count) && count > 0;
+        }
+
+        internal static bool HasAnyActiveProtectors => activeProtectorsTotal > 0;
+
+        internal static void NotifyProtectPreyJobStarted(Pawn predator, Pawn protectedPawn, Job job)
+        {
+            if (predator == null || protectedPawn == null || job == null)
+            {
+                return;
+            }
+
+            int currentTick = Find.TickManager?.TicksGame ?? 0;
+            int mapId = predator.Map?.uniqueID ?? -1;
+            StoreProtectedPawnCache(predator, job, protectedPawn, mapId, currentTick);
+        }
+
+        internal static void NotifyProtectPreyJobEnded(Pawn predator, Job job)
+        {
+            if (predator == null)
+            {
+                return;
+            }
+
+            int predatorId = predator.thingIDNumber;
+            if (protectedPawnCacheByPredatorId.TryGetValue(predatorId, out ProtectedPawnCacheEntry cached))
+            {
+                if (job == null || ReferenceEquals(cached.Job, job))
+                {
+                    RemoveProtectedPawnCacheEntry(predatorId);
+                }
+            }
+        }
+
+        internal static bool TryFillActiveProtectorsForMap(Map map, List<ProtectPreyMapCache.Entry> entries)
+        {
+            if (map == null || entries == null)
+            {
+                return false;
+            }
+
+            int mapId = map.uniqueID;
+            int currentTick = Find.TickManager?.TicksGame ?? 0;
+            bool hadMapEntry = false;
+            List<int> staleKeys = null;
+
+            foreach (KeyValuePair<int, ProtectedPawnCacheEntry> entry in protectedPawnCacheByPredatorId)
+            {
+                ProtectedPawnCacheEntry cached = entry.Value;
+                if (cached.MapId != mapId)
+                {
+                    continue;
+                }
+
+                hadMapEntry = true;
+                if (currentTick > 0 && cached.ValidUntilTick < currentTick)
+                {
+                    if (staleKeys == null) staleKeys = new List<int>(8);
+                    staleKeys.Add(entry.Key);
+                    continue;
+                }
+
+                Pawn predator = cached.Predator;
+                Pawn protectedPawn = cached.ProtectedPawn;
+                if (!IsValidProtectedPawn(predator, protectedPawn))
+                {
+                    if (staleKeys == null) staleKeys = new List<int>(8);
+                    staleKeys.Add(entry.Key);
+                    continue;
+                }
+
+                entries.Add(new ProtectPreyMapCache.Entry(predator, protectedPawn));
+            }
+
+            if (staleKeys != null)
+            {
+                for (int i = 0; i < staleKeys.Count; i++)
+                {
+                    RemoveProtectedPawnCacheEntry(staleKeys[i]);
+                }
+            }
+
+            return hadMapEntry;
+        }
+
+        internal static void TryBackgroundResync(Map map, long now, List<ProtectPreyMapCache.Entry> entries)
+        {
+            if (map == null || entries == null || now <= 0)
+            {
+                return;
+            }
+
+            if (HasActiveProtectorsForMap(map))
+            {
+                return;
+            }
+
+            int mapId = map.uniqueID;
+            if (!backgroundResyncByMapId.TryGetValue(mapId, out BackgroundResyncState state))
+            {
+                state = new BackgroundResyncState();
+                backgroundResyncByMapId[mapId] = state;
+            }
+
+            if (state.LastTick == now)
+            {
+                return;
+            }
+
+            state.LastTick = now;
+            var pawns = map.mapPawns?.AllPawnsSpawned;
+            if (pawns == null || pawns.Count == 0)
+            {
+                state.NextIndex = 0;
+                return;
+            }
+
+            int budget = pawns.Count >= 200 ? BackgroundResyncScanMax : BackgroundResyncScanMin;
+            int count = pawns.Count;
+            int index = state.NextIndex;
+            int scanned = 0;
+            while (scanned < budget)
+            {
+                if (index >= count)
+                {
+                    index = 0;
+                }
+
+                Pawn p = pawns[index];
+                scanned++;
+                index++;
+
+                if (p == null || !p.Spawned || p.Dead || p.Destroyed)
+                {
+                    continue;
+                }
+
+                Job curJob = p.CurJob;
+                if (!IsProtectPreyJobFast(curJob, p.jobs?.curDriver))
+                {
+                    continue;
+                }
+
+                Pawn protectedPawn = null;
+                try
+                {
+                    protectedPawn = curJob.GetTarget(TargetIndex.A).Thing as Pawn;
+                }
+                catch
+                {
+                    continue;
+                }
+
+                if (!IsValidProtectedPawn(p, protectedPawn))
+                {
+                    continue;
+                }
+
+                NotifyProtectPreyJobStarted(p, protectedPawn, curJob);
+                entries.Add(new ProtectPreyMapCache.Entry(p, protectedPawn));
+                break;
+            }
+
+            state.NextIndex = index;
+        }
+
+        private static bool IsProtectPreyJobFast(Job curJob, JobDriver curDriver)
+        {
+            if (curJob == null)
+            {
+                return false;
+            }
+
+            var defName = curJob.def?.defName;
+            if (!string.IsNullOrEmpty(defName)
+                && defName.Equals(ProtectPreyDefName, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            if (curDriver is JobDriver_ProtectPrey)
+            {
+                return true;
+            }
+
+            Type driverClass = curJob.def?.driverClass;
+            return driverClass != null && typeof(JobDriver_ProtectPrey).IsAssignableFrom(driverClass);
         }
 
         public static Pawn TryGetSearcherPawn(IAttackTargetSearcher searcher)
@@ -257,7 +631,7 @@ namespace ZoologyMod
             public readonly List<Entry> Entries = new List<Entry>(8);
         }
 
-        private const int REFRESH_INTERVAL_TICKS = 60;
+        private const int REFRESH_INTERVAL_TICKS = ZoologyTickLimiter.PreyProtection.ProtectPreyMapRefreshIntervalTicks;
         private static readonly Dictionary<int, CacheData> byMapId = new Dictionary<int, CacheData>();
 
         public static List<Entry> Get(Map map, long now)
@@ -279,20 +653,11 @@ namespace ZoologyMod
             data.RefreshTick = now;
             data.Entries.Clear();
 
-            var pawns = map.mapPawns?.AllPawnsSpawned;
-            if (pawns == null || pawns.Count == 0) return data.Entries;
-
-            for (int i = 0; i < pawns.Count; i++)
+            bool hadMapCache = ProtectPreyState.TryFillActiveProtectorsForMap(map, data.Entries);
+            if (data.Entries.Count == 0 && !hadMapCache)
             {
-                var p = pawns[i];
-                if (p == null || !p.Spawned || p.Dead || p.Destroyed) continue;
-                if (!p.RaceProps.predator) continue;
-                if (!ProtectPreyState.TryGetProtectedPawn(p, out var protectedPawn)) continue;
-                if (protectedPawn.Dead || protectedPawn.Destroyed || !protectedPawn.Spawned) continue;
-
-                data.Entries.Add(new Entry(p, protectedPawn));
+                ProtectPreyState.TryBackgroundResync(map, now, data.Entries);
             }
-
             return data.Entries;
         }
     }
@@ -363,8 +728,15 @@ namespace ZoologyMod
             try
             {
                 if (__result != null) return;
-                if (!ProtectPreyState.TryGetProtectedPawn(predator, out var protectedPawn)) return;
-                if (!protectedPawn.Dead && protectedPawn.Faction == myFaction)
+                if (predator == null || myFaction == null) return;
+                if (!ProtectPreyState.HasAnyActiveProtectors) return;
+
+                if (!ProtectPreyState.TryGetProtectedPawnCachedNoTick(predator, out Pawn protectedPawn))
+                {
+                    return;
+                }
+
+                if (protectedPawn != null && protectedPawn.Faction == myFaction)
                 {
                     __result = protectedPawn;
                 }
@@ -412,8 +784,14 @@ namespace ZoologyMod
                 if (__result) return; 
 
                 if (predator == null || __instance == null) return;
-                if (!ProtectPreyState.TryGetProtectedPawn(predator, out var targetPawn)) return;
-                if (!targetPawn.Dead && targetPawn.Faction == __instance)
+                if (!ProtectPreyState.HasAnyActiveProtectors) return;
+
+                if (!ProtectPreyState.TryGetProtectedPawnCachedNoTick(predator, out Pawn protectedPawn))
+                {
+                    return;
+                }
+
+                if (protectedPawn != null && protectedPawn.Faction == __instance)
                 {
                     __result = true;
                 }
@@ -437,7 +815,8 @@ namespace ZoologyMod
                 if (__result) return; 
 
                 if (predator == null || toFaction == null) return;
-                if (!ProtectPreyState.TryGetProtectedPawn(predator, out var targetPawn)) return;
+                if (!ProtectPreyState.HasAnyActiveProtectors) return;
+                if (!ProtectPreyState.TryGetProtectedPawnCachedNoTick(predator, out var targetPawn)) return;
                 if (!targetPawn.Dead && targetPawn.Faction == toFaction)
                 {
                     __result = true;
@@ -462,6 +841,8 @@ namespace ZoologyMod
             {
                 if (th == null) return;
                 if (__result == null) __result = new List<IAttackTarget>();
+
+                if (!ProtectPreyState.HasAnyActiveProtectors) return;
 
                 
                 Pawn searcherPawn = ProtectPreyState.TryGetSearcherPawn(th);

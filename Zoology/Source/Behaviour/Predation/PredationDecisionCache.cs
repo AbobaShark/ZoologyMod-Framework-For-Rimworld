@@ -31,9 +31,9 @@ namespace ZoologyMod
             public int Tick { get; }
         }
 
-        private const int AcceptablePreyCacheDurationTicks = 90;
-        private const int PreyScoreCacheDurationTicks = 90;
-        private const int CacheCleanupIntervalTicks = 600;
+        private const int AcceptablePreyCacheDurationTicks = ZoologyTickLimiter.PredationDecision.AcceptablePreyCacheDurationTicks;
+        private const int PreyScoreCacheDurationTicks = ZoologyTickLimiter.PredationDecision.PreyScoreCacheDurationTicks;
+        private const int CacheCleanupIntervalTicks = ZoologyTickLimiter.PredationDecision.CacheCleanupIntervalTicks;
 
         private static readonly Dictionary<long, AcceptablePreyCacheEntry> acceptablePreyCacheByPairKey = new Dictionary<long, AcceptablePreyCacheEntry>(512);
         private static readonly Dictionary<long, PreyScoreCacheEntry> preyScoreCacheByPairKey = new Dictionary<long, PreyScoreCacheEntry>(256);

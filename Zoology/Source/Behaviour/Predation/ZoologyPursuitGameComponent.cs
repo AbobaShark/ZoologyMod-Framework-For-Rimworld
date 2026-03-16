@@ -8,12 +8,12 @@ namespace ZoologyMod
 {
     public class ZoologyPursuitGameComponent : GameComponent
     {
-        private const int CHASE_TIMEOUT = 2500;
+        private const int CHASE_TIMEOUT = ZoologyTickLimiter.Pursuit.ChaseTimeoutTicks;
         private const int BLOCK_MULTIPLIER = 3;
-        private const int SCAN_INTERVAL = 120;
-        private const int CLEAN_INTERVAL = 10000;
+        private const int SCAN_INTERVAL = ZoologyTickLimiter.Pursuit.ScanIntervalTicks;
+        private const int CLEAN_INTERVAL = ZoologyTickLimiter.Pursuit.CleanIntervalTicks;
         private const int MIN_DISTANCE_FOR_MELEE_SQ = 2 * 2;
-        private const int TICKS_PER_LONG_TICK = CHASE_TIMEOUT;
+        private const int TICKS_PER_LONG_TICK = ZoologyTickLimiter.Pursuit.TicksPerLongTick;
 
         private static readonly object dictLock = new object();
 
@@ -515,7 +515,7 @@ namespace ZoologyMod
                         {
                             if (predator.jobs != null)
                             {
-                                Job waitJob = JobMaker.MakeJob(JobDefOf.Wait, 250);
+                                Job waitJob = JobMaker.MakeJob(JobDefOf.Wait, ZoologyTickLimiter.Pursuit.StopPredatorWaitTicks);
                                 predator.jobs.StartJob(waitJob, JobCondition.InterruptForced);
                             }
                         }

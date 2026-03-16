@@ -1041,6 +1041,9 @@ class PatchGenerator:
 
     def generate_fixed_xml(self, xml_path, output_path):
         try:
+            if not os.path.exists(xml_path):
+                print(f"Missing XML: {xml_path}")
+                return False
             parser = LET.XMLParser(remove_comments=False, recover=True)
             tree = LET.parse(xml_path, parser)
             original_root = tree.getroot()
@@ -3348,11 +3351,59 @@ class GeneratorApp(tk.Tk):
         self.cfg = load_config()
         self.vanilla_tsv = tk.StringVar(value=self.cfg.get('vanilla_tsv', ''))
         self.ce_tsv = tk.StringVar(value=self.cfg.get('ce_tsv', ''))
-        self.xml_paths = self.cfg.get('xmls', [])
+        self.xml_paths, changed, dropped = self._normalize_xml_paths(self.cfg.get('xmls', []))
+        if changed or dropped:
+            self.cfg['xmls'] = self.xml_paths
+            save_config(self.cfg)
+            if dropped:
+                print(f"Warning: removed {len(dropped)} missing XML path(s) from config.")
         self.replace_in_place = tk.BooleanVar(value=bool(self.cfg.get('replace_in_place', False)))
         self._build_ui()
         self.report_dir = self._ensure_report_dir()
         self.status.set(f"Output folder: {self.report_dir}")
+
+    def _normalize_xml_paths(self, paths):
+        script_dir = os.path.dirname(os.path.abspath(sys.argv[0])) or os.getcwd()
+        normalized = []
+        changed = False
+        dropped = []
+        for p in paths:
+            if not p:
+                continue
+            p_norm = os.path.normpath(p)
+            if os.path.exists(p_norm):
+                normalized.append(p_norm)
+                if p_norm != p:
+                    changed = True
+                continue
+            parts = [part for part in re.split(r'[\\/]+', p_norm) if part]
+            parts_lower = [part.lower() for part in parts]
+            candidate = None
+            if "checker" in parts_lower:
+                idx = parts_lower.index("checker")
+                tail = parts[idx + 1:]
+                if tail:
+                    candidate = os.path.join(script_dir, *tail)
+                    if os.path.exists(candidate):
+                        normalized.append(candidate)
+                        changed = True
+                        continue
+            if "generated_patches" in parts_lower:
+                idx = parts_lower.index("generated_patches")
+                tail = parts[idx:]
+                if tail:
+                    candidate = os.path.join(script_dir, *tail)
+                    if os.path.exists(candidate):
+                        normalized.append(candidate)
+                        changed = True
+                        continue
+            candidate = os.path.join(script_dir, os.path.basename(p_norm))
+            if os.path.exists(candidate):
+                normalized.append(candidate)
+                changed = True
+                continue
+            dropped.append(p)
+        return normalized, changed, dropped
 
     def _ensure_report_dir(self):
         script_dir = os.path.dirname(os.path.abspath(sys.argv[0])) or os.getcwd()

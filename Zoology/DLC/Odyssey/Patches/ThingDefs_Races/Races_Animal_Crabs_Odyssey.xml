@@ -8,13 +8,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "StoneCrab"]/statBases/MarketValue</xpath>
       <value>
-        <MarketValue>25</MarketValue>
+        <MarketValue>50</MarketValue>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "StoneCrab"]/statBases</xpath>
       <value>
-        <MarketValue>25</MarketValue>
+        <MarketValue>50</MarketValue>
       </value>
     </nomatch>
   </Operation>
@@ -68,13 +68,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "StoneCrab"]/statBases/ComfyTemperatureMin</xpath>
       <value>
-        <ComfyTemperatureMin>-15</ComfyTemperatureMin>
+        <ComfyTemperatureMin>-5</ComfyTemperatureMin>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "StoneCrab"]/statBases</xpath>
       <value>
-        <ComfyTemperatureMin>-15</ComfyTemperatureMin>
+        <ComfyTemperatureMin>-5</ComfyTemperatureMin>
       </value>
     </nomatch>
   </Operation>
@@ -98,13 +98,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "StoneCrab"]/statBases/ArmorRating_Blunt</xpath>
       <value>
-        <ArmorRating_Blunt>0.10</ArmorRating_Blunt>
+        <ArmorRating_Blunt>0.05</ArmorRating_Blunt>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "StoneCrab"]/statBases</xpath>
       <value>
-        <ArmorRating_Blunt>0.10</ArmorRating_Blunt>
+        <ArmorRating_Blunt>0.05</ArmorRating_Blunt>
       </value>
     </nomatch>
   </Operation>
@@ -161,10 +161,30 @@
             <li>Blunt</li>
           </capacities>
           <power>1.0</power>
-          <cooldownTime>0.80</cooldownTime>
+          <cooldownTime>1.00</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
           <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
           <chanceFactor>0.2</chanceFactor>
+        </li>
+        <li>
+          <label>left claw</label>
+          <labelNoLocation>claw</labelNoLocation>
+          <capacities>
+            <li>Scratch</li>
+          </capacities>
+          <power>3.5</power>
+          <cooldownTime>1.05</cooldownTime>
+          <linkedBodyPartsGroup>FrontLeftClaws</linkedBodyPartsGroup>
+        </li>
+        <li>
+          <label>right claw</label>
+          <labelNoLocation>claw</labelNoLocation>
+          <capacities>
+            <li>Scratch</li>
+          </capacities>
+          <power>3.5</power>
+          <cooldownTime>1.05</cooldownTime>
+          <linkedBodyPartsGroup>FrontRightClaws</linkedBodyPartsGroup>
         </li>
       </tools>
     </value>
@@ -280,21 +300,30 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "StoneCrab"]/race/foodType</xpath>
       <value>
-        <foodType>OmnivoreAnimal, OvivoreAnimal</foodType>
+        <foodType>OmnivoreRoughAnimal, OvivoreAnimal</foodType>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "StoneCrab"]/race</xpath>
       <value>
-        <foodType>OmnivoreAnimal, OvivoreAnimal</foodType>
+        <foodType>OmnivoreRoughAnimal, OvivoreAnimal</foodType>
       </value>
     </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "StoneCrab"]/race/roamMtbDays</xpath>
-    <match Class="PatchOperationRemove">
+    <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "StoneCrab"]/race/roamMtbDays</xpath>
+      <value>
+        <roamMtbDays>4</roamMtbDays>
+      </value>
     </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "StoneCrab"]/race</xpath>
+      <value>
+        <roamMtbDays>4</roamMtbDays>
+      </value>
+    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "StoneCrab"]/race/LeatherDef</xpath>
@@ -433,22 +462,31 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "StoneCrab"]/race/waterCellCost</xpath>
-    <match Class="PatchOperationRemove">
+    <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "StoneCrab"]/race/waterCellCost</xpath>
+      <value>
+        <waterCellCost>1</waterCellCost>
+      </value>
     </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "StoneCrab"]/race</xpath>
+      <value>
+        <waterCellCost>1</waterCellCost>
+      </value>
+    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "StoneCrab"]/race/waterSeeker</xpath>
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "StoneCrab"]/race/waterSeeker</xpath>
       <value>
-        <waterSeeker>false</waterSeeker>
+        <waterSeeker>true</waterSeeker>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "StoneCrab"]/race</xpath>
       <value>
-        <waterSeeker>false</waterSeeker>
+        <waterSeeker>true</waterSeeker>
       </value>
     </nomatch>
   </Operation>
@@ -567,13 +605,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "StoneCrab"]/combatPower</xpath>
       <value>
-        <combatPower>20</combatPower>
+        <combatPower>25</combatPower>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "StoneCrab"]</xpath>
       <value>
-        <combatPower>20</combatPower>
+        <combatPower>25</combatPower>
       </value>
     </nomatch>
   </Operation>
@@ -626,13 +664,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "HermitCrab"]/statBases/MarketValue</xpath>
       <value>
-        <MarketValue>25</MarketValue>
+        <MarketValue>50</MarketValue>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "HermitCrab"]/statBases</xpath>
       <value>
-        <MarketValue>25</MarketValue>
+        <MarketValue>50</MarketValue>
       </value>
     </nomatch>
   </Operation>
@@ -716,13 +754,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "HermitCrab"]/statBases/ArmorRating_Blunt</xpath>
       <value>
-        <ArmorRating_Blunt>0.10</ArmorRating_Blunt>
+        <ArmorRating_Blunt>0.05</ArmorRating_Blunt>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "HermitCrab"]/statBases</xpath>
       <value>
-        <ArmorRating_Blunt>0.10</ArmorRating_Blunt>
+        <ArmorRating_Blunt>0.05</ArmorRating_Blunt>
       </value>
     </nomatch>
   </Operation>
@@ -779,10 +817,30 @@
             <li>Blunt</li>
           </capacities>
           <power>1.0</power>
-          <cooldownTime>0.80</cooldownTime>
+          <cooldownTime>1.00</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
           <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
           <chanceFactor>0.2</chanceFactor>
+        </li>
+        <li>
+          <label>left claw</label>
+          <labelNoLocation>claw</labelNoLocation>
+          <capacities>
+            <li>Scratch</li>
+          </capacities>
+          <power>3.5</power>
+          <cooldownTime>1.05</cooldownTime>
+          <linkedBodyPartsGroup>FrontLeftClaws</linkedBodyPartsGroup>
+        </li>
+        <li>
+          <label>right claw</label>
+          <labelNoLocation>claw</labelNoLocation>
+          <capacities>
+            <li>Scratch</li>
+          </capacities>
+          <power>3.5</power>
+          <cooldownTime>1.05</cooldownTime>
+          <linkedBodyPartsGroup>FrontRightClaws</linkedBodyPartsGroup>
         </li>
       </tools>
     </value>
@@ -898,21 +956,30 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "HermitCrab"]/race/foodType</xpath>
       <value>
-        <foodType>OmnivoreAnimal, OvivoreAnimal</foodType>
+        <foodType>OmnivoreRoughAnimal, OvivoreAnimal</foodType>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "HermitCrab"]/race</xpath>
       <value>
-        <foodType>OmnivoreAnimal, OvivoreAnimal</foodType>
+        <foodType>OmnivoreRoughAnimal, OvivoreAnimal</foodType>
       </value>
     </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "HermitCrab"]/race/roamMtbDays</xpath>
-    <match Class="PatchOperationRemove">
+    <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "HermitCrab"]/race/roamMtbDays</xpath>
+      <value>
+        <roamMtbDays>4</roamMtbDays>
+      </value>
     </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "HermitCrab"]/race</xpath>
+      <value>
+        <roamMtbDays>4</roamMtbDays>
+      </value>
+    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "HermitCrab"]/race/LeatherDef</xpath>
@@ -1051,22 +1118,31 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "HermitCrab"]/race/waterCellCost</xpath>
-    <match Class="PatchOperationRemove">
+    <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "HermitCrab"]/race/waterCellCost</xpath>
+      <value>
+        <waterCellCost>1</waterCellCost>
+      </value>
     </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "HermitCrab"]/race</xpath>
+      <value>
+        <waterCellCost>1</waterCellCost>
+      </value>
+    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "HermitCrab"]/race/waterSeeker</xpath>
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "HermitCrab"]/race/waterSeeker</xpath>
       <value>
-        <waterSeeker>false</waterSeeker>
+        <waterSeeker>true</waterSeeker>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "HermitCrab"]/race</xpath>
       <value>
-        <waterSeeker>false</waterSeeker>
+        <waterSeeker>true</waterSeeker>
       </value>
     </nomatch>
   </Operation>
@@ -1185,13 +1261,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "HermitCrab"]/combatPower</xpath>
       <value>
-        <combatPower>20</combatPower>
+        <combatPower>25</combatPower>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "HermitCrab"]</xpath>
       <value>
-        <combatPower>20</combatPower>
+        <combatPower>25</combatPower>
       </value>
     </nomatch>
   </Operation>
@@ -1250,13 +1326,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="StoneCrab"]/statBases/MeleeDodgeChance</xpath>
             <value>
-              <MeleeDodgeChance>0.00</MeleeDodgeChance>
+              <MeleeDodgeChance>0.30</MeleeDodgeChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="StoneCrab"]/statBases</xpath>
             <value>
-              <MeleeDodgeChance>0.00</MeleeDodgeChance>
+              <MeleeDodgeChance>0.30</MeleeDodgeChance>
             </value>
           </nomatch>
         </li>
@@ -1265,13 +1341,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="StoneCrab"]/statBases/MeleeCritChance</xpath>
             <value>
-              <MeleeCritChance>0.12</MeleeCritChance>
+              <MeleeCritChance>0</MeleeCritChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="StoneCrab"]/statBases</xpath>
             <value>
-              <MeleeCritChance>0.12</MeleeCritChance>
+              <MeleeCritChance>0</MeleeCritChance>
             </value>
           </nomatch>
         </li>
@@ -1295,13 +1371,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="StoneCrab"]/statBases/ArmorRating_Sharp</xpath>
             <value>
-              <ArmorRating_Sharp>0.18</ArmorRating_Sharp>
+              <ArmorRating_Sharp>0.03</ArmorRating_Sharp>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="StoneCrab"]/statBases</xpath>
             <value>
-              <ArmorRating_Sharp>0.18</ArmorRating_Sharp>
+              <ArmorRating_Sharp>0.03</ArmorRating_Sharp>
             </value>
           </nomatch>
         </li>
@@ -1310,13 +1386,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="StoneCrab"]/statBases/ArmorRating_Blunt</xpath>
             <value>
-              <ArmorRating_Blunt>0.90</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0.00</ArmorRating_Blunt>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="StoneCrab"]/statBases</xpath>
             <value>
-              <ArmorRating_Blunt>0.90</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0.00</ArmorRating_Blunt>
             </value>
           </nomatch>
         </li>
@@ -1395,12 +1471,36 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>0.7</power>
-                <armorPenetrationBlunt>0.04</armorPenetrationBlunt>
-                <cooldownTime>0.75</cooldownTime>
+                <power>0.50</power>
+                <armorPenetrationBlunt>0.05</armorPenetrationBlunt>
+                <cooldownTime>1.55</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                 <chanceFactor>0.2</chanceFactor>
+              </li>
+              <li Class="CombatExtended.ToolCE">
+                <label>left claw</label>
+                <labelNoLocation>claw</labelNoLocation>
+                <capacities>
+                  <li>Scratch</li>
+                </capacities>
+                <power>2.5</power>
+                <armorPenetrationBlunt>0.10</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.05</armorPenetrationSharp>
+                <cooldownTime>0.75</cooldownTime>
+                <linkedBodyPartsGroup>FrontLeftClaws</linkedBodyPartsGroup>
+              </li>
+              <li Class="CombatExtended.ToolCE">
+                <label>right claw</label>
+                <labelNoLocation>claw</labelNoLocation>
+                <capacities>
+                  <li>Scratch</li>
+                </capacities>
+                <power>2.5</power>
+                <armorPenetrationBlunt>0.10</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.05</armorPenetrationSharp>
+                <cooldownTime>0.75</cooldownTime>
+                <linkedBodyPartsGroup>FrontRightClaws</linkedBodyPartsGroup>
               </li>
             </tools>
           </value>
@@ -1417,13 +1517,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="HermitCrab"]/statBases/MeleeDodgeChance</xpath>
             <value>
-              <MeleeDodgeChance>0.00</MeleeDodgeChance>
+              <MeleeDodgeChance>0.30</MeleeDodgeChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="HermitCrab"]/statBases</xpath>
             <value>
-              <MeleeDodgeChance>0.00</MeleeDodgeChance>
+              <MeleeDodgeChance>0.30</MeleeDodgeChance>
             </value>
           </nomatch>
         </li>
@@ -1432,13 +1532,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="HermitCrab"]/statBases/MeleeCritChance</xpath>
             <value>
-              <MeleeCritChance>0.12</MeleeCritChance>
+              <MeleeCritChance>0</MeleeCritChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="HermitCrab"]/statBases</xpath>
             <value>
-              <MeleeCritChance>0.12</MeleeCritChance>
+              <MeleeCritChance>0</MeleeCritChance>
             </value>
           </nomatch>
         </li>
@@ -1462,13 +1562,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="HermitCrab"]/statBases/ArmorRating_Sharp</xpath>
             <value>
-              <ArmorRating_Sharp>0.18</ArmorRating_Sharp>
+              <ArmorRating_Sharp>0.03</ArmorRating_Sharp>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="HermitCrab"]/statBases</xpath>
             <value>
-              <ArmorRating_Sharp>0.18</ArmorRating_Sharp>
+              <ArmorRating_Sharp>0.03</ArmorRating_Sharp>
             </value>
           </nomatch>
         </li>
@@ -1477,13 +1577,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="HermitCrab"]/statBases/ArmorRating_Blunt</xpath>
             <value>
-              <ArmorRating_Blunt>0.90</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0.00</ArmorRating_Blunt>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="HermitCrab"]/statBases</xpath>
             <value>
-              <ArmorRating_Blunt>0.90</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0.00</ArmorRating_Blunt>
             </value>
           </nomatch>
         </li>
@@ -1562,12 +1662,36 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>0.7</power>
-                <armorPenetrationBlunt>0.04</armorPenetrationBlunt>
-                <cooldownTime>0.75</cooldownTime>
+                <power>0.50</power>
+                <armorPenetrationBlunt>0.05</armorPenetrationBlunt>
+                <cooldownTime>1.55</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                 <chanceFactor>0.2</chanceFactor>
+              </li>
+              <li Class="CombatExtended.ToolCE">
+                <label>left claw</label>
+                <labelNoLocation>claw</labelNoLocation>
+                <capacities>
+                  <li>Scratch</li>
+                </capacities>
+                <power>2.5</power>
+                <armorPenetrationBlunt>0.10</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.05</armorPenetrationSharp>
+                <cooldownTime>0.75</cooldownTime>
+                <linkedBodyPartsGroup>FrontLeftClaws</linkedBodyPartsGroup>
+              </li>
+              <li Class="CombatExtended.ToolCE">
+                <label>right claw</label>
+                <labelNoLocation>claw</labelNoLocation>
+                <capacities>
+                  <li>Scratch</li>
+                </capacities>
+                <power>2.5</power>
+                <armorPenetrationBlunt>0.10</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.05</armorPenetrationSharp>
+                <cooldownTime>0.75</cooldownTime>
+                <linkedBodyPartsGroup>FrontRightClaws</linkedBodyPartsGroup>
               </li>
             </tools>
           </value>

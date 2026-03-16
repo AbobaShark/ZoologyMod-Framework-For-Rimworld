@@ -289,9 +289,18 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[@Name = "BaseBear"]/race/waterCellCost</xpath>
-    <match Class="PatchOperationRemove">
+    <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[@Name = "BaseBear"]/race/waterCellCost</xpath>
+      <value>
+        <waterCellCost>10</waterCellCost>
+      </value>
     </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[@Name = "BaseBear"]/race</xpath>
+      <value>
+        <waterCellCost>10</waterCellCost>
+      </value>
+    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[@Name = "BaseBear"]/race/waterSeeker</xpath>
@@ -399,6 +408,14 @@
       <li Class="ZoologyMod.ModExtension_IsMammal, ZoologyMod"/>
     </value>
   </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[@Name = "BaseBear"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_IsScavenger, ZoologyMod">
+        <allowVeryRotten>true</allowVeryRotten>
+      </li>
+    </value>
+  </Operation>
   <!-- PawnKind parent BearBase -->
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/PawnKindDef[@Name = "BearBase"]/combatPower</xpath>
@@ -420,9 +437,18 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/PawnKindDef[@Name = "BearBase"]/canArriveManhunter</xpath>
-    <match Class="PatchOperationRemove">
+    <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[@Name = "BearBase"]/canArriveManhunter</xpath>
+      <value>
+        <canArriveManhunter>true</canArriveManhunter>
+      </value>
     </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/PawnKindDef[@Name = "BearBase"]</xpath>
+      <value>
+        <canArriveManhunter>true</canArriveManhunter>
+      </value>
+    </nomatch>
   </Operation>
   <!-- Bear_Polar -->
   <!-- Bear_Polar StatBases -->
@@ -440,13 +466,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Bear_Polar"]/statBases/MarketValue</xpath>
       <value>
-        <MarketValue>900</MarketValue>
+        <MarketValue>925</MarketValue>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Bear_Polar"]/statBases</xpath>
       <value>
-        <MarketValue>900</MarketValue>
+        <MarketValue>925</MarketValue>
       </value>
     </nomatch>
   </Operation>
@@ -470,13 +496,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Bear_Polar"]/statBases/Wildness</xpath>
       <value>
-        <Wildness>0.8</Wildness>
+        <Wildness>0.85</Wildness>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Bear_Polar"]/statBases</xpath>
       <value>
-        <Wildness>0.8</Wildness>
+        <Wildness>0.85</Wildness>
       </value>
     </nomatch>
   </Operation>
@@ -515,13 +541,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Bear_Polar"]/statBases/ComfyTemperatureMax</xpath>
       <value>
-        <ComfyTemperatureMax>25</ComfyTemperatureMax>
+        <ComfyTemperatureMax>10</ComfyTemperatureMax>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Bear_Polar"]/statBases</xpath>
       <value>
-        <ComfyTemperatureMax>25</ComfyTemperatureMax>
+        <ComfyTemperatureMax>10</ComfyTemperatureMax>
       </value>
     </nomatch>
   </Operation>
@@ -559,7 +585,7 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>10.0</power>
+          <power>13.0</power>
           <cooldownTime>2.60</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
           <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
@@ -571,14 +597,14 @@
           <capacities>
             <li>Scratch</li>
           </capacities>
-          <power>16.0</power>
-          <cooldownTime>1.55</cooldownTime>
+          <power>19.5</power>
+          <cooldownTime>1.70</cooldownTime>
           <linkedBodyPartsGroup>FrontRightPaw</linkedBodyPartsGroup>
           <surpriseAttack>
             <extraMeleeDamages>
               <li>
                 <def>Stun</def>
-                <amount>16</amount>
+                <amount>25</amount>
               </li>
             </extraMeleeDamages>
           </surpriseAttack>
@@ -589,14 +615,14 @@
           <capacities>
             <li>Scratch</li>
           </capacities>
-          <power>16.0</power>
-          <cooldownTime>1.55</cooldownTime>
+          <power>19.5</power>
+          <cooldownTime>1.70</cooldownTime>
           <linkedBodyPartsGroup>FrontRightPaw</linkedBodyPartsGroup>
           <surpriseAttack>
             <extraMeleeDamages>
               <li>
                 <def>Stun</def>
-                <amount>16</amount>
+                <amount>25</amount>
               </li>
             </extraMeleeDamages>
           </surpriseAttack>
@@ -606,14 +632,14 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>25.0</power>
+          <power>19.5</power>
           <cooldownTime>2.20</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
           <surpriseAttack>
             <extraMeleeDamages>
               <li>
                 <def>Stun</def>
-                <amount>16</amount>
+                <amount>25</amount>
               </li>
             </extraMeleeDamages>
           </surpriseAttack>
@@ -798,13 +824,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Bear_Polar"]/race/maxPreyBodySize</xpath>
       <value>
-        <maxPreyBodySize>3</maxPreyBodySize>
+        <maxPreyBodySize>4</maxPreyBodySize>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Bear_Polar"]/race</xpath>
       <value>
-        <maxPreyBodySize>3</maxPreyBodySize>
+        <maxPreyBodySize>4</maxPreyBodySize>
       </value>
     </nomatch>
   </Operation>
@@ -822,18 +848,9 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Bear_Polar"]/race/waterCellCost</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Bear_Polar"]/race/waterCellCost</xpath>
-      <value>
-        <waterCellCost>10</waterCellCost>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Bear_Polar"]/race</xpath>
-      <value>
-        <waterCellCost>10</waterCellCost>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Bear_Polar"]/race/waterSeeker</xpath>
@@ -958,18 +975,9 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/PawnKindDef[defName = "Bear_Polar"]/canArriveManhunter</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/PawnKindDef[defName = "Bear_Polar"]/canArriveManhunter</xpath>
-      <value>
-        <canArriveManhunter>true</canArriveManhunter>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/PawnKindDef[defName = "Bear_Polar"]</xpath>
-      <value>
-        <canArriveManhunter>true</canArriveManhunter>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/PawnKindDef[defName = "Bear_Polar"]/wildGroupSize</xpath>
@@ -1029,13 +1037,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Bear_Grizzly"]/statBases/Wildness</xpath>
       <value>
-        <Wildness>0.75</Wildness>
+        <Wildness>0.8</Wildness>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Bear_Grizzly"]/statBases</xpath>
       <value>
-        <Wildness>0.75</Wildness>
+        <Wildness>0.8</Wildness>
       </value>
     </nomatch>
   </Operation>
@@ -1059,13 +1067,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Bear_Grizzly"]/statBases/ComfyTemperatureMin</xpath>
       <value>
-        <ComfyTemperatureMin>-45</ComfyTemperatureMin>
+        <ComfyTemperatureMin>-55</ComfyTemperatureMin>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Bear_Grizzly"]/statBases</xpath>
       <value>
-        <ComfyTemperatureMin>-45</ComfyTemperatureMin>
+        <ComfyTemperatureMin>-55</ComfyTemperatureMin>
       </value>
     </nomatch>
   </Operation>
@@ -1118,7 +1126,7 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>9.0</power>
+          <power>12.0</power>
           <cooldownTime>2.50</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
           <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
@@ -1130,14 +1138,14 @@
           <capacities>
             <li>Scratch</li>
           </capacities>
-          <power>14.5</power>
-          <cooldownTime>1.50</cooldownTime>
+          <power>17.5</power>
+          <cooldownTime>1.60</cooldownTime>
           <linkedBodyPartsGroup>FrontRightPaw</linkedBodyPartsGroup>
           <surpriseAttack>
             <extraMeleeDamages>
               <li>
                 <def>Stun</def>
-                <amount>16</amount>
+                <amount>25</amount>
               </li>
             </extraMeleeDamages>
           </surpriseAttack>
@@ -1148,14 +1156,14 @@
           <capacities>
             <li>Scratch</li>
           </capacities>
-          <power>14.5</power>
-          <cooldownTime>1.50</cooldownTime>
+          <power>17.5</power>
+          <cooldownTime>1.60</cooldownTime>
           <linkedBodyPartsGroup>FrontRightPaw</linkedBodyPartsGroup>
           <surpriseAttack>
             <extraMeleeDamages>
               <li>
                 <def>Stun</def>
-                <amount>16</amount>
+                <amount>25</amount>
               </li>
             </extraMeleeDamages>
           </surpriseAttack>
@@ -1165,14 +1173,14 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>23.0</power>
+          <power>18.5</power>
           <cooldownTime>2.10</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
           <surpriseAttack>
             <extraMeleeDamages>
               <li>
                 <def>Stun</def>
-                <amount>16</amount>
+                <amount>25</amount>
               </li>
             </extraMeleeDamages>
           </surpriseAttack>
@@ -1357,13 +1365,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Bear_Grizzly"]/race/maxPreyBodySize</xpath>
       <value>
-        <maxPreyBodySize>2.5</maxPreyBodySize>
+        <maxPreyBodySize>3.5</maxPreyBodySize>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Bear_Grizzly"]/race</xpath>
       <value>
-        <maxPreyBodySize>2.5</maxPreyBodySize>
+        <maxPreyBodySize>3.5</maxPreyBodySize>
       </value>
     </nomatch>
   </Operation>
@@ -1457,16 +1465,16 @@
     <match Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Bear_Grizzly"]/race/specialTrainables</xpath>
       <value>
-        <li MayRequire="Ludeon.RimWorld.Odyssey">Forage</li>
         <li MayRequire="Ludeon.RimWorld.Odyssey">AttackTarget</li>
+        <li MayRequire="Ludeon.RimWorld.Odyssey">Forage</li>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Bear_Grizzly"]/race</xpath>
       <value>
         <specialTrainables>
-          <li MayRequire="Ludeon.RimWorld.Odyssey">Forage</li>
           <li MayRequire="Ludeon.RimWorld.Odyssey">AttackTarget</li>
+          <li MayRequire="Ludeon.RimWorld.Odyssey">Forage</li>
         </specialTrainables>
       </value>
     </nomatch>
@@ -1476,14 +1484,6 @@
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Bear_Grizzly"]/tradeTags</xpath>
     </match>
-  </Operation>
-  <Operation Class="PatchOperationAddModExtension">
-    <xpath>/Defs/ThingDef[defName = "Bear_Grizzly"]</xpath>
-    <value>
-      <li Class="ZoologyMod.ModExtension_IsScavenger, ZoologyMod">
-        <allowVeryRotten>true</allowVeryRotten>
-      </li>
-    </value>
   </Operation>
   <!-- Bear_Grizzly PawnKindDef -->
   <Operation Class="PatchOperationConditional">
@@ -1518,18 +1518,9 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/PawnKindDef[defName = "Bear_Grizzly"]/canArriveManhunter</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/PawnKindDef[defName = "Bear_Grizzly"]/canArriveManhunter</xpath>
-      <value>
-        <canArriveManhunter>true</canArriveManhunter>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/PawnKindDef[defName = "Bear_Grizzly"]</xpath>
-      <value>
-        <canArriveManhunter>true</canArriveManhunter>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/PawnKindDef[defName = "Bear_Grizzly"]/wildGroupSize</xpath>
@@ -1580,13 +1571,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Raccoon"]/statBases/Wildness</xpath>
       <value>
-        <Wildness>0.45</Wildness>
+        <Wildness>0.5</Wildness>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Raccoon"]/statBases</xpath>
       <value>
-        <Wildness>0.45</Wildness>
+        <Wildness>0.5</Wildness>
       </value>
     </nomatch>
   </Operation>
@@ -1610,13 +1601,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Raccoon"]/statBases/ComfyTemperatureMin</xpath>
       <value>
-        <ComfyTemperatureMin>-35</ComfyTemperatureMin>
+        <ComfyTemperatureMin>-45</ComfyTemperatureMin>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Raccoon"]/statBases</xpath>
       <value>
-        <ComfyTemperatureMin>-35</ComfyTemperatureMin>
+        <ComfyTemperatureMin>-45</ComfyTemperatureMin>
       </value>
     </nomatch>
   </Operation>
@@ -1678,7 +1669,7 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>2.0</power>
+          <power>3.0</power>
           <cooldownTime>1.35</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
           <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
@@ -1690,17 +1681,9 @@
           <capacities>
             <li>Scratch</li>
           </capacities>
-          <power>3.5</power>
-          <cooldownTime>0.80</cooldownTime>
+          <power>5.0</power>
+          <cooldownTime>0.85</cooldownTime>
           <linkedBodyPartsGroup>FrontRightPaw</linkedBodyPartsGroup>
-          <surpriseAttack>
-            <extraMeleeDamages>
-              <li>
-                <def>Stun</def>
-                <amount>6</amount>
-              </li>
-            </extraMeleeDamages>
-          </surpriseAttack>
         </li>
         <li>
           <label>right claw</label>
@@ -1708,34 +1691,18 @@
           <capacities>
             <li>Scratch</li>
           </capacities>
-          <power>3.5</power>
-          <cooldownTime>0.80</cooldownTime>
+          <power>5.0</power>
+          <cooldownTime>0.85</cooldownTime>
           <linkedBodyPartsGroup>FrontRightPaw</linkedBodyPartsGroup>
-          <surpriseAttack>
-            <extraMeleeDamages>
-              <li>
-                <def>Stun</def>
-                <amount>6</amount>
-              </li>
-            </extraMeleeDamages>
-          </surpriseAttack>
         </li>
         <li>
           <label>canines</label>
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>5.5</power>
+          <power>6.0</power>
           <cooldownTime>1.15</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
-          <surpriseAttack>
-            <extraMeleeDamages>
-              <li>
-                <def>Stun</def>
-                <amount>6</amount>
-              </li>
-            </extraMeleeDamages>
-          </surpriseAttack>
         </li>
       </tools>
     </value>
@@ -2016,9 +1983,18 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Raccoon"]/race/waterCellCost</xpath>
-    <match Class="PatchOperationRemove">
+    <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Raccoon"]/race/waterCellCost</xpath>
+      <value>
+        <waterCellCost>10</waterCellCost>
+      </value>
     </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "Raccoon"]/race</xpath>
+      <value>
+        <waterCellCost>10</waterCellCost>
+      </value>
+    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Raccoon"]/race/waterSeeker</xpath>
@@ -2139,14 +2115,14 @@
     <match Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Raccoon"]/tradeTags</xpath>
       <value>
-        <li>AnimalCommon</li>
+        <li>AnimalUncommon</li>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Raccoon"]</xpath>
       <value>
         <tradeTags>
-          <li>AnimalCommon</li>
+          <li>AnimalUncommon</li>
         </tradeTags>
       </value>
     </nomatch>
@@ -2169,13 +2145,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "Raccoon"]/combatPower</xpath>
       <value>
-        <combatPower>45</combatPower>
+        <combatPower>50</combatPower>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "Raccoon"]</xpath>
       <value>
-        <combatPower>45</combatPower>
+        <combatPower>50</combatPower>
       </value>
     </nomatch>
   </Operation>
@@ -2341,13 +2317,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Bear_Polar"]/statBases/MeleeDodgeChance</xpath>
             <value>
-              <MeleeDodgeChance>0.19</MeleeDodgeChance>
+              <MeleeDodgeChance>0.27</MeleeDodgeChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Bear_Polar"]/statBases</xpath>
             <value>
-              <MeleeDodgeChance>0.19</MeleeDodgeChance>
+              <MeleeDodgeChance>0.27</MeleeDodgeChance>
             </value>
           </nomatch>
         </li>
@@ -2356,13 +2332,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Bear_Polar"]/statBases/MeleeCritChance</xpath>
             <value>
-              <MeleeCritChance>0.52</MeleeCritChance>
+              <MeleeCritChance>0.06</MeleeCritChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Bear_Polar"]/statBases</xpath>
             <value>
-              <MeleeCritChance>0.52</MeleeCritChance>
+              <MeleeCritChance>0.06</MeleeCritChance>
             </value>
           </nomatch>
         </li>
@@ -2371,13 +2347,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Bear_Polar"]/statBases/ArmorRating_Sharp</xpath>
             <value>
-              <ArmorRating_Sharp>0.23</ArmorRating_Sharp>
+              <ArmorRating_Sharp>0.17</ArmorRating_Sharp>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Bear_Polar"]/statBases</xpath>
             <value>
-              <ArmorRating_Sharp>0.23</ArmorRating_Sharp>
+              <ArmorRating_Sharp>0.17</ArmorRating_Sharp>
             </value>
           </nomatch>
         </li>
@@ -2386,13 +2362,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Bear_Polar"]/statBases/ArmorRating_Blunt</xpath>
             <value>
-              <ArmorRating_Blunt>1.75</ArmorRating_Blunt>
+              <ArmorRating_Blunt>1.25</ArmorRating_Blunt>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Bear_Polar"]/statBases</xpath>
             <value>
-              <ArmorRating_Blunt>1.75</ArmorRating_Blunt>
+              <ArmorRating_Blunt>1.25</ArmorRating_Blunt>
             </value>
           </nomatch>
         </li>
@@ -2441,9 +2417,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>13.4</power>
-                <armorPenetrationBlunt>5.05</armorPenetrationBlunt>
-                <cooldownTime>2.05</cooldownTime>
+                <power>10.00</power>
+                <armorPenetrationBlunt>4.50</armorPenetrationBlunt>
+                <cooldownTime>1.75</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                 <chanceFactor>0.2</chanceFactor>
@@ -2454,16 +2430,16 @@
                 <capacities>
                   <li>Scratch</li>
                 </capacities>
-                <power>25.4</power>
-                <armorPenetrationBlunt>6.50</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.29</armorPenetrationSharp>
-                <cooldownTime>1.55</cooldownTime>
+                <power>24.5</power>
+                <armorPenetrationBlunt>5.95</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.26</armorPenetrationSharp>
+                <cooldownTime>1.5</cooldownTime>
                 <linkedBodyPartsGroup>FrontRightPaw</linkedBodyPartsGroup>
                 <surpriseAttack>
                   <extraMeleeDamages>
                     <li>
                       <def>Stun</def>
-                      <amount>16</amount>
+                      <amount>25</amount>
                     </li>
                   </extraMeleeDamages>
                 </surpriseAttack>
@@ -2474,16 +2450,16 @@
                 <capacities>
                   <li>Scratch</li>
                 </capacities>
-                <power>25.4</power>
-                <armorPenetrationBlunt>6.50</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.29</armorPenetrationSharp>
-                <cooldownTime>1.55</cooldownTime>
+                <power>24.5</power>
+                <armorPenetrationBlunt>5.95</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.26</armorPenetrationSharp>
+                <cooldownTime>1.5</cooldownTime>
                 <linkedBodyPartsGroup>FrontRightPaw</linkedBodyPartsGroup>
                 <surpriseAttack>
                   <extraMeleeDamages>
                     <li>
                       <def>Stun</def>
-                      <amount>16</amount>
+                      <amount>25</amount>
                     </li>
                   </extraMeleeDamages>
                 </surpriseAttack>
@@ -2493,16 +2469,16 @@
                 <capacities>
                   <li>Bite</li>
                 </capacities>
-                <power>25.1</power>
-                <armorPenetrationBlunt>6.01</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.39</armorPenetrationSharp>
-                <cooldownTime>1.85</cooldownTime>
+                <power>24</power>
+                <armorPenetrationBlunt>5.45</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.36</armorPenetrationSharp>
+                <cooldownTime>1.45</cooldownTime>
                 <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
                 <surpriseAttack>
                   <extraMeleeDamages>
                     <li>
                       <def>Stun</def>
-                      <amount>16</amount>
+                      <amount>25</amount>
                     </li>
                   </extraMeleeDamages>
                 </surpriseAttack>
@@ -2534,13 +2510,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Bear_Grizzly"]/statBases/MeleeDodgeChance</xpath>
             <value>
-              <MeleeDodgeChance>0.20</MeleeDodgeChance>
+              <MeleeDodgeChance>0.28</MeleeDodgeChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Bear_Grizzly"]/statBases</xpath>
             <value>
-              <MeleeDodgeChance>0.20</MeleeDodgeChance>
+              <MeleeDodgeChance>0.28</MeleeDodgeChance>
             </value>
           </nomatch>
         </li>
@@ -2549,13 +2525,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Bear_Grizzly"]/statBases/MeleeCritChance</xpath>
             <value>
-              <MeleeCritChance>0.37</MeleeCritChance>
+              <MeleeCritChance>0.06</MeleeCritChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Bear_Grizzly"]/statBases</xpath>
             <value>
-              <MeleeCritChance>0.37</MeleeCritChance>
+              <MeleeCritChance>0.06</MeleeCritChance>
             </value>
           </nomatch>
         </li>
@@ -2564,13 +2540,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Bear_Grizzly"]/statBases/ArmorRating_Sharp</xpath>
             <value>
-              <ArmorRating_Sharp>0.22</ArmorRating_Sharp>
+              <ArmorRating_Sharp>0.15</ArmorRating_Sharp>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Bear_Grizzly"]/statBases</xpath>
             <value>
-              <ArmorRating_Sharp>0.22</ArmorRating_Sharp>
+              <ArmorRating_Sharp>0.15</ArmorRating_Sharp>
             </value>
           </nomatch>
         </li>
@@ -2579,13 +2555,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Bear_Grizzly"]/statBases/ArmorRating_Blunt</xpath>
             <value>
-              <ArmorRating_Blunt>1.63</ArmorRating_Blunt>
+              <ArmorRating_Blunt>1.16</ArmorRating_Blunt>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Bear_Grizzly"]/statBases</xpath>
             <value>
-              <ArmorRating_Blunt>1.63</ArmorRating_Blunt>
+              <ArmorRating_Blunt>1.16</ArmorRating_Blunt>
             </value>
           </nomatch>
         </li>
@@ -2634,9 +2610,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>11.7</power>
-                <armorPenetrationBlunt>4.30</armorPenetrationBlunt>
-                <cooldownTime>1.95</cooldownTime>
+                <power>8.50</power>
+                <armorPenetrationBlunt>3.70</armorPenetrationBlunt>
+                <cooldownTime>1.70</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                 <chanceFactor>0.2</chanceFactor>
@@ -2647,16 +2623,16 @@
                 <capacities>
                   <li>Scratch</li>
                 </capacities>
-                <power>22.4</power>
-                <armorPenetrationBlunt>5.50</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.26</armorPenetrationSharp>
+                <power>21</power>
+                <armorPenetrationBlunt>4.90</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.24</armorPenetrationSharp>
                 <cooldownTime>1.45</cooldownTime>
                 <linkedBodyPartsGroup>FrontRightPaw</linkedBodyPartsGroup>
                 <surpriseAttack>
                   <extraMeleeDamages>
                     <li>
                       <def>Stun</def>
-                      <amount>16</amount>
+                      <amount>25</amount>
                     </li>
                   </extraMeleeDamages>
                 </surpriseAttack>
@@ -2667,16 +2643,16 @@
                 <capacities>
                   <li>Scratch</li>
                 </capacities>
-                <power>22.4</power>
-                <armorPenetrationBlunt>5.50</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.26</armorPenetrationSharp>
+                <power>21</power>
+                <armorPenetrationBlunt>4.90</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.24</armorPenetrationSharp>
                 <cooldownTime>1.45</cooldownTime>
                 <linkedBodyPartsGroup>FrontRightPaw</linkedBodyPartsGroup>
                 <surpriseAttack>
                   <extraMeleeDamages>
                     <li>
                       <def>Stun</def>
-                      <amount>16</amount>
+                      <amount>25</amount>
                     </li>
                   </extraMeleeDamages>
                 </surpriseAttack>
@@ -2686,16 +2662,16 @@
                 <capacities>
                   <li>Bite</li>
                 </capacities>
-                <power>22.8</power>
-                <armorPenetrationBlunt>5.16</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.37</armorPenetrationSharp>
-                <cooldownTime>1.8</cooldownTime>
+                <power>21.5</power>
+                <armorPenetrationBlunt>4.55</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.33</armorPenetrationSharp>
+                <cooldownTime>1.4</cooldownTime>
                 <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
                 <surpriseAttack>
                   <extraMeleeDamages>
                     <li>
                       <def>Stun</def>
-                      <amount>16</amount>
+                      <amount>25</amount>
                     </li>
                   </extraMeleeDamages>
                 </surpriseAttack>
@@ -2715,13 +2691,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Raccoon"]/statBases/MeleeDodgeChance</xpath>
             <value>
-              <MeleeDodgeChance>0.38</MeleeDodgeChance>
+              <MeleeDodgeChance>0.53</MeleeDodgeChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Raccoon"]/statBases</xpath>
             <value>
-              <MeleeDodgeChance>0.38</MeleeDodgeChance>
+              <MeleeDodgeChance>0.53</MeleeDodgeChance>
             </value>
           </nomatch>
         </li>
@@ -2730,13 +2706,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Raccoon"]/statBases/MeleeCritChance</xpath>
             <value>
-              <MeleeCritChance>0.2</MeleeCritChance>
+              <MeleeCritChance>0.08</MeleeCritChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Raccoon"]/statBases</xpath>
             <value>
-              <MeleeCritChance>0.2</MeleeCritChance>
+              <MeleeCritChance>0.08</MeleeCritChance>
             </value>
           </nomatch>
         </li>
@@ -2745,13 +2721,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Raccoon"]/statBases/MeleeParryChance</xpath>
             <value>
-              <MeleeParryChance>0.00</MeleeParryChance>
+              <MeleeParryChance>0.04</MeleeParryChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Raccoon"]/statBases</xpath>
             <value>
-              <MeleeParryChance>0.00</MeleeParryChance>
+              <MeleeParryChance>0.04</MeleeParryChance>
             </value>
           </nomatch>
         </li>
@@ -2760,13 +2736,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Raccoon"]/statBases/ArmorRating_Sharp</xpath>
             <value>
-              <ArmorRating_Sharp>0.06</ArmorRating_Sharp>
+              <ArmorRating_Sharp>0.04</ArmorRating_Sharp>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Raccoon"]/statBases</xpath>
             <value>
-              <ArmorRating_Sharp>0.06</ArmorRating_Sharp>
+              <ArmorRating_Sharp>0.04</ArmorRating_Sharp>
             </value>
           </nomatch>
         </li>
@@ -2775,13 +2751,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Raccoon"]/statBases/ArmorRating_Blunt</xpath>
             <value>
-              <ArmorRating_Blunt>0.43</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0.30</ArmorRating_Blunt>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Raccoon"]/statBases</xpath>
             <value>
-              <ArmorRating_Blunt>0.43</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0.30</ArmorRating_Blunt>
             </value>
           </nomatch>
         </li>
@@ -2860,9 +2836,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>1.5</power>
-                <armorPenetrationBlunt>0.29</armorPenetrationBlunt>
-                <cooldownTime>1.05</cooldownTime>
+                <power>1.00</power>
+                <armorPenetrationBlunt>0.15</armorPenetrationBlunt>
+                <cooldownTime>1.25</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                 <chanceFactor>0.2</chanceFactor>
@@ -2873,19 +2849,11 @@
                 <capacities>
                   <li>Scratch</li>
                 </capacities>
-                <power>4.7</power>
-                <armorPenetrationBlunt>0.34</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.08</armorPenetrationSharp>
-                <cooldownTime>0.85</cooldownTime>
+                <power>3.5</power>
+                <armorPenetrationBlunt>0.20</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.05</armorPenetrationSharp>
+                <cooldownTime>1.05</cooldownTime>
                 <linkedBodyPartsGroup>FrontRightPaw</linkedBodyPartsGroup>
-                <surpriseAttack>
-                  <extraMeleeDamages>
-                    <li>
-                      <def>Stun</def>
-                      <amount>6</amount>
-                    </li>
-                  </extraMeleeDamages>
-                </surpriseAttack>
               </li>
               <li Class="CombatExtended.ToolCE">
                 <label>right claw</label>
@@ -2893,38 +2861,22 @@
                 <capacities>
                   <li>Scratch</li>
                 </capacities>
-                <power>4.7</power>
-                <armorPenetrationBlunt>0.34</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.08</armorPenetrationSharp>
-                <cooldownTime>0.85</cooldownTime>
+                <power>3.5</power>
+                <armorPenetrationBlunt>0.20</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.05</armorPenetrationSharp>
+                <cooldownTime>1.05</cooldownTime>
                 <linkedBodyPartsGroup>FrontRightPaw</linkedBodyPartsGroup>
-                <surpriseAttack>
-                  <extraMeleeDamages>
-                    <li>
-                      <def>Stun</def>
-                      <amount>6</amount>
-                    </li>
-                  </extraMeleeDamages>
-                </surpriseAttack>
               </li>
               <li Class="CombatExtended.ToolCE">
                 <label>canines</label>
                 <capacities>
                   <li>Bite</li>
                 </capacities>
-                <power>5.7</power>
-                <armorPenetrationBlunt>0.32</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.11</armorPenetrationSharp>
-                <cooldownTime>1</cooldownTime>
+                <power>4</power>
+                <armorPenetrationBlunt>0.20</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.06</armorPenetrationSharp>
+                <cooldownTime>1.05</cooldownTime>
                 <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
-                <surpriseAttack>
-                  <extraMeleeDamages>
-                    <li>
-                      <def>Stun</def>
-                      <amount>6</amount>
-                    </li>
-                  </extraMeleeDamages>
-                </surpriseAttack>
               </li>
             </tools>
           </value>

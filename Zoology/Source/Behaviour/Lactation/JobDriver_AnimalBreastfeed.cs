@@ -57,13 +57,13 @@ namespace ZoologyMod
                     JobDef jd = AnimalChildcareUtility.YoungSuckleJobDef;
                     if (jd == null)
                     {
-                        Job fallback = JobMaker.MakeJob(JobDefOf.Wait, 2000);
+                        Job fallback = JobMaker.MakeJob(JobDefOf.Wait, ZoologyTickLimiter.Lactation.BreastfeedFallbackWaitTicks);
                         fallback.checkOverrideOnExpire = false;
                         baby.jobs.StartJob(fallback, JobCondition.InterruptForced, null, false);
                     }
                     else if (jd.driverClass == null)
                     {
-                        Job fallback = JobMaker.MakeJob(JobDefOf.Wait, 2000);
+                        Job fallback = JobMaker.MakeJob(JobDefOf.Wait, ZoologyTickLimiter.Lactation.BreastfeedFallbackWaitTicks);
                         fallback.checkOverrideOnExpire = false;
                         baby.jobs.StartJob(fallback, JobCondition.InterruptForced, null, false);
                     }
@@ -78,7 +78,7 @@ namespace ZoologyMod
                         catch (Exception exJob)
                         {
                             Log.Error($"ZoologyMod: Failed to StartJob for child jobDef {jd?.defName ?? "<null>"}: {exJob}. Falling back to Wait job.");
-                            Job fallback = JobMaker.MakeJob(JobDefOf.Wait, 2000);
+                            Job fallback = JobMaker.MakeJob(JobDefOf.Wait, ZoologyTickLimiter.Lactation.BreastfeedFallbackWaitTicks);
                             fallback.checkOverrideOnExpire = false;
                             baby.jobs.StartJob(fallback, JobCondition.InterruptForced, null, false);
                         }

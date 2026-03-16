@@ -8,13 +8,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AEXP_IndianElephant"]/statBases/MarketValue</xpath>
       <value>
-        <MarketValue>1725</MarketValue>
+        <MarketValue>1425</MarketValue>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AEXP_IndianElephant"]/statBases</xpath>
       <value>
-        <MarketValue>1725</MarketValue>
+        <MarketValue>1425</MarketValue>
       </value>
     </nomatch>
   </Operation>
@@ -127,7 +127,7 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>24.5</power>
+          <power>31.5</power>
           <cooldownTime>3.80</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
           <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
@@ -139,7 +139,7 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>30.5</power>
+          <power>37.5</power>
           <cooldownTime>3.45</cooldownTime>
           <linkedBodyPartsGroup>FrontLeftLeg</linkedBodyPartsGroup>
         </li>
@@ -149,7 +149,7 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>30.5</power>
+          <power>37.5</power>
           <cooldownTime>3.45</cooldownTime>
           <linkedBodyPartsGroup>FrontRightLeg</linkedBodyPartsGroup>
         </li>
@@ -158,7 +158,7 @@
           <capacities>
             <li>Scratch</li>
           </capacities>
-          <power>46.5</power>
+          <power>34.5</power>
           <cooldownTime>2.65</cooldownTime>
           <linkedBodyPartsGroup>TuskAttackTool</linkedBodyPartsGroup>
           <restrictedGender>Male</restrictedGender>
@@ -187,13 +187,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AEXP_IndianElephant"]/race/baseHealthScale</xpath>
       <value>
-        <baseHealthScale>6.75</baseHealthScale>
+        <baseHealthScale>4.50</baseHealthScale>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AEXP_IndianElephant"]/race</xpath>
       <value>
-        <baseHealthScale>6.75</baseHealthScale>
+        <baseHealthScale>4.50</baseHealthScale>
       </value>
     </nomatch>
   </Operation>
@@ -298,13 +298,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AEXP_IndianElephant"]/race/manhunterOnTameFailChance</xpath>
       <value>
-        <manhunterOnTameFailChance>0.025</manhunterOnTameFailChance>
+        <manhunterOnTameFailChance>0.05</manhunterOnTameFailChance>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AEXP_IndianElephant"]/race</xpath>
       <value>
-        <manhunterOnTameFailChance>0.025</manhunterOnTameFailChance>
+        <manhunterOnTameFailChance>0.05</manhunterOnTameFailChance>
       </value>
     </nomatch>
   </Operation>
@@ -313,13 +313,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AEXP_IndianElephant"]/race/manhunterOnDamageChance</xpath>
       <value>
-        <manhunterOnDamageChance>0.3</manhunterOnDamageChance>
+        <manhunterOnDamageChance>0.2</manhunterOnDamageChance>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AEXP_IndianElephant"]/race</xpath>
       <value>
-        <manhunterOnDamageChance>0.3</manhunterOnDamageChance>
+        <manhunterOnDamageChance>0.2</manhunterOnDamageChance>
       </value>
     </nomatch>
   </Operation>
@@ -370,13 +370,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AEXP_IndianElephant"]/race/packAnimal</xpath>
       <value>
-        <packAnimal>true</packAnimal>
+        <packAnimal>false</packAnimal>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AEXP_IndianElephant"]/race</xpath>
       <value>
-        <packAnimal>true</packAnimal>
+        <packAnimal>false</packAnimal>
       </value>
     </nomatch>
   </Operation>
@@ -494,27 +494,10 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_IndianElephant"]/race/specialTrainables/li[text()="SludgeSpew" or text()="EggSpew" or text()="TerrorRoar" or text()="WarTrumpet" or text()="Forage" or text()="Comfort" or text()="AttackTarget" or text()="Dig"]</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_IndianElephant"]/race/specialTrainables/li[text()="SludgeSpew" or text()="EggSpew" or text()="TerrorRoar" or text()="WarTrumpet" or text()="Forage" or text()="Comfort" or text()="AttackTarget" or text()="Dig"]</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AEXP_IndianElephant"]/race/specialTrainables</xpath>
-    <match Class="PatchOperationAdd">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "AEXP_IndianElephant"]/race/specialTrainables</xpath>
-      <value>
-        <li MayRequire="Ludeon.RimWorld.Odyssey">WarTrumpet</li>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_IndianElephant"]/race</xpath>
-      <value>
-        <specialTrainables>
-          <li MayRequire="Ludeon.RimWorld.Odyssey">WarTrumpet</li>
-        </specialTrainables>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AEXP_IndianElephant"]/tradeTags/li[text()="AnimalCommon" or text()="AnimalUncommon" or text()="AnimalExotic" or text()="AnimalFighter" or text()="AnimalInsect" or text()="AnimalPet" or text()="AnimalFarm"]</xpath>
@@ -553,13 +536,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "AEXP_IndianElephant"]/combatPower</xpath>
       <value>
-        <combatPower>500</combatPower>
+        <combatPower>370</combatPower>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "AEXP_IndianElephant"]</xpath>
       <value>
-        <combatPower>500</combatPower>
+        <combatPower>370</combatPower>
       </value>
     </nomatch>
   </Operation>
@@ -627,13 +610,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="AEXP_IndianElephant"]/statBases/MeleeDodgeChance</xpath>
             <value>
-              <MeleeDodgeChance>0.00</MeleeDodgeChance>
+              <MeleeDodgeChance>0.07</MeleeDodgeChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="AEXP_IndianElephant"]/statBases</xpath>
             <value>
-              <MeleeDodgeChance>0.00</MeleeDodgeChance>
+              <MeleeDodgeChance>0.07</MeleeDodgeChance>
             </value>
           </nomatch>
         </li>
@@ -642,13 +625,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="AEXP_IndianElephant"]/statBases/MeleeCritChance</xpath>
             <value>
-              <MeleeCritChance>0.57</MeleeCritChance>
+              <MeleeCritChance>0.03</MeleeCritChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="AEXP_IndianElephant"]/statBases</xpath>
             <value>
-              <MeleeCritChance>0.57</MeleeCritChance>
+              <MeleeCritChance>0.03</MeleeCritChance>
             </value>
           </nomatch>
         </li>
@@ -657,13 +640,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="AEXP_IndianElephant"]/statBases/MeleeParryChance</xpath>
             <value>
-              <MeleeParryChance>0.38</MeleeParryChance>
+              <MeleeParryChance>0.03</MeleeParryChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="AEXP_IndianElephant"]/statBases</xpath>
             <value>
-              <MeleeParryChance>0.38</MeleeParryChance>
+              <MeleeParryChance>0.03</MeleeParryChance>
             </value>
           </nomatch>
         </li>
@@ -672,13 +655,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="AEXP_IndianElephant"]/statBases/ArmorRating_Sharp</xpath>
             <value>
-              <ArmorRating_Sharp>0.15</ArmorRating_Sharp>
+              <ArmorRating_Sharp>0.16</ArmorRating_Sharp>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="AEXP_IndianElephant"]/statBases</xpath>
             <value>
-              <ArmorRating_Sharp>0.15</ArmorRating_Sharp>
+              <ArmorRating_Sharp>0.16</ArmorRating_Sharp>
             </value>
           </nomatch>
         </li>
@@ -687,13 +670,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="AEXP_IndianElephant"]/statBases/ArmorRating_Blunt</xpath>
             <value>
-              <ArmorRating_Blunt>0.64</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0.88</ArmorRating_Blunt>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="AEXP_IndianElephant"]/statBases</xpath>
             <value>
-              <ArmorRating_Blunt>0.64</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0.88</ArmorRating_Blunt>
             </value>
           </nomatch>
         </li>
@@ -711,14 +694,14 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="AEXP_IndianElephant"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]/Durability</xpath>
             <value>
-              <Durability>2812.50</Durability>
+              <Durability>2250.00</Durability>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="AEXP_IndianElephant"]/comps</xpath>
             <value>
               <li Class="CombatExtended.CompProperties_ArmorDurability">
-                <Durability>2812.50</Durability>
+                <Durability>2250.00</Durability>
                 <Regenerates>true</Regenerates>
                 <RegenInterval>600</RegenInterval>
                 <RegenValue>5</RegenValue>
@@ -772,9 +755,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>57.1</power>
-                <armorPenetrationBlunt>26.08</armorPenetrationBlunt>
-                <cooldownTime>3.75</cooldownTime>
+                <power>24.00</power>
+                <armorPenetrationBlunt>12.65</armorPenetrationBlunt>
+                <cooldownTime>2.30</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                 <chanceFactor>0.2</chanceFactor>
@@ -785,9 +768,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>77.9</power>
-                <armorPenetrationBlunt>36.92</armorPenetrationBlunt>
-                <cooldownTime>3.1</cooldownTime>
+                <power>41.5</power>
+                <armorPenetrationBlunt>17.20</armorPenetrationBlunt>
+                <cooldownTime>4.15</cooldownTime>
                 <linkedBodyPartsGroup>FrontLeftLeg</linkedBodyPartsGroup>
               </li>
               <li Class="CombatExtended.ToolCE">
@@ -796,9 +779,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>77.9</power>
-                <armorPenetrationBlunt>36.92</armorPenetrationBlunt>
-                <cooldownTime>3.1</cooldownTime>
+                <power>41.5</power>
+                <armorPenetrationBlunt>17.20</armorPenetrationBlunt>
+                <cooldownTime>4.15</cooldownTime>
                 <linkedBodyPartsGroup>FrontRightLeg</linkedBodyPartsGroup>
               </li>
               <li Class="CombatExtended.ToolCE">
@@ -806,10 +789,10 @@
                 <capacities>
                   <li>Scratch</li>
                 </capacities>
-                <power>63.3</power>
-                <armorPenetrationBlunt>12.58</armorPenetrationBlunt>
-                <armorPenetrationSharp>1</armorPenetrationSharp>
-                <cooldownTime>3.3</cooldownTime>
+                <power>59.5</power>
+                <armorPenetrationBlunt>10.90</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.86</armorPenetrationSharp>
+                <cooldownTime>3.45</cooldownTime>
                 <linkedBodyPartsGroup>TuskAttackTool</linkedBodyPartsGroup>
                 <restrictedGender>Male</restrictedGender>
               </li>

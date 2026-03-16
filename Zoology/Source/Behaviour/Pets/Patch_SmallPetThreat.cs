@@ -11,9 +11,10 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(Pawn), "ThreatDisabledBecauseNonAggressiveRoamer")]
     public static class Patch_SmallPetThreatDisabled
     {
-        private const int SettingsSnapshotRefreshIntervalTicks = 60;
-        private const int SmallPetStateCacheDurationTicks = 15;
-        private const int SmallPetStateCacheCleanupIntervalTicks = 600;
+        private const int SettingsSnapshotRefreshIntervalTicks = ZoologyTickLimiter.SmallPetThreat.SettingsSnapshotRefreshIntervalTicks;
+        private const int SmallPetStateCacheDurationTicks = ZoologyTickLimiter.SmallPetThreat.StateCacheDurationTicks;
+        private const int SmallPetStateCacheCleanupIntervalTicks = ZoologyTickLimiter.SmallPetThreat.StateCacheCleanupIntervalTicks;
+        private const int SmallPetThreatBudgetPerTick = ZoologyTickLimiter.SmallPetThreat.BudgetPerTick;
 
         private static readonly Dictionary<ThingDef, bool> cachedEligibleSmallPetDefs = new Dictionary<ThingDef, bool>(64);
         private static readonly Dictionary<int, CachedSmallPetState> cachedSmallPetStateByPawnId = new Dictionary<int, CachedSmallPetState>(32);
@@ -26,6 +27,8 @@ namespace ZoologyMod
         private static int lastSmallPetStateCacheCleanupTick = -SmallPetStateCacheCleanupIntervalTicks;
         private static int lastSettingsSnapshotTick = -SettingsSnapshotRefreshIntervalTicks;
         private static float cachedSmallPetThreshold = -1f;
+        private static int smallPetThreatBudgetTick = -1;
+        private static int smallPetThreatBudgetRemaining = 0;
         [ThreadStatic]
         private static bool isInsidePrefix;
 
@@ -50,17 +53,49 @@ namespace ZoologyMod
                 return true;
             }
 
+            Faction instanceFaction = __instance.Faction;
+            Faction otherFaction = otherPawn.Faction;
+            if (instanceFaction != Faction.OfPlayer && otherFaction != Faction.OfPlayer)
+            {
+                return true;
+            }
+
+            RaceProperties instanceRace = __instance.RaceProps;
+            RaceProperties otherRace = otherPawn.RaceProps;
+            bool instanceAnimal = instanceRace?.Animal == true;
+            bool otherAnimal = otherRace?.Animal == true;
+            if (!instanceAnimal && !otherAnimal)
+            {
+                return true;
+            }
+
+            bool instanceHumanlike = instanceRace?.Humanlike == true;
+            bool otherHumanlike = otherRace?.Humanlike == true;
+            if (!instanceHumanlike && !otherHumanlike)
+            {
+                return true;
+            }
+
             isInsidePrefix = true;
             try
             {
+                int currentTick = Find.TickManager?.TicksGame ?? 0;
+                if (!TryGetSettingsSnapshot(currentTick, out float smallPetThreshold))
+                {
+                    return true;
+                }
+
+                if (!TryConsumeSmallPetThreatBudget(currentTick))
+                {
+                    return true;
+                }
+
                 if (!TryResolveSmallPetAndThreat(__instance, otherPawn, out Pawn smallPet, out Pawn threatPawn))
                 {
                     return true;
                 }
 
-                int currentTick = Find.TickManager?.TicksGame ?? 0;
-                if (!TryGetSettingsSnapshot(currentTick, out float smallPetThreshold)
-                    || !IsEligibleSmallPetDef(smallPet.def, smallPetThreshold))
+                if (!IsEligibleSmallPetDef(smallPet.def, smallPetThreshold))
                 {
                     return true;
                 }
@@ -160,6 +195,28 @@ namespace ZoologyMod
 
             smallPetThreshold = cachedSmallPetThresholdSnapshot;
             return cachedIgnoreSmallPetsByRaidersEnabled;
+        }
+
+        private static bool TryConsumeSmallPetThreatBudget(int currentTick)
+        {
+            if (currentTick <= 0)
+            {
+                return true;
+            }
+
+            if (smallPetThreatBudgetTick != currentTick)
+            {
+                smallPetThreatBudgetTick = currentTick;
+                smallPetThreatBudgetRemaining = SmallPetThreatBudgetPerTick;
+            }
+
+            if (smallPetThreatBudgetRemaining <= 0)
+            {
+                return false;
+            }
+
+            smallPetThreatBudgetRemaining--;
+            return true;
         }
 
         private static bool CanSuppressThreatForSmallPets(Pawn otherPawn, Pawn smallPet, int currentTick)
