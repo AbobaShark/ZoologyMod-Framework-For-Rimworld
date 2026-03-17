@@ -10,6 +10,7 @@ namespace ZoologyMod
     [StaticConstructorOnStartup]
     public static class LactationPatcher
     {
+        private static bool patched;
         private static readonly HashSet<string> CandidateMethodNameSet = new HashSet<string>(new[] { "DoBirthSpawn", "GiveBirth", "PostBirth", "FinishBirth", "DoBirth" }, StringComparer.Ordinal);
         private static readonly string[] PregnancyTypeNameFragments = { "Pregnant", "Pregnancy", "BestialPregnancy", "BasePregnancy", "Birth" };
         private static readonly string[] CandidateMotherMemberNames = { "mother", "pawn", "parent", "motherPawn", "motherThing" };
@@ -18,13 +19,30 @@ namespace ZoologyMod
 
         static LactationPatcher()
         {
+            EnsurePatched();
+        }
+
+        public static void EnsurePatched()
+        {
+            if (patched)
+            {
+                return;
+            }
+
             try
             {
+                var settings = ZoologyModSettings.Instance;
+                if (settings != null && settings.DisableAllRuntimePatches)
+                {
+                    return;
+                }
+
                 if (!ZoologyModSettings.EnableMammalLactation)
                 {
                     return;
                 }
 
+                patched = true;
                 var harmony = new Harmony("com.abobashark.zoology.lactation");
                 int patchedCount = 0;
                 List<string> patchedNames = new List<string>();
@@ -98,6 +116,11 @@ namespace ZoologyMod
             {
                 Log.Error("ZoologyMod: LactationPatcher initialization failed: " + ex);
             }
+        }
+
+        public static void ResetPatchedState()
+        {
+            patched = false;
         }
 
         private static bool TypeNameMatches(string typeName)

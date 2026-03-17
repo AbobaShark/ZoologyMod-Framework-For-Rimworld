@@ -35,6 +35,7 @@ namespace ZoologyMod
         public bool EnablePredatorDefendCorpse = true;
         public bool EnablePredatorDefendPreyFromHumansAndMechanoids = true;
         public bool EnableScavengering = true;
+        public bool DisableAllRuntimePatches = false;
 
         
         public int PreyProtectionRange = 20; 
@@ -246,7 +247,7 @@ namespace ZoologyMod
                         + (AnimalsFreeFromHumans ? 56f : 0f);
                 case SettingsPage.Dev:
                 default:
-                    return 900f;
+                    return 980f;
             }
         }
 
@@ -430,7 +431,25 @@ namespace ZoologyMod
             GUI.color = oldColor;
             list.GapLine(4f);
             Text.Font = GameFont.Tiny;
-            list.Label("Any enabled Dev patch keeps runtime patching active (global runtime-off mode requires all toggles to be false).");
+            list.Label("Master switch below can disable all runtime patches regardless of individual toggles.");
+            Text.Font = GameFont.Small;
+
+            list.GapLine(12f);
+            bool runtimeDisabled = DisableAllRuntimePatches;
+            string runtimeButtonLabel = runtimeDisabled
+                ? "Enable ALL runtime patches now"
+                : "Disable ALL runtime patches now";
+            if (list.ButtonText(runtimeButtonLabel))
+            {
+                DisableAllRuntimePatches = !runtimeDisabled;
+                ZoologyMod.SetRuntimePatchesEnabled(!DisableAllRuntimePatches);
+                Write();
+            }
+
+            list.Label(runtimeDisabled ? "Runtime patches: DISABLED" : "Runtime patches: ENABLED");
+            list.GapLine(6f);
+            Text.Font = GameFont.Tiny;
+            list.Label("Note: some changes (think tree injection, def edits) may require a reload to fully revert.");
             Text.Font = GameFont.Small;
 
             list.GapLine(12f);
@@ -522,8 +541,10 @@ namespace ZoologyMod
             AnimalsFreeFromHumansPerAnimal.Clear();
             EnableAnimalDamageReduction = !_cePresent;
             EnableOverrideCEPenetration = _cePresent ? true : false;
+            DisableAllRuntimePatches = false;
 
             Write();
+            ZoologyMod.SetRuntimePatchesEnabled(true);
             Messages.Message("Zoology Mod: settings reset to defaults.", MessageTypeDefOf.TaskCompletion, false);
         }
 
@@ -573,6 +594,7 @@ namespace ZoologyMod
             Scribe_Values.Look(ref _minCombatPowerToDefendPreyFromHumans, "MinCombatPowerToDefendPreyFromHumans", ModConstants.DefaultMinCombatPowerToDefendPreyFromHumans);
             Scribe_Values.Look(ref EnableScavengering, "EnableScavengering", true);
             Scribe_Values.Look(ref AllowSlaughterLactating, "AllowSlaughterLactating", false);
+            Scribe_Values.Look(ref DisableAllRuntimePatches, "DisableAllRuntimePatches", false);
 
             
             if (AnimalsFreeFromHumansPerAnimal == null)
@@ -678,6 +700,11 @@ namespace ZoologyMod
 
         public bool AreAllRuntimeTogglesDisabled()
         {
+            if (DisableAllRuntimePatches)
+            {
+                return true;
+            }
+
             return !EnableCustomFleeDanger
                 && !EnableIgnoreSmallPetsByRaiders
                 && (!EnableIgnoreSmallPetsByRaiders || !EnableSmallPetFleeFromRaiders)

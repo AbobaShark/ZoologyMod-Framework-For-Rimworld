@@ -12,6 +12,7 @@ namespace ZoologyMod
     [StaticConstructorOnStartup]
     public static class PredationHarmonyPatches
     {
+        private static bool patched;
         private readonly struct CorpseFoodStateCacheEntry
         {
             public CorpseFoodStateCacheEntry(bool isPaired, bool isEffectivelyUnowned, int tick)
@@ -60,12 +61,28 @@ namespace ZoologyMod
 
         static PredationHarmonyPatches()
         {
+            EnsurePatched();
+        }
+
+        public static void EnsurePatched()
+        {
+            if (patched)
+            {
+                return;
+            }
+
             var s = ZoologyModSettings.Instance;
+            if (s != null && s.DisableAllRuntimePatches)
+            {
+                return;
+            }
+
             if (s != null && !s.EnablePredatorDefendCorpse)
             {
                 return;
             }
 
+            patched = true;
             var harmony = new Harmony("com.abobashark.zoology.predatorpairs");
             try
             {
@@ -207,6 +224,11 @@ namespace ZoologyMod
             {
                 Log.Warning($"Zoology: Harmony patches failed: {ex}");
             }
+        }
+
+        public static void ResetPatchedState()
+        {
+            patched = false;
         }
 
         

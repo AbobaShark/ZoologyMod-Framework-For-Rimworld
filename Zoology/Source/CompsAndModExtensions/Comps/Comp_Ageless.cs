@@ -281,16 +281,34 @@ namespace ZoologyMod
     [StaticConstructorOnStartup]
     public static class AgelessHarmonyInit
     {
+        private static bool patched;
+
         static AgelessHarmonyInit()
         {
+            EnsurePatched();
+        }
+
+        public static void EnsurePatched()
+        {
+            if (patched)
+            {
+                return;
+            }
+
             try
             {
                 var settings = ZoologyModSettings.Instance;
+                if (settings != null && settings.DisableAllRuntimePatches)
+                {
+                    return;
+                }
+
                 if (settings != null && !settings.EnableAgelessPatch)
                 {
                     return;
                 }
 
+                patched = true;
                 var harmony = new Harmony("zoology.ageless");
                 
                 var hediffGiverType = typeof(HediffGiver);
@@ -317,6 +335,11 @@ namespace ZoologyMod
             {
                 Log.Error($"[Zoology] AgelessHarmonyInit failed to patch: {e}");
             }
+        }
+
+        public static void ResetPatchedState()
+        {
+            patched = false;
         }
 
         

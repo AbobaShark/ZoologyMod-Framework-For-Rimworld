@@ -493,16 +493,34 @@ namespace ZoologyMod
     [StaticConstructorOnStartup]
     public static class DrugsImmuneHarmonyInit
     {
+        private static bool patched;
+
         static DrugsImmuneHarmonyInit()
         {
+            EnsurePatched();
+        }
+
+        public static void EnsurePatched()
+        {
+            if (patched)
+            {
+                return;
+            }
+
             try
             {
                 var settings = ZoologyModSettings.Instance;
+                if (settings != null && settings.DisableAllRuntimePatches)
+                {
+                    return;
+                }
+
                 if (settings != null && !settings.EnableDrugsImmunePatch)
                 {
                     return;
                 }
 
+                patched = true;
                 var harmony = new Harmony("zoology.drugsimmune");
 
                 MethodInfo targetMethod = null;
@@ -558,6 +576,11 @@ namespace ZoologyMod
             {
                 Log.Error($"[Zoology] DrugsImmuneHarmonyInit failed to patch: {e}");
             }
+        }
+
+        public static void ResetPatchedState()
+        {
+            patched = false;
         }
 
         

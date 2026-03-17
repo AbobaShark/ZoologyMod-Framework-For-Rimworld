@@ -47,6 +47,46 @@ namespace ZoologyMod
             });
         }
 
+        public static void SetRuntimePatchesEnabled(bool enabled)
+        {
+            if (enabled)
+            {
+                EnableAllRuntimePatches();
+            }
+            else
+            {
+                DisableAllRuntimePatches();
+            }
+        }
+
+        private static void EnableAllRuntimePatches()
+        {
+            try
+            {
+                var harmony = new Harmony("com.abobashark.zoology.bionic");
+                harmony.PatchAll();
+            }
+            catch (System.Exception ex)
+            {
+                Log.Warning($"[Zoology] Failed to PatchAll while enabling runtime patches: {ex}");
+            }
+
+            PredationHarmonyPatches.EnsurePatched();
+            LactationPatcher.EnsurePatched();
+            AgelessHarmonyInit.EnsurePatched();
+            DrugsImmuneHarmonyInit.EnsurePatched();
+            Ectothermic_HarmonyPatches.EnsurePatched();
+            NoPorcupineQuill_HarmonyPatches.EnsurePatched();
+            CEPatches_Melee.EnsurePatched();
+
+            ApplyDisabledFeatureUnpatches(Settings);
+        }
+
+        private static void DisableAllRuntimePatches()
+        {
+            UnpatchAllZoologyHarmonyIds();
+        }
+
         private static void UnpatchAllZoologyHarmonyIds()
         {
             try
@@ -67,6 +107,14 @@ namespace ZoologyMod
                 {
                     TryUnpatchHarmonyId(ids[i]);
                 }
+
+                PredationHarmonyPatches.ResetPatchedState();
+                LactationPatcher.ResetPatchedState();
+                AgelessHarmonyInit.ResetPatchedState();
+                DrugsImmuneHarmonyInit.ResetPatchedState();
+                Ectothermic_HarmonyPatches.ResetPatchedState();
+                NoPorcupineQuill_HarmonyPatches.ResetPatchedState();
+                CEPatches_Melee.ResetPatchedState();
 
                 Log.Message("[Zoology] Unpatched all known Zoology harmony ids because all runtime toggles are disabled.");
             }
