@@ -49,12 +49,14 @@ namespace ZoologyMod.Patches
         {
             try
             {
-                if (ZoologyModSettings.Instance == null || !ZoologyModSettings.Instance.EnableAnimalDamageReduction)
+                var settings = ZoologyModSettings.Instance;
+                if (settings == null || !settings.EnableAnimalDamageReduction)
                     return;
 
-                if (dinfo.Def == null) return;
+                var damageDef = dinfo.Def;
+                if (damageDef == null) return;
 
-                Type workerClass = dinfo.Def.workerClass;
+                Type workerClass = damageDef.workerClass;
                 if (!IsSupportedWorkerClass(workerClass)) return;
 
                 Pawn victim = __instance;
@@ -98,15 +100,7 @@ namespace ZoologyMod.Patches
                     }
                 }
 
-                float beforeAmount;
-                try
-                {
-                    beforeAmount = dinfo.Amount;
-                }
-                catch
-                {
-                    beforeAmount = float.NaN;
-                }
+                float beforeAmount = dinfo.Amount;
 
                 bool sizeThreshold = victimBodySizeActual >= 1.2f * attackerBodySizeActual;
                 float factor = 1f;
@@ -144,52 +138,29 @@ namespace ZoologyMod.Patches
                 if (float.IsNaN(factor) || float.IsInfinity(factor) || factor <= 0f) return;
 
                 float newAmount = beforeAmount * factor;
-
-                DamageInfo newDinfo;
                 try
                 {
-                    newDinfo = new DamageInfo(
-                        dinfo.Def,
-                        newAmount,
-                        dinfo.ArmorPenetrationInt,
-                        dinfo.Angle,
-                        dinfo.Instigator,
-                        dinfo.HitPart,
-                        dinfo.Weapon
-                    );
+                    dinfo.SetAmount(newAmount);
                 }
-                catch (Exception)
+                catch
                 {
                     try
                     {
-                        newDinfo = (DamageInfo)Activator.CreateInstance(
-                            typeof(DamageInfo),
-                            new object[]
-                            {
-                                dinfo.Def,
-                                newAmount,
-                                dinfo.ArmorPenetrationInt,
-                                dinfo.Instigator,
-                                dinfo.HitPart,
-                                dinfo.Weapon
-                            });
+                        dinfo = new DamageInfo(
+                            dinfo.Def,
+                            newAmount,
+                            dinfo.ArmorPenetrationInt,
+                            dinfo.Angle,
+                            dinfo.Instigator,
+                            dinfo.HitPart,
+                            dinfo.Weapon
+                        );
                     }
                     catch
                     {
-                        try
-                        {
-                            dinfo.SetAmount(newAmount);
-                            newDinfo = dinfo;
-                        }
-                        catch
-                        {
-                            Log.Warning("[ZoologyMod] AnimalDamageReduction: не удалось создать/изменить DamageInfo для редукции урона. Отказываемся от редукции в этом случае.");
-                            return;
-                        }
+                        Log.Warning("[ZoologyMod] AnimalDamageReduction: не удалось создать/изменить DamageInfo для редукции урона. Отказываемся от редукции в этом случае.");
                     }
                 }
-
-                dinfo = newDinfo;
             }
             catch (Exception ex)
             {

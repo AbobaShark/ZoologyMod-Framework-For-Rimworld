@@ -8,6 +8,14 @@ namespace ZoologyMod
 {
     public class JobGiver_AnimalAutoFeed : ThinkNode_JobGiver
     {
+        private sealed class HungryPupCache
+        {
+            public int Tick = -1;
+            public readonly List<Pawn> Candidates = new List<Pawn>(32);
+        }
+
+        private static readonly Dictionary<int, HungryPupCache> hungryPupCacheByMapId = new Dictionary<int, HungryPupCache>(8);
+
         protected override Job TryGiveJob(Pawn pawn)
         {
             if (!AnimalChildcareUtility.CanMotherFeed(pawn)) return null;
@@ -52,6 +60,47 @@ namespace ZoologyMod
             return job;
         }
 
+        private static IReadOnlyList<Pawn> GetHungryPupCandidates(Map map, int currentTick)
+        {
+            if (map?.mapPawns?.AllPawnsSpawned == null)
+            {
+                return null;
+            }
+
+            int mapId = map.uniqueID;
+            if (!hungryPupCacheByMapId.TryGetValue(mapId, out HungryPupCache cache))
+            {
+                cache = new HungryPupCache();
+                hungryPupCacheByMapId[mapId] = cache;
+            }
+
+            if (currentTick > 0 && cache.Tick == currentTick)
+            {
+                return cache.Candidates;
+            }
+
+            cache.Tick = currentTick;
+            List<Pawn> candidates = cache.Candidates;
+            candidates.Clear();
+
+            var pawns = map.mapPawns.AllPawnsSpawned;
+            for (int i = 0; i < pawns.Count; i++)
+            {
+                Pawn p = pawns[i];
+                if (p == null || p.Dead || p.Destroyed || !p.Spawned) continue;
+                if (!p.IsMammal()) continue;
+                if (!AnimalChildcareUtility.IsAnimalBabyLifeStage(p.ageTracker?.CurLifeStage)) continue;
+                if (p.InMentalState) continue;
+
+                var foodNeed = p.needs?.food;
+                if (foodNeed == null || foodNeed.CurLevelPercentage >= AnimalChildcareUtility.feedingThreshold) continue;
+
+                candidates.Add(p);
+            }
+
+            return candidates;
+        }
+
         private Pawn FindNearestHungryPup(Pawn mom)
         {
             if (mom == null || mom.Map == null) return null;
@@ -61,9 +110,17 @@ namespace ZoologyMod
             float bestFoodPerc = 1f; 
             float bestDistSqr = float.MaxValue;
             int bestMalStage = -1; 
+            int currentTick = Find.TickManager?.TicksGame ?? 0;
 
-            foreach (Pawn p in mom.Map.mapPawns.AllPawnsSpawned)
+            IReadOnlyList<Pawn> candidates = GetHungryPupCandidates(mom.Map, currentTick);
+            if (candidates == null || candidates.Count == 0)
             {
+                return null;
+            }
+
+            for (int i = 0; i < candidates.Count; i++)
+            {
+                Pawn p = candidates[i];
                 if (p == mom || p.Dead) continue;
 
                 if (p.Faction != momFaction && p.HostFaction != momFaction) continue;

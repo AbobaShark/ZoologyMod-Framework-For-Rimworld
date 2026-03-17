@@ -32,6 +32,7 @@ namespace ZoologyMod
         private readonly Dictionary<int, Pawn> pawnLookupCache = new Dictionary<int, Pawn>();
         private readonly Dictionary<int, Corpse> corpseLookupCache = new Dictionary<int, Corpse>();
         private readonly Dictionary<int, long> corpseNegativeLookupUntil = new Dictionary<int, long>();
+        private readonly Dictionary<int, long> pawnNegativeLookupUntil = new Dictionary<int, long>();
         private readonly List<KeyValuePair<long, long>> pairSnapshotBuffer = new List<KeyValuePair<long, long>>(128);
         private readonly List<long> pairRemovalBuffer = new List<long>(32);
         private readonly List<long> predatorPairCleanupBuffer = new List<long>(8);
@@ -51,6 +52,7 @@ namespace ZoologyMod
         private static object dictLock = new object();
         private static PredatorPreyPairGameComponent singleton;
         private const int NEGATIVE_LOOKUP_COOLDOWN_TICKS = ZoologyTickLimiter.PreyProtection.TickCheckInterval;
+        private static JobDef protectPreyJobDef;
 
         public static PredatorPreyPairGameComponent Instance {
             get {
@@ -188,6 +190,7 @@ namespace ZoologyMod
             pawnLookupCache.Clear();
             corpseLookupCache.Clear();
             corpseNegativeLookupUntil.Clear();
+            pawnNegativeLookupUntil.Clear();
         }
 
         private void AddRuntimePairMapping(int predatorId, int corpseId, Pawn predator = null)
@@ -486,6 +489,12 @@ namespace ZoologyMod
         {
             if (pid <= 0) return null;
 
+            long now = Find.TickManager?.TicksGame ?? 0L;
+            if (pawnNegativeLookupUntil.TryGetValue(pid, out long cooldownUntil) && cooldownUntil > now)
+            {
+                return null;
+            }
+
             if (pawnLookupCache.TryGetValue(pid, out var cachedPawn))
             {
                 if (cachedPawn != null && !cachedPawn.Destroyed && cachedPawn.Spawned && cachedPawn.Map != null && cachedPawn.thingIDNumber == pid)
@@ -505,12 +514,17 @@ namespace ZoologyMod
                     if (p != null && p.thingIDNumber == pid)
                     {
                         pawnLookupCache[pid] = p;
+                        pawnNegativeLookupUntil.Remove(pid);
                         return p;
                     }
                 }
             }
 
             pawnLookupCache.Remove(pid);
+            if (now > 0)
+            {
+                pawnNegativeLookupUntil[pid] = now + NEGATIVE_LOOKUP_COOLDOWN_TICKS;
+            }
             return null;
         }
 
@@ -758,6 +772,14 @@ namespace ZoologyMod
                 if (now % TICK_CHECK_INTERVAL != 0) return;
 
                 pairRemovalBuffer.Clear();
+
+                lock (dictLock)
+                {
+                    if (pairsUntil.Count == 0)
+                    {
+                        return;
+                    }
+                }
 
                 PredatorPresenceManager.TickPresence();
 
@@ -1385,37 +1407,6 @@ namespace ZoologyMod
             return false;
         }
 
-        private static readonly System.Reflection.PropertyInfo RacePropsIsMechanoidProperty =
-            AccessTools.Property(typeof(RaceProperties), "IsMechanoid");
-
-        private static bool IsHumanlikeOrMechanoid(Pawn pawn)
-        {
-            if (pawn?.RaceProps == null)
-            {
-                return false;
-            }
-
-            if (pawn.RaceProps.Humanlike)
-            {
-                return true;
-            }
-
-            if (RacePropsIsMechanoidProperty == null)
-            {
-                return false;
-            }
-
-            try
-            {
-                object value = RacePropsIsMechanoidProperty.GetValue(pawn.RaceProps, null);
-                return value is bool isMechanoid && isMechanoid;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
         public void ClearPairsForPredator(Pawn predator)
         {
             try
@@ -1456,7 +1447,7 @@ namespace ZoologyMod
                 if (corpse == null) return;
                 if (interrupter == null || !interrupter.Spawned || interrupter.Dead) return;
 
-                bool humanlikeOrMechanoidInterrupter = IsHumanlikeOrMechanoid(interrupter);
+                bool humanlikeOrMechanoidInterrupter = PawnThreatUtility.IsHumanlikeOrMechanoid(interrupter);
                 if (humanlikeOrMechanoidInterrupter && settings != null && !settings.EnablePredatorDefendPreyFromHumansAndMechanoids)
                 {
                     return;
@@ -1484,7 +1475,7 @@ namespace ZoologyMod
                 if (activePredatorIdBuffer.Count == 0) return;
 
                 defendCandidateBuffer.Clear();
-                var protectJobDef = DefDatabase<JobDef>.GetNamedSilentFail("Zoology_ProtectPrey");
+                var protectJobDef = protectPreyJobDef ?? (protectPreyJobDef = DefDatabase<JobDef>.GetNamedSilentFail("Zoology_ProtectPrey"));
 
                 for (int i = 0; i < activePredatorIdBuffer.Count; i++)
                 {

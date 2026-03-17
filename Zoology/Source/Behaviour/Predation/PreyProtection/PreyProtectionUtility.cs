@@ -4,15 +4,45 @@ namespace ZoologyMod
 {
     internal static class PreyProtectionUtility
     {
+        private const int RangeCacheIntervalTicks = 60;
+        private static int cachedRange = -1;
+        private static int cachedRangeSquared = -1;
+        private static int lastRangeCacheTick = -RangeCacheIntervalTicks;
+
         public static int GetProtectionRange()
         {
-            return (ZoologyModSettings.Instance != null && ZoologyModSettings.Instance.EnablePredatorDefendCorpse)
+            int currentTick = Find.TickManager?.TicksGame ?? 0;
+            if (currentTick > 0
+                && cachedRange >= 0
+                && currentTick - lastRangeCacheTick < RangeCacheIntervalTicks)
+            {
+                return cachedRange;
+            }
+
+            int range = (ZoologyModSettings.Instance != null && ZoologyModSettings.Instance.EnablePredatorDefendCorpse)
                 ? ZoologyModSettings.Instance.PreyProtectionRange
                 : 20;
+
+            if (currentTick > 0)
+            {
+                cachedRange = range;
+                cachedRangeSquared = range * range;
+                lastRangeCacheTick = currentTick;
+            }
+
+            return range;
         }
 
         public static int GetProtectionRangeSquared()
         {
+            int currentTick = Find.TickManager?.TicksGame ?? 0;
+            if (currentTick > 0
+                && cachedRangeSquared >= 0
+                && currentTick - lastRangeCacheTick < RangeCacheIntervalTicks)
+            {
+                return cachedRangeSquared;
+            }
+
             int range = GetProtectionRange();
             return range * range;
         }

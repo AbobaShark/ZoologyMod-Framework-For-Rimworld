@@ -40,11 +40,6 @@ namespace ZoologyMod.HarmonyPatches
                     }
 
                     
-                    if (eater.def == null || !ZoologyCacheUtility.HasScavengerExtension(eater.def))
-                    {
-                        return true;
-                    }
-
                     var scav = DefModExtensionCache<ModExtension_IsScavenger>.Get(eater.def);
                     if (scav == null)
                     {
@@ -123,11 +118,6 @@ namespace ZoologyMod.HarmonyPatches
                 var eater = ScavengerEatingContext.GetEatingPawnForCorpse(corpse);
                 if (eater == null) return true;
 
-                if (eater.def == null || !ZoologyCacheUtility.HasScavengerExtension(eater.def))
-                {
-                    return true;
-                }
-
                 var scav = DefModExtensionCache<ModExtension_IsScavenger>.Get(eater.def);
                 if (scav == null) return true;
 
@@ -189,11 +179,6 @@ namespace ZoologyMod.HarmonyPatches
                     var eater = ScavengerEatingContext.GetEatingPawnForCorpse(corpse);
                     if (eater == null) return true;
 
-                    if (eater.def == null || !ZoologyCacheUtility.HasScavengerExtension(eater.def))
-                    {
-                        return true;
-                    }
-
                     var scav = DefModExtensionCache<ModExtension_IsScavenger>.Get(eater.def);
                     if (scav == null) return true;
 
@@ -242,8 +227,7 @@ namespace ZoologyMod.HarmonyPatches
                     var settings = ZoologyModSettings.Instance;
                     if (settings != null && !settings.EnableScavengering) return;
                     if (__result == null) return;
-                    if (ingester?.def == null || !ZoologyCacheUtility.HasScavengerExtension(ingester.def)) return;
-                    var scav = DefModExtensionCache<ModExtension_IsScavenger>.Get(ingester.def);
+                    var scav = DefModExtensionCache<ModExtension_IsScavenger>.Get(ingester?.def);
                     if (scav == null) return; 
 
                     Action oldInit = __result.initAction;
@@ -318,18 +302,6 @@ namespace ZoologyMod.HarmonyPatches
             }
         }
 
-        static void Prefix_IngestedCalculateAmounts(Pawn ingester)
-        {
-            try
-            {
-                
-            }
-            catch (Exception e)
-            {
-                Log.Error("[Zoology] Error in Prefix(IngestedCalculateAmounts): " + e);
-            }
-        }
-
         static void Postfix_IngestedCalculateAmounts(Pawn ingester)
         {
             try
@@ -353,7 +325,6 @@ namespace ZoologyMod.HarmonyPatches
             }
 
             static MethodBase TargetMethod() => TargetMethod_IngestedCalculateAmounts();
-            static void Prefix(Pawn ingester) => Prefix_IngestedCalculateAmounts(ingester);
             static void Postfix(Pawn ingester) => Postfix_IngestedCalculateAmounts(ingester);
         }
     }

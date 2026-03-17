@@ -8,8 +8,7 @@ namespace ZoologyMod
 {
     internal static class LargeMammalPredationUtility
     {
-        private static readonly System.Reflection.MethodInfo IsPreyProtectedFromPredatorByFenceMethod =
-            AccessTools.Method(typeof(FoodUtility), "IsPreyProtectedFromPredatorByFence", new[] { typeof(Pawn), typeof(Pawn) });
+        private static readonly Func<Pawn, Pawn, bool> IsPreyProtectedFromPredatorByFenceFunc = CreateFenceProtectionDelegate();
 
         private const float LargeMammalPredatorMinBodySize = 0.5f;
         private const float PreferredPreyRatioMin = 0.5f;
@@ -146,16 +145,34 @@ namespace ZoologyMod
             return result < MinScoreFactor ? MinScoreFactor : result;
         }
 
+        private static Func<Pawn, Pawn, bool> CreateFenceProtectionDelegate()
+        {
+            try
+            {
+                var method = AccessTools.Method(typeof(FoodUtility), "IsPreyProtectedFromPredatorByFence", new[] { typeof(Pawn), typeof(Pawn) });
+                if (method == null)
+                {
+                    return null;
+                }
+
+                return (Func<Pawn, Pawn, bool>)Delegate.CreateDelegate(typeof(Func<Pawn, Pawn, bool>), method);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         private static bool IsPreyProtectedFromPredatorByFence(Pawn predator, Pawn prey)
         {
-            if (IsPreyProtectedFromPredatorByFenceMethod == null || predator == null || prey == null)
+            if (IsPreyProtectedFromPredatorByFenceFunc == null || predator == null || prey == null)
             {
                 return false;
             }
 
             try
             {
-                return (bool)IsPreyProtectedFromPredatorByFenceMethod.Invoke(null, new object[] { predator, prey });
+                return IsPreyProtectedFromPredatorByFenceFunc(predator, prey);
             }
             catch
             {
@@ -224,9 +241,7 @@ namespace ZoologyMod
                 if (p == null) return false;
                 if (!p.IsMammal()) return false;
                 if (p.needs?.food == null) return false; 
-                var curStage = p.ageTracker?.CurLifeStage;
-                if (curStage == null) return false;
-                return string.Equals(curStage.defName, "AnimalBaby", StringComparison.OrdinalIgnoreCase);
+                return AnimalChildcareUtility.IsAnimalBabyLifeStage(p.ageTracker?.CurLifeStage);
             }
             catch (Exception ex)
             {

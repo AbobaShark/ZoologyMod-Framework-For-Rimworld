@@ -307,8 +307,12 @@ namespace ZoologyMod
                             Job curJob = predator.CurJob;
                             if (curJob == null) continue;
 
-                            bool isHuntDriver = curJob.def != null && curJob.def.driverClass != null
-                                                && typeof(JobDriver_PredatorHunt).IsAssignableFrom(curJob.def.driverClass);
+                            bool isHuntDriver = curJob.def == JobDefOf.PredatorHunt;
+                            if (!isHuntDriver)
+                            {
+                                Type driverClass = curJob.def?.driverClass;
+                                isHuntDriver = driverClass != null && typeof(JobDriver_PredatorHunt).IsAssignableFrom(driverClass);
+                            }
                             if (!isHuntDriver)
                             {
                                 inactivePredatorIdsBuffer.Add(predator.thingIDNumber);
@@ -509,7 +513,7 @@ namespace ZoologyMod
                     if (distSq > MIN_DISTANCE_FOR_MELEE_SQ)
                     {
                         try { predator.jobs?.EndCurrentJob(JobCondition.InterruptForced); } catch { }
-                        try { predator.jobs?.jobQueue?.Clear(predator, true); } catch { try { predator.jobs?.jobQueue?.Clear(predator, true); } catch { } }
+                        try { predator.jobs?.jobQueue?.Clear(predator, true); } catch { }
                         try { predator.pather?.StopDead(); } catch { }
                         try
                         {

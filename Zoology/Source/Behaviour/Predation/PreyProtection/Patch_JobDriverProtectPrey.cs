@@ -665,9 +665,7 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(Faction), "Notify_MemberTookDamage")]
     public static class Patch_Faction_Notify_MemberTookDamage
     {
-        private static readonly MethodInfo TookDamageFromPredatorMethod =
-            AccessTools.Method(typeof(Faction), "TookDamageFromPredator", new Type[] { typeof(Pawn) })
-            ?? AccessTools.Method(typeof(Faction), "TookDamageFromPredator");
+        private static readonly Action<Faction, Pawn> TookDamageFromPredatorAction = CreateTookDamageFromPredatorAction();
 
         public static bool Prepare() => PredationSettingsGate.EnablePredatorDefendCorpse();
 
@@ -696,9 +694,9 @@ namespace ZoologyMod
                 {
                     try
                     {
-                        if (TookDamageFromPredatorMethod != null)
+                        if (TookDamageFromPredatorAction != null)
                         {
-                            TookDamageFromPredatorMethod.Invoke(__instance, new object[] { pawn });
+                            TookDamageFromPredatorAction(__instance, pawn);
                         }
                         else
                         {
@@ -716,6 +714,25 @@ namespace ZoologyMod
                 Log.Error($"[ZoologyMod] Patch_Faction_Notify_MemberTookDamage Postfix error: {ex}");
             }
         }
+
+        private static Action<Faction, Pawn> CreateTookDamageFromPredatorAction()
+        {
+            try
+            {
+                var method = AccessTools.Method(typeof(Faction), "TookDamageFromPredator", new Type[] { typeof(Pawn) })
+                    ?? AccessTools.Method(typeof(Faction), "TookDamageFromPredator");
+                if (method == null)
+                {
+                    return null;
+                }
+
+                return (Action<Faction, Pawn>)Delegate.CreateDelegate(typeof(Action<Faction, Pawn>), method);
+            }
+            catch
+            {
+                return null;
+            }
+        }
     }
 
     [HarmonyPatch(typeof(GenHostility), "GetPreyOfMyFaction", new Type[] { typeof(Pawn), typeof(Faction) })]
@@ -730,6 +747,7 @@ namespace ZoologyMod
                 if (__result != null) return;
                 if (predator == null || myFaction == null) return;
                 if (!ProtectPreyState.HasAnyActiveProtectors) return;
+                if (predator.Map != null && !ProtectPreyState.HasActiveProtectorsForMap(predator.Map)) return;
 
                 if (!ProtectPreyState.TryGetProtectedPawnCachedNoTick(predator, out Pawn protectedPawn))
                 {
@@ -785,6 +803,7 @@ namespace ZoologyMod
 
                 if (predator == null || __instance == null) return;
                 if (!ProtectPreyState.HasAnyActiveProtectors) return;
+                if (predator.Map != null && !ProtectPreyState.HasActiveProtectorsForMap(predator.Map)) return;
 
                 if (!ProtectPreyState.TryGetProtectedPawnCachedNoTick(predator, out Pawn protectedPawn))
                 {
@@ -816,6 +835,7 @@ namespace ZoologyMod
 
                 if (predator == null || toFaction == null) return;
                 if (!ProtectPreyState.HasAnyActiveProtectors) return;
+                if (predator.Map != null && !ProtectPreyState.HasActiveProtectorsForMap(predator.Map)) return;
                 if (!ProtectPreyState.TryGetProtectedPawnCachedNoTick(predator, out var targetPawn)) return;
                 if (!targetPawn.Dead && targetPawn.Faction == toFaction)
                 {
@@ -847,6 +867,7 @@ namespace ZoologyMod
                 
                 Pawn searcherPawn = ProtectPreyState.TryGetSearcherPawn(th);
                 if (searcherPawn == null || !searcherPawn.Spawned || searcherPawn.Map == null || searcherPawn.Faction == null) return;
+                if (!ProtectPreyState.HasActiveProtectorsForMap(searcherPawn.Map)) return;
 
                 long now = Find.TickManager?.TicksGame ?? 0L;
                 var protectors = ProtectPreyMapCache.Get(searcherPawn.Map, now);

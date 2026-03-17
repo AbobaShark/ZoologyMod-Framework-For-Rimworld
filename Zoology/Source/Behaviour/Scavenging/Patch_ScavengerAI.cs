@@ -53,7 +53,6 @@ namespace ZoologyMod.HarmonyPatches
                     if (__result != null) return;
                     if (eater == null || getter == null) return;
 
-                    if (eater.def == null || !ZoologyCacheUtility.HasScavengerExtension(eater.def)) return;
                     var scav = DefModExtensionCache<ModExtension_IsScavenger>.Get(eater.def);
                     if (scav == null) return; 
                     int currentTick = Find.TickManager?.TicksGame ?? 0;
@@ -333,7 +332,6 @@ namespace ZoologyMod.HarmonyPatches
                     if (__instance == null) return;
                     Pawn pawn = __instance.pawn;
                     if (pawn == null) return;
-                    if (pawn.def == null || !ZoologyCacheUtility.HasScavengerExtension(pawn.def)) return;
                     var scav = DefModExtensionCache<ModExtension_IsScavenger>.Get(pawn.def);
                     if (scav == null) return;
 

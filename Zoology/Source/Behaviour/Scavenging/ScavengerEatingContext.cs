@@ -13,7 +13,7 @@ namespace ZoologyMod
         public static void SetEating(Pawn pawn, Thing target)
         {
             if (pawn == null) return;
-            if (pawn.def == null || !ZoologyCacheUtility.HasScavengerExtension(pawn.def)) return;
+            if (DefModExtensionCache<ModExtension_IsScavenger>.Get(pawn.def) == null) return;
 
             int pawnId = pawn.thingIDNumber;
 

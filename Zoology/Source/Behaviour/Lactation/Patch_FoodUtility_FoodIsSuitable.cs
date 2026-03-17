@@ -43,8 +43,6 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(FoodUtility), "FoodIsSuitable", new Type[] { typeof(Pawn), typeof(ThingDef) })]
     static class Patch_FoodUtility_FoodIsSuitable
     {
-        private static readonly System.Reflection.PropertyInfo ThingDefIsCorpseProperty = AccessTools.Property(typeof(ThingDef), "IsCorpse");
-
         static bool Prepare() => ZoologyModSettings.EnableMammalLactation;
 
         static bool Prefix(Pawn p, ThingDef food, ref bool __result)
@@ -79,15 +77,9 @@ namespace ZoologyMod
                     return true;
                 }
 
-                if (isBaby)
-                {
-                    bool ok = (food.ingestible != null && food.ingestible.babiesCanIngest) && p.RaceProps.CanEverEat(food);
-                    __result = ok;
-                    return false; 
-                }
-
-                
-                return true;
+                bool ok = (food.ingestible != null && food.ingestible.babiesCanIngest) && p.RaceProps.CanEverEat(food);
+                __result = ok;
+                return false; 
             }
             catch (Exception ex)
             {

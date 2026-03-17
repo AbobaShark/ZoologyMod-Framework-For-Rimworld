@@ -41,8 +41,7 @@ namespace ZoologyMod
             public int Tick { get; }
         }
 
-        private static readonly MethodInfo BestPawnToHuntForPredatorMethod =
-            AccessTools.Method(typeof(FoodUtility), "BestPawnToHuntForPredator", new[] { typeof(Pawn), typeof(bool) });
+        private static readonly Func<Pawn, bool, Pawn> BestPawnToHuntForPredatorFunc = CreateBestPawnToHuntForPredatorDelegate();
         private static readonly Dictionary<long, CorpseFoodStateCacheEntry> corpseFoodStateCacheByPairKey = new Dictionary<long, CorpseFoodStateCacheEntry>(256);
         private static readonly Dictionary<long, FoodOptimalityDeltaCacheEntry> foodOptimalityDeltaCacheByPairKey = new Dictionary<long, FoodOptimalityDeltaCacheEntry>(1024);
 
@@ -545,14 +544,32 @@ namespace ZoologyMod
 
         private static Pawn TryGetVanillaHuntTarget(Pawn predator, bool desperate)
         {
-            if (BestPawnToHuntForPredatorMethod == null || predator == null)
+            if (BestPawnToHuntForPredatorFunc == null || predator == null)
             {
                 return null;
             }
 
             try
             {
-                return BestPawnToHuntForPredatorMethod.Invoke(null, new object[] { predator, desperate }) as Pawn;
+                return BestPawnToHuntForPredatorFunc(predator, desperate);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private static Func<Pawn, bool, Pawn> CreateBestPawnToHuntForPredatorDelegate()
+        {
+            try
+            {
+                var method = AccessTools.Method(typeof(FoodUtility), "BestPawnToHuntForPredator", new[] { typeof(Pawn), typeof(bool) });
+                if (method == null)
+                {
+                    return null;
+                }
+
+                return (Func<Pawn, bool, Pawn>)Delegate.CreateDelegate(typeof(Func<Pawn, bool, Pawn>), method);
             }
             catch
             {

@@ -12,6 +12,14 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(JobGiver_GetFood), "TryGiveJob")]
     public static class HerdPredatorHuntPatch
     {
+        private sealed class HerdCandidateCache
+        {
+            public int Tick = -1;
+            public readonly List<Pawn> Candidates = new List<Pawn>(32);
+        }
+
+        private static readonly Dictionary<int, HerdCandidateCache> herdCandidatesByMapId = new Dictionary<int, HerdCandidateCache>(8);
+
         public static bool Prepare()
         {
             var s = ZoologyModSettings.Instance;
@@ -45,20 +53,24 @@ namespace ZoologyMod
                 if (map == null) return;
 
                 
-                var all = map.mapPawns.AllPawnsSpawned;
                 IntVec3 pawnPosition = pawn.Position;
                 ThingDef pawnDef = pawn.def;
                 int herdRadiusSq = (int)(HerdRadius * HerdRadius);
+                int currentTick = Find.TickManager?.TicksGame ?? 0;
 
-                for (int i = 0; i < all.Count; i++)
+                IReadOnlyList<Pawn> candidates = GetHerdCandidates(map, currentTick);
+                if (candidates == null || candidates.Count == 0)
                 {
-                    Pawn candidate = all[i];
+                    return;
+                }
+
+                for (int i = 0; i < candidates.Count; i++)
+                {
+                    Pawn candidate = candidates[i];
                     if (candidate == null) continue;
                     if (candidate == pawn) continue; 
                     if (candidate.Downed) continue;
                     if (candidate.InMentalState) continue;
-                    if (!candidate.RaceProps.herdAnimal) continue;
-                    if (candidate.Faction != null) continue; 
                     
                     if ((candidate.Position - pawnPosition).LengthHorizontalSquared > herdRadiusSq) continue;
 
@@ -128,6 +140,43 @@ namespace ZoologyMod
             {
                 Log.Warning($"[Zoology] HerdPredatorHuntPatch.Postfix error: {ex}");
             }
+        }
+
+        private static IReadOnlyList<Pawn> GetHerdCandidates(Map map, int currentTick)
+        {
+            if (map?.mapPawns?.AllPawnsSpawned == null)
+            {
+                return null;
+            }
+
+            int mapId = map.uniqueID;
+            if (!herdCandidatesByMapId.TryGetValue(mapId, out HerdCandidateCache cache))
+            {
+                cache = new HerdCandidateCache();
+                herdCandidatesByMapId[mapId] = cache;
+            }
+
+            if (currentTick > 0 && cache.Tick == currentTick)
+            {
+                return cache.Candidates;
+            }
+
+            cache.Tick = currentTick;
+            List<Pawn> candidates = cache.Candidates;
+            candidates.Clear();
+
+            var all = map.mapPawns.AllPawnsSpawned;
+            for (int i = 0; i < all.Count; i++)
+            {
+                Pawn candidate = all[i];
+                if (candidate == null) continue;
+                if (!candidate.Spawned || candidate.Dead || candidate.Destroyed) continue;
+                if (!candidate.RaceProps.herdAnimal) continue;
+                if (candidate.Faction != null) continue;
+                candidates.Add(candidate);
+            }
+
+            return candidates;
         }
     }
 }

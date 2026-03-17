@@ -38,6 +38,8 @@ namespace ZoologyMod
         {
             base.CompTick();
 
+            if (!parent.IsHashIntervalTick(cleanupInterval)) return;
+
             var settings = ZoologyModSettings.Instance;
             if (settings != null && !settings.EnableAgelessPatch) return;
 
@@ -45,7 +47,6 @@ namespace ZoologyMod
             if (pawn == null) return;
             if (pawn.Dead) return;
             if (pawn.health?.hediffSet == null) return;
-            if (!parent.IsHashIntervalTick(cleanupInterval)) return;
 
             try
             {

@@ -9,8 +9,25 @@ namespace ZoologyMod
 {
     internal static class PawnThreatUtility
     {
-        private static readonly System.Reflection.PropertyInfo RacePropsIsMechanoidProperty =
-            AccessTools.Property(typeof(RaceProperties), "IsMechanoid");
+        private static readonly Func<RaceProperties, bool> RacePropsIsMechanoidGetter = CreateRacePropsIsMechanoidGetter();
+
+        private static Func<RaceProperties, bool> CreateRacePropsIsMechanoidGetter()
+        {
+            try
+            {
+                var getter = AccessTools.PropertyGetter(typeof(RaceProperties), "IsMechanoid");
+                if (getter == null)
+                {
+                    return null;
+                }
+
+                return (Func<RaceProperties, bool>)Delegate.CreateDelegate(typeof(Func<RaceProperties, bool>), getter);
+            }
+            catch
+            {
+                return null;
+            }
+        }
 
         public static bool IsHumanlikeOrMechanoid(Pawn pawn)
         {
@@ -24,15 +41,14 @@ namespace ZoologyMod
                 return true;
             }
 
-            if (RacePropsIsMechanoidProperty == null)
+            if (RacePropsIsMechanoidGetter == null)
             {
                 return false;
             }
 
             try
             {
-                object value = RacePropsIsMechanoidProperty.GetValue(pawn.RaceProps, null);
-                return value is bool isMechanoid && isMechanoid;
+                return RacePropsIsMechanoidGetter(pawn.RaceProps);
             }
             catch
             {
@@ -212,6 +228,15 @@ namespace ZoologyMod
                 HasCloseMeleeHumanlikeThreats = false;
                 HasCloseMeleePredatorThreats = false;
             }
+        }
+
+        private enum ThreatSearchMode
+        {
+            Humanlike,
+            SmallPetRaider,
+            Carrier,
+            PredatorActive,
+            PredatorPassive
         }
 
         private static class ThreatMapCache
@@ -1740,24 +1765,13 @@ namespace ZoologyMod
 
             try
             {
-                Pawn nearestThreat = null;
-                float bestDistanceSquared = radius * radius;
-                ForEachThreatInRange(
+                return FindNearestThreatInRange(
                     cache.HumanlikeThreatsByBucket,
                     pawn,
                     radius,
-                    (threat, distanceSquared) =>
-                    {
-                        if (distanceSquared >= bestDistanceSquared || !IsHumanlikeThreatCandidate(threat, pawn))
-                        {
-                            return;
-                        }
-
-                        nearestThreat = threat;
-                        bestDistanceSquared = distanceSquared;
-                    });
-
-                return nearestThreat;
+                    ThreatSearchMode.Humanlike,
+                    0f,
+                    out _);
             }
             catch (Exception ex)
             {
@@ -1813,24 +1827,13 @@ namespace ZoologyMod
                     return null;
                 }
 
-                Pawn nearestThreat = null;
-                float bestDistanceSquared = SmallPetRaiderThreatSearchRadius * SmallPetRaiderThreatSearchRadius;
-                ForEachThreatInRange(
+                return FindNearestThreatInRange(
                     cache.HumanlikeThreatsByBucket,
                     pawn,
                     SmallPetRaiderThreatSearchRadius,
-                    (threat, distanceSquared) =>
-                    {
-                        if (distanceSquared >= bestDistanceSquared || !IsSmallPetRaiderThreatCandidate(threat, pawn))
-                        {
-                            return;
-                        }
-
-                        nearestThreat = threat;
-                        bestDistanceSquared = distanceSquared;
-                    });
-
-                return nearestThreat;
+                    ThreatSearchMode.SmallPetRaider,
+                    0f,
+                    out _);
             }
             catch (Exception ex)
             {
@@ -1855,28 +1858,21 @@ namespace ZoologyMod
                     return null;
                 }
 
-                Pawn nearestThreat = null;
-                float bestDistanceSquared = float.MaxValue;
                 float preyBodySize = pawn.BodySize;
-                int bestFleeDistance = CarrierFleeDistanceDefault;
-                ForEachThreatInRange(
+                Pawn nearestThreat = FindNearestThreatInRange(
                     cache.CarrierThreatsByBucket,
                     pawn,
                     cache.MaxCarrierThreatRadius,
-                    (threat, distanceSquared) =>
-                    {
-                        if (distanceSquared >= bestDistanceSquared
-                            || !IsCarrierThreatCandidate(threat, pawn, preyBodySize, distanceSquared, out ModExtension_FleeFromCarrier extension))
-                        {
-                            return;
-                        }
+                    ThreatSearchMode.Carrier,
+                    preyBodySize,
+                    out ModExtension_FleeFromCarrier extension);
 
-                        nearestThreat = threat;
-                        bestDistanceSquared = distanceSquared;
-                        bestFleeDistance = extension.fleeDistance ?? CarrierFleeDistanceDefault;
-                    });
+                if (nearestThreat == null)
+                {
+                    return null;
+                }
 
-                fleeDistance = bestFleeDistance;
+                fleeDistance = extension?.fleeDistance ?? CarrierFleeDistanceDefault;
                 return nearestThreat;
             }
             catch (Exception ex)
@@ -2136,22 +2132,13 @@ namespace ZoologyMod
                     return null;
                 }
 
-                Pawn nearestActiveThreat = null;
-                float bestActiveDistanceSquared = radius * radius;
-                ForEachThreatInRange(
+                Pawn nearestActiveThreat = FindNearestThreatInRange(
                     cache.ActivePredatorThreatsByBucket,
                     pawn,
                     radius,
-                    (threat, distanceSquared) =>
-                    {
-                        if (distanceSquared >= bestActiveDistanceSquared || !IsTrackedActivePredatorThreatStillValid(threat, pawn, radius))
-                        {
-                            return;
-                        }
-
-                        nearestActiveThreat = threat;
-                        bestActiveDistanceSquared = distanceSquared;
-                    });
+                    ThreatSearchMode.PredatorActive,
+                    0f,
+                    out _);
 
                 if (nearestActiveThreat != null || !allowNonHostilePredators)
                 {
@@ -2159,24 +2146,13 @@ namespace ZoologyMod
                 }
 
                 float passiveRadius = radius * NonHostilePredatorSearchRadiusFactor;
-                Pawn nearestPassiveThreat = null;
-                float bestPassiveDistanceSquared = passiveRadius * passiveRadius;
-                ForEachThreatInRange(
+                return FindNearestThreatInRange(
                     cache.PassivePredatorThreatsByBucket,
                     pawn,
                     passiveRadius,
-                    (threat, distanceSquared) =>
-                    {
-                        if (distanceSquared >= bestPassiveDistanceSquared || !IsTrackedPassivePredatorThreatStillValid(threat, pawn, passiveRadius))
-                        {
-                            return;
-                        }
-
-                        nearestPassiveThreat = threat;
-                        bestPassiveDistanceSquared = distanceSquared;
-                    });
-
-                return nearestPassiveThreat;
+                    ThreatSearchMode.PredatorPassive,
+                    0f,
+                    out _);
             }
             catch (Exception ex)
             {
@@ -2192,11 +2168,13 @@ namespace ZoologyMod
                 return null;
             }
 
-            float bestActiveDistanceSquared = radius * radius;
+            float radiusSquared = radius * radius;
+            float bestActiveDistanceSquared = radiusSquared;
             Pawn nearestActiveThreat = null;
 
             float passiveRadius = radius * NonHostilePredatorSearchRadiusFactor;
-            float bestPassiveDistanceSquared = passiveRadius * passiveRadius;
+            float passiveRadiusSquared = passiveRadius * passiveRadius;
+            float bestPassiveDistanceSquared = passiveRadiusSquared;
             Pawn nearestPassiveThreat = null;
 
             IReadOnlyList<Pawn> pawns = pawn.Map.mapPawns.AllPawnsSpawned;
@@ -2216,7 +2194,8 @@ namespace ZoologyMod
                 }
 
                 float distanceSquared = (threat.Position - pawnPosition).LengthHorizontalSquared;
-                if (distanceSquared <= bestActiveDistanceSquared && IsTrackedActivePredatorThreatStillValid(threat, pawn, radius))
+                if (distanceSquared <= bestActiveDistanceSquared
+                    && IsTrackedActivePredatorThreatStillValid(threat, pawn, radiusSquared, distanceSquared))
                 {
                     nearestActiveThreat = threat;
                     bestActiveDistanceSquared = distanceSquared;
@@ -2228,7 +2207,7 @@ namespace ZoologyMod
                     continue;
                 }
 
-                if (IsTrackedPassivePredatorThreatStillValid(threat, pawn, passiveRadius))
+                if (IsTrackedPassivePredatorThreatStillValid(threat, pawn, passiveRadiusSquared, distanceSquared))
                 {
                     nearestPassiveThreat = threat;
                     bestPassiveDistanceSquared = distanceSquared;
@@ -2243,15 +2222,18 @@ namespace ZoologyMod
             return nearestPassiveThreat;
         }
 
-        private static void ForEachThreatInRange(
+        private static Pawn FindNearestThreatInRange(
             Dictionary<int, List<Pawn>> threatsByBucket,
             Pawn prey,
             float radius,
-            Action<Pawn, float> action)
+            ThreatSearchMode mode,
+            float preyBodySize,
+            out ModExtension_FleeFromCarrier carrierExtension)
         {
-            if (threatsByBucket == null || prey?.Map == null || action == null)
+            carrierExtension = null;
+            if (threatsByBucket == null || prey?.Map == null || radius < 0f)
             {
-                return;
+                return null;
             }
 
             int radiusCeiling = (int)Math.Ceiling(radius);
@@ -2261,6 +2243,8 @@ namespace ZoologyMod
             int minBucketZ = Math.Max(0, (preyPosition.z - radiusCeiling) / ThreatBucketSize);
             int maxBucketZ = Math.Max(0, (preyPosition.z + radiusCeiling) / ThreatBucketSize);
             float radiusSquared = radius * radius;
+            float bestDistanceSquared = radiusSquared;
+            Pawn nearestThreat = null;
 
             for (int bucketZ = minBucketZ; bucketZ <= maxBucketZ; bucketZ++)
             {
@@ -2280,15 +2264,53 @@ namespace ZoologyMod
                         }
 
                         float distanceSquared = (threat.Position - preyPosition).LengthHorizontalSquared;
-                        if (distanceSquared > radiusSquared)
+                        if (distanceSquared > radiusSquared || distanceSquared >= bestDistanceSquared)
                         {
                             continue;
                         }
 
-                        action(threat, distanceSquared);
+                        switch (mode)
+                        {
+                            case ThreatSearchMode.Humanlike:
+                                if (!IsHumanlikeThreatCandidate(threat, prey))
+                                {
+                                    continue;
+                                }
+                                break;
+                            case ThreatSearchMode.SmallPetRaider:
+                                if (!IsSmallPetRaiderThreatCandidate(threat, prey))
+                                {
+                                    continue;
+                                }
+                                break;
+                            case ThreatSearchMode.Carrier:
+                                if (!IsCarrierThreatCandidate(threat, prey, preyBodySize, distanceSquared, out ModExtension_FleeFromCarrier extension))
+                                {
+                                    continue;
+                                }
+                                carrierExtension = extension;
+                                break;
+                            case ThreatSearchMode.PredatorActive:
+                                if (!IsTrackedActivePredatorThreatStillValid(threat, prey, radiusSquared, distanceSquared))
+                                {
+                                    continue;
+                                }
+                                break;
+                            case ThreatSearchMode.PredatorPassive:
+                                if (!IsTrackedPassivePredatorThreatStillValid(threat, prey, radiusSquared, distanceSquared))
+                                {
+                                    continue;
+                                }
+                                break;
+                        }
+
+                        nearestThreat = threat;
+                        bestDistanceSquared = distanceSquared;
                     }
                 }
             }
+
+            return nearestThreat;
         }
 
         private static bool HasThreatBucketsInRange(
@@ -2333,17 +2355,11 @@ namespace ZoologyMod
                 return false;
             }
 
-            return predator.Spawned
-                && !predator.Dead
-                && !predator.Destroyed
-                && !predator.Downed
-                && predator.Map == prey.Map
-                && predator.RaceProps?.predator == true
-                && TryGetThreatTargetPawn(predator, out _)
-                && (predator.Position - prey.Position).LengthHorizontalSquared <= radius * radius;
+            float distanceSquared = (predator.Position - prey.Position).LengthHorizontalSquared;
+            return IsTrackedActivePredatorThreatStillValid(predator, prey, radius * radius, distanceSquared);
         }
 
-        private static bool IsTrackedPassivePredatorThreatStillValid(Pawn predator, Pawn prey, float radius)
+        private static bool IsTrackedActivePredatorThreatStillValid(Pawn predator, Pawn prey, float radiusSquared, float distanceSquared)
         {
             if (predator == null || prey == null)
             {
@@ -2356,7 +2372,35 @@ namespace ZoologyMod
                 && !predator.Downed
                 && predator.Map == prey.Map
                 && predator.RaceProps?.predator == true
-                && (predator.Position - prey.Position).LengthHorizontalSquared <= radius * radius
+                && TryGetThreatTargetPawn(predator, out _)
+                && distanceSquared <= radiusSquared;
+        }
+
+        private static bool IsTrackedPassivePredatorThreatStillValid(Pawn predator, Pawn prey, float radius)
+        {
+            if (predator == null || prey == null)
+            {
+                return false;
+            }
+
+            float distanceSquared = (predator.Position - prey.Position).LengthHorizontalSquared;
+            return IsTrackedPassivePredatorThreatStillValid(predator, prey, radius * radius, distanceSquared);
+        }
+
+        private static bool IsTrackedPassivePredatorThreatStillValid(Pawn predator, Pawn prey, float radiusSquared, float distanceSquared)
+        {
+            if (predator == null || prey == null)
+            {
+                return false;
+            }
+
+            return predator.Spawned
+                && !predator.Dead
+                && !predator.Destroyed
+                && !predator.Downed
+                && predator.Map == prey.Map
+                && predator.RaceProps?.predator == true
+                && distanceSquared <= radiusSquared
                 && IsAcceptablePrey(predator, prey);
         }
 

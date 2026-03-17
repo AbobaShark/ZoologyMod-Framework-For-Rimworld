@@ -13,6 +13,7 @@ namespace ZoologyMod
 
         
         private const int LOG_COOLDOWN_TICKS = ZoologyTickLimiter.PreyProtection.PresenceLogCooldownTicks;
+        private static JobDef gotoJobDef;
 
         private static readonly Dictionary<string, long> _lastLogTick = new Dictionary<string, long>();
         private static readonly Dictionary<int, long> _transientBlockTick = new Dictionary<int, long>();
@@ -246,7 +247,7 @@ namespace ZoologyMod
                             return;
                         }
 
-                        var gotoDef = DefDatabase<JobDef>.GetNamedSilentFail("Goto");
+                        var gotoDef = gotoJobDef ?? (gotoJobDef = DefDatabase<JobDef>.GetNamedSilentFail("Goto"));
                         if (gotoDef != null)
                         {
                             var gotoJob = JobMaker.MakeJob(gotoDef, corpsePos);
@@ -267,7 +268,7 @@ namespace ZoologyMod
 
                 try
                 {
-                    var gotoDef2 = DefDatabase<JobDef>.GetNamedSilentFail("Goto");
+                    var gotoDef2 = gotoJobDef ?? (gotoJobDef = DefDatabase<JobDef>.GetNamedSilentFail("Goto"));
                     if (gotoDef2 != null)
                     {
                         var gotoJob2 = JobMaker.MakeJob(gotoDef2, dest);
@@ -285,7 +286,7 @@ namespace ZoologyMod
                 {
                     try
                     {
-                        var gotoDef3 = DefDatabase<JobDef>.GetNamedSilentFail("Goto");
+                        var gotoDef3 = gotoJobDef ?? (gotoJobDef = DefDatabase<JobDef>.GetNamedSilentFail("Goto"));
                         if (gotoDef3 != null)
                         {
                             var j = JobMaker.MakeJob(gotoDef3, dest);
