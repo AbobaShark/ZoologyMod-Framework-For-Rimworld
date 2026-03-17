@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using HarmonyLib;
 using RimWorld;
 using Verse;
@@ -53,6 +54,153 @@ namespace ZoologyMod
             catch
             {
                 return false;
+            }
+        }
+    }
+
+    internal sealed class JobGiver_AnimalFlee_Zoology : JobGiver_AnimalFlee
+    {
+        protected override Job TryGiveJob(Pawn pawn)
+        {
+            Job result = base.TryGiveJob(pawn);
+            Patch_AnimalFleeFromPredators.ApplyZoologyFleeLogic(this, pawn, ref result);
+            return result;
+        }
+    }
+
+    [StaticConstructorOnStartup]
+    internal static class ZoologyAnimalFleeThinkTreeInjector
+    {
+        private static readonly FieldInfo ThinkNodeSubNodesField = AccessTools.Field(typeof(ThinkNode), "subNodes");
+        private static readonly FieldInfo ThinkNodeParentField = AccessTools.Field(typeof(ThinkNode), "parent");
+
+        static ZoologyAnimalFleeThinkTreeInjector()
+        {
+            TryReplaceJobGivers();
+        }
+
+        private static void TryReplaceJobGivers()
+        {
+            try
+            {
+                int replaced = 0;
+                List<ThinkTreeDef> defs = DefDatabase<ThinkTreeDef>.AllDefsListForReading;
+                if (defs != null)
+                {
+                    for (int i = 0; i < defs.Count; i++)
+                    {
+                        ThinkTreeDef def = defs[i];
+                        if (def?.thinkRoot == null)
+                        {
+                            continue;
+                        }
+
+                        replaced += ReplaceInNode(def.thinkRoot, null);
+                    }
+                }
+
+                if (Prefs.DevMode && replaced > 0)
+                {
+                    Log.Message($"[Zoology] Replaced {replaced} JobGiver_AnimalFlee nodes with Zoology version.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"[ZoologyMod] ThinkTree replacement failed: {ex}");
+            }
+        }
+
+        private static int ReplaceInNode(ThinkNode node, ThinkNode parent)
+        {
+            if (node == null)
+            {
+                return 0;
+            }
+
+            ThinkNode current = node;
+            int replaced = 0;
+
+            if (node is JobGiver_AnimalFlee && !(node is JobGiver_AnimalFlee_Zoology))
+            {
+                JobGiver_AnimalFlee_Zoology replacement = new JobGiver_AnimalFlee_Zoology();
+                CopyInstanceFields(node, replacement);
+
+                if (parent != null)
+                {
+                    List<ThinkNode> parentSubNodes = GetSubNodes(parent);
+                    if (parentSubNodes != null)
+                    {
+                        int index = parentSubNodes.IndexOf(node);
+                        if (index >= 0)
+                        {
+                            parentSubNodes[index] = replacement;
+                        }
+                    }
+
+                    SetParent(replacement, parent);
+                }
+
+                current = replacement;
+                replaced++;
+            }
+
+            List<ThinkNode> subNodes = GetSubNodes(current);
+            if (subNodes == null || subNodes.Count == 0)
+            {
+                return replaced;
+            }
+
+            for (int i = 0; i < subNodes.Count; i++)
+            {
+                ThinkNode child = subNodes[i];
+                if (child == null)
+                {
+                    continue;
+                }
+
+                SetParent(child, current);
+                replaced += ReplaceInNode(child, current);
+            }
+
+            return replaced;
+        }
+
+        private static List<ThinkNode> GetSubNodes(ThinkNode node)
+        {
+            return ThinkNodeSubNodesField?.GetValue(node) as List<ThinkNode>;
+        }
+
+        private static void SetParent(ThinkNode node, ThinkNode parent)
+        {
+            if (ThinkNodeParentField != null)
+            {
+                ThinkNodeParentField.SetValue(node, parent);
+            }
+        }
+
+        private static void CopyInstanceFields(object source, object destination)
+        {
+            if (source == null || destination == null)
+            {
+                return;
+            }
+
+            Type type = source.GetType();
+            while (type != null && type != typeof(object))
+            {
+                FieldInfo[] fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                for (int i = 0; i < fields.Length; i++)
+                {
+                    FieldInfo field = fields[i];
+                    if (field.IsStatic)
+                    {
+                        continue;
+                    }
+
+                    field.SetValue(destination, field.GetValue(source));
+                }
+
+                type = type.BaseType;
             }
         }
     }
@@ -163,7 +311,8 @@ namespace ZoologyMod
                 bool allowNonHostilePredators,
                 Pawn threat,
                 bool hasThreat,
-                int tick)
+                int tick,
+                int expireTick)
             {
                 MapId = mapId;
                 MapRefreshTick = mapRefreshTick;
@@ -173,6 +322,7 @@ namespace ZoologyMod
                 Threat = threat;
                 HasThreat = hasThreat;
                 Tick = tick;
+                ExpireTick = expireTick;
             }
 
             public int MapId { get; }
@@ -183,6 +333,23 @@ namespace ZoologyMod
             public Pawn Threat { get; }
             public bool HasThreat { get; }
             public int Tick { get; }
+            public int ExpireTick { get; }
+        }
+
+        private readonly struct PawnFleeDecisionCacheEntry
+        {
+            public PawnFleeDecisionCacheEntry(int tick, int mapId, bool hasJob, Job job)
+            {
+                Tick = tick;
+                MapId = mapId;
+                HasJob = hasJob;
+                Job = job;
+            }
+
+            public int Tick { get; }
+            public int MapId { get; }
+            public bool HasJob { get; }
+            public Job Job { get; }
         }
 
         private sealed class ThreatScanBudgetEntry
@@ -203,6 +370,7 @@ namespace ZoologyMod
             public float MaxCarrierThreatRadius;
             public int AnimalCount;
             public int ScanIntervalTicks = 1;
+            public int RefreshIntervalTicks = ThreatMapRefreshIntervalTicks;
             public bool HasHumanlikeThreats;
             public bool HasActivePredatorThreats;
             public bool HasPassivePredatorThreats;
@@ -221,6 +389,7 @@ namespace ZoologyMod
                 MaxCarrierThreatRadius = 0f;
                 AnimalCount = 0;
                 ScanIntervalTicks = 1;
+                RefreshIntervalTicks = ThreatMapRefreshIntervalTicks;
                 HasHumanlikeThreats = false;
                 HasActivePredatorThreats = false;
                 HasPassivePredatorThreats = false;
@@ -257,7 +426,7 @@ namespace ZoologyMod
                     return false;
                 }
 
-                return currentTick > 0 && currentTick - data.RefreshTick < ThreatMapRefreshIntervalTicks;
+                return currentTick > 0 && currentTick - data.RefreshTick < data.RefreshIntervalTicks;
             }
 
             public static bool TryGetLastKnown(Map map, out ThreatMapCacheData data)
@@ -280,7 +449,7 @@ namespace ZoologyMod
                     byMapId[mapId] = data;
                 }
 
-                if (currentTick > 0 && currentTick - data.RefreshTick < ThreatMapRefreshIntervalTicks)
+                if (currentTick > 0 && currentTick - data.RefreshTick < data.RefreshIntervalTicks)
                 {
                     return data;
                 }
@@ -393,6 +562,7 @@ namespace ZoologyMod
                 }
 
                 data.ScanIntervalTicks = CalculateScanIntervalTicks(data.AnimalCount);
+                data.RefreshIntervalTicks = CalculateThreatMapRefreshIntervalTicks(data.AnimalCount);
             }
 
             private static void AddHumanlikeThreatInfluence(ThreatMapCacheData data, Pawn threat)
@@ -534,6 +704,16 @@ namespace ZoologyMod
                 if (animalCount >= 80) return 2;
                 return 1;
             }
+
+            private static int CalculateThreatMapRefreshIntervalTicks(int animalCount)
+            {
+                if (animalCount >= 1200) return 360;
+                if (animalCount >= 640) return 300;
+                if (animalCount >= 320) return 240;
+                if (animalCount >= 160) return 180;
+                if (animalCount >= 80) return 120;
+                return ThreatMapRefreshIntervalTicks;
+            }
         }
 
         private static readonly Dictionary<int, NoThreatScanCacheEntry> noThreatScanCacheByPawnId = new Dictionary<int, NoThreatScanCacheEntry>(128);
@@ -542,6 +722,9 @@ namespace ZoologyMod
         private static readonly Dictionary<NearbyThreatBucketCacheKey, NearbyThreatBucketsCacheEntry> nearbyThreatBucketsCacheByBucketKey = new Dictionary<NearbyThreatBucketCacheKey, NearbyThreatBucketsCacheEntry>(256);
         private static readonly Dictionary<int, NearestPredatorThreatCacheEntry> nearestPredatorThreatCacheByPawnId = new Dictionary<int, NearestPredatorThreatCacheEntry>(256);
         private static readonly Dictionary<int, ThreatScanBudgetEntry> threatScanBudgetByMapId = new Dictionary<int, ThreatScanBudgetEntry>(8);
+        private static readonly Dictionary<int, PawnFleeDecisionCacheEntry> pawnFleeDecisionCacheByPawnId = new Dictionary<int, PawnFleeDecisionCacheEntry>(512);
+        private static readonly Dictionary<JobDef, bool> foodJobByDefCache = new Dictionary<JobDef, bool>(64);
+        private static readonly Dictionary<Type, bool> foodJobDriverByTypeCache = new Dictionary<Type, bool>(64);
 
         private const float PredatorSearchRadius = 12f;
         private const float NonHostilePredatorSearchRadiusFactor = 0.5f;
@@ -557,7 +740,7 @@ namespace ZoologyMod
         private const int NearbyThreatBucketsCacheDurationTicks = ZoologyTickLimiter.FleeThreat.NearbyThreatBucketsCacheDurationTicks;
         private const int NearestPredatorThreatCacheDurationTicks = ZoologyTickLimiter.FleeThreat.NearestPredatorThreatCacheDurationTicks;
         private const int ThreatCacheCleanupIntervalTicks = ZoologyTickLimiter.FleeThreat.ThreatCacheCleanupIntervalTicks;
-        private const int ThreatBucketSize = 8;
+        private const int ThreatBucketSize = 16;
         private const int MinThreatScanIntervalTicks = ZoologyTickLimiter.FleeThreat.MinThreatScanIntervalTicks;
         private const int ThreatScanBudgetMin = 8;
         private const int ThreatScanBudgetBase = 12;
@@ -586,6 +769,16 @@ namespace ZoologyMod
 
         public static void Postfix(JobGiver_AnimalFlee __instance, Pawn pawn, ref Job __result)
         {
+            if (__instance is JobGiver_AnimalFlee_Zoology)
+            {
+                return;
+            }
+
+            ApplyZoologyFleeLogic(__instance, pawn, ref __result);
+        }
+
+        internal static void ApplyZoologyFleeLogic(JobGiver_AnimalFlee __instance, Pawn pawn, ref Job __result)
+        {
             try
             {
                 ZoologyModSettings settings = ZoologyModSettings.Instance;
@@ -596,6 +789,7 @@ namespace ZoologyMod
                     && settings.EnableIgnoreSmallPetsByRaiders
                     && settings.EnableSmallPetFleeFromRaiders;
                 int currentTick = Find.TickManager?.TicksGame ?? 0;
+                void CacheDecision(Job job) => StorePawnFleeDecisionCache(pawn, currentTick, job);
 
                 RaceProperties raceProps = pawn?.RaceProps;
                 if (pawn == null || pawn.Map == null || raceProps == null || !raceProps.Animal || pawn.Dead || pawn.Destroyed)
@@ -614,6 +808,15 @@ namespace ZoologyMod
                     return;
                 }
 
+                if (TryGetPawnFleeDecisionCache(pawn, currentTick, out bool hasCachedJob, out Job cachedJob))
+                {
+                    if (hasCachedJob)
+                    {
+                        __result = cachedJob;
+                    }
+                    return;
+                }
+
                 bool allowNonHostilePredators = settings != null
                     && settings.EnablePreyFleeFromPredators
                     && settings.AnimalsFleeFromNonHostlePredators;
@@ -627,6 +830,7 @@ namespace ZoologyMod
                     fleeFromCarriersEnabled,
                     fleeFromRaidersForSmallPetsEnabled))
                 {
+                    CacheDecision(null);
                     return;
                 }
 
@@ -642,6 +846,7 @@ namespace ZoologyMod
                         fleeFromHumansEnabled,
                         fleeFromCarriersEnabled,
                         fleeFromRaidersForSmallPetsEnabled);
+                    CacheDecision(null);
                     return;
                 }
 
@@ -652,6 +857,7 @@ namespace ZoologyMod
                     {
                         __result = predatorFleeJob;
                     }
+                    CacheDecision(__result);
                     return;
                 }
 
@@ -662,6 +868,7 @@ namespace ZoologyMod
                     {
                         ClearNoThreatScanCache(pawn);
                         __result = carrierJob;
+                        CacheDecision(__result);
                         return;
                     }
                 }
@@ -673,6 +880,7 @@ namespace ZoologyMod
                     {
                         ClearNoThreatScanCache(pawn);
                         __result = smallPetRaiderFleeJob;
+                        CacheDecision(__result);
                         return;
                     }
                 }
@@ -689,6 +897,7 @@ namespace ZoologyMod
                             fleeFromCarriersEnabled,
                             fleeFromRaidersForSmallPetsEnabled);
                     }
+                    CacheDecision(__result);
                     return;
                 }
 
@@ -697,6 +906,7 @@ namespace ZoologyMod
                 {
                     ClearNoThreatScanCache(pawn);
                     __result = humanJob;
+                    CacheDecision(__result);
                     return;
                 }
 
@@ -710,6 +920,7 @@ namespace ZoologyMod
                         fleeFromCarriersEnabled,
                         fleeFromRaidersForSmallPetsEnabled);
                 }
+                CacheDecision(__result);
             }
             catch (Exception e)
             {
@@ -727,13 +938,21 @@ namespace ZoologyMod
             }
 
             bool preyIsPhotonozoa = ZoologyCacheUtility.IsPhotonozoa(pawn.def);
-            bool foodJobActive = IsFoodSeekingOrEatingJob(pawn);
+            bool foodJobActive = false;
+            bool foodJobActiveKnown = false;
             int currentTick = Find.TickManager?.TicksGame ?? 0;
             if (!TryGetThreatCache(pawn, refreshIfNeeded: true, out ThreatMapCacheData threatCache))
             {
                 if (TryConsumeFallbackThreatScanBudget(currentTick))
                 {
                     Pawn fallbackThreat = FindNearestPredatorThreatFallback(pawn, PredatorSearchRadius, allowNonHostilePredators);
+                    if (fallbackThreat == null)
+                    {
+                        return false;
+                    }
+
+                    foodJobActive = IsFoodSeekingOrEatingJob(pawn);
+                    foodJobActiveKnown = true;
                     return TryBuildPredatorFleeJob(pawn, fallbackThreat, preyIsPhotonozoa, foodJobActive, out fleeJob);
                 }
 
@@ -752,15 +971,31 @@ namespace ZoologyMod
                 if (TryConsumeFallbackThreatScanBudget(currentTick))
                 {
                     Pawn fallbackThreat = FindNearestPredatorThreatFallback(pawn, PredatorSearchRadius, allowNonHostilePredators);
+                    if (fallbackThreat == null)
+                    {
+                        return false;
+                    }
+
+                    if (!foodJobActiveKnown)
+                    {
+                        foodJobActive = IsFoodSeekingOrEatingJob(pawn);
+                        foodJobActiveKnown = true;
+                    }
+
                     return TryBuildPredatorFleeJob(pawn, fallbackThreat, preyIsPhotonozoa, foodJobActive, out fleeJob);
                 }
 
                 return false;
             }
 
-            if (foodJobActive && !threatCache.HasActivePredatorThreats)
+            if (!threatCache.HasActivePredatorThreats && allowNonHostilePredators)
             {
-                return false;
+                foodJobActive = IsFoodSeekingOrEatingJob(pawn);
+                foodJobActiveKnown = true;
+                if (foodJobActive)
+                {
+                    return false;
+                }
             }
 
             Pawn threat;
@@ -778,6 +1013,17 @@ namespace ZoologyMod
             else if (!hasCachedThreat)
             {
                 return false;
+            }
+
+            if (threat == null)
+            {
+                return false;
+            }
+
+            if (!foodJobActiveKnown)
+            {
+                foodJobActive = IsFoodSeekingOrEatingJob(pawn);
+                foodJobActiveKnown = true;
             }
 
             return TryBuildPredatorFleeJob(pawn, threat, preyIsPhotonozoa, foodJobActive, out fleeJob);
@@ -1080,6 +1326,62 @@ namespace ZoologyMod
                 return true;
             }
 
+            if (TryGetNearbyThreatBucketsCache(
+                pawn,
+                freshThreatCache,
+                predatorsEnabled,
+                allowNonHostilePredators,
+                humansEnabled,
+                carriersEnabled,
+                smallPetRaidersEnabled,
+                currentTick,
+                out bool hasNearbyThreatBuckets))
+            {
+                if (!hasNearbyThreatBuckets)
+                {
+                    RememberNoThreatScan(
+                        pawn,
+                        currentTick,
+                        predatorsEnabled,
+                        humansEnabled,
+                        carriersEnabled,
+                        smallPetRaidersEnabled);
+                    return true;
+                }
+            }
+            else
+            {
+                hasNearbyThreatBuckets = HasNearbyRelevantThreatBuckets(
+                    freshThreatCache,
+                    pawn,
+                    predatorsEnabled,
+                    allowNonHostilePredators,
+                    humansEnabled,
+                    carriersEnabled,
+                    smallPetRaidersEnabled);
+                StoreNearbyThreatBucketsCache(
+                    pawn,
+                    freshThreatCache,
+                    predatorsEnabled,
+                    allowNonHostilePredators,
+                    humansEnabled,
+                    carriersEnabled,
+                    smallPetRaidersEnabled,
+                    hasNearbyThreatBuckets,
+                    currentTick);
+                if (!hasNearbyThreatBuckets)
+                {
+                    RememberNoThreatScan(
+                        pawn,
+                        currentTick,
+                        predatorsEnabled,
+                        humansEnabled,
+                        carriersEnabled,
+                        smallPetRaidersEnabled);
+                    return true;
+                }
+            }
+
             int scanIntervalTicks = freshThreatCache.ScanIntervalTicks;
             if (scanIntervalTicks < MinThreatScanIntervalTicks)
             {
@@ -1148,7 +1450,7 @@ namespace ZoologyMod
                 && lastFreshThreatCacheTick == currentTick
                 && lastFreshThreatCacheMapId == mapId
                 && lastFreshThreatCacheData != null
-                && currentTick - lastFreshThreatCacheData.RefreshTick < ThreatMapRefreshIntervalTicks)
+                && currentTick - lastFreshThreatCacheData.RefreshTick < lastFreshThreatCacheData.RefreshIntervalTicks)
             {
                 cache = lastFreshThreatCacheData;
                 return true;
@@ -1353,7 +1655,7 @@ namespace ZoologyMod
                 || cached.BucketX != bucketX
                 || cached.BucketZ != bucketZ
                 || cached.AllowNonHostilePredators != allowNonHostilePredators
-                || currentTick - cached.Tick > NearestPredatorThreatCacheDurationTicks)
+                || currentTick > cached.ExpireTick)
             {
                 nearestPredatorThreatCacheByPawnId.Remove(pawnId);
                 return false;
@@ -1404,6 +1706,12 @@ namespace ZoologyMod
             }
 
             IntVec3 position = pawn.Position;
+            int cacheDurationTicks = CalculateNearestPredatorThreatCacheDurationTicks(cache.AnimalCount);
+            if (cacheDurationTicks < 1)
+            {
+                cacheDurationTicks = 1;
+            }
+
             nearestPredatorThreatCacheByPawnId[pawn.thingIDNumber] = new NearestPredatorThreatCacheEntry(
                 pawn.Map.uniqueID,
                 cache.RefreshTick,
@@ -1412,7 +1720,18 @@ namespace ZoologyMod
                 allowNonHostilePredators,
                 threat,
                 hasThreat,
-                currentTick);
+                currentTick,
+                currentTick + cacheDurationTicks);
+        }
+
+        private static int CalculateNearestPredatorThreatCacheDurationTicks(int animalCount)
+        {
+            if (animalCount >= 1200) return 90;
+            if (animalCount >= 640) return 75;
+            if (animalCount >= 320) return 60;
+            if (animalCount >= 160) return 45;
+            if (animalCount >= 80) return 30;
+            return NearestPredatorThreatCacheDurationTicks;
         }
 
         private static int MakeThreatOptionFlagsMask(
@@ -1483,6 +1802,52 @@ namespace ZoologyMod
             noThreatScanCacheByPawnId.Remove(pawn.thingIDNumber);
         }
 
+        private static bool TryGetPawnFleeDecisionCache(
+            Pawn pawn,
+            int currentTick,
+            out bool hasJob,
+            out Job job)
+        {
+            hasJob = false;
+            job = null;
+
+            if (pawn == null || currentTick <= 0)
+            {
+                return false;
+            }
+
+            int pawnId = pawn.thingIDNumber;
+            if (!pawnFleeDecisionCacheByPawnId.TryGetValue(pawnId, out PawnFleeDecisionCacheEntry cached))
+            {
+                return false;
+            }
+
+            int mapId = pawn.Map?.uniqueID ?? -1;
+            if (cached.Tick != currentTick || cached.MapId != mapId)
+            {
+                pawnFleeDecisionCacheByPawnId.Remove(pawnId);
+                return false;
+            }
+
+            hasJob = cached.HasJob;
+            job = cached.Job;
+            return true;
+        }
+
+        private static void StorePawnFleeDecisionCache(Pawn pawn, int currentTick, Job job)
+        {
+            if (pawn?.Map == null || currentTick <= 0)
+            {
+                return;
+            }
+
+            pawnFleeDecisionCacheByPawnId[pawn.thingIDNumber] = new PawnFleeDecisionCacheEntry(
+                currentTick,
+                pawn.Map.uniqueID,
+                job != null,
+                job);
+        }
+
         private static bool HasAggressiveJob(Pawn pawn)
         {
             Job curJob = pawn?.CurJob;
@@ -1507,32 +1872,58 @@ namespace ZoologyMod
 
         private static bool IsFoodSeekingOrEatingJob(Pawn pawn)
         {
-            Job curJob = pawn?.CurJob;
-            if (curJob?.def == null)
+            JobDef jobDef = pawn?.CurJob?.def;
+            return jobDef != null && IsFoodSeekingOrEatingJob(jobDef);
+        }
+
+        private static bool IsFoodSeekingOrEatingJob(JobDef jobDef)
+        {
+            if (jobDef == null)
             {
                 return false;
             }
 
-            if (curJob.def == JobDefOf.Ingest)
+            if (jobDef == JobDefOf.Ingest)
             {
                 return true;
             }
 
-            Type driverClass = curJob.def.driverClass;
-            if (driverClass != null && typeof(JobDriver_Ingest).IsAssignableFrom(driverClass))
+            if (foodJobByDefCache.TryGetValue(jobDef, out bool cached))
             {
-                return true;
+                return cached;
             }
 
-            string defName = curJob.def.defName;
-            if (!string.IsNullOrEmpty(defName) && defName.IndexOf("Ingest", StringComparison.OrdinalIgnoreCase) >= 0)
+            bool isFoodJob = false;
+            Type driverClass = jobDef.driverClass;
+            if (driverClass != null)
             {
-                return true;
+                if (!foodJobDriverByTypeCache.TryGetValue(driverClass, out bool driverIsFood))
+                {
+                    driverIsFood = typeof(JobDriver_Ingest).IsAssignableFrom(driverClass)
+                        || NameContainsIngest(driverClass.Name)
+                        || NameContainsIngest(driverClass.FullName);
+                    foodJobDriverByTypeCache[driverClass] = driverIsFood;
+                }
+
+                if (driverIsFood)
+                {
+                    isFoodJob = true;
+                }
             }
 
-            string driverName = driverClass?.Name;
-            return !string.IsNullOrEmpty(driverName)
-                && driverName.IndexOf("Ingest", StringComparison.OrdinalIgnoreCase) >= 0;
+            if (!isFoodJob && NameContainsIngest(jobDef.defName))
+            {
+                isFoodJob = true;
+            }
+
+            foodJobByDefCache[jobDef] = isFoodJob;
+            return isFoodJob;
+        }
+
+        private static bool NameContainsIngest(string name)
+        {
+            return !string.IsNullOrEmpty(name)
+                && name.IndexOf("Ingest", StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
         private static bool IsPredatorGuardingCorpseAgainstHumans(Pawn pawn, ZoologyModSettings settings)
@@ -2413,6 +2804,7 @@ namespace ZoologyMod
 
             lastThreatCacheCleanupTick = currentTick;
             CleanupNoThreatScanCache(currentTick);
+            CleanupPawnFleeDecisionCache(currentTick);
             CleanupThreatVisibilityCache(lineOfSightAndReachCacheByPairKey, currentTick);
             CleanupThreatVisibilityCache(lineOfSightOrReachCacheByPairKey, currentTick);
             CleanupNearbyThreatBucketsCache(currentTick);
@@ -2447,6 +2839,40 @@ namespace ZoologyMod
             for (int i = 0; i < staleKeys.Count; i++)
             {
                 noThreatScanCacheByPawnId.Remove(staleKeys[i]);
+            }
+        }
+
+        private static void CleanupPawnFleeDecisionCache(int currentTick)
+        {
+            if (currentTick <= 0 || pawnFleeDecisionCacheByPawnId.Count == 0)
+            {
+                return;
+            }
+
+            List<int> staleKeys = null;
+            foreach (KeyValuePair<int, PawnFleeDecisionCacheEntry> entry in pawnFleeDecisionCacheByPawnId)
+            {
+                if (currentTick - entry.Value.Tick <= ThreatCacheCleanupIntervalTicks)
+                {
+                    continue;
+                }
+
+                if (staleKeys == null)
+                {
+                    staleKeys = new List<int>(64);
+                }
+
+                staleKeys.Add(entry.Key);
+            }
+
+            if (staleKeys == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < staleKeys.Count; i++)
+            {
+                pawnFleeDecisionCacheByPawnId.Remove(staleKeys[i]);
             }
         }
 
@@ -2523,7 +2949,7 @@ namespace ZoologyMod
             List<int> staleKeys = null;
             foreach (KeyValuePair<int, NearestPredatorThreatCacheEntry> entry in nearestPredatorThreatCacheByPawnId)
             {
-                if (currentTick - entry.Value.Tick <= NearestPredatorThreatCacheDurationTicks)
+                if (currentTick <= entry.Value.ExpireTick)
                 {
                     continue;
                 }
