@@ -32,6 +32,12 @@ namespace ZoologyMod
                 return false;
             }
 
+            if (Patch_AnimalFleeFromPredators.TryGetMeleeAttackerOnPawn(pawn, out _))
+            {
+                __result = false;
+                return false;
+            }
+
             if (ThinkNode_ConditionalShouldFollowMaster.ShouldFollowMaster(pawn) || pawn.GetLord() != null)
             {
                 __result = false;
