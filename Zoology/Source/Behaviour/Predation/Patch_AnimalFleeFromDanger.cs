@@ -814,6 +814,11 @@ namespace ZoologyMod
                     return;
                 }
 
+                if (IsPawnUnderMeleeAttack(pawn))
+                {
+                    return;
+                }
+
                 if (TryGetPawnFleeDecisionCache(pawn, currentTick, out bool hasCachedJob, out Job cachedJob))
                 {
                     if (hasCachedJob)
@@ -2209,21 +2214,93 @@ namespace ZoologyMod
                 && curJob.startTick == currentTick;
         }
 
-        private static bool HasActiveCloseMeleeThreatFromPredator(Pawn pawn)
+        private static bool IsPawnUnderMeleeAttack(Pawn pawn)
         {
-            return HasActiveCloseMeleeThreatFromPredator(pawn, refreshIfNeeded: true);
+            if (pawn == null || !pawn.Spawned || pawn.Downed || pawn.Map == null)
+            {
+                return false;
+            }
+
+            Map map = pawn.Map;
+            IntVec3 pos = pawn.Position;
+            for (int i = 0; i < GenAdj.AdjacentCellsAndInside.Length; i++)
+            {
+                IntVec3 cell = pos + GenAdj.AdjacentCellsAndInside[i];
+                if (!cell.InBounds(map))
+                {
+                    continue;
+                }
+
+                List<Thing> things = cell.GetThingList(map);
+                for (int t = 0; t < things.Count; t++)
+                {
+                    Pawn attacker = things[t] as Pawn;
+                    if (attacker == null || attacker == pawn)
+                    {
+                        continue;
+                    }
+
+                    if (attacker.Dead || attacker.Destroyed || attacker.Downed || !attacker.Spawned)
+                    {
+                        continue;
+                    }
+
+                    if (IsMeleeAttackerOnTarget(attacker, pawn))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
 
-        private static bool HasActiveCloseMeleeThreatFromPredator(Pawn pawn, bool refreshIfNeeded)
+        private static bool IsMeleeAttackerOnTarget(Pawn attacker, Pawn target)
         {
-            return TryGetCloseMeleeThreat(pawn, isPredatorThreat: true, refreshIfNeeded, out Pawn threat)
-                && IsThreatMeleeAttackingPawn(threat, pawn);
-        }
+            if (attacker == null || target == null)
+            {
+                return false;
+            }
 
-        private static bool HasActiveCloseMeleeThreatFromPredator(Pawn pawn, ThreatMapCacheData cache)
-        {
-            return TryGetCloseMeleeThreat(pawn, isPredatorThreat: true, cache, out Pawn threat)
-                && IsThreatMeleeAttackingPawn(threat, pawn);
+            if (!attacker.Position.AdjacentTo8WayOrInside(target.Position))
+            {
+                return false;
+            }
+
+            Job curJob = attacker.CurJob;
+            if (curJob == null || !curJob.targetA.HasThing)
+            {
+                return false;
+            }
+
+            if (!ReferenceEquals(curJob.GetTarget(TargetIndex.A).Thing, target))
+            {
+                return false;
+            }
+
+            if (curJob.def == JobDefOf.AttackMelee)
+            {
+                return true;
+            }
+
+            if (ProtectPreyState.IsProtectPreyJob(curJob, attacker.jobs?.curDriver))
+            {
+                return true;
+            }
+
+            if (ProtectYoungUtility.IsProtectYoungJob(attacker))
+            {
+                return true;
+            }
+
+            var driver = attacker.jobs?.curDriver;
+            if (driver is JobDriver_PredatorHunt)
+            {
+                return true;
+            }
+
+            Type driverClass = curJob.def?.driverClass;
+            return driverClass != null && typeof(JobDriver_PredatorHunt).IsAssignableFrom(driverClass);
         }
 
         private static bool HasActiveCloseMeleeThreatFromHumanlike(Pawn pawn)
@@ -2266,17 +2343,6 @@ namespace ZoologyMod
             }
 
             return ReferenceEquals(curJob.GetTarget(TargetIndex.A).Thing, pawn);
-        }
-
-        private static bool IsHumanlikeThreat(Pawn pawn)
-        {
-            return PawnThreatUtility.IsHumanlikeOrMechanoid(pawn);
-        }
-
-        private static bool IsPredatorLikeThreat(Pawn pawn)
-        {
-            return pawn != null
-                && ((pawn.RaceProps?.predator ?? false) || ProtectPreyState.IsProtectPreyJob(pawn));
         }
 
         private static bool IsHumanDoingAnimalTamingJob(Pawn human)

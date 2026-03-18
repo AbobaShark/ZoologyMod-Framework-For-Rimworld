@@ -1171,6 +1171,39 @@ namespace ZoologyMod
             return null;
         }
 
+        public bool HasAnyPairedPredatorsForCorpse(Corpse corpse)
+        {
+            if (corpse == null) return false;
+            int corpseId = corpse.thingIDNumber;
+            if (corpseId <= 0) return false;
+
+            long now = Find.TickManager?.TicksGame ?? 0L;
+            lock (dictLock)
+            {
+                if (!runtimeCorpseToPredators.TryGetValue(corpseId, out var predators)
+                    || predators == null
+                    || predators.Count == 0)
+                {
+                    return false;
+                }
+
+                foreach (var pid in predators)
+                {
+                    long key = PairKeyFor(pid, corpseId);
+                    if (key == 0) continue;
+                    if (pairsUntil.TryGetValue(key, out long until)
+                        && until >= now
+                        && runtimePredatorToCorpse.TryGetValue(pid, out int mappedCorpseId)
+                        && mappedCorpseId == corpseId)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
         
 
         private bool AreFactionsEffectivelySame(Pawn a, Pawn b)

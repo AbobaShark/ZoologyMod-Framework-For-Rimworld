@@ -700,7 +700,7 @@ namespace ZoologyMod
             bool isEffectivelyUnowned = !isPaired;
             if (!isPaired)
             {
-                if (!ProtectPreyState.HasAnyActiveProtectors || !ProtectPreyState.HasActiveProtectorsForMap(corpse.Map))
+                if (!comp.HasAnyPairedPredatorsForCorpse(corpse))
                 {
                     isEffectivelyUnowned = true;
                 }
