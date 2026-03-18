@@ -934,14 +934,6 @@ namespace ZoologyMod
 
                 bool underMeleeAttack = IsPawnUnderMeleeAttack(pawn);
 
-                if (!underMeleeAttack && TryHandleProtectYoungThreat(pawn, out Job protectYoungFleeJob))
-                {
-                    ClearNoThreatScanCache(pawn);
-                    __result = protectYoungFleeJob;
-                    StorePawnFleeDecisionCache(pawn, currentTick, __result);
-                    return;
-                }
-
                 if (!underMeleeAttack
                     && fleeFromPredatorsEnabled
                     && TryHandleImmediateProtectPreyThreat(pawn, out Job protectPreyFleeJob))
@@ -1081,34 +1073,6 @@ namespace ZoologyMod
             return TryBuildProtectPreyFleeJob(pawn, threat, preyIsPhotonozoa, out fleeJob);
         }
 
-        private static bool TryHandleProtectYoungThreat(Pawn pawn, out Job fleeJob)
-        {
-            fleeJob = null;
-            if (pawn?.Map == null || pawn.RaceProps?.predator != true)
-            {
-                return false;
-            }
-
-            if (!TryGetProtectYoungThreatForPawn(pawn, out Pawn threat))
-            {
-                return false;
-            }
-
-            if (!HasLineOfSightAndReach(threat, pawn))
-            {
-                return false;
-            }
-
-            bool shouldAnimalFleeDanger = FleeUtility.ShouldAnimalFleeDanger(pawn);
-            if (!shouldAnimalFleeDanger && !ShouldAnimalFleeDangerAllowFighting(pawn))
-            {
-                return false;
-            }
-
-            fleeJob = FleeUtility.FleeJob(pawn, threat, FleeDistanceTarget);
-            return fleeJob != null;
-        }
-
         private static bool TryGetProtectPreyThreatForPawn(Pawn pawn, int currentTick, out Pawn threat)
         {
             threat = null;
@@ -1179,91 +1143,6 @@ namespace ZoologyMod
 
             threat = best;
             return true;
-        }
-
-        private static bool TryGetProtectYoungThreatForPawn(Pawn pawn, out Pawn threat)
-        {
-            threat = null;
-            if (pawn?.Map == null)
-            {
-                return false;
-            }
-
-            Map map = pawn.Map;
-            IntVec3 pos = pawn.Position;
-            for (int i = 0; i < GenAdj.AdjacentCellsAndInside.Length; i++)
-            {
-                IntVec3 cell = pos + GenAdj.AdjacentCellsAndInside[i];
-                if (!cell.InBounds(map))
-                {
-                    continue;
-                }
-
-                List<Thing> things = cell.GetThingList(map);
-                for (int t = 0; t < things.Count; t++)
-                {
-                    Pawn protector = things[t] as Pawn;
-                    if (protector == null || protector == pawn)
-                    {
-                        continue;
-                    }
-
-                    if (protector.Dead || protector.Destroyed || protector.Downed || !protector.Spawned)
-                    {
-                        continue;
-                    }
-
-                    if (!ProtectYoungUtility.IsProtectYoungJob(protector))
-                    {
-                        continue;
-                    }
-
-                    Job curJob = protector.CurJob;
-                    if (curJob == null || !curJob.targetA.HasThing)
-                    {
-                        continue;
-                    }
-
-                    if (!ReferenceEquals(curJob.GetTarget(TargetIndex.A).Thing, pawn))
-                    {
-                        continue;
-                    }
-
-                    threat = protector;
-                    return true;
-                }
-            }
-
-            if (TryGetThreatTargetPawn(pawn, out Pawn targetedPawn)
-                && targetedPawn != null
-                && ChildcareUtility.IsAnimalChild(targetedPawn)
-                && ChildcareUtility.HasChildcareExtension(targetedPawn)
-                && ChildcareUtility.TryGetBiologicalMother(targetedPawn, out Pawn mother)
-                && mother != null
-                && mother.Spawned
-                && !mother.Dead
-                && !mother.Destroyed
-                && !mother.Downed
-                && mother.Map == pawn.Map)
-            {
-                if (IsMeleeAttackerOnTarget(mother, pawn))
-                {
-                    threat = mother;
-                    return true;
-                }
-
-                Job motherJob = mother.CurJob;
-                if (ProtectYoungUtility.IsProtectYoungJob(mother)
-                    && motherJob != null
-                    && motherJob.targetA.HasThing
-                    && ReferenceEquals(motherJob.GetTarget(TargetIndex.A).Thing, pawn))
-                {
-                    threat = mother;
-                    return true;
-                }
-            }
-
-            return false;
         }
 
         private static List<ProtectPreyMapCache.Entry> GetProtectPreyEntriesForMap(Map map, int currentTick)
