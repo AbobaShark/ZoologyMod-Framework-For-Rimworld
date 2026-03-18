@@ -5,6 +5,7 @@ using RimWorld;
 using Verse;
 using Verse.AI;
 using UnityEngine;
+using ZoologyMod;
 
 namespace ZoologyMod.HarmonyPatches
 {
@@ -44,6 +45,13 @@ namespace ZoologyMod.HarmonyPatches
                     if (scav == null)
                     {
                         return true;
+                    }
+
+                    if (CannotChewUtility.HasCannotChew(eater)
+                        && CannotChewUtility.IsCorpseTooLarge(eater, __instance))
+                    {
+                        __result = false;
+                        return false;
                     }
 
                     if (__instance == null)

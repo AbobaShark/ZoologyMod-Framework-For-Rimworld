@@ -26,7 +26,7 @@ namespace ZoologyMod
                 return false;
             }
 
-            if (!pawn.IsAnimal || pawn.InMentalState || pawn.IsFighting() || pawn.Downed || pawn.Dead)
+            if (!pawn.IsAnimal || pawn.InMentalState || pawn.Downed || pawn.Dead)
             {
                 __result = false;
                 return false;

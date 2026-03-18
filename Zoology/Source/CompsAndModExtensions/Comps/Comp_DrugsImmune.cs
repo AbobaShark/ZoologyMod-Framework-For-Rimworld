@@ -569,8 +569,6 @@ namespace ZoologyMod
 
                 var prefix = new HarmonyMethod(typeof(DrugsImmuneHarmonyInit).GetMethod(nameof(DoerGiveHediff_Prefix), BindingFlags.Static | BindingFlags.NonPublic));
                 harmony.Patch(targetMethod, prefix: prefix);
-
-                Log.Message("[Zoology] DrugsImmuneHarmonyInit: patched IngestionOutcomeDoer.DoIngestionOutcome (drug hediff blocking enabled).");
             }
             catch (Exception e)
             {

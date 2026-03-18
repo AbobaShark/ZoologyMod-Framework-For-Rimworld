@@ -4,6 +4,7 @@ using HarmonyLib;
 using RimWorld;
 using Verse;
 using Verse.AI;
+using ZoologyMod;
 
 namespace ZoologyMod.HarmonyPatches
 {
@@ -160,6 +161,9 @@ namespace ZoologyMod.HarmonyPatches
                 foodDef = null;
                 if (corpseLister == null || corpseLister.Count == 0 || getter == null || eater == null) return null;
 
+                bool cannotChew = CannotChewUtility.HasCannotChew(eater);
+                float eaterSize = cannotChew ? eater.BodySize : 0f;
+
                 IntVec3 root = getter.Position;
                 Corpse best = null;
                 int bestDistSq = int.MaxValue;
@@ -173,6 +177,7 @@ namespace ZoologyMod.HarmonyPatches
                     if (corpse.Map != getter.Map) continue;
                     if (corpse.InnerPawn == null) continue;
                     if (!corpse.InnerPawn.RaceProps.IsFlesh) continue;
+                    if (cannotChew && corpse.InnerPawn.BodySize > eaterSize) continue;
                     if (!allowForbidden && corpse.IsForbidden(getter)) continue;
 
                     if (!scav.allowVeryRotten)
@@ -252,6 +257,15 @@ namespace ZoologyMod.HarmonyPatches
 
                 var corpse = state.LastFound as Corpse;
                 if (corpse == null || corpse.Destroyed || !corpse.Spawned)
+                {
+                    state.LastFound = null;
+                    state.LastFoodDef = null;
+                    return false;
+                }
+
+                if (CannotChewUtility.HasCannotChew(eater)
+                    && corpse.InnerPawn != null
+                    && corpse.InnerPawn.BodySize > eater.BodySize)
                 {
                     state.LastFound = null;
                     state.LastFoodDef = null;
