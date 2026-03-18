@@ -54,7 +54,7 @@ namespace ZoologyMod
                         return;
                     }
 
-                    JobDef jd = AnimalChildcareUtility.YoungSuckleJobDef;
+                    JobDef jd = AnimalLactationUtility.YoungSuckleJobDef;
                     if (jd == null)
                     {
                         Job fallback = JobMaker.MakeJob(JobDefOf.Wait, ZoologyTickLimiter.Lactation.BreastfeedFallbackWaitTicks);
@@ -110,14 +110,14 @@ namespace ZoologyMod
                         return;
                     }
 
-                    if (!AnimalChildcareUtility.MotherHasSufficientNutrition(mum))
+                    if (!AnimalLactationUtility.MotherHasSufficientNutrition(mum))
                     {
                         EndBabySuckleJob(baby);
                         this.pawn.jobs.EndCurrentJob(JobCondition.Incompletable);
                         return;
                     }
 
-                    bool babyFull = AnimalChildcareUtility.SuckleFromLactatingPawn(baby, mum, 1);
+                    bool babyFull = AnimalLactationUtility.SuckleFromLactatingPawn(baby, mum, 1);
                     if (babyFull)
                     {
                         EndBabySuckleJob(baby);
@@ -125,7 +125,7 @@ namespace ZoologyMod
                         return;
                     }
 
-                    var lactDef = AnimalChildcareUtility.LactatingHediffDef;
+                    var lactDef = AnimalLactationUtility.LactatingHediffDef;
                     if (lactDef == null)
                     {
                         Log.Warning("ZoologyMod: suckle.tickAction: HediffDef 'Zoology_Lactating' not found.");
@@ -156,7 +156,7 @@ namespace ZoologyMod
         private void EndBabySuckleJob(Pawn baby)
         {
             if (baby == null || baby.jobs == null || baby.CurJob == null || baby.Dead) return;
-            JobDef suckleDef = AnimalChildcareUtility.YoungSuckleJobDef;
+            JobDef suckleDef = AnimalLactationUtility.YoungSuckleJobDef;
             if ((suckleDef != null && baby.CurJob.def == suckleDef) || baby.CurJob.def == JobDefOf.Wait)
             {
                 baby.jobs.EndCurrentJob(JobCondition.Succeeded);

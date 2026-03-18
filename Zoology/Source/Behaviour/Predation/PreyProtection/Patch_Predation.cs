@@ -235,7 +235,8 @@ namespace ZoologyMod
         public static void FoodOptimality_Postfix(Pawn eater, Thing foodSource, ThingDef foodDef, float dist, bool takingToInventory, ref float __result)
         {
             if (eater == null || foodSource == null) return;
-            if (eater.RaceProps?.predator != true) return;
+            bool isPredator = eater.RaceProps?.predator == true;
+            if (!isPredator && eater.RaceProps?.Animal != true) return;
 
             var corpse = foodSource as Corpse;
             if (corpse == null)
@@ -272,17 +273,27 @@ namespace ZoologyMod
                 {
                     if (TryGetCorpseFoodState(comp, eater, corpse, out CorpseFoodStateCacheEntry state))
                     {
-                        if (state.IsPaired)
+                        if (isPredator)
                         {
-                            delta += OwnedCorpseBonus;
-                        }
-                        else if (state.IsEffectivelyUnowned)
-                        {
-                            delta += UnpairedCorpseBonus;
+                            if (state.IsPaired)
+                            {
+                                delta += OwnedCorpseBonus;
+                            }
+                            else if (state.IsEffectivelyUnowned)
+                            {
+                                delta += UnpairedCorpseBonus;
+                            }
+                            else
+                            {
+                                delta += GuardedCorpsePenalty;
+                            }
                         }
                         else
                         {
-                            delta += GuardedCorpsePenalty;
+                            if (!state.IsPaired && !state.IsEffectivelyUnowned)
+                            {
+                                delta += GuardedCorpsePenalty;
+                            }
                         }
                         StoreFoodOptimalityDelta(eater, corpse, delta);
                         __result += delta;
@@ -293,6 +304,11 @@ namespace ZoologyMod
                 {
                     Log.Warning($"Zoology: FoodOptimality_Postfix: error handling corpse logic: {exCorp}");
                 }
+            }
+
+            if (!isPredator)
+            {
+                return;
             }
 
             var livePawn = foodSource as Pawn;
@@ -347,6 +363,24 @@ namespace ZoologyMod
                 var comp = PredatorPreyPairGameComponent.Instance;
                 if (comp == null)
                 {
+                    return;
+                }
+
+                if (ShouldBlockLivePreyHunt(predator) && __result is Pawn livePawn && !livePawn.Dead)
+                {
+                    var paired = comp.GetPairedCorpse(predator);
+                    if (paired != null && !paired.Destroyed && TryGetCorpseFoodDefForPredator(predator, paired, out ThingDef pairedFoodDef))
+                    {
+                        __result = paired;
+                        if (pairedFoodDef != null)
+                        {
+                            foodDef = pairedFoodDef;
+                        }
+                        return;
+                    }
+
+                    __result = null;
+                    foodDef = null;
                     return;
                 }
 
@@ -562,6 +596,41 @@ namespace ZoologyMod
             return TryGetCorpseFoodState(PredatorPreyPairGameComponent.Instance, predator, corpse, out CorpseFoodStateCacheEntry state)
                 && !state.IsPaired
                 && !state.IsEffectivelyUnowned;
+        }
+
+        internal static bool ShouldBlockLivePreyHunt(Pawn predator)
+        {
+            if (predator == null || predator.RaceProps?.predator != true)
+            {
+                return false;
+            }
+
+            Faction faction = predator.Faction;
+            if (faction != null && !IsPhotonozoaFaction(faction))
+            {
+                return false;
+            }
+
+            var comp = PredatorPreyPairGameComponent.Instance;
+            if (comp == null)
+            {
+                return false;
+            }
+
+            Corpse paired = comp.GetPairedCorpse(predator);
+            if (paired == null || paired.Destroyed)
+            {
+                return false;
+            }
+
+            return comp.IsPaired(predator, paired);
+        }
+
+        private static bool IsPhotonozoaFaction(Faction faction)
+        {
+            var defName = faction?.def?.defName;
+            return !string.IsNullOrEmpty(defName)
+                && defName.Equals("Photonozoa", StringComparison.OrdinalIgnoreCase);
         }
 
         private static Pawn TryGetVanillaHuntTarget(Pawn predator, bool desperate)
@@ -980,6 +1049,30 @@ namespace ZoologyMod
             catch (Exception ex)
             {
                 Log.Warning($"Zoology: Thing_Ingested_Postfix exception: {ex}");
+            }
+        }
+    }
+
+    [HarmonyPatch(typeof(FoodUtility), "BestPawnToHuntForPredator", new Type[] { typeof(Pawn), typeof(bool) })]
+    public static class Patch_FoodUtility_BestPawnToHuntForPredator_BlockWhilePaired
+    {
+        public static bool Prepare() => PredationSettingsGate.EnablePredatorDefendCorpse();
+
+        public static bool Prefix(Pawn predator, bool forceScanWholeMap, ref Pawn __result)
+        {
+            try
+            {
+                if (!PredationHarmonyPatches.ShouldBlockLivePreyHunt(predator))
+                {
+                    return true;
+                }
+
+                __result = null;
+                return false;
+            }
+            catch
+            {
+                return true;
             }
         }
     }

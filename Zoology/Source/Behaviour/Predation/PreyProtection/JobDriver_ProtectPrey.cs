@@ -16,6 +16,7 @@ namespace ZoologyMod
 
         public Pawn TargetPawn => this.job.GetTarget(TargetIndex.A).Thing as Pawn;
         public Corpse PreyCorpse => this.job.GetTarget(TargetIndex.B).Thing as Corpse;
+        public Pawn ProtectedPawn => this.job.GetTarget(TargetIndex.B).Thing as Pawn;
 
         public override void ExposeData()
         {
@@ -121,7 +122,10 @@ namespace ZoologyMod
                         catch { /* non-fatal */ }
                     }
 
-                    TryWarnPlayer();
+                    if (corpse != null)
+                    {
+                        TryWarnPlayer();
+                    }
                     startTickLocal = Find.TickManager?.TicksGame ?? 0;
                     try
                     {
@@ -162,23 +166,29 @@ namespace ZoologyMod
                     {
                         var corp = this.PreyCorpse;
                         var targ = this.TargetPawn;
+                        var protectedPawn = this.ProtectedPawn;
                         
-                        if (corp == null) return true;
+                        if (corp == null && protectedPawn == null) return true;
                         if (IsInMinimumProtectDuration()) return false;
 
-                        
-                        if (!corp.Spawned && targ != null)
+                        if (corp != null)
                         {
-                            try
+                            if (!corp.Spawned && targ != null)
                             {
-                                if (PreyProtectionUtility.IsThingHeldByPawn(targ, corp)) return false;
+                                try
+                                {
+                                    if (PreyProtectionUtility.IsThingHeldByPawn(targ, corp)) return false;
+                                }
+                                catch { /* ignore inventory anomalies */ }
+
+                                return true;
                             }
-                            catch { /* ignore inventory anomalies */ }
-                            
-                            return true;
+
+                            return false;
                         }
 
-                        
+                        if (protectedPawn == null) return true;
+                        if (!protectedPawn.Spawned || protectedPawn.Destroyed || protectedPawn.Dead) return true;
                         return false;
                     }
                     catch
@@ -194,10 +204,11 @@ namespace ZoologyMod
                 try
                 {
                     Corpse corpse = this.PreyCorpse;
+                    Pawn protectedPawn = this.ProtectedPawn;
                     Pawn targ = this.TargetPawn;
 
                     
-                    if (corpse == null)
+                    if (corpse == null && protectedPawn == null)
                     {
                         actorPawn?.jobs?.EndCurrentJob(JobCondition.Succeeded, true, true);
                         return;
@@ -215,10 +226,31 @@ namespace ZoologyMod
                         return;
                     }
 
-                    if (!PreyProtectionUtility.TryGetProtectionAnchor(corpse, targ, out Map anchorMap, out IntVec3 anchorPos))
+                    Map anchorMap = null;
+                    IntVec3 anchorPos = IntVec3.Invalid;
+                    if (corpse != null)
                     {
-                        actorPawn?.jobs?.EndCurrentJob(JobCondition.Succeeded, true, true);
-                        return;
+                        if (!PreyProtectionUtility.TryGetProtectionAnchor(corpse, targ, out anchorMap, out anchorPos))
+                        {
+                            actorPawn?.jobs?.EndCurrentJob(JobCondition.Succeeded, true, true);
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        if (protectedPawn == null || !protectedPawn.Spawned || protectedPawn.Destroyed || protectedPawn.Dead)
+                        {
+                            actorPawn?.jobs?.EndCurrentJob(JobCondition.Succeeded, true, true);
+                            return;
+                        }
+
+                        anchorMap = protectedPawn.Map;
+                        anchorPos = protectedPawn.Position;
+                        if (anchorMap == null || !anchorPos.IsValid)
+                        {
+                            actorPawn?.jobs?.EndCurrentJob(JobCondition.Succeeded, true, true);
+                            return;
+                        }
                     }
 
                     if (!PreyProtectionUtility.IsPawnWithinProtectionRange(targ, anchorMap, anchorPos, MAX_DISTANCE_SQ))

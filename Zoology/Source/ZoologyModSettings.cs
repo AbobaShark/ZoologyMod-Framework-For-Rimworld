@@ -32,6 +32,7 @@ namespace ZoologyMod
         public bool EnableDrugsImmunePatch = true;
         public bool EnableNoPorcupineQuillPatch = true;
         public static bool EnableMammalLactation = true;
+        public bool EnableAnimalChildcare = true;
         public bool EnablePredatorDefendCorpse = true;
         public bool EnablePredatorDefendPreyFromHumansAndMechanoids = true;
         public bool EnableScavengering = true;
@@ -237,7 +238,7 @@ namespace ZoologyMod
                         + (EnablePreyFleeFromPredators ? 38f : 0f)
                         + (EnablePredatorDefendCorpse ? 156f : 0f);
                 case SettingsPage.Physiology:
-                    return 900f + (!EnableMammalLactation ? 30f : 0f);
+                    return 900f + 38f + (!EnableMammalLactation ? 30f : 0f);
                 case SettingsPage.Combat:
                     return 500f;
                 case SettingsPage.OtherBehavior:
@@ -305,6 +306,13 @@ namespace ZoologyMod
             list.GapLine(8f);
             list.CheckboxLabeled("Enable mammal lactation", ref EnableMammalLactation, "Enables lactation for female mammals, allowing them to produce milk for their offspring.");
             DrawLactationSettings(list);
+
+            list.GapLine(12f);
+            list.CheckboxLabeled(
+                "Enable animal childcare (young follow mothers and mothers protect young)",
+                ref EnableAnimalChildcare,
+                "When enabled, species with ModExtensiom_Chlidcare will have juveniles follow their mothers and mothers defend their own young."
+            );
 
             list.GapLine(12f);
             list.CheckboxLabeled(
@@ -528,6 +536,7 @@ namespace ZoologyMod
             EnableDrugsImmunePatch = true;
             EnableNoPorcupineQuillPatch = true;
             EnableMammalLactation = true;
+            EnableAnimalChildcare = true;
             EnablePredatorDefendCorpse = true;
             EnablePredatorDefendPreyFromHumansAndMechanoids = true;
             _smallPetBodySizeThreshold = ModConstants.DefaultSmallPetBodySizeThreshold;
@@ -587,6 +596,7 @@ namespace ZoologyMod
             Scribe_Values.Look(ref AnimalsFreeFromHumans, "AnimalsFreeFromHumans", true);
             Scribe_Values.Look(ref EnableAgroAtSlaughter, "EnableAgroAtSlaughter", true);
             Scribe_Values.Look(ref EnableMammalLactation, "EnableMammalLactation", true);
+            Scribe_Values.Look(ref EnableAnimalChildcare, "EnableAnimalChildcare", true);
             Scribe_Values.Look(ref EnablePredatorDefendCorpse, "EnablePredatorDefendCorpse", true);
             Scribe_Values.Look(ref EnablePredatorDefendPreyFromHumansAndMechanoids, "EnablePredatorDefendPreyFromHumansAndMechanoids", true);
             Scribe_Values.Look(ref PreyProtectionRange, "PreyProtectionRange", 20);
@@ -724,6 +734,7 @@ namespace ZoologyMod
                 && !EnableDrugsImmunePatch
                 && !EnableNoPorcupineQuillPatch
                 && !EnableMammalLactation
+                && !EnableAnimalChildcare
                 && !EnablePredatorDefendCorpse
                 && !EnableScavengering
                 && !EnableAnimalDamageReduction

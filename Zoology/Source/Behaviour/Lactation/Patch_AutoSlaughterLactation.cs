@@ -64,7 +64,7 @@ namespace ZoologyMod
                     return;
                 }
 
-                HediffDef lactDef = AnimalChildcareUtility.LactatingHediffDef;
+                HediffDef lactDef = AnimalLactationUtility.LactatingHediffDef;
                 if (lactDef == null)
                 {
                     return;
@@ -261,7 +261,7 @@ namespace ZoologyMod
 
                 if (animal == null) return;
 
-                HediffDef lactDef = AnimalChildcareUtility.LactatingHediffDef;
+                HediffDef lactDef = AnimalLactationUtility.LactatingHediffDef;
                 if (lactDef == null) return;
 
                 HediffSet hediffSet = animal.health?.hediffSet;

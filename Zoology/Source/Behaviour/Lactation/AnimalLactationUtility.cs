@@ -7,7 +7,7 @@ using RimWorld;
 
 namespace ZoologyMod
 {
-    public static class AnimalChildcareUtility
+    public static class AnimalLactationUtility
     {
         public const int FullFeedSessionTicks = ZoologyTickLimiter.Lactation.FullFeedSessionTicks;
         public const int FullLactatingSeverityTicks = ZoologyTickLimiter.Lactation.FullLactatingSeverityTicks;
@@ -37,7 +37,6 @@ namespace ZoologyMod
         private static HediffDef lactatingHediffDef;
         private static JobDef breastfeedJobDef;
         private static JobDef youngSuckleJobDef;
-        private static LifeStageDef animalBabyLifeStageDef;
         private const int FeedAttemptCooldownTicks = ZoologyTickLimiter.Lactation.FeedAttemptCooldownTicks;
         public const float MotherMinFeedLevel = 0.15f;
         public static HediffDef LactatingHediffDef => lactatingHediffDef ?? (lactatingHediffDef = DefDatabase<HediffDef>.GetNamedSilentFail("Zoology_Lactating"));
@@ -46,9 +45,7 @@ namespace ZoologyMod
 
         public static bool IsAnimalBabyLifeStage(LifeStageDef stage)
         {
-            if (stage == null) return false;
-            var cached = animalBabyLifeStageDef ?? (animalBabyLifeStageDef = DefDatabase<LifeStageDef>.GetNamedSilentFail("AnimalBaby"));
-            return stage == cached || string.Equals(stage.defName, "AnimalBaby", StringComparison.OrdinalIgnoreCase);
+            return AnimalLifeStageUtility.IsAnimalInfantLifeStage(stage);
         }
 
         public static bool IsAnimalBaby(Pawn pawn)

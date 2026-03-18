@@ -197,7 +197,7 @@ namespace ZoologyMod
                     return;
                 }
 
-                var lactDef = AnimalChildcareUtility.LactatingHediffDef;
+                var lactDef = AnimalLactationUtility.LactatingHediffDef;
                 if (lactDef == null)
                 {
                     Log.Warning("ZoologyMod: HediffDef 'Zoology_Lactating' not found.");
@@ -211,11 +211,11 @@ namespace ZoologyMod
                 List<Pawn> pups = FindRecentPupsNearMother(mother);
                 if (pups.Count > 0)
                 {
-                    AnimalChildcareUtility.OnAnimalGaveBirth(mother, pups);
+                    AnimalLactationUtility.OnAnimalGaveBirth(mother, pups);
                 }
                 else
                 {
-                    AnimalChildcareUtility.OnAnimalGaveBirth(mother, null);
+                    AnimalLactationUtility.OnAnimalGaveBirth(mother, null);
                 }
             }
             catch (Exception ex)

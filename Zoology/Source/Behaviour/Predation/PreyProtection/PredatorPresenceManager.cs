@@ -106,6 +106,12 @@ namespace ZoologyMod
 
                 if (!pawn.IsAnimal) { reason = "not an animal"; return false; }
 
+                if (!PreyProtectionUtility.IsPawnAwakeForProtection(pawn))
+                {
+                    reason = "sleeping";
+                    return false;
+                }
+
                 if (pawn.InMentalState)
                 {
                     reason = "in mental state (transient)";

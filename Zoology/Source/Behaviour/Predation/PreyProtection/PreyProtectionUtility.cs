@@ -1,3 +1,4 @@
+using RimWorld;
 using Verse;
 
 namespace ZoologyMod
@@ -159,6 +160,16 @@ namespace ZoologyMod
             }
 
             return (pawn.Position - anchorPosition).LengthHorizontalSquared <= maxDistanceSquared;
+        }
+
+        public static bool IsPawnAwakeForProtection(Pawn pawn)
+        {
+            if (pawn == null)
+            {
+                return false;
+            }
+
+            return RestUtility.Awake(pawn);
         }
     }
 }

@@ -329,7 +329,6 @@ namespace ZoologyMod
 
                 var prefix = new HarmonyMethod(typeof(AgelessHarmonyInit).GetMethod(nameof(TryApply_Prefix), BindingFlags.Static | BindingFlags.NonPublic));
                 harmony.Patch(method, prefix: prefix);
-                Log.Message("[Zoology] AgelessHarmonyInit: patched HediffGiver.TryApply");
             }
             catch (Exception e)
             {

@@ -43,7 +43,7 @@ namespace ZoologyMod
                     return;
                 }
 
-                Pawn availableMom = AnimalChildcareUtility.FindNearestAvailableMother(pawn);
+                Pawn availableMom = AnimalLactationUtility.FindNearestAvailableMother(pawn);
                 if (availableMom == null)
                 {
                     pawn.jobs.EndCurrentJob(JobCondition.Succeeded);

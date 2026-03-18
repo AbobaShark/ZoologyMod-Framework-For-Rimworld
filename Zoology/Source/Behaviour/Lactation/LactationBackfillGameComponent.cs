@@ -107,7 +107,7 @@ namespace ZoologyMod
                         Pawn p = pawns[i];
                         if (p == null || p.Dead) continue;
                         if (!p.IsMammal()) continue;
-                        if (!AnimalChildcareUtility.IsAnimalBabyLifeStage(p.ageTracker?.CurLifeStage)) continue;
+                        if (!AnimalLactationUtility.IsAnimalBabyLifeStage(p.ageTracker?.CurLifeStage)) continue;
                         if (!IsFirstLifeStage(p)) continue;
                         pendingBabies.Add(p);
                     }
@@ -127,7 +127,7 @@ namespace ZoologyMod
             {
                 if (baby == null || baby.Dead || !baby.Spawned) return;
                 if (!baby.IsMammal()) return;
-                if (!AnimalChildcareUtility.IsAnimalBabyLifeStage(baby.ageTracker?.CurLifeStage)) return;
+                if (!AnimalLactationUtility.IsAnimalBabyLifeStage(baby.ageTracker?.CurLifeStage)) return;
                 if (!IsFirstLifeStage(baby)) return;
 
                 Pawn mother = TryGetMotherFromRelations(baby);
@@ -177,11 +177,11 @@ namespace ZoologyMod
             if (mother.Map != baby.Map) return false;
             if (baby.Dead || !baby.Spawned) return false;
             if (!baby.IsMammal()) return false;
-            if (!AnimalChildcareUtility.IsAnimalBabyLifeStage(baby.ageTracker?.CurLifeStage)) return false;
+            if (!AnimalLactationUtility.IsAnimalBabyLifeStage(baby.ageTracker?.CurLifeStage)) return false;
             if (!IsFirstLifeStage(baby)) return false;
-            if (!AnimalChildcareUtility.IsCrossBreedCompatible(mother, baby)) return false;
+            if (!AnimalLactationUtility.IsCrossBreedCompatible(mother, baby)) return false;
 
-            var lactDef = AnimalChildcareUtility.LactatingHediffDef;
+            var lactDef = AnimalLactationUtility.LactatingHediffDef;
             if (lactDef == null) return false;
             if (mother.health?.hediffSet == null) return false;
             if (mother.health.hediffSet.HasHediff(lactDef)) return false;
@@ -221,7 +221,7 @@ namespace ZoologyMod
         {
             try
             {
-                var lactDef = AnimalChildcareUtility.LactatingHediffDef;
+                var lactDef = AnimalLactationUtility.LactatingHediffDef;
                 if (lactDef == null) return false;
                 if (mother.health?.hediffSet == null) return false;
 

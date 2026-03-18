@@ -62,6 +62,14 @@ namespace ZoologyMod
             public const int BreastfeedFallbackWaitTicks = 2000;
         }
 
+        // Childcare-related timing.
+        public static class Childcare
+        {
+            public const int MotherCacheDurationTicks = 120;
+            public const int WanderNearMotherMinTicks = 125;
+            public const int WanderNearMotherMaxTicks = 200;
+        }
+
         // Scavenging AI timing.
         public static class Scavenging
         {

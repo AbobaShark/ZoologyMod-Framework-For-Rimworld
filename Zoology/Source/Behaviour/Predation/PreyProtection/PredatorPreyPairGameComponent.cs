@@ -1503,6 +1503,7 @@ namespace ZoologyMod
                     {
                         
                         if (pred.Dead || pred.Destroyed || pred.Downed || pred.InMentalState || !pred.Spawned || pred.GetLord() != null) continue;
+                        if (!PreyProtectionUtility.IsPawnAwakeForProtection(pred)) continue;
 
                         
                         if (corpseMap != null && pred.Map != corpseMap) continue;

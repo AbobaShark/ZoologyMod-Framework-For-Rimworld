@@ -17,7 +17,7 @@ namespace ZoologyMod
                 Pawn pawn = __instance?.pawn;
                 if (pawn == null) return true;
                 if (!pawn.IsMammal()) return true;
-                if (!AnimalChildcareUtility.IsAnimalBabyLifeStage(pawn.ageTracker?.CurLifeStage)) return true;
+                if (!AnimalLactationUtility.IsAnimalBabyLifeStage(pawn.ageTracker?.CurLifeStage)) return true;
 
                 return false;
             }

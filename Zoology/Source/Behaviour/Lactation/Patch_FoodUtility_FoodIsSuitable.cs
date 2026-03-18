@@ -32,7 +32,7 @@ namespace ZoologyMod
                 return cached;
             }
 
-            bool isBaby = AnimalChildcareUtility.IsAnimalBabyLifeStage(pawn.ageTracker?.CurLifeStage);
+            bool isBaby = AnimalLactationUtility.IsAnimalBabyLifeStage(pawn.ageTracker?.CurLifeStage);
             isBabyByPawnId[id] = isBaby;
             return isBaby;
         }
