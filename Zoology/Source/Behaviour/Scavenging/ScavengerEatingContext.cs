@@ -58,7 +58,7 @@ namespace ZoologyMod
                 return null;
             }
 
-            if (corpse.Destroyed || !corpse.Spawned)
+            if (corpse.Destroyed || (!corpse.Spawned && corpse.ParentHolder == null))
             {
                 corpseToPawn.Remove(corpseId);
                 pawnToCorpseId.Remove(pawn.thingIDNumber);

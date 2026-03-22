@@ -73,7 +73,7 @@ namespace ZoologyMod
             {
                 Hediff h = hs[i];
                 if (h == null || h.def == null) continue;
-                if (forb.Contains(h.def))
+                if (forb.Contains(h.def) || AgelessUtils.IsChronicDiseaseHediff(h.def))
                 {
                     hediffRemovalBuffer.Add(h);
                 }
@@ -87,7 +87,7 @@ namespace ZoologyMod
                     pawn.health.RemoveHediff(h);
                     if (Prefs.DevMode)
                     {
-                        Log.Message($"[Zoology] CompAgeless removed age hediff {h.def.defName} from {pawn.LabelShortCap}");
+                        Log.Message($"[Zoology] CompAgeless removed hediff {h.def.defName} from {pawn.LabelShortCap}");
                     }
                 }
                 catch (Exception e)
@@ -106,6 +106,8 @@ namespace ZoologyMod
         
         private static readonly Dictionary<string, HashSet<HediffDef>> setCache = new Dictionary<string, HashSet<HediffDef>>();
         private static readonly Dictionary<string, HashSet<HediffDef>> pawnKindCache = new Dictionary<string, HashSet<HediffDef>>();
+        private static readonly Dictionary<Type, bool> chronicDiseaseTypeCache = new Dictionary<Type, bool>();
+        private static readonly Dictionary<HediffDef, bool> chronicDiseaseDefCache = new Dictionary<HediffDef, bool>();
         private const string FallbackHediffGiverSetDefName = "OrganicStandard";
 
         
@@ -272,8 +274,129 @@ namespace ZoologyMod
         public static bool IsHediffForbiddenForPawn(Pawn pawn, HediffDef hediff)
         {
             if (pawn == null || hediff == null) return false;
+            if (IsChronicDiseaseHediff(hediff))
+            {
+                return true;
+            }
             var forb = GetAgeRelatedHediffDefsForPawnCached(pawn);
             return forb != null && forb.Contains(hediff);
+        }
+
+        public static bool IsChronicDiseaseHediff(HediffDef hediff)
+        {
+            if (hediff == null) return false;
+            if (chronicDiseaseDefCache.TryGetValue(hediff, out bool cachedDef))
+            {
+                return cachedDef;
+            }
+
+            bool result = false;
+
+            Type t = hediff.hediffClass;
+            try
+            {
+                if (t != null)
+                {
+                    if (chronicDiseaseTypeCache.TryGetValue(t, out bool cachedType))
+                    {
+                        if (cachedType) result = true;
+                    }
+                    else
+                    {
+                        bool typeResult = false;
+                        for (Type cur = t; cur != null; cur = cur.BaseType)
+                        {
+                            if (string.Equals(cur.Name, "ChronicDiseaseBase", StringComparison.Ordinal)
+                                || string.Equals(cur.FullName, "RimWorld.ChronicDiseaseBase", StringComparison.Ordinal)
+                                || string.Equals(cur.FullName, "ChronicDiseaseBase", StringComparison.Ordinal))
+                            {
+                                typeResult = true;
+                                break;
+                            }
+                        }
+
+                        chronicDiseaseTypeCache[t] = typeResult;
+                        if (typeResult) result = true;
+                    }
+                }
+            }
+            catch
+            {
+                result = false;
+            }
+
+            if (!result)
+            {
+                try
+                {
+                    result = IsDefDescendantOf(hediff, "ChronicDiseaseBase");
+                }
+                catch
+                {
+                    result = false;
+                }
+            }
+
+            chronicDiseaseDefCache[hediff] = result;
+            return result;
+        }
+
+        private static bool IsDefDescendantOf(HediffDef candidate, string baseDefName)
+        {
+            try
+            {
+                if (candidate == null) return false;
+                if (string.Equals(candidate.defName, baseDefName, StringComparison.Ordinal)) return true;
+
+                var visited = new HashSet<string>();
+                HediffDef current = candidate;
+
+                while (current != null)
+                {
+                    if (string.IsNullOrEmpty(current.defName)) break;
+                    if (visited.Contains(current.defName)) break;
+                    visited.Add(current.defName);
+
+                    if (string.Equals(current.defName, baseDefName, StringComparison.Ordinal)) return true;
+
+                    HediffDef parentDef = null;
+                    var parentFieldNames = new[] { "parent", "baseDef", "parentDef" };
+                    foreach (var fname in parentFieldNames)
+                    {
+                        var fi = current.GetType().GetField(fname, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                        if (fi != null && typeof(HediffDef).IsAssignableFrom(fi.FieldType))
+                        {
+                            parentDef = fi.GetValue(current) as HediffDef;
+                            if (parentDef != null) break;
+                        }
+                    }
+                    if (parentDef != null) { current = parentDef; continue; }
+
+                    string parentName = null;
+                    var parentNameField = current.GetType().GetField("parentName", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                                        ?? (FieldInfo)typeof(Def).GetField("parentName", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    if (parentNameField != null) parentName = parentNameField.GetValue(current) as string;
+                    if (string.IsNullOrEmpty(parentName))
+                    {
+                        var prop = current.GetType().GetProperty("ParentName", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                        if (prop != null) parentName = prop.GetValue(current) as string;
+                    }
+
+                    if (!string.IsNullOrEmpty(parentName))
+                    {
+                        if (string.Equals(parentName, baseDefName, StringComparison.Ordinal)) return true;
+                        var next = DefDatabase<HediffDef>.GetNamedSilentFail(parentName);
+                        if (next != null) { current = next; continue; }
+                    }
+
+                    break;
+                }
+            }
+            catch
+            {
+            }
+
+            return false;
         }
     }
 

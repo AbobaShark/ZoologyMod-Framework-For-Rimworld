@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using HarmonyLib;
 using RimWorld;
 using Verse;
@@ -18,12 +19,22 @@ namespace ZoologyMod
                     return true;
                 }
 
+                if (food is not Corpse corpse)
+                {
+                    return true;
+                }
+
+                if (p.Map != null && !CannotChewPresenceCache.HasCannotChewPawnsOnMap(p.Map))
+                {
+                    return true;
+                }
+
                 if (!CannotChewUtility.HasCannotChew(p))
                 {
                     return true;
                 }
 
-                if (food is Corpse corpse && CannotChewUtility.IsCorpseTooLarge(p, corpse))
+                if (CannotChewUtility.IsCorpseTooLarge(p, corpse))
                 {
                     __result = false;
                     return false;
@@ -35,6 +46,112 @@ namespace ZoologyMod
             }
 
             return true;
+        }
+    }
+
+    internal static class CannotChewPresenceCache
+    {
+        private static readonly Dictionary<int, int> cannotChewCountByMapId = new Dictionary<int, int>(4);
+        private static int totalCannotChew;
+
+        public static bool HasCannotChewPawnsOnMap(Map map)
+        {
+            if (map == null)
+            {
+                return totalCannotChew > 0;
+            }
+
+            return cannotChewCountByMapId.TryGetValue(map.uniqueID, out int count) && count > 0;
+        }
+
+        public static void NotifyPawnSpawned(Pawn pawn)
+        {
+            if (pawn == null || pawn.Map == null)
+            {
+                return;
+            }
+
+            if (!CannotChewUtility.HasCannotChew(pawn))
+            {
+                return;
+            }
+
+            int mapId = pawn.Map.uniqueID;
+            totalCannotChew++;
+            if (cannotChewCountByMapId.TryGetValue(mapId, out int count))
+            {
+                cannotChewCountByMapId[mapId] = count + 1;
+            }
+            else
+            {
+                cannotChewCountByMapId[mapId] = 1;
+            }
+        }
+
+        public static void NotifyPawnDespawned(Pawn pawn, Map map)
+        {
+            if (pawn == null || map == null)
+            {
+                return;
+            }
+
+            if (!CannotChewUtility.HasCannotChew(pawn))
+            {
+                return;
+            }
+
+            if (totalCannotChew > 0)
+            {
+                totalCannotChew--;
+            }
+
+            int mapId = map.uniqueID;
+            if (!cannotChewCountByMapId.TryGetValue(mapId, out int count))
+            {
+                return;
+            }
+
+            count--;
+            if (count <= 0)
+            {
+                cannotChewCountByMapId.Remove(mapId);
+            }
+            else
+            {
+                cannotChewCountByMapId[mapId] = count;
+            }
+        }
+    }
+
+    [HarmonyPatch(typeof(Pawn), nameof(Pawn.SpawnSetup))]
+    internal static class Patch_Pawn_SpawnSetup_CannotChewPresence
+    {
+        private static void Postfix(Pawn __instance)
+        {
+            try
+            {
+                CannotChewPresenceCache.NotifyPawnSpawned(__instance);
+            }
+            catch (Exception ex)
+            {
+                Log.Warning($"[Zoology] CannotChew presence spawn exception: {ex}");
+            }
+        }
+    }
+
+    [HarmonyPatch(typeof(Pawn), nameof(Pawn.DeSpawn))]
+    internal static class Patch_Pawn_DeSpawn_CannotChewPresence
+    {
+        private static void Prefix(Pawn __instance)
+        {
+            try
+            {
+                CannotChewPresenceCache.NotifyPawnDespawned(__instance, __instance?.Map);
+            }
+            catch (Exception ex)
+            {
+                Log.Warning($"[Zoology] CannotChew presence despawn exception: {ex}");
+            }
         }
     }
 

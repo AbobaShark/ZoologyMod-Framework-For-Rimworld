@@ -32,9 +32,39 @@ namespace ZoologyMod
                 return cached;
             }
 
-            bool isBaby = AnimalLactationUtility.IsAnimalBabyLifeStage(pawn.ageTracker?.CurLifeStage);
+            bool isBaby = IsMammalInfantStage(pawn);
             isBabyByPawnId[id] = isBaby;
             return isBaby;
+        }
+
+        private static bool IsMammalInfantStage(Pawn pawn)
+        {
+            if (pawn == null) return false;
+
+            var stage = pawn.ageTracker?.CurLifeStage;
+            if (AnimalLactationUtility.IsAnimalBabyLifeStage(stage))
+            {
+                return true;
+            }
+
+            if (stage != null && stage.developmentalStage == DevelopmentalStage.Baby)
+            {
+                return true;
+            }
+
+            try
+            {
+                var ages = pawn.RaceProps?.lifeStageAges;
+                if (ages != null && ages.Count > 1 && pawn.ageTracker != null)
+                {
+                    return pawn.ageTracker.CurLifeStageIndex == 0;
+                }
+            }
+            catch
+            {
+            }
+
+            return false;
         }
     }
     
@@ -68,11 +98,6 @@ namespace ZoologyMod
 
                 bool isBaby = MammalBabyCache.IsMammalBaby(p);
                 if (!isBaby)
-                {
-                    return true;
-                }
-
-                if (!ZoologyTickLimiter.TryConsumeFoodIsSuitable(ZoologyTickLimiter.FoodIsSuitableBudgetPerTick))
                 {
                     return true;
                 }
