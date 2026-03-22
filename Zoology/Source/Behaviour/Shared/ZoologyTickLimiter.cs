@@ -60,6 +60,9 @@ namespace ZoologyMod
             public const int AutoSlaughterCacheIntervalTicks = 120;
             public const int BackfillTickInterval = 600;
             public const int BreastfeedFallbackWaitTicks = 2000;
+            public const int SuckleRequestDurationTicks = 600;
+            public const int SuckleRequestCooldownTicks = 60;
+            public const int SuckleRequestCacheDurationTicks = 30;
         }
 
         // Childcare-related timing.

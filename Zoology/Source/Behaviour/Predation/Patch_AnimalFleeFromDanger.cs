@@ -64,43 +64,7 @@ namespace ZoologyMod
     {
         private static void Postfix(Pawn pawn, ref Job __result)
         {
-            try
-            {
-                if (__result != null)
-                {
-                    return;
-                }
-
-                if (pawn == null || !pawn.Spawned || pawn.Downed || pawn.Dead || !pawn.IsAnimal)
-                {
-                    return;
-                }
-
-                if (!Patch_AnimalFleeFromPredators.TryGetMeleeAttackerOnPawn(pawn, out Pawn attacker))
-                {
-                    return;
-                }
-
-                if (attacker == null || attacker == pawn)
-                {
-                    return;
-                }
-
-                Job curJob = pawn.CurJob;
-                if (curJob != null
-                    && curJob.def == JobDefOf.AttackMelee
-                    && curJob.targetA.HasThing
-                    && ReferenceEquals(curJob.GetTarget(TargetIndex.A).Thing, attacker))
-                {
-                    return;
-                }
-
-                __result = JobMaker.MakeJob(JobDefOf.AttackMelee, attacker);
-            }
-            catch (Exception ex)
-            {
-                Log.Warning($"[Zoology] ReactToCloseMeleeThreat fallback exception: {ex}");
-            }
+            // Intentionally no-op: do not force melee attacks or override vanilla behavior.
         }
     }
 
@@ -896,6 +860,13 @@ namespace ZoologyMod
                     return;
                 }
 
+                bool underMeleeAttack = IsPawnUnderMeleeAttack(pawn);
+                if (underMeleeAttack)
+                {
+                    // Do not apply flee logic in melee; leave vanilla behavior untouched.
+                    return;
+                }
+
                 if (__result != null || pawn.jobs?.curJob?.def == JobDefOf.Flee)
                 {
                     ClearNoThreatScanCache(pawn);
@@ -931,8 +902,6 @@ namespace ZoologyMod
                     StorePawnFleeDecisionCache(pawn, currentTick, null);
                     return;
                 }
-
-                bool underMeleeAttack = IsPawnUnderMeleeAttack(pawn);
 
                 if (!underMeleeAttack
                     && fleeFromPredatorsEnabled

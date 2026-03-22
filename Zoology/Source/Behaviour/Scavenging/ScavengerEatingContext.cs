@@ -13,7 +13,7 @@ namespace ZoologyMod
         public static void SetEating(Pawn pawn, Thing target)
         {
             if (pawn == null) return;
-            if (DefModExtensionCache<ModExtension_IsScavenger>.Get(pawn.def) == null) return;
+            if (!DefModExtensionCache<ModExtension_IsScavenger>.TryGet(pawn, out _)) return;
 
             int pawnId = pawn.thingIDNumber;
 
@@ -73,11 +73,18 @@ namespace ZoologyMod
             }
 
             Job curJob = pawn.CurJob;
-            if (curJob == null || curJob.def != JobDefOf.Ingest || curJob.targetA.Thing != corpse)
+            if (curJob != null && curJob.def == JobDefOf.Ingest)
             {
-                corpseToPawn.Remove(corpseId);
-                pawnToCorpseId.Remove(pawn.thingIDNumber);
-                return null;
+                bool matches = curJob.targetA.Thing == corpse
+                    || curJob.targetB.Thing == corpse
+                    || curJob.targetC.Thing == corpse;
+
+                if (!matches)
+                {
+                    corpseToPawn.Remove(corpseId);
+                    pawnToCorpseId.Remove(pawn.thingIDNumber);
+                    return null;
+                }
             }
 
             return pawn;

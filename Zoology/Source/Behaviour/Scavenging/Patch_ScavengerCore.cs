@@ -41,7 +41,10 @@ namespace ZoologyMod.HarmonyPatches
                     }
 
                     
-                    var scav = DefModExtensionCache<ModExtension_IsScavenger>.Get(eater.def);
+                    if (!DefModExtensionCache<ModExtension_IsScavenger>.TryGet(eater, out ModExtension_IsScavenger scav))
+                    {
+                        return true;
+                    }
                     if (scav == null)
                     {
                         return true;
@@ -126,8 +129,7 @@ namespace ZoologyMod.HarmonyPatches
                 var eater = ScavengerEatingContext.GetEatingPawnForCorpse(corpse);
                 if (eater == null) return true;
 
-                var scav = DefModExtensionCache<ModExtension_IsScavenger>.Get(eater.def);
-                if (scav == null) return true;
+                if (!DefModExtensionCache<ModExtension_IsScavenger>.TryGet(eater, out ModExtension_IsScavenger scav)) return true;
 
                 var rotComp = corpse.TryGetComp<CompRottable>();
                 RotStage stage = rotComp != null ? rotComp.Stage : corpse.GetRotStage();
@@ -187,8 +189,7 @@ namespace ZoologyMod.HarmonyPatches
                     var eater = ScavengerEatingContext.GetEatingPawnForCorpse(corpse);
                     if (eater == null) return true;
 
-                    var scav = DefModExtensionCache<ModExtension_IsScavenger>.Get(eater.def);
-                    if (scav == null) return true;
+                    if (!DefModExtensionCache<ModExtension_IsScavenger>.TryGet(eater, out ModExtension_IsScavenger scav)) return true;
 
                     var rotComp = corpse.TryGetComp<CompRottable>();
                     RotStage rotStage = rotComp != null ? rotComp.Stage : corpse.GetRotStage();
@@ -235,11 +236,11 @@ namespace ZoologyMod.HarmonyPatches
                     var settings = ZoologyModSettings.Instance;
                     if (settings != null && !settings.EnableScavengering) return;
                     if (__result == null) return;
-                    var scav = DefModExtensionCache<ModExtension_IsScavenger>.Get(ingester?.def);
-                    if (scav == null) return; 
+                    if (!DefModExtensionCache<ModExtension_IsScavenger>.TryGet(ingester, out ModExtension_IsScavenger scav)) return; 
 
-                    Action oldInit = __result.initAction;
-                    __result.initAction = () =>
+                    Toil toil = __result;
+                    Action oldInit = toil.initAction;
+                    toil.initAction = () =>
                     {
                         try
                         {
@@ -247,16 +248,35 @@ namespace ZoologyMod.HarmonyPatches
                             try
                             {
                                 Thing target = null;
-                                if (ingester != null && ingester.CurJob != null)
+                                Pawn actor = toil.actor;
+                                Job actorJob = actor?.CurJob;
+                                if (actorJob != null)
                                 {
-                                    
-                                    target = ingester.CurJob.targetA.Thing;
+                                    target = actorJob.GetTarget(ingestibleInd).Thing;
+                                    if (target == null)
+                                    {
+                                        target = actorJob.targetA.Thing;
+                                    }
                                 }
+
+                                if (target == null && ingester != null)
+                                {
+                                    Job ingesterJob = ingester.CurJob;
+                                    if (ingesterJob != null)
+                                    {
+                                        target = ingesterJob.GetTarget(ingestibleInd).Thing;
+                                        if (target == null)
+                                        {
+                                            target = ingesterJob.targetA.Thing;
+                                        }
+                                    }
+                                }
+
                                 ScavengerEatingContext.SetEating(ingester, target);
                             }
-                            catch (Exception ex) 
-                            { 
-                                Log.Error("[Zoology] Exception in FinalizeIngest init wrapper (SetEating): " + ex); 
+                            catch (Exception ex)
+                            {
+                                Log.Error("[Zoology] Exception in FinalizeIngest init wrapper (SetEating): " + ex);
                             }
                         }
                         catch (Exception ex)
@@ -268,7 +288,7 @@ namespace ZoologyMod.HarmonyPatches
                         catch (Exception ex) { Log.Error("[Zoology] Exception in FinalizeIngest oldInit: " + ex); }
                     };
 
-                    __result.AddFinishAction(() =>
+                    toil.AddFinishAction(() =>
                     {
                         try
                         {
@@ -334,6 +354,44 @@ namespace ZoologyMod.HarmonyPatches
 
             static MethodBase TargetMethod() => TargetMethod_IngestedCalculateAmounts();
             static void Postfix(Pawn ingester) => Postfix_IngestedCalculateAmounts(ingester);
+        }
+
+        
+        [HarmonyPatch(typeof(Thing), nameof(Thing.Ingested), new[] { typeof(Pawn), typeof(float) })]
+        private static class Inner_Thing_Ingested
+        {
+            static bool Prepare()
+            {
+                var s = ZoologyModSettings.Instance;
+                return s == null || s.EnableScavengering;
+            }
+
+            static void Prefix(Thing __instance, Pawn ingester, float nutritionWanted)
+            {
+                try
+                {
+                    if (ingester == null) return;
+                    if (!DefModExtensionCache<ModExtension_IsScavenger>.TryGet(ingester, out ModExtension_IsScavenger scav)) return;
+
+                    ScavengerEatingContext.SetEating(ingester, __instance);
+                }
+                catch (Exception e)
+                {
+                    Log.Error("[Zoology] Error in Thing.Ingested prefix: " + e);
+                }
+            }
+
+            static void Postfix(Thing __instance, Pawn ingester, float nutritionWanted)
+            {
+                try
+                {
+                    ScavengerEatingContext.Clear(ingester);
+                }
+                catch (Exception e)
+                {
+                    Log.Error("[Zoology] Error in Thing.Ingested postfix: " + e);
+                }
+            }
         }
     }
 }
