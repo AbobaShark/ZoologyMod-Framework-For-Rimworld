@@ -104,6 +104,7 @@ namespace ZoologyMod
             public const int MinThreatScanIntervalTicks = 2;
             public const int ThreatScanBudgetCooldownTicks = 8;
             public const int FallbackThreatScanBudgetPerTick = 4;
+            public const int TargetedPredatorImmediateRefreshIntervalTicks = 10;
         }
 
         // Pursuit block logic timing.

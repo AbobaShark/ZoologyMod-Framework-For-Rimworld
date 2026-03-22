@@ -4,7 +4,6 @@ using HarmonyLib;
 using RimWorld;
 using Verse;
 using Verse.AI;
-using UnityEngine;
 using ZoologyMod;
 
 namespace ZoologyMod.HarmonyPatches
@@ -354,6 +353,88 @@ namespace ZoologyMod.HarmonyPatches
 
             static MethodBase TargetMethod() => TargetMethod_IngestedCalculateAmounts();
             static void Postfix(Pawn ingester) => Postfix_IngestedCalculateAmounts(ingester);
+        }
+
+        
+        [HarmonyPatch(typeof(Toils_Ingest), nameof(Toils_Ingest.ChewIngestible))]
+        private static class Inner_ToilsIngest_ChewIngestible
+        {
+            static bool Prepare()
+            {
+                var s = ZoologyModSettings.Instance;
+                return s == null || s.EnableScavengering;
+            }
+
+            static void Postfix(ref Toil __result, Pawn chewer, float durationMultiplier, TargetIndex ingestibleInd, TargetIndex eatSurfaceInd)
+            {
+                try
+                {
+                    var settings = ZoologyModSettings.Instance;
+                    if (settings != null && !settings.EnableScavengering) return;
+                    if (__result == null || chewer == null) return;
+
+                    Toil toil = __result;
+                    Action oldInit = toil.initAction;
+                    toil.initAction = () =>
+                    {
+                        try
+                        {
+                            Thing target = null;
+                            Pawn actor = toil.actor;
+                            Job actorJob = actor?.CurJob;
+                            if (actorJob != null)
+                            {
+                                target = actorJob.GetTarget(ingestibleInd).Thing;
+                                if (target == null)
+                                {
+                                    target = actorJob.targetA.Thing;
+                                }
+                            }
+
+                            if (target == null && chewer != null)
+                            {
+                                Job chewerJob = chewer.CurJob;
+                                if (chewerJob != null)
+                                {
+                                    target = chewerJob.GetTarget(ingestibleInd).Thing;
+                                    if (target == null)
+                                    {
+                                        target = chewerJob.targetA.Thing;
+                                    }
+                                }
+                            }
+
+                            if (target is Corpse)
+                            {
+                                ScavengerEatingContext.SetEating(chewer, target);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.Error("[Zoology] Exception in ChewIngestible init wrapper (SetEating): " + ex);
+                        }
+
+                        try { oldInit?.Invoke(); }
+                        catch (Exception ex) { Log.Error("[Zoology] Exception in ChewIngestible oldInit: " + ex); }
+                    };
+
+                    toil.AddFinishAction(() =>
+                    {
+                        try
+                        {
+                            ScavengerEatingContext.Clear(chewer);
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.Error("[Zoology] Exception clearing ScavengerEatingContext in chew finish: " + ex);
+                        }
+                    });
+                }
+                catch (Exception e)
+                {
+                    Log.Error("[Zoology] Error wrapping ChewIngestible: " + e);
+                }
+            }
         }
 
         

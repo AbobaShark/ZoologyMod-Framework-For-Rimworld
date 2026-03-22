@@ -405,6 +405,18 @@ namespace ZoologyMod
             public Job Job { get; }
         }
 
+        private readonly struct TargetedPredatorEntry
+        {
+            public TargetedPredatorEntry(Pawn predator, Pawn prey)
+            {
+                Predator = predator;
+                Prey = prey;
+            }
+
+            public Pawn Predator { get; }
+            public Pawn Prey { get; }
+        }
+
         private sealed class ThreatScanBudgetEntry
         {
             public int Tick;
@@ -784,6 +796,9 @@ namespace ZoologyMod
         private static readonly List<ProtectPreyMapCache.Entry> protectPreyThreatEntriesScratch = new List<ProtectPreyMapCache.Entry>(16);
         private static int protectPreyThreatEntriesTick = -1;
         private static int protectPreyThreatEntriesMapId = -1;
+        private static readonly List<TargetedPredatorEntry> targetedPredatorEntriesScratch = new List<TargetedPredatorEntry>(16);
+        private static int targetedPredatorEntriesTick = -1;
+        private static int targetedPredatorEntriesMapId = -1;
 
         private const float PredatorSearchRadius = 12f;
         private const float NonHostilePredatorSearchRadiusFactor = 0.5f;
@@ -807,6 +822,7 @@ namespace ZoologyMod
         private const int ThreatScanBudgetMax = 96;
         private const int ThreatScanBudgetCooldownTicks = ZoologyTickLimiter.FleeThreat.ThreatScanBudgetCooldownTicks;
         private const int FallbackThreatScanBudgetPerTick = ZoologyTickLimiter.FleeThreat.FallbackThreatScanBudgetPerTick;
+        private const int TargetedPredatorRefreshIntervalTicks = ZoologyTickLimiter.FleeThreat.TargetedPredatorImmediateRefreshIntervalTicks;
 
         private static int lastThreatCacheCleanupTick = -ThreatCacheCleanupIntervalTicks;
         private static int lastFreshThreatCacheTick = int.MinValue;
@@ -909,6 +925,16 @@ namespace ZoologyMod
                 {
                     ClearNoThreatScanCache(pawn);
                     __result = protectPreyFleeJob;
+                    StorePawnFleeDecisionCache(pawn, currentTick, __result);
+                    return;
+                }
+
+                if (!underMeleeAttack
+                    && fleeFromPredatorsEnabled
+                    && TryHandleImmediateTargetedPredatorThreat(pawn, out Job targetedPredatorFleeJob))
+                {
+                    ClearNoThreatScanCache(pawn);
+                    __result = targetedPredatorFleeJob;
                     StorePawnFleeDecisionCache(pawn, currentTick, __result);
                     return;
                 }
@@ -1040,6 +1066,136 @@ namespace ZoologyMod
 
             bool preyIsPhotonozoa = ZoologyCacheUtility.IsPhotonozoa(pawn.def);
             return TryBuildProtectPreyFleeJob(pawn, threat, preyIsPhotonozoa, out fleeJob);
+        }
+
+        private static bool TryHandleImmediateTargetedPredatorThreat(Pawn pawn, out Job fleeJob)
+        {
+            fleeJob = null;
+            if (pawn?.Map == null)
+            {
+                return false;
+            }
+
+            int currentTick = Find.TickManager?.TicksGame ?? 0;
+            var entries = GetTargetedPredatorEntriesForMap(pawn.Map, currentTick);
+            if (entries == null || entries.Count == 0)
+            {
+                return false;
+            }
+
+            float maxDistanceSq = PredatorSearchRadius * PredatorSearchRadius;
+            IntVec3 pawnPos = pawn.Position;
+            Pawn best = null;
+            float bestDist = float.MaxValue;
+
+            for (int i = 0; i < entries.Count; i++)
+            {
+                var entry = entries[i];
+                if (!ReferenceEquals(entry.Prey, pawn))
+                {
+                    continue;
+                }
+
+                Pawn predator = entry.Predator;
+                if (predator == null || predator.Dead || predator.Destroyed || predator.Downed || !predator.Spawned)
+                {
+                    continue;
+                }
+
+                if (predator.Map != pawn.Map)
+                {
+                    continue;
+                }
+
+                float dist = (predator.Position - pawnPos).LengthHorizontalSquared;
+                if (dist > maxDistanceSq)
+                {
+                    continue;
+                }
+
+                if (!IsThreatTargetingPawn(predator, pawn))
+                {
+                    continue;
+                }
+
+                if (!HasLineOfSightAndReach(predator, pawn))
+                {
+                    continue;
+                }
+
+                if (dist < bestDist)
+                {
+                    bestDist = dist;
+                    best = predator;
+                }
+            }
+
+            if (best == null)
+            {
+                return false;
+            }
+
+            bool preyIsPhotonozoa = ZoologyCacheUtility.IsPhotonozoa(pawn.def);
+            bool foodJobActive = IsFoodSeekingOrEatingJob(pawn);
+            return TryBuildPredatorFleeJob(pawn, best, preyIsPhotonozoa, foodJobActive, out fleeJob);
+        }
+
+        private static List<TargetedPredatorEntry> GetTargetedPredatorEntriesForMap(Map map, int currentTick)
+        {
+            if (map == null)
+            {
+                return null;
+            }
+
+            int mapId = map.uniqueID;
+            if (targetedPredatorEntriesMapId == mapId
+                && currentTick - targetedPredatorEntriesTick < TargetedPredatorRefreshIntervalTicks)
+            {
+                return targetedPredatorEntriesScratch;
+            }
+
+            targetedPredatorEntriesTick = currentTick;
+            targetedPredatorEntriesMapId = mapId;
+            targetedPredatorEntriesScratch.Clear();
+
+            IReadOnlyList<Pawn> pawns = map.mapPawns?.AllPawnsSpawned;
+            if (pawns == null || pawns.Count == 0)
+            {
+                return targetedPredatorEntriesScratch;
+            }
+
+            for (int i = 0; i < pawns.Count; i++)
+            {
+                Pawn predator = pawns[i];
+                if (predator == null || predator.Dead || predator.Destroyed || predator.Downed || !predator.Spawned)
+                {
+                    continue;
+                }
+
+                if (predator.RaceProps?.predator != true)
+                {
+                    continue;
+                }
+
+                if (!TryGetThreatTargetPawn(predator, out Pawn prey))
+                {
+                    continue;
+                }
+
+                if (prey == null || prey.Dead || prey.Destroyed || prey.Downed || !prey.Spawned)
+                {
+                    continue;
+                }
+
+                if (prey.Map != map)
+                {
+                    continue;
+                }
+
+                targetedPredatorEntriesScratch.Add(new TargetedPredatorEntry(predator, prey));
+            }
+
+            return targetedPredatorEntriesScratch;
         }
 
         private static bool TryGetProtectPreyThreatForPawn(Pawn pawn, int currentTick, out Pawn threat)

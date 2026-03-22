@@ -405,6 +405,10 @@ namespace ZoologyMod
     public static class AgelessHarmonyInit
     {
         private static bool patched;
+        private static readonly AccessTools.FieldRef<Pawn_HealthTracker, Pawn> HealthTrackerPawnRef =
+            AccessTools.FieldRefAccess<Pawn_HealthTracker, Pawn>("pawn");
+        private static readonly AccessTools.FieldRef<HediffSet, Pawn> HediffSetPawnRef =
+            AccessTools.FieldRefAccess<HediffSet, Pawn>("pawn");
 
         static AgelessHarmonyInit()
         {
@@ -452,6 +456,9 @@ namespace ZoologyMod
 
                 var prefix = new HarmonyMethod(typeof(AgelessHarmonyInit).GetMethod(nameof(TryApply_Prefix), BindingFlags.Static | BindingFlags.NonPublic));
                 harmony.Patch(method, prefix: prefix);
+
+                PatchAddHediffMethods(harmony);
+                PatchHediffSetAddMethods(harmony);
             }
             catch (Exception e)
             {
@@ -520,6 +527,178 @@ namespace ZoologyMod
                 Log.Error($"[Zoology] TryApply_Prefix exception: {e}");
                 return true; 
             }
+        }
+
+        private static void PatchAddHediffMethods(Harmony harmony)
+        {
+            try
+            {
+                var ht = typeof(Pawn_HealthTracker);
+                var addHediffDef = AccessTools.Method(ht, nameof(Pawn_HealthTracker.AddHediff),
+                    new[] { typeof(HediffDef), typeof(BodyPartRecord), typeof(DamageInfo?), typeof(DamageWorker.DamageResult) });
+                if (addHediffDef != null)
+                {
+                    var prefix = new HarmonyMethod(typeof(AgelessHarmonyInit).GetMethod(nameof(AddHediffDef_Prefix), BindingFlags.Static | BindingFlags.NonPublic));
+                    harmony.Patch(addHediffDef, prefix: prefix);
+                }
+                else
+                {
+                    Log.Error("[Zoology] AgelessHarmonyInit: couldn't find Pawn_HealthTracker.AddHediff(HediffDef) to patch.");
+                }
+
+                var addHediff = AccessTools.Method(ht, nameof(Pawn_HealthTracker.AddHediff),
+                    new[] { typeof(Hediff), typeof(BodyPartRecord), typeof(DamageInfo?), typeof(DamageWorker.DamageResult) });
+                if (addHediff != null)
+                {
+                    var prefix = new HarmonyMethod(typeof(AgelessHarmonyInit).GetMethod(nameof(AddHediff_Prefix), BindingFlags.Static | BindingFlags.NonPublic));
+                    harmony.Patch(addHediff, prefix: prefix);
+                }
+                else
+                {
+                    Log.Error("[Zoology] AgelessHarmonyInit: couldn't find Pawn_HealthTracker.AddHediff(Hediff) to patch.");
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error($"[Zoology] AgelessHarmonyInit failed to patch AddHediff: {e}");
+            }
+        }
+
+        private static void PatchHediffSetAddMethods(Harmony harmony)
+        {
+            try
+            {
+                var hs = typeof(HediffSet);
+                var methods = hs.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                int patchedCount = 0;
+
+                foreach (var m in methods)
+                {
+                    if (m.Name != "AddDirect" && m.Name != "Add") continue;
+                    var parms = m.GetParameters();
+                    if (parms.Length == 0 || parms[0].ParameterType != typeof(Hediff)) continue;
+
+                    var prefix = new HarmonyMethod(typeof(AgelessHarmonyInit).GetMethod(nameof(HediffSetAdd_Prefix), BindingFlags.Static | BindingFlags.NonPublic));
+                    harmony.Patch(m, prefix: prefix);
+                    patchedCount++;
+                }
+
+                if (patchedCount == 0)
+                {
+                    Log.Error("[Zoology] AgelessHarmonyInit: couldn't find HediffSet Add/AddDirect(Hediff) to patch.");
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error($"[Zoology] AgelessHarmonyInit failed to patch HediffSet Add/AddDirect: {e}");
+            }
+        }
+
+        private static bool AddHediffDef_Prefix(Pawn_HealthTracker __instance, HediffDef def)
+        {
+            try
+            {
+                var settings = ZoologyModSettings.Instance;
+                if (settings != null && !settings.EnableAgelessPatch)
+                {
+                    return true;
+                }
+
+                if (def == null) return true;
+
+                Pawn pawn = HealthTrackerPawnRef(__instance);
+                if (pawn == null) return true;
+
+                var comp = pawn.TryGetComp<CompAgeless>();
+                if (comp == null) return true;
+
+                if (AgelessUtils.IsHediffForbiddenForPawn(pawn, def))
+                {
+                    if (Prefs.DevMode)
+                    {
+                        Log.Message($"[Zoology] blocked AddHediff(HediffDef) {def.defName} on {pawn.LabelShortCap}");
+                    }
+                    return false;
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error($"[Zoology] AddHediffDef_Prefix exception: {e}");
+            }
+
+            return true;
+        }
+
+        private static bool HediffSetAdd_Prefix(HediffSet __instance, Hediff hediff)
+        {
+            try
+            {
+                var settings = ZoologyModSettings.Instance;
+                if (settings != null && !settings.EnableAgelessPatch)
+                {
+                    return true;
+                }
+
+                HediffDef def = hediff?.def;
+                if (def == null) return true;
+
+                Pawn pawn = HediffSetPawnRef(__instance);
+                if (pawn == null) return true;
+
+                var comp = pawn.TryGetComp<CompAgeless>();
+                if (comp == null) return true;
+
+                if (AgelessUtils.IsHediffForbiddenForPawn(pawn, def))
+                {
+                    if (Prefs.DevMode)
+                    {
+                        Log.Message($"[Zoology] blocked HediffSet.{__instance?.GetType().Name}.Add/AddDirect {def.defName} on {pawn.LabelShortCap}");
+                    }
+                    return false;
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error($"[Zoology] HediffSetAdd_Prefix exception: {e}");
+            }
+
+            return true;
+        }
+
+        private static bool AddHediff_Prefix(Pawn_HealthTracker __instance, Hediff hediff)
+        {
+            try
+            {
+                var settings = ZoologyModSettings.Instance;
+                if (settings != null && !settings.EnableAgelessPatch)
+                {
+                    return true;
+                }
+
+                HediffDef def = hediff?.def;
+                if (def == null) return true;
+
+                Pawn pawn = HealthTrackerPawnRef(__instance);
+                if (pawn == null) return true;
+
+                var comp = pawn.TryGetComp<CompAgeless>();
+                if (comp == null) return true;
+
+                if (AgelessUtils.IsHediffForbiddenForPawn(pawn, def))
+                {
+                    if (Prefs.DevMode)
+                    {
+                        Log.Message($"[Zoology] blocked AddHediff(Hediff) {def.defName} on {pawn.LabelShortCap}");
+                    }
+                    return false;
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error($"[Zoology] AddHediff_Prefix exception: {e}");
+            }
+
+            return true;
         }
     }
 }
