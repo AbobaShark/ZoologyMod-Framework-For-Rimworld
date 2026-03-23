@@ -943,21 +943,28 @@ namespace ZoologyMod
                 }
                 if (!isHuntDriver)
                 {
-                    if (kj == null || kj.def != JobDefOf.AttackMelee)
-                    {
-                        return;
-                    }
+                    return;
+                }
+
+                Pawn huntPrey = null;
+                try { huntPrey = killer.jobs?.curDriver is JobDriver_PredatorHunt huntDriver ? huntDriver.Prey : null; } catch { huntPrey = null; }
+                Thing jobTarget = null;
+                try { jobTarget = killer.CurJob?.targetA.Thing; } catch { jobTarget = null; }
+
+                if (huntPrey != null && huntPrey != __instance)
+                {
+                    return;
+                }
+
+                if (huntPrey == null && jobTarget != null && jobTarget != __instance)
+                {
+                    return;
                 }
 
                 Corpse corpse = __instance.Corpse ?? PredationLookupUtility.FindSpawnedCorpseForInnerPawn(__instance);
 
                 if (corpse == null)
                 {
-                    var compFallback = PredatorPreyPairGameComponent.Instance;
-                    if (compFallback != null)
-                    {
-                        compFallback.RegisterPairFromKill(killer, __instance);
-                    }
                     return;
                 }
 
