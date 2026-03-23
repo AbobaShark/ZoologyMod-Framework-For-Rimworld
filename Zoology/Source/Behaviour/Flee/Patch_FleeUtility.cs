@@ -17,7 +17,7 @@ namespace ZoologyMod
         public static bool Prefix(Pawn pawn, ref bool __result)
         {
             var settings = ModConstants.Settings;
-            if (settings == null || !settings.EnableCustomFleeDanger)
+            if (settings != null && !settings.EnableCustomFleeDanger)
                 return true;
 
             if (pawn == null)

@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 using HarmonyLib;
 using RimWorld;
@@ -10,22 +9,9 @@ namespace ZoologyMod.Patches
     [HarmonyPatch]
     public static class DamageReduction_AnimalTypes_PawnTakeDamage
     {
-        private const string AnimalThingBaseDefName = "AnimalThingBase";
-
         private static readonly Type ScratchWorkerType = AccessTools.TypeByName("DamageWorker_Scratch");
         private static readonly Type BiteWorkerType = AccessTools.TypeByName("DamageWorker_Bite");
         private static readonly Type BluntWorkerType = AccessTools.TypeByName("DamageWorker_Blunt");
-
-        private static readonly FieldInfo ParentNameField =
-            AccessTools.Field(typeof(ThingDef), "parentName") ?? AccessTools.Field(typeof(Def), "parentName");
-
-        private static readonly PropertyInfo ParentNameProperty =
-            ParentNameField == null
-                ? AccessTools.Property(typeof(ThingDef), "ParentName") ?? AccessTools.Property(typeof(Def), "ParentName")
-                : null;
-
-        private static readonly Dictionary<ThingDef, bool> strictAnimalCache = new Dictionary<ThingDef, bool>();
-        private static readonly Dictionary<Type, bool> supportedWorkerCache = new Dictionary<Type, bool>();
 
         public static bool Prepare()
         {
@@ -36,39 +22,68 @@ namespace ZoologyMod.Patches
         static MethodBase TargetMethod()
         {
             var method = AccessTools.Method(typeof(Pawn), "TakeDamage", new Type[] { typeof(DamageInfo) });
+            if (method != null)
+            {
+                return method;
+            }
+
+            method = AccessTools.Method(typeof(Thing), "TakeDamage", new Type[] { typeof(DamageInfo) });
             if (method == null)
             {
-                Log.Error("[ZoologyMod] DamageReduction_AnimalTypes: не найден целевой метод Pawn.TakeDamage(DamageInfo). Патч не будет применён.");
+                Log.Error("[ZoologyMod] DamageReduction_AnimalTypes: не найден целевой метод Pawn/Thing.TakeDamage(DamageInfo). Патч не будет применён.");
             }
 
             return method;
         }
 
         [HarmonyPrefix]
-        public static void Prefix(Pawn __instance, ref DamageInfo dinfo)
+        public static void Prefix(Thing __instance, ref DamageInfo dinfo)
         {
             try
             {
                 var settings = ZoologyModSettings.Instance;
-                if (settings == null || !settings.EnableAnimalDamageReduction)
+                if (settings != null && !settings.EnableAnimalDamageReduction)
                     return;
 
-                var damageDef = dinfo.Def;
-                if (damageDef == null) return;
+                if (dinfo.Def == null) return;
 
-                Type workerClass = damageDef.workerClass;
-                if (!IsSupportedWorkerClass(workerClass)) return;
-
-                Pawn victim = __instance;
+                Pawn victim = __instance as Pawn;
                 if (victim == null) return;
 
                 Thing instigator = dinfo.Instigator;
                 if (instigator == null) return;
 
-                if (!IsThingAnimalStrict(victim)) return;
-                if (!IsThingAnimalStrict(instigator)) return;
+                if (!victim.IsAnimal)
+                {
+                    return;
+                }
+
+                Type workerClass = dinfo.Def.workerClass;
+                bool isScratch = ScratchWorkerType != null && (workerClass == ScratchWorkerType || workerClass.IsSubclassOf(ScratchWorkerType));
+                bool isBite = BiteWorkerType != null && (workerClass == BiteWorkerType || workerClass.IsSubclassOf(BiteWorkerType));
+                bool isBlunt = BluntWorkerType != null && (workerClass == BluntWorkerType || workerClass.IsSubclassOf(BluntWorkerType));
+                if (!isScratch && !isBite && !isBlunt) return;
 
                 Pawn attackerPawn = instigator as Pawn;
+                if (attackerPawn == null) return;
+
+                bool instigatorIsAnimal = attackerPawn.IsAnimal;
+                bool isHumanNaturalToolAttack = IsHumanNaturalToolAttack(attackerPawn, dinfo);
+
+                if (!instigatorIsAnimal && !isHumanNaturalToolAttack) return;
+
+                // Skip reduction for attacks done with weapons or hediff-based tools (bionics).
+                if (attackerPawn != null)
+                {
+                    if (dinfo.WeaponLinkedHediff != null)
+                    {
+                        return;
+                    }
+                    if (dinfo.Weapon != null && dinfo.Weapon != attackerPawn.def)
+                    {
+                        return;
+                    }
+                }
 
                 bool victimIsPredator = victim.RaceProps?.predator ?? false;
                 bool attackerIsPredator = false;
@@ -86,6 +101,10 @@ namespace ZoologyMod.Patches
                 {
                     attackerBodySizeActual = attackerPawn.BodySize;
                     attackerIsPredator = attackerPawn.RaceProps?.predator ?? false;
+                    if (isHumanNaturalToolAttack)
+                    {
+                        attackerIsPredator = false;
+                    }
                     if (attackerPawn.def?.race != null)
                         attackerBaseSize = attackerPawn.def.race.baseBodySize;
                 }
@@ -161,6 +180,7 @@ namespace ZoologyMod.Patches
                         Log.Warning("[ZoologyMod] AnimalDamageReduction: не удалось создать/изменить DamageInfo для редукции урона. Отказываемся от редукции в этом случае.");
                     }
                 }
+
             }
             catch (Exception ex)
             {
@@ -168,102 +188,54 @@ namespace ZoologyMod.Patches
             }
         }
 
-        private static bool IsSupportedWorkerClass(Type workerClass)
+        private static bool IsHumanNaturalToolAttack(Pawn attackerPawn, DamageInfo dinfo)
         {
-            if (workerClass == null)
+            if (attackerPawn == null)
             {
                 return false;
             }
 
-            if (supportedWorkerCache.TryGetValue(workerClass, out bool cached))
-            {
-                return cached;
-            }
-
-            bool isScratch = ScratchWorkerType != null && (workerClass == ScratchWorkerType || workerClass.IsSubclassOf(ScratchWorkerType));
-            bool isBite = BiteWorkerType != null && (workerClass == BiteWorkerType || workerClass.IsSubclassOf(BiteWorkerType));
-            bool isBlunt = BluntWorkerType != null && (workerClass == BluntWorkerType || workerClass.IsSubclassOf(BluntWorkerType));
-
-            bool result = isScratch || isBite || isBlunt;
-            supportedWorkerCache[workerClass] = result;
-            return result;
-        }
-
-        private static bool IsThingAnimalStrict(Thing thing)
-        {
-            return IsThingAnimalStrict(thing?.def);
-        }
-
-        private static bool IsThingAnimalStrict(ThingDef def)
-        {
-            if (def == null)
+            var raceProps = attackerPawn.RaceProps;
+            if (raceProps == null || !raceProps.Humanlike)
             {
                 return false;
             }
 
-            if (strictAnimalCache.TryGetValue(def, out bool cached))
-            {
-                return cached;
-            }
-
-            bool result = false;
-            try
-            {
-                ThingDef current = def;
-                while (current != null)
-                {
-                    if (string.Equals(current.defName, AnimalThingBaseDefName, StringComparison.Ordinal))
-                    {
-                        result = true;
-                        break;
-                    }
-
-                    string parentName = GetParentName(current);
-                    if (string.IsNullOrEmpty(parentName))
-                    {
-                        break;
-                    }
-
-                    current = DefDatabase<ThingDef>.GetNamedSilentFail(parentName);
-                }
-
-                if (!result && def.race != null)
-                {
-                    string thinkMainName = def.race.thinkTreeMain?.defName;
-                    if (!string.IsNullOrEmpty(thinkMainName)
-                        && thinkMainName.IndexOf("Animal", StringComparison.OrdinalIgnoreCase) >= 0)
-                    {
-                        result = true;
-                    }
-                }
-            }
-            catch
-            {
-                result = false;
-            }
-
-            strictAnimalCache[def] = result;
-            return result;
+            return IsPawnNaturalToolAttack(attackerPawn, dinfo);
         }
 
-        private static string GetParentName(ThingDef def)
+        private static bool IsPawnNaturalToolAttack(Pawn attackerPawn, DamageInfo dinfo)
         {
-            if (def == null)
+            if (attackerPawn == null)
             {
-                return null;
+                return false;
             }
 
-            if (ParentNameField != null)
+            // Bionic or hediff-based tool (e.g., bionic arms/jaws) should not be reduced.
+            if (dinfo.WeaponLinkedHediff != null)
             {
-                return ParentNameField.GetValue(def) as string;
+                return false;
             }
 
-            if (ParentNameProperty != null)
+            Tool tool = dinfo.Tool;
+            if (tool != null)
             {
-                return ParentNameProperty.GetValue(def) as string;
+                var tools = attackerPawn.def?.tools;
+                if (tools != null && tools.Contains(tool))
+                {
+                    return true;
+                }
             }
 
-            return null;
+            ThingDef weapon = dinfo.Weapon;
+            if (weapon != null && weapon == attackerPawn.def)
+            {
+                return true;
+            }
+
+            return false;
         }
+
+
     }
 }

@@ -23,7 +23,7 @@ namespace ZoologyMod
             }
 
             ZoologyModSettings settings = ZoologyModSettings.Instance;
-            if (settings == null || !settings.EnableIgnoreSmallPetsByRaiders)
+            if (settings != null && !settings.EnableIgnoreSmallPetsByRaiders)
             {
                 return true;
             }
@@ -68,7 +68,11 @@ namespace ZoologyMod
 
             if (otherPawn != null && otherPawn.RaceProps?.Humanlike != true)
             {
-                return true;
+                // Allow the same "ignore small pets" behavior for hostile faction animals (e.g. raider animals, Photonozoa).
+                if (otherPawn.Faction == null || !otherPawn.Faction.HostileTo(Faction.OfPlayer))
+                {
+                    return true;
+                }
             }
 
             Lord lord = otherPawn?.GetLord();

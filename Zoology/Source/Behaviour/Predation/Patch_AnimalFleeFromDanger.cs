@@ -858,7 +858,7 @@ namespace ZoologyMod
             {
                 ZoologyModSettings settings = ZoologyModSettings.Instance;
                 bool fleeFromPredatorsEnabled = settings == null || settings.EnablePreyFleeFromPredators;
-                bool fleeFromHumansEnabled = settings != null && settings.AnimalsFreeFromHumans;
+                bool fleeFromHumansEnabled = settings == null || settings.AnimalsFreeFromHumans;
                 bool fleeFromCarriersEnabled = settings == null || settings.EnableFleeFromCarrier;
                 bool fleeFromRaidersForSmallPetsEnabled = settings != null
                     && settings.EnableIgnoreSmallPetsByRaiders
@@ -1669,7 +1669,7 @@ namespace ZoologyMod
 
         private static bool CanAnimalFleeFromHumans(Pawn pawn, ZoologyModSettings settings, ThreatMapCacheData threatCache = null)
         {
-            if (pawn == null || settings == null || !settings.AnimalsFreeFromHumans)
+            if (pawn == null || (settings != null && !settings.AnimalsFreeFromHumans))
             {
                 return false;
             }
@@ -2417,9 +2417,8 @@ namespace ZoologyMod
         private static bool IsPredatorGuardingCorpseAgainstHumans(Pawn pawn, ZoologyModSettings settings)
         {
             if (pawn == null
-                || settings == null
-                || !settings.AnimalsFreeFromHumans
-                || !settings.EnablePredatorDefendCorpse
+                || (settings != null && !settings.AnimalsFreeFromHumans)
+                || (settings != null && !settings.EnablePredatorDefendCorpse)
                 || !ZoologyModSettings.CanPredatorDefendPreyFromHumansAndMechanoidsNow(pawn))
             {
                 return false;
