@@ -9,6 +9,23 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(Pawn), "ThreatDisabledBecauseNonAggressiveRoamer")]
     public static class Patch_SmallPetThreatDisabled
     {
+        private static bool IsHostileToPlayerFactionSafe(Faction faction)
+        {
+            if (faction == null)
+            {
+                return false;
+            }
+
+            Faction playerFaction = Faction.OfPlayer;
+            if (playerFaction == null || ReferenceEquals(faction, playerFaction))
+            {
+                return false;
+            }
+
+            FactionRelation relation = faction.RelationWith(playerFaction, allowNull: true);
+            return relation != null && relation.kind == FactionRelationKind.Hostile;
+        }
+
         public static bool Prepare()
         {
             var settings = ZoologyModSettings.Instance;
@@ -69,7 +86,7 @@ namespace ZoologyMod
             if (otherPawn != null && otherPawn.RaceProps?.Humanlike != true)
             {
                 // Allow the same "ignore small pets" behavior for hostile faction animals (e.g. raider animals, Photonozoa).
-                if (otherPawn.Faction == null || !otherPawn.Faction.HostileTo(Faction.OfPlayer))
+                if (otherPawn.Faction == null || !IsHostileToPlayerFactionSafe(otherPawn.Faction))
                 {
                     return true;
                 }

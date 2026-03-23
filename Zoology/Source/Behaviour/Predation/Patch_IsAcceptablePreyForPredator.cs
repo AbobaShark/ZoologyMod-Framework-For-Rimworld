@@ -317,6 +317,17 @@ namespace ZoologyMod
     {
         private const float PackHuntCombatPowerMultiplier = 2f;
 
+        private static bool AreFactionsHostileSafe(Faction sourceFaction, Faction targetFaction)
+        {
+            if (sourceFaction == null || targetFaction == null || ReferenceEquals(sourceFaction, targetFaction))
+            {
+                return false;
+            }
+
+            FactionRelation relation = sourceFaction.RelationWith(targetFaction, allowNull: true);
+            return relation != null && relation.kind == FactionRelationKind.Hostile;
+        }
+
         public static bool Prepare()
         {
             var s = ZoologyModSettings.Instance;
@@ -533,10 +544,15 @@ namespace ZoologyMod
                     }
                 }
 
-				
-				
-				if (!photonozoaPairInTheirFaction && !((predator.Faction == null || prey.Faction == null || predator.HostileTo(prey))
-					&& (predator.Faction == null || prey.HostFaction == null || predator.HostileTo(prey))
+				bool hostileToPreyFactionOrMissing = predator.Faction == null
+                    || prey.Faction == null
+                    || AreFactionsHostileSafe(predator.Faction, prey.Faction);
+                bool hostileToHostFactionOrMissing = predator.Faction == null
+                    || prey.HostFaction == null
+                    || AreFactionsHostileSafe(predator.Faction, prey.HostFaction);
+
+				if (!photonozoaPairInTheirFaction && !(hostileToPreyFactionOrMissing
+					&& hostileToHostFactionOrMissing
 					&& (predator.Faction != Faction.OfPlayer || prey.Faction != Faction.OfPlayer)
 					&& (!predator.RaceProps.herdAnimal || predator.def != prey.def)
 					&& !prey.IsHiddenFromPlayer()
