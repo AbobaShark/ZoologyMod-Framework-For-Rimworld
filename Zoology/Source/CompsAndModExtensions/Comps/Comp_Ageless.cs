@@ -292,6 +292,18 @@ namespace ZoologyMod
 
             bool result = false;
 
+            try
+            {
+                if (hediff.chronic)
+                {
+                    chronicDiseaseDefCache[hediff] = true;
+                    return true;
+                }
+            }
+            catch
+            {
+            }
+
             Type t = hediff.hediffClass;
             try
             {
