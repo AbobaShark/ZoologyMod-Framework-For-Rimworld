@@ -17,7 +17,7 @@ namespace ZoologyMod
         public static bool Prefix(Pawn pawn, ref bool __result)
         {
             var settings = ModConstants.Settings;
-            if (settings == null || !settings.EnableCustomFleeDanger)
+            if (settings != null && !settings.EnableCustomFleeDanger)
                 return true;
 
             if (pawn == null)
@@ -26,7 +26,13 @@ namespace ZoologyMod
                 return false;
             }
 
-            if (!pawn.IsAnimal || pawn.InMentalState || pawn.IsFighting() || pawn.Downed || pawn.Dead)
+            if (!pawn.IsAnimal || pawn.InMentalState || pawn.Downed || pawn.Dead)
+            {
+                __result = false;
+                return false;
+            }
+
+            if (Patch_AnimalFleeFromPredators.TryGetMeleeAttackerOnPawn(pawn, out _))
             {
                 __result = false;
                 return false;

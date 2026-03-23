@@ -8,12 +8,12 @@ namespace ZoologyMod
 {
     public class ZoologyPursuitGameComponent : GameComponent
     {
-        private const int CHASE_TIMEOUT = 2500;
+        private const int CHASE_TIMEOUT = ZoologyTickLimiter.Pursuit.ChaseTimeoutTicks;
         private const int BLOCK_MULTIPLIER = 3;
-        private const int SCAN_INTERVAL = 120;
-        private const int CLEAN_INTERVAL = 10000;
+        private const int SCAN_INTERVAL = ZoologyTickLimiter.Pursuit.ScanIntervalTicks;
+        private const int CLEAN_INTERVAL = ZoologyTickLimiter.Pursuit.CleanIntervalTicks;
         private const int MIN_DISTANCE_FOR_MELEE_SQ = 2 * 2;
-        private const int TICKS_PER_LONG_TICK = CHASE_TIMEOUT;
+        private const int TICKS_PER_LONG_TICK = ZoologyTickLimiter.Pursuit.TicksPerLongTick;
 
         private static readonly object dictLock = new object();
 
@@ -307,8 +307,12 @@ namespace ZoologyMod
                             Job curJob = predator.CurJob;
                             if (curJob == null) continue;
 
-                            bool isHuntDriver = curJob.def != null && curJob.def.driverClass != null
-                                                && typeof(JobDriver_PredatorHunt).IsAssignableFrom(curJob.def.driverClass);
+                            bool isHuntDriver = curJob.def == JobDefOf.PredatorHunt;
+                            if (!isHuntDriver)
+                            {
+                                Type driverClass = curJob.def?.driverClass;
+                                isHuntDriver = driverClass != null && typeof(JobDriver_PredatorHunt).IsAssignableFrom(driverClass);
+                            }
                             if (!isHuntDriver)
                             {
                                 inactivePredatorIdsBuffer.Add(predator.thingIDNumber);
@@ -509,13 +513,13 @@ namespace ZoologyMod
                     if (distSq > MIN_DISTANCE_FOR_MELEE_SQ)
                     {
                         try { predator.jobs?.EndCurrentJob(JobCondition.InterruptForced); } catch { }
-                        try { predator.jobs?.jobQueue?.Clear(predator, true); } catch { try { predator.jobs?.jobQueue?.Clear(predator, true); } catch { } }
+                        try { predator.jobs?.jobQueue?.Clear(predator, true); } catch { }
                         try { predator.pather?.StopDead(); } catch { }
                         try
                         {
                             if (predator.jobs != null)
                             {
-                                Job waitJob = JobMaker.MakeJob(JobDefOf.Wait, 250);
+                                Job waitJob = JobMaker.MakeJob(JobDefOf.Wait, ZoologyTickLimiter.Pursuit.StopPredatorWaitTicks);
                                 predator.jobs.StartJob(waitJob, JobCondition.InterruptForced);
                             }
                         }

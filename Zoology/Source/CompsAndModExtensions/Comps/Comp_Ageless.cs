@@ -38,6 +38,8 @@ namespace ZoologyMod
         {
             base.CompTick();
 
+            if (!parent.IsHashIntervalTick(cleanupInterval)) return;
+
             var settings = ZoologyModSettings.Instance;
             if (settings != null && !settings.EnableAgelessPatch) return;
 
@@ -45,7 +47,6 @@ namespace ZoologyMod
             if (pawn == null) return;
             if (pawn.Dead) return;
             if (pawn.health?.hediffSet == null) return;
-            if (!parent.IsHashIntervalTick(cleanupInterval)) return;
 
             try
             {
@@ -72,7 +73,7 @@ namespace ZoologyMod
             {
                 Hediff h = hs[i];
                 if (h == null || h.def == null) continue;
-                if (forb.Contains(h.def))
+                if (forb.Contains(h.def) || AgelessUtils.IsChronicDiseaseHediff(h.def))
                 {
                     hediffRemovalBuffer.Add(h);
                 }
@@ -86,7 +87,7 @@ namespace ZoologyMod
                     pawn.health.RemoveHediff(h);
                     if (Prefs.DevMode)
                     {
-                        Log.Message($"[Zoology] CompAgeless removed age hediff {h.def.defName} from {pawn.LabelShortCap}");
+                        Log.Message($"[Zoology] CompAgeless removed hediff {h.def.defName} from {pawn.LabelShortCap}");
                     }
                 }
                 catch (Exception e)
@@ -105,6 +106,8 @@ namespace ZoologyMod
         
         private static readonly Dictionary<string, HashSet<HediffDef>> setCache = new Dictionary<string, HashSet<HediffDef>>();
         private static readonly Dictionary<string, HashSet<HediffDef>> pawnKindCache = new Dictionary<string, HashSet<HediffDef>>();
+        private static readonly Dictionary<Type, bool> chronicDiseaseTypeCache = new Dictionary<Type, bool>();
+        private static readonly Dictionary<HediffDef, bool> chronicDiseaseDefCache = new Dictionary<HediffDef, bool>();
         private const string FallbackHediffGiverSetDefName = "OrganicStandard";
 
         
@@ -271,8 +274,141 @@ namespace ZoologyMod
         public static bool IsHediffForbiddenForPawn(Pawn pawn, HediffDef hediff)
         {
             if (pawn == null || hediff == null) return false;
+            if (IsChronicDiseaseHediff(hediff))
+            {
+                return true;
+            }
             var forb = GetAgeRelatedHediffDefsForPawnCached(pawn);
             return forb != null && forb.Contains(hediff);
+        }
+
+        public static bool IsChronicDiseaseHediff(HediffDef hediff)
+        {
+            if (hediff == null) return false;
+            if (chronicDiseaseDefCache.TryGetValue(hediff, out bool cachedDef))
+            {
+                return cachedDef;
+            }
+
+            bool result = false;
+
+            try
+            {
+                if (hediff.chronic)
+                {
+                    chronicDiseaseDefCache[hediff] = true;
+                    return true;
+                }
+            }
+            catch
+            {
+            }
+
+            Type t = hediff.hediffClass;
+            try
+            {
+                if (t != null)
+                {
+                    if (chronicDiseaseTypeCache.TryGetValue(t, out bool cachedType))
+                    {
+                        if (cachedType) result = true;
+                    }
+                    else
+                    {
+                        bool typeResult = false;
+                        for (Type cur = t; cur != null; cur = cur.BaseType)
+                        {
+                            if (string.Equals(cur.Name, "ChronicDiseaseBase", StringComparison.Ordinal)
+                                || string.Equals(cur.FullName, "RimWorld.ChronicDiseaseBase", StringComparison.Ordinal)
+                                || string.Equals(cur.FullName, "ChronicDiseaseBase", StringComparison.Ordinal))
+                            {
+                                typeResult = true;
+                                break;
+                            }
+                        }
+
+                        chronicDiseaseTypeCache[t] = typeResult;
+                        if (typeResult) result = true;
+                    }
+                }
+            }
+            catch
+            {
+                result = false;
+            }
+
+            if (!result)
+            {
+                try
+                {
+                    result = IsDefDescendantOf(hediff, "ChronicDiseaseBase");
+                }
+                catch
+                {
+                    result = false;
+                }
+            }
+
+            chronicDiseaseDefCache[hediff] = result;
+            return result;
+        }
+
+        private static bool IsDefDescendantOf(HediffDef candidate, string baseDefName)
+        {
+            try
+            {
+                if (candidate == null) return false;
+                if (string.Equals(candidate.defName, baseDefName, StringComparison.Ordinal)) return true;
+
+                var visited = new HashSet<string>();
+                HediffDef current = candidate;
+
+                while (current != null)
+                {
+                    if (string.IsNullOrEmpty(current.defName)) break;
+                    if (visited.Contains(current.defName)) break;
+                    visited.Add(current.defName);
+
+                    if (string.Equals(current.defName, baseDefName, StringComparison.Ordinal)) return true;
+
+                    HediffDef parentDef = null;
+                    var parentFieldNames = new[] { "parent", "baseDef", "parentDef" };
+                    foreach (var fname in parentFieldNames)
+                    {
+                        var fi = current.GetType().GetField(fname, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                        if (fi != null && typeof(HediffDef).IsAssignableFrom(fi.FieldType))
+                        {
+                            parentDef = fi.GetValue(current) as HediffDef;
+                            if (parentDef != null) break;
+                        }
+                    }
+                    if (parentDef != null) { current = parentDef; continue; }
+
+                    string parentName = null;
+                    var parentNameField = current.GetType().GetField("parentName", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                                        ?? (FieldInfo)typeof(Def).GetField("parentName", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                    if (parentNameField != null) parentName = parentNameField.GetValue(current) as string;
+                    if (string.IsNullOrEmpty(parentName))
+                    {
+                        var prop = current.GetType().GetProperty("ParentName", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                        if (prop != null) parentName = prop.GetValue(current) as string;
+                    }
+
+                    if (!string.IsNullOrEmpty(parentName))
+                    {
+                        if (string.Equals(parentName, baseDefName, StringComparison.Ordinal)) return true;
+                        var next = DefDatabase<HediffDef>.GetNamedSilentFail(parentName);
+                        if (next != null) { current = next; continue; }
+                    }
+
+                    break;
+                }
+            }
+            catch
+            {
+            }
+
+            return false;
         }
     }
 
@@ -280,16 +416,38 @@ namespace ZoologyMod
     [StaticConstructorOnStartup]
     public static class AgelessHarmonyInit
     {
+        private static bool patched;
+        private static readonly AccessTools.FieldRef<Pawn_HealthTracker, Pawn> HealthTrackerPawnRef =
+            AccessTools.FieldRefAccess<Pawn_HealthTracker, Pawn>("pawn");
+        private static readonly AccessTools.FieldRef<HediffSet, Pawn> HediffSetPawnRef =
+            AccessTools.FieldRefAccess<HediffSet, Pawn>("pawn");
+
         static AgelessHarmonyInit()
         {
+            EnsurePatched();
+        }
+
+        public static void EnsurePatched()
+        {
+            if (patched)
+            {
+                return;
+            }
+
             try
             {
                 var settings = ZoologyModSettings.Instance;
+                if (settings != null && settings.DisableAllRuntimePatches)
+                {
+                    return;
+                }
+
                 if (settings != null && !settings.EnableAgelessPatch)
                 {
                     return;
                 }
 
+                patched = true;
                 var harmony = new Harmony("zoology.ageless");
                 
                 var hediffGiverType = typeof(HediffGiver);
@@ -310,12 +468,19 @@ namespace ZoologyMod
 
                 var prefix = new HarmonyMethod(typeof(AgelessHarmonyInit).GetMethod(nameof(TryApply_Prefix), BindingFlags.Static | BindingFlags.NonPublic));
                 harmony.Patch(method, prefix: prefix);
-                Log.Message("[Zoology] AgelessHarmonyInit: patched HediffGiver.TryApply");
+
+                PatchAddHediffMethods(harmony);
+                PatchHediffSetAddMethods(harmony);
             }
             catch (Exception e)
             {
                 Log.Error($"[Zoology] AgelessHarmonyInit failed to patch: {e}");
             }
+        }
+
+        public static void ResetPatchedState()
+        {
+            patched = false;
         }
 
         
@@ -374,6 +539,178 @@ namespace ZoologyMod
                 Log.Error($"[Zoology] TryApply_Prefix exception: {e}");
                 return true; 
             }
+        }
+
+        private static void PatchAddHediffMethods(Harmony harmony)
+        {
+            try
+            {
+                var ht = typeof(Pawn_HealthTracker);
+                var addHediffDef = AccessTools.Method(ht, nameof(Pawn_HealthTracker.AddHediff),
+                    new[] { typeof(HediffDef), typeof(BodyPartRecord), typeof(DamageInfo?), typeof(DamageWorker.DamageResult) });
+                if (addHediffDef != null)
+                {
+                    var prefix = new HarmonyMethod(typeof(AgelessHarmonyInit).GetMethod(nameof(AddHediffDef_Prefix), BindingFlags.Static | BindingFlags.NonPublic));
+                    harmony.Patch(addHediffDef, prefix: prefix);
+                }
+                else
+                {
+                    Log.Error("[Zoology] AgelessHarmonyInit: couldn't find Pawn_HealthTracker.AddHediff(HediffDef) to patch.");
+                }
+
+                var addHediff = AccessTools.Method(ht, nameof(Pawn_HealthTracker.AddHediff),
+                    new[] { typeof(Hediff), typeof(BodyPartRecord), typeof(DamageInfo?), typeof(DamageWorker.DamageResult) });
+                if (addHediff != null)
+                {
+                    var prefix = new HarmonyMethod(typeof(AgelessHarmonyInit).GetMethod(nameof(AddHediff_Prefix), BindingFlags.Static | BindingFlags.NonPublic));
+                    harmony.Patch(addHediff, prefix: prefix);
+                }
+                else
+                {
+                    Log.Error("[Zoology] AgelessHarmonyInit: couldn't find Pawn_HealthTracker.AddHediff(Hediff) to patch.");
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error($"[Zoology] AgelessHarmonyInit failed to patch AddHediff: {e}");
+            }
+        }
+
+        private static void PatchHediffSetAddMethods(Harmony harmony)
+        {
+            try
+            {
+                var hs = typeof(HediffSet);
+                var methods = hs.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                int patchedCount = 0;
+
+                foreach (var m in methods)
+                {
+                    if (m.Name != "AddDirect" && m.Name != "Add") continue;
+                    var parms = m.GetParameters();
+                    if (parms.Length == 0 || parms[0].ParameterType != typeof(Hediff)) continue;
+
+                    var prefix = new HarmonyMethod(typeof(AgelessHarmonyInit).GetMethod(nameof(HediffSetAdd_Prefix), BindingFlags.Static | BindingFlags.NonPublic));
+                    harmony.Patch(m, prefix: prefix);
+                    patchedCount++;
+                }
+
+                if (patchedCount == 0)
+                {
+                    Log.Error("[Zoology] AgelessHarmonyInit: couldn't find HediffSet Add/AddDirect(Hediff) to patch.");
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error($"[Zoology] AgelessHarmonyInit failed to patch HediffSet Add/AddDirect: {e}");
+            }
+        }
+
+        private static bool AddHediffDef_Prefix(Pawn_HealthTracker __instance, HediffDef def)
+        {
+            try
+            {
+                var settings = ZoologyModSettings.Instance;
+                if (settings != null && !settings.EnableAgelessPatch)
+                {
+                    return true;
+                }
+
+                if (def == null) return true;
+
+                Pawn pawn = HealthTrackerPawnRef(__instance);
+                if (pawn == null) return true;
+
+                var comp = pawn.TryGetComp<CompAgeless>();
+                if (comp == null) return true;
+
+                if (AgelessUtils.IsHediffForbiddenForPawn(pawn, def))
+                {
+                    if (Prefs.DevMode)
+                    {
+                        Log.Message($"[Zoology] blocked AddHediff(HediffDef) {def.defName} on {pawn.LabelShortCap}");
+                    }
+                    return false;
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error($"[Zoology] AddHediffDef_Prefix exception: {e}");
+            }
+
+            return true;
+        }
+
+        private static bool HediffSetAdd_Prefix(HediffSet __instance, Hediff hediff)
+        {
+            try
+            {
+                var settings = ZoologyModSettings.Instance;
+                if (settings != null && !settings.EnableAgelessPatch)
+                {
+                    return true;
+                }
+
+                HediffDef def = hediff?.def;
+                if (def == null) return true;
+
+                Pawn pawn = HediffSetPawnRef(__instance);
+                if (pawn == null) return true;
+
+                var comp = pawn.TryGetComp<CompAgeless>();
+                if (comp == null) return true;
+
+                if (AgelessUtils.IsHediffForbiddenForPawn(pawn, def))
+                {
+                    if (Prefs.DevMode)
+                    {
+                        Log.Message($"[Zoology] blocked HediffSet.{__instance?.GetType().Name}.Add/AddDirect {def.defName} on {pawn.LabelShortCap}");
+                    }
+                    return false;
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error($"[Zoology] HediffSetAdd_Prefix exception: {e}");
+            }
+
+            return true;
+        }
+
+        private static bool AddHediff_Prefix(Pawn_HealthTracker __instance, Hediff hediff)
+        {
+            try
+            {
+                var settings = ZoologyModSettings.Instance;
+                if (settings != null && !settings.EnableAgelessPatch)
+                {
+                    return true;
+                }
+
+                HediffDef def = hediff?.def;
+                if (def == null) return true;
+
+                Pawn pawn = HealthTrackerPawnRef(__instance);
+                if (pawn == null) return true;
+
+                var comp = pawn.TryGetComp<CompAgeless>();
+                if (comp == null) return true;
+
+                if (AgelessUtils.IsHediffForbiddenForPawn(pawn, def))
+                {
+                    if (Prefs.DevMode)
+                    {
+                        Log.Message($"[Zoology] blocked AddHediff(Hediff) {def.defName} on {pawn.LabelShortCap}");
+                    }
+                    return false;
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error($"[Zoology] AddHediff_Prefix exception: {e}");
+            }
+
+            return true;
         }
     }
 }

@@ -32,9 +32,11 @@ namespace ZoologyMod
         public bool EnableDrugsImmunePatch = true;
         public bool EnableNoPorcupineQuillPatch = true;
         public static bool EnableMammalLactation = true;
+        public bool EnableAnimalChildcare = true;
         public bool EnablePredatorDefendCorpse = true;
         public bool EnablePredatorDefendPreyFromHumansAndMechanoids = true;
         public bool EnableScavengering = true;
+        public bool DisableAllRuntimePatches = false;
 
         
         public int PreyProtectionRange = 20; 
@@ -48,19 +50,7 @@ namespace ZoologyMod
         private const int MinCombatPowerToDefendPreyFromHumansMin = 0;
         private const int MinCombatPowerToDefendPreyFromHumansMax = 1000;
 
-        public enum LactationSlaughterMode
-        {
-            TreatAsPregnant = 0,   
-            SeparateSetting = 1,   
-            Ignore = 2,            
-            DisableSlaughterLactatingGlobal = 3 
-        }
-        public LactationSlaughterMode LactationSlaughterHandling = LactationSlaughterMode.TreatAsPregnant;
-
-        
-        
-        
-        public Dictionary<string, bool> AllowSlaughterLactatingPerAnimal = new Dictionary<string, bool>();
+        public bool AllowSlaughterLactating = false;
         public Dictionary<string, bool> AnimalsFreeFromHumansPerAnimal = new Dictionary<string, bool>();
 
         
@@ -147,8 +137,6 @@ namespace ZoologyMod
             EnableAnimalDamageReduction = !_cePresent;
 
             
-            if (AllowSlaughterLactatingPerAnimal == null)
-                AllowSlaughterLactatingPerAnimal = new Dictionary<string, bool>();
             if (AnimalsFreeFromHumansPerAnimal == null)
                 AnimalsFreeFromHumansPerAnimal = new Dictionary<string, bool>();
         }
@@ -250,7 +238,7 @@ namespace ZoologyMod
                         + (EnablePreyFleeFromPredators ? 38f : 0f)
                         + (EnablePredatorDefendCorpse ? 156f : 0f);
                 case SettingsPage.Physiology:
-                    return 900f + (LactationSlaughterHandling == LactationSlaughterMode.SeparateSetting ? 30f : 0f) + (!EnableMammalLactation ? 30f : 0f);
+                    return 900f + 38f + (!EnableMammalLactation ? 30f : 0f);
                 case SettingsPage.Combat:
                     return 500f;
                 case SettingsPage.OtherBehavior:
@@ -260,7 +248,7 @@ namespace ZoologyMod
                         + (AnimalsFreeFromHumans ? 56f : 0f);
                 case SettingsPage.Dev:
                 default:
-                    return 900f;
+                    return 980f;
             }
         }
 
@@ -318,6 +306,13 @@ namespace ZoologyMod
             list.GapLine(8f);
             list.CheckboxLabeled("Enable mammal lactation", ref EnableMammalLactation, "Enables lactation for female mammals, allowing them to produce milk for their offspring.");
             DrawLactationSettings(list);
+
+            list.GapLine(12f);
+            list.CheckboxLabeled(
+                "Enable animal childcare (young follow mothers and mothers protect young)",
+                ref EnableAnimalChildcare,
+                "When enabled, species with ModExtensiom_Chlidcare will have juveniles follow their mothers and mothers defend their own young."
+            );
 
             list.GapLine(12f);
             list.CheckboxLabeled(
@@ -444,7 +439,25 @@ namespace ZoologyMod
             GUI.color = oldColor;
             list.GapLine(4f);
             Text.Font = GameFont.Tiny;
-            list.Label("Any enabled Dev patch keeps runtime patching active (global runtime-off mode requires all toggles to be false).");
+            list.Label("Master switch below can disable all runtime patches regardless of individual toggles.");
+            Text.Font = GameFont.Small;
+
+            list.GapLine(12f);
+            bool runtimeDisabled = DisableAllRuntimePatches;
+            string runtimeButtonLabel = runtimeDisabled
+                ? "Enable ALL runtime patches now"
+                : "Disable ALL runtime patches now";
+            if (list.ButtonText(runtimeButtonLabel))
+            {
+                DisableAllRuntimePatches = !runtimeDisabled;
+                ZoologyMod.SetRuntimePatchesEnabled(!DisableAllRuntimePatches);
+                Write();
+            }
+
+            list.Label(runtimeDisabled ? "Runtime patches: DISABLED" : "Runtime patches: ENABLED");
+            list.GapLine(6f);
+            Text.Font = GameFont.Tiny;
+            list.Label("Note: some changes (think tree injection, def edits) may require a reload to fully revert.");
             Text.Font = GameFont.Small;
 
             list.GapLine(12f);
@@ -475,46 +488,27 @@ namespace ZoologyMod
         private void DrawLactationSettings(Listing_Standard list)
         {
             list.GapLine(12f);
-            list.Label("Lactation auto-slaughter handling:");
-
-            if (!EnableMammalLactation)
-            {
-                LactationSlaughterHandling = LactationSlaughterMode.Ignore;
-            }
+            list.Label("Lactation auto-slaughter:");
 
             bool prevGuiEnabledForLact = GUI.enabled;
-            if (!EnableMammalLactation) GUI.enabled = false;
-
-            if (list.ButtonText(LactationSlaughterHandling == LactationSlaughterMode.TreatAsPregnant ? "● Treat lactating animals as PREGNANT (default)" : "○ Treat lactating animals as PREGNANT (default)"))
+            if (!EnableMammalLactation)
             {
-                LactationSlaughterHandling = LactationSlaughterMode.TreatAsPregnant;
-            }
-            if (list.ButtonText(LactationSlaughterHandling == LactationSlaughterMode.SeparateSetting ? "● Use separate per-animal setting (Auto Slaughter tab)" : "○ Use separate per-animal setting (Auto Slaughter tab)"))
-            {
-                LactationSlaughterHandling = LactationSlaughterMode.SeparateSetting;
-            }
-            if (list.ButtonText(LactationSlaughterHandling == LactationSlaughterMode.Ignore ? "● Ignore lactation (vanilla behavior)" : "○ Ignore lactation (vanilla behavior)"))
-            {
-                LactationSlaughterHandling = LactationSlaughterMode.Ignore;
-            }
-            if (list.ButtonText(LactationSlaughterHandling == LactationSlaughterMode.DisableSlaughterLactatingGlobal ? "● Globally DISABLE slaughter of lactating animals" : "○ Globally DISABLE slaughter of lactating animals"))
-            {
-                LactationSlaughterHandling = LactationSlaughterMode.DisableSlaughterLactatingGlobal;
+                GUI.enabled = false;
+                AllowSlaughterLactating = false;
             }
 
-            list.GapLine(6f);
-            if (LactationSlaughterHandling == LactationSlaughterMode.SeparateSetting)
-            {
-                list.Label("Per-animal toggle available in Auto Slaughter tab when SeparateSetting is enabled.");
-                list.GapLine(6f);
-            }
+            list.CheckboxLabeled(
+                "Slaughter lactating females",
+                ref AllowSlaughterLactating,
+                "If enabled, lactating females are treated as ordinary non-pregnant females. If disabled, lactating females are ignored and do not count toward female totals while lactating."
+            );
 
             GUI.enabled = prevGuiEnabledForLact;
 
             if (!EnableMammalLactation)
             {
                 Text.Font = GameFont.Tiny;
-                list.Label("Disabled: mammal lactation is turned off, handling forced to Ignore.");
+                list.Label("Disabled: mammal lactation is turned off.");
                 Text.Font = GameFont.Small;
                 list.GapLine(6f);
             }
@@ -542,6 +536,7 @@ namespace ZoologyMod
             EnableDrugsImmunePatch = true;
             EnableNoPorcupineQuillPatch = true;
             EnableMammalLactation = true;
+            EnableAnimalChildcare = true;
             EnablePredatorDefendCorpse = true;
             EnablePredatorDefendPreyFromHumansAndMechanoids = true;
             _smallPetBodySizeThreshold = ModConstants.DefaultSmallPetBodySizeThreshold;
@@ -551,13 +546,14 @@ namespace ZoologyMod
             PreyProtectionRange = 20;
             CorpseUnownedSizeMultiplier = 5;
             EnableScavengering = true;
-            LactationSlaughterHandling = LactationSlaughterMode.TreatAsPregnant;
-            AllowSlaughterLactatingPerAnimal.Clear();
+            AllowSlaughterLactating = false;
             AnimalsFreeFromHumansPerAnimal.Clear();
             EnableAnimalDamageReduction = !_cePresent;
             EnableOverrideCEPenetration = _cePresent ? true : false;
+            DisableAllRuntimePatches = false;
 
             Write();
+            ZoologyMod.SetRuntimePatchesEnabled(true);
             Messages.Message("Zoology Mod: settings reset to defaults.", MessageTypeDefOf.TaskCompletion, false);
         }
 
@@ -600,18 +596,17 @@ namespace ZoologyMod
             Scribe_Values.Look(ref AnimalsFreeFromHumans, "AnimalsFreeFromHumans", true);
             Scribe_Values.Look(ref EnableAgroAtSlaughter, "EnableAgroAtSlaughter", true);
             Scribe_Values.Look(ref EnableMammalLactation, "EnableMammalLactation", true);
+            Scribe_Values.Look(ref EnableAnimalChildcare, "EnableAnimalChildcare", true);
             Scribe_Values.Look(ref EnablePredatorDefendCorpse, "EnablePredatorDefendCorpse", true);
             Scribe_Values.Look(ref EnablePredatorDefendPreyFromHumansAndMechanoids, "EnablePredatorDefendPreyFromHumansAndMechanoids", true);
             Scribe_Values.Look(ref PreyProtectionRange, "PreyProtectionRange", 20);
             Scribe_Values.Look(ref CorpseUnownedSizeMultiplier, "CorpseUnownedSizeMultiplier", 5);
             Scribe_Values.Look(ref _minCombatPowerToDefendPreyFromHumans, "MinCombatPowerToDefendPreyFromHumans", ModConstants.DefaultMinCombatPowerToDefendPreyFromHumans);
             Scribe_Values.Look(ref EnableScavengering, "EnableScavengering", true);
-            Scribe_Values.Look(ref LactationSlaughterHandling, "LactationSlaughterHandling", LactationSlaughterMode.TreatAsPregnant);
+            Scribe_Values.Look(ref AllowSlaughterLactating, "AllowSlaughterLactating", false);
+            Scribe_Values.Look(ref DisableAllRuntimePatches, "DisableAllRuntimePatches", false);
 
             
-            if (AllowSlaughterLactatingPerAnimal == null)
-                AllowSlaughterLactatingPerAnimal = new Dictionary<string, bool>();
-            Scribe_Collections.Look(ref AllowSlaughterLactatingPerAnimal, "AllowSlaughterLactatingPerAnimal", LookMode.Value, LookMode.Value);
             if (AnimalsFreeFromHumansPerAnimal == null)
                 AnimalsFreeFromHumansPerAnimal = new Dictionary<string, bool>();
             Scribe_Collections.Look(ref AnimalsFreeFromHumansPerAnimal, "AnimalsFreeFromHumansPerAnimal", LookMode.Value, LookMode.Value);
@@ -620,7 +615,7 @@ namespace ZoologyMod
             
             if (!EnableMammalLactation)
             {
-                LactationSlaughterHandling = LactationSlaughterMode.Ignore;
+                AllowSlaughterLactating = false;
             }
 
             Scribe_Values.Look(ref EnableAnimalDamageReduction, "EnableAnimalDamageReduction", true);
@@ -636,25 +631,6 @@ namespace ZoologyMod
             }
 
             _minCombatPowerToDefendPreyFromHumans = Mathf.Clamp(_minCombatPowerToDefendPreyFromHumans, MinCombatPowerToDefendPreyFromHumansMin, MinCombatPowerToDefendPreyFromHumansMax);
-        }
-
-        
-        public bool GetAllowSlaughterLactatingFor(ThingDef animal)
-        {
-            if (animal == null) return false;
-            if (AllowSlaughterLactatingPerAnimal == null)
-                AllowSlaughterLactatingPerAnimal = new Dictionary<string, bool>();
-            if (AllowSlaughterLactatingPerAnimal.TryGetValue(animal.defName, out bool v))
-                return v;
-            return false;
-        }
-
-        public void SetAllowSlaughterLactatingFor(ThingDef animal, bool value)
-        {
-            if (animal == null) return;
-            if (AllowSlaughterLactatingPerAnimal == null)
-                AllowSlaughterLactatingPerAnimal = new Dictionary<string, bool>();
-            AllowSlaughterLactatingPerAnimal[animal.defName] = value;
         }
 
         public bool GetAnimalsFreeFromHumansFor(ThingDef animal)
@@ -734,6 +710,11 @@ namespace ZoologyMod
 
         public bool AreAllRuntimeTogglesDisabled()
         {
+            if (DisableAllRuntimePatches)
+            {
+                return true;
+            }
+
             return !EnableCustomFleeDanger
                 && !EnableIgnoreSmallPetsByRaiders
                 && (!EnableIgnoreSmallPetsByRaiders || !EnableSmallPetFleeFromRaiders)
@@ -753,6 +734,7 @@ namespace ZoologyMod
                 && !EnableDrugsImmunePatch
                 && !EnableNoPorcupineQuillPatch
                 && !EnableMammalLactation
+                && !EnableAnimalChildcare
                 && !EnablePredatorDefendCorpse
                 && !EnableScavengering
                 && !EnableAnimalDamageReduction

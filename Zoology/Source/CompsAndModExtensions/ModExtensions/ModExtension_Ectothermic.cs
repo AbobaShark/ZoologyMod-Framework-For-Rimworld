@@ -14,6 +14,7 @@ namespace ZoologyMod
     [StaticConstructorOnStartup]
     public static class Ectothermic_HarmonyPatches
     {
+        private static bool patched;
         private readonly struct FrostbitePartEntry
         {
             public FrostbitePartEntry(BodyPartRecord part, float vulnerability, int damageAmount)
@@ -33,16 +34,37 @@ namespace ZoologyMod
 
         static Ectothermic_HarmonyPatches()
         {
+            EnsurePatched();
+        }
+
+        public static void EnsurePatched()
+        {
+            if (patched)
+            {
+                return;
+            }
+
             var settings = ModConstants.Settings;
+            if (settings != null && settings.DisableAllRuntimePatches)
+            {
+                return;
+            }
+
             if (settings != null && !settings.EnableEctothermicPatch)
             {
                 return;
             }
 
+            patched = true;
             var harmony = new Harmony("com.abobashark.zoology.ectothermic");
             var original = AccessTools.Method(typeof(HediffGiver_Hypothermia), nameof(HediffGiver_Hypothermia.OnIntervalPassed));
             var prefix = new HarmonyMethod(typeof(Ectothermic_HarmonyPatches), nameof(OnIntervalPassed_Prefix));
             harmony.Patch(original, prefix: prefix);
+        }
+
+        public static void ResetPatchedState()
+        {
+            patched = false;
         }
 
         public static bool OnIntervalPassed_Prefix(HediffGiver_Hypothermia __instance, Pawn pawn, Hediff cause)

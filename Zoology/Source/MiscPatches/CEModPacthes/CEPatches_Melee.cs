@@ -9,13 +9,36 @@ namespace ZoologyMod
     [StaticConstructorOnStartup]
     public static class CEPatches_Melee
     {
+        private static bool patched;
         private const int ERR_REG = 12345682;
         private const int ERR_PREFIX = 12345683;
 
         static CEPatches_Melee()
         {
+            EnsurePatched();
+        }
+
+        public static void EnsurePatched()
+        {
+            if (patched)
+            {
+                return;
+            }
+
             try
             {
+                var settings = ZoologyModSettings.Instance;
+                if (settings != null && settings.DisableAllRuntimePatches)
+                {
+                    return;
+                }
+
+                if (settings != null && !settings.EnableOverrideCEPenetration)
+                {
+                    return;
+                }
+
+                patched = true;
                 var harmony = new Harmony("com.abobashark.zoology.mod.melee");
                 Type ceVerbType = AccessTools.TypeByName("CombatExtended.Verb_MeleeAttackCE");
                 if (ceVerbType == null)
@@ -42,6 +65,11 @@ namespace ZoologyMod
             {
                 Log.ErrorOnce($"[Zoology] Error registering melee AP patches: {ex}", ERR_REG);
             }
+        }
+
+        public static void ResetPatchedState()
+        {
+            patched = false;
         }
 
         public static bool Prepare()

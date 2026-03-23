@@ -14,7 +14,9 @@ namespace ZoologyMod
         {
             
             this.wanderRadius = 5f;
-            this.ticksBetweenWandersRange = new IntRange(125, 200);
+            this.ticksBetweenWandersRange = new IntRange(
+                ZoologyTickLimiter.PreyProtection.WanderNearPreyMinTicks,
+                ZoologyTickLimiter.PreyProtection.WanderNearPreyMaxTicks);
             this.locomotionUrgency = LocomotionUrgency.Walk;
             this.expiryInterval = -1;
         }

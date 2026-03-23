@@ -55,41 +55,6 @@ namespace ZoologyMod
     
     
     
-    [HarmonyPatch(typeof(JobGiver_AnimalFlee), "TryGiveJob")]
-    public static class Patch_JobGiver_AnimalFlee_TryGiveJob_NoFlee
-    {
-        public static bool Prepare() => NoFleeSettingsGate.Enabled();
-
-        public static bool Prefix(JobGiver_AnimalFlee __instance, Pawn pawn, ref Job __result)
-        {
-            try
-            {
-                if (pawn?.def == null || !ZoologyCacheUtility.HasNoFleeExtension(pawn.def))
-                {
-                    return true;
-                }
-
-                ModExtension_NoFlee ext = Prefs.DevMode ? DefModExtensionCache<ModExtension_NoFlee>.Get(pawn.def) : null;
-                if (pawn != null)
-                {
-                    __result = null;
-                    if (ext?.verboseLogging == true && Prefs.DevMode)
-                        Log.Message($"[Zoology] Blocked flee job for pawn {pawn.LabelShort} (NoFlee).");
-                    return false; 
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Warning($"[Zoology] Patch_JobGiver_AnimalFlee_TryGiveJob_NoFlee threw: {ex}");
-                return true;
-            }
-            return true;
-        }
-    }
-
-    
-    
-    
     
     [HarmonyPatch(typeof(FleeUtility), "ShouldAnimalFleeDanger")]
     public static class Patch_ShouldAnimalFleeDanger_NoFlee

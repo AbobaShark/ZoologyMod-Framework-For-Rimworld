@@ -8,8 +8,7 @@ namespace ZoologyMod
 {
     internal static class LargeMammalPredationUtility
     {
-        private static readonly System.Reflection.MethodInfo IsPreyProtectedFromPredatorByFenceMethod =
-            AccessTools.Method(typeof(FoodUtility), "IsPreyProtectedFromPredatorByFence", new[] { typeof(Pawn), typeof(Pawn) });
+        private static readonly Func<Pawn, Pawn, bool> IsPreyProtectedFromPredatorByFenceFunc = CreateFenceProtectionDelegate();
 
         private const float LargeMammalPredatorMinBodySize = 0.5f;
         private const float PreferredPreyRatioMin = 0.5f;
@@ -29,7 +28,7 @@ namespace ZoologyMod
             return predator != null
                 && predator.RaceProps?.predator == true
                 && predator.BodySize >= LargeMammalPredatorMinBodySize
-                && predator.IsMammal();
+                && (predator.IsMammal() || ZoologyCacheUtility.IsPhotonozoa(predator.def));
         }
 
         public static float GetThreatSizeFactor(Pawn predator, Pawn prey)
@@ -68,7 +67,7 @@ namespace ZoologyMod
             float predatorBodySize = predator?.BodySize ?? 0f;
             float preyBodySize = prey?.BodySize ?? 0f;
             float predatorCombatPower = Math.Max(predator?.kindDef?.combatPower ?? 0f, 0.01f);
-            float preyCombatPower = prey?.kindDef?.combatPower ?? 0f;
+            float preyCombatPower = PreyCombatPowerUtility.GetAdjustedCombatPower(prey);
             if (predatorBodySize <= 0f || preyBodySize <= 0f || prey == null)
             {
                 return 0f;
@@ -146,21 +145,130 @@ namespace ZoologyMod
             return result < MinScoreFactor ? MinScoreFactor : result;
         }
 
+        private static Func<Pawn, Pawn, bool> CreateFenceProtectionDelegate()
+        {
+            try
+            {
+                var method = AccessTools.Method(typeof(FoodUtility), "IsPreyProtectedFromPredatorByFence", new[] { typeof(Pawn), typeof(Pawn) });
+                if (method == null)
+                {
+                    return null;
+                }
+
+                return (Func<Pawn, Pawn, bool>)Delegate.CreateDelegate(typeof(Func<Pawn, Pawn, bool>), method);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         private static bool IsPreyProtectedFromPredatorByFence(Pawn predator, Pawn prey)
         {
-            if (IsPreyProtectedFromPredatorByFenceMethod == null || predator == null || prey == null)
+            if (IsPreyProtectedFromPredatorByFenceFunc == null || predator == null || prey == null)
             {
                 return false;
             }
 
             try
             {
-                return (bool)IsPreyProtectedFromPredatorByFenceMethod.Invoke(null, new object[] { predator, prey });
+                return IsPreyProtectedFromPredatorByFenceFunc(predator, prey);
             }
             catch
             {
                 return false;
             }
+        }
+    }
+
+    internal static class PreyCombatPowerUtility
+    {
+        private const float BabyCombatPowerFactor = 0.2f;
+        private const float JuvenileCombatPowerFactor = 0.5f;
+
+        private static LifeStageDef animalBabyLifeStageDef;
+        private static LifeStageDef animalBabyTinyLifeStageDef;
+        private static LifeStageDef eusocialLarvaLifeStageDef;
+        private static LifeStageDef animalJuvenileLifeStageDef;
+        private static LifeStageDef eusocialJuvenileLifeStageDef;
+
+        public static float GetAdjustedCombatPower(Pawn prey)
+        {
+            if (prey?.kindDef == null)
+            {
+                return 0f;
+            }
+
+            float basePower = prey.kindDef.combatPower;
+            float factor = GetStageFactor(prey);
+            if (factor <= 0f || factor == 1f)
+            {
+                return basePower;
+            }
+
+            return basePower * factor;
+        }
+
+        private static float GetStageFactor(Pawn pawn)
+        {
+            if (pawn == null)
+            {
+                return 1f;
+            }
+
+            var stages = pawn.RaceProps?.lifeStageAges;
+            if (stages == null || stages.Count <= 1)
+            {
+                return 1f;
+            }
+
+            LifeStageDef stage = pawn.ageTracker?.CurLifeStage;
+            if (stage == null)
+            {
+                return 1f;
+            }
+
+            if (IsBabyStage(stage))
+            {
+                return BabyCombatPowerFactor;
+            }
+
+            if (IsJuvenileStage(stage))
+            {
+                return JuvenileCombatPowerFactor;
+            }
+
+            return 1f;
+        }
+
+        private static bool IsBabyStage(LifeStageDef stage)
+        {
+            var cached = animalBabyLifeStageDef ?? (animalBabyLifeStageDef = DefDatabase<LifeStageDef>.GetNamedSilentFail("AnimalBaby"));
+            if (stage == cached || string.Equals(stage.defName, "AnimalBaby", StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            var tiny = animalBabyTinyLifeStageDef ?? (animalBabyTinyLifeStageDef = DefDatabase<LifeStageDef>.GetNamedSilentFail("AnimalBabyTiny"));
+            if (stage == tiny || string.Equals(stage.defName, "AnimalBabyTiny", StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            var larva = eusocialLarvaLifeStageDef ?? (eusocialLarvaLifeStageDef = DefDatabase<LifeStageDef>.GetNamedSilentFail("EusocialInsectLarva"));
+            return stage == larva || string.Equals(stage.defName, "EusocialInsectLarva", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static bool IsJuvenileStage(LifeStageDef stage)
+        {
+            var cached = animalJuvenileLifeStageDef ?? (animalJuvenileLifeStageDef = DefDatabase<LifeStageDef>.GetNamedSilentFail("AnimalJuvenile"));
+            if (stage == cached || string.Equals(stage.defName, "AnimalJuvenile", StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            var eusocial = eusocialJuvenileLifeStageDef ?? (eusocialJuvenileLifeStageDef = DefDatabase<LifeStageDef>.GetNamedSilentFail("EusocialInsectJuvenile"));
+            return stage == eusocial || string.Equals(stage.defName, "EusocialInsectJuvenile", StringComparison.OrdinalIgnoreCase);
         }
     }
 
@@ -207,6 +315,19 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(FoodUtility), "IsAcceptablePreyFor", new[] { typeof(Pawn), typeof(Pawn) })]
     public static class Patch_IsAcceptablePreyForPredator
     {
+        private const float PackHuntCombatPowerMultiplier = 2f;
+
+        private static bool AreFactionsHostileSafe(Faction sourceFaction, Faction targetFaction)
+        {
+            if (sourceFaction == null || targetFaction == null || ReferenceEquals(sourceFaction, targetFaction))
+            {
+                return false;
+            }
+
+            FactionRelation relation = sourceFaction.RelationWith(targetFaction, allowNull: true);
+            return relation != null && relation.kind == FactionRelationKind.Hostile;
+        }
+
         public static bool Prepare()
         {
             var s = ZoologyModSettings.Instance;
@@ -224,9 +345,7 @@ namespace ZoologyMod
                 if (p == null) return false;
                 if (!p.IsMammal()) return false;
                 if (p.needs?.food == null) return false; 
-                var curStage = p.ageTracker?.CurLifeStage;
-                if (curStage == null) return false;
-                return string.Equals(curStage.defName, "AnimalBaby", StringComparison.OrdinalIgnoreCase);
+                return AnimalLactationUtility.IsAnimalBaby(p);
             }
             catch (Exception ex)
             {
@@ -245,7 +364,22 @@ namespace ZoologyMod
                     return true;
                 }
 
-                if (PredationDecisionCache.TryGetAcceptablePrey(predator, prey, out bool cachedAcceptable))
+                bool allowCache = !(settings != null && settings.EnablePackHunt
+                    && predator?.RaceProps?.herdAnimal == true
+                    && predator.RaceProps.predator == true
+                    && prey != null
+                    && !prey.Downed);
+
+                bool skipCache = !allowCache;
+                void StoreAcceptablePrey(bool value)
+                {
+                    if (!skipCache)
+                    {
+                        PredationDecisionCache.StoreAcceptablePrey(predator, prey, value);
+                    }
+                }
+
+                if (allowCache && PredationDecisionCache.TryGetAcceptablePrey(predator, prey, out bool cachedAcceptable))
                 {
                     __result = cachedAcceptable;
                     return false;
@@ -263,7 +397,7 @@ namespace ZoologyMod
                     if (IsMammalBaby(predator))
                     {
                         __result = false;
-                        PredationDecisionCache.StoreAcceptablePrey(predator, prey, false);
+                        StoreAcceptablePrey(false);
                         return false; 
                     }
                 }
@@ -272,14 +406,14 @@ namespace ZoologyMod
                 if (comp != null && comp.IsPairBlockedNow(predator, prey))
                 {
                     __result = false;
-                    PredationDecisionCache.StoreAcceptablePrey(predator, prey, false);
+                    StoreAcceptablePrey(false);
                     return false;
                 }
                 
                 if (predator.kindDef == null || prey.kindDef == null)
                 {
                     __result = false;
-                    PredationDecisionCache.StoreAcceptablePrey(predator, prey, false);
+                    StoreAcceptablePrey(false);
                     return false;
                 }
 				
@@ -301,7 +435,7 @@ namespace ZoologyMod
 				if (preyIsPhotonozoa && !predIsPhotonozoa)
 				{
 					__result = false;
-                    PredationDecisionCache.StoreAcceptablePrey(predator, prey, false);
+                    StoreAcceptablePrey(false);
 					return false;
 				}
 
@@ -320,45 +454,61 @@ namespace ZoologyMod
                 if ((sameDef || inCrossbreedRelation) && predatorMammal && preyMammal)
                 {
                     __result = false;
-                    PredationDecisionCache.StoreAcceptablePrey(predator, prey, false);
+                    StoreAcceptablePrey(false);
                     return false;
                 }
 
+                float preyCombatPowerAdjusted = PreyCombatPowerUtility.GetAdjustedCombatPower(prey);
+                float predatorCombatPower = predator.kindDef.combatPower;
+
                 if (prey.RaceProps.predator && !prey.Downed)
                 {
-                    float requiredPredatorCP = prey.kindDef.combatPower * (4f / 3f);
-                    if (predator.kindDef.combatPower < requiredPredatorCP)
+                    float requiredPredatorCP = preyCombatPowerAdjusted * (4f / 3f);
+                    if (predatorCombatPower < requiredPredatorCP)
                     {
                         __result = false;
-                        PredationDecisionCache.StoreAcceptablePrey(predator, prey, false);
+                        StoreAcceptablePrey(false);
                         return false;
                     }
                 }
 
-                if (!prey.RaceProps.canBePredatorPrey) { __result = false; PredationDecisionCache.StoreAcceptablePrey(predator, prey, false); return false; }
-                if (!prey.RaceProps.IsFlesh) { __result = false; PredationDecisionCache.StoreAcceptablePrey(predator, prey, false); return false; }
-                if (!Find.Storyteller.difficulty.predatorsHuntHumanlikes && prey.RaceProps.Humanlike) { __result = false; PredationDecisionCache.StoreAcceptablePrey(predator, prey, false); return false; }
-                if (prey.BodySize > predator.RaceProps.maxPreyBodySize) {__result = false; PredationDecisionCache.StoreAcceptablePrey(predator, prey, false); return false; }
+                if (!prey.RaceProps.canBePredatorPrey) { __result = false; StoreAcceptablePrey(false); return false; }
+                if (!prey.RaceProps.IsFlesh) { __result = false; StoreAcceptablePrey(false); return false; }
+                if (!Find.Storyteller.difficulty.predatorsHuntHumanlikes && prey.RaceProps.Humanlike) { __result = false; StoreAcceptablePrey(false); return false; }
+                if (prey.BodySize > predator.RaceProps.maxPreyBodySize) {__result = false; StoreAcceptablePrey(false); return false; }
 
                 if (!prey.Downed)
                 {
                     bool useLargeMammalSizing = LargeMammalPredationUtility.UsesLargeMammalSizing(predator);
-                    float predatorCombatPower = predator.kindDef.combatPower;
-                    float preyCombatPower = prey.kindDef.combatPower;
+                    float preyCombatPower = preyCombatPowerAdjusted;
+                    bool packSupport = false;
+                    bool packSupportChecked = false;
+                    float packMultiplier = 1f;
 
                     if (useLargeMammalSizing)
                     {
                         if (preyCombatPower > predatorCombatPower)
                         {
-                            __result = false;
-                            PredationDecisionCache.StoreAcceptablePrey(predator, prey, false);
-                            return false;
+                            packSupport = HerdPredatorHuntPatch.HasPackSupport(predator, prey);
+                            packSupportChecked = true;
+                            skipCache = true;
+                            if (packSupport)
+                            {
+                                packMultiplier = PackHuntCombatPowerMultiplier;
+                            }
+
+                            if (preyCombatPower > predatorCombatPower * packMultiplier)
+                            {
+                                __result = false;
+                                StoreAcceptablePrey(false);
+                                return false;
+                            }
                         }
                     }
                     else if (preyCombatPower > 2f * predatorCombatPower)
                     {
                         __result = false;
-                        PredationDecisionCache.StoreAcceptablePrey(predator, prey, false);
+                        StoreAcceptablePrey(false);
                         return false;
                     }
 
@@ -367,19 +517,42 @@ namespace ZoologyMod
                         : prey.BodySize;
                     float preyScore = preyCombatPower * prey.health.summaryHealth.SummaryHealthPercent * preySizeFactor;
                     float predatorScore = predator.kindDef.combatPower * predator.health.summaryHealth.SummaryHealthPercent * predator.BodySize;
+                    if (packSupport)
+                    {
+                        predatorScore *= packMultiplier;
+                    }
 
                     if (preyScore >= predatorScore)
                     {
-                        __result = false;
-                        PredationDecisionCache.StoreAcceptablePrey(predator, prey, false);
-                        return false;
+                        if (useLargeMammalSizing && !packSupportChecked)
+                        {
+                            packSupport = HerdPredatorHuntPatch.HasPackSupport(predator, prey);
+                            packSupportChecked = true;
+                            skipCache = true;
+                            if (packSupport)
+                            {
+                                predatorScore *= PackHuntCombatPowerMultiplier;
+                            }
+                        }
+
+                        if (preyScore >= predatorScore)
+                        {
+                            __result = false;
+                            StoreAcceptablePrey(false);
+                            return false;
+                        }
                     }
                 }
 
-				
-				
-				if (!photonozoaPairInTheirFaction && !((predator.Faction == null || prey.Faction == null || predator.HostileTo(prey))
-					&& (predator.Faction == null || prey.HostFaction == null || predator.HostileTo(prey))
+				bool hostileToPreyFactionOrMissing = predator.Faction == null
+                    || prey.Faction == null
+                    || AreFactionsHostileSafe(predator.Faction, prey.Faction);
+                bool hostileToHostFactionOrMissing = predator.Faction == null
+                    || prey.HostFaction == null
+                    || AreFactionsHostileSafe(predator.Faction, prey.HostFaction);
+
+				if (!photonozoaPairInTheirFaction && !(hostileToPreyFactionOrMissing
+					&& hostileToHostFactionOrMissing
 					&& (predator.Faction != Faction.OfPlayer || prey.Faction != Faction.OfPlayer)
 					&& (!predator.RaceProps.herdAnimal || predator.def != prey.def)
 					&& !prey.IsHiddenFromPlayer()
@@ -387,12 +560,12 @@ namespace ZoologyMod
 					&& (!ModsConfig.AnomalyActive || !prey.IsMutant || prey.mutant.Def.canBleed)))
 				{
 					__result = false;
-                    PredationDecisionCache.StoreAcceptablePrey(predator, prey, false);
+                    StoreAcceptablePrey(false);
 					return false;
 				}
 
                 __result = true;
-                PredationDecisionCache.StoreAcceptablePrey(predator, prey, true);
+                StoreAcceptablePrey(true);
                 return false; 
             }
             catch (Exception ex)

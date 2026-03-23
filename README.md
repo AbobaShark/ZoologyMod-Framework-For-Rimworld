@@ -42,7 +42,7 @@ Every vanilla animal and DLC animal has had its core stats recalculated. All ani
 * average body mass
 * gestation period
 * litter / clutch size
-* * growth rate
+* growth rate
 * claw & tooth dimensions
 * bite force
 
@@ -100,6 +100,8 @@ Predators will only attack other predators if their Combat Power is more than **
 
 Pack hunters can coordinate group attacks even if not all pack members are hungry.
 
+In a group, pack predators can take down stronger prey than they would be able to hunt alone.
+
 **Controlled by**
 
 * **Enable pack hunt behavior**
@@ -110,26 +112,37 @@ Pack hunters can coordinate group attacks even if not all pack members are hungr
 
 Prey animals attempt to flee from hunting predators.
 
-Predators will abandon the pursuit if they cannot catch prey within a certain amount of time.
+Predators will abandon the pursuit if they cannot catch their prey within a certain amount of time.
 
 **Controlled by**
 
 * **Enable prey fleeing from predators**
 
+> Note: fleeing from humans is handled by the Custom flee-from-danger override system (see below) — use Animals flee from humans and Configure animals fleeing from humans to control which species will run from colonists and mechanoids.
+
 ---
 
 ### Custom flee-from-danger override
 
-Replaces the vanilla `ShouldAnimalFleeDanger` logic.
+Replaces the vanilla ShouldAnimalFleeDanger logic with a scalable system controlling animal responses to different threat types on their home maps.
 
-A scalable system determines which animals flee from threats on their home maps.
+**Features:**
 
-**Configurable thresholds include**
+* Configurable size thresholds (which animals consider various dangers worth fleeing from):
+  * **Safe Predator Body Size Threshold**
+  * **Safe Non-Predator Body Size Threshold**
 
-* **Safe Predator Body Size Threshold**  
-* **Safe Non-Predator Body Size Threshold**
+###  Animals flee from humans
 
-These allow fine control over which animals consider raiders or other dangers worth fleeing from.
+Makes animals attempt to flee when colonists or mechanoids approach. Use **Configure animals fleeing from humans** to choose species that are exceptions (i.e., species that will not flee from humans).
+
+* Exceptions & behavior rules:
+  * Animals listed in **Configure animals fleeing from humans** will not flee from humans.  
+  * Predators meeting the **Min CombatPower to defend prey from humans and mechanoids** threshold will not flee if they are defending prey (see Predator protection below).  
+  * Animals do not flee while they are actively *hunting*, *feeding*, or when in a *mental state* (manhunter, berserk, etc.).
+  * Animals will also not flee from pawns attempting to tame them.
+
+These controls allow you to tune human-directed fleeing separately from predator/prey fleeing to achieve the balance you want.
 
 ---
 
@@ -150,15 +163,21 @@ Raiders treat small, non-threatening pets (for example, cats) like penned livest
 
 ### Predator protection of kills
 
-Predators may guard their kills against scavengers and colonists.
+Predators may guard their kills against scavengers, colonists and mechanoids within a configurable **Prey protection range**.
 
 **Configurable settings**
 
 * **Prey protection range**  
 * **Enable predator defending their kills**
-* **Protection trigger size difference threshold**
+* **Protection trigger size difference threshold** — prevents large predators from attacking minor scavengers unnecessarily.
+* **Enable predators defending prey from humans and mechanoids** — toggle predator defense against colonists and mechanoids.  
+* **Min CombatPower to defend prey from humans and mechanoids** — a Combat Power threshold: only predators with Combat Power equal to or above this value will actively defend kills from humans/mechanoids. This prevents small predators from needlessly attacking well-armed raiders or mechanoids.
 
-A protection trigger threshold prevents large predators from attacking minor scavengers unnecessarily.
+**Behavior notes:**
+
+* Protection logic still respects the protection-trigger size-difference threshold so very large predators won't attack small scavengers unnecessarily.  
+* Predators that meet the Min CombatPower threshold and are defending a kill will not flee from approaching humans/mechanoids — they will attempt to guard the prey instead.  
+* These defense behaviors can be disabled independently of other predator behaviors to improve compatibility with large mod lists.
 
 ---
 
@@ -174,6 +193,14 @@ The nutritional value of skeletonized corpses is reduced compared to fresh corps
 **Controlled by**
 
 * **Enable scavenging (scavenger behavior)**
+
+---
+
+### Cannot chew (swallow whole feeding)
+
+Animals marked with `ModExtension_CannotChew` always swallow prey whole and cannot tear chunks from corpses.
+
+Prey can only be swallowed if it does not exceed the animal’s `MaxPreyBodySize`.
 
 ---
 
@@ -213,15 +240,20 @@ Mothers receive a lactation hediff that transfers nutrition to their young.
 
 * **Enable mammals lactation**
 
-Includes a setting controlling auto-slaughter behavior:
+* **Slaughter lactating females**
 
-* **Lactation auto-slaughter handling**
+---
+### Childcare (offspring following)
+
+Animals marked with `ModExtension_Chlidcare` allow their offspring to follow them.
+
+This enables more natural parent–offspring behavior in the wild and in player-controlled animals.
 
 ---
 
 ### Animal damage reduction
 
-Optional system that reduces unrealistic damage from very small animals attacking much larger animals. Predator–prey interactions are excluded.
+Optional system that reduces unrealistic damage from very small animals (or unarmed humans) attacking much larger animals. Predator–prey interactions are excluded.
 
 **Controlled by**
 

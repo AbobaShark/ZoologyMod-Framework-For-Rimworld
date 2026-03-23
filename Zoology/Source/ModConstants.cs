@@ -9,7 +9,7 @@ namespace ZoologyMod
         public const float DefaultSafeNonPredatorBodySizeThreshold = 3f;
         public const int DefaultMinCombatPowerToDefendPreyFromHumans = 70;
 
-        public static ZoologyModSettings Settings => ZoologyMod.Settings ?? ZoologyModSettings.Instance;
+        public static ZoologyModSettings Settings => ZoologyModSettings.Instance ?? ZoologyMod.Settings;
 
         public static float SmallPetBodySizeThreshold => Settings?.SmallPetBodySizeThreshold ?? DefaultSmallPetBodySizeThreshold;
         public static float SafePredatorBodySizeThreshold => Settings?.SafePredatorBodySizeThreshold ?? DefaultSafePredatorBodySizeThreshold;

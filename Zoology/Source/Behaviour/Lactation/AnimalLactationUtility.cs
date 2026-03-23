@@ -1,0 +1,606 @@
+﻿using System;
+using System.Collections.Generic;
+using UnityEngine;
+using Verse;
+using Verse.AI;
+using RimWorld;
+
+namespace ZoologyMod
+{
+    public static class AnimalLactationUtility
+    {
+        public const int FullFeedSessionTicks = ZoologyTickLimiter.Lactation.FullFeedSessionTicks;
+        public const int FullLactatingSeverityTicks = ZoologyTickLimiter.Lactation.FullLactatingSeverityTicks;
+        public const float feedingThreshold = 0.33f;
+        private static Dictionary<int, int> lastFeedAttemptTick = new Dictionary<int, int>();
+        private sealed class MotherCandidateCache
+        {
+            public int Tick = -1;
+            public readonly List<Pawn> Candidates = new List<Pawn>(32);
+        }
+        private readonly struct MotherCacheEntry
+        {
+            public MotherCacheEntry(Pawn mother, int tick)
+            {
+                Mother = mother;
+                Tick = tick;
+            }
+
+            public Pawn Mother { get; }
+            public int Tick { get; }
+        }
+
+        private static readonly Dictionary<int, MotherCandidateCache> motherCandidateCacheByMapId = new Dictionary<int, MotherCandidateCache>(8);
+        private static readonly Dictionary<int, MotherCacheEntry> cachedMotherByPupId = new Dictionary<int, MotherCacheEntry>(128);
+        private static readonly Dictionary<int, MotherCacheEntry> cachedReachableMotherByPupId = new Dictionary<int, MotherCacheEntry>(128);
+        private const int MotherCacheDurationTicks = 30;
+        private static readonly Dictionary<ThingDef, HashSet<string>> crossBreedDefNamesCache = new Dictionary<ThingDef, HashSet<string>>();
+        private static HediffDef lactatingHediffDef;
+        private static JobDef breastfeedJobDef;
+        private static JobDef youngSuckleJobDef;
+        private const int FeedAttemptCooldownTicks = ZoologyTickLimiter.Lactation.FeedAttemptCooldownTicks;
+        public const float MotherMinFeedLevel = 0.15f;
+        public static HediffDef LactatingHediffDef => lactatingHediffDef ?? (lactatingHediffDef = DefDatabase<HediffDef>.GetNamedSilentFail("Zoology_Lactating"));
+        public static JobDef BreastfeedJobDef => breastfeedJobDef ?? (breastfeedJobDef = DefDatabase<JobDef>.GetNamedSilentFail("Zoology_Breastfeed"));
+        public static JobDef YoungSuckleJobDef => youngSuckleJobDef ?? (youngSuckleJobDef = DefDatabase<JobDef>.GetNamedSilentFail("Zoology_YoungSuckle"));
+
+        public static bool IsAnimalBabyLifeStage(LifeStageDef stage)
+        {
+            return AnimalLifeStageUtility.IsAnimalInfantLifeStage(stage);
+        }
+
+        public static bool IsAnimalBaby(Pawn pawn)
+        {
+            return pawn != null && IsAnimalBabyLifeStage(pawn.ageTracker?.CurLifeStage);
+        }
+
+        public static bool MotherHasSufficientNutrition(Pawn mom)
+        {
+            if (mom == null) return false;
+            if (mom.needs == null || mom.needs.food == null) return false;
+            return mom.needs.food.CurLevelPercentage >= MotherMinFeedLevel;
+        }
+
+        public static void RecordFeedAttempt(Pawn mom)
+        {
+            if (mom == null) return;
+            try
+            {
+                int id = mom.thingIDNumber;
+                lastFeedAttemptTick[id] = Find.TickManager.TicksGame;
+            }
+            catch { }
+        }
+
+        public static bool CanAttemptFeedNow(Pawn mom)
+        {
+            if (mom == null) return false;
+            try
+            {
+                int id = mom.thingIDNumber;
+                int now = Find.TickManager.TicksGame;
+                if (lastFeedAttemptTick.TryGetValue(id, out int last))
+                {
+                    if (now - last < FeedAttemptCooldownTicks) return false;
+                }
+                return true;
+            }
+            catch
+            {
+                return true;
+            }
+        }
+
+        public static void OnAnimalGaveBirth(Pawn mother, List<Pawn> newborns)
+        {
+            try
+            {
+                if (!ZoologyModSettings.EnableMammalLactation)
+                {
+                    return;
+                }
+                if (mother == null || mother.Dead)
+                {
+                    return;
+                }
+                if (!mother.IsMammal())
+                {
+                    return;
+                }
+                if (mother.gender != Gender.Female)
+                {
+                    return;
+                }
+
+                HediffDef hd = LactatingHediffDef;
+                if (hd == null)
+                {
+                    Log.Warning("ZoologyMod: HediffDef 'Zoology_Lactating' not found in DefDatabase when trying to start lactation.");
+                    return;
+                }
+
+                Hediff lact = mother.health.hediffSet.GetFirstHediffOfDef(hd);
+                if (lact == null)
+                {
+                    lact = HediffMaker.MakeHediff(hd, mother);
+                    mother.health.AddHediff(lact);
+                }
+
+                int pups = (newborns != null) ? newborns.Count : 1;
+                float severityGain = GetSeverityForLitter(pups);
+                lact.Severity = Mathf.Min(1f, lact.Severity + severityGain);
+            }
+            catch (Exception ex)
+            {
+                Log.Error("ZoologyMod: Exception in OnAnimalGaveBirth: " + ex);
+            }
+        }
+
+        private static float GetSeverityForLitter(int pups)
+        {
+            if (pups <= 1) return 0.25f;
+            return Mathf.Min(1f, 0.25f + 0.12f * (pups - 1));
+        }
+
+        public static bool CanMotherFeed(Pawn mom, out string failReason)
+        {
+            failReason = null;
+            if (mom == null) { failReason = "Null mom"; return false; }
+            if (mom.Dead) { failReason = "Dead mom"; return false; }
+            if (mom.Downed) { failReason = "Downed mom"; return false; }
+            if (!mom.IsMammal()) { failReason = "Not a mammal"; return false; }
+            if (!ZoologyModSettings.EnableMammalLactation) { failReason = "Mammal lactation disabled"; return false; }
+
+            if (mom.InMentalState)
+            {
+                failReason = "Mom in mental state";
+                return false;
+            }
+
+            var lactDef = LactatingHediffDef;
+            if (lactDef == null || !mom.health.hediffSet.HasHediff(lactDef)) { failReason = "Mom not lactating"; return false; }
+
+            if (!MotherHasSufficientNutrition(mom))
+            {
+                failReason = "Mom too hungry to feed";
+                return false;
+            }
+
+            return true;
+        }
+
+        public static bool CanMotherFeed(Pawn mom)
+        {
+            if (mom == null || mom.Dead || mom.Downed) return false;
+            if (!mom.IsMammal() || !ZoologyModSettings.EnableMammalLactation) return false;
+            if (mom.InMentalState) return false;
+
+            var lactDef = LactatingHediffDef;
+            if (lactDef == null || !mom.health.hediffSet.HasHediff(lactDef)) return false;
+
+            return MotherHasSufficientNutrition(mom);
+        }
+
+        private static HashSet<string> GetCrossBreedDefNames(ThingDef motherDef)
+        {
+            if (motherDef == null) return null;
+
+            HashSet<string> allowedDefNames;
+            if (crossBreedDefNamesCache.TryGetValue(motherDef, out allowedDefNames))
+                return allowedDefNames;
+
+            allowedDefNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var list = motherDef.race?.canCrossBreedWith;
+            if (list != null)
+            {
+                for (int i = 0; i < list.Count; i++)
+                {
+                    var td = list[i];
+                    if (td?.defName != null)
+                    {
+                        allowedDefNames.Add(td.defName);
+                    }
+                }
+            }
+
+            crossBreedDefNamesCache[motherDef] = allowedDefNames;
+            return allowedDefNames;
+        }
+
+        public static bool IsCrossBreedCompatible(Pawn mother, Pawn pup)
+        {
+            if (mother == null || pup == null) return false;
+
+            ThingDef motherDef = mother.def;
+            ThingDef pupDef = pup.def;
+            if (motherDef == null || pupDef == null) return false;
+            if (pupDef == motherDef) return true;
+
+            var allowedDefNames = GetCrossBreedDefNames(motherDef);
+            return allowedDefNames != null && allowedDefNames.Contains(pupDef.defName);
+        }
+
+        private static bool IsPupFactionCompatible(Pawn mom, Pawn pup)
+        {
+            if (mom == null || pup == null) return false;
+
+            Faction pupFaction = pup.Faction;
+            Faction pupHost = pup.HostFaction;
+
+            if (pupFaction == null && pupHost == null)
+            {
+                return mom.Faction == null && mom.HostFaction == null;
+            }
+
+            return mom.Faction == pupFaction
+                || mom.Faction == pupHost
+                || mom.HostFaction == pupFaction
+                || mom.HostFaction == pupHost;
+        }
+
+        public static bool ChildWantsSuckle(Pawn pup)
+        {
+            if (pup == null || pup.Dead) return false;
+            if (pup.needs == null || pup.needs.food == null) return false;
+            if (pup.InMentalState) return false;
+
+            if (!pup.IsMammal()) return false;
+
+            var curStage = pup.ageTracker?.CurLifeStage;
+            if (!IsAnimalBabyLifeStage(curStage))
+            {
+                return false;
+            }
+
+            return pup.needs.food.CurLevelPercentage < feedingThreshold;
+        }
+
+        private static IReadOnlyList<Pawn> GetMotherCandidates(Map map, int currentTick)
+        {
+            if (map?.mapPawns?.AllPawnsSpawned == null)
+            {
+                return null;
+            }
+
+            int mapId = map.uniqueID;
+            if (!motherCandidateCacheByMapId.TryGetValue(mapId, out MotherCandidateCache cache))
+            {
+                cache = new MotherCandidateCache();
+                motherCandidateCacheByMapId[mapId] = cache;
+            }
+
+            if (currentTick > 0 && cache.Tick == currentTick)
+            {
+                return cache.Candidates;
+            }
+
+            cache.Tick = currentTick;
+            List<Pawn> candidates = cache.Candidates;
+            candidates.Clear();
+
+            var pawns = map.mapPawns.AllPawnsSpawned;
+            for (int i = 0; i < pawns.Count; i++)
+            {
+                Pawn p = pawns[i];
+                if (p == null || !p.Spawned || p.Dead) continue;
+                if (!CanMotherFeed(p)) continue;
+                candidates.Add(p);
+            }
+
+            return candidates;
+        }
+
+        public static Pawn FindNearestAvailableMother(Pawn pup)
+        {
+            if (pup == null || pup.Map == null || pup.Dead) return null;
+            Pawn nearest = null;
+            float bestDistSqr = float.MaxValue;
+            IntVec3 pupPosition = pup.Position;
+            int currentTick = Find.TickManager?.TicksGame ?? 0;
+
+            int pupId = pup.thingIDNumber;
+            if (currentTick > 0
+                && cachedMotherByPupId.TryGetValue(pupId, out MotherCacheEntry cached)
+                && currentTick - cached.Tick <= MotherCacheDurationTicks)
+            {
+                if (IsValidMotherForPup(cached.Mother, pup))
+                {
+                    return cached.Mother;
+                }
+
+                cachedMotherByPupId.Remove(pupId);
+            }
+
+            IReadOnlyList<Pawn> candidates = GetMotherCandidates(pup.Map, currentTick);
+            if (candidates == null || candidates.Count == 0)
+            {
+                return null;
+            }
+
+            for (int i = 0; i < candidates.Count; i++)
+            {
+                Pawn p = candidates[i];
+                if (p == null || !p.Spawned || p.Dead) continue;
+
+                if (!IsCrossBreedCompatible(p, pup)) continue;
+
+                float d = (p.Position - pupPosition).LengthHorizontalSquared;
+                if (d >= bestDistSqr) continue;
+
+                if (!p.CanReserve(pup)) continue;
+
+                if (!p.CanReach(pup, PathEndMode.Touch, Danger.Deadly, false, false, TraverseMode.ByPawn)) continue;
+
+                if (d < bestDistSqr) { bestDistSqr = d; nearest = p; }
+            }
+
+            if (currentTick > 0 && nearest != null)
+            {
+                cachedMotherByPupId[pupId] = new MotherCacheEntry(nearest, currentTick);
+            }
+            else if (currentTick > 0)
+            {
+                cachedMotherByPupId.Remove(pupId);
+            }
+
+            return nearest;
+        }
+
+        public static Pawn FindNearestReachableMotherForPup(Pawn pup)
+        {
+            if (pup == null || pup.Map == null || pup.Dead) return null;
+            Pawn nearest = null;
+            float bestDistSqr = float.MaxValue;
+            IntVec3 pupPosition = pup.Position;
+            int currentTick = Find.TickManager?.TicksGame ?? 0;
+
+            int pupId = pup.thingIDNumber;
+            if (currentTick > 0
+                && cachedReachableMotherByPupId.TryGetValue(pupId, out MotherCacheEntry cached)
+                && currentTick - cached.Tick <= MotherCacheDurationTicks)
+            {
+                if (IsValidMotherForPupReach(cached.Mother, pup))
+                {
+                    return cached.Mother;
+                }
+
+                cachedReachableMotherByPupId.Remove(pupId);
+            }
+
+            IReadOnlyList<Pawn> candidates = GetMotherCandidates(pup.Map, currentTick);
+            if (candidates == null || candidates.Count == 0)
+            {
+                return null;
+            }
+
+            for (int i = 0; i < candidates.Count; i++)
+            {
+                Pawn p = candidates[i];
+                if (p == null || !p.Spawned || p.Dead) continue;
+
+                if (!IsCrossBreedCompatible(p, pup)) continue;
+                if (!IsPupFactionCompatible(p, pup)) continue;
+
+                float d = (p.Position - pupPosition).LengthHorizontalSquared;
+                if (d >= bestDistSqr) continue;
+
+                if (!pup.CanReach(p, PathEndMode.Touch, Danger.Deadly, false, false, TraverseMode.ByPawn)) continue;
+
+                if (d < bestDistSqr) { bestDistSqr = d; nearest = p; }
+            }
+
+            if (currentTick > 0 && nearest != null)
+            {
+                cachedReachableMotherByPupId[pupId] = new MotherCacheEntry(nearest, currentTick);
+            }
+            else if (currentTick > 0)
+            {
+                cachedReachableMotherByPupId.Remove(pupId);
+            }
+
+            return nearest;
+        }
+
+        private static bool IsValidMotherForPup(Pawn mom, Pawn pup)
+        {
+            if (mom == null || pup == null)
+            {
+                return false;
+            }
+
+            if (!mom.Spawned || mom.Dead || mom.Destroyed)
+            {
+                return false;
+            }
+
+            if (!CanMotherFeed(mom))
+            {
+                return false;
+            }
+
+            if (mom.Map != pup.Map)
+            {
+                return false;
+            }
+
+            if (!IsCrossBreedCompatible(mom, pup))
+            {
+                return false;
+            }
+
+            if (!mom.CanReserve(pup))
+            {
+                return false;
+            }
+
+            return mom.CanReach(pup, PathEndMode.Touch, Danger.Deadly, false, false, TraverseMode.ByPawn);
+        }
+
+        private static bool IsValidMotherForPupReach(Pawn mom, Pawn pup)
+        {
+            if (mom == null || pup == null)
+            {
+                return false;
+            }
+
+            if (!mom.Spawned || mom.Dead || mom.Destroyed)
+            {
+                return false;
+            }
+
+            if (!CanMotherFeed(mom))
+            {
+                return false;
+            }
+
+            if (mom.Map != pup.Map)
+            {
+                return false;
+            }
+
+            if (!IsCrossBreedCompatible(mom, pup))
+            {
+                return false;
+            }
+
+            if (!IsPupFactionCompatible(mom, pup))
+            {
+                return false;
+            }
+
+            return pup.CanReach(mom, PathEndMode.Touch, Danger.Deadly, false, false, TraverseMode.ByPawn);
+        }
+
+        public static Job MakeAnimalBreastfeedJob(Pawn pup, Pawn mom)
+        {
+            if (mom == null || mom.Dead || mom.Downed || pup == null || pup.Dead) return null;
+            var breastfeedDef = BreastfeedJobDef;
+            if (breastfeedDef == null) return null;
+
+            Job job = JobMaker.MakeJob(breastfeedDef);
+            job.targetA = pup;
+            job.targetB = mom;
+            job.count = 1;
+            job.checkOverrideOnExpire = false;
+            job.expiryInterval = ZoologyTickLimiter.Lactation.FullFeedSessionTicks;
+            return job;
+        }
+
+        public static bool TryStartYoungSuckleJob(Pawn pup, Pawn mom)
+        {
+            if (pup == null || mom == null)
+            {
+                return false;
+            }
+
+            if (pup.Dead || pup.Downed || pup.InMentalState)
+            {
+                return false;
+            }
+            if (mom.Dead || mom.Downed || mom.InMentalState || !mom.Spawned)
+            {
+                return false;
+            }
+            if (pup.Map == null || mom.Map != pup.Map)
+            {
+                return false;
+            }
+            if (!pup.CanReach(mom, PathEndMode.Touch, Danger.Deadly, false, false, TraverseMode.ByPawn))
+            {
+                return false;
+            }
+            if (!pup.CanReserve(mom, 1, -1, null, false))
+            {
+                return false;
+            }
+
+            JobDef jd = YoungSuckleJobDef;
+            if (jd == null || jd.driverClass == null)
+            {
+                return false;
+            }
+
+            Job curJob = pup.CurJob;
+            if (curJob != null && curJob.def == jd)
+            {
+                if (curJob.targetA.HasThing && ReferenceEquals(curJob.GetTarget(TargetIndex.A).Thing, mom))
+                {
+                    return true;
+                }
+            }
+
+            Job newJob = JobMaker.MakeJob(jd, mom);
+            newJob.checkOverrideOnExpire = false;
+            newJob.expiryInterval = ZoologyTickLimiter.Lactation.FullFeedSessionTicks;
+
+            try
+            {
+                pup.jobs?.StartJob(newJob, JobCondition.InterruptForced, null, false);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public static bool SuckleFromLactatingPawn(Pawn pup, Pawn mom, int deltaTicks)
+        {
+            try
+            {
+                if (pup == null || pup.Dead || mom == null || mom.Dead || mom.Downed) return false;
+
+                if (!IsCrossBreedCompatible(mom, pup)) return false;
+
+                var lactDef = LactatingHediffDef;
+                if (lactDef == null) return false;
+
+                Hediff lact = mom.health?.hediffSet?.GetFirstHediffOfDef(lactDef);
+                if (lact == null) return false;
+
+                if ((pup.Position - mom.Position).LengthHorizontalSquared > 2f) return false;
+
+                if (mom.needs?.food == null) return false;
+                if (pup.needs?.food == null) return false;
+
+                if (!MotherHasSufficientNutrition(mom)) return false;
+
+                float nutritionWanted = pup.needs.food.NutritionWanted;
+                if (nutritionWanted <= 0f) return false;
+
+                float perTick = pup.needs.food.MaxLevel / (float)FullFeedSessionTicks;
+                float providedRequested = perTick * deltaTicks;
+
+                float provided = Math.Min(nutritionWanted, providedRequested);
+
+                float momAvailable = mom.needs.food.CurLevel;
+                if (momAvailable <= 0f) return false;
+
+                float momDeduct = Math.Min(momAvailable, provided);
+
+                if (momDeduct <= 0f) return false;
+
+                float newMomLevel = mom.needs.food.CurLevel - momDeduct;
+                mom.needs.food.CurLevel = Math.Max(0f, newMomLevel);
+
+                pup.needs.food.CurLevel = Math.Min(pup.needs.food.MaxLevel, pup.needs.food.CurLevel + momDeduct);
+
+                try
+                {
+                    lact.Severity = 1f;
+                }
+                catch { }
+
+                if (pup.needs.food.CurLevel >= pup.needs.food.MaxLevel * 0.99f)
+                    return true;
+
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("ZoologyMod: Exception in SuckleFromLactatingPawn: " + ex);
+                return false;
+            }
+        }
+    }
+}

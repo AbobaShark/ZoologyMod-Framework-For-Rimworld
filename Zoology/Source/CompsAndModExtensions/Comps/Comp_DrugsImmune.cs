@@ -493,16 +493,34 @@ namespace ZoologyMod
     [StaticConstructorOnStartup]
     public static class DrugsImmuneHarmonyInit
     {
+        private static bool patched;
+
         static DrugsImmuneHarmonyInit()
         {
+            EnsurePatched();
+        }
+
+        public static void EnsurePatched()
+        {
+            if (patched)
+            {
+                return;
+            }
+
             try
             {
                 var settings = ZoologyModSettings.Instance;
+                if (settings != null && settings.DisableAllRuntimePatches)
+                {
+                    return;
+                }
+
                 if (settings != null && !settings.EnableDrugsImmunePatch)
                 {
                     return;
                 }
 
+                patched = true;
                 var harmony = new Harmony("zoology.drugsimmune");
 
                 MethodInfo targetMethod = null;
@@ -551,13 +569,16 @@ namespace ZoologyMod
 
                 var prefix = new HarmonyMethod(typeof(DrugsImmuneHarmonyInit).GetMethod(nameof(DoerGiveHediff_Prefix), BindingFlags.Static | BindingFlags.NonPublic));
                 harmony.Patch(targetMethod, prefix: prefix);
-
-                Log.Message("[Zoology] DrugsImmuneHarmonyInit: patched IngestionOutcomeDoer.DoIngestionOutcome (drug hediff blocking enabled).");
             }
             catch (Exception e)
             {
                 Log.Error($"[Zoology] DrugsImmuneHarmonyInit failed to patch: {e}");
             }
+        }
+
+        public static void ResetPatchedState()
+        {
+            patched = false;
         }
 
         

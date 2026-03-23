@@ -8,20 +8,28 @@ namespace ZoologyMod
 {
     public class JobGiver_AnimalAutoFeed : ThinkNode_JobGiver
     {
+        private sealed class HungryPupCache
+        {
+            public int Tick = -1;
+            public readonly List<Pawn> Candidates = new List<Pawn>(32);
+        }
+
+        private static readonly Dictionary<int, HungryPupCache> hungryPupCacheByMapId = new Dictionary<int, HungryPupCache>(8);
+
         protected override Job TryGiveJob(Pawn pawn)
         {
-            if (!AnimalChildcareUtility.CanMotherFeed(pawn)) return null;
+            if (!AnimalLactationUtility.CanMotherFeed(pawn)) return null;
 
-            if (!AnimalChildcareUtility.CanAttemptFeedNow(pawn)) return null;
+            if (!AnimalLactationUtility.CanAttemptFeedNow(pawn)) return null;
 
             Pawn targetPup = FindNearestHungryPup(pawn);
             if (targetPup == null) return null;
 
-            var youngSuckleDef = AnimalChildcareUtility.YoungSuckleJobDef;
+            var youngSuckleDef = AnimalLactationUtility.YoungSuckleJobDef;
             if (targetPup.CurJob != null && (targetPup.CurJob.def == youngSuckleDef || targetPup.CurJob.def == JobDefOf.Wait))
                 return null;
 
-            Job job = AnimalChildcareUtility.MakeAnimalBreastfeedJob(targetPup, pawn);
+            Job job = AnimalLactationUtility.MakeAnimalBreastfeedJob(targetPup, pawn);
             if (job == null) return null;
 
             try
@@ -47,9 +55,50 @@ namespace ZoologyMod
                 return null;
             }
 
-            AnimalChildcareUtility.RecordFeedAttempt(pawn);
+            AnimalLactationUtility.RecordFeedAttempt(pawn);
 
             return job;
+        }
+
+        private static IReadOnlyList<Pawn> GetHungryPupCandidates(Map map, int currentTick)
+        {
+            if (map?.mapPawns?.AllPawnsSpawned == null)
+            {
+                return null;
+            }
+
+            int mapId = map.uniqueID;
+            if (!hungryPupCacheByMapId.TryGetValue(mapId, out HungryPupCache cache))
+            {
+                cache = new HungryPupCache();
+                hungryPupCacheByMapId[mapId] = cache;
+            }
+
+            if (currentTick > 0 && cache.Tick == currentTick)
+            {
+                return cache.Candidates;
+            }
+
+            cache.Tick = currentTick;
+            List<Pawn> candidates = cache.Candidates;
+            candidates.Clear();
+
+            var pawns = map.mapPawns.AllPawnsSpawned;
+            for (int i = 0; i < pawns.Count; i++)
+            {
+                Pawn p = pawns[i];
+                if (p == null || p.Dead || p.Destroyed || !p.Spawned) continue;
+                if (!p.IsMammal()) continue;
+                if (!AnimalLactationUtility.IsAnimalBabyLifeStage(p.ageTracker?.CurLifeStage)) continue;
+                if (p.InMentalState) continue;
+
+                var foodNeed = p.needs?.food;
+                if (foodNeed == null || foodNeed.CurLevelPercentage >= AnimalLactationUtility.feedingThreshold) continue;
+
+                candidates.Add(p);
+            }
+
+            return candidates;
         }
 
         private Pawn FindNearestHungryPup(Pawn mom)
@@ -61,24 +110,32 @@ namespace ZoologyMod
             float bestFoodPerc = 1f; 
             float bestDistSqr = float.MaxValue;
             int bestMalStage = -1; 
+            int currentTick = Find.TickManager?.TicksGame ?? 0;
 
-            foreach (Pawn p in mom.Map.mapPawns.AllPawnsSpawned)
+            IReadOnlyList<Pawn> candidates = GetHungryPupCandidates(mom.Map, currentTick);
+            if (candidates == null || candidates.Count == 0)
             {
+                return null;
+            }
+
+            for (int i = 0; i < candidates.Count; i++)
+            {
+                Pawn p = candidates[i];
                 if (p == mom || p.Dead) continue;
 
                 if (p.Faction != momFaction && p.HostFaction != momFaction) continue;
 
-                if (!AnimalChildcareUtility.IsCrossBreedCompatible(mom, p)) continue;
+                if (!AnimalLactationUtility.IsCrossBreedCompatible(mom, p)) continue;
 
                 if (!p.IsMammal()) continue;
 
                 var curStage = p.ageTracker?.CurLifeStage;
-                if (!AnimalChildcareUtility.IsAnimalBabyLifeStage(curStage)) continue;
+                if (!AnimalLactationUtility.IsAnimalBabyLifeStage(curStage)) continue;
 
                 if (p.InMentalState) continue;
 
                 var foodNeed = p.needs?.food;
-                if (foodNeed == null || foodNeed.CurLevelPercentage >= AnimalChildcareUtility.feedingThreshold) continue;
+                if (foodNeed == null || foodNeed.CurLevelPercentage >= AnimalLactationUtility.feedingThreshold) continue;
 
                 float foodPerc = foodNeed.CurLevelPercentage;
                 float distSqr = (p.Position - momPosition).LengthHorizontalSquared;

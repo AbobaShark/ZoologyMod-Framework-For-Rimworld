@@ -13,6 +13,7 @@ namespace ZoologyMod
     [StaticConstructorOnStartup]
     public static class NoPorcupineQuill_HarmonyPatches
     {
+        private static bool patched;
         private const string PorcupineQuillDefName = "PorcupineQuill";
 
         private static HediffDef porcupineQuillDef;
@@ -20,14 +21,30 @@ namespace ZoologyMod
 
         static NoPorcupineQuill_HarmonyPatches()
         {
+            EnsurePatched();
+        }
+
+        public static void EnsurePatched()
+        {
+            if (patched)
+            {
+                return;
+            }
+
             try
             {
                 var settings = ZoologyModSettings.Instance;
+                if (settings != null && settings.DisableAllRuntimePatches)
+                {
+                    return;
+                }
+
                 if (settings != null && !settings.EnableNoPorcupineQuillPatch)
                 {
                     return;
                 }
 
+                patched = true;
                 var harmony = new Harmony("com.abobashark.zoology.noporcupinequill");
 
                 var addDirect = AccessTools.Method(typeof(HediffSet), "AddDirect");
@@ -56,6 +73,11 @@ namespace ZoologyMod
             {
                 Log.Error($"[Zoology.NoPorcupineQuill] patch init error: {e}");
             }
+        }
+
+        public static void ResetPatchedState()
+        {
+            patched = false;
         }
 
         private static bool IsNoPorcupineQuillEnabled()

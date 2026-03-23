@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using HarmonyLib;
 using Verse;
 using RimWorld;
@@ -6,14 +7,72 @@ using Verse.AI;
 
 namespace ZoologyMod
 {
+    internal static class MammalBabyCache
+    {
+        private static int lastTick = -1;
+        private static readonly Dictionary<int, bool> isBabyByPawnId = new Dictionary<int, bool>(128);
+
+        public static bool IsMammalBaby(Pawn pawn)
+        {
+            if (pawn == null)
+            {
+                return false;
+            }
+
+            int tick = Find.TickManager?.TicksGame ?? 0;
+            if (tick != lastTick)
+            {
+                lastTick = tick;
+                isBabyByPawnId.Clear();
+            }
+
+            int id = pawn.thingIDNumber;
+            if (isBabyByPawnId.TryGetValue(id, out bool cached))
+            {
+                return cached;
+            }
+
+            bool isBaby = IsMammalInfantStage(pawn);
+            isBabyByPawnId[id] = isBaby;
+            return isBaby;
+        }
+
+        private static bool IsMammalInfantStage(Pawn pawn)
+        {
+            if (pawn == null) return false;
+
+            var stage = pawn.ageTracker?.CurLifeStage;
+            if (AnimalLactationUtility.IsAnimalBabyLifeStage(stage))
+            {
+                return true;
+            }
+
+            if (stage != null && stage.developmentalStage == DevelopmentalStage.Baby)
+            {
+                return true;
+            }
+
+            try
+            {
+                var ages = pawn.RaceProps?.lifeStageAges;
+                if (ages != null && ages.Count > 1 && pawn.ageTracker != null)
+                {
+                    return pawn.ageTracker.CurLifeStageIndex == 0;
+                }
+            }
+            catch
+            {
+            }
+
+            return false;
+        }
+    }
     
     
     
     [HarmonyPatch(typeof(FoodUtility), "FoodIsSuitable", new Type[] { typeof(Pawn), typeof(ThingDef) })]
     static class Patch_FoodUtility_FoodIsSuitable
     {
-        private static readonly System.Reflection.PropertyInfo ThingDefIsCorpseProperty = AccessTools.Property(typeof(ThingDef), "IsCorpse");
-
         static bool Prepare() => ZoologyModSettings.EnableMammalLactation;
 
         static bool Prefix(Pawn p, ThingDef food, ref bool __result)
@@ -21,8 +80,7 @@ namespace ZoologyMod
             try
             {
                 
-                var settings = ZoologyModSettings.Instance;
-                if (settings == null || !ZoologyModSettings.EnableMammalLactation)
+                if (ZoologyModSettings.Instance == null || !ZoologyModSettings.EnableMammalLactation)
                 {
                     return true;
                 }
@@ -32,34 +90,21 @@ namespace ZoologyMod
                 
                 if (!p.IsMammal()) return true;
 
-                
                 if (p.needs?.food == null)
                 {
                     __result = false;
                     return false;
                 }
 
-                
-                var curStage = p.ageTracker?.CurLifeStage;
-                if (curStage == null)
+                bool isBaby = MammalBabyCache.IsMammalBaby(p);
+                if (!isBaby)
                 {
-                    
                     return true;
                 }
 
-                
-                
-                
-                if (AnimalChildcareUtility.IsAnimalBabyLifeStage(curStage))
-                {
-                    
-                    bool ok = (food.ingestible != null && food.ingestible.babiesCanIngest) && p.RaceProps.CanEverEat(food);
-                    __result = ok;
-                    return false; 
-                }
-
-                
-                return true;
+                bool ok = (food.ingestible != null && food.ingestible.babiesCanIngest) && p.RaceProps.CanEverEat(food);
+                __result = ok;
+                return false; 
             }
             catch (Exception ex)
             {
@@ -100,10 +145,8 @@ namespace ZoologyMod
                     return false;
                 }
 
-                var curStage = pawn.ageTracker?.CurLifeStage;
-                if (AnimalChildcareUtility.IsAnimalBabyLifeStage(curStage))
+                if (MammalBabyCache.IsMammalBaby(pawn))
                 {
-                    
                     __result = null;
                     return false; 
                 }
@@ -127,8 +170,6 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(FoodUtility), "WillEat", new Type[] { typeof(Pawn), typeof(Thing), typeof(Pawn), typeof(bool), typeof(bool) })]
     static class Patch_FoodUtility_WillEat_Thing_CorpseBlockForMammalBabies
     {
-        private static readonly System.Reflection.PropertyInfo ThingDefIsCorpseProperty = AccessTools.Property(typeof(ThingDef), "IsCorpse");
-
         static bool Prepare() => ZoologyModSettings.EnableMammalLactation;
 
         static bool Prefix(Pawn p, Thing food, Pawn getter, bool careIfNotAcceptableForTitle, bool allowVenerated, ref bool __result)
@@ -136,56 +177,34 @@ namespace ZoologyMod
             try
             {
                 
-                var settings = ZoologyModSettings.Instance;
-                if (settings == null || !ZoologyModSettings.EnableMammalLactation)
+                if (ZoologyModSettings.Instance == null || !ZoologyModSettings.EnableMammalLactation)
                     return true; 
 
                 if (p == null || food == null) return true;
+                if (p.RaceProps?.Animal != true) return true;
 
                 
                 if (!p.IsMammal()) return true;
 
-                
                 if (p.needs?.food == null)
                 {
                     __result = false;
                     return false;
                 }
 
-                
-                var curStage = p.ageTracker?.CurLifeStage;
-                if (curStage == null) return true;
+                bool isBaby = MammalBabyCache.IsMammalBaby(p);
+                if (!isBaby) return true;
 
-                if (AnimalChildcareUtility.IsAnimalBabyLifeStage(curStage))
+                if (!ZoologyTickLimiter.TryConsumeWillEat(ZoologyTickLimiter.WillEatBudgetPerTick))
                 {
-                    
-                    
-                    if (food is Corpse)
-                    {
-                        __result = false;
-                        return false; 
-                    }
+                    return true;
+                }
 
-                    
-                    
-                    try
-                    {
-                        var td = food.def;
-                        if (td != null)
-                        {
-                            
-                            if (ThingDefIsCorpseProperty != null)
-                            {
-                                var val = ThingDefIsCorpseProperty.GetValue(td, null);
-                                if (val is bool b && b)
-                                {
-                                    __result = false;
-                                    return false;
-                                }
-                            }
-                        }
-                    }
-                    catch { /* не критично, продолжаем ванильную логику */ }
+                
+                if (food is Corpse)
+                {
+                    __result = false;
+                    return false; 
                 }
 
                 
