@@ -8,13 +8,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Armadillo"]/statBases/MarketValue</xpath>
       <value>
-        <MarketValue>150</MarketValue>
+        <MarketValue>125</MarketValue>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Armadillo"]/statBases</xpath>
       <value>
-        <MarketValue>150</MarketValue>
+        <MarketValue>125</MarketValue>
       </value>
     </nomatch>
   </Operation>
@@ -156,7 +156,7 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>6.0</power>
+          <power>4.0</power>
           <cooldownTime>1.10</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
         </li>
@@ -560,19 +560,25 @@
       <li Class="ZoologyMod.ModExtension_IsMammal, ZoologyMod"/>
     </value>
   </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "Armadillo"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod"/>
+    </value>
+  </Operation>
   <!-- Armadillo PawnKindDef -->
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/PawnKindDef[defName = "Armadillo"]/combatPower</xpath>
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "Armadillo"]/combatPower</xpath>
       <value>
-        <combatPower>60</combatPower>
+        <combatPower>45</combatPower>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "Armadillo"]</xpath>
       <value>
-        <combatPower>60</combatPower>
+        <combatPower>45</combatPower>
       </value>
     </nomatch>
   </Operation>
@@ -776,9 +782,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>1.00</power>
+                <power>0.20</power>
                 <armorPenetrationBlunt>0.15</armorPenetrationBlunt>
-                <cooldownTime>1.25</cooldownTime>
+                <cooldownTime>1.40</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                 <chanceFactor>0.2</chanceFactor>
@@ -788,10 +794,10 @@
                 <capacities>
                   <li>Bite</li>
                 </capacities>
-                <power>4</power>
-                <armorPenetrationBlunt>0.15</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.06</armorPenetrationSharp>
-                <cooldownTime>1.05</cooldownTime>
+                <power>3.3</power>
+                <armorPenetrationBlunt>0.24</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.05</armorPenetrationSharp>
+                <cooldownTime>1.95</cooldownTime>
                 <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
               </li>
             </tools>

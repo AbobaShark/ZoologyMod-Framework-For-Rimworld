@@ -8,13 +8,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AEXP_Beaver"]/statBases/MarketValue</xpath>
       <value>
-        <MarketValue>125</MarketValue>
+        <MarketValue>100</MarketValue>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AEXP_Beaver"]/statBases</xpath>
       <value>
-        <MarketValue>125</MarketValue>
+        <MarketValue>100</MarketValue>
       </value>
     </nomatch>
   </Operation>
@@ -138,8 +138,8 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>12.0</power>
-          <cooldownTime>1.55</cooldownTime>
+          <power>8.0</power>
+          <cooldownTime>1.60</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
         </li>
       </tools>
@@ -543,19 +543,25 @@
       <li Class="ZoologyMod.ModExtension_IsMammal, ZoologyMod"/>
     </value>
   </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "AEXP_Beaver"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod"/>
+    </value>
+  </Operation>
   <!-- AEXP_Beaver PawnKindDef -->
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/PawnKindDef[defName = "AEXP_Beaver"]/combatPower</xpath>
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "AEXP_Beaver"]/combatPower</xpath>
       <value>
-        <combatPower>70</combatPower>
+        <combatPower>55</combatPower>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "AEXP_Beaver"]</xpath>
       <value>
-        <combatPower>70</combatPower>
+        <combatPower>55</combatPower>
       </value>
     </nomatch>
   </Operation>
@@ -789,9 +795,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>1.50</power>
-                <armorPenetrationBlunt>0.50</armorPenetrationBlunt>
-                <cooldownTime>1.25</cooldownTime>
+                <power>0.90</power>
+                <armorPenetrationBlunt>0.73</armorPenetrationBlunt>
+                <cooldownTime>1.50</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                 <chanceFactor>0.2</chanceFactor>
@@ -801,10 +807,10 @@
                 <capacities>
                   <li>Bite</li>
                 </capacities>
-                <power>10.5</power>
-                <armorPenetrationBlunt>0.60</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.11</armorPenetrationSharp>
-                <cooldownTime>1.1</cooldownTime>
+                <power>6.6</power>
+                <armorPenetrationBlunt>0.94</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.09</armorPenetrationSharp>
+                <cooldownTime>2.1</cooldownTime>
                 <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
               </li>
             </tools>

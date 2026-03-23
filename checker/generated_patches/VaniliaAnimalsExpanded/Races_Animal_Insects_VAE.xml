@@ -17,13 +17,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/statBases/MarketValue</xpath>
       <value>
-        <MarketValue>1200</MarketValue>
+        <MarketValue>1250</MarketValue>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/statBases</xpath>
       <value>
-        <MarketValue>1200</MarketValue>
+        <MarketValue>1250</MarketValue>
       </value>
     </nomatch>
   </Operation>
@@ -147,8 +147,8 @@
           <capacities>
             <li>ScratchToxic</li>
           </capacities>
-          <power>31.0</power>
-          <cooldownTime>2.70</cooldownTime>
+          <power>36.0</power>
+          <cooldownTime>2.95</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
           <surpriseAttack>
             <extraMeleeDamages>
@@ -164,8 +164,8 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>32.0</power>
-          <cooldownTime>2.70</cooldownTime>
+          <power>42.5</power>
+          <cooldownTime>3.20</cooldownTime>
           <linkedBodyPartsGroup>Mouth</linkedBodyPartsGroup>
           <surpriseAttack>
             <extraMeleeDamages>
@@ -444,13 +444,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "AEXP_Megascorpion"]/combatPower</xpath>
       <value>
-        <combatPower>330</combatPower>
+        <combatPower>355</combatPower>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "AEXP_Megascorpion"]</xpath>
       <value>
-        <combatPower>330</combatPower>
+        <combatPower>355</combatPower>
       </value>
     </nomatch>
   </Operation>
@@ -505,12 +505,6 @@
       <operations>
         <!-- AEXP_Megascorpion CE patches -->
         <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="AEXP_Megascorpion"]/statBases/MeleeParryChance</xpath>
-          <match Class="PatchOperationRemove">
-            <xpath>Defs/ThingDef[defName="AEXP_Megascorpion"]/statBases/MeleeParryChance</xpath>
-          </match>
-        </li>
-        <li Class="PatchOperationConditional">
           <xpath>Defs/ThingDef[defName="AEXP_Megascorpion"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
           <match Class="PatchOperationRemove">
             <xpath>Defs/ThingDef[defName="AEXP_Megascorpion"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
@@ -536,13 +530,28 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="AEXP_Megascorpion"]/statBases/MeleeCritChance</xpath>
             <value>
-              <MeleeCritChance>0.04</MeleeCritChance>
+              <MeleeCritChance>0.27</MeleeCritChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="AEXP_Megascorpion"]/statBases</xpath>
             <value>
-              <MeleeCritChance>0.04</MeleeCritChance>
+              <MeleeCritChance>0.27</MeleeCritChance>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AEXP_Megascorpion"]/statBases/MeleeParryChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AEXP_Megascorpion"]/statBases/MeleeParryChance</xpath>
+            <value>
+              <MeleeParryChance>0.07</MeleeParryChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AEXP_Megascorpion"]/statBases</xpath>
+            <value>
+              <MeleeParryChance>0.07</MeleeParryChance>
             </value>
           </nomatch>
         </li>
@@ -621,9 +630,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>4.50</power>
-                <armorPenetrationBlunt>1.85</armorPenetrationBlunt>
-                <cooldownTime>2.85</cooldownTime>
+                <power>4.90</power>
+                <armorPenetrationBlunt>4.56</armorPenetrationBlunt>
+                <cooldownTime>3.40</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                 <chanceFactor>0.2</chanceFactor>
@@ -633,10 +642,10 @@
                 <capacities>
                   <li>ScratchToxic</li>
                 </capacities>
-                <power>41</power>
-                <armorPenetrationBlunt>16.20</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.65</armorPenetrationSharp>
-                <cooldownTime>1.55</cooldownTime>
+                <power>39</power>
+                <armorPenetrationBlunt>24.36</armorPenetrationBlunt>
+                <armorPenetrationSharp>7.19</armorPenetrationSharp>
+                <cooldownTime>3.6</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <surpriseAttack>
                   <extraMeleeDamages>
@@ -652,10 +661,10 @@
                 <capacities>
                   <li>Bite</li>
                 </capacities>
-                <power>54.5</power>
-                <armorPenetrationBlunt>16.20</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.96</armorPenetrationSharp>
-                <cooldownTime>1.25</cooldownTime>
+                <power>43.1</power>
+                <armorPenetrationBlunt>30.45</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.9</armorPenetrationSharp>
+                <cooldownTime>3</cooldownTime>
                 <linkedBodyPartsGroup>Mouth</linkedBodyPartsGroup>
                 <surpriseAttack>
                   <extraMeleeDamages>

@@ -153,8 +153,8 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>3.0</power>
-          <cooldownTime>1.10</cooldownTime>
+          <power>2.0</power>
+          <cooldownTime>0.95</cooldownTime>
           <linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>
         </li>
       </tools>
@@ -516,19 +516,25 @@
       </value>
     </nomatch>
   </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "AEXP_WildGoose"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod"/>
+    </value>
+  </Operation>
   <!-- AEXP_WildGoose PawnKindDef -->
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/PawnKindDef[defName = "AEXP_WildGoose"]/combatPower</xpath>
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "AEXP_WildGoose"]/combatPower</xpath>
       <value>
-        <combatPower>30</combatPower>
+        <combatPower>25</combatPower>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "AEXP_WildGoose"]</xpath>
       <value>
-        <combatPower>30</combatPower>
+        <combatPower>25</combatPower>
       </value>
     </nomatch>
   </Operation>
@@ -741,9 +747,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>0.50</power>
-                <armorPenetrationBlunt>0.10</armorPenetrationBlunt>
-                <cooldownTime>1.20</cooldownTime>
+                <power>0.20</power>
+                <armorPenetrationBlunt>0.11</armorPenetrationBlunt>
+                <cooldownTime>1.35</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                 <chanceFactor>0.2</chanceFactor>
@@ -753,10 +759,10 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>3.5</power>
-                <armorPenetrationBlunt>0.10</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.03</armorPenetrationSharp>
-                <cooldownTime>1.3</cooldownTime>
+                <power>1.5</power>
+                <armorPenetrationBlunt>0.03</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.01</armorPenetrationSharp>
+                <cooldownTime>1.85</cooldownTime>
                 <linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>
               </li>
             </tools>

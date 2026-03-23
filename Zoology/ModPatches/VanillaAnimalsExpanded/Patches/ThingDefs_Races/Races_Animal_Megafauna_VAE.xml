@@ -298,13 +298,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AEXP_IndianElephant"]/race/manhunterOnTameFailChance</xpath>
       <value>
-        <manhunterOnTameFailChance>0.05</manhunterOnTameFailChance>
+        <manhunterOnTameFailChance>0.025</manhunterOnTameFailChance>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AEXP_IndianElephant"]/race</xpath>
       <value>
-        <manhunterOnTameFailChance>0.05</manhunterOnTameFailChance>
+        <manhunterOnTameFailChance>0.025</manhunterOnTameFailChance>
       </value>
     </nomatch>
   </Operation>
@@ -313,13 +313,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AEXP_IndianElephant"]/race/manhunterOnDamageChance</xpath>
       <value>
-        <manhunterOnDamageChance>0.2</manhunterOnDamageChance>
+        <manhunterOnDamageChance>0.3</manhunterOnDamageChance>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AEXP_IndianElephant"]/race</xpath>
       <value>
-        <manhunterOnDamageChance>0.2</manhunterOnDamageChance>
+        <manhunterOnDamageChance>0.3</manhunterOnDamageChance>
       </value>
     </nomatch>
   </Operation>
@@ -530,6 +530,12 @@
       <li Class="ZoologyMod.ModExtension_IsMammal, ZoologyMod"/>
     </value>
   </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "AEXP_IndianElephant"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod"/>
+    </value>
+  </Operation>
   <!-- AEXP_IndianElephant PawnKindDef -->
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/PawnKindDef[defName = "AEXP_IndianElephant"]/combatPower</xpath>
@@ -625,13 +631,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="AEXP_IndianElephant"]/statBases/MeleeCritChance</xpath>
             <value>
-              <MeleeCritChance>0.03</MeleeCritChance>
+              <MeleeCritChance>0.38</MeleeCritChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="AEXP_IndianElephant"]/statBases</xpath>
             <value>
-              <MeleeCritChance>0.03</MeleeCritChance>
+              <MeleeCritChance>0.38</MeleeCritChance>
             </value>
           </nomatch>
         </li>
@@ -640,13 +646,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="AEXP_IndianElephant"]/statBases/MeleeParryChance</xpath>
             <value>
-              <MeleeParryChance>0.03</MeleeParryChance>
+              <MeleeParryChance>0.19</MeleeParryChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="AEXP_IndianElephant"]/statBases</xpath>
             <value>
-              <MeleeParryChance>0.03</MeleeParryChance>
+              <MeleeParryChance>0.19</MeleeParryChance>
             </value>
           </nomatch>
         </li>
@@ -755,9 +761,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>24.00</power>
-                <armorPenetrationBlunt>12.65</armorPenetrationBlunt>
-                <cooldownTime>2.30</cooldownTime>
+                <power>29.60</power>
+                <armorPenetrationBlunt>31.45</armorPenetrationBlunt>
+                <cooldownTime>2.85</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                 <chanceFactor>0.2</chanceFactor>
@@ -768,9 +774,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>41.5</power>
-                <armorPenetrationBlunt>17.20</armorPenetrationBlunt>
-                <cooldownTime>4.15</cooldownTime>
+                <power>35.9</power>
+                <armorPenetrationBlunt>28.19</armorPenetrationBlunt>
+                <cooldownTime>3.45</cooldownTime>
                 <linkedBodyPartsGroup>FrontLeftLeg</linkedBodyPartsGroup>
               </li>
               <li Class="CombatExtended.ToolCE">
@@ -779,9 +785,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>41.5</power>
-                <armorPenetrationBlunt>17.20</armorPenetrationBlunt>
-                <cooldownTime>4.15</cooldownTime>
+                <power>35.9</power>
+                <armorPenetrationBlunt>28.19</armorPenetrationBlunt>
+                <cooldownTime>3.45</cooldownTime>
                 <linkedBodyPartsGroup>FrontRightLeg</linkedBodyPartsGroup>
               </li>
               <li Class="CombatExtended.ToolCE">
@@ -789,10 +795,10 @@
                 <capacities>
                   <li>Scratch</li>
                 </capacities>
-                <power>59.5</power>
-                <armorPenetrationBlunt>10.90</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.86</armorPenetrationSharp>
-                <cooldownTime>3.45</cooldownTime>
+                <power>45.1</power>
+                <armorPenetrationBlunt>33.83</armorPenetrationBlunt>
+                <armorPenetrationSharp>1.5</armorPenetrationSharp>
+                <cooldownTime>3.7</cooldownTime>
                 <linkedBodyPartsGroup>TuskAttackTool</linkedBodyPartsGroup>
                 <restrictedGender>Male</restrictedGender>
               </li>

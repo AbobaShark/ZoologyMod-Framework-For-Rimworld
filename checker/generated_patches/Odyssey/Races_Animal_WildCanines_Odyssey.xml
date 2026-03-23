@@ -8,13 +8,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "BogHound"]/statBases/MarketValue</xpath>
       <value>
-        <MarketValue>500</MarketValue>
+        <MarketValue>475</MarketValue>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "BogHound"]/statBases</xpath>
       <value>
-        <MarketValue>500</MarketValue>
+        <MarketValue>475</MarketValue>
       </value>
     </nomatch>
   </Operation>
@@ -147,7 +147,7 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>13.0</power>
+          <power>12.0</power>
           <cooldownTime>1.50</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
           <surpriseAttack>
@@ -581,19 +581,25 @@
       <li Class="ZoologyMod.ModExtension_IsMammal, ZoologyMod"/>
     </value>
   </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "BogHound"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod"/>
+    </value>
+  </Operation>
   <!-- BogHound PawnKindDef -->
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/PawnKindDef[defName = "BogHound"]/combatPower</xpath>
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "BogHound"]/combatPower</xpath>
       <value>
-        <combatPower>100</combatPower>
+        <combatPower>95</combatPower>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "BogHound"]</xpath>
       <value>
-        <combatPower>100</combatPower>
+        <combatPower>95</combatPower>
       </value>
     </nomatch>
   </Operation>
@@ -767,7 +773,7 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>14.5</power>
+          <power>14.0</power>
           <cooldownTime>1.60</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
           <surpriseAttack>
@@ -1076,13 +1082,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="BogHound"]/statBases/MeleeCritChance</xpath>
             <value>
-              <MeleeCritChance>0.11</MeleeCritChance>
+              <MeleeCritChance>0.37</MeleeCritChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="BogHound"]/statBases</xpath>
             <value>
-              <MeleeCritChance>0.11</MeleeCritChance>
+              <MeleeCritChance>0.37</MeleeCritChance>
             </value>
           </nomatch>
         </li>
@@ -1091,13 +1097,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="BogHound"]/statBases/MeleeParryChance</xpath>
             <value>
-              <MeleeParryChance>0.00</MeleeParryChance>
+              <MeleeParryChance>0.05</MeleeParryChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="BogHound"]/statBases</xpath>
             <value>
-              <MeleeParryChance>0.00</MeleeParryChance>
+              <MeleeParryChance>0.05</MeleeParryChance>
             </value>
           </nomatch>
         </li>
@@ -1206,9 +1212,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>2.50</power>
-                <armorPenetrationBlunt>0.80</armorPenetrationBlunt>
-                <cooldownTime>1.50</cooldownTime>
+                <power>1.60</power>
+                <armorPenetrationBlunt>1.25</armorPenetrationBlunt>
+                <cooldownTime>1.85</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                 <chanceFactor>0.2</chanceFactor>
@@ -1218,10 +1224,10 @@
                 <capacities>
                   <li>Bite</li>
                 </capacities>
-                <power>12.5</power>
-                <armorPenetrationBlunt>1.45</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.21</armorPenetrationSharp>
-                <cooldownTime>1.05</cooldownTime>
+                <power>14.8</power>
+                <armorPenetrationBlunt>4.90</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.35</armorPenetrationSharp>
+                <cooldownTime>2.25</cooldownTime>
                 <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
                 <surpriseAttack>
                   <extraMeleeDamages>
@@ -1242,12 +1248,6 @@
           </match>
         </li>
         <!-- Wolf_Great CE patches -->
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="Wolf_Great"]/statBases/MeleeCritChance</xpath>
-          <match Class="PatchOperationRemove">
-            <xpath>Defs/ThingDef[defName="Wolf_Great"]/statBases/MeleeCritChance</xpath>
-          </match>
-        </li>
         <li Class="PatchOperationConditional">
           <xpath>Defs/ThingDef[defName="Wolf_Great"]/statBases/MeleeParryChance</xpath>
           <match Class="PatchOperationRemove">
@@ -1272,6 +1272,21 @@
             <xpath>Defs/ThingDef[defName="Wolf_Great"]/statBases</xpath>
             <value>
               <MeleeDodgeChance>0.50</MeleeDodgeChance>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="Wolf_Great"]/statBases/MeleeCritChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="Wolf_Great"]/statBases/MeleeCritChance</xpath>
+            <value>
+              <MeleeCritChance>0.4</MeleeCritChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="Wolf_Great"]/statBases</xpath>
+            <value>
+              <MeleeCritChance>0.4</MeleeCritChance>
             </value>
           </nomatch>
         </li>
@@ -1350,9 +1365,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>3.00</power>
-                <armorPenetrationBlunt>1.15</armorPenetrationBlunt>
-                <cooldownTime>1.55</cooldownTime>
+                <power>2.20</power>
+                <armorPenetrationBlunt>1.82</armorPenetrationBlunt>
+                <cooldownTime>1.95</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                 <chanceFactor>0.2</chanceFactor>
@@ -1362,10 +1377,10 @@
                 <capacities>
                   <li>Bite</li>
                 </capacities>
-                <power>14.5</power>
-                <armorPenetrationBlunt>2.05</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.25</armorPenetrationSharp>
-                <cooldownTime>1.1</cooldownTime>
+                <power>17.5</power>
+                <armorPenetrationBlunt>6.79</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.41</armorPenetrationSharp>
+                <cooldownTime>2.15</cooldownTime>
                 <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
                 <surpriseAttack>
                   <extraMeleeDamages>

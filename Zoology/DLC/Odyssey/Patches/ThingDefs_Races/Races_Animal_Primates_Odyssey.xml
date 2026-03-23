@@ -139,7 +139,7 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>12.0</power>
+          <power>12.5</power>
           <cooldownTime>1.50</cooldownTime>
           <linkedBodyPartsGroup>LeftHand</linkedBodyPartsGroup>
         </li>
@@ -149,7 +149,7 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>12.0</power>
+          <power>12.5</power>
           <cooldownTime>1.50</cooldownTime>
           <linkedBodyPartsGroup>RightHand</linkedBodyPartsGroup>
         </li>
@@ -529,19 +529,25 @@
       <li Class="ZoologyMod.ModExtension_IsMammal, ZoologyMod"/>
     </value>
   </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "Gorilla"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod"/>
+    </value>
+  </Operation>
   <!-- Gorilla PawnKindDef -->
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/PawnKindDef[defName = "Gorilla"]/combatPower</xpath>
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "Gorilla"]/combatPower</xpath>
       <value>
-        <combatPower>120</combatPower>
+        <combatPower>125</combatPower>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "Gorilla"]</xpath>
       <value>
-        <combatPower>120</combatPower>
+        <combatPower>125</combatPower>
       </value>
     </nomatch>
   </Operation>
@@ -624,13 +630,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Gorilla"]/statBases/MeleeCritChance</xpath>
             <value>
-              <MeleeCritChance>0.04</MeleeCritChance>
+              <MeleeCritChance>0.23</MeleeCritChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Gorilla"]/statBases</xpath>
             <value>
-              <MeleeCritChance>0.04</MeleeCritChance>
+              <MeleeCritChance>0.23</MeleeCritChance>
             </value>
           </nomatch>
         </li>
@@ -639,13 +645,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Gorilla"]/statBases/MeleeParryChance</xpath>
             <value>
-              <MeleeParryChance>0.04</MeleeParryChance>
+              <MeleeParryChance>0.11</MeleeParryChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Gorilla"]/statBases</xpath>
             <value>
-              <MeleeParryChance>0.04</MeleeParryChance>
+              <MeleeParryChance>0.11</MeleeParryChance>
             </value>
           </nomatch>
         </li>
@@ -754,9 +760,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>5.50</power>
-                <armorPenetrationBlunt>2.30</armorPenetrationBlunt>
-                <cooldownTime>1.35</cooldownTime>
+                <power>4.30</power>
+                <armorPenetrationBlunt>3.74</armorPenetrationBlunt>
+                <cooldownTime>1.75</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                 <chanceFactor>0.2</chanceFactor>
@@ -767,9 +773,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>10</power>
-                <armorPenetrationBlunt>3.05</armorPenetrationBlunt>
-                <cooldownTime>1.4</cooldownTime>
+                <power>9.2</power>
+                <armorPenetrationBlunt>4.60</armorPenetrationBlunt>
+                <cooldownTime>1.45</cooldownTime>
                 <linkedBodyPartsGroup>LeftHand</linkedBodyPartsGroup>
               </li>
               <li Class="CombatExtended.ToolCE">
@@ -778,9 +784,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>10</power>
-                <armorPenetrationBlunt>3.05</armorPenetrationBlunt>
-                <cooldownTime>1.4</cooldownTime>
+                <power>9.2</power>
+                <armorPenetrationBlunt>4.60</armorPenetrationBlunt>
+                <cooldownTime>1.45</cooldownTime>
                 <linkedBodyPartsGroup>RightHand</linkedBodyPartsGroup>
               </li>
               <li Class="CombatExtended.ToolCE">
@@ -788,10 +794,10 @@
                 <capacities>
                   <li>Bite</li>
                 </capacities>
-                <power>16</power>
-                <armorPenetrationBlunt>2.65</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.24</armorPenetrationSharp>
-                <cooldownTime>1.15</cooldownTime>
+                <power>11.5</power>
+                <armorPenetrationBlunt>2.79</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.12</armorPenetrationSharp>
+                <cooldownTime>2.1</cooldownTime>
                 <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
               </li>
             </tools>

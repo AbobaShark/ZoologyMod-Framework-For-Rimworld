@@ -149,7 +149,7 @@
             <li>Blunt</li>
           </capacities>
           <power>12.0</power>
-          <cooldownTime>2.30</cooldownTime>
+          <cooldownTime>2.15</cooldownTime>
           <linkedBodyPartsGroup>FrontLeftLeg</linkedBodyPartsGroup>
         </li>
         <li>
@@ -159,7 +159,7 @@
             <li>Blunt</li>
           </capacities>
           <power>12.0</power>
-          <cooldownTime>2.30</cooldownTime>
+          <cooldownTime>2.15</cooldownTime>
           <linkedBodyPartsGroup>FrontRightLeg</linkedBodyPartsGroup>
         </li>
         <li>
@@ -167,8 +167,8 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>12.5</power>
-          <cooldownTime>2.15</cooldownTime>
+          <power>12.0</power>
+          <cooldownTime>2.30</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
         </li>
       </tools>
@@ -315,13 +315,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/manhunterOnTameFailChance</xpath>
       <value>
-        <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
+        <manhunterOnTameFailChance>0.1</manhunterOnTameFailChance>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Toxalope"]/race</xpath>
       <value>
-        <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
+        <manhunterOnTameFailChance>0.1</manhunterOnTameFailChance>
       </value>
     </nomatch>
   </Operation>
@@ -330,13 +330,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/manhunterOnDamageChance</xpath>
       <value>
-        <manhunterOnDamageChance>0</manhunterOnDamageChance>
+        <manhunterOnDamageChance>0.3</manhunterOnDamageChance>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Toxalope"]/race</xpath>
       <value>
-        <manhunterOnDamageChance>0</manhunterOnDamageChance>
+        <manhunterOnDamageChance>0.3</manhunterOnDamageChance>
       </value>
     </nomatch>
   </Operation>
@@ -567,6 +567,12 @@
       <li Class="ZoologyMod.ModExtension_IsMammal, ZoologyMod"/>
     </value>
   </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "Toxalope"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod"/>
+    </value>
+  </Operation>
   <!-- Toxalope PawnKindDef -->
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/PawnKindDef[defName = "Toxalope"]/combatPower</xpath>
@@ -792,9 +798,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>5.50</power>
-                <armorPenetrationBlunt>2.30</armorPenetrationBlunt>
-                <cooldownTime>1.35</cooldownTime>
+                <power>4.30</power>
+                <armorPenetrationBlunt>3.74</armorPenetrationBlunt>
+                <cooldownTime>1.75</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                 <chanceFactor>0.2</chanceFactor>
@@ -805,9 +811,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>10</power>
-                <armorPenetrationBlunt>3.05</armorPenetrationBlunt>
-                <cooldownTime>1.9</cooldownTime>
+                <power>7.8</power>
+                <armorPenetrationBlunt>4.60</armorPenetrationBlunt>
+                <cooldownTime>2.3</cooldownTime>
                 <linkedBodyPartsGroup>FrontLeftLeg</linkedBodyPartsGroup>
               </li>
               <li Class="CombatExtended.ToolCE">
@@ -816,9 +822,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>10</power>
-                <armorPenetrationBlunt>3.05</armorPenetrationBlunt>
-                <cooldownTime>1.9</cooldownTime>
+                <power>7.8</power>
+                <armorPenetrationBlunt>4.60</armorPenetrationBlunt>
+                <cooldownTime>2.3</cooldownTime>
                 <linkedBodyPartsGroup>FrontRightLeg</linkedBodyPartsGroup>
               </li>
               <li Class="CombatExtended.ToolCE">
@@ -826,10 +832,10 @@
                 <capacities>
                   <li>Bite</li>
                 </capacities>
-                <power>13</power>
-                <armorPenetrationBlunt>2.75</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.21</armorPenetrationSharp>
-                <cooldownTime>1.2</cooldownTime>
+                <power>9.9</power>
+                <armorPenetrationBlunt>3.33</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.12</armorPenetrationSharp>
+                <cooldownTime>2.8</cooldownTime>
                 <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
               </li>
             </tools>

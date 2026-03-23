@@ -127,7 +127,7 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>2.0</power>
+          <power>1.5</power>
           <cooldownTime>1.05</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
           <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
@@ -138,8 +138,8 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>3.5</power>
-          <cooldownTime>0.95</cooldownTime>
+          <power>2.0</power>
+          <cooldownTime>1.00</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
         </li>
       </tools>
@@ -551,19 +551,25 @@
       <li Class="ZoologyMod.ModExtension_IsMammal, ZoologyMod"/>
     </value>
   </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "PrairieDog"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod"/>
+    </value>
+  </Operation>
   <!-- PrairieDog PawnKindDef -->
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/PawnKindDef[defName = "PrairieDog"]/combatPower</xpath>
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "PrairieDog"]/combatPower</xpath>
       <value>
-        <combatPower>30</combatPower>
+        <combatPower>25</combatPower>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "PrairieDog"]</xpath>
       <value>
-        <combatPower>30</combatPower>
+        <combatPower>25</combatPower>
       </value>
     </nomatch>
   </Operation>
@@ -625,13 +631,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Porcupine"]/statBases/MarketValue</xpath>
       <value>
-        <MarketValue>100</MarketValue>
+        <MarketValue>75</MarketValue>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Porcupine"]/statBases</xpath>
       <value>
-        <MarketValue>100</MarketValue>
+        <MarketValue>75</MarketValue>
       </value>
     </nomatch>
   </Operation>
@@ -755,8 +761,8 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>8.5</power>
-          <cooldownTime>1.40</cooldownTime>
+          <power>7.5</power>
+          <cooldownTime>1.50</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
         </li>
       </tools>
@@ -894,13 +900,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Porcupine"]/race/manhunterOnTameFailChance</xpath>
       <value>
-        <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
+        <manhunterOnTameFailChance>0.1</manhunterOnTameFailChance>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Porcupine"]/race</xpath>
       <value>
-        <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
+        <manhunterOnTameFailChance>0.1</manhunterOnTameFailChance>
       </value>
     </nomatch>
   </Operation>
@@ -909,13 +915,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Porcupine"]/race/manhunterOnDamageChance</xpath>
       <value>
-        <manhunterOnDamageChance>0</manhunterOnDamageChance>
+        <manhunterOnDamageChance>0.3</manhunterOnDamageChance>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Porcupine"]/race</xpath>
       <value>
-        <manhunterOnDamageChance>0</manhunterOnDamageChance>
+        <manhunterOnDamageChance>0.3</manhunterOnDamageChance>
       </value>
     </nomatch>
   </Operation>
@@ -1124,19 +1130,25 @@
       <li Class="ZoologyMod.ModExtension_IsMammal, ZoologyMod"/>
     </value>
   </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "Porcupine"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod"/>
+    </value>
+  </Operation>
   <!-- Porcupine PawnKindDef -->
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/PawnKindDef[defName = "Porcupine"]/combatPower</xpath>
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "Porcupine"]/combatPower</xpath>
       <value>
-        <combatPower>55</combatPower>
+        <combatPower>45</combatPower>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "Porcupine"]</xpath>
       <value>
-        <combatPower>55</combatPower>
+        <combatPower>45</combatPower>
       </value>
     </nomatch>
   </Operation>
@@ -1160,13 +1172,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "Porcupine"]/canArriveManhunter</xpath>
       <value>
-        <canArriveManhunter>false</canArriveManhunter>
+        <canArriveManhunter>true</canArriveManhunter>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "Porcupine"]</xpath>
       <value>
-        <canArriveManhunter>false</canArriveManhunter>
+        <canArriveManhunter>true</canArriveManhunter>
       </value>
     </nomatch>
   </Operation>
@@ -1319,8 +1331,8 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>14.0</power>
-          <cooldownTime>1.75</cooldownTime>
+          <power>13.5</power>
+          <cooldownTime>1.85</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
         </li>
       </tools>
@@ -1723,19 +1735,25 @@
       <li Class="ZoologyMod.ModExtension_IsMammal, ZoologyMod"/>
     </value>
   </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "Megavole"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod"/>
+    </value>
+  </Operation>
   <!-- Megavole PawnKindDef -->
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/PawnKindDef[defName = "Megavole"]/combatPower</xpath>
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "Megavole"]/combatPower</xpath>
       <value>
-        <combatPower>90</combatPower>
+        <combatPower>85</combatPower>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "Megavole"]</xpath>
       <value>
-        <combatPower>90</combatPower>
+        <combatPower>85</combatPower>
       </value>
     </nomatch>
   </Operation>
@@ -1939,9 +1957,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>0.50</power>
-                <armorPenetrationBlunt>0.10</armorPenetrationBlunt>
-                <cooldownTime>1.15</cooldownTime>
+                <power>0.10</power>
+                <armorPenetrationBlunt>0.05</armorPenetrationBlunt>
+                <cooldownTime>1.20</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                 <chanceFactor>0.2</chanceFactor>
@@ -1951,10 +1969,10 @@
                 <capacities>
                   <li>Bite</li>
                 </capacities>
-                <power>2</power>
+                <power>1.6</power>
                 <armorPenetrationBlunt>0.10</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.04</armorPenetrationSharp>
-                <cooldownTime>0.95</cooldownTime>
+                <armorPenetrationSharp>0.03</armorPenetrationSharp>
+                <cooldownTime>1.85</cooldownTime>
                 <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
               </li>
             </tools>
@@ -2117,9 +2135,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>1.00</power>
-                <armorPenetrationBlunt>0.35</armorPenetrationBlunt>
-                <cooldownTime>1.25</cooldownTime>
+                <power>0.60</power>
+                <armorPenetrationBlunt>0.46</armorPenetrationBlunt>
+                <cooldownTime>1.45</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                 <chanceFactor>0.2</chanceFactor>
@@ -2129,10 +2147,10 @@
                 <capacities>
                   <li>Bite</li>
                 </capacities>
-                <power>6.5</power>
-                <armorPenetrationBlunt>0.40</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.08</armorPenetrationSharp>
-                <cooldownTime>1.1</cooldownTime>
+                <power>4.9</power>
+                <armorPenetrationBlunt>0.42</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.05</armorPenetrationSharp>
+                <cooldownTime>2.05</cooldownTime>
                 <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
               </li>
             </tools>
@@ -2295,9 +2313,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>3.00</power>
-                <armorPenetrationBlunt>1.05</armorPenetrationBlunt>
-                <cooldownTime>1.30</cooldownTime>
+                <power>2.00</power>
+                <armorPenetrationBlunt>1.63</armorPenetrationBlunt>
+                <cooldownTime>1.60</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                 <chanceFactor>0.2</chanceFactor>
@@ -2307,10 +2325,10 @@
                 <capacities>
                   <li>Bite</li>
                 </capacities>
-                <power>14</power>
-                <armorPenetrationBlunt>1.15</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.15</armorPenetrationSharp>
-                <cooldownTime>1.15</cooldownTime>
+                <power>9.5</power>
+                <armorPenetrationBlunt>0.98</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.06</armorPenetrationSharp>
+                <cooldownTime>2.15</cooldownTime>
                 <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
               </li>
             </tools>

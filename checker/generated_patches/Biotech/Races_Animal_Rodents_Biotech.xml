@@ -8,13 +8,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "WasteRat"]/statBases/MarketValue</xpath>
       <value>
-        <MarketValue>100</MarketValue>
+        <MarketValue>75</MarketValue>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "WasteRat"]/statBases</xpath>
       <value>
-        <MarketValue>100</MarketValue>
+        <MarketValue>75</MarketValue>
       </value>
     </nomatch>
   </Operation>
@@ -147,7 +147,7 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>8.5</power>
+          <power>7.5</power>
           <cooldownTime>1.30</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
         </li>
@@ -286,13 +286,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "WasteRat"]/race/manhunterOnTameFailChance</xpath>
       <value>
-        <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
+        <manhunterOnTameFailChance>0.1</manhunterOnTameFailChance>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "WasteRat"]/race</xpath>
       <value>
-        <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
+        <manhunterOnTameFailChance>0.1</manhunterOnTameFailChance>
       </value>
     </nomatch>
   </Operation>
@@ -301,13 +301,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "WasteRat"]/race/manhunterOnDamageChance</xpath>
       <value>
-        <manhunterOnDamageChance>0</manhunterOnDamageChance>
+        <manhunterOnDamageChance>0.3</manhunterOnDamageChance>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "WasteRat"]/race</xpath>
       <value>
-        <manhunterOnDamageChance>0</manhunterOnDamageChance>
+        <manhunterOnDamageChance>0.3</manhunterOnDamageChance>
       </value>
     </nomatch>
   </Operation>
@@ -594,6 +594,12 @@
   <Operation Class="PatchOperationAddModExtension">
     <xpath>/Defs/ThingDef[defName = "WasteRat"]</xpath>
     <value>
+      <li Class="ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod"/>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "WasteRat"]</xpath>
+    <value>
       <li Class="ZoologyMod.ModExtension_IsScavenger, ZoologyMod">
         <allowVeryRotten>true</allowVeryRotten>
       </li>
@@ -605,13 +611,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "WasteRat"]/combatPower</xpath>
       <value>
-        <combatPower>55</combatPower>
+        <combatPower>50</combatPower>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "WasteRat"]</xpath>
       <value>
-        <combatPower>55</combatPower>
+        <combatPower>50</combatPower>
       </value>
     </nomatch>
   </Operation>
@@ -694,13 +700,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="WasteRat"]/statBases/MeleeCritChance</xpath>
             <value>
-              <MeleeCritChance>0.07</MeleeCritChance>
+              <MeleeCritChance>0.15</MeleeCritChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="WasteRat"]/statBases</xpath>
             <value>
-              <MeleeCritChance>0.07</MeleeCritChance>
+              <MeleeCritChance>0.15</MeleeCritChance>
             </value>
           </nomatch>
         </li>
@@ -709,13 +715,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="WasteRat"]/statBases/MeleeParryChance</xpath>
             <value>
-              <MeleeParryChance>0.00</MeleeParryChance>
+              <MeleeParryChance>0.04</MeleeParryChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="WasteRat"]/statBases</xpath>
             <value>
-              <MeleeParryChance>0.00</MeleeParryChance>
+              <MeleeParryChance>0.04</MeleeParryChance>
             </value>
           </nomatch>
         </li>
@@ -824,9 +830,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>1.00</power>
-                <armorPenetrationBlunt>0.25</armorPenetrationBlunt>
-                <cooldownTime>1.35</cooldownTime>
+                <power>0.40</power>
+                <armorPenetrationBlunt>0.32</armorPenetrationBlunt>
+                <cooldownTime>1.60</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                 <chanceFactor>0.2</chanceFactor>
@@ -836,10 +842,10 @@
                 <capacities>
                   <li>Bite</li>
                 </capacities>
-                <power>6.5</power>
-                <armorPenetrationBlunt>0.30</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.07</armorPenetrationSharp>
-                <cooldownTime>1.15</cooldownTime>
+                <power>4.8</power>
+                <armorPenetrationBlunt>0.29</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.04</armorPenetrationSharp>
+                <cooldownTime>2.1</cooldownTime>
                 <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
               </li>
             </tools>

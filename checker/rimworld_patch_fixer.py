@@ -1637,6 +1637,8 @@ class PatchGenerator:
             'CannotBeAugmented': 'ZoologyMod.ModExtension_CannotBeAugmented, ZoologyMod',
             'CannotBeMutated': 'ZoologyMod.ModExtension_CannotBeMutated, ZoologyMod',
             'NoFlee': 'ZoologyMod.ModExtension_NoFlee, ZoologyMod',
+            'CannotChew': 'ZoologyMod.ModExtension_CannotChew, ZoologyMod',
+            'TakingCareOfOffspring': 'ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod',
             # IsScavenger is handled specially (Flesh / Bone)
             'IsScavenger': 'ZoologyMod.ModExtension_IsScavenger, ZoologyMod',
         }
@@ -2063,6 +2065,8 @@ class PatchGenerator:
             'CannotBeAugmented': 'ZoologyMod.ModExtension_CannotBeAugmented, ZoologyMod',
             'CannotBeMutated': 'ZoologyMod.ModExtension_CannotBeMutated, ZoologyMod',
             'NoFlee': 'ZoologyMod.ModExtension_NoFlee, ZoologyMod',
+            'CannotChew': 'ZoologyMod.ModExtension_CannotChew, ZoologyMod',
+            'TakingCareOfOffspring': 'ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod',
             'IsScavenger': 'ZoologyMod.ModExtension_IsScavenger, ZoologyMod',
         }
 

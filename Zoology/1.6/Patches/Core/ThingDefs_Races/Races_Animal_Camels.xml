@@ -140,7 +140,7 @@
             <li>Blunt</li>
           </capacities>
           <power>18.0</power>
-          <cooldownTime>2.70</cooldownTime>
+          <cooldownTime>2.55</cooldownTime>
           <linkedBodyPartsGroup>FrontLeftLeg</linkedBodyPartsGroup>
         </li>
         <li>
@@ -150,7 +150,7 @@
             <li>Blunt</li>
           </capacities>
           <power>18.0</power>
-          <cooldownTime>2.70</cooldownTime>
+          <cooldownTime>2.55</cooldownTime>
           <linkedBodyPartsGroup>FrontRightLeg</linkedBodyPartsGroup>
         </li>
         <li>
@@ -158,8 +158,8 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>18.5</power>
-          <cooldownTime>2.55</cooldownTime>
+          <power>20.0</power>
+          <cooldownTime>2.70</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
         </li>
       </tools>
@@ -529,19 +529,25 @@
       <li Class="ZoologyMod.ModExtension_IsMammal, ZoologyMod"/>
     </value>
   </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "Dromedary"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod"/>
+    </value>
+  </Operation>
   <!-- Dromedary PawnKindDef -->
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/PawnKindDef[defName = "Dromedary"]/combatPower</xpath>
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "Dromedary"]/combatPower</xpath>
       <value>
-        <combatPower>170</combatPower>
+        <combatPower>180</combatPower>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "Dromedary"]</xpath>
       <value>
-        <combatPower>170</combatPower>
+        <combatPower>180</combatPower>
       </value>
     </nomatch>
   </Operation>
@@ -735,7 +741,7 @@
             <li>Blunt</li>
           </capacities>
           <power>9.5</power>
-          <cooldownTime>2.05</cooldownTime>
+          <cooldownTime>1.95</cooldownTime>
           <linkedBodyPartsGroup>FrontLeftLeg</linkedBodyPartsGroup>
         </li>
         <li>
@@ -745,7 +751,7 @@
             <li>Blunt</li>
           </capacities>
           <power>9.5</power>
-          <cooldownTime>2.05</cooldownTime>
+          <cooldownTime>1.95</cooldownTime>
           <linkedBodyPartsGroup>FrontRightLeg</linkedBodyPartsGroup>
         </li>
         <li>
@@ -753,8 +759,8 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>10.5</power>
-          <cooldownTime>1.95</cooldownTime>
+          <power>10.0</power>
+          <cooldownTime>1.85</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
         </li>
       </tools>
@@ -1124,6 +1130,12 @@
       <li Class="ZoologyMod.ModExtension_IsMammal, ZoologyMod"/>
     </value>
   </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "Alpaca"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod"/>
+    </value>
+  </Operation>
   <!-- Alpaca PawnKindDef -->
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/PawnKindDef[defName = "Alpaca"]/combatPower</xpath>
@@ -1349,9 +1361,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>12.50</power>
-                <armorPenetrationBlunt>5.55</armorPenetrationBlunt>
-                <cooldownTime>1.40</cooldownTime>
+                <power>9.90</power>
+                <armorPenetrationBlunt>9.16</armorPenetrationBlunt>
+                <cooldownTime>1.90</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                 <chanceFactor>0.2</chanceFactor>
@@ -1362,9 +1374,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>21.5</power>
-                <armorPenetrationBlunt>7.30</armorPenetrationBlunt>
-                <cooldownTime>2.1</cooldownTime>
+                <power>16.5</power>
+                <armorPenetrationBlunt>10.66</armorPenetrationBlunt>
+                <cooldownTime>2.65</cooldownTime>
                 <linkedBodyPartsGroup>FrontLeftLeg</linkedBodyPartsGroup>
               </li>
               <li Class="CombatExtended.ToolCE">
@@ -1373,9 +1385,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>21.5</power>
-                <armorPenetrationBlunt>7.30</armorPenetrationBlunt>
-                <cooldownTime>2.1</cooldownTime>
+                <power>16.5</power>
+                <armorPenetrationBlunt>10.66</armorPenetrationBlunt>
+                <cooldownTime>2.65</cooldownTime>
                 <linkedBodyPartsGroup>FrontRightLeg</linkedBodyPartsGroup>
               </li>
               <li Class="CombatExtended.ToolCE">
@@ -1383,10 +1395,10 @@
                 <capacities>
                   <li>Bite</li>
                 </capacities>
-                <power>25</power>
-                <armorPenetrationBlunt>6.50</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.23</armorPenetrationSharp>
-                <cooldownTime>1.25</cooldownTime>
+                <power>18.4</power>
+                <armorPenetrationBlunt>6.75</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.11</armorPenetrationSharp>
+                <cooldownTime>2.85</cooldownTime>
                 <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
               </li>
             </tools>
@@ -1549,9 +1561,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>3.50</power>
-                <armorPenetrationBlunt>1.30</armorPenetrationBlunt>
-                <cooldownTime>1.35</cooldownTime>
+                <power>2.50</power>
+                <armorPenetrationBlunt>2.05</armorPenetrationBlunt>
+                <cooldownTime>1.60</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                 <chanceFactor>0.2</chanceFactor>
@@ -1562,9 +1574,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>6</power>
-                <armorPenetrationBlunt>1.70</armorPenetrationBlunt>
-                <cooldownTime>1.7</cooldownTime>
+                <power>4.7</power>
+                <armorPenetrationBlunt>2.62</armorPenetrationBlunt>
+                <cooldownTime>2.05</cooldownTime>
                 <linkedBodyPartsGroup>FrontLeftLeg</linkedBodyPartsGroup>
               </li>
               <li Class="CombatExtended.ToolCE">
@@ -1573,9 +1585,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>6</power>
-                <armorPenetrationBlunt>1.70</armorPenetrationBlunt>
-                <cooldownTime>1.7</cooldownTime>
+                <power>4.7</power>
+                <armorPenetrationBlunt>2.62</armorPenetrationBlunt>
+                <cooldownTime>2.05</cooldownTime>
                 <linkedBodyPartsGroup>FrontRightLeg</linkedBodyPartsGroup>
               </li>
               <li Class="CombatExtended.ToolCE">
@@ -1583,10 +1595,10 @@
                 <capacities>
                   <li>Bite</li>
                 </capacities>
-                <power>12</power>
-                <armorPenetrationBlunt>1.60</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.18</armorPenetrationSharp>
-                <cooldownTime>1.2</cooldownTime>
+                <power>9.6</power>
+                <armorPenetrationBlunt>2.07</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.11</armorPenetrationSharp>
+                <cooldownTime>2.4</cooldownTime>
                 <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
               </li>
             </tools>
