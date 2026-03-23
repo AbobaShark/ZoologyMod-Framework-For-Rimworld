@@ -497,6 +497,22 @@ namespace ZoologyMod
             {
                 return false;
             }
+            if (mom.Dead || mom.Downed || mom.InMentalState || !mom.Spawned)
+            {
+                return false;
+            }
+            if (pup.Map == null || mom.Map != pup.Map)
+            {
+                return false;
+            }
+            if (!pup.CanReach(mom, PathEndMode.Touch, Danger.Deadly, false, false, TraverseMode.ByPawn))
+            {
+                return false;
+            }
+            if (!pup.CanReserve(mom, 1, -1, null, false))
+            {
+                return false;
+            }
 
             JobDef jd = YoungSuckleJobDef;
             if (jd == null || jd.driverClass == null)

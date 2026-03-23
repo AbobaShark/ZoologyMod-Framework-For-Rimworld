@@ -2877,8 +2877,27 @@ namespace ZoologyMod
                 && !threat.Downed
                 && threat.Map == pawn.Map
                 && threat.RaceProps?.Humanlike == true
-                && threat.HostileTo(Faction.OfPlayer)
+                && IsHostileToPlayerSafe(threat)
                 && HasLineOfSightAndReach(threat, pawn);
+        }
+
+        private static bool IsHostileToPlayerSafe(Pawn threat)
+        {
+            try
+            {
+                if (threat == null) return false;
+                Faction playerFaction = Faction.OfPlayer;
+                Faction threatFaction = threat.Faction;
+                if (playerFaction == null || threatFaction == null) return false;
+                if (ReferenceEquals(playerFaction, threatFaction)) return false;
+
+                FactionRelation rel = threatFaction.RelationWith(playerFaction, allowNull: true);
+                return rel != null && rel.kind == FactionRelationKind.Hostile;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         private static bool IsCarrierThreatCandidate(

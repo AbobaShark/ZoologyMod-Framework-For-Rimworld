@@ -28,7 +28,7 @@ namespace ZoologyMod
             return predator != null
                 && predator.RaceProps?.predator == true
                 && predator.BodySize >= LargeMammalPredatorMinBodySize
-                && predator.IsMammal();
+                && (predator.IsMammal() || ZoologyCacheUtility.IsPhotonozoa(predator.def));
         }
 
         public static float GetThreatSizeFactor(Pawn predator, Pawn prey)

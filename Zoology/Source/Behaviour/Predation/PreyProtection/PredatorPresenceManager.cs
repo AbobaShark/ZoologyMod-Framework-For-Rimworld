@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using RimWorld;
 using Verse;
 using Verse.AI;
-using Verse.AI.Group;
 
 namespace ZoologyMod
 {
@@ -16,9 +15,7 @@ namespace ZoologyMod
         private static JobDef gotoJobDef;
 
         private static readonly Dictionary<string, long> _lastLogTick = new Dictionary<string, long>();
-        private static readonly Dictionary<int, long> _transientBlockTick = new Dictionary<int, long>();
         private static readonly List<KeyValuePair<int, int>> _pairSnapshotBuffer = new List<KeyValuePair<int, int>>(32);
-        private static readonly List<int> _transientCleanupBuffer = new List<int>(16);
 
         public static void TickPresence()
         {
@@ -90,21 +87,11 @@ namespace ZoologyMod
             reason = null;
             try
             {
-                long now = Find.TickManager?.TicksGame ?? 0L;
                 if (pawn == null) { reason = "pawn is null"; return false; }
-
-                try
-                {
-                    int pid = pawn.thingIDNumber;
-                    if (_transientBlockTick.TryGetValue(pid, out long blockedTick) && blockedTick == now)
-                    {
-                        reason = "transient block for this tick";
-                        return false;
-                    }
-                }
-                catch { }
-
                 if (!pawn.IsAnimal) { reason = "not an animal"; return false; }
+                if (pawn.Dead) { reason = "dead"; return false; }
+                if (pawn.Downed) { reason = "downed"; return false; }
+                if (pawn.Map == null || !pawn.Spawned) { reason = "not spawned or no map"; return false; }
 
                 if (!PreyProtectionUtility.IsPawnAwakeForProtection(pawn))
                 {
@@ -114,34 +101,8 @@ namespace ZoologyMod
 
                 if (pawn.InMentalState)
                 {
-                    reason = "in mental state (transient)";
-                    RecordTransientBlock(pawn, now);
+                    reason = "in mental state";
                     return false;
-                }
-
-                if (pawn.IsFighting() || ProtectPreyState.IsActivelyProtectingNearbyPrey(pawn, 20f))
-                {
-                    reason = "is fighting (transient)";
-                    RecordTransientBlock(pawn, now);
-                    return false;
-                }
-
-                if (pawn.Downed) { reason = "downed"; return false; }
-                if (pawn.Dead) { reason = "dead"; return false; }
-                if (ThinkNode_ConditionalShouldFollowMaster.ShouldFollowMaster(pawn)) { reason = "should follow master (tame/follower)"; return false; }
-                if (HasLord(pawn)) { reason = "has lord"; return false; }
-                if (pawn.Faction == Faction.OfPlayer && pawn.Map != null) { reason = "player faction on player home map"; return false; }
-                if (pawn.Faction != null && !pawn.Faction.def.animalsFleeDanger) { reason = "faction forbids animals fleeing danger"; return false; }
-                if (pawn.CurJob != null && pawn.CurJobDef != null && pawn.CurJobDef.neverFleeFromEnemies) { reason = "current job forbids fleeing from enemies"; return false; }
-
-                if (pawn.jobs?.curJob != null)
-                {
-                    var cur = pawn.jobs.curJob;
-                    if (cur.def == JobDefOf.Flee && cur.startTick == Find.TickManager.TicksGame)
-                    {
-                        reason = "just started Flee job this tick";
-                        return false;
-                    }
                 }
 
                 return true;
@@ -152,37 +113,6 @@ namespace ZoologyMod
                 LogOnce(pawn, null, $"ShouldStayAtPrey exception: {ex}");
                 return false;
             }
-        }
-
-        private static void RecordTransientBlock(Pawn pawn, long now)
-        {
-            try
-            {
-                if (pawn == null) return;
-                int pid = pawn.thingIDNumber;
-                _transientBlockTick[pid] = now;
-
-                _transientCleanupBuffer.Clear();
-                foreach (var kv in _transientBlockTick)
-                {
-                    if (kv.Value < now) _transientCleanupBuffer.Add(kv.Key);
-                }
-                for (int i = 0; i < _transientCleanupBuffer.Count; i++)
-                {
-                    _transientBlockTick.Remove(_transientCleanupBuffer[i]);
-                }
-                _transientCleanupBuffer.Clear();
-            }
-            catch { }
-        }
-
-        private static bool HasLord(Pawn pawn)
-        {
-            try
-            {
-                return pawn != null && pawn.GetLord() != null;
-            }
-            catch { return false; }
         }
 
         private static void TrySendPredatorToCorpse(Pawn pred, Corpse corpse, IntVec3 corpsePos)
@@ -198,6 +128,12 @@ namespace ZoologyMod
                 if (pred.Dead || pred.Downed || !pred.Spawned)
                 {
                     LogOnce(pred, corpse, $"Predator not valid for ordering (Dead:{pred.Dead}, Downed:{pred.Downed}, Spawned:{pred.Spawned}).");
+                    return;
+                }
+
+                if (pred.pather != null && pred.pather.Moving)
+                {
+                    // Avoid path thrashing: let the current path resolve around obstacles.
                     return;
                 }
 

@@ -11,6 +11,44 @@ namespace ZoologyMod.HarmonyPatches
     [HarmonyPatch]
     public static class Patch_ScavengeringCore
     {
+        private static Pawn TryGetScavengerEater(Corpse corpse)
+        {
+            if (corpse == null) return null;
+
+            Pawn eater = ScavengerEatingContext.GetEatingPawnForCorpse(corpse);
+            if (eater != null) return eater;
+
+            try
+            {
+                Map map = corpse.Map;
+                if (map == null || !corpse.Spawned) return null;
+
+                IntVec3 pos = corpse.Position;
+                for (int i = 0; i < GenAdj.AdjacentCellsAndInside.Length; i++)
+                {
+                    IntVec3 c = pos + GenAdj.AdjacentCellsAndInside[i];
+                    if (!c.InBounds(map)) continue;
+                    var list = map.thingGrid.ThingsListAtFast(c);
+                    for (int j = 0; j < list.Count; j++)
+                    {
+                        if (list[j] is Pawn p)
+                        {
+                            if (!DefModExtensionCache<ModExtension_IsScavenger>.TryGet(p, out _)) continue;
+                            Job cj = p.CurJob;
+                            if (cj == null || cj.def != JobDefOf.Ingest) continue;
+                            if (cj.targetA.Thing == corpse || cj.targetB.Thing == corpse || cj.targetC.Thing == corpse)
+                            {
+                                ScavengerEatingContext.SetEating(p, corpse);
+                                return p;
+                            }
+                        }
+                    }
+                }
+            }
+            catch { }
+
+            return null;
+        }
         
         
         [HarmonyPatch(typeof(Corpse))]
@@ -31,7 +69,7 @@ namespace ZoologyMod.HarmonyPatches
                     
                     if (settings != null && !settings.EnableScavengering) return true;
 
-                    var eater = ScavengerEatingContext.GetEatingPawnForCorpse(__instance);
+                    var eater = TryGetScavengerEater(__instance);
 
                     
                     if (eater == null)
@@ -125,7 +163,7 @@ namespace ZoologyMod.HarmonyPatches
                 var corpse = req.Thing as Corpse;
                 if (corpse == null) return true;
 
-                var eater = ScavengerEatingContext.GetEatingPawnForCorpse(corpse);
+                var eater = TryGetScavengerEater(corpse);
                 if (eater == null) return true;
 
                 if (!DefModExtensionCache<ModExtension_IsScavenger>.TryGet(eater, out ModExtension_IsScavenger scav)) return true;
@@ -185,7 +223,7 @@ namespace ZoologyMod.HarmonyPatches
 
                     if (corpse == null || part == null) return true;
 
-                    var eater = ScavengerEatingContext.GetEatingPawnForCorpse(corpse);
+                    var eater = TryGetScavengerEater(corpse);
                     if (eater == null) return true;
 
                     if (!DefModExtensionCache<ModExtension_IsScavenger>.TryGet(eater, out ModExtension_IsScavenger scav)) return true;
@@ -249,29 +287,19 @@ namespace ZoologyMod.HarmonyPatches
                                 Thing target = null;
                                 Pawn actor = toil.actor;
                                 Job actorJob = actor?.CurJob;
-                                if (actorJob != null)
-                                {
-                                    target = actorJob.GetTarget(ingestibleInd).Thing;
-                                    if (target == null)
-                                    {
-                                        target = actorJob.targetA.Thing;
-                                    }
-                                }
+                                target = TryGetCorpseTarget(actorJob, ingestibleInd);
 
                                 if (target == null && ingester != null)
                                 {
                                     Job ingesterJob = ingester.CurJob;
-                                    if (ingesterJob != null)
-                                    {
-                                        target = ingesterJob.GetTarget(ingestibleInd).Thing;
-                                        if (target == null)
-                                        {
-                                            target = ingesterJob.targetA.Thing;
-                                        }
-                                    }
+                                    target = TryGetCorpseTarget(ingesterJob, ingestibleInd);
                                 }
 
                                 ScavengerEatingContext.SetEating(ingester, target);
+                                if (!ReferenceEquals(actor, ingester))
+                                {
+                                    ScavengerEatingContext.SetHandFeeding(ingester, target);
+                                }
                             }
                             catch (Exception ex)
                             {
@@ -292,6 +320,7 @@ namespace ZoologyMod.HarmonyPatches
                         try
                         {
                             ScavengerEatingContext.Clear(ingester);
+                            ScavengerEatingContext.ClearHandFeeding(ingester);
                         }
                         catch (Exception ex)
                         {
@@ -382,31 +411,18 @@ namespace ZoologyMod.HarmonyPatches
                             Thing target = null;
                             Pawn actor = toil.actor;
                             Job actorJob = actor?.CurJob;
-                            if (actorJob != null)
-                            {
-                                target = actorJob.GetTarget(ingestibleInd).Thing;
-                                if (target == null)
-                                {
-                                    target = actorJob.targetA.Thing;
-                                }
-                            }
+                            target = TryGetCorpseTarget(actorJob, ingestibleInd);
 
                             if (target == null && chewer != null)
                             {
                                 Job chewerJob = chewer.CurJob;
-                                if (chewerJob != null)
-                                {
-                                    target = chewerJob.GetTarget(ingestibleInd).Thing;
-                                    if (target == null)
-                                    {
-                                        target = chewerJob.targetA.Thing;
-                                    }
-                                }
+                                target = TryGetCorpseTarget(chewerJob, ingestibleInd);
                             }
 
-                            if (target is Corpse)
+                            ScavengerEatingContext.SetEating(chewer, target);
+                            if (!ReferenceEquals(actor, chewer))
                             {
-                                ScavengerEatingContext.SetEating(chewer, target);
+                                ScavengerEatingContext.SetHandFeeding(chewer, target);
                             }
                         }
                         catch (Exception ex)
@@ -423,6 +439,7 @@ namespace ZoologyMod.HarmonyPatches
                         try
                         {
                             ScavengerEatingContext.Clear(chewer);
+                            ScavengerEatingContext.ClearHandFeeding(chewer);
                         }
                         catch (Exception ex)
                         {
@@ -454,6 +471,7 @@ namespace ZoologyMod.HarmonyPatches
                     if (ingester == null) return;
                     if (!DefModExtensionCache<ModExtension_IsScavenger>.TryGet(ingester, out ModExtension_IsScavenger scav)) return;
 
+                    ScavengerEatingContext.SetForceIngestible(ingester, __instance);
                     ScavengerEatingContext.SetEating(ingester, __instance);
                 }
                 catch (Exception e)
@@ -467,12 +485,37 @@ namespace ZoologyMod.HarmonyPatches
                 try
                 {
                     ScavengerEatingContext.Clear(ingester);
+                    ScavengerEatingContext.ClearForceIngestible(ingester);
+                    ScavengerEatingContext.ClearHandFeeding(ingester);
                 }
                 catch (Exception e)
                 {
                     Log.Error("[Zoology] Error in Thing.Ingested postfix: " + e);
                 }
             }
+        }
+
+        private static Thing TryGetCorpseTarget(Job job, TargetIndex ingestibleInd)
+        {
+            if (job == null) return null;
+
+            Thing target = null;
+            try
+            {
+                target = job.GetTarget(ingestibleInd).Thing;
+            }
+            catch
+            {
+                target = null;
+            }
+
+            if (target is Corpse) return target;
+
+            if (job.targetA.Thing is Corpse) return job.targetA.Thing;
+            if (job.targetB.Thing is Corpse) return job.targetB.Thing;
+            if (job.targetC.Thing is Corpse) return job.targetC.Thing;
+
+            return target;
         }
     }
 }

@@ -357,6 +357,7 @@ namespace ZoologyMod.HarmonyPatches
                             targetThing = __instance.job.targetA.Thing;
                         }
                         ScavengerEatingContext.SetEating(pawn, targetThing);
+                        ScavengerEatingContext.SetForceIngestible(pawn, targetThing);
                     }
                     catch (Exception ex)
                     {
@@ -392,6 +393,8 @@ namespace ZoologyMod.HarmonyPatches
                     if (job.def != JobDefOf.Ingest) return;
 
                     ScavengerEatingContext.Clear(__instance.pawn);
+                    ScavengerEatingContext.ClearHandFeeding(__instance.pawn);
+                    ScavengerEatingContext.ClearForceIngestible(__instance.pawn);
                 }
                 catch (Exception e)
                 {
