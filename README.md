@@ -100,6 +100,8 @@ Predators will only attack other predators if their Combat Power is more than **
 
 Pack hunters can coordinate group attacks even if not all pack members are hungry.
 
+In a group, pack predators can take down stronger prey than they would be able to hunt alone.
+
 **Controlled by**
 
 * **Enable pack hunt behavior**
@@ -194,6 +196,14 @@ The nutritional value of skeletonized corpses is reduced compared to fresh corps
 
 ---
 
+### Cannot chew (swallow whole feeding)
+
+Animals marked with `ModExtension_CannotChew` always swallow prey whole and cannot tear chunks from corpses.
+
+Prey can only be swallowed if it does not exceed the animal’s `MaxPreyBodySize`.
+
+---
+
 ### Human bionics on animals
 
 Allows many vanilla human bionics to be installed on animals, implemented through runtime patching.
@@ -230,15 +240,20 @@ Mothers receive a lactation hediff that transfers nutrition to their young.
 
 * **Enable mammals lactation**
 
-Includes a setting controlling auto-slaughter behavior:
+* **Slaughter lactating females**
 
-* **Lactation auto-slaughter handling**
+---
+### Childcare (offspring following)
+
+Animals marked with `ModExtension_Chlidcare` allow their offspring to follow them.
+
+This enables more natural parent–offspring behavior in the wild and in player-controlled animals.
 
 ---
 
 ### Animal damage reduction
 
-Optional system that reduces unrealistic damage from very small animals attacking much larger animals. Predator–prey interactions are excluded.
+Optional system that reduces unrealistic damage from very small animals (or unarmed humans) attacking much larger animals. Predator–prey interactions are excluded.
 
 **Controlled by**
 
