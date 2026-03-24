@@ -59,5 +59,11 @@ namespace ZoologyMod
         {
             return TryGet(pawn, out _);
         }
+
+        public static void Clear()
+        {
+            thingDefCache.Clear();
+            pawnKindDefCache.Clear();
+        }
     }
 }

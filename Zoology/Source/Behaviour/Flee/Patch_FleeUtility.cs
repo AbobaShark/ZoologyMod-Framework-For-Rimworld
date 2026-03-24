@@ -26,19 +26,25 @@ namespace ZoologyMod
                 return false;
             }
 
-            if (!pawn.IsAnimal || pawn.InMentalState || pawn.Downed || pawn.Dead)
+            if (!pawn.IsAnimal || pawn.InMentalState || pawn.IsFighting() || pawn.Downed || pawn.Dead)
             {
                 __result = false;
                 return false;
             }
 
-            if (Patch_AnimalFleeFromPredators.TryGetMeleeAttackerOnPawn(pawn, out _))
+            if (ZoologyFleeSafetyUtility.IsStandardFleeBlockedByExtensions(pawn))
             {
                 __result = false;
                 return false;
             }
 
-            if (ThinkNode_ConditionalShouldFollowMaster.ShouldFollowMaster(pawn) || pawn.GetLord() != null)
+            if (pawn.GetLord() != null)
+            {
+                __result = false;
+                return false;
+            }
+
+            if (ThinkNode_ConditionalShouldFollowMaster.ShouldFollowMaster(pawn))
             {
                 __result = false;
                 return false;
@@ -52,7 +58,8 @@ namespace ZoologyMod
             }
 
             var map = pawn.Map;
-            if (faction == Faction.OfPlayer && map != null && map.IsPlayerHome)
+            Faction playerFaction = Faction.OfPlayerSilentFail;
+            if (playerFaction != null && ReferenceEquals(faction, playerFaction) && map != null && map.IsPlayerHome)
             {
                 var raceProps = pawn.RaceProps;
                 bool predator = raceProps?.predator ?? false;

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using HarmonyLib;
 using RimWorld;
 using Verse;
@@ -14,6 +15,11 @@ namespace ZoologyMod
         {
             try
             {
+                if (!CannotChewSettingsGate.Enabled())
+                {
+                    return true;
+                }
+
                 if (p == null || food == null)
                 {
                     return true;
@@ -56,12 +62,30 @@ namespace ZoologyMod
 
         public static bool HasCannotChewPawnsOnMap(Map map)
         {
+            if (!CannotChewSettingsGate.Enabled())
+            {
+                return false;
+            }
+
             if (map == null)
             {
                 return totalCannotChew > 0;
             }
 
-            return cannotChewCountByMapId.TryGetValue(map.uniqueID, out int count) && count > 0;
+            if (cannotChewCountByMapId.TryGetValue(map.uniqueID, out int count))
+            {
+                return count > 0;
+            }
+
+            int computedCount = CountCannotChewOnMap(map);
+            if (computedCount <= 0)
+            {
+                return false;
+            }
+
+            cannotChewCountByMapId[map.uniqueID] = computedCount;
+            totalCannotChew += computedCount;
+            return true;
         }
 
         public static void NotifyPawnSpawned(Pawn pawn)
@@ -121,6 +145,56 @@ namespace ZoologyMod
                 cannotChewCountByMapId[mapId] = count;
             }
         }
+
+        public static void RebuildFromCurrentMaps()
+        {
+            cannotChewCountByMapId.Clear();
+            totalCannotChew = 0;
+
+            List<Map> maps = Find.Maps;
+            if (maps == null || maps.Count == 0)
+            {
+                return;
+            }
+
+            for (int mapIndex = 0; mapIndex < maps.Count; mapIndex++)
+            {
+                Map map = maps[mapIndex];
+                if (map?.mapPawns?.AllPawnsSpawned == null)
+                {
+                    continue;
+                }
+
+                int mapCount = CountCannotChewOnMap(map);
+
+                if (mapCount > 0)
+                {
+                    cannotChewCountByMapId[map.uniqueID] = mapCount;
+                    totalCannotChew += mapCount;
+                }
+            }
+        }
+
+        private static int CountCannotChewOnMap(Map map)
+        {
+            if (map?.mapPawns?.AllPawnsSpawned == null)
+            {
+                return 0;
+            }
+
+            int count = 0;
+            IReadOnlyList<Pawn> pawns = map.mapPawns.AllPawnsSpawned;
+            for (int i = 0; i < pawns.Count; i++)
+            {
+                Pawn pawn = pawns[i];
+                if (pawn != null && CannotChewUtility.HasCannotChew(pawn))
+                {
+                    count++;
+                }
+            }
+
+            return count;
+        }
     }
 
     [HarmonyPatch(typeof(Pawn), nameof(Pawn.SpawnSetup))]
@@ -130,6 +204,11 @@ namespace ZoologyMod
         {
             try
             {
+                if (!CannotChewSettingsGate.Enabled())
+                {
+                    return;
+                }
+
                 CannotChewPresenceCache.NotifyPawnSpawned(__instance);
             }
             catch (Exception ex)
@@ -146,11 +225,69 @@ namespace ZoologyMod
         {
             try
             {
+                if (!CannotChewSettingsGate.Enabled())
+                {
+                    return;
+                }
+
                 CannotChewPresenceCache.NotifyPawnDespawned(__instance, __instance?.Map);
             }
             catch (Exception ex)
             {
                 Log.Warning($"[Zoology] CannotChew presence despawn exception: {ex}");
+            }
+        }
+    }
+
+    [HarmonyPatch]
+    internal static class Patch_Corpse_IngestedCalculateAmounts_CannotChew
+    {
+        private static MethodBase TargetMethod()
+        {
+            return AccessTools.Method(
+                typeof(Corpse),
+                "IngestedCalculateAmounts",
+                new[]
+                {
+                    typeof(Pawn),
+                    typeof(float),
+                    typeof(int).MakeByRefType(),
+                    typeof(float).MakeByRefType()
+                });
+        }
+
+        private static bool Prefix(Corpse __instance, Pawn ingester, ref int numTaken, ref float nutritionIngested)
+        {
+            try
+            {
+                if (!CannotChewSettingsGate.Enabled())
+                {
+                    return true;
+                }
+
+                if (ingester == null || __instance?.InnerPawn == null)
+                {
+                    return true;
+                }
+
+                if (!CannotChewUtility.HasCannotChew(ingester))
+                {
+                    return true;
+                }
+
+                if (!CannotChewUtility.IsCorpseTooLarge(ingester, __instance))
+                {
+                    return true;
+                }
+
+                numTaken = 0;
+                nutritionIngested = 0f;
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Log.Warning($"[Zoology] CannotChew IngestedCalculateAmounts prefix exception: {ex}");
+                return true;
             }
         }
     }
@@ -162,6 +299,11 @@ namespace ZoologyMod
         {
             try
             {
+                if (!CannotChewSettingsGate.Enabled())
+                {
+                    return;
+                }
+
                 if (__result == null || ingester == null)
                 {
                     return;

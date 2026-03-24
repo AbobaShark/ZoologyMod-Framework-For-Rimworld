@@ -37,12 +37,13 @@ namespace ZoologyMod
             var settings = ZoologyModSettings.Instance;
             if (settings != null && !settings.EnableDrugsImmunePatch) return;
 
+            // Самая дешёвая проверка должна быть первой: не выполнять остальную логику каждый тик.
+            if (!parent.IsHashIntervalTick(cleanupInterval)) return;
+
             Pawn pawn = parent as Pawn;
             if (pawn == null) return;
             if (pawn.Destroyed || pawn.Dead) return;
             if (pawn.health?.hediffSet == null) return;
-
-            if (!parent.IsHashIntervalTick(cleanupInterval)) return;
 
             try
             {

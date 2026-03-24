@@ -112,6 +112,12 @@ namespace ZoologyMod
         {
             base.CompTick();
 
+            ZoologyModSettings settings = ZoologyModSettings.Instance;
+            if (settings != null && (settings.DisableAllRuntimePatches || !settings.EnableAnimalRegenerationComp))
+            {
+                return;
+            }
+
             if (Props == null) return;
             if (!parent.IsHashIntervalTick(checkIntervalTicks)) return;
 

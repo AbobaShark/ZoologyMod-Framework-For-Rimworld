@@ -29,6 +29,8 @@ namespace ZoologyMod
             
             LongEventHandler.ExecuteWhenFinished(() =>
             {
+                Settings?.ApplyRuntimeDefOverrides();
+
                 bool allRuntimeTogglesDisabledNow = Settings != null && Settings.AreAllRuntimeTogglesDisabled();
                 if (allRuntimeTogglesDisabledNow)
                 {

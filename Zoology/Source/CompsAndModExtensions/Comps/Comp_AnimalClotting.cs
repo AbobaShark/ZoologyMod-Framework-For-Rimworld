@@ -36,6 +36,12 @@ namespace ZoologyMod
 
         public override void CompTick()
         {
+            ZoologyModSettings settings = ZoologyModSettings.Instance;
+            if (settings != null && (settings.DisableAllRuntimePatches || !settings.EnableAnimalClottingComp))
+            {
+                return;
+            }
+
             if (!parent.IsHashIntervalTick(checkInterval)) return;
 
             Pawn pawn = parent as Pawn;

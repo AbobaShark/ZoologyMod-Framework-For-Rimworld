@@ -161,7 +161,6 @@ namespace ZoologyMod.HarmonyPatches
                 if (corpseLister == null || corpseLister.Count == 0 || getter == null || eater == null) return null;
 
                 bool cannotChew = CannotChewUtility.HasCannotChew(eater);
-                float eaterSize = cannotChew ? eater.BodySize : 0f;
 
                 IntVec3 root = getter.Position;
                 Corpse best = null;
@@ -176,7 +175,7 @@ namespace ZoologyMod.HarmonyPatches
                     if (corpse.Map != getter.Map) continue;
                     if (corpse.InnerPawn == null) continue;
                     if (!corpse.InnerPawn.RaceProps.IsFlesh) continue;
-                    if (cannotChew && corpse.InnerPawn.BodySize > eaterSize) continue;
+                    if (cannotChew && CannotChewUtility.IsCorpseTooLarge(eater, corpse)) continue;
                     if (!allowForbidden && corpse.IsForbidden(getter)) continue;
 
                     if (!scav.allowVeryRotten)
@@ -263,8 +262,7 @@ namespace ZoologyMod.HarmonyPatches
                 }
 
                 if (CannotChewUtility.HasCannotChew(eater)
-                    && corpse.InnerPawn != null
-                    && corpse.InnerPawn.BodySize > eater.BodySize)
+                    && CannotChewUtility.IsCorpseTooLarge(eater, corpse))
                 {
                     state.LastFound = null;
                     state.LastFoodDef = null;

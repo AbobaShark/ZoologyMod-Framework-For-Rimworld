@@ -30,6 +30,27 @@ namespace ZoologyMod
         private static FactionDef photonozoaFactionDef;
         private static bool photonozoaFactionResolved;
 
+        public static void ClearCaches()
+        {
+            photonozoaCache.Clear();
+            insectoidCache.Clear();
+            thrumboLikeCache.Clear();
+            noFleeExtensionCache.Clear();
+            fleeFromCarrierExtensionCache.Clear();
+            ectothermicExtensionCache.Clear();
+            scavengerExtensionCache.Clear();
+            agroAtSlaughterExtensionCache.Clear();
+            cannotBeMutatedExtensionCache.Clear();
+            cannotBeAugmentedExtensionCache.Clear();
+            noPorcupineQuillExtensionCache.Clear();
+            mammalThingDefExtensionCache.Clear();
+            mammalPawnKindExtensionCache.Clear();
+            crossbreedCache.Clear();
+
+            photonozoaFactionDef = null;
+            photonozoaFactionResolved = false;
+        }
+
         public static bool IsPhotonozoa(ThingDef def)
         {
             if (def == null)
@@ -224,6 +245,12 @@ namespace ZoologyMod
                 return false;
             }
 
+            ZoologyModSettings settings = ZoologyModSettings.Instance;
+            if (settings != null && (settings.DisableAllRuntimePatches || !settings.EnableCannotBeAugmentedProtection))
+            {
+                return false;
+            }
+
             if (cannotBeAugmentedExtensionCache.TryGetValue(def, out bool cached))
             {
                 return cached;
@@ -311,9 +338,13 @@ namespace ZoologyMod
 
         private static FactionDef GetPhotonozoaFactionDef()
         {
-            if (!photonozoaFactionResolved)
+            if (photonozoaFactionDef == null)
             {
                 photonozoaFactionDef = DefDatabase<FactionDef>.GetNamedSilentFail(PhotonozoaFactionDefName);
+            }
+
+            if (!photonozoaFactionResolved && photonozoaFactionDef != null)
+            {
                 photonozoaFactionResolved = true;
             }
 
