@@ -397,6 +397,11 @@ namespace ZoologyMod
 
         internal static bool HasAnyActiveProtectors => activeProtectorsTotal > 0;
 
+        internal static bool HasCachedProtectorEntry(Pawn predator)
+        {
+            return predator != null && protectedPawnCacheByPredatorId.ContainsKey(predator.thingIDNumber);
+        }
+
         internal static void NotifyProtectPreyJobStarted(Pawn predator, Pawn protectedPawn, Job job)
         {
             if (predator == null || protectedPawn == null || job == null)
@@ -737,34 +742,21 @@ namespace ZoologyMod
 
     internal static class ProtectPreyPatchFastCache
     {
-        private static int cachedTick = int.MinValue;
-        private static bool cachedHasAnyProtectors;
-        private static readonly Dictionary<int, Pawn> protectedPawnByPredatorId = new Dictionary<int, Pawn>(128);
-        private static readonly HashSet<int> missingPredatorIds = new HashSet<int>();
-
-        private static int GetCurrentTick()
-        {
-            return Find.TickManager?.TicksGame ?? -1;
-        }
-
-        private static void EnsureTickCacheFresh()
-        {
-            int tick = GetCurrentTick();
-            if (tick == cachedTick)
-            {
-                return;
-            }
-
-            cachedTick = tick;
-            cachedHasAnyProtectors = ProtectPreyState.HasAnyActiveProtectors;
-            protectedPawnByPredatorId.Clear();
-            missingPredatorIds.Clear();
-        }
+        private static readonly Dictionary<int, Pawn> protectedPawnByPredatorId = new Dictionary<int, Pawn>(64);
 
         public static bool HasAnyActiveProtectorsFast()
         {
-            EnsureTickCacheFresh();
-            return cachedHasAnyProtectors;
+            if (ProtectPreyState.HasAnyActiveProtectors)
+            {
+                return true;
+            }
+
+            if (protectedPawnByPredatorId.Count > 0)
+            {
+                protectedPawnByPredatorId.Clear();
+            }
+
+            return false;
         }
 
         public static bool TryGetProtectedPawnForPredator(Pawn predator, out Pawn protectedPawn)
@@ -775,8 +767,7 @@ namespace ZoologyMod
                 return false;
             }
 
-            EnsureTickCacheFresh();
-            if (!cachedHasAnyProtectors)
+            if (!HasAnyActiveProtectorsFast())
             {
                 return false;
             }
@@ -787,7 +778,7 @@ namespace ZoologyMod
                 return protectedPawn != null;
             }
 
-            if (missingPredatorIds.Contains(predatorId))
+            if (!ProtectPreyState.HasCachedProtectorEntry(predator))
             {
                 return false;
             }
@@ -798,7 +789,7 @@ namespace ZoologyMod
                 return true;
             }
 
-            missingPredatorIds.Add(predatorId);
+            protectedPawnByPredatorId.Remove(predatorId);
             return false;
         }
     }
@@ -816,6 +807,14 @@ namespace ZoologyMod
                 return;
             }
             if (predator == null || myFaction == null)
+            {
+                return;
+            }
+            if (!ProtectPreyPatchFastCache.HasAnyActiveProtectorsFast())
+            {
+                return;
+            }
+            if (!ProtectPreyState.HasCachedProtectorEntry(predator))
             {
                 return;
             }
@@ -869,6 +868,14 @@ namespace ZoologyMod
             {
                 return;
             }
+            if (!ProtectPreyPatchFastCache.HasAnyActiveProtectorsFast())
+            {
+                return;
+            }
+            if (!ProtectPreyState.HasCachedProtectorEntry(predator))
+            {
+                return;
+            }
             if (!ProtectPreyPatchFastCache.TryGetProtectedPawnForPredator(predator, out Pawn protectedPawn))
             {
                 return;
@@ -892,6 +899,14 @@ namespace ZoologyMod
                 return;
             }
             if (predator == null || toFaction == null)
+            {
+                return;
+            }
+            if (!ProtectPreyPatchFastCache.HasAnyActiveProtectorsFast())
+            {
+                return;
+            }
+            if (!ProtectPreyState.HasCachedProtectorEntry(predator))
             {
                 return;
             }

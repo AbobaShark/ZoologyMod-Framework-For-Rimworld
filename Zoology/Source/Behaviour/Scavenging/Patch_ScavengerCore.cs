@@ -12,6 +12,164 @@ namespace ZoologyMod.HarmonyPatches
     [HarmonyPatch]
     public static class Patch_ScavengeringCore
     {
+        private sealed class ScavengerMapSnapshot
+        {
+            public int Tick = int.MinValue;
+            public readonly Dictionary<int, Pawn> CorpseToEater = new Dictionary<int, Pawn>(32);
+        }
+
+        private static readonly Dictionary<int, ScavengerMapSnapshot> scavengerSnapshotByMapId =
+            new Dictionary<int, ScavengerMapSnapshot>(4);
+
+        private static Pawn TryGetScavengerEaterFromSnapshot(Corpse corpse)
+        {
+            Map map = corpse.Map;
+            if (map == null || !corpse.Spawned)
+            {
+                return null;
+            }
+
+            int currentTick = Find.TickManager?.TicksGame ?? 0;
+            if (currentTick <= 0)
+            {
+                return null;
+            }
+
+            int mapId = map.uniqueID;
+            if (!scavengerSnapshotByMapId.TryGetValue(mapId, out ScavengerMapSnapshot snapshot))
+            {
+                snapshot = new ScavengerMapSnapshot();
+                scavengerSnapshotByMapId[mapId] = snapshot;
+            }
+
+            if (snapshot.Tick != currentTick)
+            {
+                snapshot.Tick = currentTick;
+                snapshot.CorpseToEater.Clear();
+
+                IReadOnlyList<Pawn> pawns = map.mapPawns?.AllPawnsSpawned;
+                if (pawns != null)
+                {
+                    for (int i = 0; i < pawns.Count; i++)
+                    {
+                        Pawn pawn = pawns[i];
+                        if (pawn == null || pawn.Dead || pawn.Destroyed)
+                        {
+                            continue;
+                        }
+
+                        Job curJob = pawn.CurJob;
+                        if (curJob == null || curJob.def != JobDefOf.Ingest)
+                        {
+                            continue;
+                        }
+
+                        Corpse targetedCorpse = TryGetCorpseTarget(curJob, TargetIndex.A) as Corpse;
+                        if (targetedCorpse == null || !targetedCorpse.Spawned || targetedCorpse.Map != map)
+                        {
+                            continue;
+                        }
+
+                        if (!GenAdj.AdjacentTo8WayOrInside(pawn.Position, targetedCorpse.Position))
+                        {
+                            continue;
+                        }
+
+                        if (!DefModExtensionCache<ModExtension_IsScavenger>.TryGet(pawn, out _))
+                        {
+                            continue;
+                        }
+
+                        int corpseId = targetedCorpse.thingIDNumber;
+                        if (!snapshot.CorpseToEater.ContainsKey(corpseId))
+                        {
+                            snapshot.CorpseToEater.Add(corpseId, pawn);
+                        }
+                    }
+                }
+            }
+
+            int targetCorpseId = corpse.thingIDNumber;
+            if (!snapshot.CorpseToEater.TryGetValue(targetCorpseId, out Pawn eater))
+            {
+                return null;
+            }
+
+            if (eater == null || eater.Dead || eater.Destroyed)
+            {
+                snapshot.CorpseToEater.Remove(targetCorpseId);
+                return null;
+            }
+
+            Job eaterJob = eater.CurJob;
+            if (eaterJob == null || eaterJob.def != JobDefOf.Ingest)
+            {
+                snapshot.CorpseToEater.Remove(targetCorpseId);
+                return null;
+            }
+
+            if (!ReferenceEquals(eaterJob.targetA.Thing, corpse)
+                && !ReferenceEquals(eaterJob.targetB.Thing, corpse)
+                && !ReferenceEquals(eaterJob.targetC.Thing, corpse))
+            {
+                snapshot.CorpseToEater.Remove(targetCorpseId);
+                return null;
+            }
+
+            return eater;
+        }
+
+        private static Pawn TryGetScavengerEaterByAdjacentScan(Corpse corpse)
+        {
+            Map map = corpse.Map;
+            if (map == null || !corpse.Spawned)
+            {
+                return null;
+            }
+
+            IntVec3 pos = corpse.Position;
+            for (int i = 0; i < GenAdj.AdjacentCellsAndInside.Length; i++)
+            {
+                IntVec3 c = pos + GenAdj.AdjacentCellsAndInside[i];
+                if (!c.InBounds(map))
+                {
+                    continue;
+                }
+
+                List<Thing> list = map.thingGrid.ThingsListAtFast(c);
+                for (int j = 0; j < list.Count; j++)
+                {
+                    if (!(list[j] is Pawn pawn))
+                    {
+                        continue;
+                    }
+
+                    Job curJob = pawn.CurJob;
+                    if (curJob == null || curJob.def != JobDefOf.Ingest)
+                    {
+                        continue;
+                    }
+
+                    if (!ReferenceEquals(curJob.targetA.Thing, corpse)
+                        && !ReferenceEquals(curJob.targetB.Thing, corpse)
+                        && !ReferenceEquals(curJob.targetC.Thing, corpse))
+                    {
+                        continue;
+                    }
+
+                    if (!DefModExtensionCache<ModExtension_IsScavenger>.TryGet(pawn, out _))
+                    {
+                        continue;
+                    }
+
+                    ScavengerEatingContext.SetEating(pawn, corpse);
+                    return pawn;
+                }
+            }
+
+            return null;
+        }
+
         private static Pawn TryGetScavengerEater(Corpse corpse)
         {
             if (corpse == null) return null;
@@ -21,32 +179,22 @@ namespace ZoologyMod.HarmonyPatches
 
             try
             {
-                Map map = corpse.Map;
-                if (map == null || !corpse.Spawned) return null;
-
-                IntVec3 pos = corpse.Position;
-                for (int i = 0; i < GenAdj.AdjacentCellsAndInside.Length; i++)
+                eater = TryGetScavengerEaterFromSnapshot(corpse);
+                if (eater != null)
                 {
-                    IntVec3 c = pos + GenAdj.AdjacentCellsAndInside[i];
-                    if (!c.InBounds(map)) continue;
-                    var list = map.thingGrid.ThingsListAtFast(c);
-                    for (int j = 0; j < list.Count; j++)
-                    {
-                        if (list[j] is Pawn p)
-                        {
-                            if (!DefModExtensionCache<ModExtension_IsScavenger>.TryGet(p, out _)) continue;
-                            Job cj = p.CurJob;
-                            if (cj == null || cj.def != JobDefOf.Ingest) continue;
-                            if (cj.targetA.Thing == corpse || cj.targetB.Thing == corpse || cj.targetC.Thing == corpse)
-                            {
-                                ScavengerEatingContext.SetEating(p, corpse);
-                                return p;
-                            }
-                        }
-                    }
+                    ScavengerEatingContext.SetEating(eater, corpse);
+                    return eater;
+                }
+
+                if ((Find.TickManager?.TicksGame ?? 0) <= 0)
+                {
+                    return TryGetScavengerEaterByAdjacentScan(corpse);
                 }
             }
-            catch { }
+            catch
+            {
+                return TryGetScavengerEaterByAdjacentScan(corpse);
+            }
 
             return null;
         }

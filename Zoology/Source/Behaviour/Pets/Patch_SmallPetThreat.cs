@@ -10,11 +10,15 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(Pawn), "ThreatDisabledBecauseNonAggressiveRoamer")]
     public static class Patch_SmallPetThreatDisabled
     {
+        private const float DefaultSmallPetThreshold = ModConstants.DefaultSmallPetBodySizeThreshold;
+        private const int SettingsSnapshotRefreshIntervalTicks = ZoologyTickLimiter.SmallPetThreat.SettingsSnapshotRefreshIntervalTicks;
+
         private static Game cachedGame;
         private static Faction cachedPlayerFaction;
         private static float cachedSmallPetThreshold = -1f;
         private static bool cachedIgnoreSmallPetsEnabled = true;
         private static bool smallPetCandidateSetInitialized;
+        private static int settingsSnapshotTick = int.MinValue;
 
         private readonly struct HostilityCacheEntry
         {
@@ -42,6 +46,7 @@ namespace ZoologyMod
             cachedSmallPetThreshold = -1f;
             cachedIgnoreSmallPetsEnabled = true;
             smallPetCandidateSetInitialized = false;
+            settingsSnapshotTick = int.MinValue;
             hostilityCacheByFactionId.Clear();
             smallPetCandidatePawnIds.Clear();
         }
@@ -50,6 +55,7 @@ namespace ZoologyMod
         {
             cachedSmallPetThreshold = -1f;
             smallPetCandidateSetInitialized = false;
+            settingsSnapshotTick = int.MinValue;
             smallPetCandidatePawnIds.Clear();
             hostilityCacheByFactionId.Clear();
         }
@@ -102,7 +108,7 @@ namespace ZoologyMod
                 return false;
             }
 
-            if (!pawn.Spawned || pawn.Destroyed || pawn.Dead)
+            if (pawn.Destroyed || pawn.Dead)
             {
                 return false;
             }
@@ -118,10 +124,42 @@ namespace ZoologyMod
                 && raceProps.baseBodySize < smallPetThreshold;
         }
 
-        private static void RebuildSmallPetCandidateSet(ZoologyModSettings settings)
+        private static void RefreshSettingsSnapshotIfNeeded()
         {
-            cachedIgnoreSmallPetsEnabled = settings == null || settings.EnableIgnoreSmallPetsByRaiders;
-            cachedSmallPetThreshold = settings?.SmallPetBodySizeThreshold ?? ModConstants.DefaultSmallPetBodySizeThreshold;
+            int tick = Find.TickManager?.TicksGame ?? -1;
+            if (tick > 0
+                && settingsSnapshotTick > 0
+                && tick - settingsSnapshotTick < SettingsSnapshotRefreshIntervalTicks)
+            {
+                return;
+            }
+
+            if (tick <= 0 && settingsSnapshotTick == 0)
+            {
+                return;
+            }
+
+            ZoologyModSettings settings = ZoologyModSettings.Instance;
+            bool ignoreSmallPets = settings == null || settings.EnableIgnoreSmallPetsByRaiders;
+            float threshold = settings?.SmallPetBodySizeThreshold ?? DefaultSmallPetThreshold;
+            bool changed = ignoreSmallPets != cachedIgnoreSmallPetsEnabled
+                || cachedSmallPetThreshold < 0f
+                || threshold < cachedSmallPetThreshold - 0.0001f
+                || threshold > cachedSmallPetThreshold + 0.0001f;
+
+            if (changed)
+            {
+                cachedIgnoreSmallPetsEnabled = ignoreSmallPets;
+                cachedSmallPetThreshold = threshold;
+                smallPetCandidateSetInitialized = false;
+                smallPetCandidatePawnIds.Clear();
+            }
+
+            settingsSnapshotTick = tick > 0 ? tick : 0;
+        }
+
+        private static void RebuildSmallPetCandidateSet()
+        {
             smallPetCandidateSetInitialized = true;
             smallPetCandidatePawnIds.Clear();
 
@@ -156,31 +194,21 @@ namespace ZoologyMod
             }
         }
 
-        private static bool EnsureSmallPetCandidateSetCached(ZoologyModSettings settings)
+        private static bool EnsureSmallPetCandidateSetCached()
         {
             ResetCachesForCurrentGameIfNeeded();
-
-            bool ignoreSmallPetsEnabled = settings == null || settings.EnableIgnoreSmallPetsByRaiders;
-            float smallPetThreshold = settings?.SmallPetBodySizeThreshold ?? ModConstants.DefaultSmallPetBodySizeThreshold;
-            bool thresholdChanged = cachedSmallPetThreshold < 0f
-                || smallPetThreshold < cachedSmallPetThreshold - 0.0001f
-                || smallPetThreshold > cachedSmallPetThreshold + 0.0001f;
-
-            if (!smallPetCandidateSetInitialized
-                || ignoreSmallPetsEnabled != cachedIgnoreSmallPetsEnabled
-                || thresholdChanged)
+            RefreshSettingsSnapshotIfNeeded();
+            if (!cachedIgnoreSmallPetsEnabled)
             {
-                RebuildSmallPetCandidateSet(settings);
+                return false;
+            }
+
+            if (!smallPetCandidateSetInitialized)
+            {
+                RebuildSmallPetCandidateSet();
             }
 
             return smallPetCandidatePawnIds.Count > 0;
-        }
-
-        private static bool IsPlayerSmallPetCandidateCached(Pawn pawn, ZoologyModSettings settings)
-        {
-            return pawn != null
-                && EnsureSmallPetCandidateSetCached(settings)
-                && smallPetCandidatePawnIds.Contains(pawn.thingIDNumber);
         }
 
         private static void UpdateCachedMembership(Pawn pawn)
@@ -237,18 +265,18 @@ namespace ZoologyMod
                 return true;
             }
 
-            ZoologyModSettings settings = ZoologyModSettings.Instance;
-            if (settings != null && !settings.EnableIgnoreSmallPetsByRaiders)
+            RefreshSettingsSnapshotIfNeeded();
+            if (!cachedIgnoreSmallPetsEnabled)
             {
                 return true;
             }
 
-            if (!__instance.Spawned || !otherPawn.Spawned)
+            if (!smallPetCandidateSetInitialized && !EnsureSmallPetCandidateSetCached())
             {
                 return true;
             }
 
-            if (!IsPlayerSmallPetCandidateCached(__instance, settings))
+            if (smallPetCandidatePawnIds.Count == 0 || !smallPetCandidatePawnIds.Contains(__instance.thingIDNumber))
             {
                 return true;
             }

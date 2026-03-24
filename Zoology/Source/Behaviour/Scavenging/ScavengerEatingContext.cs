@@ -9,6 +9,7 @@ namespace ZoologyMod
     public static class ScavengerEatingContext
     {
         [ThreadStatic] private static Dictionary<Pawn, Thing> pawnToTarget;
+        [ThreadStatic] private static Dictionary<int, Pawn> corpseToPawn;
         [ThreadStatic] private static Dictionary<int, HandFeedEntry> handFedByCorpseId;
         [ThreadStatic] private static List<Pawn> pawnCleanupBuffer;
         [ThreadStatic] private static List<int> handCleanupBuffer;
@@ -23,6 +24,7 @@ namespace ZoologyMod
         }
 
         private static Dictionary<Pawn, Thing> SelfMap => pawnToTarget ?? (pawnToTarget = new Dictionary<Pawn, Thing>());
+        private static Dictionary<int, Pawn> CorpseMap => corpseToPawn ?? (corpseToPawn = new Dictionary<int, Pawn>(64));
         private static Dictionary<int, HandFeedEntry> HandMap => handFedByCorpseId ?? (handFedByCorpseId = new Dictionary<int, HandFeedEntry>(32));
         private static List<Pawn> PawnCleanup => pawnCleanupBuffer ?? (pawnCleanupBuffer = new List<Pawn>(8));
         private static List<int> HandCleanup => handCleanupBuffer ?? (handCleanupBuffer = new List<int>(8));
@@ -34,7 +36,21 @@ namespace ZoologyMod
                 if (pawn == null) return;
                 if (!DefModExtensionCache<ModExtension_IsScavenger>.TryGet(pawn, out _)) return;
 
-                SelfMap[pawn] = target;
+                var map = SelfMap;
+                var reverse = CorpseMap;
+                if (map.TryGetValue(pawn, out Thing oldTarget) && oldTarget is Corpse oldCorpse)
+                {
+                    if (reverse.TryGetValue(oldCorpse.thingIDNumber, out Pawn oldPawn) && ReferenceEquals(oldPawn, pawn))
+                    {
+                        reverse.Remove(oldCorpse.thingIDNumber);
+                    }
+                }
+
+                map[pawn] = target;
+                if (target is Corpse corpse)
+                {
+                    reverse[corpse.thingIDNumber] = pawn;
+                }
             }
             catch (Exception e)
             {
@@ -110,6 +126,16 @@ namespace ZoologyMod
                 if (pawn == null) return;
                 var map = pawnToTarget;
                 if (map == null) return;
+                if (map.TryGetValue(pawn, out Thing oldTarget) && oldTarget is Corpse oldCorpse)
+                {
+                    var reverse = corpseToPawn;
+                    if (reverse != null
+                        && reverse.TryGetValue(oldCorpse.thingIDNumber, out Pawn oldPawn)
+                        && ReferenceEquals(oldPawn, pawn))
+                    {
+                        reverse.Remove(oldCorpse.thingIDNumber);
+                    }
+                }
                 map.Remove(pawn);
             }
             catch (Exception e)
@@ -200,6 +226,36 @@ namespace ZoologyMod
 
                 var map = pawnToTarget;
                 if (map == null || map.Count == 0) return null;
+                var reverseMap = corpseToPawn;
+                if (reverseMap != null && reverseMap.TryGetValue(corpseId, out Pawn cachedPawn))
+                {
+                    if (cachedPawn == null || cachedPawn.Dead || cachedPawn.Destroyed)
+                    {
+                        reverseMap.Remove(corpseId);
+                    }
+                    else
+                    {
+                        if (map.TryGetValue(cachedPawn, out Thing cachedTarget)
+                            && ReferenceEquals(cachedTarget, corpse))
+                        {
+                            try
+                            {
+                                var cj = cachedPawn.CurJob;
+                                if (cj != null && cj.def == JobDefOf.Ingest && ReferenceEquals(cj.targetA.Thing, cachedTarget))
+                                {
+                                    return cachedPawn;
+                                }
+                            }
+                            catch
+                            {
+                            }
+                        }
+                        else
+                        {
+                            reverseMap.Remove(corpseId);
+                        }
+                    }
+                }
 
                 var toRemove = PawnCleanup;
                 toRemove.Clear();
@@ -236,7 +292,11 @@ namespace ZoologyMod
                             continue;
                         }
 
-                        if (t == corpse) return p;
+                        if (t == corpse)
+                        {
+                            CorpseMap[corpseId] = p;
+                            return p;
+                        }
                     }
                     catch
                     {
@@ -247,7 +307,25 @@ namespace ZoologyMod
 
                 for (int i = 0; i < toRemove.Count; i++)
                 {
-                    try { map.Remove(toRemove[i]); } catch { }
+                    try
+                    {
+                        Pawn pawn = toRemove[i];
+                        if (pawn != null
+                            && map.TryGetValue(pawn, out Thing target)
+                            && target is Corpse staleCorpse)
+                        {
+                            var reverse = corpseToPawn;
+                            if (reverse != null
+                                && reverse.TryGetValue(staleCorpse.thingIDNumber, out Pawn reversePawn)
+                                && ReferenceEquals(reversePawn, pawn))
+                            {
+                                reverse.Remove(staleCorpse.thingIDNumber);
+                            }
+                        }
+
+                        map.Remove(pawn);
+                    }
+                    catch { }
                 }
                 toRemove.Clear();
             }

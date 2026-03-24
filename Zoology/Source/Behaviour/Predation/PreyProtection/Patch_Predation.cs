@@ -42,22 +42,50 @@ namespace ZoologyMod
             public int Tick { get; }
         }
 
+        private readonly struct VanillaHuntTargetCacheEntry
+        {
+            public VanillaHuntTargetCacheEntry(Pawn target, bool hasTarget, int mapId, int tick)
+            {
+                Target = target;
+                HasTarget = hasTarget;
+                MapId = mapId;
+                Tick = tick;
+            }
+
+            public Pawn Target { get; }
+
+            public bool HasTarget { get; }
+
+            public int MapId { get; }
+
+            public int Tick { get; }
+        }
+
         private static readonly Func<Pawn, bool, Pawn> BestPawnToHuntForPredatorFunc = CreateBestPawnToHuntForPredatorDelegate();
         private static readonly Dictionary<long, CorpseFoodStateCacheEntry> corpseFoodStateCacheByPairKey = new Dictionary<long, CorpseFoodStateCacheEntry>(256);
         private static readonly Dictionary<long, FoodOptimalityDeltaCacheEntry> foodOptimalityDeltaCacheByPairKey = new Dictionary<long, FoodOptimalityDeltaCacheEntry>(1024);
+        private static readonly Dictionary<long, VanillaHuntTargetCacheEntry> vanillaHuntTargetCacheByPredatorKey =
+            new Dictionary<long, VanillaHuntTargetCacheEntry>(512);
+        private static readonly List<long> vanillaHuntTargetCleanupBuffer = new List<long>(64);
 
         private const float OwnedCorpseBonus = 10000f;
         private const float UnpairedCorpseBonus = 300f;
         private const float GuardedCorpsePenalty = -10000f;
         private const float LiveAcceptablePreyBonus = 600f;
         private const int FoodOptimalityDeltaCacheMaxEntries = 20000;
+        private const int VanillaHuntTargetCacheDurationTicks = 12;
+        private const int VanillaHuntTargetCacheCleanupIntervalTicks = 300;
+        private const int VanillaHuntTargetBudgetPerTick = 256;
 
         private static int lastCorpseFoodStateCacheCleanupTick = -ZoologyTickLimiter.PredationFood.CorpseFoodStateCacheCleanupIntervalTicks;
         private static int lastFoodOptimalityDeltaCleanupTick = -ZoologyTickLimiter.PredationFood.FoodOptimalityDeltaCacheCleanupIntervalTicks;
+        private static int lastVanillaHuntTargetCleanupTick = -VanillaHuntTargetCacheCleanupIntervalTicks;
         private static int corpseFoodStateBudgetTick = -1;
         private static int corpseFoodStateBudgetRemaining = 0;
         private static int livePreyBudgetTick = -1;
         private static int livePreyBudgetRemaining = 0;
+        private static int vanillaHuntTargetBudgetTick = -1;
+        private static int vanillaHuntTargetBudgetRemaining = 0;
 
         static PredationHarmonyPatches()
         {
@@ -640,14 +668,119 @@ namespace ZoologyMod
                 return null;
             }
 
+            int currentTick = Find.TickManager?.TicksGame ?? 0;
+            int mapId = predator.Map?.uniqueID ?? -1;
+            long key = VanillaHuntTargetPairKey(predator, desperate);
+            if (key != 0L
+                && currentTick > 0
+                && vanillaHuntTargetCacheByPredatorKey.TryGetValue(key, out VanillaHuntTargetCacheEntry cached)
+                && currentTick - cached.Tick <= VanillaHuntTargetCacheDurationTicks
+                && cached.MapId == mapId)
+            {
+                if (!cached.HasTarget)
+                {
+                    return null;
+                }
+
+                if (IsValidVanillaHuntTarget(predator, cached.Target))
+                {
+                    return cached.Target;
+                }
+
+                vanillaHuntTargetCacheByPredatorKey.Remove(key);
+            }
+
+            if (!TryConsumeBudget(
+                    ref vanillaHuntTargetBudgetTick,
+                    ref vanillaHuntTargetBudgetRemaining,
+                    VanillaHuntTargetBudgetPerTick))
+            {
+                return null;
+            }
+
             try
             {
-                return BestPawnToHuntForPredatorFunc(predator, desperate);
+                Pawn huntTarget = BestPawnToHuntForPredatorFunc(predator, desperate);
+                if (!IsValidVanillaHuntTarget(predator, huntTarget))
+                {
+                    huntTarget = null;
+                }
+
+                if (key != 0L && currentTick > 0)
+                {
+                    vanillaHuntTargetCacheByPredatorKey[key] = new VanillaHuntTargetCacheEntry(
+                        huntTarget,
+                        huntTarget != null,
+                        mapId,
+                        currentTick);
+                    CleanupVanillaHuntTargetCacheIfNeeded(currentTick);
+                }
+
+                return huntTarget;
             }
             catch
             {
                 return null;
             }
+        }
+
+        private static long VanillaHuntTargetPairKey(Pawn predator, bool desperate)
+        {
+            if (predator == null)
+            {
+                return 0L;
+            }
+
+            uint predatorId = (uint)predator.thingIDNumber;
+            return ((long)predatorId << 1) | (desperate ? 1L : 0L);
+        }
+
+        private static bool IsValidVanillaHuntTarget(Pawn predator, Pawn target)
+        {
+            return predator != null
+                && target != null
+                && !target.Dead
+                && !target.Destroyed
+                && target.Spawned
+                && predator.Map != null
+                && target.Map == predator.Map;
+        }
+
+        private static void CleanupVanillaHuntTargetCacheIfNeeded(int currentTick)
+        {
+            if (currentTick - lastVanillaHuntTargetCleanupTick < VanillaHuntTargetCacheCleanupIntervalTicks)
+            {
+                return;
+            }
+
+            lastVanillaHuntTargetCleanupTick = currentTick;
+            vanillaHuntTargetCleanupBuffer.Clear();
+            foreach (KeyValuePair<long, VanillaHuntTargetCacheEntry> entry in vanillaHuntTargetCacheByPredatorKey)
+            {
+                VanillaHuntTargetCacheEntry cached = entry.Value;
+                if (currentTick - cached.Tick > VanillaHuntTargetCacheDurationTicks)
+                {
+                    vanillaHuntTargetCleanupBuffer.Add(entry.Key);
+                    continue;
+                }
+
+                if (!cached.HasTarget)
+                {
+                    continue;
+                }
+
+                if (cached.Target == null || cached.Target.Dead || cached.Target.Destroyed)
+                {
+                    vanillaHuntTargetCleanupBuffer.Add(entry.Key);
+                }
+            }
+
+            for (int i = 0; i < vanillaHuntTargetCleanupBuffer.Count; i++)
+            {
+                vanillaHuntTargetCacheByPredatorKey.Remove(vanillaHuntTargetCleanupBuffer[i]);
+            }
+
+            vanillaHuntTargetCleanupBuffer.Clear();
         }
 
         private static Func<Pawn, bool, Pawn> CreateBestPawnToHuntForPredatorDelegate()

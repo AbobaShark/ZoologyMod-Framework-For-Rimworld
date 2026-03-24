@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using HarmonyLib;
 using RimWorld;
 using UnityEngine;
@@ -316,6 +317,23 @@ namespace ZoologyMod
     public static class Patch_IsAcceptablePreyForPredator
     {
         private const float PackHuntCombatPowerMultiplier = 2f;
+        private const int PackHuntHotCacheDurationTicks = 10;
+        private const int PackHuntHotCacheCleanupIntervalTicks = 300;
+
+        private readonly struct PackHuntHotCacheEntry
+        {
+            public PackHuntHotCacheEntry(bool value, int tick)
+            {
+                Value = value;
+                Tick = tick;
+            }
+
+            public bool Value { get; }
+            public int Tick { get; }
+        }
+
+        private static readonly Dictionary<long, PackHuntHotCacheEntry> packHuntHotCacheByPairKey = new Dictionary<long, PackHuntHotCacheEntry>(256);
+        private static int lastPackHuntHotCacheCleanupTick = -PackHuntHotCacheCleanupIntervalTicks;
 
         private static bool AreFactionsHostileSafe(Faction sourceFaction, Faction targetFaction)
         {
@@ -340,17 +358,72 @@ namespace ZoologyMod
         
         static bool IsMammalBaby(Pawn p)
         {
-            try
+            return p != null
+                && p.IsMammal()
+                && p.needs?.food != null
+                && AnimalLactationUtility.IsAnimalBaby(p);
+        }
+
+        private static long PairKey(Pawn predator, Pawn prey)
+        {
+            if (predator == null || prey == null)
             {
-                if (p == null) return false;
-                if (!p.IsMammal()) return false;
-                if (p.needs?.food == null) return false; 
-                return AnimalLactationUtility.IsAnimalBaby(p);
+                return 0L;
             }
-            catch (Exception ex)
+
+            uint predatorId = (uint)predator.thingIDNumber;
+            uint preyId = (uint)prey.thingIDNumber;
+            return ((long)predatorId << 32) | preyId;
+        }
+
+        private static bool TryGetPackHuntHotCachedAcceptablePrey(Pawn predator, Pawn prey, out bool value)
+        {
+            value = false;
+            long pairKey = PairKey(predator, prey);
+            int currentTick = Find.TickManager?.TicksGame ?? 0;
+            return pairKey != 0L
+                && currentTick > 0
+                && packHuntHotCacheByPairKey.TryGetValue(pairKey, out PackHuntHotCacheEntry cached)
+                && currentTick - cached.Tick <= PackHuntHotCacheDurationTicks
+                && (value = cached.Value) == cached.Value;
+        }
+
+        private static void StorePackHuntHotCachedAcceptablePrey(Pawn predator, Pawn prey, bool value)
+        {
+            long pairKey = PairKey(predator, prey);
+            int currentTick = Find.TickManager?.TicksGame ?? 0;
+            if (pairKey == 0L || currentTick <= 0)
             {
-                Log.Warning($"[Zoology] IsMammalBaby check failed: {ex}");
-                return false;
+                return;
+            }
+
+            packHuntHotCacheByPairKey[pairKey] = new PackHuntHotCacheEntry(value, currentTick);
+            if (currentTick - lastPackHuntHotCacheCleanupTick < PackHuntHotCacheCleanupIntervalTicks)
+            {
+                return;
+            }
+
+            lastPackHuntHotCacheCleanupTick = currentTick;
+            List<long> staleKeys = null;
+            foreach (KeyValuePair<long, PackHuntHotCacheEntry> entry in packHuntHotCacheByPairKey)
+            {
+                if (currentTick - entry.Value.Tick <= PackHuntHotCacheDurationTicks)
+                {
+                    continue;
+                }
+
+                staleKeys ??= new List<long>(64);
+                staleKeys.Add(entry.Key);
+            }
+
+            if (staleKeys == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < staleKeys.Count; i++)
+            {
+                packHuntHotCacheByPairKey.Remove(staleKeys[i]);
             }
         }
 
@@ -478,22 +551,31 @@ namespace ZoologyMod
                     return true;
                 }
 
-                bool allowCache = !(settings != null && settings.EnablePackHunt
+                bool usePackHuntHotCache = settings != null && settings.EnablePackHunt
                     && predator?.RaceProps?.herdAnimal == true
                     && predator.RaceProps.predator == true
                     && prey != null
-                    && !prey.Downed);
-
-                bool skipCache = !allowCache;
+                    && !prey.Downed;
                 void StoreAcceptablePrey(bool value)
                 {
-                    if (!skipCache)
+                    if (usePackHuntHotCache)
+                    {
+                        StorePackHuntHotCachedAcceptablePrey(predator, prey, value);
+                    }
+                    else
                     {
                         PredationDecisionCache.StoreAcceptablePrey(predator, prey, value);
                     }
                 }
 
-                if (allowCache && PredationDecisionCache.TryGetAcceptablePrey(predator, prey, out bool cachedAcceptable))
+                if (usePackHuntHotCache && TryGetPackHuntHotCachedAcceptablePrey(predator, prey, out bool hotCachedAcceptable))
+                {
+                    __result = hotCachedAcceptable;
+                    return false;
+                }
+
+                if (!usePackHuntHotCache
+                    && PredationDecisionCache.TryGetAcceptablePrey(predator, prey, out bool cachedAcceptable))
                 {
                     __result = cachedAcceptable;
                     return false;
@@ -502,6 +584,13 @@ namespace ZoologyMod
                 if (predator == null || prey == null)
                 {
                     __result = false;
+                    return false;
+                }
+
+                if (ReferenceEquals(predator, prey))
+                {
+                    __result = false;
+                    StoreAcceptablePrey(false);
                     return false;
                 }
 
@@ -559,17 +648,21 @@ namespace ZoologyMod
 					&& ZoologyCacheUtility.IsPhotonozoaPairInTheirFaction(predator, prey);
 				
 
-                bool predatorMammal = predator.IsMammal();
-                bool preyMammal = prey.IsMammal();
-
-                bool sameDef = predator.def == prey.def;
-                bool inCrossbreedRelation = ZoologyCacheUtility.AreCrossbreedRelated(predator.def, prey.def);
-
-                if ((sameDef || inCrossbreedRelation) && predatorMammal && preyMammal)
+                if (!photonozoaPairInTheirFaction)
                 {
-                    __result = false;
-                    StoreAcceptablePrey(false);
-                    return false;
+                    bool predatorMammal = predator.IsMammal();
+                    bool preyMammal = prey.IsMammal();
+                    if (predatorMammal && preyMammal)
+                    {
+                        bool sameDef = predator.def == prey.def;
+                        bool inCrossbreedRelation = ZoologyCacheUtility.AreCrossbreedRelated(predator.def, prey.def);
+                        if (sameDef || inCrossbreedRelation)
+                        {
+                            __result = false;
+                            StoreAcceptablePrey(false);
+                            return false;
+                        }
+                    }
                 }
 
                 float preyCombatPowerAdjusted = PreyCombatPowerUtility.GetAdjustedCombatPower(prey);
@@ -605,7 +698,6 @@ namespace ZoologyMod
                         {
                             packSupport = HerdPredatorHuntPatch.HasPackSupport(predator, prey);
                             packSupportChecked = true;
-                            skipCache = true;
                             if (packSupport)
                             {
                                 packMultiplier = PackHuntCombatPowerMultiplier;
@@ -642,7 +734,6 @@ namespace ZoologyMod
                         {
                             packSupport = HerdPredatorHuntPatch.HasPackSupport(predator, prey);
                             packSupportChecked = true;
-                            skipCache = true;
                             if (packSupport)
                             {
                                 predatorScore *= PackHuntCombatPowerMultiplier;
