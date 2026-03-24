@@ -354,6 +354,120 @@ namespace ZoologyMod
             }
         }
 
+        internal static bool IsAcceptablePhotonozoaPreyForFlee(Pawn predator, Pawn prey)
+        {
+            try
+            {
+                if (predator == null || prey == null)
+                {
+                    return false;
+                }
+
+                if (predator.kindDef == null || prey.kindDef == null)
+                {
+                    return false;
+                }
+
+                if (predator.RaceProps?.predator != true)
+                {
+                    return false;
+                }
+
+                if (!ZoologyCacheUtility.IsPhotonozoa(predator.def) || !ZoologyCacheUtility.IsPhotonozoa(prey.def))
+                {
+                    return false;
+                }
+
+                if (!prey.RaceProps.canBePredatorPrey || !prey.RaceProps.IsFlesh)
+                {
+                    return false;
+                }
+
+                if (prey.BodySize > predator.RaceProps.maxPreyBodySize)
+                {
+                    return false;
+                }
+
+                float preyCombatPowerAdjusted = PreyCombatPowerUtility.GetAdjustedCombatPower(prey);
+                float predatorCombatPower = predator.kindDef.combatPower;
+                if (prey.RaceProps.predator && !prey.Downed)
+                {
+                    float requiredPredatorCP = preyCombatPowerAdjusted * (4f / 3f);
+                    if (predatorCombatPower < requiredPredatorCP)
+                    {
+                        return false;
+                    }
+                }
+
+                if (prey.Downed)
+                {
+                    return true;
+                }
+
+                bool useLargeMammalSizing = LargeMammalPredationUtility.UsesLargeMammalSizing(predator);
+                bool packSupport = false;
+                bool packSupportChecked = false;
+                float packMultiplier = 1f;
+
+                if (useLargeMammalSizing)
+                {
+                    if (preyCombatPowerAdjusted > predatorCombatPower)
+                    {
+                        packSupport = HerdPredatorHuntPatch.HasPackSupport(predator, prey);
+                        packSupportChecked = true;
+                        if (packSupport)
+                        {
+                            packMultiplier = PackHuntCombatPowerMultiplier;
+                        }
+
+                        if (preyCombatPowerAdjusted > predatorCombatPower * packMultiplier)
+                        {
+                            return false;
+                        }
+                    }
+                }
+                else if (preyCombatPowerAdjusted > 2f * predatorCombatPower)
+                {
+                    return false;
+                }
+
+                float preyHealthPercent = prey.health?.summaryHealth?.SummaryHealthPercent ?? 1f;
+                float predatorHealthPercent = predator.health?.summaryHealth?.SummaryHealthPercent ?? 1f;
+                float preySizeFactor = useLargeMammalSizing
+                    ? LargeMammalPredationUtility.GetThreatSizeFactor(predator, prey)
+                    : prey.BodySize;
+                float preyScore = preyCombatPowerAdjusted * preyHealthPercent * preySizeFactor;
+                float predatorScore = predatorCombatPower * predatorHealthPercent * predator.BodySize;
+                if (packSupport)
+                {
+                    predatorScore *= packMultiplier;
+                }
+
+                if (preyScore >= predatorScore)
+                {
+                    if (useLargeMammalSizing && !packSupportChecked)
+                    {
+                        packSupport = HerdPredatorHuntPatch.HasPackSupport(predator, prey);
+                        if (packSupport)
+                        {
+                            predatorScore *= PackHuntCombatPowerMultiplier;
+                        }
+                    }
+
+                    if (preyScore >= predatorScore)
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public static bool Prefix(Pawn predator, Pawn prey, ref bool __result)
         {
             try

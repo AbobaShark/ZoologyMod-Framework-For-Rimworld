@@ -9,7 +9,7 @@ namespace ZoologyMod
     internal sealed class Dialog_AnimalRuntimeFeatureSelector : Window
     {
         private const float SimpleRowHeight = 28f;
-        private const float ParameterRowHeight = 122f;
+        private const float ParameterRowHeightFallback = 140f;
         private const float SearchHeight = 30f;
         private const float HeaderHeight = 58f;
         private const float FooterHeight = 30f;
@@ -17,6 +17,9 @@ namespace ZoologyMod
         private const float RowIconSize = 24f;
         private const float RowInfoButtonSize = 24f;
         private const float RowHorizontalPadding = 6f;
+        private const float SliderLabelHeight = 20f;
+        private const float SliderHeight = 22f;
+        private const float SliderGap = 6f;
 
         private readonly ZoologyModSettings settings;
         private readonly RuntimeAnimalFeatureDefinition feature;
@@ -210,7 +213,7 @@ namespace ZoologyMod
                 return SimpleRowHeight;
             }
 
-            return ParameterRowHeight;
+            return GetParameterControlRowHeight(feature.Id);
         }
 
         private static bool HasParameterControls(string featureId)
@@ -222,13 +225,36 @@ namespace ZoologyMod
                 || string.Equals(featureId, "comp_animal_clotting", StringComparison.Ordinal);
         }
 
+        private static float GetParameterControlRowHeight(string featureId)
+        {
+            if (string.Equals(featureId, "modext_scavenger", StringComparison.Ordinal))
+            {
+                return 40f;
+            }
+
+            if (string.Equals(featureId, "comp_ageless", StringComparison.Ordinal)
+                || string.Equals(featureId, "comp_drugs_immune", StringComparison.Ordinal))
+            {
+                return 64f;
+            }
+
+            if (string.Equals(featureId, "modext_flee_from_carrier", StringComparison.Ordinal)
+                || string.Equals(featureId, "comp_animal_clotting", StringComparison.Ordinal))
+            {
+                return 154f;
+            }
+
+            return ParameterRowHeightFallback;
+        }
+
         private void DrawParameterControls(Rect controlsRect, ThingDef def)
         {
+            float y = controlsRect.y + 2f;
             if (string.Equals(feature.Id, "modext_scavenger", StringComparison.Ordinal))
             {
                 bool originalAllowVeryRotten = settings.GetScavengerAllowVeryRottenFor(def);
                 bool allowVeryRotten = originalAllowVeryRotten;
-                Rect checkboxRect = new Rect(controlsRect.x, controlsRect.y + 2f, controlsRect.width, 24f);
+                Rect checkboxRect = new Rect(controlsRect.x, y, controlsRect.width, 24f);
                 Widgets.CheckboxLabeled(checkboxRect, "Allow very rotten", ref allowVeryRotten);
                 if (allowVeryRotten != originalAllowVeryRotten)
                 {
@@ -241,32 +267,50 @@ namespace ZoologyMod
             if (string.Equals(feature.Id, "modext_flee_from_carrier", StringComparison.Ordinal))
             {
                 float radius = settings.GetFleeFromCarrierRadiusFor(def);
-                Rect radiusLabelRect = new Rect(controlsRect.x, controlsRect.y + 2f, controlsRect.width, 18f);
-                Widgets.Label(radiusLabelRect, $"Radius: {radius:F1}");
-                Rect radiusSliderRect = new Rect(controlsRect.x, radiusLabelRect.yMax, controlsRect.width, 16f);
-                float newRadius = Widgets.HorizontalSlider(radiusSliderRect, radius, 1f, 60f, false, null, "1", "60", 0.1f);
-                if (Mathf.Abs(newRadius - radius) > 0.001f)
+                float newRadius = DrawLabeledSlider(
+                    controlsRect,
+                    ref y,
+                    "Radius",
+                    radius,
+                    1f,
+                    60f,
+                    "1",
+                    "60",
+                    0.1f,
+                    1);
+                if (ShouldCommitFloatSliderChange(radius, newRadius, 0.0001f))
                 {
                     settings.SetFleeFromCarrierRadiusFor(def, newRadius);
                 }
 
                 float bodySizeLimit = settings.GetFleeFromCarrierBodySizeLimitFor(def);
-                Rect bodySizeLabelRect = new Rect(controlsRect.x, radiusSliderRect.yMax + 2f, controlsRect.width, 18f);
-                Widgets.Label(bodySizeLabelRect, $"Body size limit: {bodySizeLimit:F1}");
-                Rect bodySizeSliderRect = new Rect(controlsRect.x, bodySizeLabelRect.yMax, controlsRect.width, 16f);
-                float newBodySizeLimit = Widgets.HorizontalSlider(bodySizeSliderRect, bodySizeLimit, 0f, 20f, false, null, "0", "20", 0.1f);
-                if (Mathf.Abs(newBodySizeLimit - bodySizeLimit) > 0.001f)
+                float newBodySizeLimit = DrawLabeledSlider(
+                    controlsRect,
+                    ref y,
+                    "Body size limit",
+                    bodySizeLimit,
+                    0f,
+                    20f,
+                    "0",
+                    "20",
+                    0.1f,
+                    1);
+                if (ShouldCommitFloatSliderChange(bodySizeLimit, newBodySizeLimit, 0.0001f))
                 {
                     settings.SetFleeFromCarrierBodySizeLimitFor(def, newBodySizeLimit);
                 }
 
                 int fleeDistance = settings.GetFleeFromCarrierDistanceFor(def);
-                Rect distanceLabelRect = new Rect(controlsRect.x, bodySizeSliderRect.yMax + 2f, controlsRect.width, 18f);
-                Widgets.Label(distanceLabelRect, $"Distance: {fleeDistance}");
-                Rect distanceSliderRect = new Rect(controlsRect.x, distanceLabelRect.yMax, controlsRect.width, 16f);
-                float newDistanceFloat = Widgets.HorizontalSlider(distanceSliderRect, fleeDistance, 1f, 80f, false, null, "1", "80", 1f);
-                int newDistance = Mathf.RoundToInt(newDistanceFloat);
-                if (newDistance != fleeDistance)
+                int newDistance = DrawLabeledIntSlider(
+                    controlsRect,
+                    ref y,
+                    "Distance",
+                    fleeDistance,
+                    1,
+                    80,
+                    "1",
+                    "80");
+                if (ShouldCommitIntSliderChange(fleeDistance, newDistance))
                 {
                     settings.SetFleeFromCarrierDistanceFor(def, newDistance);
                 }
@@ -277,45 +321,64 @@ namespace ZoologyMod
             if (string.Equals(feature.Id, "comp_ageless", StringComparison.Ordinal))
             {
                 int interval = settings.GetAgelessCleanupIntervalTicksFor(def);
-                DrawSingleIntervalSlider(controlsRect, "Cleanup interval", interval, 60, 120000, settings.SetAgelessCleanupIntervalTicksFor, def);
+                DrawSingleIntervalSlider(controlsRect, ref y, "Cleanup interval", interval, 60, 120000, settings.SetAgelessCleanupIntervalTicksFor, def);
                 return;
             }
 
             if (string.Equals(feature.Id, "comp_drugs_immune", StringComparison.Ordinal))
             {
                 int interval = settings.GetDrugsImmuneCleanupIntervalTicksFor(def);
-                DrawSingleIntervalSlider(controlsRect, "Cleanup interval", interval, 60, 120000, settings.SetDrugsImmuneCleanupIntervalTicksFor, def);
+                DrawSingleIntervalSlider(controlsRect, ref y, "Cleanup interval", interval, 60, 120000, settings.SetDrugsImmuneCleanupIntervalTicksFor, def);
                 return;
             }
 
             if (string.Equals(feature.Id, "comp_animal_clotting", StringComparison.Ordinal))
             {
                 int checkInterval = settings.GetAnimalClottingCheckIntervalFor(def);
-                Rect intervalLabelRect = new Rect(controlsRect.x, controlsRect.y + 2f, controlsRect.width, 18f);
-                Widgets.Label(intervalLabelRect, $"Check interval: {checkInterval}");
-                Rect intervalSliderRect = new Rect(controlsRect.x, intervalLabelRect.yMax, controlsRect.width, 16f);
-                int newCheckInterval = Mathf.RoundToInt(Widgets.HorizontalSlider(intervalSliderRect, checkInterval, 60f, 120000f, false, null, "60", "120000", 1f));
-                if (newCheckInterval != checkInterval)
+                int newCheckInterval = DrawLabeledIntSlider(
+                    controlsRect,
+                    ref y,
+                    "Check interval",
+                    checkInterval,
+                    60,
+                    120000,
+                    "60",
+                    "120000");
+                if (ShouldCommitIntSliderChange(checkInterval, newCheckInterval))
                 {
                     settings.SetAnimalClottingCheckIntervalFor(def, newCheckInterval);
                 }
 
                 float minQuality = settings.GetAnimalClottingTendingMinFor(def);
-                Rect minLabelRect = new Rect(controlsRect.x, intervalSliderRect.yMax + 2f, controlsRect.width, 18f);
-                Widgets.Label(minLabelRect, $"Tend min: {minQuality:F2}");
-                Rect minSliderRect = new Rect(controlsRect.x, minLabelRect.yMax, controlsRect.width, 16f);
-                float newMinQuality = Widgets.HorizontalSlider(minSliderRect, minQuality, 0f, 2f, false, null, "0", "2", 0.01f);
-                if (Mathf.Abs(newMinQuality - minQuality) > 0.0001f)
+                float newMinQuality = DrawLabeledSlider(
+                    controlsRect,
+                    ref y,
+                    "Tend min",
+                    minQuality,
+                    0f,
+                    2f,
+                    "0",
+                    "2",
+                    0.01f,
+                    2);
+                if (ShouldCommitFloatSliderChange(minQuality, newMinQuality, 0.00001f))
                 {
                     settings.SetAnimalClottingTendingMinFor(def, newMinQuality);
                 }
 
                 float maxQuality = settings.GetAnimalClottingTendingMaxFor(def);
-                Rect maxLabelRect = new Rect(controlsRect.x, minSliderRect.yMax + 2f, controlsRect.width, 18f);
-                Widgets.Label(maxLabelRect, $"Tend max: {maxQuality:F2}");
-                Rect maxSliderRect = new Rect(controlsRect.x, maxLabelRect.yMax, controlsRect.width, 16f);
-                float newMaxQuality = Widgets.HorizontalSlider(maxSliderRect, maxQuality, 0f, 2f, false, null, "0", "2", 0.01f);
-                if (Mathf.Abs(newMaxQuality - maxQuality) > 0.0001f)
+                float newMaxQuality = DrawLabeledSlider(
+                    controlsRect,
+                    ref y,
+                    "Tend max",
+                    maxQuality,
+                    0f,
+                    2f,
+                    "0",
+                    "2",
+                    0.01f,
+                    2);
+                if (ShouldCommitFloatSliderChange(maxQuality, newMaxQuality, 0.00001f))
                 {
                     settings.SetAnimalClottingTendingMaxFor(def, newMaxQuality);
                 }
@@ -324,6 +387,7 @@ namespace ZoologyMod
 
         private void DrawSingleIntervalSlider(
             Rect controlsRect,
+            ref float y,
             string label,
             int value,
             int min,
@@ -331,14 +395,99 @@ namespace ZoologyMod
             Action<ThingDef, int> setter,
             ThingDef def)
         {
-            Rect labelRect = new Rect(controlsRect.x, controlsRect.y + 2f, controlsRect.width, 18f);
-            Widgets.Label(labelRect, $"{label}: {value}");
-            Rect sliderRect = new Rect(controlsRect.x, labelRect.yMax, controlsRect.width, 16f);
-            int newValue = Mathf.RoundToInt(Widgets.HorizontalSlider(sliderRect, value, min, max, false, null, min.ToString(), max.ToString(), 1f));
-            if (newValue != value)
+            int newValue = DrawLabeledIntSlider(
+                controlsRect,
+                ref y,
+                label,
+                value,
+                min,
+                max,
+                min.ToString(),
+                max.ToString());
+            if (ShouldCommitIntSliderChange(value, newValue))
             {
                 setter(def, newValue);
             }
+        }
+
+        private static float DrawLabeledSlider(
+            Rect controlsRect,
+            ref float y,
+            string label,
+            float value,
+            float min,
+            float max,
+            string leftLabel,
+            string rightLabel,
+            float roundStep,
+            int decimals)
+        {
+            Rect labelRect = new Rect(controlsRect.x, y, controlsRect.width, SliderLabelHeight);
+            Widgets.Label(labelRect, $"{label}: {value.ToString($"F{decimals}")}");
+            y += SliderLabelHeight;
+
+            Rect sliderRect = new Rect(controlsRect.x, y, controlsRect.width, SliderHeight);
+            float raw = Widgets.HorizontalSlider(sliderRect, value, min, max, false, null, leftLabel, rightLabel, roundStep);
+            y += SliderHeight + SliderGap;
+
+            return RoundToStep(raw, roundStep);
+        }
+
+        private static int DrawLabeledIntSlider(
+            Rect controlsRect,
+            ref float y,
+            string label,
+            int value,
+            int min,
+            int max,
+            string leftLabel,
+            string rightLabel)
+        {
+            Rect labelRect = new Rect(controlsRect.x, y, controlsRect.width, SliderLabelHeight);
+            Widgets.Label(labelRect, $"{label}: {value}");
+            y += SliderLabelHeight;
+
+            Rect sliderRect = new Rect(controlsRect.x, y, controlsRect.width, SliderHeight);
+            float raw = Widgets.HorizontalSlider(sliderRect, value, min, max, false, null, leftLabel, rightLabel, 1f);
+            y += SliderHeight + SliderGap;
+
+            return Mathf.RoundToInt(raw);
+        }
+
+        private static float RoundToStep(float value, float step)
+        {
+            if (step <= 0f)
+            {
+                return value;
+            }
+
+            return Mathf.Round(value / step) * step;
+        }
+
+        private static bool ShouldCommitFloatSliderChange(float currentValue, float newValue, float epsilon)
+        {
+            return Mathf.Abs(newValue - currentValue) > epsilon && !IsMousePressedOrDragging();
+        }
+
+        private static bool ShouldCommitIntSliderChange(int currentValue, int newValue)
+        {
+            return currentValue != newValue && !IsMousePressedOrDragging();
+        }
+
+        private static bool IsMousePressedOrDragging()
+        {
+            Event evt = Event.current;
+            if (evt == null)
+            {
+                return false;
+            }
+
+            EventType type = evt.type;
+            EventType rawType = evt.rawType;
+            return type == EventType.MouseDown
+                || rawType == EventType.MouseDown
+                || type == EventType.MouseDrag
+                || rawType == EventType.MouseDrag;
         }
 
         private static int CountMatchingAnimals(List<ThingDef> animals, string searchText)

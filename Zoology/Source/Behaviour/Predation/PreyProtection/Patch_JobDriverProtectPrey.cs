@@ -735,58 +735,97 @@ namespace ZoologyMod
         }
     }
 
+    internal static class ProtectPreyPatchFastCache
+    {
+        private static int cachedTick = int.MinValue;
+        private static bool cachedHasAnyProtectors;
+        private static readonly Dictionary<int, Pawn> protectedPawnByPredatorId = new Dictionary<int, Pawn>(128);
+        private static readonly HashSet<int> missingPredatorIds = new HashSet<int>();
+
+        private static int GetCurrentTick()
+        {
+            return Find.TickManager?.TicksGame ?? -1;
+        }
+
+        private static void EnsureTickCacheFresh()
+        {
+            int tick = GetCurrentTick();
+            if (tick == cachedTick)
+            {
+                return;
+            }
+
+            cachedTick = tick;
+            cachedHasAnyProtectors = ProtectPreyState.HasAnyActiveProtectors;
+            protectedPawnByPredatorId.Clear();
+            missingPredatorIds.Clear();
+        }
+
+        public static bool HasAnyActiveProtectorsFast()
+        {
+            EnsureTickCacheFresh();
+            return cachedHasAnyProtectors;
+        }
+
+        public static bool TryGetProtectedPawnForPredator(Pawn predator, out Pawn protectedPawn)
+        {
+            protectedPawn = null;
+            if (predator == null)
+            {
+                return false;
+            }
+
+            EnsureTickCacheFresh();
+            if (!cachedHasAnyProtectors)
+            {
+                return false;
+            }
+
+            int predatorId = predator.thingIDNumber;
+            if (protectedPawnByPredatorId.TryGetValue(predatorId, out protectedPawn))
+            {
+                return protectedPawn != null;
+            }
+
+            if (missingPredatorIds.Contains(predatorId))
+            {
+                return false;
+            }
+
+            if (ProtectPreyState.TryGetProtectedPawnCachedNoTick(predator, out protectedPawn) && protectedPawn != null)
+            {
+                protectedPawnByPredatorId[predatorId] = protectedPawn;
+                return true;
+            }
+
+            missingPredatorIds.Add(predatorId);
+            return false;
+        }
+    }
+
     [HarmonyPatch(typeof(GenHostility), "GetPreyOfMyFaction", new Type[] { typeof(Pawn), typeof(Faction) })]
     public static class Patch_GenHostility_GetPreyOfMyFaction
     {
-        private static int lastHasAnyTick = int.MinValue;
-        private static bool lastHasAnyValue;
-
-        private static bool HasAnyActiveProtectorsFast(int currentTick)
-        {
-            if (currentTick <= 0)
-            {
-                return ProtectPreyState.HasAnyActiveProtectors;
-            }
-
-            if (lastHasAnyTick != currentTick)
-            {
-                lastHasAnyTick = currentTick;
-                lastHasAnyValue = ProtectPreyState.HasAnyActiveProtectors;
-            }
-
-            return lastHasAnyValue;
-        }
 
         public static bool Prepare() => PredationSettingsGate.EnablePredatorDefendCorpse();
 
         static void Postfix(Pawn predator, Faction myFaction, ref Pawn __result)
         {
-            try
+            if (__result != null)
             {
-                if (__result != null) return;
-                if (predator == null || myFaction == null) return;
-                if (predator.Dead || predator.Destroyed || !predator.Spawned) return;
-
-                Map map = predator.Map;
-                if (map == null) return;
-
-                int currentTick = Find.TickManager?.TicksGame ?? 0;
-                if (!HasAnyActiveProtectorsFast(currentTick)) return;
-                if (!ProtectPreyState.HasActiveProtectorsForMap(map)) return;
-
-                if (!ProtectPreyState.TryGetProtectedPawnCachedNoTick(predator, out Pawn protectedPawn))
-                {
-                    return;
-                }
-
-                if (protectedPawn != null && protectedPawn.Faction == myFaction)
-                {
-                    __result = protectedPawn;
-                }
+                return;
             }
-            catch (Exception ex)
+            if (predator == null || myFaction == null)
             {
-                Log.Error($"[ZoologyMod] Patch_GenHostility_GetPreyOfMyFaction Postfix error: {ex}");
+                return;
+            }
+            if (!ProtectPreyPatchFastCache.TryGetProtectedPawnForPredator(predator, out Pawn protectedPawn))
+            {
+                return;
+            }
+            if (protectedPawn.Faction == myFaction)
+            {
+                __result = protectedPawn;
             }
         }
     }
@@ -822,32 +861,21 @@ namespace ZoologyMod
 
         static void Postfix(Faction __instance, Pawn predator, ref bool __result)
         {
-            try
+            if (__result)
             {
-                if (__result) return; 
-
-                if (predator == null || __instance == null) return;
-                if (predator.Dead || predator.Destroyed || !predator.Spawned) return;
-
-                Map map = predator.Map;
-                if (map == null) return;
-
-                if (!ProtectPreyState.HasAnyActiveProtectors) return;
-                if (!ProtectPreyState.HasActiveProtectorsForMap(map)) return;
-
-                if (!ProtectPreyState.TryGetProtectedPawnCachedNoTick(predator, out Pawn protectedPawn))
-                {
-                    return;
-                }
-
-                if (protectedPawn != null && protectedPawn.Faction == __instance)
-                {
-                    __result = true;
-                }
+                return;
             }
-            catch (Exception ex)
+            if (predator == null || __instance == null)
             {
-                Log.Error($"[ZoologyMod] Patch_Faction_HasPredatorRecentlyAttackedAnyone Postfix error: {ex}");
+                return;
+            }
+            if (!ProtectPreyPatchFastCache.TryGetProtectedPawnForPredator(predator, out Pawn protectedPawn))
+            {
+                return;
+            }
+            if (protectedPawn.Faction == __instance)
+            {
+                __result = true;
             }
         }
     }
@@ -855,51 +883,25 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(GenHostility), "IsPredatorHostileTo", new Type[] { typeof(Pawn), typeof(Faction) })]
     public static class Patch_GenHostility_IsPredatorHostileTo
     {
-        private static int lastHasAnyTick = int.MinValue;
-        private static bool lastHasAnyValue;
-
-        private static bool HasAnyActiveProtectorsFast(int currentTick)
-        {
-            if (currentTick <= 0)
-            {
-                return ProtectPreyState.HasAnyActiveProtectors;
-            }
-
-            if (lastHasAnyTick != currentTick)
-            {
-                lastHasAnyTick = currentTick;
-                lastHasAnyValue = ProtectPreyState.HasAnyActiveProtectors;
-            }
-
-            return lastHasAnyValue;
-        }
-
         public static bool Prepare() => PredationSettingsGate.EnablePredatorDefendCorpse();
 
         static void Postfix(Pawn predator, Faction toFaction, ref bool __result)
         {
-            try
+            if (__result)
             {
-                if (__result) return; 
-
-                if (predator == null || toFaction == null) return;
-                if (predator.Dead || predator.Destroyed || !predator.Spawned) return;
-
-                Map map = predator.Map;
-                if (map == null) return;
-
-                int currentTick = Find.TickManager?.TicksGame ?? 0;
-                if (!HasAnyActiveProtectorsFast(currentTick)) return;
-                if (!ProtectPreyState.HasActiveProtectorsForMap(map)) return;
-                if (!ProtectPreyState.TryGetProtectedPawnCachedNoTick(predator, out var targetPawn)) return;
-                if (!targetPawn.Dead && targetPawn.Faction == toFaction)
-                {
-                    __result = true;
-                }
+                return;
             }
-            catch (Exception ex)
+            if (predator == null || toFaction == null)
             {
-                Log.Error($"[ZoologyMod] Patch_GenHostility_IsPredatorHostileTo Postfix error: {ex}");
+                return;
+            }
+            if (!ProtectPreyPatchFastCache.TryGetProtectedPawnForPredator(predator, out Pawn targetPawn))
+            {
+                return;
+            }
+            if (targetPawn.Faction == toFaction)
+            {
+                __result = true;
             }
         }
     }
@@ -907,25 +909,6 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(AttackTargetsCache), "GetPotentialTargetsFor", new Type[] { typeof(IAttackTargetSearcher) })]
     public static class Patch_AttackTargetsCache_GetPotentialTargetsFor
     {
-        private static int lastHasAnyTick = int.MinValue;
-        private static bool lastHasAnyValue;
-
-        private static bool HasAnyActiveProtectorsFast(int currentTick)
-        {
-            if (currentTick <= 0)
-            {
-                return ProtectPreyState.HasAnyActiveProtectors;
-            }
-
-            if (lastHasAnyTick != currentTick)
-            {
-                lastHasAnyTick = currentTick;
-                lastHasAnyValue = ProtectPreyState.HasAnyActiveProtectors;
-            }
-
-            return lastHasAnyValue;
-        }
-
         public static bool Prepare() => PredationSettingsGate.EnablePredatorDefendCorpse();
 
         
@@ -936,7 +919,7 @@ namespace ZoologyMod
                 if (th == null) return;
                 if (__result == null) __result = new List<IAttackTarget>();
                 int currentTick = Find.TickManager?.TicksGame ?? 0;
-                if (!HasAnyActiveProtectorsFast(currentTick)) return;
+                if (!ProtectPreyPatchFastCache.HasAnyActiveProtectorsFast()) return;
 
                 
                 Pawn searcherPawn = ProtectPreyState.TryGetSearcherPawn(th);

@@ -4386,7 +4386,7 @@ namespace ZoologyMod
             }
             catch
             {
-                return true;
+                return false;
             }
         }
 
@@ -4399,7 +4399,12 @@ namespace ZoologyMod
 
             if (CanUsePhotonozoaPredatorException(prey, predator))
             {
-                return true;
+                if (IsAcceptablePrey(predator, prey))
+                {
+                    return true;
+                }
+
+                return Patch_IsAcceptablePreyForPredator.IsAcceptablePhotonozoaPreyForFlee(predator, prey);
             }
 
             return IsAcceptablePrey(predator, prey);
