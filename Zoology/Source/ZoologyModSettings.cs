@@ -23,6 +23,7 @@ namespace ZoologyMod
         public bool EnableAgroAtSlaughter = true;
         public bool AnimalsFreeFromHumans = true;
         public bool EnableCannotBeMutatedProtection = true;
+        public bool EnableCannotBeAugmentedProtection = true;
         public bool EnableNoFleeExtension = true;
         public bool EnableFleeFromCarrier = true;
         public bool EnableFlyingFleeStart = true;
@@ -30,15 +31,29 @@ namespace ZoologyMod
         public bool EnableEctothermicPatch = true;
         public bool EnableAgelessPatch = true;
         public bool EnableDrugsImmunePatch = true;
+        public bool EnableAnimalRegenerationComp = true;
+        public bool EnableAnimalClottingComp = true;
         public bool EnableNoPorcupineQuillPatch = true;
         public static bool EnableMammalLactation = true;
         public bool EnableAnimalChildcare = true;
+        public bool EnableCannotChewExtension = true;
         public bool EnablePredatorDefendCorpse = true;
         public bool EnablePredatorDefendPreyFromHumansAndMechanoids = true;
         public bool EnableScavengering = true;
         public bool DisableAllRuntimePatches = false;
 
-        
+        public int PredatorSearchRadius = 18;
+        public int NonHostilePredatorSearchRadius = 12;
+        public int HumanSearchRadius = 12;
+        public int FleeDistancePredator = 16;
+        public int FleeDistanceTargetPredator = 24;
+        public int FleeDistanceHuman = 16;
+
+        private const int SearchRadiusMin = 6;
+        private const int SearchRadiusMax = 24;
+        private const int FleeDistanceMin = 6;
+        private const int FleeDistanceMax = 40;
+
         public int PreyProtectionRange = 20; 
         private const int PreyProtectionRangeMin = 10;
         private const int PreyProtectionRangeMax = 30;
@@ -52,6 +67,10 @@ namespace ZoologyMod
 
         public bool AllowSlaughterLactating = false;
         public Dictionary<string, bool> AnimalsFreeFromHumansPerAnimal = new Dictionary<string, bool>();
+        public Dictionary<string, bool> RoamersPerAnimal = new Dictionary<string, bool>();
+        public Dictionary<string, float> RoamMtbDaysPerAnimal = new Dictionary<string, float>();
+        public Dictionary<string, string> NonRoamerTrainabilityPerAnimal = new Dictionary<string, string>();
+        public Dictionary<string, bool> AnimalFeatureEnabledOverrides = new Dictionary<string, bool>();
 
         
         
@@ -136,9 +155,8 @@ namespace ZoologyMod
 
             EnableAnimalDamageReduction = !_cePresent;
 
-            
-            if (AnimalsFreeFromHumansPerAnimal == null)
-                AnimalsFreeFromHumansPerAnimal = new Dictionary<string, bool>();
+            EnsureCollectionsInitialized();
+            ZoologyRuntimeAnimalOverrides.EnsureInitialized();
         }
 
         public void DoWindowContents(Rect inRect)
@@ -234,21 +252,21 @@ namespace ZoologyMod
             switch (page)
             {
                 case SettingsPage.PredatorPreyInteraction:
-                    return 980f
-                        + (EnablePreyFleeFromPredators ? 38f : 0f)
+                    return 1320f
+                        + (EnablePreyFleeFromPredators ? 150f : 0f)
                         + (EnablePredatorDefendCorpse ? 156f : 0f);
                 case SettingsPage.Physiology:
-                    return 900f + 38f + (!EnableMammalLactation ? 30f : 0f);
+                    return 1180f + (!EnableMammalLactation ? 30f : 0f);
                 case SettingsPage.Combat:
                     return 500f;
                 case SettingsPage.OtherBehavior:
-                    return 1120f
+                    return 1560f
                         + (EnableCustomFleeDanger ? 170f : 0f)
                         + (EnableIgnoreSmallPetsByRaiders ? 150f : 0f)
-                        + (AnimalsFreeFromHumans ? 56f : 0f);
+                        + (AnimalsFreeFromHumans ? 130f : 0f);
                 case SettingsPage.Dev:
                 default:
-                    return 980f;
+                    return 2060f;
             }
         }
 
@@ -260,7 +278,26 @@ namespace ZoologyMod
             if (EnablePreyFleeFromPredators)
             {
                 list.GapLine(6f);
+                list.Label($"Predator search radius: {PredatorSearchRadius} (min {SearchRadiusMin}, max {SearchRadiusMax})");
+                PredatorSearchRadius = (int)list.Slider(PredatorSearchRadius, SearchRadiusMin, SearchRadiusMax);
+
+                list.GapLine(6f);
+                list.Label($"Flee distance from hunting predators: {FleeDistanceTargetPredator} (min {FleeDistanceMin}, max {FleeDistanceMax})");
+                FleeDistanceTargetPredator = (int)list.Slider(FleeDistanceTargetPredator, FleeDistanceMin, FleeDistanceMax);
+
+                list.GapLine(8f);
                 list.CheckboxLabeled("Animals flee from non-hostile predators", ref AnimalsFleeFromNonHostlePredators, "When enabled, valid prey animals will also flee from nearby predators that are not currently hunting them.");
+
+                if (AnimalsFleeFromNonHostlePredators)
+                {
+                    list.GapLine(6f);
+                    list.Label($"Non-hostile predator search radius: {NonHostilePredatorSearchRadius} (min {SearchRadiusMin}, max {SearchRadiusMax})");
+                    NonHostilePredatorSearchRadius = (int)list.Slider(NonHostilePredatorSearchRadius, SearchRadiusMin, SearchRadiusMax);
+
+                    list.GapLine(6f);
+                    list.Label($"Flee distance from non-hostile predators: {FleeDistancePredator} (min {FleeDistanceMin}, max {FleeDistanceMax})");
+                    FleeDistancePredator = (int)list.Slider(FleeDistancePredator, FleeDistanceMin, FleeDistanceMax);
+                }
             }
 
             list.GapLine(12f);
@@ -271,6 +308,12 @@ namespace ZoologyMod
 
             list.GapLine(12f);
             list.CheckboxLabeled("Enable scavengering (scavenger behaviour)", ref EnableScavengering, "If disabled, all scavenger-related fallbacks are skipped and vanilla food selection/reservation logic is used for scavengers.");
+
+            if (EnableScavengering)
+            {
+                list.GapLine(6f);
+                DrawRuntimeFeatureConfigureButton(list, "modext_scavenger", "Configure scavenger extension species");
+            }
 
             list.GapLine(12f);
             list.CheckboxLabeled("Enable predators defending their kills", ref EnablePredatorDefendCorpse, "If disabled, predators will not defend owned corpses / kills — corpses will be treated as unowned for other predators.");
@@ -306,6 +349,11 @@ namespace ZoologyMod
             list.GapLine(8f);
             list.CheckboxLabeled("Enable mammal lactation", ref EnableMammalLactation, "Enables lactation for female mammals, allowing them to produce milk for their offspring.");
             DrawLactationSettings(list);
+            if (EnableMammalLactation)
+            {
+                list.GapLine(6f);
+                DrawRuntimeFeatureConfigureButton(list, "modext_mammal", "Configure mammal extension species");
+            }
 
             list.GapLine(12f);
             list.CheckboxLabeled(
@@ -313,6 +361,11 @@ namespace ZoologyMod
                 ref EnableAnimalChildcare,
                 "When enabled, species with ModExtensiom_Chlidcare will have juveniles follow their mothers and mothers defend their own young."
             );
+            if (EnableAnimalChildcare)
+            {
+                list.GapLine(6f);
+                DrawRuntimeFeatureConfigureButton(list, "modext_childcare", "Configure childcare extension species");
+            }
 
             list.GapLine(12f);
             list.CheckboxLabeled(
@@ -320,6 +373,11 @@ namespace ZoologyMod
                 ref EnableEctothermicPatch,
                 "When disabled, ectothermic animals such as reptiles and crabs will suffer hypothermia in cold weather instead of slowing metabolism, like in vanilla."
             );
+            if (EnableEctothermicPatch)
+            {
+                list.GapLine(6f);
+                DrawRuntimeFeatureConfigureButton(list, "modext_ectothermic", "Configure ectothermic extension species");
+            }
         }
 
         private void DrawCombatSettings(Listing_Standard list)
@@ -417,10 +475,24 @@ namespace ZoologyMod
             if (AnimalsFreeFromHumans)
             {
                 list.GapLine(6f);
+                list.Label($"Human threat search radius: {HumanSearchRadius} (min {SearchRadiusMin}, max {SearchRadiusMax})");
+                HumanSearchRadius = (int)list.Slider(HumanSearchRadius, SearchRadiusMin, SearchRadiusMax);
+
+                list.GapLine(6f);
+                list.Label($"Flee distance from humans: {FleeDistanceHuman} (min {FleeDistanceMin}, max {FleeDistanceMax})");
+                FleeDistanceHuman = (int)list.Slider(FleeDistanceHuman, FleeDistanceMin, FleeDistanceMax);
+
+                list.GapLine(6f);
                 if (list.ButtonText("Configure animals fleeing from humans"))
                 {
                     Find.WindowStack.Add(new Dialog_AnimalsFreeFromHumansSelector(this));
                 }
+            }
+
+            list.GapLine(6f);
+            if (list.ButtonText("Configure animal roamers (RoamMtbDays / Trainability)"))
+            {
+                Find.WindowStack.Add(new Dialog_AnimalRoamersSelector(this));
             }
 
             list.GapLine(12f);
@@ -428,6 +500,11 @@ namespace ZoologyMod
 
             list.GapLine(12f);
             list.CheckboxLabeled("Enable agro-on-slaughter", ref EnableAgroAtSlaughter, "When enabled, animals with the AgroAtSlaughter comp will react aggressively to slaughter designations (only if not downed).");
+            if (EnableAgroAtSlaughter)
+            {
+                list.GapLine(6f);
+                DrawRuntimeFeatureConfigureButton(list, "modext_agro_at_slaughter", "Configure agro-at-slaughter extension species");
+            }
         }
 
         private void DrawDevSettings(Listing_Standard list)
@@ -462,12 +539,35 @@ namespace ZoologyMod
 
             list.GapLine(12f);
             list.CheckboxLabeled("Enable cannot-be-mutated protection", ref EnableCannotBeMutatedProtection, "When disabled, Zoology will not patch mutation/biomutation target validation and related mutation protection hooks.");
+            if (EnableCannotBeMutatedProtection)
+            {
+                list.GapLine(6f);
+                DrawRuntimeFeatureConfigureButton(list, "modext_cannot_be_mutated", "Configure cannot-be-mutated extension species");
+            }
+
+            list.GapLine(12f);
+            list.CheckboxLabeled("Enable cannot-be-augmented extension behavior", ref EnableCannotBeAugmentedProtection, "When disabled, Zoology will ignore ModExtension_CannotBeAugmented in runtime checks.");
+            if (EnableCannotBeAugmentedProtection)
+            {
+                list.GapLine(6f);
+                DrawRuntimeFeatureConfigureButton(list, "modext_cannot_be_augmented", "Configure cannot-be-augmented extension species");
+            }
 
             list.GapLine(12f);
             list.CheckboxLabeled("Enable no-flee extension behavior", ref EnableNoFleeExtension, "When disabled, Zoology will not patch NoFlee extension behavior in flee and panic mental-state logic.");
+            if (EnableNoFleeExtension)
+            {
+                list.GapLine(6f);
+                DrawRuntimeFeatureConfigureButton(list, "modext_no_flee", "Configure no-flee extension species");
+            }
 
             list.GapLine(12f);
             list.CheckboxLabeled("Enable flee-from-carrier behavior", ref EnableFleeFromCarrier, "When disabled, Zoology will not patch carrier-based flee behavior.");
+            if (EnableFleeFromCarrier)
+            {
+                list.GapLine(6f);
+                DrawRuntimeFeatureConfigureButton(list, "modext_flee_from_carrier", "Configure flee-from-carrier extension species");
+            }
 
             list.GapLine(12f);
             list.CheckboxLabeled("Enable flying flee start patch", ref EnableFlyingFleeStart, "When disabled, Zoology will not patch Pawn_FlightTracker.Notify_JobStarted for forced flying flee.");
@@ -476,13 +576,71 @@ namespace ZoologyMod
             list.CheckboxLabeled("Enable gender-restricted attacks patch", ref EnableGenderRestrictedAttacks, "When disabled, Zoology will not patch Verb.IsStillUsableBy for tool gender restrictions.");
 
             list.GapLine(12f);
+            bool oldCannotChewEnabled = EnableCannotChewExtension;
+            list.CheckboxLabeled("Enable cannot-chew extension behavior", ref EnableCannotChewExtension, "When disabled, Zoology will ignore ModExtension_CannotChew in all runtime behavior.");
+            if (oldCannotChewEnabled != EnableCannotChewExtension)
+            {
+                CannotChewPresenceCache.RebuildFromCurrentMaps();
+            }
+            if (EnableCannotChewExtension)
+            {
+                list.GapLine(6f);
+                DrawRuntimeFeatureConfigureButton(list, "modext_cannot_chew", "Configure cannot-chew extension species");
+            }
+
+            list.GapLine(12f);
             list.CheckboxLabeled("Enable ageless hediff patch", ref EnableAgelessPatch, "When disabled, Zoology will unpatch HediffGiver.TryApply interception for CompAgeless.");
+            if (EnableAgelessPatch)
+            {
+                list.GapLine(6f);
+                DrawRuntimeFeatureConfigureButton(list, "comp_ageless", "Configure ageless comp species");
+            }
 
             list.GapLine(12f);
             list.CheckboxLabeled("Enable drugs-immune ingestion patch", ref EnableDrugsImmunePatch, "When disabled, Zoology will unpatch ingestion outcome interception for CompDrugsImmune.");
+            if (EnableDrugsImmunePatch)
+            {
+                list.GapLine(6f);
+                DrawRuntimeFeatureConfigureButton(list, "comp_drugs_immune", "Configure drugs-immune comp species");
+            }
+
+            list.GapLine(12f);
+            list.CheckboxLabeled("Enable animal regeneration comp behavior", ref EnableAnimalRegenerationComp, "When disabled, Comp_AnimalRegeneration tick behavior is skipped.");
+            if (EnableAnimalRegenerationComp)
+            {
+                list.GapLine(6f);
+                DrawRuntimeFeatureConfigureButton(list, "comp_animal_regeneration", "Configure animal regeneration comp species");
+            }
+
+            list.GapLine(12f);
+            list.CheckboxLabeled("Enable animal clotting comp behavior", ref EnableAnimalClottingComp, "When disabled, Comp_AnimalClotting tick behavior is skipped.");
+            if (EnableAnimalClottingComp)
+            {
+                list.GapLine(6f);
+                DrawRuntimeFeatureConfigureButton(list, "comp_animal_clotting", "Configure animal clotting comp species");
+            }
 
             list.GapLine(12f);
             list.CheckboxLabeled("Enable no-porcupine-quill patch", ref EnableNoPorcupineQuillPatch, "When disabled, Zoology will unpatch PorcupineQuill prevention/removal hooks.");
+            if (EnableNoPorcupineQuillPatch)
+            {
+                list.GapLine(6f);
+                DrawRuntimeFeatureConfigureButton(list, "modext_no_porcupine_quill", "Configure no-porcupine-quill extension species");
+            }
+        }
+
+        private void DrawRuntimeFeatureConfigureButton(Listing_Standard list, string featureId, string buttonLabel)
+        {
+            if (!ZoologyRuntimeAnimalOverrides.TryGetFeature(featureId, out RuntimeAnimalFeatureDefinition feature))
+            {
+                return;
+            }
+
+            string label = string.IsNullOrEmpty(buttonLabel) ? $"Configure {feature.Label} species" : buttonLabel;
+            if (list.ButtonText(label))
+            {
+                Find.WindowStack.Add(new Dialog_AnimalRuntimeFeatureSelector(this, feature));
+            }
         }
 
         private void DrawLactationSettings(Listing_Standard list)
@@ -516,6 +674,8 @@ namespace ZoologyMod
 
         private void ResetToDefaults()
         {
+            EnsureCollectionsInitialized();
+
             EnableCustomFleeDanger = true;
             EnableSmallPetFleeFromRaiders = true;
             EnableIgnoreSmallPetsByRaiders = true;
@@ -527,6 +687,7 @@ namespace ZoologyMod
             EnableAgroAtSlaughter = true;
             AnimalsFreeFromHumans = true;
             EnableCannotBeMutatedProtection = true;
+            EnableCannotBeAugmentedProtection = true;
             EnableNoFleeExtension = true;
             EnableFleeFromCarrier = true;
             EnableFlyingFleeStart = true;
@@ -534,11 +695,20 @@ namespace ZoologyMod
             EnableEctothermicPatch = true;
             EnableAgelessPatch = true;
             EnableDrugsImmunePatch = true;
+            EnableAnimalRegenerationComp = true;
+            EnableAnimalClottingComp = true;
             EnableNoPorcupineQuillPatch = true;
             EnableMammalLactation = true;
             EnableAnimalChildcare = true;
+            EnableCannotChewExtension = true;
             EnablePredatorDefendCorpse = true;
             EnablePredatorDefendPreyFromHumansAndMechanoids = true;
+            PredatorSearchRadius = 18;
+            NonHostilePredatorSearchRadius = 12;
+            HumanSearchRadius = 12;
+            FleeDistancePredator = 16;
+            FleeDistanceTargetPredator = 24;
+            FleeDistanceHuman = 16;
             _smallPetBodySizeThreshold = ModConstants.DefaultSmallPetBodySizeThreshold;
             _safePredatorBodySizeThreshold = ModConstants.DefaultSafePredatorBodySizeThreshold;
             _safeNonPredatorBodySizeThreshold = ModConstants.DefaultSafeNonPredatorBodySizeThreshold;
@@ -548,9 +718,15 @@ namespace ZoologyMod
             EnableScavengering = true;
             AllowSlaughterLactating = false;
             AnimalsFreeFromHumansPerAnimal.Clear();
+            RoamersPerAnimal.Clear();
+            RoamMtbDaysPerAnimal.Clear();
+            NonRoamerTrainabilityPerAnimal.Clear();
+            AnimalFeatureEnabledOverrides.Clear();
             EnableAnimalDamageReduction = !_cePresent;
             EnableOverrideCEPenetration = _cePresent ? true : false;
             DisableAllRuntimePatches = false;
+            ClampFleeAndThreatSettings();
+            ApplyRuntimeDefOverrides();
 
             Write();
             ZoologyMod.SetRuntimePatchesEnabled(true);
@@ -582,6 +758,7 @@ namespace ZoologyMod
             }
             Scribe_Values.Look(ref EnableHumanBionicOnAnimal, "EnableHumanBionicOnAnimal", true);
             Scribe_Values.Look(ref EnableCannotBeMutatedProtection, "EnableCannotBeMutatedProtection", true);
+            Scribe_Values.Look(ref EnableCannotBeAugmentedProtection, "EnableCannotBeAugmentedProtection", true);
             Scribe_Values.Look(ref EnableNoFleeExtension, "EnableNoFleeExtension", true);
             Scribe_Values.Look(ref EnableFleeFromCarrier, "EnableFleeFromCarrier", true);
             Scribe_Values.Look(ref EnableFlyingFleeStart, "EnableFlyingFleeStart", true);
@@ -589,7 +766,10 @@ namespace ZoologyMod
             Scribe_Values.Look(ref EnableEctothermicPatch, "EnableEctothermicPatch", true);
             Scribe_Values.Look(ref EnableAgelessPatch, "EnableAgelessPatch", true);
             Scribe_Values.Look(ref EnableDrugsImmunePatch, "EnableDrugsImmunePatch", true);
+            Scribe_Values.Look(ref EnableAnimalRegenerationComp, "EnableAnimalRegenerationComp", true);
+            Scribe_Values.Look(ref EnableAnimalClottingComp, "EnableAnimalClottingComp", true);
             Scribe_Values.Look(ref EnableNoPorcupineQuillPatch, "EnableNoPorcupineQuillPatch", true);
+            Scribe_Values.Look(ref EnableCannotChewExtension, "EnableCannotChewExtension", true);
             Scribe_Values.Look(ref _smallPetBodySizeThreshold, "SmallPetBodySizeThreshold", ModConstants.DefaultSmallPetBodySizeThreshold);
             Scribe_Values.Look(ref _safePredatorBodySizeThreshold, "SafePredatorBodySizeThreshold", ModConstants.DefaultSafePredatorBodySizeThreshold);
             Scribe_Values.Look(ref _safeNonPredatorBodySizeThreshold, "SafeNonPredatorBodySizeThreshold", ModConstants.DefaultSafeNonPredatorBodySizeThreshold);
@@ -599,6 +779,12 @@ namespace ZoologyMod
             Scribe_Values.Look(ref EnableAnimalChildcare, "EnableAnimalChildcare", true);
             Scribe_Values.Look(ref EnablePredatorDefendCorpse, "EnablePredatorDefendCorpse", true);
             Scribe_Values.Look(ref EnablePredatorDefendPreyFromHumansAndMechanoids, "EnablePredatorDefendPreyFromHumansAndMechanoids", true);
+            Scribe_Values.Look(ref PredatorSearchRadius, "PredatorSearchRadius", 18);
+            Scribe_Values.Look(ref NonHostilePredatorSearchRadius, "NonHostilePredatorSearchRadius", 12);
+            Scribe_Values.Look(ref HumanSearchRadius, "HumanSearchRadius", 12);
+            Scribe_Values.Look(ref FleeDistancePredator, "FleeDistancePredator", 16);
+            Scribe_Values.Look(ref FleeDistanceTargetPredator, "FleeDistanceTargetPredator", 24);
+            Scribe_Values.Look(ref FleeDistanceHuman, "FleeDistanceHuman", 16);
             Scribe_Values.Look(ref PreyProtectionRange, "PreyProtectionRange", 20);
             Scribe_Values.Look(ref CorpseUnownedSizeMultiplier, "CorpseUnownedSizeMultiplier", 5);
             Scribe_Values.Look(ref _minCombatPowerToDefendPreyFromHumans, "MinCombatPowerToDefendPreyFromHumans", ModConstants.DefaultMinCombatPowerToDefendPreyFromHumans);
@@ -606,13 +792,18 @@ namespace ZoologyMod
             Scribe_Values.Look(ref AllowSlaughterLactating, "AllowSlaughterLactating", false);
             Scribe_Values.Look(ref DisableAllRuntimePatches, "DisableAllRuntimePatches", false);
 
-            
-            if (AnimalsFreeFromHumansPerAnimal == null)
-                AnimalsFreeFromHumansPerAnimal = new Dictionary<string, bool>();
+            EnsureCollectionsInitialized();
             Scribe_Collections.Look(ref AnimalsFreeFromHumansPerAnimal, "AnimalsFreeFromHumansPerAnimal", LookMode.Value, LookMode.Value);
-            CleanupAnimalsFreeFromHumansOverrides();
+            Scribe_Collections.Look(ref RoamersPerAnimal, "RoamersPerAnimal", LookMode.Value, LookMode.Value);
+            Scribe_Collections.Look(ref RoamMtbDaysPerAnimal, "RoamMtbDaysPerAnimal", LookMode.Value, LookMode.Value);
+            Scribe_Collections.Look(ref NonRoamerTrainabilityPerAnimal, "NonRoamerTrainabilityPerAnimal", LookMode.Value, LookMode.Value);
+            Scribe_Collections.Look(ref AnimalFeatureEnabledOverrides, "AnimalFeatureEnabledOverrides", LookMode.Value, LookMode.Value);
 
-            
+            EnsureCollectionsInitialized();
+            CleanupAnimalsFreeFromHumansOverrides();
+            CleanupRoamerOverrides();
+            CleanupAnimalFeatureOverrides();
+
             if (!EnableMammalLactation)
             {
                 AllowSlaughterLactating = false;
@@ -630,7 +821,9 @@ namespace ZoologyMod
                 EnableOverrideCEPenetration = false;
             }
 
+            ClampFleeAndThreatSettings();
             _minCombatPowerToDefendPreyFromHumans = Mathf.Clamp(_minCombatPowerToDefendPreyFromHumans, MinCombatPowerToDefendPreyFromHumansMin, MinCombatPowerToDefendPreyFromHumansMax);
+            ApplyRuntimeDefOverrides();
         }
 
         public bool GetAnimalsFreeFromHumansFor(ThingDef animal)
@@ -708,6 +901,382 @@ namespace ZoologyMod
             }
         }
 
+        public bool GetRoamerFor(ThingDef animal)
+        {
+            if (!ZoologyCacheUtility.IsAnimalThingDef(animal))
+            {
+                return false;
+            }
+
+            EnsureCollectionsInitialized();
+            if (RoamersPerAnimal.TryGetValue(animal.defName, out bool value))
+            {
+                return value;
+            }
+
+            return ZoologyRuntimeAnimalOverrides.IsDefaultRoamer(animal);
+        }
+
+        public void SetRoamerFor(ThingDef animal, bool value)
+        {
+            if (!ZoologyCacheUtility.IsAnimalThingDef(animal))
+            {
+                return;
+            }
+
+            EnsureCollectionsInitialized();
+            bool defaultValue = ZoologyRuntimeAnimalOverrides.IsDefaultRoamer(animal);
+            if (value == defaultValue)
+            {
+                RoamersPerAnimal.Remove(animal.defName);
+            }
+            else
+            {
+                RoamersPerAnimal[animal.defName] = value;
+            }
+
+            if (value)
+            {
+                float? defaultDays = ZoologyRuntimeAnimalOverrides.GetDefaultRoamMtbDays(animal);
+                if ((!defaultDays.HasValue || defaultDays.Value <= 0f) && !RoamMtbDaysPerAnimal.ContainsKey(animal.defName))
+                {
+                    RoamMtbDaysPerAnimal[animal.defName] = 12f;
+                }
+            }
+
+            ApplyRuntimeDefOverrides();
+        }
+
+        public float GetRoamMtbDaysFor(ThingDef animal)
+        {
+            if (!ZoologyCacheUtility.IsAnimalThingDef(animal))
+            {
+                return 12f;
+            }
+
+            EnsureCollectionsInitialized();
+            if (RoamMtbDaysPerAnimal.TryGetValue(animal.defName, out float value) && value > 0f)
+            {
+                return value;
+            }
+
+            float? defaultDays = ZoologyRuntimeAnimalOverrides.GetDefaultRoamMtbDays(animal);
+            if (defaultDays.HasValue && defaultDays.Value > 0f)
+            {
+                return defaultDays.Value;
+            }
+
+            return 12f;
+        }
+
+        public void SetRoamMtbDaysFor(ThingDef animal, float days)
+        {
+            if (!ZoologyCacheUtility.IsAnimalThingDef(animal))
+            {
+                return;
+            }
+
+            EnsureCollectionsInitialized();
+            float clamped = Mathf.Clamp(days, 1f, 120f);
+            float? defaultDays = ZoologyRuntimeAnimalOverrides.GetDefaultRoamMtbDays(animal);
+            if (defaultDays.HasValue && Mathf.Abs(clamped - defaultDays.Value) < 0.001f)
+            {
+                RoamMtbDaysPerAnimal.Remove(animal.defName);
+            }
+            else
+            {
+                RoamMtbDaysPerAnimal[animal.defName] = clamped;
+            }
+
+            ApplyRuntimeDefOverrides();
+        }
+
+        public TrainabilityDef GetNonRoamerTrainabilityFor(ThingDef animal)
+        {
+            if (!ZoologyCacheUtility.IsAnimalThingDef(animal))
+            {
+                return ZoologyRuntimeAnimalOverrides.GetTrainabilityNone();
+            }
+
+            EnsureCollectionsInitialized();
+            if (NonRoamerTrainabilityPerAnimal.TryGetValue(animal.defName, out string defName))
+            {
+                TrainabilityDef trainabilityFromOverride = DefDatabase<TrainabilityDef>.GetNamedSilentFail(defName);
+                if (trainabilityFromOverride != null)
+                {
+                    return trainabilityFromOverride;
+                }
+            }
+
+            TrainabilityDef defaultTrainability = ZoologyRuntimeAnimalOverrides.GetDefaultTrainability(animal);
+            return defaultTrainability ?? ZoologyRuntimeAnimalOverrides.GetTrainabilityNone();
+        }
+
+        public void SetNonRoamerTrainabilityFor(ThingDef animal, TrainabilityDef trainability)
+        {
+            if (!ZoologyCacheUtility.IsAnimalThingDef(animal))
+            {
+                return;
+            }
+
+            EnsureCollectionsInitialized();
+            TrainabilityDef none = ZoologyRuntimeAnimalOverrides.GetTrainabilityNone();
+            TrainabilityDef target = trainability ?? none;
+            TrainabilityDef defaultTrainability = ZoologyRuntimeAnimalOverrides.GetDefaultTrainability(animal) ?? none;
+
+            if (string.Equals(target.defName, defaultTrainability.defName, System.StringComparison.Ordinal))
+            {
+                NonRoamerTrainabilityPerAnimal.Remove(animal.defName);
+            }
+            else
+            {
+                NonRoamerTrainabilityPerAnimal[animal.defName] = target.defName;
+            }
+
+            ApplyRuntimeDefOverrides();
+        }
+
+        public void ResetRoamerTrainabilityOverrides()
+        {
+            EnsureCollectionsInitialized();
+            RoamersPerAnimal.Clear();
+            RoamMtbDaysPerAnimal.Clear();
+            NonRoamerTrainabilityPerAnimal.Clear();
+            ApplyRuntimeDefOverrides();
+        }
+
+        public bool GetAnimalFeatureEnabled(string featureId, ThingDef animal)
+        {
+            if (!ZoologyCacheUtility.IsAnimalThingDef(animal) || !ZoologyRuntimeAnimalOverrides.IsKnownFeatureId(featureId))
+            {
+                return false;
+            }
+
+            EnsureCollectionsInitialized();
+            string key = MakeAnimalFeatureOverrideKey(featureId, animal.defName);
+            if (AnimalFeatureEnabledOverrides.TryGetValue(key, out bool value))
+            {
+                return value;
+            }
+
+            return ZoologyRuntimeAnimalOverrides.GetDefaultFeaturePresence(featureId, animal);
+        }
+
+        public void SetAnimalFeatureEnabled(string featureId, ThingDef animal, bool value)
+        {
+            if (!ZoologyCacheUtility.IsAnimalThingDef(animal) || !ZoologyRuntimeAnimalOverrides.IsKnownFeatureId(featureId))
+            {
+                return;
+            }
+
+            EnsureCollectionsInitialized();
+            bool defaultValue = ZoologyRuntimeAnimalOverrides.GetDefaultFeaturePresence(featureId, animal);
+            string key = MakeAnimalFeatureOverrideKey(featureId, animal.defName);
+            if (value == defaultValue)
+            {
+                AnimalFeatureEnabledOverrides.Remove(key);
+            }
+            else
+            {
+                AnimalFeatureEnabledOverrides[key] = value;
+            }
+
+            ApplyRuntimeDefOverrides();
+        }
+
+        public void ResetAnimalFeatureOverrides(string featureId)
+        {
+            if (string.IsNullOrEmpty(featureId))
+            {
+                return;
+            }
+
+            EnsureCollectionsInitialized();
+            string prefix = featureId + "|";
+            List<string> keysToRemove = null;
+            foreach (KeyValuePair<string, bool> entry in AnimalFeatureEnabledOverrides)
+            {
+                if (!entry.Key.StartsWith(prefix, System.StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                keysToRemove ??= new List<string>();
+                keysToRemove.Add(entry.Key);
+            }
+
+            if (keysToRemove != null)
+            {
+                for (int i = 0; i < keysToRemove.Count; i++)
+                {
+                    AnimalFeatureEnabledOverrides.Remove(keysToRemove[i]);
+                }
+            }
+
+            ApplyRuntimeDefOverrides();
+        }
+
+        public void ApplyRuntimeDefOverrides()
+        {
+            EnsureCollectionsInitialized();
+            ClampFleeAndThreatSettings();
+            ZoologyRuntimeAnimalOverrides.ApplyAll(this);
+        }
+
+        private void EnsureCollectionsInitialized()
+        {
+            AnimalsFreeFromHumansPerAnimal ??= new Dictionary<string, bool>();
+            RoamersPerAnimal ??= new Dictionary<string, bool>();
+            RoamMtbDaysPerAnimal ??= new Dictionary<string, float>();
+            NonRoamerTrainabilityPerAnimal ??= new Dictionary<string, string>();
+            AnimalFeatureEnabledOverrides ??= new Dictionary<string, bool>();
+        }
+
+        private void ClampFleeAndThreatSettings()
+        {
+            PredatorSearchRadius = Mathf.Clamp(PredatorSearchRadius, SearchRadiusMin, SearchRadiusMax);
+            NonHostilePredatorSearchRadius = Mathf.Clamp(NonHostilePredatorSearchRadius, SearchRadiusMin, SearchRadiusMax);
+            HumanSearchRadius = Mathf.Clamp(HumanSearchRadius, SearchRadiusMin, SearchRadiusMax);
+            FleeDistancePredator = Mathf.Clamp(FleeDistancePredator, FleeDistanceMin, FleeDistanceMax);
+            FleeDistanceTargetPredator = Mathf.Clamp(FleeDistanceTargetPredator, FleeDistanceMin, FleeDistanceMax);
+            FleeDistanceHuman = Mathf.Clamp(FleeDistanceHuman, FleeDistanceMin, FleeDistanceMax);
+        }
+
+        private static string MakeAnimalFeatureOverrideKey(string featureId, string defName)
+        {
+            return featureId + "|" + defName;
+        }
+
+        private void CleanupRoamerOverrides()
+        {
+            if (RoamersPerAnimal != null && RoamersPerAnimal.Count > 0)
+            {
+                CleanupPerAnimalBoolOverrides(RoamersPerAnimal);
+            }
+
+            if (RoamMtbDaysPerAnimal != null && RoamMtbDaysPerAnimal.Count > 0)
+            {
+                List<string> invalidRoamDaysKeys = null;
+                foreach (KeyValuePair<string, float> entry in RoamMtbDaysPerAnimal)
+                {
+                    ThingDef def = DefDatabase<ThingDef>.GetNamedSilentFail(entry.Key);
+                    if (ZoologyCacheUtility.IsAnimalThingDef(def) && entry.Value > 0f)
+                    {
+                        continue;
+                    }
+
+                    invalidRoamDaysKeys ??= new List<string>();
+                    invalidRoamDaysKeys.Add(entry.Key);
+                }
+
+                if (invalidRoamDaysKeys != null)
+                {
+                    for (int i = 0; i < invalidRoamDaysKeys.Count; i++)
+                    {
+                        RoamMtbDaysPerAnimal.Remove(invalidRoamDaysKeys[i]);
+                    }
+                }
+            }
+
+            if (NonRoamerTrainabilityPerAnimal != null && NonRoamerTrainabilityPerAnimal.Count > 0)
+            {
+                List<string> invalidTrainabilityKeys = null;
+                foreach (KeyValuePair<string, string> entry in NonRoamerTrainabilityPerAnimal)
+                {
+                    ThingDef def = DefDatabase<ThingDef>.GetNamedSilentFail(entry.Key);
+                    TrainabilityDef trainability = DefDatabase<TrainabilityDef>.GetNamedSilentFail(entry.Value);
+                    if (ZoologyCacheUtility.IsAnimalThingDef(def) && trainability != null)
+                    {
+                        continue;
+                    }
+
+                    invalidTrainabilityKeys ??= new List<string>();
+                    invalidTrainabilityKeys.Add(entry.Key);
+                }
+
+                if (invalidTrainabilityKeys != null)
+                {
+                    for (int i = 0; i < invalidTrainabilityKeys.Count; i++)
+                    {
+                        NonRoamerTrainabilityPerAnimal.Remove(invalidTrainabilityKeys[i]);
+                    }
+                }
+            }
+        }
+
+        private void CleanupAnimalFeatureOverrides()
+        {
+            if (AnimalFeatureEnabledOverrides == null || AnimalFeatureEnabledOverrides.Count == 0)
+            {
+                return;
+            }
+
+            List<string> invalidKeys = null;
+            foreach (KeyValuePair<string, bool> entry in AnimalFeatureEnabledOverrides)
+            {
+                string key = entry.Key;
+                int separatorIndex = key.IndexOf('|');
+                if (separatorIndex <= 0 || separatorIndex >= key.Length - 1)
+                {
+                    invalidKeys ??= new List<string>();
+                    invalidKeys.Add(key);
+                    continue;
+                }
+
+                string featureId = key.Substring(0, separatorIndex);
+                string defName = key.Substring(separatorIndex + 1);
+                ThingDef def = DefDatabase<ThingDef>.GetNamedSilentFail(defName);
+                if (ZoologyRuntimeAnimalOverrides.IsKnownFeatureId(featureId) && ZoologyCacheUtility.IsAnimalThingDef(def))
+                {
+                    continue;
+                }
+
+                invalidKeys ??= new List<string>();
+                invalidKeys.Add(key);
+            }
+
+            if (invalidKeys == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < invalidKeys.Count; i++)
+            {
+                AnimalFeatureEnabledOverrides.Remove(invalidKeys[i]);
+            }
+        }
+
+        private static void CleanupPerAnimalBoolOverrides(Dictionary<string, bool> overrides)
+        {
+            if (overrides == null || overrides.Count == 0)
+            {
+                return;
+            }
+
+            List<string> invalidKeys = null;
+            foreach (KeyValuePair<string, bool> entry in overrides)
+            {
+                ThingDef def = DefDatabase<ThingDef>.GetNamedSilentFail(entry.Key);
+                if (ZoologyCacheUtility.IsAnimalThingDef(def))
+                {
+                    continue;
+                }
+
+                invalidKeys ??= new List<string>();
+                invalidKeys.Add(entry.Key);
+            }
+
+            if (invalidKeys == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < invalidKeys.Count; i++)
+            {
+                overrides.Remove(invalidKeys[i]);
+            }
+        }
+
         public bool AreAllRuntimeTogglesDisabled()
         {
             if (DisableAllRuntimePatches)
@@ -725,13 +1294,17 @@ namespace ZoologyMod
                 && !EnableHumanBionicOnAnimal
                 && !EnableAgroAtSlaughter
                 && !EnableCannotBeMutatedProtection
+                && !EnableCannotBeAugmentedProtection
                 && !EnableNoFleeExtension
                 && !EnableFleeFromCarrier
                 && !EnableFlyingFleeStart
                 && !EnableGenderRestrictedAttacks
+                && !EnableCannotChewExtension
                 && !EnableEctothermicPatch
                 && !EnableAgelessPatch
                 && !EnableDrugsImmunePatch
+                && !EnableAnimalRegenerationComp
+                && !EnableAnimalClottingComp
                 && !EnableNoPorcupineQuillPatch
                 && !EnableMammalLactation
                 && !EnableAnimalChildcare

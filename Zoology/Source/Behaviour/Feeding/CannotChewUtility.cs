@@ -7,7 +7,12 @@ namespace ZoologyMod
     {
         public static bool HasCannotChew(Pawn pawn)
         {
-            return pawn != null && DefModExtensionCache<ModExtension_CannotChew>.Has(pawn);
+            if (pawn == null || !CannotChewSettingsGate.Enabled())
+            {
+                return false;
+            }
+
+            return DefModExtensionCache<ModExtension_CannotChew>.Has(pawn);
         }
 
         public static bool IsCorpseTooLarge(Pawn eater, Corpse corpse)

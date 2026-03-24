@@ -38,12 +38,24 @@ namespace ZoologyMod
         private static readonly Dictionary<long, AcceptablePreyCacheEntry> acceptablePreyCacheByPairKey = new Dictionary<long, AcceptablePreyCacheEntry>(512);
         private static readonly Dictionary<long, PreyScoreCacheEntry> preyScoreCacheByPairKey = new Dictionary<long, PreyScoreCacheEntry>(256);
         private static int lastCleanupTick = -CacheCleanupIntervalTicks;
+        private static Game runtimeCacheGame;
+        private static int runtimeCacheLastTick = -1;
+
+        public static void ClearAll()
+        {
+            acceptablePreyCacheByPairKey.Clear();
+            preyScoreCacheByPairKey.Clear();
+            lastCleanupTick = -CacheCleanupIntervalTicks;
+            runtimeCacheGame = Current.Game;
+            runtimeCacheLastTick = Find.TickManager?.TicksGame ?? 0;
+        }
 
         public static bool TryGetAcceptablePrey(Pawn predator, Pawn prey, out bool value)
         {
             value = false;
             long pairKey = PairKey(predator, prey);
             int currentTick = Find.TickManager?.TicksGame ?? 0;
+            EnsureRuntimeState(currentTick);
             return pairKey != 0L
                 && currentTick > 0
                 && acceptablePreyCacheByPairKey.TryGetValue(pairKey, out AcceptablePreyCacheEntry cached)
@@ -55,6 +67,7 @@ namespace ZoologyMod
         {
             long pairKey = PairKey(predator, prey);
             int currentTick = Find.TickManager?.TicksGame ?? 0;
+            EnsureRuntimeState(currentTick);
             if (pairKey == 0L || currentTick <= 0)
             {
                 return;
@@ -69,6 +82,7 @@ namespace ZoologyMod
             value = 0f;
             long pairKey = PairKey(predator, prey);
             int currentTick = Find.TickManager?.TicksGame ?? 0;
+            EnsureRuntimeState(currentTick);
             return pairKey != 0L
                 && currentTick > 0
                 && preyScoreCacheByPairKey.TryGetValue(pairKey, out PreyScoreCacheEntry cached)
@@ -80,6 +94,7 @@ namespace ZoologyMod
         {
             long pairKey = PairKey(predator, prey);
             int currentTick = Find.TickManager?.TicksGame ?? 0;
+            EnsureRuntimeState(currentTick);
             if (pairKey == 0L || currentTick <= 0)
             {
                 return;
@@ -87,6 +102,25 @@ namespace ZoologyMod
 
             preyScoreCacheByPairKey[pairKey] = new PreyScoreCacheEntry(value, currentTick);
             CleanupIfNeeded(currentTick);
+        }
+
+        private static void EnsureRuntimeState(int currentTick)
+        {
+            Game currentGame = Current.Game;
+            bool gameChanged = !ReferenceEquals(runtimeCacheGame, currentGame);
+            bool tickRewound = currentTick > 0 && runtimeCacheLastTick > 0 && currentTick < runtimeCacheLastTick;
+            if (gameChanged || tickRewound)
+            {
+                acceptablePreyCacheByPairKey.Clear();
+                preyScoreCacheByPairKey.Clear();
+                lastCleanupTick = -CacheCleanupIntervalTicks;
+                runtimeCacheGame = currentGame;
+            }
+
+            if (currentTick > 0)
+            {
+                runtimeCacheLastTick = currentTick;
+            }
         }
 
         private static void CleanupIfNeeded(int currentTick)

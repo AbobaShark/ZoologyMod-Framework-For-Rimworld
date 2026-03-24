@@ -16,7 +16,7 @@ namespace ZoologyMod
                 return false;
             }
 
-            Faction playerFaction = Faction.OfPlayer;
+            Faction playerFaction = Faction.OfPlayerSilentFail;
             if (playerFaction == null || ReferenceEquals(faction, playerFaction))
             {
                 return false;
@@ -45,14 +45,22 @@ namespace ZoologyMod
                 return true;
             }
 
-            RaceProperties raceProps = __instance.RaceProps;
-            if (raceProps?.Animal != true)
+            if (otherPawn != null && ZoologyFleeSafetyUtility.IsThreatMeleeAttackingPawn(otherPawn, __instance))
+            {
+                // If this pawn is actively being hit in melee, do not suppress threat response for roamers.
+                __result = false;
+                return false;
+            }
+
+            Faction myFaction = __instance.Faction;
+            Faction playerFaction = Faction.OfPlayerSilentFail;
+            if (myFaction == null || playerFaction == null || !ReferenceEquals(myFaction, playerFaction))
             {
                 return true;
             }
 
-            Faction faction = __instance.Faction;
-            if (faction == null || !faction.IsPlayer)
+            RaceProperties raceProps = __instance.RaceProps;
+            if (raceProps?.Animal != true)
             {
                 return true;
             }
@@ -62,7 +70,8 @@ namespace ZoologyMod
                 return true;
             }
 
-            if (raceProps.baseBodySize >= settings.SmallPetBodySizeThreshold)
+            float smallPetThreshold = settings?.SmallPetBodySizeThreshold ?? 0.35f;
+            if (raceProps.baseBodySize >= smallPetThreshold)
             {
                 return true;
             }
@@ -86,7 +95,8 @@ namespace ZoologyMod
             if (otherPawn != null && otherPawn.RaceProps?.Humanlike != true)
             {
                 // Allow the same "ignore small pets" behavior for hostile faction animals (e.g. raider animals, Photonozoa).
-                if (otherPawn.Faction == null || !IsHostileToPlayerFactionSafe(otherPawn.Faction))
+                Faction otherFaction = otherPawn.Faction;
+                if (otherFaction == null || !IsHostileToPlayerFactionSafe(otherFaction))
                 {
                     return true;
                 }
