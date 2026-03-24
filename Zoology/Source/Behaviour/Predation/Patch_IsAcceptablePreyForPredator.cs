@@ -383,7 +383,7 @@ namespace ZoologyMod
                     return false;
                 }
 
-                if (prey.BodySize > predator.RaceProps.maxPreyBodySize)
+                if (CannotChewUtility.IsPreyTooLargeForPredator(predator, prey))
                 {
                     return false;
                 }
@@ -589,7 +589,7 @@ namespace ZoologyMod
                 if (!prey.RaceProps.canBePredatorPrey) { __result = false; StoreAcceptablePrey(false); return false; }
                 if (!prey.RaceProps.IsFlesh) { __result = false; StoreAcceptablePrey(false); return false; }
                 if (!Find.Storyteller.difficulty.predatorsHuntHumanlikes && prey.RaceProps.Humanlike) { __result = false; StoreAcceptablePrey(false); return false; }
-                if (prey.BodySize > predator.RaceProps.maxPreyBodySize) {__result = false; StoreAcceptablePrey(false); return false; }
+                if (CannotChewUtility.IsPreyTooLargeForPredator(predator, prey)) {__result = false; StoreAcceptablePrey(false); return false; }
 
                 if (!prey.Downed)
                 {

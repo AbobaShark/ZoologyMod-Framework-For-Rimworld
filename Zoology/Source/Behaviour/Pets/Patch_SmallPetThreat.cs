@@ -12,75 +12,57 @@ namespace ZoologyMod
     {
         private static Game cachedGame;
         private static Faction cachedPlayerFaction;
-        private static int nextPlayerFactionRefreshTick = int.MinValue;
-        private static int lastHostilityCleanupTick = int.MinValue;
-        private static int lastCandidateCleanupTick = int.MinValue;
-
-        private const int PlayerFactionRefreshIntervalTicks = 300;
-        private const int HostilityCacheDurationTicks = 300;
-        private const int SmallPetCandidateCacheDurationTicks = 120;
-        private const int CacheCleanupIntervalTicks = 1200;
-        private const int MaxHostilityCacheSize = 256;
-        private const int MaxCandidateCacheSize = 2048;
+        private static float cachedSmallPetThreshold = -1f;
+        private static bool cachedIgnoreSmallPetsEnabled = true;
+        private static bool smallPetCandidateSetInitialized;
 
         private readonly struct HostilityCacheEntry
         {
-            public HostilityCacheEntry(bool hostile, int validUntilTick)
+            public HostilityCacheEntry(bool hostile)
             {
                 Hostile = hostile;
-                ValidUntilTick = validUntilTick;
             }
 
             public bool Hostile { get; }
-            public int ValidUntilTick { get; }
-        }
-
-        private readonly struct SmallPetCandidateCacheEntry
-        {
-            public SmallPetCandidateCacheEntry(bool isCandidate, int validUntilTick)
-            {
-                IsCandidate = isCandidate;
-                ValidUntilTick = validUntilTick;
-            }
-
-            public bool IsCandidate { get; }
-            public int ValidUntilTick { get; }
         }
 
         private static readonly Dictionary<int, HostilityCacheEntry> hostilityCacheByFactionId = new Dictionary<int, HostilityCacheEntry>(64);
-        private static readonly Dictionary<int, SmallPetCandidateCacheEntry> smallPetCandidateCacheByPawnId = new Dictionary<int, SmallPetCandidateCacheEntry>(256);
+        private static readonly HashSet<int> smallPetCandidatePawnIds = new HashSet<int>();
+
+        private static void ResetCachesForCurrentGameIfNeeded()
+        {
+            Game currentGame = Current.Game;
+            if (ReferenceEquals(cachedGame, currentGame))
+            {
+                return;
+            }
+
+            cachedGame = currentGame;
+            cachedPlayerFaction = null;
+            cachedSmallPetThreshold = -1f;
+            cachedIgnoreSmallPetsEnabled = true;
+            smallPetCandidateSetInitialized = false;
+            hostilityCacheByFactionId.Clear();
+            smallPetCandidatePawnIds.Clear();
+        }
+
+        internal static void NotifySettingsChanged()
+        {
+            cachedSmallPetThreshold = -1f;
+            smallPetCandidateSetInitialized = false;
+            smallPetCandidatePawnIds.Clear();
+            hostilityCacheByFactionId.Clear();
+        }
 
         private static Faction GetPlayerFactionCached()
         {
-            int currentTick = Find.TickManager?.TicksGame ?? -1;
-            Game currentGame = Current.Game;
-            if (!ReferenceEquals(cachedGame, currentGame))
-            {
-                cachedGame = currentGame;
-                cachedPlayerFaction = null;
-                nextPlayerFactionRefreshTick = int.MinValue;
-                hostilityCacheByFactionId.Clear();
-                smallPetCandidateCacheByPawnId.Clear();
-            }
-
-            if (currentGame == null)
+            ResetCachesForCurrentGameIfNeeded();
+            if (cachedGame == null)
             {
                 return null;
             }
 
-            if (cachedPlayerFaction != null)
-            {
-                return cachedPlayerFaction;
-            }
-
-            if (currentTick < 0 || currentTick >= nextPlayerFactionRefreshTick)
-            {
-                cachedPlayerFaction = Faction.OfPlayerSilentFail;
-                nextPlayerFactionRefreshTick = (currentTick < 0)
-                    ? PlayerFactionRefreshIntervalTicks
-                    : currentTick + PlayerFactionRefreshIntervalTicks;
-            }
-
+            cachedPlayerFaction ??= Faction.OfPlayerSilentFail;
             return cachedPlayerFaction;
         }
 
@@ -91,22 +73,10 @@ namespace ZoologyMod
                 return false;
             }
 
-            int currentTick = Find.TickManager?.TicksGame ?? -1;
-            if (currentTick >= 0)
+            int factionId = faction.loadID;
+            if (factionId >= 0 && hostilityCacheByFactionId.TryGetValue(factionId, out HostilityCacheEntry cached))
             {
-                if (lastHostilityCleanupTick == int.MinValue || currentTick - lastHostilityCleanupTick >= CacheCleanupIntervalTicks)
-                {
-                    CleanupExpiredHostilityCache(currentTick);
-                    lastHostilityCleanupTick = currentTick;
-                }
-
-                int factionId = faction.loadID;
-                if (factionId >= 0
-                    && hostilityCacheByFactionId.TryGetValue(factionId, out HostilityCacheEntry cached)
-                    && cached.ValidUntilTick >= currentTick)
-                {
-                    return cached.Hostile;
-                }
+                return cached.Hostile;
             }
 
             Faction playerFaction = GetPlayerFactionCached();
@@ -117,146 +87,152 @@ namespace ZoologyMod
 
             FactionRelation relation = faction.RelationWith(playerFaction, allowNull: true);
             bool hostile = relation != null && relation.kind == FactionRelationKind.Hostile;
-            if (currentTick >= 0)
+            if (factionId >= 0)
             {
-                int factionId = faction.loadID;
-                if (factionId >= 0)
-                {
-                    if (hostilityCacheByFactionId.Count >= MaxHostilityCacheSize)
-                    {
-                        CleanupExpiredHostilityCache(currentTick);
-                    }
-
-                    hostilityCacheByFactionId[factionId] = new HostilityCacheEntry(
-                        hostile,
-                        currentTick + HostilityCacheDurationTicks);
-                }
+                hostilityCacheByFactionId[factionId] = new HostilityCacheEntry(hostile);
             }
 
             return hostile;
         }
 
-        private static bool IsPlayerSmallPetCandidateCached(Pawn pawn, ZoologyModSettings settings)
+        private static bool IsSmallPetCandidate(Pawn pawn, Faction playerFaction, float smallPetThreshold)
         {
-            if (pawn == null)
+            if (pawn == null || playerFaction == null)
             {
                 return false;
             }
 
-            int currentTick = Find.TickManager?.TicksGame ?? -1;
-            int pawnId = pawn.thingIDNumber;
-            if (currentTick >= 0
-                && smallPetCandidateCacheByPawnId.TryGetValue(pawnId, out SmallPetCandidateCacheEntry cached)
-                && cached.ValidUntilTick >= currentTick)
+            if (!pawn.Spawned || pawn.Destroyed || pawn.Dead)
             {
-                return cached.IsCandidate;
+                return false;
             }
 
-            bool candidate = false;
-            RaceProperties raceProps = pawn.RaceProps;
-            if (raceProps?.Animal == true && !pawn.Roamer)
+            if (!ReferenceEquals(pawn.Faction, playerFaction))
             {
-                float smallPetThreshold = settings?.SmallPetBodySizeThreshold ?? 0.35f;
-                if (raceProps.baseBodySize < smallPetThreshold)
+                return false;
+            }
+
+            RaceProperties raceProps = pawn.RaceProps;
+            return raceProps?.Animal == true
+                && !pawn.Roamer
+                && raceProps.baseBodySize < smallPetThreshold;
+        }
+
+        private static void RebuildSmallPetCandidateSet(ZoologyModSettings settings)
+        {
+            cachedIgnoreSmallPetsEnabled = settings == null || settings.EnableIgnoreSmallPetsByRaiders;
+            cachedSmallPetThreshold = settings?.SmallPetBodySizeThreshold ?? ModConstants.DefaultSmallPetBodySizeThreshold;
+            smallPetCandidateSetInitialized = true;
+            smallPetCandidatePawnIds.Clear();
+
+            if (!cachedIgnoreSmallPetsEnabled)
+            {
+                return;
+            }
+
+            Faction playerFaction = GetPlayerFactionCached();
+            List<Map> maps = Find.Maps;
+            if (playerFaction == null || maps == null)
+            {
+                return;
+            }
+
+            for (int mi = 0; mi < maps.Count; mi++)
+            {
+                List<Pawn> playerPawns = maps[mi]?.mapPawns?.SpawnedPawnsInFaction(playerFaction);
+                if (playerPawns == null || playerPawns.Count == 0)
                 {
-                    Faction playerFaction = GetPlayerFactionCached();
-                    if (playerFaction != null && ReferenceEquals(pawn.Faction, playerFaction))
+                    continue;
+                }
+
+                for (int i = 0; i < playerPawns.Count; i++)
+                {
+                    Pawn pawn = playerPawns[i];
+                    if (IsSmallPetCandidate(pawn, playerFaction, cachedSmallPetThreshold))
                     {
-                        candidate = true;
+                        smallPetCandidatePawnIds.Add(pawn.thingIDNumber);
                     }
                 }
             }
-
-            if (currentTick >= 0)
-            {
-                if (lastCandidateCleanupTick == int.MinValue || currentTick - lastCandidateCleanupTick >= CacheCleanupIntervalTicks)
-                {
-                    CleanupExpiredSmallPetCandidateCache(currentTick);
-                    lastCandidateCleanupTick = currentTick;
-                }
-
-                if (smallPetCandidateCacheByPawnId.Count >= MaxCandidateCacheSize)
-                {
-                    CleanupExpiredSmallPetCandidateCache(currentTick);
-                }
-
-                smallPetCandidateCacheByPawnId[pawnId] = new SmallPetCandidateCacheEntry(
-                    candidate,
-                    currentTick + SmallPetCandidateCacheDurationTicks);
-            }
-
-            return candidate;
         }
 
-        private static void CleanupExpiredHostilityCache(int currentTick)
+        private static bool EnsureSmallPetCandidateSetCached(ZoologyModSettings settings)
         {
-            if (hostilityCacheByFactionId.Count == 0)
+            ResetCachesForCurrentGameIfNeeded();
+
+            bool ignoreSmallPetsEnabled = settings == null || settings.EnableIgnoreSmallPetsByRaiders;
+            float smallPetThreshold = settings?.SmallPetBodySizeThreshold ?? ModConstants.DefaultSmallPetBodySizeThreshold;
+            bool thresholdChanged = cachedSmallPetThreshold < 0f
+                || smallPetThreshold < cachedSmallPetThreshold - 0.0001f
+                || smallPetThreshold > cachedSmallPetThreshold + 0.0001f;
+
+            if (!smallPetCandidateSetInitialized
+                || ignoreSmallPetsEnabled != cachedIgnoreSmallPetsEnabled
+                || thresholdChanged)
+            {
+                RebuildSmallPetCandidateSet(settings);
+            }
+
+            return smallPetCandidatePawnIds.Count > 0;
+        }
+
+        private static bool IsPlayerSmallPetCandidateCached(Pawn pawn, ZoologyModSettings settings)
+        {
+            return pawn != null
+                && EnsureSmallPetCandidateSetCached(settings)
+                && smallPetCandidatePawnIds.Contains(pawn.thingIDNumber);
+        }
+
+        private static void UpdateCachedMembership(Pawn pawn)
+        {
+            ResetCachesForCurrentGameIfNeeded();
+            if (!smallPetCandidateSetInitialized)
             {
                 return;
             }
 
-            List<int> keysToRemove = null;
-            foreach (KeyValuePair<int, HostilityCacheEntry> entry in hostilityCacheByFactionId)
+            if (!cachedIgnoreSmallPetsEnabled)
             {
-                if (entry.Value.ValidUntilTick >= currentTick)
-                {
-                    continue;
-                }
-
-                keysToRemove ??= new List<int>(16);
-                keysToRemove.Add(entry.Key);
-            }
-
-            if (keysToRemove == null)
-            {
+                smallPetCandidatePawnIds.Remove(pawn?.thingIDNumber ?? -1);
                 return;
             }
 
-            for (int i = 0; i < keysToRemove.Count; i++)
+            Faction playerFaction = GetPlayerFactionCached();
+            if (IsSmallPetCandidate(pawn, playerFaction, cachedSmallPetThreshold))
             {
-                hostilityCacheByFactionId.Remove(keysToRemove[i]);
+                smallPetCandidatePawnIds.Add(pawn.thingIDNumber);
+            }
+            else if (pawn != null)
+            {
+                smallPetCandidatePawnIds.Remove(pawn.thingIDNumber);
             }
         }
 
-        private static void CleanupExpiredSmallPetCandidateCache(int currentTick)
+        private static void RemoveCachedMembership(Pawn pawn)
         {
-            if (smallPetCandidateCacheByPawnId.Count == 0)
+            ResetCachesForCurrentGameIfNeeded();
+            if (!smallPetCandidateSetInitialized || pawn == null)
             {
                 return;
             }
 
-            List<int> keysToRemove = null;
-            foreach (KeyValuePair<int, SmallPetCandidateCacheEntry> entry in smallPetCandidateCacheByPawnId)
-            {
-                if (entry.Value.ValidUntilTick >= currentTick)
-                {
-                    continue;
-                }
+            smallPetCandidatePawnIds.Remove(pawn.thingIDNumber);
+        }
 
-                keysToRemove ??= new List<int>(32);
-                keysToRemove.Add(entry.Key);
-            }
-
-            if (keysToRemove == null)
-            {
-                return;
-            }
-
-            for (int i = 0; i < keysToRemove.Count; i++)
-            {
-                smallPetCandidateCacheByPawnId.Remove(keysToRemove[i]);
-            }
+        private static void InvalidateHostilityCache()
+        {
+            hostilityCacheByFactionId.Clear();
         }
 
         public static bool Prepare()
         {
-            var settings = ZoologyModSettings.Instance;
+            ZoologyModSettings settings = ZoologyModSettings.Instance;
             return settings == null || settings.EnableIgnoreSmallPetsByRaiders;
         }
 
         public static bool Prefix(Pawn __instance, Pawn otherPawn, ref bool __result)
         {
-            if (__instance == null)
+            if (__instance == null || otherPawn == null)
             {
                 return true;
             }
@@ -267,7 +243,7 @@ namespace ZoologyMod
                 return true;
             }
 
-            if (otherPawn == null)
+            if (!__instance.Spawned || !otherPawn.Spawned)
             {
                 return true;
             }
@@ -293,9 +269,8 @@ namespace ZoologyMod
                 return true;
             }
 
-            if (otherPawn != null && otherPawn.RaceProps?.Humanlike != true)
+            if (otherPawn.RaceProps?.Humanlike != true)
             {
-                // Allow the same "ignore small pets" behavior for hostile faction animals (e.g. raider animals, Photonozoa).
                 Faction otherFaction = otherPawn.Faction;
                 if (otherFaction == null || !IsHostileToPlayerFactionSafe(otherFaction))
                 {
@@ -311,13 +286,70 @@ namespace ZoologyMod
 
             if (ZoologyFleeSafetyUtility.IsThreatMeleeAttackingPawn(otherPawn, __instance))
             {
-                // If this small pet is actively being hit in melee, do not suppress threat response.
                 __result = false;
                 return false;
             }
 
             __result = true;
             return false;
+        }
+
+        [HarmonyPatch(typeof(Pawn), nameof(Pawn.SpawnSetup))]
+        private static class Patch_Pawn_SpawnSetup_SmallPetCache
+        {
+            private static void Postfix(Pawn __instance)
+            {
+                UpdateCachedMembership(__instance);
+            }
+        }
+
+        [HarmonyPatch(typeof(Pawn), nameof(Pawn.SetFaction))]
+        private static class Patch_Pawn_SetFaction_SmallPetCache
+        {
+            private static void Postfix(Pawn __instance)
+            {
+                UpdateCachedMembership(__instance);
+                if (__instance?.Faction != null)
+                {
+                    hostilityCacheByFactionId.Remove(__instance.Faction.loadID);
+                }
+            }
+        }
+
+        [HarmonyPatch(typeof(Pawn), nameof(Pawn.DeSpawn))]
+        private static class Patch_Pawn_DeSpawn_SmallPetCache
+        {
+            private static void Prefix(Pawn __instance)
+            {
+                RemoveCachedMembership(__instance);
+            }
+        }
+
+        [HarmonyPatch(typeof(Pawn), nameof(Pawn.Kill))]
+        private static class Patch_Pawn_Kill_SmallPetCache
+        {
+            private static void Prefix(Pawn __instance)
+            {
+                RemoveCachedMembership(__instance);
+            }
+        }
+
+        [HarmonyPatch(typeof(Pawn), nameof(Pawn.Destroy))]
+        private static class Patch_Pawn_Destroy_SmallPetCache
+        {
+            private static void Prefix(Pawn __instance)
+            {
+                RemoveCachedMembership(__instance);
+            }
+        }
+
+        [HarmonyPatch(typeof(Faction), nameof(Faction.Notify_RelationKindChanged))]
+        private static class Patch_Faction_NotifyRelationKindChanged_SmallPetCache
+        {
+            private static void Postfix()
+            {
+                InvalidateHostilityCache();
+            }
         }
     }
 }

@@ -1273,6 +1273,7 @@ namespace ZoologyMod
             EnsureCollectionsInitialized();
             ClampFleeAndThreatSettings();
             ZoologyRuntimeAnimalOverrides.ApplyAll(this);
+            Patch_SmallPetThreatDisabled.NotifySettingsChanged();
         }
 
         private void EnsureCollectionsInitialized()
