@@ -818,25 +818,6 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(Faction), "HasPredatorRecentlyAttackedAnyone", new Type[] { typeof(Pawn) })]
     public static class Patch_Faction_HasPredatorRecentlyAttackedAnyone
     {
-        private static int lastHasAnyTick = int.MinValue;
-        private static bool lastHasAnyValue;
-
-        private static bool HasAnyActiveProtectorsFast(int currentTick)
-        {
-            if (currentTick <= 0)
-            {
-                return ProtectPreyState.HasAnyActiveProtectors;
-            }
-
-            if (lastHasAnyTick != currentTick)
-            {
-                lastHasAnyTick = currentTick;
-                lastHasAnyValue = ProtectPreyState.HasAnyActiveProtectors;
-            }
-
-            return lastHasAnyValue;
-        }
-
         public static bool Prepare() => PredationSettingsGate.EnablePredatorDefendCorpse();
 
         static void Postfix(Faction __instance, Pawn predator, ref bool __result)
@@ -851,8 +832,7 @@ namespace ZoologyMod
                 Map map = predator.Map;
                 if (map == null) return;
 
-                int currentTick = Find.TickManager?.TicksGame ?? 0;
-                if (!HasAnyActiveProtectorsFast(currentTick)) return;
+                if (!ProtectPreyState.HasAnyActiveProtectors) return;
                 if (!ProtectPreyState.HasActiveProtectorsForMap(map)) return;
 
                 if (!ProtectPreyState.TryGetProtectedPawnCachedNoTick(predator, out Pawn protectedPawn))

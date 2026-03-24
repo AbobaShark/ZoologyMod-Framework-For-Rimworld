@@ -60,6 +60,7 @@ namespace ZoologyMod
         private static readonly Dictionary<string, RuntimeAnimalFeatureDefinition> featureById = new Dictionary<string, RuntimeAnimalFeatureDefinition>(StringComparer.Ordinal);
         private static readonly Dictionary<string, Dictionary<ThingDef, bool>> featureDefaultPresenceById = new Dictionary<string, Dictionary<ThingDef, bool>>(StringComparer.Ordinal);
         private static readonly Dictionary<string, Dictionary<ThingDef, object>> featureDefaultEntryById = new Dictionary<string, Dictionary<ThingDef, object>>(StringComparer.Ordinal);
+        private static readonly Dictionary<string, object> featureFallbackEntryById = new Dictionary<string, object>(StringComparer.Ordinal);
         private static readonly List<RuntimeAnimalFeatureDefinition> allFeatures = new List<RuntimeAnimalFeatureDefinition>
         {
             new RuntimeAnimalFeatureDefinition(
@@ -167,14 +168,6 @@ namespace ZoologyMod
                 typeof(CompProperties_DrugsImmune),
                 s => s != null && s.EnableDrugsImmunePatch),
             new RuntimeAnimalFeatureDefinition(
-                "comp_animal_regeneration",
-                "Animal regeneration comp",
-                "With animal regeneration comp",
-                "Without animal regeneration comp",
-                RuntimeAnimalFeatureKind.Comp,
-                typeof(CompProperties_AnimalRegeneration),
-                s => s != null && s.EnableAnimalRegenerationComp),
-            new RuntimeAnimalFeatureDefinition(
                 "comp_animal_clotting",
                 "Animal clotting comp",
                 "With animal clotting comp",
@@ -187,6 +180,7 @@ namespace ZoologyMod
         private static bool initialized;
         private static List<TrainabilityDef> cachedSupportedTrainabilityDefs;
         private static TrainabilityDef cachedTrainabilityNone;
+        private static int cachedThingDefCount = -1;
 
         public static IReadOnlyList<RuntimeAnimalFeatureDefinition> Features
         {
@@ -199,12 +193,20 @@ namespace ZoologyMod
 
         public static void EnsureInitialized()
         {
-            if (initialized)
+            int currentThingDefCount = DefDatabase<ThingDef>.AllDefsListForReading?.Count ?? 0;
+            bool shouldRebuild = !initialized
+                || cachedThingDefCount != currentThingDefCount
+                || (currentThingDefCount > 0 && cachedAnimalDefs.Count == 0)
+                || featureById.Count != allFeatures.Count;
+            if (!shouldRebuild)
             {
                 return;
             }
 
             initialized = true;
+            cachedThingDefCount = currentThingDefCount;
+            cachedSupportedTrainabilityDefs = null;
+            cachedTrainabilityNone = null;
             BuildAnimalDefCache();
             BuildFeatureMetadata();
         }
@@ -225,6 +227,49 @@ namespace ZoologyMod
         {
             EnsureInitialized();
             return !string.IsNullOrEmpty(featureId) && featureById.ContainsKey(featureId);
+        }
+
+        public static bool TryGetDefaultFeatureEntry(string featureId, ThingDef def, out object entry)
+        {
+            entry = null;
+            EnsureInitialized();
+
+            if (string.IsNullOrEmpty(featureId)
+                || def == null
+                || !featureById.TryGetValue(featureId, out RuntimeAnimalFeatureDefinition feature))
+            {
+                return false;
+            }
+
+            if (featureDefaultEntryById.TryGetValue(featureId, out Dictionary<ThingDef, object> byDef)
+                && byDef.TryGetValue(def, out object defaultEntry))
+            {
+                entry = CloneEntryObject(defaultEntry);
+                if (entry != null)
+                {
+                    return true;
+                }
+            }
+
+            if (featureFallbackEntryById.TryGetValue(featureId, out object fallbackEntry))
+            {
+                entry = CloneEntryObject(fallbackEntry);
+                if (entry != null)
+                {
+                    return true;
+                }
+            }
+
+            try
+            {
+                entry = Activator.CreateInstance(feature.EntryType);
+            }
+            catch
+            {
+                entry = null;
+            }
+
+            return entry != null;
         }
 
         public static bool IsDefaultRoamer(ThingDef def)
@@ -354,6 +399,63 @@ namespace ZoologyMod
                         EnsureCompPresence(def, feature, enabled);
                         break;
                 }
+
+                if (enabled)
+                {
+                    ApplyFeatureParameters(def, feature, settings);
+                }
+            }
+        }
+
+        private static void ApplyFeatureParameters(ThingDef def, RuntimeAnimalFeatureDefinition feature, ZoologyModSettings settings)
+        {
+            if (def == null || feature == null || settings == null || !TryGetFeatureEntryObject(def, feature, out object entry) || entry == null)
+            {
+                return;
+            }
+
+            switch (feature.Id)
+            {
+                case "modext_scavenger":
+                    if (entry is ModExtension_IsScavenger scavenger)
+                    {
+                        scavenger.allowVeryRotten = settings.GetScavengerAllowVeryRottenFor(def);
+                    }
+                    break;
+                case "modext_flee_from_carrier":
+                    if (entry is ModExtension_FleeFromCarrier fleeFromCarrier)
+                    {
+                        fleeFromCarrier.fleeRadius = settings.GetFleeFromCarrierRadiusFor(def);
+                        fleeFromCarrier.fleeBodySizeLimit = settings.GetFleeFromCarrierBodySizeLimitFor(def);
+                        fleeFromCarrier.fleeDistance = settings.GetFleeFromCarrierDistanceFor(def);
+                    }
+                    break;
+                case "comp_ageless":
+                    if (entry is CompProperties_Ageless ageless)
+                    {
+                        ageless.cleanupIntervalTicks = settings.GetAgelessCleanupIntervalTicksFor(def);
+                    }
+                    break;
+                case "comp_drugs_immune":
+                    if (entry is CompProperties_DrugsImmune drugsImmune)
+                    {
+                        drugsImmune.cleanupIntervalTicks = settings.GetDrugsImmuneCleanupIntervalTicksFor(def);
+                    }
+                    break;
+                case "comp_animal_clotting":
+                    if (entry is CompProperties_AnimalClotting clotting)
+                    {
+                        clotting.checkInterval = settings.GetAnimalClottingCheckIntervalFor(def);
+                        float rangeMin = settings.GetAnimalClottingTendingMinFor(def);
+                        float rangeMax = settings.GetAnimalClottingTendingMaxFor(def);
+                        if (rangeMax < rangeMin)
+                        {
+                            rangeMax = rangeMin;
+                        }
+
+                        clotting.tendingQuality = new FloatRange(rangeMin, rangeMax);
+                    }
+                    break;
             }
         }
 
@@ -489,21 +591,13 @@ namespace ZoologyMod
 
         private static object CreateFeatureEntry(RuntimeAnimalFeatureDefinition feature, ThingDef def)
         {
-            if (featureDefaultEntryById.TryGetValue(feature.Id, out Dictionary<ThingDef, object> byDef)
-                && byDef.TryGetValue(def, out object defaultEntry))
+            if (TryGetDefaultFeatureEntry(feature.Id, def, out object entry))
             {
-                return CloneEntryObject(defaultEntry);
+                return entry;
             }
 
-            try
-            {
-                return Activator.CreateInstance(feature.EntryType);
-            }
-            catch (Exception ex)
-            {
-                Log.Warning($"[Zoology] Failed to create runtime feature entry '{feature.Id}' for '{def?.defName ?? "null"}': {ex}");
-                return null;
-            }
+            Log.Warning($"[Zoology] Failed to create runtime feature entry '{feature?.Id ?? "null"}' for '{def?.defName ?? "null"}'.");
+            return null;
         }
 
         private static void BuildAnimalDefCache()
@@ -540,11 +634,16 @@ namespace ZoologyMod
             featureById.Clear();
             featureDefaultPresenceById.Clear();
             featureDefaultEntryById.Clear();
+            featureFallbackEntryById.Clear();
 
             for (int i = 0; i < allFeatures.Count; i++)
             {
                 RuntimeAnimalFeatureDefinition feature = allFeatures[i];
                 featureById[feature.Id] = feature;
+                if (TryCreateFallbackFeatureEntry(feature, out object fallbackEntry))
+                {
+                    featureFallbackEntryById[feature.Id] = fallbackEntry;
+                }
 
                 Dictionary<ThingDef, bool> presenceByDef = new Dictionary<ThingDef, bool>(cachedAnimalDefs.Count);
                 Dictionary<ThingDef, object> defaultEntryByDef = new Dictionary<ThingDef, object>(64);
@@ -567,6 +666,27 @@ namespace ZoologyMod
                 featureDefaultPresenceById[feature.Id] = presenceByDef;
                 featureDefaultEntryById[feature.Id] = defaultEntryByDef;
             }
+        }
+
+        private static bool TryCreateFallbackFeatureEntry(RuntimeAnimalFeatureDefinition feature, out object entry)
+        {
+            entry = null;
+            if (feature?.EntryType == null)
+            {
+                return false;
+            }
+
+            try
+            {
+                entry = Activator.CreateInstance(feature.EntryType);
+            }
+            catch (Exception ex)
+            {
+                Log.Warning($"[Zoology] Failed to create fallback runtime feature entry '{feature.Id}': {ex}");
+                return false;
+            }
+
+            return entry != null;
         }
 
         private static bool TryGetFeatureEntryObject(ThingDef def, RuntimeAnimalFeatureDefinition feature, out object entry)

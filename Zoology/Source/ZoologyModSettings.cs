@@ -71,6 +71,24 @@ namespace ZoologyMod
         public Dictionary<string, float> RoamMtbDaysPerAnimal = new Dictionary<string, float>();
         public Dictionary<string, string> NonRoamerTrainabilityPerAnimal = new Dictionary<string, string>();
         public Dictionary<string, bool> AnimalFeatureEnabledOverrides = new Dictionary<string, bool>();
+        public Dictionary<string, bool> AnimalFeatureBoolParameterOverrides = new Dictionary<string, bool>();
+        public Dictionary<string, int> AnimalFeatureIntParameterOverrides = new Dictionary<string, int>();
+        public Dictionary<string, float> AnimalFeatureFloatParameterOverrides = new Dictionary<string, float>();
+
+        private const string FeatureScavenger = "modext_scavenger";
+        private const string FeatureFleeFromCarrier = "modext_flee_from_carrier";
+        private const string FeatureCompAgeless = "comp_ageless";
+        private const string FeatureCompDrugsImmune = "comp_drugs_immune";
+        private const string FeatureCompAnimalClotting = "comp_animal_clotting";
+
+        private const string ParamAllowVeryRotten = "allowVeryRotten";
+        private const string ParamFleeRadius = "fleeRadius";
+        private const string ParamFleeBodySizeLimit = "fleeBodySizeLimit";
+        private const string ParamFleeDistance = "fleeDistance";
+        private const string ParamCleanupIntervalTicks = "cleanupIntervalTicks";
+        private const string ParamCheckInterval = "checkInterval";
+        private const string ParamTendingQualityMin = "tendingQualityMin";
+        private const string ParamTendingQualityMax = "tendingQualityMax";
 
         
         
@@ -606,11 +624,6 @@ namespace ZoologyMod
 
             list.GapLine(12f);
             list.CheckboxLabeled("Enable animal regeneration comp behavior", ref EnableAnimalRegenerationComp, "When disabled, Comp_AnimalRegeneration tick behavior is skipped.");
-            if (EnableAnimalRegenerationComp)
-            {
-                list.GapLine(6f);
-                DrawRuntimeFeatureConfigureButton(list, "comp_animal_regeneration", "Configure animal regeneration comp species");
-            }
 
             list.GapLine(12f);
             list.CheckboxLabeled("Enable animal clotting comp behavior", ref EnableAnimalClottingComp, "When disabled, Comp_AnimalClotting tick behavior is skipped.");
@@ -722,6 +735,9 @@ namespace ZoologyMod
             RoamMtbDaysPerAnimal.Clear();
             NonRoamerTrainabilityPerAnimal.Clear();
             AnimalFeatureEnabledOverrides.Clear();
+            AnimalFeatureBoolParameterOverrides.Clear();
+            AnimalFeatureIntParameterOverrides.Clear();
+            AnimalFeatureFloatParameterOverrides.Clear();
             EnableAnimalDamageReduction = !_cePresent;
             EnableOverrideCEPenetration = _cePresent ? true : false;
             DisableAllRuntimePatches = false;
@@ -798,11 +814,15 @@ namespace ZoologyMod
             Scribe_Collections.Look(ref RoamMtbDaysPerAnimal, "RoamMtbDaysPerAnimal", LookMode.Value, LookMode.Value);
             Scribe_Collections.Look(ref NonRoamerTrainabilityPerAnimal, "NonRoamerTrainabilityPerAnimal", LookMode.Value, LookMode.Value);
             Scribe_Collections.Look(ref AnimalFeatureEnabledOverrides, "AnimalFeatureEnabledOverrides", LookMode.Value, LookMode.Value);
+            Scribe_Collections.Look(ref AnimalFeatureBoolParameterOverrides, "AnimalFeatureBoolParameterOverrides", LookMode.Value, LookMode.Value);
+            Scribe_Collections.Look(ref AnimalFeatureIntParameterOverrides, "AnimalFeatureIntParameterOverrides", LookMode.Value, LookMode.Value);
+            Scribe_Collections.Look(ref AnimalFeatureFloatParameterOverrides, "AnimalFeatureFloatParameterOverrides", LookMode.Value, LookMode.Value);
 
             EnsureCollectionsInitialized();
             CleanupAnimalsFreeFromHumansOverrides();
             CleanupRoamerOverrides();
             CleanupAnimalFeatureOverrides();
+            CleanupAnimalFeatureParameterOverrides();
 
             if (!EnableMammalLactation)
             {
@@ -1084,6 +1104,136 @@ namespace ZoologyMod
             ApplyRuntimeDefOverrides();
         }
 
+        public bool GetScavengerAllowVeryRottenFor(ThingDef animal)
+        {
+            bool defaultValue = GetDefaultScavengerAllowVeryRotten(animal);
+            return GetFeatureBoolParameter(FeatureScavenger, animal, ParamAllowVeryRotten, defaultValue);
+        }
+
+        public void SetScavengerAllowVeryRottenFor(ThingDef animal, bool value)
+        {
+            bool defaultValue = GetDefaultScavengerAllowVeryRotten(animal);
+            SetFeatureBoolParameter(FeatureScavenger, animal, ParamAllowVeryRotten, value, defaultValue);
+        }
+
+        public float GetFleeFromCarrierRadiusFor(ThingDef animal)
+        {
+            float defaultValue = GetDefaultFleeFromCarrierRadius(animal);
+            return GetFeatureFloatParameter(FeatureFleeFromCarrier, animal, ParamFleeRadius, defaultValue);
+        }
+
+        public void SetFleeFromCarrierRadiusFor(ThingDef animal, float value)
+        {
+            float clamped = Mathf.Clamp(value, 1f, 60f);
+            float defaultValue = GetDefaultFleeFromCarrierRadius(animal);
+            SetFeatureFloatParameter(FeatureFleeFromCarrier, animal, ParamFleeRadius, clamped, defaultValue);
+        }
+
+        public float GetFleeFromCarrierBodySizeLimitFor(ThingDef animal)
+        {
+            float defaultValue = GetDefaultFleeFromCarrierBodySizeLimit(animal);
+            return GetFeatureFloatParameter(FeatureFleeFromCarrier, animal, ParamFleeBodySizeLimit, defaultValue);
+        }
+
+        public void SetFleeFromCarrierBodySizeLimitFor(ThingDef animal, float value)
+        {
+            float clamped = Mathf.Clamp(value, 0f, 20f);
+            float defaultValue = GetDefaultFleeFromCarrierBodySizeLimit(animal);
+            SetFeatureFloatParameter(FeatureFleeFromCarrier, animal, ParamFleeBodySizeLimit, clamped, defaultValue);
+        }
+
+        public int GetFleeFromCarrierDistanceFor(ThingDef animal)
+        {
+            int defaultValue = GetDefaultFleeFromCarrierDistance(animal);
+            return GetFeatureIntParameter(FeatureFleeFromCarrier, animal, ParamFleeDistance, defaultValue);
+        }
+
+        public void SetFleeFromCarrierDistanceFor(ThingDef animal, int value)
+        {
+            int clamped = Mathf.Clamp(value, 1, 80);
+            int defaultValue = GetDefaultFleeFromCarrierDistance(animal);
+            SetFeatureIntParameter(FeatureFleeFromCarrier, animal, ParamFleeDistance, clamped, defaultValue);
+        }
+
+        public int GetAgelessCleanupIntervalTicksFor(ThingDef animal)
+        {
+            int defaultValue = GetDefaultAgelessCleanupIntervalTicks(animal);
+            return GetFeatureIntParameter(FeatureCompAgeless, animal, ParamCleanupIntervalTicks, defaultValue);
+        }
+
+        public void SetAgelessCleanupIntervalTicksFor(ThingDef animal, int value)
+        {
+            int clamped = Mathf.Clamp(value, 60, 120000);
+            int defaultValue = GetDefaultAgelessCleanupIntervalTicks(animal);
+            SetFeatureIntParameter(FeatureCompAgeless, animal, ParamCleanupIntervalTicks, clamped, defaultValue);
+        }
+
+        public int GetDrugsImmuneCleanupIntervalTicksFor(ThingDef animal)
+        {
+            int defaultValue = GetDefaultDrugsImmuneCleanupIntervalTicks(animal);
+            return GetFeatureIntParameter(FeatureCompDrugsImmune, animal, ParamCleanupIntervalTicks, defaultValue);
+        }
+
+        public void SetDrugsImmuneCleanupIntervalTicksFor(ThingDef animal, int value)
+        {
+            int clamped = Mathf.Clamp(value, 60, 120000);
+            int defaultValue = GetDefaultDrugsImmuneCleanupIntervalTicks(animal);
+            SetFeatureIntParameter(FeatureCompDrugsImmune, animal, ParamCleanupIntervalTicks, clamped, defaultValue);
+        }
+
+        public int GetAnimalClottingCheckIntervalFor(ThingDef animal)
+        {
+            int defaultValue = GetDefaultAnimalClottingCheckInterval(animal);
+            return GetFeatureIntParameter(FeatureCompAnimalClotting, animal, ParamCheckInterval, defaultValue);
+        }
+
+        public void SetAnimalClottingCheckIntervalFor(ThingDef animal, int value)
+        {
+            int clamped = Mathf.Clamp(value, 60, 120000);
+            int defaultValue = GetDefaultAnimalClottingCheckInterval(animal);
+            SetFeatureIntParameter(FeatureCompAnimalClotting, animal, ParamCheckInterval, clamped, defaultValue);
+        }
+
+        public float GetAnimalClottingTendingMinFor(ThingDef animal)
+        {
+            float defaultValue = GetDefaultAnimalClottingTendingMin(animal);
+            return GetFeatureFloatParameter(FeatureCompAnimalClotting, animal, ParamTendingQualityMin, defaultValue);
+        }
+
+        public void SetAnimalClottingTendingMinFor(ThingDef animal, float value)
+        {
+            float clampedMin = Mathf.Clamp(value, 0f, 2f);
+            float currentMax = GetAnimalClottingTendingMaxFor(animal);
+            float defaultValue = GetDefaultAnimalClottingTendingMin(animal);
+            SetFeatureFloatParameter(FeatureCompAnimalClotting, animal, ParamTendingQualityMin, clampedMin, defaultValue);
+
+            if (clampedMin > currentMax)
+            {
+                float maxDefaultValue = GetDefaultAnimalClottingTendingMax(animal);
+                SetFeatureFloatParameter(FeatureCompAnimalClotting, animal, ParamTendingQualityMax, clampedMin, maxDefaultValue);
+            }
+        }
+
+        public float GetAnimalClottingTendingMaxFor(ThingDef animal)
+        {
+            float defaultValue = GetDefaultAnimalClottingTendingMax(animal);
+            return GetFeatureFloatParameter(FeatureCompAnimalClotting, animal, ParamTendingQualityMax, defaultValue);
+        }
+
+        public void SetAnimalClottingTendingMaxFor(ThingDef animal, float value)
+        {
+            float clampedMax = Mathf.Clamp(value, 0f, 2f);
+            float currentMin = GetAnimalClottingTendingMinFor(animal);
+            float defaultValue = GetDefaultAnimalClottingTendingMax(animal);
+            SetFeatureFloatParameter(FeatureCompAnimalClotting, animal, ParamTendingQualityMax, clampedMax, defaultValue);
+
+            if (clampedMax < currentMin)
+            {
+                float minDefaultValue = GetDefaultAnimalClottingTendingMin(animal);
+                SetFeatureFloatParameter(FeatureCompAnimalClotting, animal, ParamTendingQualityMin, clampedMax, minDefaultValue);
+            }
+        }
+
         public void ResetAnimalFeatureOverrides(string featureId)
         {
             if (string.IsNullOrEmpty(featureId))
@@ -1113,6 +1263,8 @@ namespace ZoologyMod
                 }
             }
 
+            RemoveFeatureParameterOverrides(featureId);
+
             ApplyRuntimeDefOverrides();
         }
 
@@ -1130,6 +1282,9 @@ namespace ZoologyMod
             RoamMtbDaysPerAnimal ??= new Dictionary<string, float>();
             NonRoamerTrainabilityPerAnimal ??= new Dictionary<string, string>();
             AnimalFeatureEnabledOverrides ??= new Dictionary<string, bool>();
+            AnimalFeatureBoolParameterOverrides ??= new Dictionary<string, bool>();
+            AnimalFeatureIntParameterOverrides ??= new Dictionary<string, int>();
+            AnimalFeatureFloatParameterOverrides ??= new Dictionary<string, float>();
         }
 
         private void ClampFleeAndThreatSettings()
@@ -1145,6 +1300,317 @@ namespace ZoologyMod
         private static string MakeAnimalFeatureOverrideKey(string featureId, string defName)
         {
             return featureId + "|" + defName;
+        }
+
+        private static string MakeAnimalFeatureParameterOverrideKey(string featureId, string defName, string parameterId)
+        {
+            return featureId + "|" + defName + "|" + parameterId;
+        }
+
+        private bool GetFeatureBoolParameter(string featureId, ThingDef animal, string parameterId, bool defaultValue)
+        {
+            if (!ZoologyCacheUtility.IsAnimalThingDef(animal) || !IsSupportedBoolFeatureParameter(featureId, parameterId))
+            {
+                return defaultValue;
+            }
+
+            EnsureCollectionsInitialized();
+            string key = MakeAnimalFeatureParameterOverrideKey(featureId, animal.defName, parameterId);
+            if (AnimalFeatureBoolParameterOverrides.TryGetValue(key, out bool value))
+            {
+                return value;
+            }
+
+            return defaultValue;
+        }
+
+        private int GetFeatureIntParameter(string featureId, ThingDef animal, string parameterId, int defaultValue)
+        {
+            if (!ZoologyCacheUtility.IsAnimalThingDef(animal) || !IsSupportedIntFeatureParameter(featureId, parameterId))
+            {
+                return defaultValue;
+            }
+
+            EnsureCollectionsInitialized();
+            string key = MakeAnimalFeatureParameterOverrideKey(featureId, animal.defName, parameterId);
+            if (AnimalFeatureIntParameterOverrides.TryGetValue(key, out int value))
+            {
+                return value;
+            }
+
+            return defaultValue;
+        }
+
+        private float GetFeatureFloatParameter(string featureId, ThingDef animal, string parameterId, float defaultValue)
+        {
+            if (!ZoologyCacheUtility.IsAnimalThingDef(animal) || !IsSupportedFloatFeatureParameter(featureId, parameterId))
+            {
+                return defaultValue;
+            }
+
+            EnsureCollectionsInitialized();
+            string key = MakeAnimalFeatureParameterOverrideKey(featureId, animal.defName, parameterId);
+            if (AnimalFeatureFloatParameterOverrides.TryGetValue(key, out float value))
+            {
+                return value;
+            }
+
+            return defaultValue;
+        }
+
+        private void SetFeatureBoolParameter(string featureId, ThingDef animal, string parameterId, bool value, bool defaultValue)
+        {
+            if (!ZoologyCacheUtility.IsAnimalThingDef(animal) || !IsSupportedBoolFeatureParameter(featureId, parameterId))
+            {
+                return;
+            }
+
+            EnsureCollectionsInitialized();
+            string key = MakeAnimalFeatureParameterOverrideKey(featureId, animal.defName, parameterId);
+            if (value == defaultValue)
+            {
+                AnimalFeatureBoolParameterOverrides.Remove(key);
+            }
+            else
+            {
+                AnimalFeatureBoolParameterOverrides[key] = value;
+            }
+
+            ApplyRuntimeDefOverrides();
+        }
+
+        private void SetFeatureIntParameter(string featureId, ThingDef animal, string parameterId, int value, int defaultValue)
+        {
+            if (!ZoologyCacheUtility.IsAnimalThingDef(animal) || !IsSupportedIntFeatureParameter(featureId, parameterId))
+            {
+                return;
+            }
+
+            EnsureCollectionsInitialized();
+            string key = MakeAnimalFeatureParameterOverrideKey(featureId, animal.defName, parameterId);
+            if (value == defaultValue)
+            {
+                AnimalFeatureIntParameterOverrides.Remove(key);
+            }
+            else
+            {
+                AnimalFeatureIntParameterOverrides[key] = value;
+            }
+
+            ApplyRuntimeDefOverrides();
+        }
+
+        private void SetFeatureFloatParameter(string featureId, ThingDef animal, string parameterId, float value, float defaultValue)
+        {
+            if (!ZoologyCacheUtility.IsAnimalThingDef(animal) || !IsSupportedFloatFeatureParameter(featureId, parameterId))
+            {
+                return;
+            }
+
+            EnsureCollectionsInitialized();
+            string key = MakeAnimalFeatureParameterOverrideKey(featureId, animal.defName, parameterId);
+            if (Mathf.Abs(value - defaultValue) < 0.0001f)
+            {
+                AnimalFeatureFloatParameterOverrides.Remove(key);
+            }
+            else
+            {
+                AnimalFeatureFloatParameterOverrides[key] = value;
+            }
+
+            ApplyRuntimeDefOverrides();
+        }
+
+        private bool TryGetDefaultFeatureEntry<T>(string featureId, ThingDef animal, out T entry) where T : class
+        {
+            entry = null;
+            if (!ZoologyCacheUtility.IsAnimalThingDef(animal)
+                || !ZoologyRuntimeAnimalOverrides.TryGetDefaultFeatureEntry(featureId, animal, out object entryObject))
+            {
+                return false;
+            }
+
+            entry = entryObject as T;
+            return entry != null;
+        }
+
+        private bool GetDefaultScavengerAllowVeryRotten(ThingDef animal)
+        {
+            if (TryGetDefaultFeatureEntry(FeatureScavenger, animal, out ModExtension_IsScavenger scavenger))
+            {
+                return scavenger.allowVeryRotten;
+            }
+
+            return new ModExtension_IsScavenger().allowVeryRotten;
+        }
+
+        private float GetDefaultFleeFromCarrierRadius(ThingDef animal)
+        {
+            if (TryGetDefaultFeatureEntry(FeatureFleeFromCarrier, animal, out ModExtension_FleeFromCarrier flee))
+            {
+                return flee.fleeRadius;
+            }
+
+            return new ModExtension_FleeFromCarrier().fleeRadius;
+        }
+
+        private float GetDefaultFleeFromCarrierBodySizeLimit(ThingDef animal)
+        {
+            if (TryGetDefaultFeatureEntry(FeatureFleeFromCarrier, animal, out ModExtension_FleeFromCarrier flee))
+            {
+                return flee.fleeBodySizeLimit;
+            }
+
+            return new ModExtension_FleeFromCarrier().fleeBodySizeLimit;
+        }
+
+        private int GetDefaultFleeFromCarrierDistance(ThingDef animal)
+        {
+            if (TryGetDefaultFeatureEntry(FeatureFleeFromCarrier, animal, out ModExtension_FleeFromCarrier flee)
+                && flee.fleeDistance.HasValue
+                && flee.fleeDistance.Value > 0)
+            {
+                return flee.fleeDistance.Value;
+            }
+
+            return new ModExtension_FleeFromCarrier().fleeDistance ?? 16;
+        }
+
+        private int GetDefaultAgelessCleanupIntervalTicks(ThingDef animal)
+        {
+            if (TryGetDefaultFeatureEntry(FeatureCompAgeless, animal, out CompProperties_Ageless props))
+            {
+                return Mathf.Max(60, props.cleanupIntervalTicks);
+            }
+
+            return Mathf.Max(60, new CompProperties_Ageless().cleanupIntervalTicks);
+        }
+
+        private int GetDefaultDrugsImmuneCleanupIntervalTicks(ThingDef animal)
+        {
+            if (TryGetDefaultFeatureEntry(FeatureCompDrugsImmune, animal, out CompProperties_DrugsImmune props))
+            {
+                return Mathf.Max(60, props.cleanupIntervalTicks);
+            }
+
+            return Mathf.Max(60, new CompProperties_DrugsImmune().cleanupIntervalTicks);
+        }
+
+        private int GetDefaultAnimalClottingCheckInterval(ThingDef animal)
+        {
+            if (TryGetDefaultFeatureEntry(FeatureCompAnimalClotting, animal, out CompProperties_AnimalClotting props))
+            {
+                return Mathf.Max(60, props.checkInterval);
+            }
+
+            return Mathf.Max(60, new CompProperties_AnimalClotting().checkInterval);
+        }
+
+        private float GetDefaultAnimalClottingTendingMin(ThingDef animal)
+        {
+            if (TryGetDefaultFeatureEntry(FeatureCompAnimalClotting, animal, out CompProperties_AnimalClotting props))
+            {
+                return Mathf.Clamp(props.tendingQuality.TrueMin, 0f, 2f);
+            }
+
+            return Mathf.Clamp(new CompProperties_AnimalClotting().tendingQuality.TrueMin, 0f, 2f);
+        }
+
+        private float GetDefaultAnimalClottingTendingMax(ThingDef animal)
+        {
+            if (TryGetDefaultFeatureEntry(FeatureCompAnimalClotting, animal, out CompProperties_AnimalClotting props))
+            {
+                return Mathf.Clamp(props.tendingQuality.TrueMax, 0f, 2f);
+            }
+
+            return Mathf.Clamp(new CompProperties_AnimalClotting().tendingQuality.TrueMax, 0f, 2f);
+        }
+
+        private static bool IsSupportedBoolFeatureParameter(string featureId, string parameterId)
+        {
+            return string.Equals(featureId, FeatureScavenger, System.StringComparison.Ordinal)
+                && string.Equals(parameterId, ParamAllowVeryRotten, System.StringComparison.Ordinal);
+        }
+
+        private static bool IsSupportedIntFeatureParameter(string featureId, string parameterId)
+        {
+            if (string.Equals(featureId, FeatureFleeFromCarrier, System.StringComparison.Ordinal))
+            {
+                return string.Equals(parameterId, ParamFleeDistance, System.StringComparison.Ordinal);
+            }
+
+            if (string.Equals(featureId, FeatureCompAgeless, System.StringComparison.Ordinal)
+                || string.Equals(featureId, FeatureCompDrugsImmune, System.StringComparison.Ordinal))
+            {
+                return string.Equals(parameterId, ParamCleanupIntervalTicks, System.StringComparison.Ordinal);
+            }
+
+            if (string.Equals(featureId, FeatureCompAnimalClotting, System.StringComparison.Ordinal))
+            {
+                return string.Equals(parameterId, ParamCheckInterval, System.StringComparison.Ordinal);
+            }
+
+            return false;
+        }
+
+        private static bool IsSupportedFloatFeatureParameter(string featureId, string parameterId)
+        {
+            if (string.Equals(featureId, FeatureFleeFromCarrier, System.StringComparison.Ordinal))
+            {
+                return string.Equals(parameterId, ParamFleeRadius, System.StringComparison.Ordinal)
+                    || string.Equals(parameterId, ParamFleeBodySizeLimit, System.StringComparison.Ordinal);
+            }
+
+            if (string.Equals(featureId, FeatureCompAnimalClotting, System.StringComparison.Ordinal))
+            {
+                return string.Equals(parameterId, ParamTendingQualityMin, System.StringComparison.Ordinal)
+                    || string.Equals(parameterId, ParamTendingQualityMax, System.StringComparison.Ordinal);
+            }
+
+            return false;
+        }
+
+        private void RemoveFeatureParameterOverrides(string featureId)
+        {
+            if (string.IsNullOrEmpty(featureId))
+            {
+                return;
+            }
+
+            string prefix = featureId + "|";
+            RemoveByPrefix(AnimalFeatureBoolParameterOverrides, prefix);
+            RemoveByPrefix(AnimalFeatureIntParameterOverrides, prefix);
+            RemoveByPrefix(AnimalFeatureFloatParameterOverrides, prefix);
+        }
+
+        private static void RemoveByPrefix<T>(Dictionary<string, T> dict, string prefix)
+        {
+            if (dict == null || dict.Count == 0)
+            {
+                return;
+            }
+
+            List<string> keysToRemove = null;
+            foreach (KeyValuePair<string, T> entry in dict)
+            {
+                if (!entry.Key.StartsWith(prefix, System.StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                keysToRemove ??= new List<string>();
+                keysToRemove.Add(entry.Key);
+            }
+
+            if (keysToRemove == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < keysToRemove.Count; i++)
+            {
+                dict.Remove(keysToRemove[i]);
+            }
         }
 
         private void CleanupRoamerOverrides()
@@ -1243,6 +1709,70 @@ namespace ZoologyMod
             for (int i = 0; i < invalidKeys.Count; i++)
             {
                 AnimalFeatureEnabledOverrides.Remove(invalidKeys[i]);
+            }
+        }
+
+        private void CleanupAnimalFeatureParameterOverrides()
+        {
+            CleanupFeatureParameterOverrides(
+                AnimalFeatureBoolParameterOverrides,
+                IsSupportedBoolFeatureParameter);
+            CleanupFeatureParameterOverrides(
+                AnimalFeatureIntParameterOverrides,
+                IsSupportedIntFeatureParameter);
+            CleanupFeatureParameterOverrides(
+                AnimalFeatureFloatParameterOverrides,
+                IsSupportedFloatFeatureParameter);
+        }
+
+        private static void CleanupFeatureParameterOverrides<T>(
+            Dictionary<string, T> overrides,
+            System.Func<string, string, bool> isSupportedParameter)
+        {
+            if (overrides == null || overrides.Count == 0)
+            {
+                return;
+            }
+
+            List<string> invalidKeys = null;
+            foreach (KeyValuePair<string, T> entry in overrides)
+            {
+                string key = entry.Key;
+                int firstSeparator = key.IndexOf('|');
+                int secondSeparator = firstSeparator >= 0
+                    ? key.IndexOf('|', firstSeparator + 1)
+                    : -1;
+                if (firstSeparator <= 0
+                    || secondSeparator <= firstSeparator + 1
+                    || secondSeparator >= key.Length - 1)
+                {
+                    invalidKeys ??= new List<string>();
+                    invalidKeys.Add(key);
+                    continue;
+                }
+
+                string featureId = key.Substring(0, firstSeparator);
+                string defName = key.Substring(firstSeparator + 1, secondSeparator - firstSeparator - 1);
+                string parameterId = key.Substring(secondSeparator + 1);
+                ThingDef def = DefDatabase<ThingDef>.GetNamedSilentFail(defName);
+
+                if (!ZoologyRuntimeAnimalOverrides.IsKnownFeatureId(featureId)
+                    || !ZoologyCacheUtility.IsAnimalThingDef(def)
+                    || !isSupportedParameter(featureId, parameterId))
+                {
+                    invalidKeys ??= new List<string>();
+                    invalidKeys.Add(key);
+                }
+            }
+
+            if (invalidKeys == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < invalidKeys.Count; i++)
+            {
+                overrides.Remove(invalidKeys[i]);
             }
         }
 

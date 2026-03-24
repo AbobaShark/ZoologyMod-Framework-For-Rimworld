@@ -968,9 +968,9 @@ namespace ZoologyMod
                 return false;
             }
 
-            bool bothPhotonozoa = ZoologyCacheUtility.IsPhotonozoa(prey.def)
-                && ZoologyCacheUtility.IsPhotonozoa(threat.def);
-            if (!bothPhotonozoa)
+            bool preyPhotonozoa = ZoologyCacheUtility.IsPhotonozoa(prey.def) || IsPhotonozoaFaction(prey.Faction);
+            bool threatPhotonozoa = ZoologyCacheUtility.IsPhotonozoa(threat.def) || IsPhotonozoaFaction(threat.Faction);
+            if (!preyPhotonozoa || !threatPhotonozoa)
             {
                 return false;
             }
@@ -990,7 +990,7 @@ namespace ZoologyMod
                 return false;
             }
 
-            if (pawn.InMentalState || pawn.IsFighting())
+            if (pawn.InMentalState)
             {
                 return false;
             }

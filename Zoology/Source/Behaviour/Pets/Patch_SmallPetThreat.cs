@@ -9,6 +9,24 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(Pawn), "ThreatDisabledBecauseNonAggressiveRoamer")]
     public static class Patch_SmallPetThreatDisabled
     {
+        private static Game cachedGame;
+        private static int cachedPlayerFactionTick = int.MinValue;
+        private static Faction cachedPlayerFaction;
+
+        private static Faction GetPlayerFactionCached()
+        {
+            int currentTick = Find.TickManager?.TicksGame ?? 0;
+            Game currentGame = Current.Game;
+            if (!ReferenceEquals(cachedGame, currentGame) || cachedPlayerFactionTick != currentTick)
+            {
+                cachedGame = currentGame;
+                cachedPlayerFactionTick = currentTick;
+                cachedPlayerFaction = Faction.OfPlayerSilentFail;
+            }
+
+            return cachedPlayerFaction;
+        }
+
         private static bool IsHostileToPlayerFactionSafe(Faction faction)
         {
             if (faction == null)
@@ -16,7 +34,7 @@ namespace ZoologyMod
                 return false;
             }
 
-            Faction playerFaction = Faction.OfPlayerSilentFail;
+            Faction playerFaction = GetPlayerFactionCached();
             if (playerFaction == null || ReferenceEquals(faction, playerFaction))
             {
                 return false;
@@ -45,15 +63,13 @@ namespace ZoologyMod
                 return true;
             }
 
-            if (otherPawn != null && ZoologyFleeSafetyUtility.IsThreatMeleeAttackingPawn(otherPawn, __instance))
+            if (otherPawn == null)
             {
-                // If this pawn is actively being hit in melee, do not suppress threat response for roamers.
-                __result = false;
-                return false;
+                return true;
             }
 
             Faction myFaction = __instance.Faction;
-            Faction playerFaction = Faction.OfPlayerSilentFail;
+            Faction playerFaction = GetPlayerFactionCached();
             if (myFaction == null || playerFaction == null || !ReferenceEquals(myFaction, playerFaction))
             {
                 return true;
@@ -102,10 +118,17 @@ namespace ZoologyMod
                 }
             }
 
-            Lord lord = otherPawn?.GetLord();
+            Lord lord = otherPawn.GetLord();
             if (lord != null && lord.CurLordToil != null && lord.CurLordToil.AllowAggressiveTargetingOfRoamers)
             {
                 return true;
+            }
+
+            if (ZoologyFleeSafetyUtility.IsThreatMeleeAttackingPawn(otherPawn, __instance))
+            {
+                // If this small pet is actively being hit in melee, do not suppress threat response.
+                __result = false;
+                return false;
             }
 
             __result = true;

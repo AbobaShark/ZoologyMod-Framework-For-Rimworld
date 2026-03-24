@@ -145,19 +145,6 @@ namespace ZoologyMod
                 return false;
             }
 
-            Map threatMap = threat.Map;
-            if (!threat.Spawned
-                || !prey.Spawned
-                || threat.Dead
-                || threat.Destroyed
-                || threat.Downed
-                || threatMap == null
-                || !ReferenceEquals(threatMap, prey.Map)
-                || !threat.Position.AdjacentTo8WayOrInside(prey.Position))
-            {
-                return false;
-            }
-
             Job curJob = threat.CurJob;
             Thing targetThing = curJob?.targetA.Thing;
             if (curJob == null || !ReferenceEquals(targetThing, prey))
@@ -172,9 +159,31 @@ namespace ZoologyMod
                 return cachedResult;
             }
 
-            bool isMeleeAttacking = IsMeleeAttackingJob(curJob, curDriver);
-            StoreMeleeAttackResult(threat, prey, curJob, curDriver, isMeleeAttacking, currentTick);
-            return isMeleeAttacking;
+            if (!IsMeleeAttackingJob(curJob, curDriver))
+            {
+                StoreMeleeAttackResult(threat, prey, curJob, curDriver, false, currentTick);
+                return false;
+            }
+
+            if (!threat.Spawned
+                || !prey.Spawned
+                || threat.Dead
+                || threat.Destroyed
+                || threat.Downed)
+            {
+                return false;
+            }
+
+            Map threatMap = threat.Map;
+            if (threatMap == null
+                || !ReferenceEquals(threatMap, prey.Map)
+                || !threat.Position.AdjacentTo8WayOrInside(prey.Position))
+            {
+                return false;
+            }
+
+            StoreMeleeAttackResult(threat, prey, curJob, curDriver, true, currentTick);
+            return true;
         }
 
         private static bool IsMeleeAttackingJob(Job curJob, JobDriver curDriver)
