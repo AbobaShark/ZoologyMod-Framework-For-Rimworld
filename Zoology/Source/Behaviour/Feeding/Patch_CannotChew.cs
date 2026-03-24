@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using HarmonyLib;
 using RimWorld;
 using Verse;
@@ -234,6 +235,59 @@ namespace ZoologyMod
             catch (Exception ex)
             {
                 Log.Warning($"[Zoology] CannotChew presence despawn exception: {ex}");
+            }
+        }
+    }
+
+    [HarmonyPatch]
+    internal static class Patch_Corpse_IngestedCalculateAmounts_CannotChew
+    {
+        private static MethodBase TargetMethod()
+        {
+            return AccessTools.Method(
+                typeof(Corpse),
+                "IngestedCalculateAmounts",
+                new[]
+                {
+                    typeof(Pawn),
+                    typeof(float),
+                    typeof(int).MakeByRefType(),
+                    typeof(float).MakeByRefType()
+                });
+        }
+
+        private static bool Prefix(Corpse __instance, Pawn ingester, ref int numTaken, ref float nutritionIngested)
+        {
+            try
+            {
+                if (!CannotChewSettingsGate.Enabled())
+                {
+                    return true;
+                }
+
+                if (ingester == null || __instance?.InnerPawn == null)
+                {
+                    return true;
+                }
+
+                if (!CannotChewUtility.HasCannotChew(ingester))
+                {
+                    return true;
+                }
+
+                if (!CannotChewUtility.IsCorpseTooLarge(ingester, __instance))
+                {
+                    return true;
+                }
+
+                numTaken = 0;
+                nutritionIngested = 0f;
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Log.Warning($"[Zoology] CannotChew IngestedCalculateAmounts prefix exception: {ex}");
+                return true;
             }
         }
     }
