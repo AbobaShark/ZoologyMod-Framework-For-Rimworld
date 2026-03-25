@@ -351,7 +351,7 @@ namespace ZoologyMod
                             var foodNeed = ingester.needs?.food;
                             if (foodNeed != null)
                             {
-                                foodNeed.CurLevel = Math.Min(foodNeed.MaxLevel, foodNeed.CurLevel + remaining);
+                                foodNeed.CurLevel += remaining;
                             }
 
                             ingester.records?.AddTo(RecordDefOf.NutritionEaten, remaining);
