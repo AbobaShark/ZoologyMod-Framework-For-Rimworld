@@ -12,119 +12,65 @@ namespace ZoologyMod.HarmonyPatches
     [HarmonyPatch]
     public static class Patch_ScavengeringCore
     {
-        private sealed class ScavengerMapSnapshot
+        private struct ScavengerCorpseState
         {
-            public int Tick = int.MinValue;
-            public readonly Dictionary<int, Pawn> CorpseToEater = new Dictionary<int, Pawn>(32);
+            public Corpse Corpse;
+            public Pawn Eater;
+            public ModExtension_IsScavenger Scavenger;
+            public bool HasScavengerEater;
+            public bool CannotChewBlocks;
+            public bool IsBugged;
+            public bool DefAllowsNutrition;
+            public bool IsFlesh;
+            public RotStage RotStage;
         }
 
-        private static readonly Dictionary<int, ScavengerMapSnapshot> scavengerSnapshotByMapId =
-            new Dictionary<int, ScavengerMapSnapshot>(4);
+        private static readonly Dictionary<int, ScavengerCorpseState> scavengerCorpseStateById =
+            new Dictionary<int, ScavengerCorpseState>(64);
+        private static int scavengerCorpseStateTick = int.MinValue;
+        private static readonly Dictionary<int, int> adjacentFallbackScansByMapId = new Dictionary<int, int>(4);
+        private static int adjacentFallbackScansTick = int.MinValue;
+        private const int MaxAdjacentFallbackScansPerMapPerTick = 1;
 
-        private static Pawn TryGetScavengerEaterFromSnapshot(Corpse corpse)
+        private static bool TryConsumeAdjacentFallbackBudget(Map map)
         {
-            Map map = corpse.Map;
-            if (map == null || !corpse.Spawned)
+            if (map == null)
             {
-                return null;
+                return false;
             }
 
             int currentTick = Find.TickManager?.TicksGame ?? 0;
-            if (currentTick <= 0)
+            if (adjacentFallbackScansTick != currentTick)
             {
-                return null;
+                adjacentFallbackScansTick = currentTick;
+                adjacentFallbackScansByMapId.Clear();
             }
 
             int mapId = map.uniqueID;
-            if (!scavengerSnapshotByMapId.TryGetValue(mapId, out ScavengerMapSnapshot snapshot))
+            adjacentFallbackScansByMapId.TryGetValue(mapId, out int used);
+            if (used >= MaxAdjacentFallbackScansPerMapPerTick)
             {
-                snapshot = new ScavengerMapSnapshot();
-                scavengerSnapshotByMapId[mapId] = snapshot;
+                return false;
             }
 
-            if (snapshot.Tick != currentTick)
-            {
-                snapshot.Tick = currentTick;
-                snapshot.CorpseToEater.Clear();
-
-                IReadOnlyList<Pawn> pawns = map.mapPawns?.AllPawnsSpawned;
-                if (pawns != null)
-                {
-                    for (int i = 0; i < pawns.Count; i++)
-                    {
-                        Pawn pawn = pawns[i];
-                        if (pawn == null || pawn.Dead || pawn.Destroyed)
-                        {
-                            continue;
-                        }
-
-                        Job curJob = pawn.CurJob;
-                        if (curJob == null || curJob.def != JobDefOf.Ingest)
-                        {
-                            continue;
-                        }
-
-                        Corpse targetedCorpse = TryGetCorpseTarget(curJob, TargetIndex.A) as Corpse;
-                        if (targetedCorpse == null || !targetedCorpse.Spawned || targetedCorpse.Map != map)
-                        {
-                            continue;
-                        }
-
-                        if (!GenAdj.AdjacentTo8WayOrInside(pawn.Position, targetedCorpse.Position))
-                        {
-                            continue;
-                        }
-
-                        if (!DefModExtensionCache<ModExtension_IsScavenger>.TryGet(pawn, out _))
-                        {
-                            continue;
-                        }
-
-                        int corpseId = targetedCorpse.thingIDNumber;
-                        if (!snapshot.CorpseToEater.ContainsKey(corpseId))
-                        {
-                            snapshot.CorpseToEater.Add(corpseId, pawn);
-                        }
-                    }
-                }
-            }
-
-            int targetCorpseId = corpse.thingIDNumber;
-            if (!snapshot.CorpseToEater.TryGetValue(targetCorpseId, out Pawn eater))
-            {
-                return null;
-            }
-
-            if (eater == null || eater.Dead || eater.Destroyed)
-            {
-                snapshot.CorpseToEater.Remove(targetCorpseId);
-                return null;
-            }
-
-            Job eaterJob = eater.CurJob;
-            if (eaterJob == null || eaterJob.def != JobDefOf.Ingest)
-            {
-                snapshot.CorpseToEater.Remove(targetCorpseId);
-                return null;
-            }
-
-            if (!ReferenceEquals(eaterJob.targetA.Thing, corpse)
-                && !ReferenceEquals(eaterJob.targetB.Thing, corpse)
-                && !ReferenceEquals(eaterJob.targetC.Thing, corpse))
-            {
-                snapshot.CorpseToEater.Remove(targetCorpseId);
-                return null;
-            }
-
-            return eater;
+            adjacentFallbackScansByMapId[mapId] = used + 1;
+            return true;
         }
 
-        private static Pawn TryGetScavengerEaterByAdjacentScan(Corpse corpse)
+        private static bool TryGetScavengerEaterByAdjacentScan(Corpse corpse, out Pawn eater, out ModExtension_IsScavenger scav)
         {
+            eater = null;
+            scav = null;
+
+            if (corpse == null)
+            {
+                return false;
+            }
+
             Map map = corpse.Map;
             if (map == null || !corpse.Spawned)
             {
-                return null;
+                return false;
             }
 
             IntVec3 pos = corpse.Position;
@@ -139,7 +85,7 @@ namespace ZoologyMod.HarmonyPatches
                 List<Thing> list = map.thingGrid.ThingsListAtFast(c);
                 for (int j = 0; j < list.Count; j++)
                 {
-                    if (!(list[j] is Pawn pawn))
+                    if (!(list[j] is Pawn pawn) || pawn.Dead || pawn.Destroyed)
                     {
                         continue;
                     }
@@ -157,46 +103,131 @@ namespace ZoologyMod.HarmonyPatches
                         continue;
                     }
 
-                    if (!DefModExtensionCache<ModExtension_IsScavenger>.TryGet(pawn, out _))
+                    if (!DefModExtensionCache<ModExtension_IsScavenger>.TryGet(pawn, out scav) || scav == null)
                     {
                         continue;
                     }
 
+                    eater = pawn;
                     ScavengerEatingContext.SetEating(pawn, corpse);
-                    return pawn;
+                    return true;
                 }
             }
 
-            return null;
+            return false;
         }
 
-        private static Pawn TryGetScavengerEater(Corpse corpse)
+        private static bool TryGetScavengerEater(Corpse corpse, out Pawn eater, out ModExtension_IsScavenger scav)
         {
-            if (corpse == null) return null;
+            eater = null;
+            scav = null;
 
-            Pawn eater = ScavengerEatingContext.GetEatingPawnForCorpse(corpse);
-            if (eater != null) return eater;
+            if (corpse == null)
+            {
+                return false;
+            }
+
+            eater = ScavengerEatingContext.GetEatingPawnForCorpse(corpse);
+            if (eater != null
+                && !eater.Dead
+                && !eater.Destroyed
+                && DefModExtensionCache<ModExtension_IsScavenger>.TryGet(eater, out scav)
+                && scav != null)
+            {
+                return true;
+            }
 
             try
             {
-                eater = TryGetScavengerEaterFromSnapshot(corpse);
-                if (eater != null)
+                eater = null;
+                scav = null;
+
+                if (!corpse.Spawned || corpse.Map == null)
                 {
-                    ScavengerEatingContext.SetEating(eater, corpse);
-                    return eater;
+                    return false;
                 }
 
-                if ((Find.TickManager?.TicksGame ?? 0) <= 0)
+                if (!ScavengerEatingContext.HasAnyActiveEatingContext())
                 {
-                    return TryGetScavengerEaterByAdjacentScan(corpse);
+                    return false;
                 }
+
+                if (!TryConsumeAdjacentFallbackBudget(corpse.Map))
+                {
+                    return false;
+                }
+
+                return TryGetScavengerEaterByAdjacentScan(corpse, out eater, out scav);
             }
             catch
             {
-                return TryGetScavengerEaterByAdjacentScan(corpse);
+                eater = null;
+                scav = null;
+                return false;
+            }
+        }
+
+        private static bool TryGetScavengerCorpseState(Corpse corpse, out ScavengerCorpseState state)
+        {
+            state = default;
+            if (corpse == null)
+            {
+                return false;
             }
 
-            return null;
+            int currentTick = Find.TickManager?.TicksGame ?? 0;
+            if (scavengerCorpseStateTick != currentTick)
+            {
+                scavengerCorpseStateTick = currentTick;
+                scavengerCorpseStateById.Clear();
+            }
+
+            int corpseId = corpse.thingIDNumber;
+            if (scavengerCorpseStateById.TryGetValue(corpseId, out state)
+                && ReferenceEquals(state.Corpse, corpse))
+            {
+                return state.HasScavengerEater;
+            }
+
+            state = BuildScavengerCorpseState(corpse);
+            if (state.HasScavengerEater)
+            {
+                scavengerCorpseStateById[corpseId] = state;
+            }
+            else
+            {
+                scavengerCorpseStateById.Remove(corpseId);
+            }
+            return state.HasScavengerEater;
+        }
+
+        private static ScavengerCorpseState BuildScavengerCorpseState(Corpse corpse)
+        {
+            var state = new ScavengerCorpseState
+            {
+                Corpse = corpse
+            };
+
+            if (!TryGetScavengerEater(corpse, out Pawn eater, out ModExtension_IsScavenger scav))
+            {
+                return state;
+            }
+
+            state.Eater = eater;
+            state.Scavenger = scav;
+            state.HasScavengerEater = true;
+            state.IsBugged = corpse.Bugged;
+            state.DefAllowsNutrition = corpse.def != null && corpse.def.IsNutritionGivingIngestible;
+
+            Pawn innerPawn = corpse.InnerPawn;
+            state.IsFlesh = innerPawn != null && innerPawn.RaceProps != null && innerPawn.RaceProps.IsFlesh;
+
+            bool cannotChew = CannotChewUtility.HasCannotChew(eater);
+            state.CannotChewBlocks = cannotChew && CannotChewUtility.IsCorpseTooLarge(eater, corpse);
+
+            CompRottable rotComp = corpse.GetComp<CompRottable>();
+            state.RotStage = rotComp != null ? rotComp.Stage : corpse.GetRotStage();
+            return state;
         }
         
         
@@ -215,58 +246,32 @@ namespace ZoologyMod.HarmonyPatches
                 try
                 {
                     var settings = ZoologyModSettings.Instance;
-                    
                     if (settings != null && !settings.EnableScavengering) return true;
 
-                    var eater = TryGetScavengerEater(__instance);
-
-                    
-                    if (eater == null)
-                    {
-                        return true; 
-                    }
-
-                    
-                    if (!DefModExtensionCache<ModExtension_IsScavenger>.TryGet(eater, out ModExtension_IsScavenger scav))
-                    {
-                        return true;
-                    }
-                    if (scav == null)
+                    if (!TryGetScavengerCorpseState(__instance, out ScavengerCorpseState state))
                     {
                         return true;
                     }
 
-                    if (CannotChewUtility.HasCannotChew(eater)
-                        && CannotChewUtility.IsCorpseTooLarge(eater, __instance))
+                    if (state.CannotChewBlocks)
                     {
                         __result = false;
                         return false;
                     }
 
-                    if (__instance == null)
+                    if (state.IsBugged)
                     {
                         __result = false;
                         return false;
                     }
 
-                    if (__instance.Bugged)
+                    if (!state.DefAllowsNutrition || !state.IsFlesh)
                     {
                         __result = false;
                         return false;
                     }
 
-                    bool defAllows = __instance.def.IsNutritionGivingIngestible;
-                    bool isFlesh = __instance.InnerPawn != null && __instance.InnerPawn.RaceProps.IsFlesh;
-                    if (!defAllows || !isFlesh)
-                    {
-                        __result = false;
-                        return false;
-                    }
-
-                    var rotComp = __instance.TryGetComp<CompRottable>();
-                    RotStage rotStage = rotComp != null ? rotComp.Stage : __instance.GetRotStage();
-
-                    if (rotStage == RotStage.Dessicated && !scav.allowVeryRotten)
+                    if (state.RotStage == RotStage.Dessicated && !state.Scavenger.allowVeryRotten)
                     {
                         __result = false;
                         return false;
@@ -312,23 +317,17 @@ namespace ZoologyMod.HarmonyPatches
                 var corpse = req.Thing as Corpse;
                 if (corpse == null) return true;
 
-                var eater = TryGetScavengerEater(corpse);
-                if (eater == null) return true;
+                if (!TryGetScavengerCorpseState(corpse, out ScavengerCorpseState state)) return true;
 
-                if (!DefModExtensionCache<ModExtension_IsScavenger>.TryGet(eater, out ModExtension_IsScavenger scav)) return true;
-
-                var rotComp = corpse.TryGetComp<CompRottable>();
-                RotStage stage = rotComp != null ? rotComp.Stage : corpse.GetRotStage();
-
-                if (stage == RotStage.Fresh || stage == RotStage.Rotting)
+                if (state.RotStage == RotStage.Fresh || state.RotStage == RotStage.Rotting)
                 {
                     factor = 1f;
                     return false;
                 }
 
-                if (stage == RotStage.Dessicated)
+                if (state.RotStage == RotStage.Dessicated)
                 {
-                    factor = scav.allowVeryRotten ? 0.1f : 0f;
+                    factor = state.Scavenger.allowVeryRotten ? 0.1f : 0f;
                     return false;
                 }
 
@@ -371,30 +370,25 @@ namespace ZoologyMod.HarmonyPatches
                     if (ZoologyModSettings.Instance != null && !ZoologyModSettings.Instance.EnableScavengering) return true;
 
                     if (corpse == null || part == null) return true;
+                    if (!TryGetScavengerCorpseState(corpse, out ScavengerCorpseState state)) return true;
 
-                    var eater = TryGetScavengerEater(corpse);
-                    if (eater == null) return true;
-
-                    if (!DefModExtensionCache<ModExtension_IsScavenger>.TryGet(eater, out ModExtension_IsScavenger scav)) return true;
-
-                    var rotComp = corpse.TryGetComp<CompRottable>();
-                    RotStage rotStage = rotComp != null ? rotComp.Stage : corpse.GetRotStage();
-
-                    if (rotStage == RotStage.Dessicated && !scav.allowVeryRotten)
+                    if (state.RotStage == RotStage.Dessicated && !state.Scavenger.allowVeryRotten)
                     {
-                        return true; 
+                        return true;
                     }
+
+                    Pawn innerPawn = corpse.InnerPawn;
+                    if (innerPawn == null) return true;
 
                     float nutritionRaw = corpse.GetStatValue(StatDefOf.Nutrition, false, -1);
 
                     float adjusted;
-                    if (rotStage == RotStage.Dessicated)
+                    if (state.RotStage == RotStage.Dessicated)
                         adjusted = nutritionRaw * 0.1f;
                     else
                         adjusted = nutritionRaw;
 
-                    
-                    __result = FoodUtility.GetBodyPartNutrition(adjusted, corpse.InnerPawn, part);
+                    __result = FoodUtility.GetBodyPartNutrition(adjusted, innerPawn, part);
                     return false;
                 }
                 catch (Exception e)

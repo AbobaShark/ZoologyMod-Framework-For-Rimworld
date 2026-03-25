@@ -11,7 +11,6 @@ namespace ZoologyMod
         [ThreadStatic] private static Dictionary<Pawn, Thing> pawnToTarget;
         [ThreadStatic] private static Dictionary<int, Pawn> corpseToPawn;
         [ThreadStatic] private static Dictionary<int, HandFeedEntry> handFedByCorpseId;
-        [ThreadStatic] private static List<Pawn> pawnCleanupBuffer;
         [ThreadStatic] private static List<int> handCleanupBuffer;
         [ThreadStatic] private static Pawn forcePawn;
         [ThreadStatic] private static int forceCorpseId;
@@ -26,8 +25,35 @@ namespace ZoologyMod
         private static Dictionary<Pawn, Thing> SelfMap => pawnToTarget ?? (pawnToTarget = new Dictionary<Pawn, Thing>());
         private static Dictionary<int, Pawn> CorpseMap => corpseToPawn ?? (corpseToPawn = new Dictionary<int, Pawn>(64));
         private static Dictionary<int, HandFeedEntry> HandMap => handFedByCorpseId ?? (handFedByCorpseId = new Dictionary<int, HandFeedEntry>(32));
-        private static List<Pawn> PawnCleanup => pawnCleanupBuffer ?? (pawnCleanupBuffer = new List<Pawn>(8));
         private static List<int> HandCleanup => handCleanupBuffer ?? (handCleanupBuffer = new List<int>(8));
+
+        public static bool HasAnyActiveEatingContext()
+        {
+            try
+            {
+                int now = Find.TickManager?.TicksGame ?? 0;
+                if (forcePawn != null && !forcePawn.Dead && !forcePawn.Destroyed && now - forceTick <= 1)
+                {
+                    return true;
+                }
+
+                if (corpseToPawn != null && corpseToPawn.Count > 0)
+                {
+                    return true;
+                }
+
+                if (handFedByCorpseId != null && handFedByCorpseId.Count > 0)
+                {
+                    return true;
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error("[Zoology] Error in ScavengerEatingContext.HasAnyActiveEatingContext: " + e);
+            }
+
+            return false;
+        }
 
         public static void SetEating(Pawn pawn, Thing target)
         {
@@ -227,107 +253,47 @@ namespace ZoologyMod
                 var map = pawnToTarget;
                 if (map == null || map.Count == 0) return null;
                 var reverseMap = corpseToPawn;
-                if (reverseMap != null && reverseMap.TryGetValue(corpseId, out Pawn cachedPawn))
+                if (reverseMap == null || !reverseMap.TryGetValue(corpseId, out Pawn cachedPawn))
                 {
-                    if (cachedPawn == null || cachedPawn.Dead || cachedPawn.Destroyed)
-                    {
-                        reverseMap.Remove(corpseId);
-                    }
-                    else
-                    {
-                        if (map.TryGetValue(cachedPawn, out Thing cachedTarget)
-                            && ReferenceEquals(cachedTarget, corpse))
-                        {
-                            try
-                            {
-                                var cj = cachedPawn.CurJob;
-                                if (cj != null && cj.def == JobDefOf.Ingest && ReferenceEquals(cj.targetA.Thing, cachedTarget))
-                                {
-                                    return cachedPawn;
-                                }
-                            }
-                            catch
-                            {
-                            }
-                        }
-                        else
-                        {
-                            reverseMap.Remove(corpseId);
-                        }
-                    }
+                    return null;
                 }
 
-                var toRemove = PawnCleanup;
-                toRemove.Clear();
-
-                foreach (var kv in map)
+                if (cachedPawn == null || cachedPawn.Dead || cachedPawn.Destroyed)
                 {
-                    var p = kv.Key;
-                    var t = kv.Value;
-
-                    if (p == null || p.Dead || p.Destroyed)
-                    {
-                        toRemove.Add(p);
-                        continue;
-                    }
-
-                    if (t == null)
-                    {
-                        toRemove.Add(p);
-                        continue;
-                    }
-
-                    try
-                    {
-                        var cj = p.CurJob;
-                        if (cj == null || cj.def != JobDefOf.Ingest)
-                        {
-                            toRemove.Add(p);
-                            continue;
-                        }
-                        var curTarget = cj.targetA.Thing;
-                        if (curTarget == null || curTarget != t)
-                        {
-                            toRemove.Add(p);
-                            continue;
-                        }
-
-                        if (t == corpse)
-                        {
-                            CorpseMap[corpseId] = p;
-                            return p;
-                        }
-                    }
-                    catch
-                    {
-                        toRemove.Add(p);
-                        continue;
-                    }
+                    reverseMap.Remove(corpseId);
+                    return null;
                 }
 
-                for (int i = 0; i < toRemove.Count; i++)
+                if (!map.TryGetValue(cachedPawn, out Thing cachedTarget) || !ReferenceEquals(cachedTarget, corpse))
                 {
-                    try
-                    {
-                        Pawn pawn = toRemove[i];
-                        if (pawn != null
-                            && map.TryGetValue(pawn, out Thing target)
-                            && target is Corpse staleCorpse)
-                        {
-                            var reverse = corpseToPawn;
-                            if (reverse != null
-                                && reverse.TryGetValue(staleCorpse.thingIDNumber, out Pawn reversePawn)
-                                && ReferenceEquals(reversePawn, pawn))
-                            {
-                                reverse.Remove(staleCorpse.thingIDNumber);
-                            }
-                        }
-
-                        map.Remove(pawn);
-                    }
-                    catch { }
+                    reverseMap.Remove(corpseId);
+                    return null;
                 }
-                toRemove.Clear();
+
+                try
+                {
+                    Job cj = cachedPawn.CurJob;
+                    if (cj == null || cj.def != JobDefOf.Ingest)
+                    {
+                        Clear(cachedPawn);
+                        return null;
+                    }
+
+                    if (!ReferenceEquals(cj.targetA.Thing, cachedTarget)
+                        && !ReferenceEquals(cj.targetB.Thing, cachedTarget)
+                        && !ReferenceEquals(cj.targetC.Thing, cachedTarget))
+                    {
+                        Clear(cachedPawn);
+                        return null;
+                    }
+
+                    return cachedPawn;
+                }
+                catch
+                {
+                    Clear(cachedPawn);
+                    return null;
+                }
             }
             catch (Exception e)
             {
