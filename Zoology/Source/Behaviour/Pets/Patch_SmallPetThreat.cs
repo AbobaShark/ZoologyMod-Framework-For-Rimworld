@@ -11,6 +11,9 @@ namespace ZoologyMod
     public static class Patch_SmallPetThreatDisabled
     {
         private const float DefaultSmallPetThreshold = ModConstants.DefaultSmallPetBodySizeThreshold;
+        private const int SettingsSnapshotRefreshIntervalTicks = ZoologyTickLimiter.SmallPetThreat.SettingsSnapshotRefreshIntervalTicks;
+        private const int StateCacheDurationTicks = ZoologyTickLimiter.SmallPetThreat.StateCacheDurationTicks;
+        private const int StateCacheCleanupIntervalTicks = ZoologyTickLimiter.SmallPetThreat.StateCacheCleanupIntervalTicks;
 
         private static Game cachedGame;
         private static Faction cachedPlayerFaction;
@@ -18,9 +21,11 @@ namespace ZoologyMod
         private static bool cachedIgnoreSmallPetsEnabled = true;
         private static bool settingsSnapshotInitialized;
         private static bool settingsSnapshotDirty = true;
+        private static int settingsSnapshotLastRefreshTick = int.MinValue;
         private static bool smallPetCandidateSetInitialized;
         private static int smallPetCandidateCount;
         private static bool hasAnySmallPetCandidates;
+        private static int lastStateCacheCleanupTick = int.MinValue;
 
         private readonly struct HostilityCacheEntry
         {
@@ -32,8 +37,60 @@ namespace ZoologyMod
             public bool Hostile { get; }
         }
 
+        private readonly struct SourceEligibilityEntry
+        {
+            public SourceEligibilityEntry(Pawn pawn, int tick, bool eligible)
+            {
+                Pawn = pawn;
+                Tick = tick;
+                Eligible = eligible;
+            }
+
+            public Pawn Pawn { get; }
+            public int Tick { get; }
+            public bool Eligible { get; }
+        }
+
+        private readonly struct OtherThreatEntry
+        {
+            public OtherThreatEntry(Pawn pawn, int tick, bool canThreat)
+            {
+                Pawn = pawn;
+                Tick = tick;
+                CanThreat = canThreat;
+            }
+
+            public Pawn Pawn { get; }
+            public int Tick { get; }
+            public bool CanThreat { get; }
+        }
+
+        private readonly struct MeleeThreatEntry
+        {
+            public MeleeThreatEntry(int tick, bool attacking)
+            {
+                Tick = tick;
+                Attacking = attacking;
+            }
+
+            public int Tick { get; }
+            public bool Attacking { get; }
+        }
+
         private static readonly Dictionary<int, HostilityCacheEntry> hostilityCacheByFactionId = new Dictionary<int, HostilityCacheEntry>(64);
         private static readonly HashSet<int> smallPetCandidatePawnIds = new HashSet<int>();
+        private static readonly Dictionary<int, SourceEligibilityEntry> sourceEligibilityCacheByPawnId = new Dictionary<int, SourceEligibilityEntry>(128);
+        private static readonly Dictionary<int, OtherThreatEntry> otherThreatCacheByPawnId = new Dictionary<int, OtherThreatEntry>(128);
+        private static readonly Dictionary<long, MeleeThreatEntry> meleeThreatCacheByPair = new Dictionary<long, MeleeThreatEntry>(256);
+        private static readonly List<int> intCleanupBuffer = new List<int>(128);
+        private static readonly List<long> longCleanupBuffer = new List<long>(128);
+
+        private static long MakePairKey(Pawn source, Pawn other)
+        {
+            uint sourceId = source != null ? (uint)source.thingIDNumber : 0u;
+            uint otherId = other != null ? (uint)other.thingIDNumber : 0u;
+            return ((long)sourceId << 32) | otherId;
+        }
 
         private static void ResetCachesForCurrentGameIfNeeded()
         {
@@ -49,11 +106,16 @@ namespace ZoologyMod
             cachedIgnoreSmallPetsEnabled = true;
             settingsSnapshotInitialized = false;
             settingsSnapshotDirty = true;
+            settingsSnapshotLastRefreshTick = int.MinValue;
             smallPetCandidateSetInitialized = false;
             smallPetCandidateCount = 0;
             hasAnySmallPetCandidates = false;
+            lastStateCacheCleanupTick = int.MinValue;
             hostilityCacheByFactionId.Clear();
             smallPetCandidatePawnIds.Clear();
+            sourceEligibilityCacheByPawnId.Clear();
+            otherThreatCacheByPawnId.Clear();
+            meleeThreatCacheByPair.Clear();
         }
 
         internal static void NotifySettingsChanged()
@@ -61,14 +123,17 @@ namespace ZoologyMod
             cachedSmallPetThreshold = -1f;
             settingsSnapshotInitialized = false;
             settingsSnapshotDirty = true;
+            settingsSnapshotLastRefreshTick = int.MinValue;
             smallPetCandidateSetInitialized = false;
             ClearSmallPetCandidates();
             hostilityCacheByFactionId.Clear();
+            sourceEligibilityCacheByPawnId.Clear();
+            otherThreatCacheByPawnId.Clear();
+            meleeThreatCacheByPair.Clear();
         }
 
         private static Faction GetPlayerFactionCached()
         {
-            ResetCachesForCurrentGameIfNeeded();
             if (cachedGame == null)
             {
                 return null;
@@ -78,9 +143,9 @@ namespace ZoologyMod
             return cachedPlayerFaction;
         }
 
-        private static bool IsHostileToPlayerFactionSafe(Faction faction)
+        private static bool IsHostileToPlayerFactionSafe(Faction faction, Faction playerFaction)
         {
-            if (faction == null)
+            if (faction == null || playerFaction == null || ReferenceEquals(faction, playerFaction))
             {
                 return false;
             }
@@ -89,12 +154,6 @@ namespace ZoologyMod
             if (factionId >= 0 && hostilityCacheByFactionId.TryGetValue(factionId, out HostilityCacheEntry cached))
             {
                 return cached.Hostile;
-            }
-
-            Faction playerFaction = GetPlayerFactionCached();
-            if (playerFaction == null || ReferenceEquals(faction, playerFaction))
-            {
-                return false;
             }
 
             FactionRelation relation = faction.RelationWith(playerFaction, allowNull: true);
@@ -139,12 +198,7 @@ namespace ZoologyMod
 
         private static void AddSmallPetCandidateId(int pawnId)
         {
-            if (pawnId < 0)
-            {
-                return;
-            }
-
-            if (!smallPetCandidatePawnIds.Add(pawnId))
+            if (pawnId < 0 || !smallPetCandidatePawnIds.Add(pawnId))
             {
                 return;
             }
@@ -170,7 +224,10 @@ namespace ZoologyMod
 
         private static void EnsureSettingsSnapshot()
         {
-            if (settingsSnapshotInitialized && !settingsSnapshotDirty)
+            int currentTick = Find.TickManager?.TicksGame ?? 0;
+            if (settingsSnapshotInitialized
+                && !settingsSnapshotDirty
+                && currentTick - settingsSnapshotLastRefreshTick < SettingsSnapshotRefreshIntervalTicks)
             {
                 return;
             }
@@ -188,11 +245,15 @@ namespace ZoologyMod
             cachedSmallPetThreshold = threshold;
             settingsSnapshotInitialized = true;
             settingsSnapshotDirty = false;
+            settingsSnapshotLastRefreshTick = currentTick;
 
             if (changed)
             {
                 smallPetCandidateSetInitialized = false;
                 ClearSmallPetCandidates();
+                sourceEligibilityCacheByPawnId.Clear();
+                otherThreatCacheByPawnId.Clear();
+                meleeThreatCacheByPair.Clear();
             }
         }
 
@@ -260,6 +321,9 @@ namespace ZoologyMod
             if (!cachedIgnoreSmallPetsEnabled)
             {
                 RemoveSmallPetCandidateId(pawn?.thingIDNumber ?? -1);
+                sourceEligibilityCacheByPawnId.Clear();
+                otherThreatCacheByPawnId.Clear();
+                meleeThreatCacheByPair.Clear();
                 return;
             }
 
@@ -272,11 +336,27 @@ namespace ZoologyMod
             {
                 RemoveSmallPetCandidateId(pawn.thingIDNumber);
             }
+
+            if (pawn != null)
+            {
+                int pawnId = pawn.thingIDNumber;
+                sourceEligibilityCacheByPawnId.Remove(pawnId);
+                otherThreatCacheByPawnId.Remove(pawnId);
+            }
+            meleeThreatCacheByPair.Clear();
         }
 
         private static void RemoveCachedMembership(Pawn pawn)
         {
             ResetCachesForCurrentGameIfNeeded();
+            if (pawn != null)
+            {
+                int pawnId = pawn.thingIDNumber;
+                sourceEligibilityCacheByPawnId.Remove(pawnId);
+                otherThreatCacheByPawnId.Remove(pawnId);
+            }
+            meleeThreatCacheByPair.Clear();
+
             if (!smallPetCandidateSetInitialized || pawn == null)
             {
                 return;
@@ -288,6 +368,168 @@ namespace ZoologyMod
         private static void InvalidateHostilityCache()
         {
             hostilityCacheByFactionId.Clear();
+            otherThreatCacheByPawnId.Clear();
+            meleeThreatCacheByPair.Clear();
+        }
+
+        private static void EnsureStateCacheCleanup(int currentTick)
+        {
+            if (currentTick <= 0)
+            {
+                return;
+            }
+
+            if (currentTick - lastStateCacheCleanupTick < StateCacheCleanupIntervalTicks)
+            {
+                return;
+            }
+
+            lastStateCacheCleanupTick = currentTick;
+
+            intCleanupBuffer.Clear();
+            foreach (KeyValuePair<int, SourceEligibilityEntry> kv in sourceEligibilityCacheByPawnId)
+            {
+                SourceEligibilityEntry entry = kv.Value;
+                Pawn pawn = entry.Pawn;
+                if (currentTick - entry.Tick > StateCacheDurationTicks
+                    || pawn == null
+                    || pawn.Destroyed
+                    || pawn.Dead)
+                {
+                    intCleanupBuffer.Add(kv.Key);
+                }
+            }
+            for (int i = 0; i < intCleanupBuffer.Count; i++)
+            {
+                sourceEligibilityCacheByPawnId.Remove(intCleanupBuffer[i]);
+            }
+
+            intCleanupBuffer.Clear();
+            foreach (KeyValuePair<int, OtherThreatEntry> kv in otherThreatCacheByPawnId)
+            {
+                OtherThreatEntry entry = kv.Value;
+                Pawn pawn = entry.Pawn;
+                if (currentTick - entry.Tick > StateCacheDurationTicks
+                    || pawn == null
+                    || pawn.Destroyed
+                    || pawn.Dead)
+                {
+                    intCleanupBuffer.Add(kv.Key);
+                }
+            }
+            for (int i = 0; i < intCleanupBuffer.Count; i++)
+            {
+                otherThreatCacheByPawnId.Remove(intCleanupBuffer[i]);
+            }
+
+            longCleanupBuffer.Clear();
+            foreach (KeyValuePair<long, MeleeThreatEntry> kv in meleeThreatCacheByPair)
+            {
+                if (currentTick - kv.Value.Tick > StateCacheDurationTicks)
+                {
+                    longCleanupBuffer.Add(kv.Key);
+                }
+            }
+            for (int i = 0; i < longCleanupBuffer.Count; i++)
+            {
+                meleeThreatCacheByPair.Remove(longCleanupBuffer[i]);
+            }
+        }
+
+        private static bool IsSourceEligibleCached(Pawn pawn, int currentTick)
+        {
+            if (pawn == null)
+            {
+                return false;
+            }
+
+            int pawnId = pawn.thingIDNumber;
+            if (sourceEligibilityCacheByPawnId.TryGetValue(pawnId, out SourceEligibilityEntry cached)
+                && ReferenceEquals(cached.Pawn, pawn)
+                && currentTick - cached.Tick <= StateCacheDurationTicks)
+            {
+                return cached.Eligible;
+            }
+
+            bool eligible = hasAnySmallPetCandidates && smallPetCandidatePawnIds.Contains(pawnId);
+            if (eligible)
+            {
+                if (ThinkNode_ConditionalShouldFollowMaster.ShouldFollowMaster(pawn))
+                {
+                    eligible = false;
+                }
+                else if (pawn.InAggroMentalState || pawn.IsFighting())
+                {
+                    eligible = false;
+                }
+                else
+                {
+                    int lastEngageTick = pawn.mindState?.lastEngageTargetTick ?? int.MinValue;
+                    if (currentTick < lastEngageTick + 360)
+                    {
+                        eligible = false;
+                    }
+                }
+            }
+
+            sourceEligibilityCacheByPawnId[pawnId] = new SourceEligibilityEntry(pawn, currentTick, eligible);
+            return eligible;
+        }
+
+        private static bool CanOtherPawnThreatSmallPetCached(Pawn otherPawn, Faction playerFaction, int currentTick)
+        {
+            if (otherPawn == null || playerFaction == null)
+            {
+                return false;
+            }
+
+            int pawnId = otherPawn.thingIDNumber;
+            if (otherThreatCacheByPawnId.TryGetValue(pawnId, out OtherThreatEntry cached)
+                && ReferenceEquals(cached.Pawn, otherPawn)
+                && currentTick - cached.Tick <= StateCacheDurationTicks)
+            {
+                return cached.CanThreat;
+            }
+
+            bool canThreat = true;
+            if (otherPawn.RaceProps?.Humanlike != true)
+            {
+                Faction otherFaction = otherPawn.Faction;
+                canThreat = otherFaction != null && IsHostileToPlayerFactionSafe(otherFaction, playerFaction);
+            }
+
+            if (canThreat)
+            {
+                Lord lord = otherPawn.GetLord();
+                if (lord != null
+                    && lord.CurLordToil != null
+                    && lord.CurLordToil.AllowAggressiveTargetingOfRoamers)
+                {
+                    canThreat = false;
+                }
+            }
+
+            otherThreatCacheByPawnId[pawnId] = new OtherThreatEntry(otherPawn, currentTick, canThreat);
+            return canThreat;
+        }
+
+        private static bool IsThreatMeleeAttackingPawnCached(Pawn otherPawn, Pawn pawn, int currentTick)
+        {
+            if (otherPawn == null || pawn == null)
+            {
+                return false;
+            }
+
+            long pairKey = MakePairKey(pawn, otherPawn);
+            if (meleeThreatCacheByPair.TryGetValue(pairKey, out MeleeThreatEntry cached)
+                && currentTick - cached.Tick <= StateCacheDurationTicks)
+            {
+                return cached.Attacking;
+            }
+
+            bool attacking = ZoologyFleeSafetyUtility.IsThreatMeleeAttackingPawn(otherPawn, pawn);
+            meleeThreatCacheByPair[pairKey] = new MeleeThreatEntry(currentTick, attacking);
+            return attacking;
         }
 
         public static bool Prepare()
@@ -295,86 +537,67 @@ namespace ZoologyMod
             return true;
         }
 
-        public static bool Prefix(Pawn __instance, Pawn otherPawn, ref bool __result)
+        public static void Postfix(Pawn __instance, Pawn otherPawn, ref bool __result)
         {
             if (__instance == null || otherPawn == null)
             {
-                return true;
+                return;
             }
 
             ResetCachesForCurrentGameIfNeeded();
+            int currentTick = Find.TickManager?.TicksGame ?? 0;
+            EnsureStateCacheCleanup(currentTick);
 
-            if (__instance.Roamer)
+            // Vanilla already disabled threat for a non-aggressive roamer;
+            // keep threat enabled only while the "threat" is actively melee-attacking this pawn.
+            if (__result)
             {
-                Faction playerFaction = GetPlayerFactionCached();
-                if (playerFaction != null
-                    && ReferenceEquals(__instance.Faction, playerFaction)
-                    && ZoologyFleeSafetyUtility.IsThreatMeleeAttackingPawn(otherPawn, __instance))
+                if (IsThreatMeleeAttackingPawnCached(otherPawn, __instance, currentTick))
                 {
                     __result = false;
-                    return false;
                 }
+                return;
             }
 
-            if (!settingsSnapshotInitialized || settingsSnapshotDirty)
-            {
-                EnsureSettingsSnapshot();
-            }
-
+            EnsureSettingsSnapshot();
             if (!cachedIgnoreSmallPetsEnabled)
             {
-                return true;
+                return;
             }
 
             if (!smallPetCandidateSetInitialized && !EnsureSmallPetCandidateSetCached())
             {
-                return true;
+                return;
             }
 
-            if (!hasAnySmallPetCandidates || !smallPetCandidatePawnIds.Contains(__instance.thingIDNumber))
+            if (!hasAnySmallPetCandidates)
             {
-                return true;
+                return;
             }
 
-            if (ThinkNode_ConditionalShouldFollowMaster.ShouldFollowMaster(__instance))
+            if (!IsSourceEligibleCached(__instance, currentTick))
             {
-                return true;
+                return;
             }
 
-            if (__instance.InAggroMentalState || __instance.IsFighting())
+            Faction playerFaction = GetPlayerFactionCached();
+            if (playerFaction == null)
             {
-                return true;
+                return;
             }
 
-            int currentTick = Find.TickManager?.TicksGame ?? 0;
-            if (currentTick < __instance.mindState.lastEngageTargetTick + 360)
+            if (!CanOtherPawnThreatSmallPetCached(otherPawn, playerFaction, currentTick))
             {
-                return true;
+                return;
             }
 
-            if (otherPawn.RaceProps?.Humanlike != true)
-            {
-                Faction otherFaction = otherPawn.Faction;
-                if (otherFaction == null || !IsHostileToPlayerFactionSafe(otherFaction))
-                {
-                    return true;
-                }
-            }
-
-            Lord lord = otherPawn.GetLord();
-            if (lord != null && lord.CurLordToil != null && lord.CurLordToil.AllowAggressiveTargetingOfRoamers)
-            {
-                return true;
-            }
-
-            if (ZoologyFleeSafetyUtility.IsThreatMeleeAttackingPawn(otherPawn, __instance))
+            if (IsThreatMeleeAttackingPawnCached(otherPawn, __instance, currentTick))
             {
                 __result = false;
-                return false;
+                return;
             }
 
             __result = true;
-            return false;
         }
 
         [HarmonyPatch(typeof(Pawn), nameof(Pawn.SpawnSetup))]
