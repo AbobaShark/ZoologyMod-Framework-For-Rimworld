@@ -15,6 +15,8 @@ namespace ZoologyMod
         private const int StateCacheDurationTicks = ZoologyTickLimiter.SmallPetThreat.StateCacheDurationTicks;
         private const int MaxSourceEligibilityCacheEntries = 1024;
         private const int MaxOtherThreatCacheEntries = 4096;
+        private const int CandidateMarkInitialSize = 4096;
+        private const int CandidateMarkMaxDirectId = 1_000_000;
 
         private static Game cachedGame;
         private static Faction cachedPlayerFaction;
@@ -26,6 +28,10 @@ namespace ZoologyMod
         private static bool smallPetCandidateSetInitialized;
         private static int smallPetCandidateCount;
         private static bool hasAnySmallPetCandidates;
+        private static int cachedTicksGame;
+        private static bool cachedTicksGameValid;
+        private static int[] smallPetCandidateMarks = new int[CandidateMarkInitialSize];
+        private static int smallPetCandidateMarkVersion = 1;
 
         private readonly struct HostilityCacheEntry
         {
@@ -66,7 +72,7 @@ namespace ZoologyMod
         }
 
         private static readonly Dictionary<int, HostilityCacheEntry> hostilityCacheByFactionId = new Dictionary<int, HostilityCacheEntry>(64);
-        private static readonly HashSet<int> smallPetCandidatePawnIds = new HashSet<int>();
+        private static readonly HashSet<int> smallPetCandidateOverflowIds = new HashSet<int>();
         private static readonly Dictionary<int, SourceEligibilityEntry> sourceEligibilityCacheByPawnId = new Dictionary<int, SourceEligibilityEntry>(128);
         private static readonly Dictionary<int, OtherThreatEntry> otherThreatCacheByPawnId = new Dictionary<int, OtherThreatEntry>(128);
 
@@ -82,8 +88,10 @@ namespace ZoologyMod
             smallPetCandidateSetInitialized = false;
             smallPetCandidateCount = 0;
             hasAnySmallPetCandidates = false;
+            cachedTicksGame = 0;
+            cachedTicksGameValid = false;
             hostilityCacheByFactionId.Clear();
-            smallPetCandidatePawnIds.Clear();
+            ClearCandidateMembershipLookup();
             sourceEligibilityCacheByPawnId.Clear();
             otherThreatCacheByPawnId.Clear();
         }
@@ -110,6 +118,121 @@ namespace ZoologyMod
             hostilityCacheByFactionId.Clear();
             sourceEligibilityCacheByPawnId.Clear();
             otherThreatCacheByPawnId.Clear();
+        }
+
+        private static bool EnsureCandidateMarkCapacity(int pawnId)
+        {
+            if (pawnId < 0)
+            {
+                return false;
+            }
+
+            int[] marks = smallPetCandidateMarks;
+            if (pawnId < marks.Length)
+            {
+                return true;
+            }
+
+            if (pawnId > CandidateMarkMaxDirectId)
+            {
+                return false;
+            }
+
+            int newSize = marks.Length;
+            while (newSize <= pawnId && newSize < CandidateMarkMaxDirectId)
+            {
+                int next = newSize << 1;
+                if (next <= 0 || next > CandidateMarkMaxDirectId)
+                {
+                    newSize = CandidateMarkMaxDirectId;
+                    break;
+                }
+
+                newSize = next;
+            }
+
+            if (newSize <= pawnId)
+            {
+                return false;
+            }
+
+            System.Array.Resize(ref smallPetCandidateMarks, newSize);
+            return true;
+        }
+
+        private static void ClearCandidateMembershipLookup()
+        {
+            if (smallPetCandidateMarkVersion == int.MaxValue)
+            {
+                System.Array.Clear(smallPetCandidateMarks, 0, smallPetCandidateMarks.Length);
+                smallPetCandidateMarkVersion = 1;
+            }
+            else
+            {
+                smallPetCandidateMarkVersion++;
+            }
+
+            smallPetCandidateOverflowIds.Clear();
+        }
+
+        private static bool CandidateMembershipContains(int pawnId)
+        {
+            if (pawnId < 0)
+            {
+                return false;
+            }
+
+            int[] marks = smallPetCandidateMarks;
+            if (pawnId < marks.Length)
+            {
+                return marks[pawnId] == smallPetCandidateMarkVersion;
+            }
+
+            return smallPetCandidateOverflowIds.Contains(pawnId);
+        }
+
+        private static bool CandidateMembershipAdd(int pawnId)
+        {
+            if (pawnId < 0)
+            {
+                return false;
+            }
+
+            if (EnsureCandidateMarkCapacity(pawnId))
+            {
+                int[] marks = smallPetCandidateMarks;
+                if (marks[pawnId] == smallPetCandidateMarkVersion)
+                {
+                    return false;
+                }
+
+                marks[pawnId] = smallPetCandidateMarkVersion;
+                return true;
+            }
+
+            return smallPetCandidateOverflowIds.Add(pawnId);
+        }
+
+        private static bool CandidateMembershipRemove(int pawnId)
+        {
+            if (pawnId < 0)
+            {
+                return false;
+            }
+
+            int[] marks = smallPetCandidateMarks;
+            if (pawnId < marks.Length)
+            {
+                if (marks[pawnId] != smallPetCandidateMarkVersion)
+                {
+                    return false;
+                }
+
+                marks[pawnId] = 0;
+                return true;
+            }
+
+            return smallPetCandidateOverflowIds.Remove(pawnId);
         }
 
         private static Faction GetPlayerFactionCached()
@@ -171,14 +294,14 @@ namespace ZoologyMod
 
         private static void ClearSmallPetCandidates()
         {
-            smallPetCandidatePawnIds.Clear();
+            ClearCandidateMembershipLookup();
             smallPetCandidateCount = 0;
             hasAnySmallPetCandidates = false;
         }
 
         private static void AddSmallPetCandidateId(int pawnId)
         {
-            if (pawnId < 0 || !smallPetCandidatePawnIds.Add(pawnId))
+            if (pawnId < 0 || !CandidateMembershipAdd(pawnId))
             {
                 return;
             }
@@ -189,7 +312,7 @@ namespace ZoologyMod
 
         private static void RemoveSmallPetCandidateId(int pawnId)
         {
-            if (pawnId < 0 || !smallPetCandidatePawnIds.Remove(pawnId))
+            if (pawnId < 0 || !CandidateMembershipRemove(pawnId))
             {
                 return;
             }
@@ -202,9 +325,26 @@ namespace ZoologyMod
             hasAnySmallPetCandidates = smallPetCandidateCount > 0;
         }
 
-        private static void EnsureSettingsSnapshot()
+        private static int GetCurrentTickFast()
         {
-            int currentTick = Find.TickManager?.TicksGame ?? 0;
+            if (cachedTicksGameValid)
+            {
+                return cachedTicksGame;
+            }
+
+            TickManager tickManager = cachedGame?.tickManager;
+            if (tickManager != null)
+            {
+                cachedTicksGame = tickManager.TicksGame;
+                cachedTicksGameValid = true;
+                return cachedTicksGame;
+            }
+
+            return 0;
+        }
+
+        private static void EnsureSettingsSnapshot(int currentTick)
+        {
             if (settingsSnapshotInitialized
                 && !settingsSnapshotDirty
                 && currentTick - settingsSnapshotLastRefreshTick < SettingsSnapshotRefreshIntervalTicks)
@@ -272,9 +412,9 @@ namespace ZoologyMod
             }
         }
 
-        private static bool EnsureSmallPetCandidateSetCached()
+        private static bool EnsureSmallPetCandidateSetCached(int currentTick)
         {
-            EnsureSettingsSnapshot();
+            EnsureSettingsSnapshot(currentTick);
             if (!cachedIgnoreSmallPetsEnabled)
             {
                 return false;
@@ -358,6 +498,11 @@ namespace ZoologyMod
                 && currentTick - cached.Tick <= StateCacheDurationTicks)
             {
                 return cached.Eligible;
+            }
+
+            if (!CandidateMembershipContains(pawnId))
+            {
+                return false;
             }
 
             bool eligible = true;
@@ -463,13 +608,21 @@ namespace ZoologyMod
                 return;
             }
 
-            Game currentGame = Current.Game;
-            if (!ReferenceEquals(cachedGame, currentGame))
+            if (cachedGame == null)
             {
-                ResetCachesForGame(currentGame);
+                Game currentGame = Current.Game;
+                if (!ReferenceEquals(cachedGame, currentGame))
+                {
+                    ResetCachesForGame(currentGame);
+                }
+
+                if (cachedGame == null)
+                {
+                    return;
+                }
             }
 
-            int currentTick = Find.TickManager?.TicksGame ?? 0;
+            int currentTick = GetCurrentTickFast();
 
             // Vanilla already disabled threat for a non-aggressive roamer;
             // keep threat enabled only while the "threat" is actively melee-attacking this pawn.
@@ -483,13 +636,13 @@ namespace ZoologyMod
                 return;
             }
 
-            EnsureSettingsSnapshot();
+            EnsureSettingsSnapshot(currentTick);
             if (!cachedIgnoreSmallPetsEnabled)
             {
                 return;
             }
 
-            if (!smallPetCandidateSetInitialized && !EnsureSmallPetCandidateSetCached())
+            if (!smallPetCandidateSetInitialized && !EnsureSmallPetCandidateSetCached(currentTick))
             {
                 return;
             }
@@ -500,7 +653,7 @@ namespace ZoologyMod
             }
 
             int sourceId = __instance.thingIDNumber;
-            if (!smallPetCandidatePawnIds.Contains(sourceId))
+            if (!CandidateMembershipContains(sourceId))
             {
                 return;
             }
@@ -586,6 +739,38 @@ namespace ZoologyMod
             private static void Postfix()
             {
                 InvalidateHostilityCache();
+            }
+        }
+
+        [HarmonyPatch(typeof(Game), nameof(Game.FinalizeInit))]
+        private static class Patch_Game_FinalizeInit_SmallPetCache
+        {
+            private static void Postfix(Game __instance)
+            {
+                ResetCachesForGame(__instance);
+            }
+        }
+
+        [HarmonyPatch(typeof(Game), nameof(Game.Dispose))]
+        private static class Patch_Game_Dispose_SmallPetCache
+        {
+            private static void Prefix(Game __instance)
+            {
+                if (ReferenceEquals(cachedGame, __instance))
+                {
+                    ResetCachesForGame(null);
+                }
+            }
+        }
+
+        [HarmonyPatch(typeof(TickManager), nameof(TickManager.DoSingleTick))]
+        private static class Patch_TickManager_DoSingleTick_SmallPetCache
+        {
+            private static void Prefix(TickManager __instance)
+            {
+                int increment = DebugSettings.fastEcology ? 2000 : 1;
+                cachedTicksGame = __instance.TicksGame + increment;
+                cachedTicksGameValid = true;
             }
         }
     }
