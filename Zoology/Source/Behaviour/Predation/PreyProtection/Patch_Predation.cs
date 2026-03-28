@@ -31,11 +31,14 @@ namespace ZoologyMod
 
         private readonly struct FoodOptimalityDeltaCacheEntry
         {
-            public FoodOptimalityDeltaCacheEntry(float delta, int tick)
+            public FoodOptimalityDeltaCacheEntry(long key, float delta, int tick)
             {
+                Key = key;
                 Delta = delta;
                 Tick = tick;
             }
+
+            public long Key { get; }
 
             public float Delta { get; }
 
@@ -63,22 +66,24 @@ namespace ZoologyMod
 
         private static readonly Func<Pawn, bool, Pawn> BestPawnToHuntForPredatorFunc = CreateBestPawnToHuntForPredatorDelegate();
         private static readonly Dictionary<long, CorpseFoodStateCacheEntry> corpseFoodStateCacheByPairKey = new Dictionary<long, CorpseFoodStateCacheEntry>(256);
-        private static readonly Dictionary<long, FoodOptimalityDeltaCacheEntry> foodOptimalityDeltaCacheByPairKey = new Dictionary<long, FoodOptimalityDeltaCacheEntry>(1024);
+        private static readonly Dictionary<ThingDef, float> staticIngestibleOptimalityDeltaByDef = new Dictionary<ThingDef, float>(128);
         private static readonly Dictionary<long, VanillaHuntTargetCacheEntry> vanillaHuntTargetCacheByPredatorKey =
             new Dictionary<long, VanillaHuntTargetCacheEntry>(512);
         private static readonly List<long> vanillaHuntTargetCleanupBuffer = new List<long>(64);
+        private static readonly FoodOptimalityDeltaCacheEntry[] foodOptimalityDeltaHotCacheSlots =
+            new FoodOptimalityDeltaCacheEntry[FoodOptimalityDeltaHotCacheSize];
 
         private const float OwnedCorpseBonus = 10000f;
         private const float UnpairedCorpseBonus = 300f;
         private const float GuardedCorpsePenalty = -10000f;
         private const float LiveAcceptablePreyBonus = 600f;
-        private const int FoodOptimalityDeltaCacheMaxEntries = 20000;
+        private const int FoodOptimalityDeltaHotCacheSize = 32768;
+        private const int FoodOptimalityDeltaHotCacheMask = FoodOptimalityDeltaHotCacheSize - 1;
         private const int VanillaHuntTargetCacheDurationTicks = 12;
         private const int VanillaHuntTargetCacheCleanupIntervalTicks = 300;
         private const int VanillaHuntTargetBudgetPerTick = 256;
 
         private static int lastCorpseFoodStateCacheCleanupTick = -ZoologyTickLimiter.PredationFood.CorpseFoodStateCacheCleanupIntervalTicks;
-        private static int lastFoodOptimalityDeltaCleanupTick = -ZoologyTickLimiter.PredationFood.FoodOptimalityDeltaCacheCleanupIntervalTicks;
         private static int lastVanillaHuntTargetCleanupTick = -VanillaHuntTargetCacheCleanupIntervalTicks;
         private static int corpseFoodStateBudgetTick = -1;
         private static int corpseFoodStateBudgetRemaining = 0;
@@ -86,6 +91,8 @@ namespace ZoologyMod
         private static int livePreyBudgetRemaining = 0;
         private static int vanillaHuntTargetBudgetTick = -1;
         private static int vanillaHuntTargetBudgetRemaining = 0;
+        private static Game runtimeCacheGame;
+        private static int runtimeCacheLastTick = -1;
 
         static PredationHarmonyPatches()
         {
@@ -266,21 +273,46 @@ namespace ZoologyMod
             bool isPredator = eater.RaceProps?.predator == true;
             if (!isPredator && eater.RaceProps?.Animal != true) return;
 
+            int currentTick = Find.TickManager?.TicksGame ?? 0;
+            EnsureRuntimeCacheState(currentTick);
+
             var corpse = foodSource as Corpse;
+            Pawn livePawn = null;
             if (corpse == null)
             {
-                var maybePawn = foodSource as Pawn;
+                Pawn maybePawn = foodSource as Pawn;
                 if (maybePawn != null && maybePawn.Dead)
                 {
-                    
-                    corpse = maybePawn.Corpse; 
+                    corpse = maybePawn.Corpse;
+                }
+                else
+                {
+                    livePawn = maybePawn;
                 }
             }
 
-            Thing cacheKey = corpse ?? foodSource;
-            if (TryGetFoodOptimalityDeltaCached(eater, cacheKey, out float cachedDelta))
+            bool hasDynamicPairSource = corpse != null || livePawn != null;
+            Thing cacheKey = hasDynamicPairSource ? (Thing)(corpse ?? (Thing)livePawn) : null;
+            long pairKey = hasDynamicPairSource ? FoodOptimalityPairKey(eater, cacheKey) : 0L;
+            if (hasDynamicPairSource
+                && TryGetFoodOptimalityDeltaCached(currentTick, pairKey, out float cachedDelta))
             {
                 __result += cachedDelta;
+                return;
+            }
+
+            if (!hasDynamicPairSource)
+            {
+                if (!isPredator)
+                {
+                    return;
+                }
+
+                if (TryGetStaticIngestiblePreferabilityDelta(foodSource, out float staticDelta))
+                {
+                    __result += staticDelta;
+                }
+
                 return;
             }
 
@@ -323,7 +355,7 @@ namespace ZoologyMod
                                 delta += GuardedCorpsePenalty;
                             }
                         }
-                        StoreFoodOptimalityDelta(eater, corpse, delta);
+                        StoreFoodOptimalityDelta(currentTick, pairKey, delta);
                         __result += delta;
                         return;
                     }
@@ -339,7 +371,6 @@ namespace ZoologyMod
                 return;
             }
 
-            var livePawn = foodSource as Pawn;
             if (livePawn != null && !livePawn.Dead)
             {
                 bool isAcceptable;
@@ -360,22 +391,10 @@ namespace ZoologyMod
                 {
                     delta += LiveAcceptablePreyBonus;
                 }
-                StoreFoodOptimalityDelta(eater, livePawn, delta);
+                StoreFoodOptimalityDelta(currentTick, pairKey, delta);
                 __result += delta;
                 return;
             }
-
-            if (!(foodSource is Pawn) && foodSource.def.IsNutritionGivingIngestible)
-            {
-                if (!foodSource.def.IsDrug)
-                {
-                    float prefBoost = (float)foodSource.def.ingestible.preferability * 4f;
-                    delta += prefBoost;
-                }
-            }
-
-            StoreFoodOptimalityDelta(eater, foodSource, delta);
-            __result += delta;
         }
 
         public static void BestFoodSourceOnMap_Postfix(Pawn getter, Pawn eater, bool desperate, ref Thing __result, ref ThingDef foodDef)
@@ -922,82 +941,92 @@ namespace ZoologyMod
             }
         }
 
-        private static bool TryGetFoodOptimalityDeltaCached(Pawn eater, Thing foodSource, out float delta)
+        private static bool TryGetStaticIngestiblePreferabilityDelta(Thing foodSource, out float delta)
         {
             delta = 0f;
-            if (eater == null || foodSource == null)
+            ThingDef def = foodSource?.def;
+            if (def == null
+                || foodSource is Pawn
+                || !def.IsNutritionGivingIngestible
+                || def.IsDrug
+                || def.ingestible == null)
             {
                 return false;
             }
 
-            int currentTick = Find.TickManager?.TicksGame ?? 0;
-            if (currentTick <= 0)
+            if (staticIngestibleOptimalityDeltaByDef.TryGetValue(def, out float cached))
+            {
+                delta = cached;
+                return cached != 0f;
+            }
+
+            float computed = (float)def.ingestible.preferability * 4f;
+            staticIngestibleOptimalityDeltaByDef[def] = computed;
+            delta = computed;
+            return computed != 0f;
+        }
+
+        private static bool TryGetFoodOptimalityDeltaCached(int currentTick, long pairKey, out float delta)
+        {
+            delta = 0f;
+            if (pairKey == 0L || currentTick <= 0)
             {
                 return false;
             }
 
-            long key = FoodOptimalityPairKey(eater, foodSource);
-            return key != 0L
-                && foodOptimalityDeltaCacheByPairKey.TryGetValue(key, out FoodOptimalityDeltaCacheEntry cached)
-                && currentTick - cached.Tick <= ZoologyTickLimiter.PredationFood.FoodOptimalityDeltaCacheDurationTicks
-                && (delta = cached.Delta) == cached.Delta;
+            int slotIndex = (int)((ulong)pairKey & FoodOptimalityDeltaHotCacheMask);
+            FoodOptimalityDeltaCacheEntry cached = foodOptimalityDeltaHotCacheSlots[slotIndex];
+            if (cached.Key != pairKey)
+            {
+                return false;
+            }
+
+            if (currentTick - cached.Tick > ZoologyTickLimiter.PredationFood.FoodOptimalityDeltaCacheDurationTicks)
+            {
+                return false;
+            }
+
+            delta = cached.Delta;
+            return true;
         }
 
-        private static void StoreFoodOptimalityDelta(Pawn eater, Thing foodSource, float delta)
+        private static void StoreFoodOptimalityDelta(int currentTick, long pairKey, float delta)
         {
-            if (eater == null || foodSource == null)
+            if (pairKey == 0L || currentTick <= 0)
             {
                 return;
             }
 
-            if (foodOptimalityDeltaCacheByPairKey.Count >= FoodOptimalityDeltaCacheMaxEntries)
-            {
-                return;
-            }
-
-            int currentTick = Find.TickManager?.TicksGame ?? 0;
-            long key = FoodOptimalityPairKey(eater, foodSource);
-            if (key == 0L || currentTick <= 0)
-            {
-                return;
-            }
-
-            foodOptimalityDeltaCacheByPairKey[key] = new FoodOptimalityDeltaCacheEntry(delta, currentTick);
-            CleanupFoodOptimalityDeltaCacheIfNeeded(currentTick);
+            int slotIndex = (int)((ulong)pairKey & FoodOptimalityDeltaHotCacheMask);
+            foodOptimalityDeltaHotCacheSlots[slotIndex] = new FoodOptimalityDeltaCacheEntry(pairKey, delta, currentTick);
         }
 
-        private static void CleanupFoodOptimalityDeltaCacheIfNeeded(int currentTick)
+        private static void EnsureRuntimeCacheState(int currentTick)
         {
-            if (currentTick - lastFoodOptimalityDeltaCleanupTick < ZoologyTickLimiter.PredationFood.FoodOptimalityDeltaCacheCleanupIntervalTicks)
+            Game currentGame = Current.Game;
+            bool gameChanged = !ReferenceEquals(runtimeCacheGame, currentGame);
+            bool tickRewound = currentTick > 0 && runtimeCacheLastTick > 0 && currentTick < runtimeCacheLastTick;
+            if (gameChanged || tickRewound)
             {
-                return;
+                corpseFoodStateCacheByPairKey.Clear();
+                staticIngestibleOptimalityDeltaByDef.Clear();
+                vanillaHuntTargetCacheByPredatorKey.Clear();
+                vanillaHuntTargetCleanupBuffer.Clear();
+                System.Array.Clear(foodOptimalityDeltaHotCacheSlots, 0, foodOptimalityDeltaHotCacheSlots.Length);
+                lastCorpseFoodStateCacheCleanupTick = -ZoologyTickLimiter.PredationFood.CorpseFoodStateCacheCleanupIntervalTicks;
+                lastVanillaHuntTargetCleanupTick = -VanillaHuntTargetCacheCleanupIntervalTicks;
+                corpseFoodStateBudgetTick = -1;
+                corpseFoodStateBudgetRemaining = 0;
+                livePreyBudgetTick = -1;
+                livePreyBudgetRemaining = 0;
+                vanillaHuntTargetBudgetTick = -1;
+                vanillaHuntTargetBudgetRemaining = 0;
+                runtimeCacheGame = currentGame;
             }
 
-            lastFoodOptimalityDeltaCleanupTick = currentTick;
-            List<long> staleKeys = null;
-            foreach (KeyValuePair<long, FoodOptimalityDeltaCacheEntry> entry in foodOptimalityDeltaCacheByPairKey)
+            if (currentTick > 0)
             {
-                if (currentTick - entry.Value.Tick <= ZoologyTickLimiter.PredationFood.FoodOptimalityDeltaCacheDurationTicks)
-                {
-                    continue;
-                }
-
-                if (staleKeys == null)
-                {
-                    staleKeys = new List<long>(128);
-                }
-
-                staleKeys.Add(entry.Key);
-            }
-
-            if (staleKeys == null)
-            {
-                return;
-            }
-
-            for (int i = 0; i < staleKeys.Count; i++)
-            {
-                foodOptimalityDeltaCacheByPairKey.Remove(staleKeys[i]);
+                runtimeCacheLastTick = currentTick;
             }
         }
 
