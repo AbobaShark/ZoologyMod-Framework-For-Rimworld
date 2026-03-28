@@ -15,8 +15,8 @@ namespace ZoologyMod.Patches
 
         public static bool Prepare()
         {
-            var s = ZoologyModSettings.Instance;
-            return s == null || s.EnableAnimalDamageReduction;
+            // Keep this patch always installed; runtime setting is checked in Prefix.
+            return true;
         }
 
         static MethodBase TargetMethod()
@@ -42,7 +42,7 @@ namespace ZoologyMod.Patches
             try
             {
                 var settings = ZoologyModSettings.Instance;
-                if (settings != null && !settings.EnableAnimalDamageReduction)
+                if (settings != null && (settings.DisableAllRuntimePatches || !settings.EnableAnimalDamageReduction))
                     return;
 
                 if (dinfo.Def == null) return;
@@ -58,32 +58,19 @@ namespace ZoologyMod.Patches
                     return;
                 }
 
-                Type workerClass = dinfo.Def.workerClass;
-                bool isScratch = ScratchWorkerType != null && (workerClass == ScratchWorkerType || workerClass.IsSubclassOf(ScratchWorkerType));
-                bool isBite = BiteWorkerType != null && (workerClass == BiteWorkerType || workerClass.IsSubclassOf(BiteWorkerType));
-                bool isBlunt = BluntWorkerType != null && (workerClass == BluntWorkerType || workerClass.IsSubclassOf(BluntWorkerType));
-                if (!isScratch && !isBite && !isBlunt) return;
+                if (!IsSupportedAnimalDamageType(dinfo)) return;
 
                 Pawn attackerPawn = instigator as Pawn;
                 if (attackerPawn == null) return;
 
                 bool instigatorIsAnimal = attackerPawn.IsAnimal;
-                bool isHumanNaturalToolAttack = IsHumanNaturalToolAttack(attackerPawn, dinfo);
+                bool isNaturalToolAttack = IsPawnNaturalToolAttack(attackerPawn, dinfo);
+                bool isHumanNaturalToolAttack = attackerPawn.RaceProps?.Humanlike == true && isNaturalToolAttack;
 
                 if (!instigatorIsAnimal && !isHumanNaturalToolAttack) return;
 
-                // Skip reduction for attacks done with weapons or hediff-based tools (bionics).
-                if (attackerPawn != null)
-                {
-                    if (dinfo.WeaponLinkedHediff != null)
-                    {
-                        return;
-                    }
-                    if (dinfo.Weapon != null && dinfo.Weapon != attackerPawn.def)
-                    {
-                        return;
-                    }
-                }
+                // Skip non-natural attacks (equipment/synthetic sources).
+                if (!isNaturalToolAttack) return;
 
                 bool victimIsPredator = victim.RaceProps?.predator ?? false;
                 bool attackerIsPredator = false;
@@ -188,20 +175,38 @@ namespace ZoologyMod.Patches
             }
         }
 
-        private static bool IsHumanNaturalToolAttack(Pawn attackerPawn, DamageInfo dinfo)
+        private static bool IsSupportedAnimalDamageType(DamageInfo dinfo)
         {
-            if (attackerPawn == null)
+            if (dinfo.Def == null)
             {
                 return false;
             }
 
-            var raceProps = attackerPawn.RaceProps;
-            if (raceProps == null || !raceProps.Humanlike)
+            Type workerClass = dinfo.Def.workerClass;
+            bool isScratch = ScratchWorkerType != null
+                && workerClass != null
+                && (workerClass == ScratchWorkerType || workerClass.IsSubclassOf(ScratchWorkerType));
+            bool isBite = BiteWorkerType != null
+                && workerClass != null
+                && (workerClass == BiteWorkerType || workerClass.IsSubclassOf(BiteWorkerType));
+            bool isBlunt = BluntWorkerType != null
+                && workerClass != null
+                && (workerClass == BluntWorkerType || workerClass.IsSubclassOf(BluntWorkerType));
+
+            if (isScratch || isBite || isBlunt)
+            {
+                return true;
+            }
+
+            // CE-legacy and cross-mod fallback: still allow natural melee Sharp/Blunt.
+            if (dinfo.Def.isRanged)
             {
                 return false;
             }
 
-            return IsPawnNaturalToolAttack(attackerPawn, dinfo);
+            DamageArmorCategoryDef armorCategory = dinfo.Def.armorCategory;
+            return armorCategory == DamageArmorCategoryDefOf.Sharp
+                || (armorCategory != null && string.Equals(armorCategory.defName, "Blunt", StringComparison.OrdinalIgnoreCase));
         }
 
         private static bool IsPawnNaturalToolAttack(Pawn attackerPawn, DamageInfo dinfo)
@@ -222,6 +227,12 @@ namespace ZoologyMod.Patches
             {
                 var tools = attackerPawn.def?.tools;
                 if (tools != null && tools.Contains(tool))
+                {
+                    return true;
+                }
+
+                // CE-legacy saves can keep a non-matching weapon source for animal natural attacks.
+                if (attackerPawn.IsAnimal && attackerPawn.equipment == null)
                 {
                     return true;
                 }

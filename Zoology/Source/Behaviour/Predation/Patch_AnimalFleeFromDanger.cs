@@ -2976,7 +2976,7 @@ namespace ZoologyMod
         {
             Job curJob = human?.CurJob;
             JobDef jobDef = curJob?.def;
-            if (jobDef == null || !DoesJobTargetAnimal(curJob))
+            if (jobDef == null)
             {
                 return false;
             }
@@ -2986,26 +2986,34 @@ namespace ZoologyMod
                 return true;
             }
 
+            if (!DoesJobTargetAnimal(curJob))
+            {
+                return false;
+            }
+
             if (tamingJobByDefCache.TryGetValue(jobDef, out bool cached))
             {
                 return cached;
             }
 
-            bool isTamingJob = JobNameMatchesTaming(jobDef.defName);
+            bool isTamingJob = false;
+            Type driverClass = jobDef.driverClass;
+            if (driverClass != null)
+            {
+                if (!tamingJobDriverByTypeCache.TryGetValue(driverClass, out bool driverIsTaming))
+                {
+                    driverIsTaming = typeof(JobDriver_InteractAnimal).IsAssignableFrom(driverClass)
+                        || JobNameMatchesTaming(driverClass.Name)
+                        || JobNameMatchesTaming(driverClass.FullName);
+                    tamingJobDriverByTypeCache[driverClass] = driverIsTaming;
+                }
+
+                isTamingJob = driverIsTaming;
+            }
+
             if (!isTamingJob)
             {
-                Type driverClass = jobDef.driverClass;
-                if (driverClass != null)
-                {
-                    if (!tamingJobDriverByTypeCache.TryGetValue(driverClass, out bool driverIsTaming))
-                    {
-                        driverIsTaming = JobNameMatchesTaming(driverClass.Name)
-                            || JobNameMatchesTaming(driverClass.FullName);
-                        tamingJobDriverByTypeCache[driverClass] = driverIsTaming;
-                    }
-
-                    isTamingJob = driverIsTaming;
-                }
+                isTamingJob = JobNameMatchesTaming(jobDef.defName);
             }
 
             tamingJobByDefCache[jobDef] = isTamingJob;
@@ -3021,7 +3029,27 @@ namespace ZoologyMod
 
             return JobTargetIsAnimal(job.targetA)
                 || JobTargetIsAnimal(job.targetB)
-                || JobTargetIsAnimal(job.targetC);
+                || JobTargetIsAnimal(job.targetC)
+                || JobTargetQueueContainsAnimal(job.targetQueueA)
+                || JobTargetQueueContainsAnimal(job.targetQueueB);
+        }
+
+        private static bool JobTargetQueueContainsAnimal(List<LocalTargetInfo> targetQueue)
+        {
+            if (targetQueue == null || targetQueue.Count == 0)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < targetQueue.Count; i++)
+            {
+                if (JobTargetIsAnimal(targetQueue[i]))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static bool JobTargetIsAnimal(LocalTargetInfo target)
