@@ -71,6 +71,7 @@ namespace ZoologyMod
                     if (candidate == pawn) continue; 
                     if (candidate.Downed) continue;
                     if (candidate.InMentalState) continue;
+                    if (candidate.RaceProps?.predator != true) continue;
                     
                     if ((candidate.Position - pawnPosition).LengthHorizontalSquared > herdRadiusSq) continue;
 
@@ -107,16 +108,20 @@ namespace ZoologyMod
                         bool given = false;
                         try
                         {
-                            
-                            given = candidate.jobs.TryTakeOrderedJob(recruitJob);
+                            recruitJob.playerForced = false;
+                            candidate.jobs.StartJob(recruitJob, JobCondition.InterruptForced, null, false, false, null);
+
+                            Job newCurJob = candidate.CurJob;
+                            given = newCurJob != null
+                                && newCurJob.def == JobDefOf.PredatorHunt
+                                && newCurJob.targetA.HasThing
+                                && newCurJob.GetTarget(TargetIndex.A).Thing == preyPawn;
                         }
                         catch
                         {
-                            
                             try
                             {
-                                candidate.jobs.StartJob(recruitJob, JobCondition.None, null, false, true, null);
-                                given = true;
+                                given = candidate.jobs.TryTakeOrderedJob(recruitJob);
                             }
                             catch
                             {
@@ -172,6 +177,7 @@ namespace ZoologyMod
                 if (candidate == null) continue;
                 if (!candidate.Spawned || candidate.Dead || candidate.Destroyed) continue;
                 if (!candidate.RaceProps.herdAnimal) continue;
+                if (candidate.RaceProps.predator != true) continue;
                 if (candidate.Faction != null) continue;
                 candidates.Add(candidate);
             }

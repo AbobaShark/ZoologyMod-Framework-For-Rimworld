@@ -46,9 +46,13 @@ namespace ZoologyMod
         private static int activeProtectorsTotal;
         private static readonly Dictionary<int, BackgroundResyncState> backgroundResyncByMapId = new Dictionary<int, BackgroundResyncState>(4);
         private static readonly List<int> protectedPawnCacheCleanupBuffer = new List<int>(16);
+        private static readonly Dictionary<long, int> lastPredatorThreatNotifyTickByPairKey = new Dictionary<long, int>(128);
+        private static readonly Action<Faction, Pawn> TookDamageFromPredatorAction = CreateTookDamageFromPredatorAction();
         private const int ProtectedPawnCacheCleanupIntervalTicks = ZoologyTickLimiter.PreyProtection.ProtectedPawnCacheCleanupIntervalTicks;
         private const int ProtectedPawnCacheDurationTicks = ZoologyTickLimiter.PreyProtection.ProtectedPawnCacheDurationTicks;
         private const int ProtectedPawnCacheRefreshMarginTicks = ZoologyTickLimiter.PreyProtection.ProtectedPawnCacheRefreshMarginTicks;
+        private const int PredatorThreatNotifyIntervalTicks = ZoologyTickLimiter.PreyProtection.ProtectPreyMapRefreshIntervalTicks;
+        private const int MaxPredatorThreatNotifyEntries = 4096;
         private const int BackgroundResyncScanMin = 4;
         private const int BackgroundResyncScanMax = 8;
         private static int lastProtectedPawnCacheCleanupTick = -ProtectedPawnCacheCleanupIntervalTicks;
@@ -246,6 +250,89 @@ namespace ZoologyMod
                 && protectedPawn.Map == predator.Map;
         }
 
+        internal static void NotifyPredatorThreatForFaction(Pawn predator, Pawn threatenedPawn, bool force = false)
+        {
+            NotifyPredatorThreatForFaction(predator, threatenedPawn?.Faction, force);
+        }
+
+        internal static void NotifyPredatorThreatForFaction(Pawn predator, Faction threatenedFaction, bool force = false)
+        {
+            if (predator == null || threatenedFaction == null || TookDamageFromPredatorAction == null)
+            {
+                return;
+            }
+
+            int currentTick = Find.TickManager?.TicksGame ?? 0;
+            if (currentTick <= 0)
+            {
+                return;
+            }
+
+            long pairKey = PredatorFactionPairKey(predator, threatenedFaction);
+            if (!force)
+            {
+                if (pairKey != 0L
+                    && lastPredatorThreatNotifyTickByPairKey.TryGetValue(pairKey, out int lastTick)
+                    && currentTick - lastTick < PredatorThreatNotifyIntervalTicks)
+                {
+                    return;
+                }
+            }
+
+            try
+            {
+                TookDamageFromPredatorAction(threatenedFaction, predator);
+            }
+            catch
+            {
+                return;
+            }
+
+            if (pairKey == 0L)
+            {
+                return;
+            }
+
+            if (!lastPredatorThreatNotifyTickByPairKey.ContainsKey(pairKey)
+                && lastPredatorThreatNotifyTickByPairKey.Count >= MaxPredatorThreatNotifyEntries)
+            {
+                lastPredatorThreatNotifyTickByPairKey.Clear();
+            }
+
+            lastPredatorThreatNotifyTickByPairKey[pairKey] = currentTick;
+        }
+
+        private static Action<Faction, Pawn> CreateTookDamageFromPredatorAction()
+        {
+            try
+            {
+                var method = AccessTools.Method(typeof(Faction), "TookDamageFromPredator", new Type[] { typeof(Pawn) })
+                    ?? AccessTools.Method(typeof(Faction), "TookDamageFromPredator");
+                if (method == null)
+                {
+                    return null;
+                }
+
+                return (Action<Faction, Pawn>)Delegate.CreateDelegate(typeof(Action<Faction, Pawn>), method);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private static long PredatorFactionPairKey(Pawn predator, Faction faction)
+        {
+            if (predator == null || faction == null)
+            {
+                return 0L;
+            }
+
+            uint predatorId = (uint)predator.thingIDNumber;
+            uint factionId = (uint)faction.loadID;
+            return ((long)predatorId << 32) | factionId;
+        }
+
         public static bool IsActivelyProtectingNearbyPrey(Pawn predator, float threatRadius)
         {
             if (!TryGetProtectedPawn(predator, out Pawn protectedPawn) || !protectedPawn.Spawned)
@@ -383,6 +470,11 @@ namespace ZoologyMod
             {
                 activeProtectorsByMapId[mapId] = count;
             }
+
+            if (activeProtectorsTotal <= 0 && lastPredatorThreatNotifyTickByPairKey.Count > 0)
+            {
+                lastPredatorThreatNotifyTickByPairKey.Clear();
+            }
         }
 
         internal static bool HasActiveProtectorsForMap(Map map)
@@ -412,6 +504,7 @@ namespace ZoologyMod
             int currentTick = Find.TickManager?.TicksGame ?? 0;
             int mapId = predator.Map?.uniqueID ?? -1;
             StoreProtectedPawnCache(predator, job, protectedPawn, mapId, currentTick);
+            NotifyPredatorThreatForFaction(predator, protectedPawn, force: true);
         }
 
         internal static void NotifyProtectPreyJobEnded(Pawn predator, Job job)
@@ -469,6 +562,7 @@ namespace ZoologyMod
                 }
 
                 entries.Add(new ProtectPreyMapCache.Entry(predator, protectedPawn));
+                NotifyPredatorThreatForFaction(predator, protectedPawn, force: false);
             }
 
             if (staleKeys != null)
@@ -742,55 +836,9 @@ namespace ZoologyMod
 
     internal static class ProtectPreyPatchFastCache
     {
-        private static readonly Dictionary<int, Pawn> protectedPawnByPredatorId = new Dictionary<int, Pawn>(64);
-
         public static bool HasAnyActiveProtectorsFast()
         {
-            if (ProtectPreyState.HasAnyActiveProtectors)
-            {
-                return true;
-            }
-
-            if (protectedPawnByPredatorId.Count > 0)
-            {
-                protectedPawnByPredatorId.Clear();
-            }
-
-            return false;
-        }
-
-        public static bool TryGetProtectedPawnForPredator(Pawn predator, out Pawn protectedPawn)
-        {
-            protectedPawn = null;
-            if (predator == null)
-            {
-                return false;
-            }
-
-            if (!HasAnyActiveProtectorsFast())
-            {
-                return false;
-            }
-
-            int predatorId = predator.thingIDNumber;
-            if (protectedPawnByPredatorId.TryGetValue(predatorId, out protectedPawn))
-            {
-                return protectedPawn != null;
-            }
-
-            if (!ProtectPreyState.HasCachedProtectorEntry(predator))
-            {
-                return false;
-            }
-
-            if (ProtectPreyState.TryGetProtectedPawnCachedNoTick(predator, out protectedPawn) && protectedPawn != null)
-            {
-                protectedPawnByPredatorId[predatorId] = protectedPawn;
-                return true;
-            }
-
-            protectedPawnByPredatorId.Remove(predatorId);
-            return false;
+            return ProtectPreyState.HasAnyActiveProtectors;
         }
     }
 
@@ -798,34 +846,10 @@ namespace ZoologyMod
     public static class Patch_GenHostility_GetPreyOfMyFaction
     {
 
-        public static bool Prepare() => PredationSettingsGate.EnablePredatorDefendCorpse();
+        public static bool Prepare() => false;
 
         static void Postfix(Pawn predator, Faction myFaction, ref Pawn __result)
         {
-            if (__result != null)
-            {
-                return;
-            }
-            if (predator == null || myFaction == null)
-            {
-                return;
-            }
-            if (!ProtectPreyPatchFastCache.HasAnyActiveProtectorsFast())
-            {
-                return;
-            }
-            if (!ProtectPreyState.HasCachedProtectorEntry(predator))
-            {
-                return;
-            }
-            if (!ProtectPreyPatchFastCache.TryGetProtectedPawnForPredator(predator, out Pawn protectedPawn))
-            {
-                return;
-            }
-            if (protectedPawn.Faction == myFaction)
-            {
-                __result = protectedPawn;
-            }
         }
     }
 
@@ -856,68 +880,20 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(Faction), "HasPredatorRecentlyAttackedAnyone", new Type[] { typeof(Pawn) })]
     public static class Patch_Faction_HasPredatorRecentlyAttackedAnyone
     {
-        public static bool Prepare() => PredationSettingsGate.EnablePredatorDefendCorpse();
+        public static bool Prepare() => false;
 
         static void Postfix(Faction __instance, Pawn predator, ref bool __result)
         {
-            if (__result)
-            {
-                return;
-            }
-            if (predator == null || __instance == null)
-            {
-                return;
-            }
-            if (!ProtectPreyPatchFastCache.HasAnyActiveProtectorsFast())
-            {
-                return;
-            }
-            if (!ProtectPreyState.HasCachedProtectorEntry(predator))
-            {
-                return;
-            }
-            if (!ProtectPreyPatchFastCache.TryGetProtectedPawnForPredator(predator, out Pawn protectedPawn))
-            {
-                return;
-            }
-            if (protectedPawn.Faction == __instance)
-            {
-                __result = true;
-            }
         }
     }
 
     [HarmonyPatch(typeof(GenHostility), "IsPredatorHostileTo", new Type[] { typeof(Pawn), typeof(Faction) })]
     public static class Patch_GenHostility_IsPredatorHostileTo
     {
-        public static bool Prepare() => PredationSettingsGate.EnablePredatorDefendCorpse();
+        public static bool Prepare() => false;
 
         static void Postfix(Pawn predator, Faction toFaction, ref bool __result)
         {
-            if (__result)
-            {
-                return;
-            }
-            if (predator == null || toFaction == null)
-            {
-                return;
-            }
-            if (!ProtectPreyPatchFastCache.HasAnyActiveProtectorsFast())
-            {
-                return;
-            }
-            if (!ProtectPreyState.HasCachedProtectorEntry(predator))
-            {
-                return;
-            }
-            if (!ProtectPreyPatchFastCache.TryGetProtectedPawnForPredator(predator, out Pawn targetPawn))
-            {
-                return;
-            }
-            if (targetPawn.Faction == toFaction)
-            {
-                __result = true;
-            }
         }
     }
 

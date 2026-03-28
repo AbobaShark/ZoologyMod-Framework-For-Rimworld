@@ -463,7 +463,21 @@ namespace ZoologyMod
 
                 float preyCombatPowerAdjusted = PreyCombatPowerUtility.GetAdjustedCombatPower(prey);
                 float predatorCombatPower = predator.kindDef.combatPower;
-                if (prey.RaceProps.predator && !prey.Downed)
+                bool useLargeMammalSizing = LargeMammalPredationUtility.UsesLargeMammalSizing(predator);
+                bool packSupport = false;
+                bool packSupportChecked = false;
+                float packMultiplier = 1f;
+                if (useLargeMammalSizing && !prey.Downed)
+                {
+                    packSupport = HerdPredatorHuntPatch.HasPackSupport(predator, prey);
+                    packSupportChecked = true;
+                    if (packSupport)
+                    {
+                        packMultiplier = PackHuntCombatPowerMultiplier;
+                    }
+                }
+
+                if (prey.RaceProps.predator && !prey.Downed && !packSupport)
                 {
                     float requiredPredatorCP = preyCombatPowerAdjusted * (4f / 3f);
                     if (predatorCombatPower < requiredPredatorCP)
@@ -477,20 +491,18 @@ namespace ZoologyMod
                     return true;
                 }
 
-                bool useLargeMammalSizing = LargeMammalPredationUtility.UsesLargeMammalSizing(predator);
-                bool packSupport = false;
-                bool packSupportChecked = false;
-                float packMultiplier = 1f;
-
                 if (useLargeMammalSizing)
                 {
                     if (preyCombatPowerAdjusted > predatorCombatPower)
                     {
-                        packSupport = HerdPredatorHuntPatch.HasPackSupport(predator, prey);
-                        packSupportChecked = true;
-                        if (packSupport)
+                        if (!packSupportChecked)
                         {
-                            packMultiplier = PackHuntCombatPowerMultiplier;
+                            packSupport = HerdPredatorHuntPatch.HasPackSupport(predator, prey);
+                            packSupportChecked = true;
+                            if (packSupport)
+                            {
+                                packMultiplier = PackHuntCombatPowerMultiplier;
+                            }
                         }
 
                         if (preyCombatPowerAdjusted > predatorCombatPower * packMultiplier)
@@ -667,8 +679,21 @@ namespace ZoologyMod
 
                 float preyCombatPowerAdjusted = PreyCombatPowerUtility.GetAdjustedCombatPower(prey);
                 float predatorCombatPower = predator.kindDef.combatPower;
+                bool useLargeMammalSizing = !prey.Downed && LargeMammalPredationUtility.UsesLargeMammalSizing(predator);
+                bool packSupport = false;
+                bool packSupportChecked = false;
+                float packMultiplier = 1f;
+                if (useLargeMammalSizing)
+                {
+                    packSupport = HerdPredatorHuntPatch.HasPackSupport(predator, prey);
+                    packSupportChecked = true;
+                    if (packSupport)
+                    {
+                        packMultiplier = PackHuntCombatPowerMultiplier;
+                    }
+                }
 
-                if (prey.RaceProps.predator && !prey.Downed)
+                if (prey.RaceProps.predator && !prey.Downed && !packSupport)
                 {
                     float requiredPredatorCP = preyCombatPowerAdjusted * (4f / 3f);
                     if (predatorCombatPower < requiredPredatorCP)
@@ -686,21 +711,20 @@ namespace ZoologyMod
 
                 if (!prey.Downed)
                 {
-                    bool useLargeMammalSizing = LargeMammalPredationUtility.UsesLargeMammalSizing(predator);
                     float preyCombatPower = preyCombatPowerAdjusted;
-                    bool packSupport = false;
-                    bool packSupportChecked = false;
-                    float packMultiplier = 1f;
 
                     if (useLargeMammalSizing)
                     {
                         if (preyCombatPower > predatorCombatPower)
                         {
-                            packSupport = HerdPredatorHuntPatch.HasPackSupport(predator, prey);
-                            packSupportChecked = true;
-                            if (packSupport)
+                            if (!packSupportChecked)
                             {
-                                packMultiplier = PackHuntCombatPowerMultiplier;
+                                packSupport = HerdPredatorHuntPatch.HasPackSupport(predator, prey);
+                                packSupportChecked = true;
+                                if (packSupport)
+                                {
+                                    packMultiplier = PackHuntCombatPowerMultiplier;
+                                }
                             }
 
                             if (preyCombatPower > predatorCombatPower * packMultiplier)

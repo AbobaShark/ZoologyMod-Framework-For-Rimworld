@@ -220,6 +220,13 @@ namespace ZoologyMod
                         return;
                     }
 
+                    int currentTick = Find.TickManager?.TicksGame ?? 0;
+                    if (currentTick > 0
+                        && currentTick % ZoologyTickLimiter.PreyProtection.ProtectPreyMapRefreshIntervalTicks == 0)
+                    {
+                        ProtectPreyState.NotifyPredatorThreatForFaction(actorPawn, targ, force: false);
+                    }
+
                     if (IsInMinimumProtectDuration())
                     {
                         if (actorPawn?.Map != null) actorPawn.Map.attackTargetsCache.UpdateTarget(actorPawn);
