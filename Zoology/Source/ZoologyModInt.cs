@@ -39,6 +39,7 @@ namespace ZoologyMod
                 }
 
                 ApplyDisabledFeatureUnpatches(Settings);
+                global::ZoologyMod.Patches.DamageReduction_AnimalTypes_PawnTakeDamage.SyncPatchState();
 
                 if (Settings.EnableHumanBionicOnAnimal)
                 {
@@ -82,6 +83,7 @@ namespace ZoologyMod
             CEPatches_Melee.EnsurePatched();
 
             ApplyDisabledFeatureUnpatches(Settings);
+            global::ZoologyMod.Patches.DamageReduction_AnimalTypes_PawnTakeDamage.SyncPatchState();
         }
 
         private static void DisableAllRuntimePatches()
@@ -102,7 +104,8 @@ namespace ZoologyMod
                     "zoology.ageless",
                     "zoology.drugsimmune",
                     "com.abobashark.zoology.noporcupinequill",
-                    "com.abobashark.zoology.mod.melee"
+                    "com.abobashark.zoology.mod.melee",
+                    "com.abobashark.zoology.damage_reduction"
                 };
 
                 for (int i = 0; i < ids.Count; i++)
@@ -150,6 +153,9 @@ namespace ZoologyMod
 
             if (!settings.EnableOverrideCEPenetration)
                 TryUnpatchHarmonyId("com.abobashark.zoology.mod.melee");
+
+            if (!settings.EnableAnimalDamageReduction || settings.DisableAllRuntimePatches)
+                global::ZoologyMod.Patches.DamageReduction_AnimalTypes_PawnTakeDamage.EnsureUnpatched();
         }
 
         private static void TryUnpatchHarmonyId(string id)

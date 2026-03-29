@@ -419,15 +419,44 @@ namespace ZoologyMod
 
                 bool nearPredator = (p.Position - predator.Position).LengthHorizontalSquared <= radSq;
                 bool huntingSameTarget = IsActivelyHuntingSamePreyOrCorpse(p, killedPawn, corpse);
-                if (nearPredator || huntingSameTarget)
+                if (!nearPredator && !huntingSameTarget)
                 {
-                    result.Add(p);
+                    continue;
                 }
+
+                if (!CanPredatorReachRegisteredCorpse(p, corpse))
+                {
+                    continue;
+                }
+
+                result.Add(p);
             }
 
             if (!result.Contains(predator))
             {
                 result.Add(predator);
+            }
+        }
+
+        private static bool CanPredatorReachRegisteredCorpse(Pawn predator, Corpse corpse)
+        {
+            if (predator == null || corpse == null)
+            {
+                return false;
+            }
+
+            if (!predator.Spawned || predator.Map == null || corpse.Map == null || predator.Map != corpse.Map)
+            {
+                return false;
+            }
+
+            try
+            {
+                return predator.CanReach(corpse, PathEndMode.Touch, Danger.Deadly);
+            }
+            catch
+            {
+                return false;
             }
         }
 

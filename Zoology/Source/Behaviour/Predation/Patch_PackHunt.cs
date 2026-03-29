@@ -98,6 +98,8 @@ namespace ZoologyMod
                     }
                     catch { /*ignore*/ }
 
+                    if (!CanCandidateReachPackPrey(candidate, preyPawn)) continue;
+
                     
                     try
                     {
@@ -185,6 +187,28 @@ namespace ZoologyMod
             return candidates;
         }
 
+        private static bool CanCandidateReachPackPrey(Pawn candidate, Pawn prey)
+        {
+            if (candidate == null || prey == null)
+            {
+                return false;
+            }
+
+            if (!candidate.Spawned || candidate.Map == null || prey.Map == null || candidate.Map != prey.Map)
+            {
+                return false;
+            }
+
+            try
+            {
+                return candidate.CanReach(prey, PathEndMode.Touch, Danger.Deadly);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         internal static bool HasPackSupport(Pawn predator, Pawn prey)
         {
             try
@@ -230,6 +254,8 @@ namespace ZoologyMod
                     }
 
                     if (!relatedToPack) continue;
+
+                    if (!CanCandidateReachPackPrey(candidate, prey)) continue;
 
                     try
                     {

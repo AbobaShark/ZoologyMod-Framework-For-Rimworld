@@ -425,11 +425,16 @@ namespace ZoologyMod
             bool prevGuiEnabled = GUI.enabled;
             if (_cePresent) GUI.enabled = false;
 
+            bool wasAnimalDamageReductionEnabled = EnableAnimalDamageReduction;
             list.CheckboxLabeled(
                 "Enable animal damage reduction (halve animal-type damage for predators in defined cases)",
                 ref EnableAnimalDamageReduction,
                 "When enabled, animal damage types (Scratch/Bite and subclasses) will deal 50% damage to predator targets when: (1) target is predator and >=1.5x bodySize of attacker, or (2) target is predator and attacker is not predator."
             );
+            if (wasAnimalDamageReductionEnabled != EnableAnimalDamageReduction)
+            {
+                global::ZoologyMod.Patches.DamageReduction_AnimalTypes_PawnTakeDamage.SyncPatchState();
+            }
 
             GUI.enabled = prevGuiEnabled;
 
@@ -844,6 +849,11 @@ namespace ZoologyMod
             ClampFleeAndThreatSettings();
             _minCombatPowerToDefendPreyFromHumans = Mathf.Clamp(_minCombatPowerToDefendPreyFromHumans, MinCombatPowerToDefendPreyFromHumansMin, MinCombatPowerToDefendPreyFromHumansMax);
             ApplyRuntimeDefOverrides();
+
+            if (Scribe.mode == LoadSaveMode.PostLoadInit)
+            {
+                global::ZoologyMod.Patches.DamageReduction_AnimalTypes_PawnTakeDamage.SyncPatchState();
+            }
         }
 
         public bool GetAnimalsFreeFromHumansFor(ThingDef animal)

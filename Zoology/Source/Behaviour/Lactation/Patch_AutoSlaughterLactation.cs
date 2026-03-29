@@ -245,24 +245,49 @@ namespace ZoologyMod
         }
     }
 
-    [HarmonyPatch(typeof(AutoSlaughterManager), nameof(AutoSlaughterManager.CanAutoSlaughterNow))]
-    static class Patch_AutoSlaughterManager_CanAutoSlaughterNow
+    [HarmonyPatch(typeof(WorkGiver_Slaughter), nameof(WorkGiver_Slaughter.HasJobOnThing))]
+    static class Patch_WorkGiver_Slaughter_HasJobOnThing_BlockLactatingAutoSlaughter
     {
         static bool Prepare() => ZoologyModSettings.EnableMammalLactation;
 
-        static void Postfix(Pawn animal, ref bool __result)
+        static void Postfix(Pawn pawn, Thing t, bool forced, ref bool __result)
         {
             try
             {
-                if (!__result) return;
+                if (!__result || forced || !ZoologyModSettings.EnableMammalLactation)
+                {
+                    return;
+                }
 
                 ZoologyModSettings settings = ZoologyModSettings.Instance;
-                if (settings == null || settings.AllowSlaughterLactating) return;
+                if (settings == null || settings.AllowSlaughterLactating)
+                {
+                    return;
+                }
 
-                if (animal == null) return;
+                if (pawn?.Map == null || t is not Pawn animal || animal.Map != pawn.Map)
+                {
+                    return;
+                }
+
+                DesignationManager designationManager = pawn.Map.designationManager;
+                if (designationManager != null && designationManager.DesignationOn(animal, DesignationDefOf.Slaughter) != null)
+                {
+                    return;
+                }
+
+                AutoSlaughterManager manager = pawn.Map.autoSlaughterManager;
+                List<Pawn> autoTargets = manager?.AnimalsToSlaughter;
+                if (autoTargets == null || !autoTargets.Contains(animal))
+                {
+                    return;
+                }
 
                 HediffDef lactDef = AnimalLactationUtility.LactatingHediffDef;
-                if (lactDef == null) return;
+                if (lactDef == null)
+                {
+                    return;
+                }
 
                 HediffSet hediffSet = animal.health?.hediffSet;
                 if (hediffSet != null && hediffSet.HasHediff(lactDef, false))
@@ -272,7 +297,7 @@ namespace ZoologyMod
             }
             catch (Exception ex)
             {
-                Log.Error($"[Zoology] Patch_AutoSlaughterManager_CanAutoSlaughterNow Postfix failed: {ex}");
+                Log.Error($"[Zoology] Patch_WorkGiver_Slaughter_HasJobOnThing_BlockLactatingAutoSlaughter Postfix failed: {ex}");
             }
         }
     }
