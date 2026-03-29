@@ -13,7 +13,7 @@ namespace ZoologyMod
         public static bool EnablePredatorDefendCorpse()
         {
             var s = ZoologyModSettings.Instance;
-            return s == null || s.EnablePredatorDefendCorpse;
+            return s == null || (!s.DisableAllRuntimePatches && s.EnablePredatorDefendCorpse);
         }
     }
 

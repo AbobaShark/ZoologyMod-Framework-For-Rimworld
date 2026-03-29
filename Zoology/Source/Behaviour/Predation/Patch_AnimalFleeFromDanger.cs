@@ -62,6 +62,8 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(JobGiver_ReactToCloseMeleeThreat), "TryGiveJob")]
     internal static class Patch_ReactToCloseMeleeThreat_Fallback
     {
+        private static bool Prepare() => Patch_AnimalFleeFromPredators.Prepare();
+
         private static void Postfix(Pawn pawn, ref Job __result)
         {
             // Intentionally no-op: do not force melee attacks or override vanilla behavior.
@@ -765,7 +767,7 @@ namespace ZoologyMod
 
         private static readonly Dictionary<int, NoThreatScanCacheEntry> noThreatScanCacheByPawnId = new Dictionary<int, NoThreatScanCacheEntry>(128);
         private static readonly Dictionary<long, ThreatVisibilityCacheEntry> lineOfSightAndReachCacheByPairKey = new Dictionary<long, ThreatVisibilityCacheEntry>(512);
-        private static readonly Dictionary<long, ThreatVisibilityCacheEntry> lineOfSightOrReachCacheByPairKey = new Dictionary<long, ThreatVisibilityCacheEntry>(256);
+        private static readonly Dictionary<long, ThreatVisibilityCacheEntry> reachabilityCacheByPairKey = new Dictionary<long, ThreatVisibilityCacheEntry>(256);
         private static readonly Dictionary<NearbyThreatBucketCacheKey, NearbyThreatBucketsCacheEntry> nearbyThreatBucketsCacheByBucketKey = new Dictionary<NearbyThreatBucketCacheKey, NearbyThreatBucketsCacheEntry>(256);
         private static readonly Dictionary<int, NearestPredatorThreatCacheEntry> nearestPredatorThreatCacheByPawnId = new Dictionary<int, NearestPredatorThreatCacheEntry>(256);
         private static readonly Dictionary<int, ThreatScanBudgetEntry> threatScanBudgetByMapId = new Dictionary<int, ThreatScanBudgetEntry>(8);
@@ -1373,7 +1375,7 @@ namespace ZoologyMod
                     continue;
                 }
 
-                if (!HasLineOfSightAndReach(predator, pawn))
+                if (!HasReachability(predator, pawn))
                 {
                     continue;
                 }
@@ -1443,7 +1445,7 @@ namespace ZoologyMod
                     continue;
                 }
 
-                if (!HasLineOfSightAndReach(threat, pawn))
+                if (!HasReachability(threat, pawn))
                 {
                     continue;
                 }
@@ -1614,7 +1616,7 @@ namespace ZoologyMod
 
                 if (!IsTargetedPredatorThreatJob(predator, prey)
                     || !IsThreatTargetingPawn(predator, prey)
-                    || !HasLineOfSightAndReach(predator, prey))
+                    || !HasReachability(predator, prey))
                 {
                     continue;
                 }
@@ -1672,7 +1674,7 @@ namespace ZoologyMod
                     continue;
                 }
 
-                if (!HasLineOfSightAndReach(protector, pawn))
+                if (!HasReachability(protector, pawn))
                 {
                     continue;
                 }
@@ -1737,7 +1739,7 @@ namespace ZoologyMod
                 return false;
             }
 
-            if (!HasLineOfSightAndReach(threat, pawn))
+            if (!HasReachability(threat, pawn))
             {
                 return false;
             }
@@ -3559,7 +3561,7 @@ namespace ZoologyMod
             return true;
         }
 
-        private static bool HasLineOfSightOrReach(Pawn pawn, Pawn threat)
+        private static bool HasReachability(Pawn threat, Pawn pawn)
         {
             if (threat == null || pawn == null || threat.Map == null || threat.Map != pawn.Map)
             {
@@ -3571,25 +3573,35 @@ namespace ZoologyMod
                 return true;
             }
 
-            if (TryGetThreatVisibility(lineOfSightOrReachCacheByPairKey, threat, pawn, out bool cachedResult))
+            if (TryGetThreatVisibility(reachabilityCacheByPairKey, threat, pawn, out bool cachedResult))
             {
                 return cachedResult;
             }
 
+            bool canReach;
             try
             {
-                if (GenSight.LineOfSight(pawn.Position, threat.Position, pawn.Map))
-                {
-                    StoreThreatVisibility(lineOfSightOrReachCacheByPairKey, threat, pawn, true);
-                    return true;
-                }
+                canReach = threat.CanReach(pawn, PathEndMode.Touch, Danger.Deadly);
             }
             catch
             {
+                canReach = false;
             }
 
-            StoreThreatVisibility(lineOfSightOrReachCacheByPairKey, threat, pawn, false);
-            return false;
+            if (!canReach)
+            {
+                try
+                {
+                    canReach = pawn.CanReach(threat, PathEndMode.Touch, Danger.Deadly);
+                }
+                catch
+                {
+                    canReach = false;
+                }
+            }
+
+            StoreThreatVisibility(reachabilityCacheByPairKey, threat, pawn, canReach);
+            return canReach;
         }
 
         private static bool TryGetThreatVisibility(
@@ -3914,8 +3926,10 @@ namespace ZoologyMod
                 && predator.Map == prey.Map
                 && IsPredatorThreatSourceForPrey(predator, prey)
                 && TryGetThreatTargetPawn(predator, out Pawn targetedPawn)
-                && HasLineOfSightAndReach(predator, prey)
                 && distanceSquared <= radiusSquared
+                && (ReferenceEquals(targetedPawn, prey)
+                    ? HasReachability(predator, prey)
+                    : HasLineOfSightAndReach(predator, prey))
                 && (ReferenceEquals(targetedPawn, prey)
                     || (IsValidNonTargetPredatorFactionContext(predator, prey) && IsAcceptablePreyForFlee(predator, prey)));
         }
@@ -3961,7 +3975,7 @@ namespace ZoologyMod
             CleanupNoThreatScanCache(currentTick);
             CleanupPawnFleeDecisionCache(currentTick);
             CleanupThreatVisibilityCache(lineOfSightAndReachCacheByPairKey, currentTick);
-            CleanupThreatVisibilityCache(lineOfSightOrReachCacheByPairKey, currentTick);
+            CleanupThreatVisibilityCache(reachabilityCacheByPairKey, currentTick);
             CleanupNearbyThreatBucketsCache(currentTick);
             CleanupNearestPredatorThreatCache(currentTick);
             ThreatMapCache.CleanupStaleMaps();
@@ -3989,7 +4003,7 @@ namespace ZoologyMod
         {
             noThreatScanCacheByPawnId.Clear();
             lineOfSightAndReachCacheByPairKey.Clear();
-            lineOfSightOrReachCacheByPairKey.Clear();
+            reachabilityCacheByPairKey.Clear();
             nearbyThreatBucketsCacheByBucketKey.Clear();
             nearestPredatorThreatCacheByPawnId.Clear();
             threatScanBudgetByMapId.Clear();

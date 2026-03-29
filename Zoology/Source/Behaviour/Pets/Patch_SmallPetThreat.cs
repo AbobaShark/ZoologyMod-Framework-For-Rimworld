@@ -622,9 +622,15 @@ namespace ZoologyMod
             return canThreat;
         }
 
+        private static bool IsFeatureEnabledNow()
+        {
+            ZoologyModSettings settings = ZoologyModSettings.Instance;
+            return settings == null || (!settings.DisableAllRuntimePatches && settings.EnableIgnoreSmallPetsByRaiders);
+        }
+
         public static bool Prepare()
         {
-            return true;
+            return IsFeatureEnabledNow();
         }
 
         public static void Postfix(Pawn __instance, Pawn otherPawn, ref bool __result)
@@ -716,6 +722,8 @@ namespace ZoologyMod
         [HarmonyPatch(typeof(Pawn), nameof(Pawn.SpawnSetup))]
         private static class Patch_Pawn_SpawnSetup_SmallPetCache
         {
+            private static bool Prepare() => IsFeatureEnabledNow();
+
             private static void Postfix(Pawn __instance)
             {
                 UpdateCachedMembership(__instance);
@@ -725,6 +733,8 @@ namespace ZoologyMod
         [HarmonyPatch(typeof(Pawn), nameof(Pawn.SetFaction))]
         private static class Patch_Pawn_SetFaction_SmallPetCache
         {
+            private static bool Prepare() => IsFeatureEnabledNow();
+
             private static void Prefix(Pawn __instance)
             {
                 RemoveCachedMembership(__instance);
@@ -743,6 +753,8 @@ namespace ZoologyMod
         [HarmonyPatch(typeof(Pawn), nameof(Pawn.DeSpawn))]
         private static class Patch_Pawn_DeSpawn_SmallPetCache
         {
+            private static bool Prepare() => IsFeatureEnabledNow();
+
             private static void Prefix(Pawn __instance)
             {
                 RemoveCachedMembership(__instance);
@@ -752,6 +764,8 @@ namespace ZoologyMod
         [HarmonyPatch(typeof(Pawn), nameof(Pawn.Kill))]
         private static class Patch_Pawn_Kill_SmallPetCache
         {
+            private static bool Prepare() => IsFeatureEnabledNow();
+
             private static void Prefix(Pawn __instance)
             {
                 RemoveCachedMembership(__instance);
@@ -761,6 +775,8 @@ namespace ZoologyMod
         [HarmonyPatch(typeof(Pawn), nameof(Pawn.Destroy))]
         private static class Patch_Pawn_Destroy_SmallPetCache
         {
+            private static bool Prepare() => IsFeatureEnabledNow();
+
             private static void Prefix(Pawn __instance)
             {
                 RemoveCachedMembership(__instance);
@@ -770,6 +786,8 @@ namespace ZoologyMod
         [HarmonyPatch(typeof(Faction), nameof(Faction.Notify_RelationKindChanged))]
         private static class Patch_Faction_NotifyRelationKindChanged_SmallPetCache
         {
+            private static bool Prepare() => IsFeatureEnabledNow();
+
             private static void Postfix()
             {
                 InvalidateHostilityCache();
@@ -779,6 +797,8 @@ namespace ZoologyMod
         [HarmonyPatch(typeof(Game), nameof(Game.FinalizeInit))]
         private static class Patch_Game_FinalizeInit_SmallPetCache
         {
+            private static bool Prepare() => IsFeatureEnabledNow();
+
             private static void Postfix(Game __instance)
             {
                 ResetCachesForGame(__instance);
@@ -789,6 +809,8 @@ namespace ZoologyMod
         [HarmonyPatch(typeof(Game), nameof(Game.Dispose))]
         private static class Patch_Game_Dispose_SmallPetCache
         {
+            private static bool Prepare() => IsFeatureEnabledNow();
+
             private static void Prefix(Game __instance)
             {
                 if (ReferenceEquals(cachedGame, __instance))

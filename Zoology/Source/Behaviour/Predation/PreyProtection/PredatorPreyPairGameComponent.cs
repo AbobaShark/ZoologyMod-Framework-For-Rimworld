@@ -18,6 +18,7 @@ namespace ZoologyMod
         private const long INACCESSIBLE_REMOVE_TICKS = ZoologyTickLimiter.PreyProtection.InaccessibleRemoveTicks; 
         private const long UNSUITABLE_REMOVE_TICKS = ZoologyTickLimiter.PreyProtection.UnsuitableRemoveTicks;
         private const int TICK_CHECK_INTERVAL = ZoologyTickLimiter.PreyProtection.TickCheckInterval;
+        private const int POST_LOAD_STABILIZATION_TICKS = ZoologyTickLimiter.PreyProtection.TickCheckInterval * 3;
 
         private const int NOTIFICATION_SUPPRESSION_TICKS = ZoologyTickLimiter.PreyProtection.NotificationSuppressionTicks; 
         private static readonly Dictionary<int, long> notificationSuppressedUntil = new Dictionary<int, long>();
@@ -40,6 +41,8 @@ namespace ZoologyMod
         private readonly List<int> ownerPredatorIdBuffer = new List<int>(4);
         private readonly List<Pawn> predatorsToRegisterBuffer = new List<Pawn>(8);
         private readonly List<DefendCandidate> defendCandidateBuffer = new List<DefendCandidate>(8);
+        private readonly Dictionary<int, long> postLoadBestPairByPredator = new Dictionary<int, long>(64);
+        private readonly Dictionary<int, long> postLoadBestUntilByPredator = new Dictionary<int, long>(64);
 
         
         private static Dictionary<long, long> inaccessibleSince = new Dictionary<long, long>();
@@ -53,6 +56,7 @@ namespace ZoologyMod
         private static PredatorPreyPairGameComponent singleton;
         private const int NEGATIVE_LOOKUP_COOLDOWN_TICKS = ZoologyTickLimiter.PreyProtection.TickCheckInterval;
         private static JobDef protectPreyJobDef;
+        private long postLoadStabilizationUntilTick;
 
         public static PredatorPreyPairGameComponent Instance {
             get {
@@ -79,6 +83,7 @@ namespace ZoologyMod
                 runtimeCorpseToPredators.Clear();
                 runtimePredatorFactionById.Clear();
                 ClearLookupCaches();
+                postLoadStabilizationUntilTick = 0L;
             }
         }
 
@@ -105,13 +110,17 @@ namespace ZoologyMod
             runtimeCorpseToPredators.Clear();
             runtimePredatorFactionById.Clear();
             ClearLookupCaches();
+            postLoadStabilizationUntilTick = 0L;
             singleton = this;
         }
 
         public override void LoadedGame()
         {
             base.LoadedGame();
-            
+
+            long now = Find.TickManager?.TicksGame ?? 0L;
+            RebuildRuntimeMappingsFromPairs(now);
+            postLoadStabilizationUntilTick = now + POST_LOAD_STABILIZATION_TICKS;
             singleton = this;
         }
 
@@ -140,25 +149,8 @@ namespace ZoologyMod
                     ClearLookupCaches();
 
                     long now = Find.TickManager?.TicksGame ?? 0L;
-
-                    
-                    
-                    FillPairSnapshot(pairSnapshotBuffer);
-                    for (int i = 0; i < pairSnapshotBuffer.Count; i++)
-                    {
-                        var kv = pairSnapshotBuffer[i];
-                        long key = kv.Key;
-                        long until = kv.Value;
-                        if (until < now) continue;
-                        int pid = (int)((uint)(key >> 32));
-                        int cid = (int)((uint)(key & 0xFFFFFFFF));
-                        if (pid > 0 && cid > 0)
-                        {
-                            AddRuntimePairMapping(pid, cid, FindPawnById(pid));
-                        }
-                    }
-
-                    pairSnapshotBuffer.Clear();
+                    RebuildRuntimeMappingsFromPairs(now);
+                    postLoadStabilizationUntilTick = now + POST_LOAD_STABILIZATION_TICKS;
                 }
             }
             catch (Exception ex)
@@ -191,6 +183,97 @@ namespace ZoologyMod
             corpseLookupCache.Clear();
             corpseNegativeLookupUntil.Clear();
             pawnNegativeLookupUntil.Clear();
+        }
+
+        private void RebuildRuntimeMappingsFromPairs(long now)
+        {
+            runtimePredatorToCorpse.Clear();
+            runtimeCorpseToPredators.Clear();
+            runtimePredatorFactionById.Clear();
+
+            FillPairSnapshot(pairSnapshotBuffer);
+            pairRemovalBuffer.Clear();
+            postLoadBestPairByPredator.Clear();
+            postLoadBestUntilByPredator.Clear();
+
+            for (int i = 0; i < pairSnapshotBuffer.Count; i++)
+            {
+                var kv = pairSnapshotBuffer[i];
+                long key = kv.Key;
+                long until = kv.Value;
+                if (until < now)
+                {
+                    pairRemovalBuffer.Add(key);
+                    continue;
+                }
+
+                int predatorId = PredatorIdFromKey(key);
+                int corpseId = CorpseIdFromKey(key);
+                if (predatorId <= 0 || corpseId <= 0)
+                {
+                    pairRemovalBuffer.Add(key);
+                    continue;
+                }
+
+                if (postLoadBestPairByPredator.TryGetValue(predatorId, out long existingKey))
+                {
+                    long existingUntil = postLoadBestUntilByPredator[predatorId];
+                    bool preferCurrent = until > existingUntil;
+                    if (!preferCurrent && until == existingUntil)
+                    {
+                        int existingCorpseId = CorpseIdFromKey(existingKey);
+                        preferCurrent = corpseId > existingCorpseId;
+                    }
+
+                    if (preferCurrent)
+                    {
+                        pairRemovalBuffer.Add(existingKey);
+                        postLoadBestPairByPredator[predatorId] = key;
+                        postLoadBestUntilByPredator[predatorId] = until;
+                    }
+                    else
+                    {
+                        pairRemovalBuffer.Add(key);
+                    }
+                }
+                else
+                {
+                    postLoadBestPairByPredator[predatorId] = key;
+                    postLoadBestUntilByPredator[predatorId] = until;
+                }
+            }
+
+            if (pairRemovalBuffer.Count > 0)
+            {
+                lock (dictLock)
+                {
+                    for (int i = 0; i < pairRemovalBuffer.Count; i++)
+                    {
+                        long key = pairRemovalBuffer[i];
+                        pairsUntil.Remove(key);
+                        inaccessibleSince.Remove(key);
+                        unsuitableSince.Remove(key);
+                        lastTriggerAttempt.Remove(key);
+                    }
+                }
+            }
+
+            foreach (var best in postLoadBestPairByPredator)
+            {
+                int predatorId = best.Key;
+                int corpseId = CorpseIdFromKey(best.Value);
+                if (predatorId <= 0 || corpseId <= 0)
+                {
+                    continue;
+                }
+
+                AddRuntimePairMapping(predatorId, corpseId, FindPawnById(predatorId));
+            }
+
+            pairSnapshotBuffer.Clear();
+            pairRemovalBuffer.Clear();
+            postLoadBestPairByPredator.Clear();
+            postLoadBestUntilByPredator.Clear();
         }
 
         private void AddRuntimePairMapping(int predatorId, int corpseId, Pawn predator = null)
@@ -799,6 +882,7 @@ namespace ZoologyMod
 
                 long now = Find.TickManager?.TicksGame ?? 0L;
                 if (now % TICK_CHECK_INTERVAL != 0) return;
+                if (now < postLoadStabilizationUntilTick) return;
 
                 pairRemovalBuffer.Clear();
 
@@ -1500,6 +1584,21 @@ namespace ZoologyMod
                 && !ReferenceEquals(trackedFaction, predator.Faction);
         }
 
+        internal static bool ShouldSkipFactionChangeCleanup()
+        {
+            if (Current.Game == null || Find.TickManager == null)
+            {
+                return true;
+            }
+
+            if (Current.ProgramState != ProgramState.Playing)
+            {
+                return true;
+            }
+
+            return Scribe.mode != LoadSaveMode.Inactive;
+        }
+
         public void TryTriggerDefendFor(Corpse corpse, Pawn interrupter)
         {
             try
@@ -1741,6 +1840,8 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(Pawn), nameof(Pawn.SetFaction), new[] { typeof(Faction), typeof(Pawn) })]
     public static class Patch_Pawn_SetFaction_ClearPredatorPairs
     {
+        public static bool Prepare() => PredationSettingsGate.EnablePredatorDefendCorpse();
+
         public static void Prefix(Pawn __instance, out Faction __state)
         {
             __state = __instance?.Faction;
@@ -1753,6 +1854,11 @@ namespace ZoologyMod
                 return;
             }
 
+            if (PredatorPreyPairGameComponent.ShouldSkipFactionChangeCleanup())
+            {
+                return;
+            }
+
             PredatorPreyPairGameComponent.Instance?.ClearPairsForPredator(__instance);
         }
     }
@@ -1760,6 +1866,8 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(Thing), nameof(Thing.SetFactionDirect), new[] { typeof(Faction) })]
     public static class Patch_Pawn_SetFactionDirect_ClearPredatorPairs
     {
+        public static bool Prepare() => PredationSettingsGate.EnablePredatorDefendCorpse();
+
         public static void Prefix(Thing __instance, out Faction __state)
         {
             __state = __instance?.Faction;
@@ -1768,6 +1876,11 @@ namespace ZoologyMod
         public static void Postfix(Thing __instance, Faction __state)
         {
             if (!(__instance is Pawn pawn) || ReferenceEquals(__state, pawn.Faction))
+            {
+                return;
+            }
+
+            if (PredatorPreyPairGameComponent.ShouldSkipFactionChangeCleanup())
             {
                 return;
             }

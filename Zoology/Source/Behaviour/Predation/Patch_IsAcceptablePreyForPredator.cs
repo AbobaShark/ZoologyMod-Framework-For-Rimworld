@@ -848,6 +848,8 @@ namespace ZoologyMod
         [HarmonyPatch(typeof(Faction), nameof(Faction.Notify_RelationKindChanged))]
         private static class Patch_Faction_NotifyRelationKindChanged_AcceptablePreyCache
         {
+            private static bool Prepare() => Patch_IsAcceptablePreyForPredator.Prepare();
+
             private static void Postfix()
             {
                 factionHostilityByPairKey.Clear();
