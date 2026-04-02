@@ -17,13 +17,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Swan"]/statBases/MarketValue</xpath>
       <value>
-        <MarketValue>150</MarketValue>
+        <MarketValue>175</MarketValue>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Swan"]/statBases</xpath>
       <value>
-        <MarketValue>150</MarketValue>
+        <MarketValue>175</MarketValue>
       </value>
     </nomatch>
   </Operation>
@@ -467,10 +467,27 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Swan"]/tradeTags</xpath>
+    <xpath>/Defs/ThingDef[defName = "Swan"]/tradeTags/li[text()="AnimalCommon" or text()="AnimalUncommon" or text()="AnimalExotic" or text()="AnimalFighter" or text()="AnimalInsect" or text()="AnimalPet" or text()="AnimalFarm"]</xpath>
     <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Swan"]/tradeTags</xpath>
+      <xpath>/Defs/ThingDef[defName = "Swan"]/tradeTags/li[text()="AnimalCommon" or text()="AnimalUncommon" or text()="AnimalExotic" or text()="AnimalFighter" or text()="AnimalInsect" or text()="AnimalPet" or text()="AnimalFarm"]</xpath>
     </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Swan"]/tradeTags</xpath>
+    <match Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "Swan"]/tradeTags</xpath>
+      <value>
+        <li>AnimalUncommon</li>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "Swan"]</xpath>
+      <value>
+        <tradeTags>
+          <li>AnimalUncommon</li>
+        </tradeTags>
+      </value>
+    </nomatch>
   </Operation>
   <!-- Swan PawnKindDef -->
   <Operation Class="PatchOperationConditional">
@@ -546,13 +563,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Heron"]/statBases/MarketValue</xpath>
       <value>
-        <MarketValue>125</MarketValue>
+        <MarketValue>150</MarketValue>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Heron"]/statBases</xpath>
       <value>
-        <MarketValue>125</MarketValue>
+        <MarketValue>150</MarketValue>
       </value>
     </nomatch>
   </Operation>
@@ -996,10 +1013,27 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Heron"]/tradeTags</xpath>
+    <xpath>/Defs/ThingDef[defName = "Heron"]/tradeTags/li[text()="AnimalCommon" or text()="AnimalUncommon" or text()="AnimalExotic" or text()="AnimalFighter" or text()="AnimalInsect" or text()="AnimalPet" or text()="AnimalFarm"]</xpath>
     <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Heron"]/tradeTags</xpath>
+      <xpath>/Defs/ThingDef[defName = "Heron"]/tradeTags/li[text()="AnimalCommon" or text()="AnimalUncommon" or text()="AnimalExotic" or text()="AnimalFighter" or text()="AnimalInsect" or text()="AnimalPet" or text()="AnimalFarm"]</xpath>
     </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Heron"]/tradeTags</xpath>
+    <match Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "Heron"]/tradeTags</xpath>
+      <value>
+        <li>AnimalUncommon</li>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "Heron"]</xpath>
+      <value>
+        <tradeTags>
+          <li>AnimalUncommon</li>
+        </tradeTags>
+      </value>
+    </nomatch>
   </Operation>
   <!-- Heron PawnKindDef -->
   <Operation Class="PatchOperationConditional">
@@ -1075,13 +1109,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Flamingo"]/statBases/MarketValue</xpath>
       <value>
-        <MarketValue>125</MarketValue>
+        <MarketValue>150</MarketValue>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Flamingo"]/statBases</xpath>
       <value>
-        <MarketValue>125</MarketValue>
+        <MarketValue>150</MarketValue>
       </value>
     </nomatch>
   </Operation>
@@ -1525,10 +1559,27 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Flamingo"]/tradeTags</xpath>
+    <xpath>/Defs/ThingDef[defName = "Flamingo"]/tradeTags/li[text()="AnimalCommon" or text()="AnimalUncommon" or text()="AnimalExotic" or text()="AnimalFighter" or text()="AnimalInsect" or text()="AnimalPet" or text()="AnimalFarm"]</xpath>
     <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Flamingo"]/tradeTags</xpath>
+      <xpath>/Defs/ThingDef[defName = "Flamingo"]/tradeTags/li[text()="AnimalCommon" or text()="AnimalUncommon" or text()="AnimalExotic" or text()="AnimalFighter" or text()="AnimalInsect" or text()="AnimalPet" or text()="AnimalFarm"]</xpath>
     </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Flamingo"]/tradeTags</xpath>
+    <match Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "Flamingo"]/tradeTags</xpath>
+      <value>
+        <li>AnimalUncommon</li>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "Flamingo"]</xpath>
+      <value>
+        <tradeTags>
+          <li>AnimalUncommon</li>
+        </tradeTags>
+      </value>
+    </nomatch>
   </Operation>
   <!-- Flamingo PawnKindDef -->
   <Operation Class="PatchOperationConditional">
@@ -1613,13 +1664,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Penguin"]/statBases/MarketValue</xpath>
       <value>
-        <MarketValue>175</MarketValue>
+        <MarketValue>225</MarketValue>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Penguin"]/statBases</xpath>
       <value>
-        <MarketValue>175</MarketValue>
+        <MarketValue>225</MarketValue>
       </value>
     </nomatch>
   </Operation>
@@ -2063,10 +2114,27 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Penguin"]/tradeTags</xpath>
+    <xpath>/Defs/ThingDef[defName = "Penguin"]/tradeTags/li[text()="AnimalCommon" or text()="AnimalUncommon" or text()="AnimalExotic" or text()="AnimalFighter" or text()="AnimalInsect" or text()="AnimalPet" or text()="AnimalFarm"]</xpath>
     <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Penguin"]/tradeTags</xpath>
+      <xpath>/Defs/ThingDef[defName = "Penguin"]/tradeTags/li[text()="AnimalCommon" or text()="AnimalUncommon" or text()="AnimalExotic" or text()="AnimalFighter" or text()="AnimalInsect" or text()="AnimalPet" or text()="AnimalFarm"]</xpath>
     </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Penguin"]/tradeTags</xpath>
+    <match Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "Penguin"]/tradeTags</xpath>
+      <value>
+        <li>AnimalUncommon</li>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "Penguin"]</xpath>
+      <value>
+        <tradeTags>
+          <li>AnimalUncommon</li>
+        </tradeTags>
+      </value>
+    </nomatch>
   </Operation>
   <!-- Penguin PawnKindDef -->
   <Operation Class="PatchOperationConditional">
@@ -2633,10 +2701,27 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Peacock"]/tradeTags</xpath>
+    <xpath>/Defs/ThingDef[defName = "Peacock"]/tradeTags/li[text()="AnimalCommon" or text()="AnimalUncommon" or text()="AnimalExotic" or text()="AnimalFighter" or text()="AnimalInsect" or text()="AnimalPet" or text()="AnimalFarm"]</xpath>
     <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Peacock"]/tradeTags</xpath>
+      <xpath>/Defs/ThingDef[defName = "Peacock"]/tradeTags/li[text()="AnimalCommon" or text()="AnimalUncommon" or text()="AnimalExotic" or text()="AnimalFighter" or text()="AnimalInsect" or text()="AnimalPet" or text()="AnimalFarm"]</xpath>
     </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Peacock"]/tradeTags</xpath>
+    <match Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "Peacock"]/tradeTags</xpath>
+      <value>
+        <li>AnimalCommon</li>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "Peacock"]</xpath>
+      <value>
+        <tradeTags>
+          <li>AnimalCommon</li>
+        </tradeTags>
+      </value>
+    </nomatch>
   </Operation>
   <!-- Peacock PawnKindDef -->
   <Operation Class="PatchOperationConditional">
@@ -2721,13 +2806,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Vulture"]/statBases/MarketValue</xpath>
       <value>
-        <MarketValue>125</MarketValue>
+        <MarketValue>175</MarketValue>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Vulture"]/statBases</xpath>
       <value>
-        <MarketValue>125</MarketValue>
+        <MarketValue>175</MarketValue>
       </value>
     </nomatch>
   </Operation>
@@ -3007,18 +3092,9 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Vulture"]/race/roamMtbDays</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Vulture"]/race/roamMtbDays</xpath>
-      <value>
-        <roamMtbDays>4</roamMtbDays>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Vulture"]/race</xpath>
-      <value>
-        <roamMtbDays>4</roamMtbDays>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Vulture"]/race/LeatherDef</xpath>
@@ -3182,10 +3258,27 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Vulture"]/tradeTags</xpath>
+    <xpath>/Defs/ThingDef[defName = "Vulture"]/tradeTags/li[text()="AnimalCommon" or text()="AnimalUncommon" or text()="AnimalExotic" or text()="AnimalFighter" or text()="AnimalInsect" or text()="AnimalPet" or text()="AnimalFarm"]</xpath>
     <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Vulture"]/tradeTags</xpath>
+      <xpath>/Defs/ThingDef[defName = "Vulture"]/tradeTags/li[text()="AnimalCommon" or text()="AnimalUncommon" or text()="AnimalExotic" or text()="AnimalFighter" or text()="AnimalInsect" or text()="AnimalPet" or text()="AnimalFarm"]</xpath>
     </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Vulture"]/tradeTags</xpath>
+    <match Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "Vulture"]/tradeTags</xpath>
+      <value>
+        <li>AnimalUncommon</li>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "Vulture"]</xpath>
+      <value>
+        <tradeTags>
+          <li>AnimalUncommon</li>
+        </tradeTags>
+      </value>
+    </nomatch>
   </Operation>
   <Operation Class="PatchOperationAddModExtension">
     <xpath>/Defs/ThingDef[defName = "Vulture"]</xpath>

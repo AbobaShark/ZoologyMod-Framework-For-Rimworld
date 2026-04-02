@@ -4,28 +4,46 @@
   <!-- BaseHare -->
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[@Name = "BaseHare"]/statBases/MarketValue</xpath>
-    <match Class="PatchOperationRemove">
+    <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[@Name = "BaseHare"]/statBases/MarketValue</xpath>
+      <value>
+        <MarketValue>75</MarketValue>
+      </value>
     </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[@Name = "BaseHare"]/statBases</xpath>
+      <value>
+        <MarketValue>75</MarketValue>
+      </value>
+    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[@Name = "BaseHare"]/statBases/MoveSpeed</xpath>
-    <match Class="PatchOperationRemove">
+    <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[@Name = "BaseHare"]/statBases/MoveSpeed</xpath>
+      <value>
+        <MoveSpeed>9.5</MoveSpeed>
+      </value>
     </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[@Name = "BaseHare"]/statBases</xpath>
+      <value>
+        <MoveSpeed>9.5</MoveSpeed>
+      </value>
+    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[@Name = "BaseHare"]/statBases/Wildness</xpath>
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[@Name = "BaseHare"]/statBases/Wildness</xpath>
       <value>
-        <Wildness>0.45</Wildness>
+        <Wildness>0.55</Wildness>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[@Name = "BaseHare"]/statBases</xpath>
       <value>
-        <Wildness>0.45</Wildness>
+        <Wildness>0.55</Wildness>
       </value>
     </nomatch>
   </Operation>
@@ -109,21 +127,48 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[@Name = "BaseHare"]/race/baseBodySize</xpath>
-    <match Class="PatchOperationRemove">
+    <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[@Name = "BaseHare"]/race/baseBodySize</xpath>
+      <value>
+        <baseBodySize>0.3</baseBodySize>
+      </value>
     </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[@Name = "BaseHare"]/race</xpath>
+      <value>
+        <baseBodySize>0.3</baseBodySize>
+      </value>
+    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[@Name = "BaseHare"]/race/baseHealthScale</xpath>
-    <match Class="PatchOperationRemove">
+    <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[@Name = "BaseHare"]/race/baseHealthScale</xpath>
+      <value>
+        <baseHealthScale>0.30</baseHealthScale>
+      </value>
     </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[@Name = "BaseHare"]/race</xpath>
+      <value>
+        <baseHealthScale>0.30</baseHealthScale>
+      </value>
+    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[@Name = "BaseHare"]/race/baseHungerRate</xpath>
-    <match Class="PatchOperationRemove">
+    <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[@Name = "BaseHare"]/race/baseHungerRate</xpath>
+      <value>
+        <baseHungerRate>0.30</baseHungerRate>
+      </value>
     </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[@Name = "BaseHare"]/race</xpath>
+      <value>
+        <baseHungerRate>0.30</baseHungerRate>
+      </value>
+    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[@Name = "BaseHare"]/race/lifeExpectancy</xpath>
@@ -193,18 +238,9 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[@Name = "BaseHare"]/race/roamMtbDays</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[@Name = "BaseHare"]/race/roamMtbDays</xpath>
-      <value>
-        <roamMtbDays>4</roamMtbDays>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[@Name = "BaseHare"]/race</xpath>
-      <value>
-        <roamMtbDays>4</roamMtbDays>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[@Name = "BaseHare"]/race/manhunterOnTameFailChance</xpath>
@@ -274,9 +310,18 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[@Name = "BaseHare"]/race/nuzzleMtbHours</xpath>
-    <match Class="PatchOperationRemove">
+    <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[@Name = "BaseHare"]/race/nuzzleMtbHours</xpath>
+      <value>
+        <nuzzleMtbHours>36</nuzzleMtbHours>
+      </value>
     </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[@Name = "BaseHare"]/race</xpath>
+      <value>
+        <nuzzleMtbHours>36</nuzzleMtbHours>
+      </value>
+    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[@Name = "BaseHare"]/race/mateMtbHours</xpath>
@@ -407,10 +452,27 @@
     <nomatch/>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[@Name = "BaseHare"]/race/specialTrainables</xpath>
+    <xpath>/Defs/ThingDef[@Name = "BaseHare"]/race/specialTrainables/li[text()="SludgeSpew" or text()="EggSpew" or text()="TerrorRoar" or text()="WarTrumpet" or text()="Forage" or text()="Comfort" or text()="AttackTarget" or text()="Dig"]</xpath>
     <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[@Name = "BaseHare"]/race/specialTrainables</xpath>
+      <xpath>/Defs/ThingDef[@Name = "BaseHare"]/race/specialTrainables/li[text()="SludgeSpew" or text()="EggSpew" or text()="TerrorRoar" or text()="WarTrumpet" or text()="Forage" or text()="Comfort" or text()="AttackTarget" or text()="Dig"]</xpath>
     </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[@Name = "BaseHare"]/race/specialTrainables</xpath>
+    <match Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[@Name = "BaseHare"]/race/specialTrainables</xpath>
+      <value>
+        <li MayRequire="Ludeon.RimWorld.Odyssey">Comfort</li>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[@Name = "BaseHare"]/race</xpath>
+      <value>
+        <specialTrainables>
+          <li MayRequire="Ludeon.RimWorld.Odyssey">Comfort</li>
+        </specialTrainables>
+      </value>
+    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[@Name = "BaseHare"]/tradeTags/li[text()="AnimalCommon" or text()="AnimalUncommon" or text()="AnimalExotic" or text()="AnimalFighter" or text()="AnimalInsect" or text()="AnimalPet" or text()="AnimalFarm"]</xpath>
@@ -486,21 +548,30 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[@Name = "HareBase"]/combatPower</xpath>
       <value>
-        <combatPower>40</combatPower>
+        <combatPower>45</combatPower>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[@Name = "HareBase"]</xpath>
       <value>
-        <combatPower>40</combatPower>
+        <combatPower>45</combatPower>
       </value>
     </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/PawnKindDef[@Name = "HareBase"]/ecoSystemWeight</xpath>
-    <match Class="PatchOperationRemove">
+    <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[@Name = "HareBase"]/ecoSystemWeight</xpath>
+      <value>
+        <ecoSystemWeight>0.30</ecoSystemWeight>
+      </value>
     </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/PawnKindDef[@Name = "HareBase"]</xpath>
+      <value>
+        <ecoSystemWeight>0.30</ecoSystemWeight>
+      </value>
+    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/PawnKindDef[@Name = "HareBase"]/wildGroupSize</xpath>
@@ -527,33 +598,15 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Hare"]/statBases/MarketValue</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Hare"]/statBases/MarketValue</xpath>
-      <value>
-        <MarketValue>75</MarketValue>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Hare"]/statBases</xpath>
-      <value>
-        <MarketValue>75</MarketValue>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Hare"]/statBases/MoveSpeed</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Hare"]/statBases/MoveSpeed</xpath>
-      <value>
-        <MoveSpeed>9</MoveSpeed>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Hare"]/statBases</xpath>
-      <value>
-        <MoveSpeed>9</MoveSpeed>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Hare"]/statBases/Wildness</xpath>
@@ -628,48 +681,21 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Hare"]/race/baseBodySize</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Hare"]/race/baseBodySize</xpath>
-      <value>
-        <baseBodySize>0.3</baseBodySize>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Hare"]/race</xpath>
-      <value>
-        <baseBodySize>0.3</baseBodySize>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Hare"]/race/baseHealthScale</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Hare"]/race/baseHealthScale</xpath>
-      <value>
-        <baseHealthScale>0.30</baseHealthScale>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Hare"]/race</xpath>
-      <value>
-        <baseHealthScale>0.30</baseHealthScale>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Hare"]/race/baseHungerRate</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Hare"]/race/baseHungerRate</xpath>
-      <value>
-        <baseHungerRate>0.30</baseHungerRate>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Hare"]/race</xpath>
-      <value>
-        <baseHungerRate>0.30</baseHungerRate>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Hare"]/race/lifeExpectancy</xpath>
@@ -833,18 +859,9 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/PawnKindDef[defName = "Hare"]/ecoSystemWeight</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/PawnKindDef[defName = "Hare"]/ecoSystemWeight</xpath>
-      <value>
-        <ecoSystemWeight>0.30</ecoSystemWeight>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/PawnKindDef[defName = "Hare"]</xpath>
-      <value>
-        <ecoSystemWeight>0.30</ecoSystemWeight>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/PawnKindDef[defName = "Hare"]/canArriveManhunter</xpath>
@@ -877,33 +894,15 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Snowhare"]/statBases/MarketValue</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Snowhare"]/statBases/MarketValue</xpath>
-      <value>
-        <MarketValue>50</MarketValue>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Snowhare"]/statBases</xpath>
-      <value>
-        <MarketValue>50</MarketValue>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Snowhare"]/statBases/MoveSpeed</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Snowhare"]/statBases/MoveSpeed</xpath>
-      <value>
-        <MoveSpeed>8</MoveSpeed>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Snowhare"]/statBases</xpath>
-      <value>
-        <MoveSpeed>8</MoveSpeed>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Snowhare"]/statBases/Wildness</xpath>
@@ -978,48 +977,21 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Snowhare"]/race/baseBodySize</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Snowhare"]/race/baseBodySize</xpath>
-      <value>
-        <baseBodySize>0.25</baseBodySize>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Snowhare"]/race</xpath>
-      <value>
-        <baseBodySize>0.25</baseBodySize>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Snowhare"]/race/baseHealthScale</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Snowhare"]/race/baseHealthScale</xpath>
-      <value>
-        <baseHealthScale>0.25</baseHealthScale>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Snowhare"]/race</xpath>
-      <value>
-        <baseHealthScale>0.25</baseHealthScale>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Snowhare"]/race/baseHungerRate</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Snowhare"]/race/baseHungerRate</xpath>
-      <value>
-        <baseHungerRate>0.25</baseHungerRate>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Snowhare"]/race</xpath>
-      <value>
-        <baseHungerRate>0.25</baseHungerRate>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Snowhare"]/race/lifeExpectancy</xpath>
@@ -1183,18 +1155,9 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/PawnKindDef[defName = "Snowhare"]/ecoSystemWeight</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/PawnKindDef[defName = "Snowhare"]/ecoSystemWeight</xpath>
-      <value>
-        <ecoSystemWeight>0.25</ecoSystemWeight>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/PawnKindDef[defName = "Snowhare"]</xpath>
-      <value>
-        <ecoSystemWeight>0.25</ecoSystemWeight>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/PawnKindDef[defName = "Snowhare"]/canArriveManhunter</xpath>
@@ -1281,9 +1244,18 @@
         <!-- BaseHare CE parent properties -->
         <li Class="PatchOperationConditional">
           <xpath>Defs/ThingDef[@Name="BaseHare"]/statBases/MeleeDodgeChance</xpath>
-          <match Class="PatchOperationRemove">
+          <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[@Name="BaseHare"]/statBases/MeleeDodgeChance</xpath>
+            <value>
+              <MeleeDodgeChance>0.55</MeleeDodgeChance>
+            </value>
           </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[@Name="BaseHare"]/statBases</xpath>
+            <value>
+              <MeleeDodgeChance>0.55</MeleeDodgeChance>
+            </value>
+          </nomatch>
         </li>
         <li Class="PatchOperationConditional">
           <xpath>Defs/ThingDef[@Name="BaseHare"]/statBases/MeleeCritChance</xpath>
@@ -1332,15 +1304,48 @@
         </li>
         <li Class="PatchOperationConditional">
           <xpath>Defs/ThingDef[@Name="BaseHare"]/statBases/ArmorRating_Blunt</xpath>
-          <match Class="PatchOperationRemove">
+          <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[@Name="BaseHare"]/statBases/ArmorRating_Blunt</xpath>
+            <value>
+              <ArmorRating_Blunt>0.10</ArmorRating_Blunt>
+            </value>
           </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[@Name="BaseHare"]/statBases</xpath>
+            <value>
+              <ArmorRating_Blunt>0.10</ArmorRating_Blunt>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[@Name="BaseHare"]/comps</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[@Name="BaseHare"]</xpath>
+            <value>
+              <comps/>
+            </value>
+          </nomatch>
         </li>
         <li Class="PatchOperationConditional">
           <xpath>Defs/ThingDef[@Name="BaseHare"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]</xpath>
-          <match Class="PatchOperationRemove">
-            <xpath>Defs/ThingDef[@Name="BaseHare"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[@Name="BaseHare"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]/Durability</xpath>
+            <value>
+              <Durability>150.00</Durability>
+            </value>
           </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[@Name="BaseHare"]/comps</xpath>
+            <value>
+              <li Class="CombatExtended.CompProperties_ArmorDurability">
+                <Durability>150.00</Durability>
+                <Regenerates>true</Regenerates>
+                <RegenInterval>600</RegenInterval>
+                <RegenValue>5</RegenValue>
+                <MinArmorPct>0.5</MinArmorPct>
+              </li>
+            </value>
+          </nomatch>
         </li>
         <li Class="PatchOperationConditional">
           <xpath>Defs/ThingDef[@Name="BaseHare"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
@@ -1374,6 +1379,12 @@
         </li>
         <!-- Hare CE patches -->
         <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="Hare"]/statBases/ArmorRating_Blunt</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>Defs/ThingDef[defName="Hare"]/statBases/ArmorRating_Blunt</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>Defs/ThingDef[defName="Hare"]/statBases/ArmorRating_Sharp</xpath>
           <match Class="PatchOperationRemove">
             <xpath>Defs/ThingDef[defName="Hare"]/statBases/ArmorRating_Sharp</xpath>
@@ -1383,6 +1394,12 @@
           <xpath>Defs/ThingDef[defName="Hare"]/statBases/MeleeCritChance</xpath>
           <match Class="PatchOperationRemove">
             <xpath>Defs/ThingDef[defName="Hare"]/statBases/MeleeCritChance</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="Hare"]/statBases/MeleeDodgeChance</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>Defs/ThingDef[defName="Hare"]/statBases/MeleeDodgeChance</xpath>
           </match>
         </li>
         <li Class="PatchOperationConditional">
@@ -1398,70 +1415,16 @@
           </match>
         </li>
         <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="Hare"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>Defs/ThingDef[defName="Hare"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>Defs/ThingDef[defName="Hare"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
           <match Class="PatchOperationRemove">
             <xpath>Defs/ThingDef[defName="Hare"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
           </match>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="Hare"]/statBases/MeleeDodgeChance</xpath>
-          <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="Hare"]/statBases/MeleeDodgeChance</xpath>
-            <value>
-              <MeleeDodgeChance>0.55</MeleeDodgeChance>
-            </value>
-          </match>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="Hare"]/statBases</xpath>
-            <value>
-              <MeleeDodgeChance>0.55</MeleeDodgeChance>
-            </value>
-          </nomatch>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="Hare"]/statBases/ArmorRating_Blunt</xpath>
-          <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="Hare"]/statBases/ArmorRating_Blunt</xpath>
-            <value>
-              <ArmorRating_Blunt>0.10</ArmorRating_Blunt>
-            </value>
-          </match>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="Hare"]/statBases</xpath>
-            <value>
-              <ArmorRating_Blunt>0.10</ArmorRating_Blunt>
-            </value>
-          </nomatch>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="Hare"]/comps</xpath>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="Hare"]</xpath>
-            <value>
-              <comps/>
-            </value>
-          </nomatch>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="Hare"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]</xpath>
-          <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="Hare"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]/Durability</xpath>
-            <value>
-              <Durability>150.00</Durability>
-            </value>
-          </match>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="Hare"]/comps</xpath>
-            <value>
-              <li Class="CombatExtended.CompProperties_ArmorDurability">
-                <Durability>150.00</Durability>
-                <Regenerates>true</Regenerates>
-                <RegenInterval>600</RegenInterval>
-                <RegenValue>5</RegenValue>
-                <MinArmorPct>0.5</MinArmorPct>
-              </li>
-            </value>
-          </nomatch>
         </li>
         <li Class="PatchOperationConditional">
           <xpath>Defs/ThingDef[defName="Hare"]/statBases/ArmorRating_Heat</xpath>
@@ -1470,6 +1433,12 @@
           </match>
         </li>
         <!-- Snowhare CE patches -->
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="Snowhare"]/statBases/ArmorRating_Blunt</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>Defs/ThingDef[defName="Snowhare"]/statBases/ArmorRating_Blunt</xpath>
+          </match>
+        </li>
         <li Class="PatchOperationConditional">
           <xpath>Defs/ThingDef[defName="Snowhare"]/statBases/ArmorRating_Sharp</xpath>
           <match Class="PatchOperationRemove">
@@ -1480,6 +1449,12 @@
           <xpath>Defs/ThingDef[defName="Snowhare"]/statBases/MeleeCritChance</xpath>
           <match Class="PatchOperationRemove">
             <xpath>Defs/ThingDef[defName="Snowhare"]/statBases/MeleeCritChance</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="Snowhare"]/statBases/MeleeDodgeChance</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>Defs/ThingDef[defName="Snowhare"]/statBases/MeleeDodgeChance</xpath>
           </match>
         </li>
         <li Class="PatchOperationConditional">
@@ -1495,70 +1470,16 @@
           </match>
         </li>
         <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="Snowhare"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>Defs/ThingDef[defName="Snowhare"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>Defs/ThingDef[defName="Snowhare"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
           <match Class="PatchOperationRemove">
             <xpath>Defs/ThingDef[defName="Snowhare"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
           </match>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="Snowhare"]/statBases/MeleeDodgeChance</xpath>
-          <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="Snowhare"]/statBases/MeleeDodgeChance</xpath>
-            <value>
-              <MeleeDodgeChance>0.58</MeleeDodgeChance>
-            </value>
-          </match>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="Snowhare"]/statBases</xpath>
-            <value>
-              <MeleeDodgeChance>0.58</MeleeDodgeChance>
-            </value>
-          </nomatch>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="Snowhare"]/statBases/ArmorRating_Blunt</xpath>
-          <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="Snowhare"]/statBases/ArmorRating_Blunt</xpath>
-            <value>
-              <ArmorRating_Blunt>0.09</ArmorRating_Blunt>
-            </value>
-          </match>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="Snowhare"]/statBases</xpath>
-            <value>
-              <ArmorRating_Blunt>0.09</ArmorRating_Blunt>
-            </value>
-          </nomatch>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="Snowhare"]/comps</xpath>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="Snowhare"]</xpath>
-            <value>
-              <comps/>
-            </value>
-          </nomatch>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="Snowhare"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]</xpath>
-          <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="Snowhare"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]/Durability</xpath>
-            <value>
-              <Durability>125.00</Durability>
-            </value>
-          </match>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="Snowhare"]/comps</xpath>
-            <value>
-              <li Class="CombatExtended.CompProperties_ArmorDurability">
-                <Durability>125.00</Durability>
-                <Regenerates>true</Regenerates>
-                <RegenInterval>600</RegenInterval>
-                <RegenValue>5</RegenValue>
-                <MinArmorPct>0.5</MinArmorPct>
-              </li>
-            </value>
-          </nomatch>
         </li>
         <li Class="PatchOperationConditional">
           <xpath>Defs/ThingDef[defName="Snowhare"]/statBases/ArmorRating_Heat</xpath>

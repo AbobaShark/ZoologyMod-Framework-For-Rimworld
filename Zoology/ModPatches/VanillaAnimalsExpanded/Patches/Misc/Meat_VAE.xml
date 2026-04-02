@@ -19,4 +19,38 @@
       </value>
     </nomatch>
   </Operation>
+  
+  <!-- =================================================
+       Primates
+       ================================================= -->
+  <Operation Class="PatchOperationConditional">
+    <xpath>Defs/ThingDef[defName="AEXP_Lemur" or defName="Gorilla" or defName="AEXP_Mandrill"]/race/useMeatFrom</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>Defs/ThingDef[defName="AEXP_Lemur" or defName="Gorilla" or defName="AEXP_Mandrill"]/race/useMeatFrom</xpath>
+      <value>
+        <useMeatFrom>Monkey</useMeatFrom>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>Defs/ThingDef[defName="AEXP_Lemur" or defName="Gorilla" or defName="AEXP_Mandrill"]/race</xpath>
+      <value>
+        <useMeatFrom>Monkey</useMeatFrom>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>Defs/ThingDef[defName="Monkey"]/race/meatLabel</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>Defs/ThingDef[defName="Monkey"]/race/meatLabel</xpath>
+      <value>
+        <meatLabel>primate meat</meatLabel>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>Defs/ThingDef[defName="Monkey"]/race</xpath>
+      <value>
+        <meatLabel>primate meat</meatLabel>
+      </value>
+    </nomatch>
+  </Operation>
 </Patch>
