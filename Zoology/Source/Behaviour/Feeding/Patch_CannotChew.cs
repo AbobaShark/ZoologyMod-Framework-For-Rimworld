@@ -32,12 +32,12 @@ namespace ZoologyMod
                     return true;
                 }
 
-                if (p.Map != null && !CannotChewPresenceCache.HasCannotChewPawnsOnMap(p.Map))
+                if (!CannotChewUtility.HasCannotChew(p))
                 {
                     return true;
                 }
 
-                if (!CannotChewUtility.HasCannotChew(p))
+                if (p.Map != null && !CannotChewPresenceCache.HasCannotChewPawnsOnMap(p.Map))
                 {
                     return true;
                 }
@@ -80,14 +80,14 @@ namespace ZoologyMod
             }
 
             int computedCount = CountCannotChewOnMap(map);
-            if (computedCount <= 0)
+            cannotChewCountByMapId[map.uniqueID] = computedCount;
+            if (computedCount > 0)
             {
-                return false;
+                totalCannotChew += computedCount;
+                return true;
             }
 
-            cannotChewCountByMapId[map.uniqueID] = computedCount;
-            totalCannotChew += computedCount;
-            return true;
+            return false;
         }
 
         public static void NotifyPawnSpawned(Pawn pawn)

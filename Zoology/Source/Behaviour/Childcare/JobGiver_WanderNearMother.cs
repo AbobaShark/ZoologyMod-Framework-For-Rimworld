@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using RimWorld;
 using Verse;
 using Verse.AI;
@@ -7,6 +8,9 @@ namespace ZoologyMod
 {
     public class JobGiver_WanderNearMother : JobGiver_Wander
     {
+        private static readonly Dictionary<int, int> scansByMapId = new Dictionary<int, int>(4);
+        private static int scansTick = int.MinValue;
+
         public JobGiver_WanderNearMother()
         {
             this.wanderRadius = 5f;
@@ -22,6 +26,7 @@ namespace ZoologyMod
             try
             {
                 if (pawn == null || pawn.Map == null) return IntVec3.Invalid;
+                if (!TryConsumeScanBudget(pawn.Map)) return IntVec3.Invalid;
                 if (!ChildcareUtility.IsChildcareEnabled) return IntVec3.Invalid;
                 if (!pawn.IsAnimal) return IntVec3.Invalid;
                 if (pawn.Dead || pawn.Downed || !pawn.Spawned) return IntVec3.Invalid;
@@ -39,6 +44,31 @@ namespace ZoologyMod
                 return mother.Position;
             }
             catch { return IntVec3.Invalid; }
+        }
+
+        private static bool TryConsumeScanBudget(Map map)
+        {
+            if (map == null)
+            {
+                return false;
+            }
+
+            int currentTick = Find.TickManager?.TicksGame ?? 0;
+            if (scansTick != currentTick)
+            {
+                scansTick = currentTick;
+                scansByMapId.Clear();
+            }
+
+            int mapId = map.uniqueID;
+            scansByMapId.TryGetValue(mapId, out int used);
+            if (used >= ZoologyTickLimiter.Childcare.WanderNearMotherScanBudgetPerTickPerMap)
+            {
+                return false;
+            }
+
+            scansByMapId[mapId] = used + 1;
+            return true;
         }
 
         private static bool IsSleepingOrLyingDown(Pawn pawn)
