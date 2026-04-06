@@ -1534,6 +1534,7 @@ class PatchGenerator:
             'herdMigrationAllowed': 'herdMigrationAllowed',
             'foodType': 'Foodtype',  # важная связка: tag 'foodType' -> canonical 'Foodtype'
             'roamMtbDays': 'roamMtbDays',
+            'LeatherDef': 'LeatherDef',
             'manhunterOnTameFailChance': 'manhunterOnTameFailChance',
             'manhunterOnDamageChance': 'manhunterOnDamageChance',
             'petness': 'petness',
@@ -1551,12 +1552,13 @@ class PatchGenerator:
         }
 
         race_order = ['baseBodySize', 'baseHealthScale', 'baseHungerRate', 'lifeExpectancy', 'gestationPeriodDays',
-                      'herdAnimal', 'herdMigrationAllowed', 'foodType', 'roamMtbDays',
+                      'herdAnimal', 'herdMigrationAllowed', 'foodType', 'roamMtbDays', 'LeatherDef',
                       'manhunterOnTameFailChance', 'manhunterOnDamageChance',
                       'petness', 'nuzzleMtbHours', 'mateMtbHours', 'trainability', 'predator', 'maxPreyBodySize', 'nameOnTameChance', 'Body', 'waterCellCost', 'waterSeeker', 'canFishForFood']
 
         for tag in race_order:
             col = race_mapping.get(tag, tag)
+            xml_tag = tag if tag and tag[0].islower() else (tag[0].lower() + tag[1:] if tag else tag)
             if tag == 'lifeExpectancy':
                 col = 'Lifespan (years)'
             elif tag == 'gestationPeriodDays':
@@ -1567,7 +1569,16 @@ class PatchGenerator:
                 if val is None or str(val).strip() == '':
                     continue
                 s = str(val).strip()
-                xml_tag = tag if tag and tag[0].islower() else (tag[0].lower() + tag[1:] if tag else tag)
+
+                # LeatherDef: всегда replace/remove + удаляем useLeatherFrom
+                if xml_tag == 'leatherDef':
+                    if s.lower() in ('', 'no', 'none'):
+                        ops.append(self.create_safe_remove(abstract, 'race', 'leatherDef', is_abstract=True))
+                    else:
+                        ops.append(self.create_safe_replace(abstract, 'race', 'leatherDef', s, is_abstract=True))
+                    ops.append(self.create_safe_remove(abstract, 'race', 'useLeatherFrom', is_abstract=True))
+                    continue
+
                 if s.lower() in ('', 'no', 'none'):
                     ops.append(self.create_safe_remove(abstract, 'race', xml_tag, is_abstract=True))
                     continue
@@ -1606,7 +1617,11 @@ class PatchGenerator:
                 else:
                     ops.append(self.create_safe_replace(abstract, 'race', xml_tag, s, is_abstract=True))
             elif col in differing_cols:
-                ops.append(self.create_safe_remove(abstract, 'race', tag, is_abstract=True))
+                if xml_tag == 'leatherDef':
+                    ops.append(self.create_safe_remove(abstract, 'race', 'leatherDef', is_abstract=True))
+                    ops.append(self.create_safe_remove(abstract, 'race', 'useLeatherFrom', is_abstract=True))
+                else:
+                    ops.append(self.create_safe_remove(abstract, 'race', tag, is_abstract=True))
 
         # lifeStageAges handling using common_values/differing_cols
         # If parent (abstract) has sound tags in original XML, create full lifeStageAges (with sounds)
@@ -1926,6 +1941,8 @@ class PatchGenerator:
                 # проверяем несколько вариантов ключей (col, tag, xml_tag, регистронезависимо)
                 if (col in parent_common) or (tag in parent_common) or (xml_tag in parent_common) or any(k.lower() == col.lower() for k in parent_common.keys()):
                     ops.append(self.create_safe_remove(def_name, 'race', xml_tag))
+                    if tag == 'LeatherDef':
+                        ops.append(self.create_safe_remove(def_name, 'race', 'useLeatherFrom'))
                     continue
 
             # special handling: LeatherDef comes from column 'LeatherDef'
@@ -1933,10 +1950,14 @@ class PatchGenerator:
                 value = get_row_value(row, 'LeatherDef')
                 if value is None or str(value).strip() == '':
                     continue
-                # If LeatherDef == 'no' -> remove LeatherDef from race on child
-                if str(value).strip().lower() == 'no':
-                    ops.append(self.create_safe_remove(def_name, 'race', 'LeatherDef'))
-                # else: do nothing for positive leather values (we don't replace)
+                sval = str(value).strip()
+                # If LeatherDef == 'No'/'None' -> remove; otherwise replace
+                if sval.lower() in ('', 'no', 'none'):
+                    ops.append(self.create_safe_remove(def_name, 'race', 'leatherDef'))
+                else:
+                    ops.append(self.create_safe_replace(def_name, 'race', 'leatherDef', sval))
+                # Всегда удаляем useLeatherFrom после обработки LeatherDef
+                ops.append(self.create_safe_remove(def_name, 'race', 'useLeatherFrom'))
                 continue
 
             # generic handlers
