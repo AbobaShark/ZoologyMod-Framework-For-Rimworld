@@ -1,0 +1,203 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Patch>
+  <!-- Combat Extended patch for Asciotaurus (no FindMod wrapper) -->
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Asciotaurus"]/statBases/MeleeDodgeChance</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "Asciotaurus"]/statBases/MeleeDodgeChance</xpath>
+      <value>
+        <MeleeDodgeChance>0.25</MeleeDodgeChance>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "Asciotaurus"]/statBases</xpath>
+      <value>
+        <MeleeDodgeChance>0.25</MeleeDodgeChance>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Asciotaurus"]/statBases/MeleeCritChance</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "Asciotaurus"]/statBases/MeleeCritChance</xpath>
+      <value>
+        <MeleeCritChance>1.02</MeleeCritChance>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "Asciotaurus"]/statBases</xpath>
+      <value>
+        <MeleeCritChance>1.02</MeleeCritChance>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Asciotaurus"]/statBases/MeleeParryChance</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "Asciotaurus"]/statBases/MeleeParryChance</xpath>
+      <value>
+        <MeleeParryChance>0.41</MeleeParryChance>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "Asciotaurus"]/statBases</xpath>
+      <value>
+        <MeleeParryChance>0.41</MeleeParryChance>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Asciotaurus"]/statBases/ArmorRating_Sharp</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "Asciotaurus"]/statBases/ArmorRating_Sharp</xpath>
+      <value>
+        <ArmorRating_Sharp>25.56</ArmorRating_Sharp>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "Asciotaurus"]/statBases</xpath>
+      <value>
+        <ArmorRating_Sharp>25.56</ArmorRating_Sharp>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Asciotaurus"]/statBases/ArmorRating_Blunt</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "Asciotaurus"]/statBases/ArmorRating_Blunt</xpath>
+      <value>
+        <ArmorRating_Blunt>153.77</ArmorRating_Blunt>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "Asciotaurus"]/statBases</xpath>
+      <value>
+        <ArmorRating_Blunt>153.77</ArmorRating_Blunt>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Asciotaurus"]/comps</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "Asciotaurus"]</xpath>
+      <value>
+        <comps/>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Asciotaurus"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "Asciotaurus"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]/Durability</xpath>
+      <value>
+        <Durability>2500</Durability>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "Asciotaurus"]/comps</xpath>
+      <value>
+        <li Class="CombatExtended.CompProperties_ArmorDurability">
+          <Durability>2500</Durability>
+          <Regenerates>true</Regenerates>
+          <RegenInterval>600</RegenInterval>
+          <RegenValue>5</RegenValue>
+          <MinArmorPct>0.5</MinArmorPct>
+        </li>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Asciotaurus"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
+    <match Class="PatchOperationSequence">
+      <operations>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "Asciotaurus"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "Asciotaurus"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
+            <value>
+              <bodyShape>Quadruped</bodyShape>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "Asciotaurus"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
+            <value>
+              <bodyShape>Quadruped</bodyShape>
+            </value>
+          </nomatch>
+        </li>
+      </operations>
+    </match>
+    <nomatch Class="PatchOperationAddModExtension">
+      <xpath>/Defs/ThingDef[defName = "Asciotaurus"]</xpath>
+      <value>
+        <li Class="CombatExtended.RacePropertiesExtensionCE">
+          <bodyShape>Quadruped</bodyShape>
+        </li>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Asciotaurus"]/tools</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Asciotaurus"]/tools</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Asciotaurus"]</xpath>
+    <value>
+      <tools>
+        <li Class="CombatExtended.ToolCE">
+          <label>head</label>
+          <capacities>
+            <li>Blunt</li>
+          </capacities>
+          <power>79.3</power>
+          <armorPenetrationBlunt>90.52</armorPenetrationBlunt>
+          <cooldownTime>2.25</cooldownTime>
+          <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
+          <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
+          <chanceFactor>0.2</chanceFactor>
+        </li>
+        <li Class="CombatExtended.ToolCE">
+          <label>left hoof</label>
+          <labelNoLocation>hoof</labelNoLocation>
+          <capacities>
+            <li>Blunt</li>
+          </capacities>
+          <power>112.4</power>
+          <armorPenetrationBlunt>91.55</armorPenetrationBlunt>
+          <cooldownTime>2.3</cooldownTime>
+          <linkedBodyPartsGroup>FrontLeftLeg</linkedBodyPartsGroup>
+        </li>
+        <li Class="CombatExtended.ToolCE">
+          <label>right hoof</label>
+          <labelNoLocation>hoof</labelNoLocation>
+          <capacities>
+            <li>Blunt</li>
+          </capacities>
+          <power>112.4</power>
+          <armorPenetrationBlunt>91.55</armorPenetrationBlunt>
+          <cooldownTime>2.3</cooldownTime>
+          <linkedBodyPartsGroup>FrontRightLeg</linkedBodyPartsGroup>
+        </li>
+        <li Class="CombatExtended.ToolCE">
+          <label>horn</label>
+          <capacities>
+            <li>Scratch</li>
+          </capacities>
+          <power>75.1</power>
+          <armorPenetrationBlunt>108.62</armorPenetrationBlunt>
+          <armorPenetrationSharp>46.64</armorPenetrationSharp>
+          <cooldownTime>2.9</cooldownTime>
+          <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
+        </li>
+      </tools>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Asciotaurus"]/statBases/ArmorRating_Heat</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Asciotaurus"]/statBases/ArmorRating_Heat</xpath>
+    </match>
+  </Operation>
+</Patch>

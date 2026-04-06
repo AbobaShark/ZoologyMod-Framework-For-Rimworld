@@ -80,6 +80,11 @@ def format_prob_value(s):
         t = '0'
     return t
 
+def is_excel_source(path):
+    if not path:
+        return False
+    return os.path.splitext(str(path))[1].lower() in ('.xlsx', '.xlsm', '.xls')
+
 # ---------------- Column aliases ----------------
 COLUMN_ALIASES = {
     'MarketValue': ['MarketValue', 'Market value', 'market value', 'marketvalue'],
@@ -171,10 +176,83 @@ class PatchGenerator:
     ODYSSEY_BIOMES = {'Grasslands', 'Glowforest', 'LavaField', 'GlacialPlain', 'Scarlands'}
     ODYSSEY_MAYREQUIRE = 'Ludeon.RimWorld.Odyssey'
 
-    def __init__(self, vanilla_tsv, ce_tsv, xml_paths):
-        self.vanilla_df = pd.read_csv(vanilla_tsv, sep='\t', dtype=str, keep_default_na=False) if vanilla_tsv else None
-        self.ce_df = pd.read_csv(ce_tsv, sep='\t', dtype=str, keep_default_na=False) if ce_tsv else None
+    def __init__(self, vanilla_source, ce_source, xml_paths):
+        self.vanilla_df = self._load_table(vanilla_source, sheet_name='Animals', required=True) if vanilla_source else None
+        if ce_source:
+            ce_sheet = 'Animals CE' if is_excel_source(ce_source) else None
+            self.ce_df = self._load_table(ce_source, sheet_name=ce_sheet, required=True)
+        elif vanilla_source and is_excel_source(vanilla_source):
+            # Convenience mode: one AnimalStats.xlsx path provides both sheets.
+            self.ce_df = self._load_table(vanilla_source, sheet_name='Animals CE', required=False)
+        else:
+            self.ce_df = None
         self.xml_paths = xml_paths
+
+    def _load_table(self, source_path, sheet_name=None, required=True):
+        def _normalize_df(df):
+            num_re = re.compile(r'^[+-]?\d+(?:\.\d+)?$')
+
+            def _cell_to_text(v):
+                if v is None:
+                    return ''
+                try:
+                    if pd.isna(v):
+                        return ''
+                except Exception:
+                    pass
+                if isinstance(v, float):
+                    return ('{:.15g}'.format(v)).rstrip()
+                if isinstance(v, int):
+                    return str(v)
+                s = str(v).strip()
+                if num_re.match(s):
+                    try:
+                        if '.' in s:
+                            return ('{:.6f}'.format(float(s))).rstrip('0').rstrip('.')
+                        return str(int(float(s)))
+                    except Exception:
+                        return s
+                return s
+
+            out = df.apply(lambda col: col.map(_cell_to_text))
+            return out.fillna('')
+
+        if not source_path:
+            if required:
+                raise RuntimeError("Table source path is empty.")
+            return None
+        if not os.path.exists(source_path):
+            if required:
+                raise RuntimeError(f"Table source not found: {source_path}")
+            return None
+
+        if is_excel_source(source_path):
+            try:
+                read_kwargs = {'dtype': str, 'keep_default_na': False}
+                if sheet_name:
+                    read_kwargs['sheet_name'] = sheet_name
+                return _normalize_df(pd.read_excel(source_path, **read_kwargs))
+            except ValueError as e:
+                if sheet_name and required:
+                    raise RuntimeError(
+                        f"Sheet '{sheet_name}' not found in workbook: {source_path}"
+                    ) from e
+                if required:
+                    raise
+                return None
+            except ImportError:
+                try:
+                    read_kwargs = {'dtype': str, 'keep_default_na': False, 'engine': 'calamine'}
+                    if sheet_name:
+                        read_kwargs['sheet_name'] = sheet_name
+                    return _normalize_df(pd.read_excel(source_path, **read_kwargs))
+                except Exception as e:
+                    raise RuntimeError(
+                        "Excel support requires openpyxl (or python-calamine). "
+                        "Install with: pip install openpyxl"
+                    ) from e
+
+        return _normalize_df(pd.read_csv(source_path, sep='\t', dtype=str, keep_default_na=False))
 
     def get_patched_names(self, root):
         patched_defnames = set()
@@ -192,7 +270,7 @@ class PatchGenerator:
         return patched_defnames, patched_abstracts
 
     # =========================
-    # Build tools from TSV (vanilla + CE)
+    # Build tools from tables (TSV or Excel sheets)
     # =========================
 
     def _split_and_strip(self, s):
@@ -300,12 +378,12 @@ class PatchGenerator:
 
     def generate_biome_patch_files(self, output_dir):
         """
-        Build standalone biome patch files from vanilla TSV.
+        Build standalone biome patch files from vanilla table.
         Produces one file per biome: Biomes_<BiomeName>.xml
         Each file contains 3 operations for wildAnimals, pollutionWildAnimals, coastalWildAnimals.
         """
         if self.vanilla_df is None:
-            raise RuntimeError("Vanilla TSV not provided")
+            raise RuntimeError("Vanilla table not provided")
 
         biomes_data = defaultdict(lambda: {
             'wildAnimals': OrderedDict(),
@@ -1058,7 +1136,7 @@ class PatchGenerator:
             def_to_row = {}
 
             if self.vanilla_df is None:
-                raise RuntimeError("Vanilla TSV not provided")
+                raise RuntimeError("Vanilla table not provided")
 
             # First pass: collect ALL TSV rows into def_row_all and all_abstract_groups
             for _, row in self.vanilla_df.iterrows():
@@ -2791,7 +2869,7 @@ class PatchGenerator:
         Generate Combat Extended specific patches.
         """
         if self.ce_df is None or self.ce_df.empty:
-            return LET.Comment(" No CE TSV provided or empty ")
+            return LET.Comment(" No CE table provided or empty ")
 
         # Build quick lookup of CE rows (all CE TSV rows) by def name
         ce_rows_all = {}
@@ -3353,7 +3431,12 @@ class GeneratorApp(tk.Tk):
         self.title("RimWorld Patch Generator/Fixer")
         self.geometry("950x600")
         self.cfg = load_config()
-        self.vanilla_tsv = tk.StringVar(value=self.cfg.get('vanilla_tsv', ''))
+        script_dir = os.path.dirname(os.path.abspath(sys.argv[0])) or os.getcwd()
+        default_stats_path = os.path.join(script_dir, "AnimalStats.xlsx")
+        default_vanilla_source = self.cfg.get('vanilla_tsv', '')
+        if not default_vanilla_source and os.path.exists(default_stats_path):
+            default_vanilla_source = default_stats_path
+        self.vanilla_tsv = tk.StringVar(value=default_vanilla_source)
         self.ce_tsv = tk.StringVar(value=self.cfg.get('ce_tsv', ''))
         self.xml_paths, changed, dropped = self._normalize_xml_paths(self.cfg.get('xmls', []))
         if changed or dropped:
@@ -3420,12 +3503,12 @@ class GeneratorApp(tk.Tk):
         main.pack(fill='both', expand=True, padx=10, pady=10)
         v_frame = ttk.Frame(main)
         v_frame.pack(fill='x')
-        ttk.Label(v_frame, text="Vanilla TSV:").pack(side='left')
+        ttk.Label(v_frame, text="Vanilla table (TSV/XLSX):").pack(side='left')
         ttk.Entry(v_frame, textvariable=self.vanilla_tsv, width=80).pack(side='left', padx=6)
         ttk.Button(v_frame, text="Browse", command=self.pick_vanilla_tsv).pack(side='left')
         c_frame = ttk.Frame(main)
         c_frame.pack(fill='x', pady=5)
-        ttk.Label(c_frame, text="CE TSV:").pack(side='left')
+        ttk.Label(c_frame, text="CE table (TSV/XLSX, optional):").pack(side='left')
         ttk.Entry(c_frame, textvariable=self.ce_tsv, width=80).pack(side='left', padx=6)
         ttk.Button(c_frame, text="Browse", command=self.pick_ce_tsv).pack(side='left')
         mid = ttk.Frame(main)
@@ -3456,14 +3539,20 @@ class GeneratorApp(tk.Tk):
         ttk.Label(main, textvariable=self.status).pack(fill='x', pady=(8,0))
 
     def pick_vanilla_tsv(self):
-        p = filedialog.askopenfilename(title="Select Vanilla TSV", filetypes=[("TSV","*.tsv"),("All","*.*")])
+        p = filedialog.askopenfilename(
+            title="Select Vanilla table (TSV or AnimalStats.xlsx)",
+            filetypes=[("Tables", "*.tsv *.xlsx *.xlsm *.xls"), ("TSV", "*.tsv"), ("Excel", "*.xlsx *.xlsm *.xls"), ("All", "*.*")]
+        )
         if p:
             self.vanilla_tsv.set(p)
             self.cfg['vanilla_tsv'] = p
             save_config(self.cfg)
 
     def pick_ce_tsv(self):
-        p = filedialog.askopenfilename(title="Select CE TSV", filetypes=[("TSV","*.tsv"),("All","*.*")])
+        p = filedialog.askopenfilename(
+            title="Select CE table (TSV or AnimalStats.xlsx)",
+            filetypes=[("Tables", "*.tsv *.xlsx *.xlsm *.xls"), ("TSV", "*.tsv"), ("Excel", "*.xlsx *.xlsm *.xls"), ("All", "*.*")]
+        )
         if p:
             self.ce_tsv.set(p)
             self.cfg['ce_tsv'] = p
@@ -3539,10 +3628,10 @@ class GeneratorApp(tk.Tk):
             messagebox.showerror("Error", str(e))
 
     def run_generation(self):
-        v_tsv = self.vanilla_tsv.get()
-        c_tsv = self.ce_tsv.get() or None
-        if not v_tsv or not os.path.exists(v_tsv):
-            messagebox.showerror("Error", "Vanilla TSV missing or not found.")
+        v_source = self.vanilla_tsv.get()
+        c_source = self.ce_tsv.get() or None
+        if not v_source or not os.path.exists(v_source):
+            messagebox.showerror("Error", "Vanilla table missing or not found (TSV/XLSX).")
             return
         if not self.xml_paths:
             messagebox.showerror("Error", "No XML files selected.")
@@ -3555,29 +3644,33 @@ class GeneratorApp(tk.Tk):
             )
             if not proceed:
                 return
-        generator = PatchGenerator(v_tsv, c_tsv, self.xml_paths)
-        results = []
-        used_names = {}
-        for xml in self.xml_paths:
-            out_xml = xml if replace_in_place else self._make_unique_output_path(xml, used_names)
-            success = generator.generate_fixed_xml(xml, out_xml)
-            results.append((xml, out_xml, success))
-        if replace_in_place:
-            msg = "\n".join([f"{os.path.basename(x)} ({'OK' if s else 'FAILED'})" for x, _, s in results])
-            messagebox.showinfo("Done", f"Updated files in place:\n{msg}")
-            self.status.set(f"Processed {len(results)} file(s) in place.")
-        else:
-            msg = "\n".join([f"{os.path.basename(x)} → {os.path.basename(o)} ({'OK' if s else 'FAILED'})" for x, o, s in results])
-            messagebox.showinfo("Done", f"Generated patches:\n{msg}\n\nFolder: {self.report_dir}")
-            self.status.set(f"Processed {len(results)} file(s).")
+        try:
+            generator = PatchGenerator(v_source, c_source, self.xml_paths)
+            results = []
+            used_names = {}
+            for xml in self.xml_paths:
+                out_xml = xml if replace_in_place else self._make_unique_output_path(xml, used_names)
+                success = generator.generate_fixed_xml(xml, out_xml)
+                results.append((xml, out_xml, success))
+            if replace_in_place:
+                msg = "\n".join([f"{os.path.basename(x)} ({'OK' if s else 'FAILED'})" for x, _, s in results])
+                messagebox.showinfo("Done", f"Updated files in place:\n{msg}")
+                self.status.set(f"Processed {len(results)} file(s) in place.")
+            else:
+                msg = "\n".join([f"{os.path.basename(x)} → {os.path.basename(o)} ({'OK' if s else 'FAILED'})" for x, o, s in results])
+                messagebox.showinfo("Done", f"Generated patches:\n{msg}\n\nFolder: {self.report_dir}")
+                self.status.set(f"Processed {len(results)} file(s).")
+        except Exception as e:
+            traceback.print_exc()
+            messagebox.showerror("Error", str(e))
 
     def run_biome_generation(self):
-        v_tsv = self.vanilla_tsv.get()
-        if not v_tsv or not os.path.exists(v_tsv):
-            messagebox.showerror("Error", "Vanilla TSV missing or not found.")
+        v_source = self.vanilla_tsv.get()
+        if not v_source or not os.path.exists(v_source):
+            messagebox.showerror("Error", "Vanilla table missing or not found (TSV/XLSX).")
             return
         try:
-            generator = PatchGenerator(v_tsv, self.ce_tsv.get() or None, self.xml_paths)
+            generator = PatchGenerator(v_source, self.ce_tsv.get() or None, self.xml_paths)
             created = generator.generate_biome_patch_files(self.report_dir)
             if created:
                 preview = "\n".join([os.path.basename(p) for p in created[:20]])

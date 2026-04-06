@@ -128,7 +128,7 @@
             <li>Blunt</li>
           </capacities>
           <power>9.5</power>
-          <cooldownTime>2.30</cooldownTime>
+          <cooldownTime>2.3</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
           <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
           <chanceFactor>0.2</chanceFactor>
@@ -140,7 +140,7 @@
             <li>Blunt</li>
           </capacities>
           <power>12.5</power>
-          <cooldownTime>1.50</cooldownTime>
+          <cooldownTime>1.5</cooldownTime>
           <linkedBodyPartsGroup>LeftHand</linkedBodyPartsGroup>
         </li>
         <li>
@@ -150,7 +150,7 @@
             <li>Blunt</li>
           </capacities>
           <power>12.5</power>
-          <cooldownTime>1.50</cooldownTime>
+          <cooldownTime>1.5</cooldownTime>
           <linkedBodyPartsGroup>RightHand</linkedBodyPartsGroup>
         </li>
         <li>
@@ -186,13 +186,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/baseHealthScale</xpath>
       <value>
-        <baseHealthScale>1.50</baseHealthScale>
+        <baseHealthScale>1.5</baseHealthScale>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Gorilla"]/race</xpath>
       <value>
-        <baseHealthScale>1.50</baseHealthScale>
+        <baseHealthScale>1.5</baseHealthScale>
       </value>
     </nomatch>
   </Operation>
@@ -231,13 +231,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/gestationPeriodDays</xpath>
       <value>
-        <gestationPeriodDays>11.0</gestationPeriodDays>
+        <gestationPeriodDays>11</gestationPeriodDays>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Gorilla"]/race</xpath>
       <value>
-        <gestationPeriodDays>11.0</gestationPeriodDays>
+        <gestationPeriodDays>11</gestationPeriodDays>
       </value>
     </nomatch>
   </Operation>
@@ -471,7 +471,7 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/lifeStageAges/li[def = 'AnimalJuvenile']/minAge</xpath>
       <value>
-        <minAge>0.60</minAge>
+        <minAge>0.6</minAge>
       </value>
     </match>
     <nomatch/>
@@ -481,7 +481,7 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/lifeStageAges/li[def = 'AnimalAdult']/minAge</xpath>
       <value>
-        <minAge>1.20</minAge>
+        <minAge>1.2</minAge>
       </value>
     </match>
     <nomatch/>
@@ -493,10 +493,27 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/specialTrainables</xpath>
+    <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/specialTrainables/li[text()="SludgeSpew" or text()="EggSpew" or text()="TerrorRoar" or text()="WarTrumpet" or text()="Forage" or text()="Comfort" or text()="AttackTarget" or text()="Dig"]</xpath>
     <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/specialTrainables</xpath>
+      <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/specialTrainables/li[text()="SludgeSpew" or text()="EggSpew" or text()="TerrorRoar" or text()="WarTrumpet" or text()="Forage" or text()="Comfort" or text()="AttackTarget" or text()="Dig"]</xpath>
     </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/specialTrainables</xpath>
+    <match Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/specialTrainables</xpath>
+      <value>
+        <li MayRequire="Ludeon.RimWorld.Odyssey">Forage</li>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "Gorilla"]/race</xpath>
+      <value>
+        <specialTrainables>
+          <li MayRequire="Ludeon.RimWorld.Odyssey">Forage</li>
+        </specialTrainables>
+      </value>
+    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Gorilla"]/tradeTags/li[text()="AnimalCommon" or text()="AnimalUncommon" or text()="AnimalExotic" or text()="AnimalFighter" or text()="AnimalInsect" or text()="AnimalPet" or text()="AnimalFarm"]</xpath>
@@ -556,13 +573,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "Gorilla"]/ecoSystemWeight</xpath>
       <value>
-        <ecoSystemWeight>0.90</ecoSystemWeight>
+        <ecoSystemWeight>0.9</ecoSystemWeight>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "Gorilla"]</xpath>
       <value>
-        <ecoSystemWeight>0.90</ecoSystemWeight>
+        <ecoSystemWeight>0.9</ecoSystemWeight>
       </value>
     </nomatch>
   </Operation>
@@ -699,14 +716,14 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Gorilla"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]/Durability</xpath>
             <value>
-              <Durability>750.00</Durability>
+              <Durability>750</Durability>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Gorilla"]/comps</xpath>
             <value>
               <li Class="CombatExtended.CompProperties_ArmorDurability">
-                <Durability>750.00</Durability>
+                <Durability>750</Durability>
                 <Regenerates>true</Regenerates>
                 <RegenInterval>600</RegenInterval>
                 <RegenValue>5</RegenValue>
@@ -760,7 +777,7 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>4.30</power>
+                <power>4.3</power>
                 <armorPenetrationBlunt>3.74</armorPenetrationBlunt>
                 <cooldownTime>1.75</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
@@ -774,7 +791,7 @@
                   <li>Blunt</li>
                 </capacities>
                 <power>9.2</power>
-                <armorPenetrationBlunt>4.60</armorPenetrationBlunt>
+                <armorPenetrationBlunt>4.6</armorPenetrationBlunt>
                 <cooldownTime>1.45</cooldownTime>
                 <linkedBodyPartsGroup>LeftHand</linkedBodyPartsGroup>
               </li>
@@ -785,7 +802,7 @@
                   <li>Blunt</li>
                 </capacities>
                 <power>9.2</power>
-                <armorPenetrationBlunt>4.60</armorPenetrationBlunt>
+                <armorPenetrationBlunt>4.6</armorPenetrationBlunt>
                 <cooldownTime>1.45</cooldownTime>
                 <linkedBodyPartsGroup>RightHand</linkedBodyPartsGroup>
               </li>

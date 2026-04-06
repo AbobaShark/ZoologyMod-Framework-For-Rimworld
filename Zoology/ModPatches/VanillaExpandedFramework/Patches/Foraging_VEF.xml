@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Patch>
+	<!-- Pangolin replace EatAntsWhenHungry with AutoNutrition safely -->
+	<Operation Class="PatchOperationFindMod">
+	  <mods>
+		<li>Vanilla Animals Expanded — Endangered</li>
+	  </mods>
+	  <match Class="PatchOperationSequence">
+		<operations>
+		  <!-- Remove existing EatAntsWhenHungry -->
+		  <li Class="PatchOperationConditional">
+			<xpath>Defs/ThingDef[defName="AEXP_Pangolin"]/comps/li[@Class="VanillaAnimalsExpandedEndangered.CompProperties_EatAntsWhenHungry"]</xpath>
+			<match Class="PatchOperationRemove">
+			  <xpath>Defs/ThingDef[defName="AEXP_Pangolin"]/comps/li[@Class="VanillaAnimalsExpandedEndangered.CompProperties_EatAntsWhenHungry"]</xpath>
+			</match>
+		  </li>
+		  <!-- Add AutoNutrition -->
+		  <li Class="PatchOperationConditional">
+			<xpath>Defs/ThingDef[defName="AEXP_Pangolin"]/comps/li[@Class="VEF.AnimalBehaviours.CompProperties_AutoNutrition"]</xpath>
+			<nomatch Class="PatchOperationAdd">
+			  <xpath>Defs/ThingDef[defName="AEXP_Pangolin"]/comps</xpath>
+			  <value>
+				<li Class="VEF.AnimalBehaviours.CompProperties_AutoNutrition">
+				  <tickInterval>2000</tickInterval>
+				  <consumingFoodReportString>Eating ants</consumingFoodReportString>
+				</li>
+			  </value>
+			</nomatch>
+		  </li>
+		</operations>
+	  </match>
+	</Operation>
+	
+	<!-- Hedgehog eats insects -->
+	<Operation Class="PatchOperationFindMod">
+		<mods>
+			<li>Vanilla Animals Expanded</li>
+		</mods>
+		<match Class="PatchOperationSequence">
+			<operations>
+				<li Class="PatchOperationConditional">
+					<xpath>Defs/ThingDef[defName="AEXP_Hedgehog"]/comps</xpath>
+					<nomatch Class="PatchOperationAdd">
+						<xpath>Defs/ThingDef[defName="AEXP_Hedgehog"]</xpath>
+						<value>
+							<comps/>
+						</value>
+					</nomatch>
+				</li>
+				<li Class="PatchOperationConditional">
+					<xpath>Defs/ThingDef[defName="AEXP_Hedgehog"]/comps/li[@Class="VEF.AnimalBehaviours.CompProperties_AutoNutrition"]</xpath>
+					<nomatch Class="PatchOperationAdd">
+						<xpath>Defs/ThingDef[defName="AEXP_Hedgehog"]/comps</xpath>
+						<value>
+							<li Class="VEF.AnimalBehaviours.CompProperties_AutoNutrition">
+								<tickInterval>2000</tickInterval>
+								<consumingFoodReportString>Eating insects</consumingFoodReportString>
+							</li>
+						</value>
+					</nomatch>
+				</li>
+			</operations>
+		</match>
+	</Operation>
+	
+	<!-- Armadillo eats insects -->
+	<Operation Class="PatchOperationFindMod">
+		<mods>
+			<li>Odyssey</li>
+		</mods>
+		<match Class="PatchOperationSequence">
+			<operations>
+				<li Class="PatchOperationConditional">
+					<xpath>Defs/ThingDef[defName="Armadillo"]/comps</xpath>
+					<nomatch Class="PatchOperationAdd">
+						<xpath>Defs/ThingDef[defName="Armadillo"]</xpath>
+						<value>
+							<comps/>
+						</value>
+					</nomatch>
+				</li>
+				<li Class="PatchOperationConditional">
+					<xpath>Defs/ThingDef[defName="Armadillo"]/comps/li[@Class="VEF.AnimalBehaviours.CompProperties_AutoNutrition"]</xpath>
+					<nomatch Class="PatchOperationAdd">
+						<xpath>Defs/ThingDef[defName="Armadillo"]/comps</xpath>
+						  <value>
+							<li Class="VEF.AnimalBehaviours.CompProperties_AutoNutrition">
+								<tickInterval>2000</tickInterval>
+								<consumingFoodReportString>Eating insects</consumingFoodReportString>
+							</li>
+						  </value>
+					</nomatch>
+				</li>
+			</operations>
+		</match>
+	</Operation>
+	
+	<!-- Crow eats insects -->
+	<Operation Class="PatchOperationFindMod">
+		<mods>
+			<li>Odyssey</li>
+		</mods>
+		<match Class="PatchOperationSequence">
+			<operations>
+				<li Class="PatchOperationConditional">
+					<xpath>Defs/ThingDef[defName="Crow"]/comps</xpath>
+					<nomatch Class="PatchOperationAdd">
+						<xpath>Defs/ThingDef[defName="Crow"]</xpath>
+						<value>
+							<comps/>
+						</value>
+					</nomatch>
+				</li>
+				<li Class="PatchOperationConditional">
+					<xpath>Defs/ThingDef[defName="Crow"]/comps/li[@Class="VEF.AnimalBehaviours.CompProperties_AutoNutrition"]</xpath>
+					<nomatch Class="PatchOperationAdd">
+						<xpath>Defs/ThingDef[defName="Crow"]/comps</xpath>
+						  <value>
+							<li Class="VEF.AnimalBehaviours.CompProperties_AutoNutrition">
+								<tickInterval>2000</tickInterval>
+								<consumingFoodReportString>Eating insects</consumingFoodReportString>
+							</li>
+						  </value>
+					</nomatch>
+				</li>
+			</operations>
+		</match>
+	</Operation>
+	
+	<!-- Bullfrog eats insects -->
+	<Operation Class="PatchOperationFindMod">
+		<mods>
+			<li>Odyssey</li>
+		</mods>
+		<match Class="PatchOperationSequence">
+			<operations>
+				<li Class="PatchOperationConditional">
+					<xpath>Defs/ThingDef[defName="Bullfrog"]/comps</xpath>
+					<nomatch Class="PatchOperationAdd">
+						<xpath>Defs/ThingDef[defName="Bullfrog"]</xpath>
+						<value>
+							<comps/>
+						</value>
+					</nomatch>
+				</li>
+				<li Class="PatchOperationConditional">
+					<xpath>Defs/ThingDef[defName="Bullfrog"]/comps/li[@Class="VEF.AnimalBehaviours.CompProperties_AutoNutrition"]</xpath>
+					<nomatch Class="PatchOperationAdd">
+						<xpath>Defs/ThingDef[defName="Bullfrog"]/comps</xpath>
+						  <value>
+							<li Class="VEF.AnimalBehaviours.CompProperties_AutoNutrition">
+								<tickInterval>2000</tickInterval>
+								<consumingFoodReportString>Eating insects</consumingFoodReportString>
+							</li>
+						  </value>
+					</nomatch>
+				</li>
+			</operations>
+		</match>
+	</Operation>
+
+</Patch>

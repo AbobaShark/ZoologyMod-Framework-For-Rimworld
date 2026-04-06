@@ -1,0 +1,229 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Patch>
+  <!-- Combat Extended patch for Harpactotyrannus (no FindMod wrapper) -->
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Harpactotyrannus"]/statBases/MeleeDodgeChance</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "Harpactotyrannus"]/statBases/MeleeDodgeChance</xpath>
+      <value>
+        <MeleeDodgeChance>0.58</MeleeDodgeChance>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "Harpactotyrannus"]/statBases</xpath>
+      <value>
+        <MeleeDodgeChance>0.58</MeleeDodgeChance>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Harpactotyrannus"]/statBases/MeleeCritChance</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "Harpactotyrannus"]/statBases/MeleeCritChance</xpath>
+      <value>
+        <MeleeCritChance>2.15</MeleeCritChance>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "Harpactotyrannus"]/statBases</xpath>
+      <value>
+        <MeleeCritChance>2.15</MeleeCritChance>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Harpactotyrannus"]/statBases/MeleeParryChance</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "Harpactotyrannus"]/statBases/MeleeParryChance</xpath>
+      <value>
+        <MeleeParryChance>1.08</MeleeParryChance>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "Harpactotyrannus"]/statBases</xpath>
+      <value>
+        <MeleeParryChance>1.08</MeleeParryChance>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Harpactotyrannus"]/statBases/ArmorRating_Sharp</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "Harpactotyrannus"]/statBases/ArmorRating_Sharp</xpath>
+      <value>
+        <ArmorRating_Sharp>35.79</ArmorRating_Sharp>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "Harpactotyrannus"]/statBases</xpath>
+      <value>
+        <ArmorRating_Sharp>35.79</ArmorRating_Sharp>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Harpactotyrannus"]/statBases/ArmorRating_Blunt</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "Harpactotyrannus"]/statBases/ArmorRating_Blunt</xpath>
+      <value>
+        <ArmorRating_Blunt>215.28</ArmorRating_Blunt>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "Harpactotyrannus"]/statBases</xpath>
+      <value>
+        <ArmorRating_Blunt>215.28</ArmorRating_Blunt>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Harpactotyrannus"]/comps</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "Harpactotyrannus"]</xpath>
+      <value>
+        <comps/>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Harpactotyrannus"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "Harpactotyrannus"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]/Durability</xpath>
+      <value>
+        <Durability>3300</Durability>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "Harpactotyrannus"]/comps</xpath>
+      <value>
+        <li Class="CombatExtended.CompProperties_ArmorDurability">
+          <Durability>3300</Durability>
+          <Regenerates>true</Regenerates>
+          <RegenInterval>600</RegenInterval>
+          <RegenValue>5</RegenValue>
+          <MinArmorPct>0.5</MinArmorPct>
+        </li>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Harpactotyrannus"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
+    <match Class="PatchOperationSequence">
+      <operations>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "Harpactotyrannus"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "Harpactotyrannus"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
+            <value>
+              <bodyShape>Quadruped</bodyShape>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "Harpactotyrannus"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
+            <value>
+              <bodyShape>Quadruped</bodyShape>
+            </value>
+          </nomatch>
+        </li>
+      </operations>
+    </match>
+    <nomatch Class="PatchOperationAddModExtension">
+      <xpath>/Defs/ThingDef[defName = "Harpactotyrannus"]</xpath>
+      <value>
+        <li Class="CombatExtended.RacePropertiesExtensionCE">
+          <bodyShape>Quadruped</bodyShape>
+        </li>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Harpactotyrannus"]/tools</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Harpactotyrannus"]/tools</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Harpactotyrannus"]</xpath>
+    <value>
+      <tools>
+        <li Class="CombatExtended.ToolCE">
+          <label>head</label>
+          <capacities>
+            <li>Blunt</li>
+          </capacities>
+          <power>107.7</power>
+          <armorPenetrationBlunt>122.9</armorPenetrationBlunt>
+          <cooldownTime>3.5</cooldownTime>
+          <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
+          <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
+          <chanceFactor>0.2</chanceFactor>
+        </li>
+        <li Class="CombatExtended.ToolCE">
+          <label>left claw</label>
+          <labelNoLocation>claw</labelNoLocation>
+          <capacities>
+            <li>Scratch</li>
+          </capacities>
+          <power>82.6</power>
+          <armorPenetrationBlunt>121.98</armorPenetrationBlunt>
+          <armorPenetrationSharp>11.21</armorPenetrationSharp>
+          <cooldownTime>1.7</cooldownTime>
+          <linkedBodyPartsGroup>FrontRightPaw</linkedBodyPartsGroup>
+          <surpriseAttack>
+            <extraMeleeDamages>
+              <li>
+                <def>Stun</def>
+                <amount>45</amount>
+              </li>
+            </extraMeleeDamages>
+          </surpriseAttack>
+        </li>
+        <li Class="CombatExtended.ToolCE">
+          <label>right claw</label>
+          <labelNoLocation>claw</labelNoLocation>
+          <capacities>
+            <li>Scratch</li>
+          </capacities>
+          <power>82.6</power>
+          <armorPenetrationBlunt>121.98</armorPenetrationBlunt>
+          <armorPenetrationSharp>11.21</armorPenetrationSharp>
+          <cooldownTime>1.7</cooldownTime>
+          <linkedBodyPartsGroup>FrontRightPaw</linkedBodyPartsGroup>
+          <surpriseAttack>
+            <extraMeleeDamages>
+              <li>
+                <def>Stun</def>
+                <amount>45</amount>
+              </li>
+            </extraMeleeDamages>
+          </surpriseAttack>
+        </li>
+        <li Class="CombatExtended.ToolCE">
+          <label>canines</label>
+          <capacities>
+            <li>Bite</li>
+          </capacities>
+          <power>117.5</power>
+          <armorPenetrationBlunt>301.49</armorPenetrationBlunt>
+          <armorPenetrationSharp>27.71</armorPenetrationSharp>
+          <cooldownTime>2.4</cooldownTime>
+          <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
+          <surpriseAttack>
+            <extraMeleeDamages>
+              <li>
+                <def>Stun</def>
+                <amount>45</amount>
+              </li>
+            </extraMeleeDamages>
+          </surpriseAttack>
+        </li>
+      </tools>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Harpactotyrannus"]/statBases/ArmorRating_Heat</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Harpactotyrannus"]/statBases/ArmorRating_Heat</xpath>
+    </match>
+  </Operation>
+</Patch>
