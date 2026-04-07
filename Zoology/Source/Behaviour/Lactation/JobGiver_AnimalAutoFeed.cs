@@ -15,6 +15,8 @@ namespace ZoologyMod
         }
 
         private static readonly Dictionary<int, HungryPupCache> hungryPupCacheByMapId = new Dictionary<int, HungryPupCache>(8);
+        private static Game runtimeCacheGame;
+        private static int runtimeCacheLastTick = -1;
 
         protected override Job TryGiveJob(Pawn pawn)
         {
@@ -62,6 +64,7 @@ namespace ZoologyMod
 
         private static IReadOnlyList<Pawn> GetHungryPupCandidates(Map map, int currentTick)
         {
+            EnsureRuntimeCacheState(currentTick);
             if (map?.mapPawns?.AllPawnsSpawned == null)
             {
                 return null;
@@ -210,6 +213,30 @@ namespace ZoologyMod
             }
 
             return best;
+        }
+
+        private static void EnsureRuntimeCacheState(int currentTick)
+        {
+            Game currentGame = Current.Game;
+            bool gameChanged = !ReferenceEquals(runtimeCacheGame, currentGame);
+            bool tickRewound = currentTick > 0 && runtimeCacheLastTick > 0 && currentTick < runtimeCacheLastTick;
+            if (gameChanged || tickRewound)
+            {
+                hungryPupCacheByMapId.Clear();
+                runtimeCacheGame = currentGame;
+            }
+
+            if (currentTick > 0)
+            {
+                runtimeCacheLastTick = currentTick;
+            }
+        }
+
+        public static void ResetRuntimeCachesForLoad()
+        {
+            hungryPupCacheByMapId.Clear();
+            runtimeCacheGame = Current.Game;
+            runtimeCacheLastTick = Find.TickManager?.TicksGame ?? -1;
         }
     }
 }

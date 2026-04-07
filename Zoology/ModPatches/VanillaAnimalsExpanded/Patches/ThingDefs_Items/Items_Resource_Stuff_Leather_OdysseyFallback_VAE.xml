@@ -1,0 +1,94 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<Patch>
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>Odyssey</li>
+    </mods>
+    <nomatch Class="PatchOperationSequence">
+      <operations>
+        <!-- Odyssey fallback defs for VAE leathers (only when Odyssey is absent) -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName="Leather_Hippo"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs</xpath>
+            <value>
+				<ThingDef ParentName="LeatherBase">
+				<defName>Leather_Hippo</defName>
+				<label>hippo leather</label>
+				<description>Tanned, dried, scraped hippo skin. While extremely durable, it provides little protection from extreme weather.</description>
+				<graphicData>
+				  <color>(104,90,98)</color>
+				</graphicData>
+				<statBases>
+				  <MarketValue>3.7</MarketValue>
+				  <StuffPower_Armor_Sharp>1.12</StuffPower_Armor_Sharp>
+				  <StuffPower_Insulation_Cold>14</StuffPower_Insulation_Cold>
+				  <StuffPower_Insulation_Heat>16</StuffPower_Insulation_Heat>
+				</statBases>
+				<stuffProps>
+				  <color>(104,90,98)</color>
+				  <commonality>0.01</commonality>
+				  <statFactors>
+					<MaxHitPoints>1.5</MaxHitPoints>
+					<Beauty>2</Beauty>
+				  </statFactors>
+				</stuffProps>
+			  </ThingDef>
+			</value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName="Leather_Sealskin"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs</xpath>
+            <value>
+				<ThingDef ParentName="LeatherBase">
+				<defName>Leather_Sealskin</defName>
+				<label>sealskin</label>
+				<description>The tanned skin of various pinnipeds, such as seals, sea lions, and walruses. It's not particularly tough but it is extremely well insulated. Sealskin is luxuriously soft to the touch, fetching a high price.</description>
+				<graphicData>
+				  <color>(159,159,155)</color>
+				</graphicData>
+				<statBases>
+				  <MarketValue>4</MarketValue>
+				  <StuffPower_Insulation_Cold>36</StuffPower_Insulation_Cold>
+				  <StuffPower_Insulation_Heat>20</StuffPower_Insulation_Heat>
+				</statBases>
+				<stuffProps>
+				  <color>(159,159,155)</color>
+				  <commonality>0.025</commonality>
+				  <statFactors>
+					<MaxHitPoints>1</MaxHitPoints>
+					<Beauty>2</Beauty>
+				  </statFactors>
+				</stuffProps>
+			  </ThingDef>
+			</value>
+          </nomatch>
+        </li>
+        <!-- CE adjustments for fallback leather defs (only when CE present) -->
+        <li Class="PatchOperationFindMod">
+          <mods>
+            <li>Combat Extended</li>
+          </mods>
+          <match Class="PatchOperationSequence">
+            <operations>
+				<li Class="PatchOperationReplace">
+					<xpath>Defs/ThingDef[defName="Leather_Hippo"]/statBases/StuffPower_Armor_Sharp</xpath>
+					<value>
+						<StuffPower_Armor_Sharp>0.08</StuffPower_Armor_Sharp>
+					</value>
+				</li>
+				<li Class="PatchOperationAdd">
+					<xpath>Defs/ThingDef[defName="Leather_Hippo"]/statBases</xpath>
+					<value>
+						<StuffPower_Armor_Blunt>0.064</StuffPower_Armor_Blunt>
+					</value>
+				</li>
+			</operations>
+          </match>
+        </li>
+      </operations>
+    </nomatch>
+  </Operation>
+</Patch>

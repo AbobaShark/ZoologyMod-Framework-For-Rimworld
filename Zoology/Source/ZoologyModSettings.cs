@@ -187,6 +187,8 @@ namespace ZoologyMod
                 EnableSmallPetFleeFromRaiders = true;
             }
 
+            int runtimePatchToggleHashBefore = GetRuntimePatchToggleHash();
+
             Text.Font = GameFont.Medium;
             Text.Anchor = TextAnchor.MiddleLeft;
             Widgets.Label(new Rect(inRect.x, inRect.y, inRect.width, 32f), "Zoology Mod Settings");
@@ -247,6 +249,12 @@ namespace ZoologyMod
 
             list.End();
             Widgets.EndScrollView();
+
+            int runtimePatchToggleHashAfter = GetRuntimePatchToggleHash();
+            if (runtimePatchToggleHashBefore != runtimePatchToggleHashAfter)
+            {
+                ZoologyMod.SyncRuntimePatchesWithSettings(forceRebuild: true);
+            }
 
             Text.Font = prevFont;
             Text.Anchor = prevAnchor;
@@ -425,11 +433,16 @@ namespace ZoologyMod
             bool prevGuiEnabled = GUI.enabled;
             if (_cePresent) GUI.enabled = false;
 
+            bool wasAnimalDamageReductionEnabled = EnableAnimalDamageReduction;
             list.CheckboxLabeled(
                 "Enable animal damage reduction (halve animal-type damage for predators in defined cases)",
                 ref EnableAnimalDamageReduction,
                 "When enabled, animal damage types (Scratch/Bite and subclasses) will deal 50% damage to predator targets when: (1) target is predator and >=1.5x bodySize of attacker, or (2) target is predator and attacker is not predator."
             );
+            if (wasAnimalDamageReductionEnabled != EnableAnimalDamageReduction)
+            {
+                global::ZoologyMod.Patches.DamageReduction_AnimalTypes_PawnTakeDamage.SyncPatchState();
+            }
 
             GUI.enabled = prevGuiEnabled;
 
@@ -545,7 +558,6 @@ namespace ZoologyMod
             if (list.ButtonText(runtimeButtonLabel))
             {
                 DisableAllRuntimePatches = !runtimeDisabled;
-                ZoologyMod.SetRuntimePatchesEnabled(!DisableAllRuntimePatches);
                 Write();
             }
 
@@ -844,6 +856,47 @@ namespace ZoologyMod
             ClampFleeAndThreatSettings();
             _minCombatPowerToDefendPreyFromHumans = Mathf.Clamp(_minCombatPowerToDefendPreyFromHumans, MinCombatPowerToDefendPreyFromHumansMin, MinCombatPowerToDefendPreyFromHumansMax);
             ApplyRuntimeDefOverrides();
+
+            if (Scribe.mode == LoadSaveMode.PostLoadInit)
+            {
+                ZoologyMod.SyncRuntimePatchesWithSettings(forceRebuild: true);
+            }
+        }
+
+        private int GetRuntimePatchToggleHash()
+        {
+            unchecked
+            {
+                int hash = 17;
+                hash = hash * 31 + (DisableAllRuntimePatches ? 1 : 0);
+                hash = hash * 31 + (EnableCustomFleeDanger ? 1 : 0);
+                hash = hash * 31 + (EnableSmallPetFleeFromRaiders ? 1 : 0);
+                hash = hash * 31 + (EnableIgnoreSmallPetsByRaiders ? 1 : 0);
+                hash = hash * 31 + (EnablePreyFleeFromPredators ? 1 : 0);
+                hash = hash * 31 + (AnimalsFleeFromNonHostlePredators ? 1 : 0);
+                hash = hash * 31 + (AnimalsFreeFromHumans ? 1 : 0);
+                hash = hash * 31 + (EnablePackHunt ? 1 : 0);
+                hash = hash * 31 + (EnableAdvancedPredationLogic ? 1 : 0);
+                hash = hash * 31 + (EnableAgroAtSlaughter ? 1 : 0);
+                hash = hash * 31 + (EnableCannotBeMutatedProtection ? 1 : 0);
+                hash = hash * 31 + (EnableCannotBeAugmentedProtection ? 1 : 0);
+                hash = hash * 31 + (EnableNoFleeExtension ? 1 : 0);
+                hash = hash * 31 + (EnableFleeFromCarrier ? 1 : 0);
+                hash = hash * 31 + (EnableFlyingFleeStart ? 1 : 0);
+                hash = hash * 31 + (EnableGenderRestrictedAttacks ? 1 : 0);
+                hash = hash * 31 + (EnableCannotChewExtension ? 1 : 0);
+                hash = hash * 31 + (EnablePredatorDefendCorpse ? 1 : 0);
+                hash = hash * 31 + (EnableScavengering ? 1 : 0);
+                hash = hash * 31 + (EnableMammalLactation ? 1 : 0);
+                hash = hash * 31 + (EnableAnimalChildcare ? 1 : 0);
+                hash = hash * 31 + (EnableEctothermicPatch ? 1 : 0);
+                hash = hash * 31 + (EnableAgelessPatch ? 1 : 0);
+                hash = hash * 31 + (EnableDrugsImmunePatch ? 1 : 0);
+                hash = hash * 31 + (EnableNoPorcupineQuillPatch ? 1 : 0);
+                hash = hash * 31 + (EnableAnimalDamageReduction ? 1 : 0);
+                hash = hash * 31 + (EnableOverrideCEPenetration ? 1 : 0);
+                return hash;
+            }
         }
 
         public bool GetAnimalsFreeFromHumansFor(ThingDef animal)

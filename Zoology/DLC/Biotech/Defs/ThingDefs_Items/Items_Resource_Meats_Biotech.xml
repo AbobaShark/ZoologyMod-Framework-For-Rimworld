@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+  <!-- Bases -->
+  <ThingDef Name="ToxicRawMeatBase" Abstract="True" ParentName="OrganicProductBase">
+    <label>Base meat properties</label>
+    <comps>
+      <li Class="CompProperties_Rottable">
+        <daysToRotStart>2</daysToRotStart>
+        <rotDestroys>True</rotDestroys>
+      </li>
+    </comps>
+    <statBases>
+      <Nutrition>0.05</Nutrition>
+      <Flammability>0.5</Flammability>
+      <FoodPoisonChanceFixedHuman>0.02</FoodPoisonChanceFixedHuman>
+    </statBases>
+    <ingestible>
+      <foodType>Meat</foodType>
+      <preferability>DesperateOnly</preferability>
+      <ingestEffect>EatMeat</ingestEffect>
+      <ingestSound>RawMeat_Eat</ingestSound>
+    </ingestible>
+    <ingredient>
+      <mergeCompatibilityTags>
+        <li>ToxicMeat</li>
+      </mergeCompatibilityTags>
+    </ingredient>
+    <thingCategories>
+      <li>MeatRaw</li>
+    </thingCategories>
+  </ThingDef>
+
+  <!-- Toxic meat -->
+  <ThingDef ParentName="ToxicRawMeatBase">
+    <defName>ToxicMeat</defName>
+    <label>toxic meat</label>
+    <description>Raw meat from a toxic animal.\n\nChewy, gelatinous and disgusting.</description>
+    <graphicData>
+      <texPath>Things/Item/ToxicMeat</texPath>
+      <graphicClass>Graphic_StackCount</graphicClass>
+    </graphicData>
+    <statBases>
+      <Mass>0.03</Mass>
+      <MarketValue>2</MarketValue>
+    </statBases>
+    <ingestible>
+      <specialThoughtDirect>AteToxicMeatDirect</specialThoughtDirect>
+      <specialThoughtAsIngredient>AteToxicMeatAsIngredient</specialThoughtAsIngredient>
+      <outcomeDoers>
+        <li Class="IngestionOutcomeDoer_GiveHediff">
+          <hediffDef>ToxicBuildup</hediffDef>
+          <severity>0.05</severity>
+        </li>
+      </outcomeDoers>
+    </ingestible>
+  </ThingDef>
+</Defs>

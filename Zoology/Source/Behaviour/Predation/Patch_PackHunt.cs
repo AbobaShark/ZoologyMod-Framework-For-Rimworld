@@ -71,6 +71,7 @@ namespace ZoologyMod
                     if (candidate == pawn) continue; 
                     if (candidate.Downed) continue;
                     if (candidate.InMentalState) continue;
+                    if (candidate.RaceProps?.predator != true) continue;
                     
                     if ((candidate.Position - pawnPosition).LengthHorizontalSquared > herdRadiusSq) continue;
 
@@ -97,6 +98,8 @@ namespace ZoologyMod
                     }
                     catch { /*ignore*/ }
 
+                    if (!CanCandidateReachPackPrey(candidate, preyPawn)) continue;
+
                     
                     try
                     {
@@ -107,16 +110,20 @@ namespace ZoologyMod
                         bool given = false;
                         try
                         {
-                            
-                            given = candidate.jobs.TryTakeOrderedJob(recruitJob);
+                            recruitJob.playerForced = false;
+                            candidate.jobs.StartJob(recruitJob, JobCondition.InterruptForced, null, false, false, null);
+
+                            Job newCurJob = candidate.CurJob;
+                            given = newCurJob != null
+                                && newCurJob.def == JobDefOf.PredatorHunt
+                                && newCurJob.targetA.HasThing
+                                && newCurJob.GetTarget(TargetIndex.A).Thing == preyPawn;
                         }
                         catch
                         {
-                            
                             try
                             {
-                                candidate.jobs.StartJob(recruitJob, JobCondition.None, null, false, true, null);
-                                given = true;
+                                given = candidate.jobs.TryTakeOrderedJob(recruitJob);
                             }
                             catch
                             {
@@ -172,11 +179,34 @@ namespace ZoologyMod
                 if (candidate == null) continue;
                 if (!candidate.Spawned || candidate.Dead || candidate.Destroyed) continue;
                 if (!candidate.RaceProps.herdAnimal) continue;
+                if (candidate.RaceProps.predator != true) continue;
                 if (candidate.Faction != null) continue;
                 candidates.Add(candidate);
             }
 
             return candidates;
+        }
+
+        private static bool CanCandidateReachPackPrey(Pawn candidate, Pawn prey)
+        {
+            if (candidate == null || prey == null)
+            {
+                return false;
+            }
+
+            if (!candidate.Spawned || candidate.Map == null || prey.Map == null || candidate.Map != prey.Map)
+            {
+                return false;
+            }
+
+            try
+            {
+                return candidate.CanReach(prey, PathEndMode.Touch, Danger.Deadly);
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         internal static bool HasPackSupport(Pawn predator, Pawn prey)
@@ -224,6 +254,8 @@ namespace ZoologyMod
                     }
 
                     if (!relatedToPack) continue;
+
+                    if (!CanCandidateReachPackPrey(candidate, prey)) continue;
 
                     try
                     {

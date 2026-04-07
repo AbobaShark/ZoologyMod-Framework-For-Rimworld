@@ -2,6 +2,16 @@
 <Patch>
   <!---->
   <!-- Tiger -->
+  <Operation Class="PatchOperationAttributeSet">
+    <xpath>/Defs/ThingDef[defName = "Tiger"]</xpath>
+    <attribute>ParentName</attribute>
+    <value>BigCatThingBase</value>
+  </Operation>
+  <Operation Class="PatchOperationAttributeSet">
+    <xpath>/Defs/PawnKindDef[defName = "Tiger"]</xpath>
+    <attribute>ParentName</attribute>
+    <value>BigCatKindBase</value>
+  </Operation>
   <!-- Tiger StatBases -->
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Tiger"]/statBases</xpath>
@@ -17,13 +27,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Tiger"]/statBases/MarketValue</xpath>
       <value>
-        <MarketValue>825</MarketValue>
+        <MarketValue>850</MarketValue>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Tiger"]/statBases</xpath>
       <value>
-        <MarketValue>825</MarketValue>
+        <MarketValue>850</MarketValue>
       </value>
     </nomatch>
   </Operation>
@@ -243,13 +253,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Tiger"]/race/baseHungerRate</xpath>
       <value>
-        <baseHungerRate>0.80</baseHungerRate>
+        <baseHungerRate>0.8</baseHungerRate>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Tiger"]/race</xpath>
       <value>
-        <baseHungerRate>0.80</baseHungerRate>
+        <baseHungerRate>0.8</baseHungerRate>
       </value>
     </nomatch>
   </Operation>
@@ -314,6 +324,18 @@
     <xpath>/Defs/ThingDef[defName = "Tiger"]/race/roamMtbDays</xpath>
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Tiger"]/race/roamMtbDays</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Tiger"]/race/leatherDef</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Tiger"]/race/leatherDef</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Tiger"]/race/useLeatherFrom</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Tiger"]/race/useLeatherFrom</xpath>
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
@@ -428,6 +450,18 @@
     </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Tiger"]/race/useMeatFrom</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Tiger"]/race/useMeatFrom</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Tiger"]/race/wildBiomes</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Tiger"]/race/wildBiomes</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Tiger"]/race/lifeStageAges</xpath>
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Tiger"]/race/lifeStageAges</xpath>
@@ -439,11 +473,11 @@
           </li>
           <li>
             <def>AnimalJuvenile</def>
-            <minAge>0.30</minAge>
+            <minAge>0.3</minAge>
           </li>
           <li>
             <def>AnimalAdult</def>
-            <minAge>0.60</minAge>
+            <minAge>0.6</minAge>
             <soundWounded>Pawn_Tiger_Wounded</soundWounded>
             <soundDeath>Pawn_Tiger_Death</soundDeath>
             <soundCall>Pawn_Tiger_Call</soundCall>
@@ -462,11 +496,11 @@
           </li>
           <li>
             <def>AnimalJuvenile</def>
-            <minAge>0.30</minAge>
+            <minAge>0.3</minAge>
           </li>
           <li>
             <def>AnimalAdult</def>
-            <minAge>0.60</minAge>
+            <minAge>0.6</minAge>
             <soundWounded>Pawn_Tiger_Wounded</soundWounded>
             <soundDeath>Pawn_Tiger_Death</soundDeath>
             <soundCall>Pawn_Tiger_Call</soundCall>
@@ -527,13 +561,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "Tiger"]/combatPower</xpath>
       <value>
-        <combatPower>205</combatPower>
+        <combatPower>210</combatPower>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "Tiger"]</xpath>
       <value>
-        <combatPower>205</combatPower>
+        <combatPower>210</combatPower>
       </value>
     </nomatch>
   </Operation>
@@ -542,13 +576,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "Tiger"]/ecoSystemWeight</xpath>
       <value>
-        <ecoSystemWeight>1.00</ecoSystemWeight>
+        <ecoSystemWeight>1</ecoSystemWeight>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "Tiger"]</xpath>
       <value>
-        <ecoSystemWeight>1.00</ecoSystemWeight>
+        <ecoSystemWeight>1</ecoSystemWeight>
       </value>
     </nomatch>
   </Operation>
@@ -571,6 +605,16 @@
     </match>
   </Operation>
   <!-- Cat_Scimitar -->
+  <Operation Class="PatchOperationAttributeSet">
+    <xpath>/Defs/ThingDef[defName = "Cat_Scimitar"]</xpath>
+    <attribute>ParentName</attribute>
+    <value>BigCatThingBase</value>
+  </Operation>
+  <Operation Class="PatchOperationAttributeSet">
+    <xpath>/Defs/PawnKindDef[defName = "Cat_Scimitar"]</xpath>
+    <attribute>ParentName</attribute>
+    <value>BigCatKindBase</value>
+  </Operation>
   <!-- Cat_Scimitar StatBases -->
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Cat_Scimitar"]/statBases</xpath>
@@ -718,7 +762,7 @@
             <li>Scratch</li>
           </capacities>
           <power>17.5</power>
-          <cooldownTime>1.60</cooldownTime>
+          <cooldownTime>1.6</cooldownTime>
           <linkedBodyPartsGroup>FrontRightPaw</linkedBodyPartsGroup>
           <surpriseAttack>
             <extraMeleeDamages>
@@ -736,7 +780,7 @@
             <li>Scratch</li>
           </capacities>
           <power>17.5</power>
-          <cooldownTime>1.60</cooldownTime>
+          <cooldownTime>1.6</cooldownTime>
           <linkedBodyPartsGroup>FrontRightPaw</linkedBodyPartsGroup>
           <surpriseAttack>
             <extraMeleeDamages>
@@ -752,8 +796,8 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>22.0</power>
-          <cooldownTime>1.70</cooldownTime>
+          <power>22</power>
+          <cooldownTime>1.7</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
           <surpriseAttack>
             <extraMeleeDamages>
@@ -797,13 +841,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Cat_Scimitar"]/race/baseHealthScale</xpath>
       <value>
-        <baseHealthScale>2.30</baseHealthScale>
+        <baseHealthScale>2.3</baseHealthScale>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Cat_Scimitar"]/race</xpath>
       <value>
-        <baseHealthScale>2.30</baseHealthScale>
+        <baseHealthScale>2.3</baseHealthScale>
       </value>
     </nomatch>
   </Operation>
@@ -883,6 +927,18 @@
     <xpath>/Defs/ThingDef[defName = "Cat_Scimitar"]/race/roamMtbDays</xpath>
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Cat_Scimitar"]/race/roamMtbDays</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Cat_Scimitar"]/race/leatherDef</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Cat_Scimitar"]/race/leatherDef</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Cat_Scimitar"]/race/useLeatherFrom</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Cat_Scimitar"]/race/useLeatherFrom</xpath>
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
@@ -988,6 +1044,18 @@
     </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Cat_Scimitar"]/race/useMeatFrom</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Cat_Scimitar"]/race/useMeatFrom</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Cat_Scimitar"]/race/wildBiomes</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Cat_Scimitar"]/race/wildBiomes</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Cat_Scimitar"]/race/lifeStageAges</xpath>
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Cat_Scimitar"]/race/lifeStageAges</xpath>
@@ -999,11 +1067,11 @@
           </li>
           <li>
             <def>AnimalJuvenile</def>
-            <minAge>0.30</minAge>
+            <minAge>0.3</minAge>
           </li>
           <li>
             <def>AnimalAdult</def>
-            <minAge>0.60</minAge>
+            <minAge>0.6</minAge>
             <soundWounded>Pawn_Sabertooth_Wounded</soundWounded>
             <soundDeath>Pawn_Sabertooth_Death</soundDeath>
             <soundCall>Pawn_Sabertooth_Call</soundCall>
@@ -1022,11 +1090,11 @@
           </li>
           <li>
             <def>AnimalJuvenile</def>
-            <minAge>0.30</minAge>
+            <minAge>0.3</minAge>
           </li>
           <li>
             <def>AnimalAdult</def>
-            <minAge>0.60</minAge>
+            <minAge>0.6</minAge>
             <soundWounded>Pawn_Sabertooth_Wounded</soundWounded>
             <soundDeath>Pawn_Sabertooth_Death</soundDeath>
             <soundCall>Pawn_Sabertooth_Call</soundCall>
@@ -1242,14 +1310,14 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Tiger"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]/Durability</xpath>
             <value>
-              <Durability>937.50</Durability>
+              <Durability>937.5</Durability>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Tiger"]/comps</xpath>
             <value>
               <li Class="CombatExtended.CompProperties_ArmorDurability">
-                <Durability>937.50</Durability>
+                <Durability>937.5</Durability>
                 <Regenerates>true</Regenerates>
                 <RegenInterval>600</RegenInterval>
                 <RegenValue>5</RegenValue>
@@ -1273,7 +1341,7 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>5.00</power>
+                <power>5</power>
                 <armorPenetrationBlunt>4.42</armorPenetrationBlunt>
                 <cooldownTime>2.15</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
@@ -1420,13 +1488,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Cat_Scimitar"]/statBases/ArmorRating_Blunt</xpath>
             <value>
-              <ArmorRating_Blunt>1.10</ArmorRating_Blunt>
+              <ArmorRating_Blunt>1.1</ArmorRating_Blunt>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Cat_Scimitar"]/statBases</xpath>
             <value>
-              <ArmorRating_Blunt>1.10</ArmorRating_Blunt>
+              <ArmorRating_Blunt>1.1</ArmorRating_Blunt>
             </value>
           </nomatch>
         </li>
@@ -1444,14 +1512,14 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Cat_Scimitar"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]/Durability</xpath>
             <value>
-              <Durability>1050.00</Durability>
+              <Durability>1050</Durability>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Cat_Scimitar"]/comps</xpath>
             <value>
               <li Class="CombatExtended.CompProperties_ArmorDurability">
-                <Durability>1050.00</Durability>
+                <Durability>1050</Durability>
                 <Regenerates>true</Regenerates>
                 <RegenInterval>600</RegenInterval>
                 <RegenValue>5</RegenValue>
@@ -1475,9 +1543,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>5.90</power>
+                <power>5.9</power>
                 <armorPenetrationBlunt>5.22</armorPenetrationBlunt>
-                <cooldownTime>2.20</cooldownTime>
+                <cooldownTime>2.2</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                 <chanceFactor>0.2</chanceFactor>

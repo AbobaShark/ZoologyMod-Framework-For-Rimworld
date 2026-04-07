@@ -1,0 +1,66 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<Patch>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="ToxicLeather"]</xpath>
+    <match Class="PatchOperationSequence">
+      <operations>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName="WasteRat"]/race</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/ThingDef[defName="WasteRat"]/race/useLeatherFrom</xpath>
+                <match Class="PatchOperationRemove">
+                  <xpath>/Defs/ThingDef[defName="WasteRat"]/race/useLeatherFrom</xpath>
+                </match>
+              </li>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/ThingDef[defName="WasteRat"]/race/leatherDef</xpath>
+                <match Class="PatchOperationReplace">
+                  <xpath>/Defs/ThingDef[defName="WasteRat"]/race/leatherDef</xpath>
+                  <value>
+                    <leatherDef>ToxicLeather</leatherDef>
+                  </value>
+                </match>
+                <nomatch Class="PatchOperationAdd">
+                  <xpath>/Defs/ThingDef[defName="WasteRat"]/race</xpath>
+                  <value>
+                    <leatherDef>ToxicLeather</leatherDef>
+                  </value>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName="Toxalope"]/race</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/ThingDef[defName="Toxalope"]/race/useLeatherFrom</xpath>
+                <match Class="PatchOperationRemove">
+                  <xpath>/Defs/ThingDef[defName="Toxalope"]/race/useLeatherFrom</xpath>
+                </match>
+              </li>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/ThingDef[defName="Toxalope"]/race/leatherDef</xpath>
+                <match Class="PatchOperationReplace">
+                  <xpath>/Defs/ThingDef[defName="Toxalope"]/race/leatherDef</xpath>
+                  <value>
+                    <leatherDef>ToxicLeather</leatherDef>
+                  </value>
+                </match>
+                <nomatch Class="PatchOperationAdd">
+                  <xpath>/Defs/ThingDef[defName="Toxalope"]/race</xpath>
+                  <value>
+                    <leatherDef>ToxicLeather</leatherDef>
+                  </value>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+        </li>
+      </operations>
+    </match>
+  </Operation>
+</Patch>

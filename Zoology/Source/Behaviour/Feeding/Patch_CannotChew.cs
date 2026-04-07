@@ -11,6 +11,8 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(FoodUtility), "WillEat", new Type[] { typeof(Pawn), typeof(Thing), typeof(Pawn), typeof(bool), typeof(bool) })]
     internal static class Patch_FoodUtility_WillEat_CannotChew
     {
+        private static bool Prepare() => CannotChewSettingsGate.Enabled();
+
         private static bool Prefix(Pawn p, Thing food, Pawn getter, bool careIfNotAcceptableForTitle, bool allowVenerated, ref bool __result)
         {
             try
@@ -30,12 +32,12 @@ namespace ZoologyMod
                     return true;
                 }
 
-                if (p.Map != null && !CannotChewPresenceCache.HasCannotChewPawnsOnMap(p.Map))
+                if (!CannotChewUtility.HasCannotChew(p))
                 {
                     return true;
                 }
 
-                if (!CannotChewUtility.HasCannotChew(p))
+                if (p.Map != null && !CannotChewPresenceCache.HasCannotChewPawnsOnMap(p.Map))
                 {
                     return true;
                 }
@@ -78,14 +80,14 @@ namespace ZoologyMod
             }
 
             int computedCount = CountCannotChewOnMap(map);
-            if (computedCount <= 0)
+            cannotChewCountByMapId[map.uniqueID] = computedCount;
+            if (computedCount > 0)
             {
-                return false;
+                totalCannotChew += computedCount;
+                return true;
             }
 
-            cannotChewCountByMapId[map.uniqueID] = computedCount;
-            totalCannotChew += computedCount;
-            return true;
+            return false;
         }
 
         public static void NotifyPawnSpawned(Pawn pawn)
@@ -200,6 +202,8 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(Pawn), nameof(Pawn.SpawnSetup))]
     internal static class Patch_Pawn_SpawnSetup_CannotChewPresence
     {
+        private static bool Prepare() => CannotChewSettingsGate.Enabled();
+
         private static void Postfix(Pawn __instance)
         {
             try
@@ -221,6 +225,8 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(Pawn), nameof(Pawn.DeSpawn))]
     internal static class Patch_Pawn_DeSpawn_CannotChewPresence
     {
+        private static bool Prepare() => CannotChewSettingsGate.Enabled();
+
         private static void Prefix(Pawn __instance)
         {
             try
@@ -242,6 +248,8 @@ namespace ZoologyMod
     [HarmonyPatch]
     internal static class Patch_Corpse_IngestedCalculateAmounts_CannotChew
     {
+        private static bool Prepare() => CannotChewSettingsGate.Enabled();
+
         private static MethodBase TargetMethod()
         {
             return AccessTools.Method(
@@ -295,6 +303,8 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(Toils_Ingest), "FinalizeIngest")]
     internal static class Patch_ToilsIngest_FinalizeIngest_CannotChew
     {
+        private static bool Prepare() => CannotChewSettingsGate.Enabled();
+
         private static void Postfix(ref Toil __result, Pawn ingester, TargetIndex ingestibleInd)
         {
             try
@@ -351,7 +361,7 @@ namespace ZoologyMod
                             var foodNeed = ingester.needs?.food;
                             if (foodNeed != null)
                             {
-                                foodNeed.CurLevel = Math.Min(foodNeed.MaxLevel, foodNeed.CurLevel + remaining);
+                                foodNeed.CurLevel += remaining;
                             }
 
                             ingester.records?.AddTo(RecordDefOf.NutritionEaten, remaining);

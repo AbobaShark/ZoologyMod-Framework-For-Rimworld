@@ -28,18 +28,21 @@ namespace ZoologyMod
         public override void FinalizeInit()
         {
             base.FinalizeInit();
+            ResetLactationRuntimeCaches();
             TryStartBackfill();
         }
 
         public override void LoadedGame()
         {
             base.LoadedGame();
+            ResetLactationRuntimeCaches();
             TryStartBackfill();
         }
 
         public override void StartedNewGame()
         {
             base.StartedNewGame();
+            ResetLactationRuntimeCaches();
             TryStartBackfill();
         }
 
@@ -249,12 +252,27 @@ namespace ZoologyMod
             processedMotherIds.Clear();
         }
 
+        private static void ResetLactationRuntimeCaches()
+        {
+            try
+            {
+                AnimalLactationUtility.ResetRuntimeCachesForLoad();
+                LactationRequestUtility.ResetRuntimeCachesForLoad();
+                JobGiver_AnimalAutoFeed.ResetRuntimeCachesForLoad();
+            }
+            catch (Exception ex)
+            {
+                Log.Warning($"[Zoology] Failed to reset lactation runtime caches: {ex}");
+            }
+        }
+
         public override void ExposeData()
         {
             base.ExposeData();
             Scribe_Values.Look(ref backfillDone, "Zoology_LactationBackfillDone", false);
             if (Scribe.mode == LoadSaveMode.PostLoadInit)
             {
+                ResetLactationRuntimeCaches();
                 pendingBabies = null;
                 pendingIndex = 0;
                 processedMotherIds.Clear();

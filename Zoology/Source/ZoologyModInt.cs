@@ -30,17 +30,11 @@ namespace ZoologyMod
             LongEventHandler.ExecuteWhenFinished(() =>
             {
                 Settings?.ApplyRuntimeDefOverrides();
+                SyncRuntimePatchesWithSettings(forceRebuild: true);
 
-                bool allRuntimeTogglesDisabledNow = Settings != null && Settings.AreAllRuntimeTogglesDisabled();
-                if (allRuntimeTogglesDisabledNow)
-                {
-                    UnpatchAllZoologyHarmonyIds();
-                    return;
-                }
-
-                ApplyDisabledFeatureUnpatches(Settings);
-
-                if (Settings.EnableHumanBionicOnAnimal)
+                if (Settings != null
+                    && !Settings.DisableAllRuntimePatches
+                    && Settings.EnableHumanBionicOnAnimal)
                 {
                     CombatBionicPatcher.Patch();
                     SpecialBionicPatcher.Patch();
@@ -53,12 +47,34 @@ namespace ZoologyMod
         {
             if (enabled)
             {
-                EnableAllRuntimePatches();
+                SyncRuntimePatchesWithSettings(forceRebuild: true);
             }
             else
             {
                 DisableAllRuntimePatches();
             }
+        }
+
+        public static void SyncRuntimePatchesWithSettings(bool forceRebuild = false)
+        {
+            ZoologyModSettings settings = Settings ?? ZoologyModSettings.Instance;
+            if (settings == null)
+            {
+                return;
+            }
+
+            if (settings.AreAllRuntimeTogglesDisabled())
+            {
+                DisableAllRuntimePatches();
+                return;
+            }
+
+            if (forceRebuild)
+            {
+                UnpatchAllZoologyHarmonyIds(logSummary: false);
+            }
+
+            EnableAllRuntimePatches();
         }
 
         private static void EnableAllRuntimePatches()
@@ -82,6 +98,7 @@ namespace ZoologyMod
             CEPatches_Melee.EnsurePatched();
 
             ApplyDisabledFeatureUnpatches(Settings);
+            global::ZoologyMod.Patches.DamageReduction_AnimalTypes_PawnTakeDamage.SyncPatchState();
         }
 
         private static void DisableAllRuntimePatches()
@@ -89,7 +106,7 @@ namespace ZoologyMod
             UnpatchAllZoologyHarmonyIds();
         }
 
-        private static void UnpatchAllZoologyHarmonyIds()
+        private static void UnpatchAllZoologyHarmonyIds(bool logSummary = true)
         {
             try
             {
@@ -102,7 +119,8 @@ namespace ZoologyMod
                     "zoology.ageless",
                     "zoology.drugsimmune",
                     "com.abobashark.zoology.noporcupinequill",
-                    "com.abobashark.zoology.mod.melee"
+                    "com.abobashark.zoology.mod.melee",
+                    "com.abobashark.zoology.damage_reduction"
                 };
 
                 for (int i = 0; i < ids.Count; i++)
@@ -118,7 +136,10 @@ namespace ZoologyMod
                 NoPorcupineQuill_HarmonyPatches.ResetPatchedState();
                 CEPatches_Melee.ResetPatchedState();
 
-                Log.Message("[Zoology] Unpatched all known Zoology harmony ids because all runtime toggles are disabled.");
+                if (logSummary)
+                {
+                    Log.Message("[Zoology] Unpatched all known Zoology harmony ids because all runtime toggles are disabled.");
+                }
             }
             catch (System.Exception ex)
             {
@@ -150,6 +171,9 @@ namespace ZoologyMod
 
             if (!settings.EnableOverrideCEPenetration)
                 TryUnpatchHarmonyId("com.abobashark.zoology.mod.melee");
+
+            if (!settings.EnableAnimalDamageReduction || settings.DisableAllRuntimePatches)
+                global::ZoologyMod.Patches.DamageReduction_AnimalTypes_PawnTakeDamage.EnsureUnpatched();
         }
 
         private static void TryUnpatchHarmonyId(string id)

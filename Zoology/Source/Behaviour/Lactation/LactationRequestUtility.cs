@@ -39,6 +39,12 @@ namespace ZoologyMod
         private static readonly Dictionary<int, SuckleRequestEntry> requestByPupId = new Dictionary<int, SuckleRequestEntry>(128);
         private static readonly Dictionary<int, MotherRequestCacheEntry> cachedPupByMomId = new Dictionary<int, MotherRequestCacheEntry>(128);
 
+        public static void ResetRuntimeCachesForLoad()
+        {
+            requestByPupId.Clear();
+            cachedPupByMomId.Clear();
+        }
+
         public static bool TryRequestSuckle(Pawn pup)
         {
             if (!AnimalLactationUtility.ChildWantsSuckle(pup))

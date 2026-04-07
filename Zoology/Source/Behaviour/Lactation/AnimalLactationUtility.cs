@@ -34,6 +34,8 @@ namespace ZoologyMod
         private static readonly Dictionary<int, MotherCacheEntry> cachedMotherByPupId = new Dictionary<int, MotherCacheEntry>(128);
         private static readonly Dictionary<int, MotherCacheEntry> cachedReachableMotherByPupId = new Dictionary<int, MotherCacheEntry>(128);
         private const int MotherCacheDurationTicks = 30;
+        private static Game runtimeCacheGame;
+        private static int runtimeCacheLastTick = -1;
         private static readonly Dictionary<ThingDef, HashSet<string>> crossBreedDefNamesCache = new Dictionary<ThingDef, HashSet<string>>();
         private static HediffDef lactatingHediffDef;
         private static JobDef breastfeedJobDef;
@@ -67,7 +69,9 @@ namespace ZoologyMod
             try
             {
                 int id = mom.thingIDNumber;
-                lastFeedAttemptTick[id] = Find.TickManager.TicksGame;
+                int currentTick = Find.TickManager?.TicksGame ?? 0;
+                EnsureRuntimeCacheState(currentTick);
+                lastFeedAttemptTick[id] = currentTick;
             }
             catch { }
         }
@@ -78,7 +82,8 @@ namespace ZoologyMod
             try
             {
                 int id = mom.thingIDNumber;
-                int now = Find.TickManager.TicksGame;
+                int now = Find.TickManager?.TicksGame ?? 0;
+                EnsureRuntimeCacheState(now);
                 if (lastFeedAttemptTick.TryGetValue(id, out int last))
                 {
                     if (now - last < FeedAttemptCooldownTicks) return false;
@@ -297,10 +302,12 @@ namespace ZoologyMod
             float bestDistSqr = float.MaxValue;
             IntVec3 pupPosition = pup.Position;
             int currentTick = Find.TickManager?.TicksGame ?? 0;
+            EnsureRuntimeCacheState(currentTick);
 
             int pupId = pup.thingIDNumber;
             if (currentTick > 0
                 && cachedMotherByPupId.TryGetValue(pupId, out MotherCacheEntry cached)
+                && currentTick >= cached.Tick
                 && currentTick - cached.Tick <= MotherCacheDurationTicks)
             {
                 if (IsValidMotherForPup(cached.Mother, pup))
@@ -323,6 +330,7 @@ namespace ZoologyMod
                 if (p == null || !p.Spawned || p.Dead) continue;
 
                 if (!IsCrossBreedCompatible(p, pup)) continue;
+                if (!IsPupFactionCompatible(p, pup)) continue;
 
                 float d = (p.Position - pupPosition).LengthHorizontalSquared;
                 if (d >= bestDistSqr) continue;
@@ -353,10 +361,12 @@ namespace ZoologyMod
             float bestDistSqr = float.MaxValue;
             IntVec3 pupPosition = pup.Position;
             int currentTick = Find.TickManager?.TicksGame ?? 0;
+            EnsureRuntimeCacheState(currentTick);
 
             int pupId = pup.thingIDNumber;
             if (currentTick > 0
                 && cachedReachableMotherByPupId.TryGetValue(pupId, out MotherCacheEntry cached)
+                && currentTick >= cached.Tick
                 && currentTick - cached.Tick <= MotherCacheDurationTicks)
             {
                 if (IsValidMotherForPupReach(cached.Mother, pup))
@@ -401,6 +411,38 @@ namespace ZoologyMod
             return nearest;
         }
 
+        private static void ClearRuntimeCaches()
+        {
+            lastFeedAttemptTick.Clear();
+            motherCandidateCacheByMapId.Clear();
+            cachedMotherByPupId.Clear();
+            cachedReachableMotherByPupId.Clear();
+        }
+
+        public static void ResetRuntimeCachesForLoad()
+        {
+            ClearRuntimeCaches();
+            runtimeCacheGame = Current.Game;
+            runtimeCacheLastTick = Find.TickManager?.TicksGame ?? -1;
+        }
+
+        private static void EnsureRuntimeCacheState(int currentTick)
+        {
+            Game currentGame = Current.Game;
+            bool gameChanged = !ReferenceEquals(runtimeCacheGame, currentGame);
+            bool tickRewound = currentTick > 0 && runtimeCacheLastTick > 0 && currentTick < runtimeCacheLastTick;
+            if (gameChanged || tickRewound)
+            {
+                ClearRuntimeCaches();
+                runtimeCacheGame = currentGame;
+            }
+
+            if (currentTick > 0)
+            {
+                runtimeCacheLastTick = currentTick;
+            }
+        }
+
         private static bool IsValidMotherForPup(Pawn mom, Pawn pup)
         {
             if (mom == null || pup == null)
@@ -424,6 +466,11 @@ namespace ZoologyMod
             }
 
             if (!IsCrossBreedCompatible(mom, pup))
+            {
+                return false;
+            }
+
+            if (!IsPupFactionCompatible(mom, pup))
             {
                 return false;
             }

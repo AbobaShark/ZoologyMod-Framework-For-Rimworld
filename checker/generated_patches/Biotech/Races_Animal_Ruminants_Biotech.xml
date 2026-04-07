@@ -2,6 +2,16 @@
 <Patch>
   <!---->
   <!-- Toxalope -->
+  <Operation Class="PatchOperationAttributeSet">
+    <xpath>/Defs/ThingDef[defName = "Toxalope"]</xpath>
+    <attribute>ParentName</attribute>
+    <value>AnimalThingBase</value>
+  </Operation>
+  <Operation Class="PatchOperationAttributeSet">
+    <xpath>/Defs/PawnKindDef[defName = "Toxalope"]</xpath>
+    <attribute>ParentName</attribute>
+    <value>AnimalKindBase</value>
+  </Operation>
   <!-- Toxalope StatBases -->
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Toxalope"]/statBases/MarketValue</xpath>
@@ -137,7 +147,7 @@
             <li>Blunt</li>
           </capacities>
           <power>9.5</power>
-          <cooldownTime>2.30</cooldownTime>
+          <cooldownTime>2.3</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
           <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
           <chanceFactor>0.2</chanceFactor>
@@ -148,7 +158,7 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>12.0</power>
+          <power>12</power>
           <cooldownTime>2.15</cooldownTime>
           <linkedBodyPartsGroup>FrontLeftLeg</linkedBodyPartsGroup>
         </li>
@@ -158,7 +168,7 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>12.0</power>
+          <power>12</power>
           <cooldownTime>2.15</cooldownTime>
           <linkedBodyPartsGroup>FrontRightLeg</linkedBodyPartsGroup>
         </li>
@@ -167,8 +177,8 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>12.0</power>
-          <cooldownTime>2.30</cooldownTime>
+          <power>12</power>
+          <cooldownTime>2.3</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
         </li>
       </tools>
@@ -195,13 +205,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/baseHealthScale</xpath>
       <value>
-        <baseHealthScale>1.50</baseHealthScale>
+        <baseHealthScale>1.5</baseHealthScale>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Toxalope"]/race</xpath>
       <value>
-        <baseHealthScale>1.50</baseHealthScale>
+        <baseHealthScale>1.5</baseHealthScale>
       </value>
     </nomatch>
   </Operation>
@@ -311,6 +321,27 @@
     </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/leatherDef</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/leatherDef</xpath>
+      <value>
+        <leatherDef>ToxicLeather</leatherDef>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "Toxalope"]/race</xpath>
+      <value>
+        <leatherDef>ToxicLeather</leatherDef>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/useLeatherFrom</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/useLeatherFrom</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/manhunterOnTameFailChance</xpath>
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/manhunterOnTameFailChance</xpath>
@@ -369,9 +400,18 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/trainability</xpath>
-    <match Class="PatchOperationRemove">
+    <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/trainability</xpath>
+      <value>
+        <trainability>None</trainability>
+      </value>
     </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "Toxalope"]/race</xpath>
+      <value>
+        <trainability>None</trainability>
+      </value>
+    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/packAnimal</xpath>
@@ -476,6 +516,18 @@
     </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/useMeatFrom</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/useMeatFrom</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/wildBiomes</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/wildBiomes</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/lifeStageAges</xpath>
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/lifeStageAges</xpath>
@@ -487,11 +539,11 @@
           </li>
           <li>
             <def>AnimalJuvenile</def>
-            <minAge>0.20</minAge>
+            <minAge>0.2</minAge>
           </li>
           <li>
             <def>AnimalAdult</def>
-            <minAge>0.40</minAge>
+            <minAge>0.4</minAge>
             <soundWounded>Pawn_Muffalo_Wounded</soundWounded>
             <soundDeath>Pawn_Muffalo_Death</soundDeath>
             <soundCall>Pawn_Muffalo_Call</soundCall>
@@ -510,11 +562,11 @@
           </li>
           <li>
             <def>AnimalJuvenile</def>
-            <minAge>0.20</minAge>
+            <minAge>0.2</minAge>
           </li>
           <li>
             <def>AnimalAdult</def>
-            <minAge>0.40</minAge>
+            <minAge>0.4</minAge>
             <soundWounded>Pawn_Muffalo_Wounded</soundWounded>
             <soundDeath>Pawn_Muffalo_Death</soundDeath>
             <soundCall>Pawn_Muffalo_Call</soundCall>
@@ -594,13 +646,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "Toxalope"]/ecoSystemWeight</xpath>
       <value>
-        <ecoSystemWeight>0.90</ecoSystemWeight>
+        <ecoSystemWeight>0.9</ecoSystemWeight>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "Toxalope"]</xpath>
       <value>
-        <ecoSystemWeight>0.90</ecoSystemWeight>
+        <ecoSystemWeight>0.9</ecoSystemWeight>
       </value>
     </nomatch>
   </Operation>
@@ -683,13 +735,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Toxalope"]/statBases/MeleeParryChance</xpath>
             <value>
-              <MeleeParryChance>0.00</MeleeParryChance>
+              <MeleeParryChance>0</MeleeParryChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Toxalope"]/statBases</xpath>
             <value>
-              <MeleeParryChance>0.00</MeleeParryChance>
+              <MeleeParryChance>0</MeleeParryChance>
             </value>
           </nomatch>
         </li>
@@ -737,14 +789,14 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Toxalope"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]/Durability</xpath>
             <value>
-              <Durability>750.00</Durability>
+              <Durability>750</Durability>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Toxalope"]/comps</xpath>
             <value>
               <li Class="CombatExtended.CompProperties_ArmorDurability">
-                <Durability>750.00</Durability>
+                <Durability>750</Durability>
                 <Regenerates>true</Regenerates>
                 <RegenInterval>600</RegenInterval>
                 <RegenValue>5</RegenValue>
@@ -798,7 +850,7 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>4.30</power>
+                <power>4.3</power>
                 <armorPenetrationBlunt>3.74</armorPenetrationBlunt>
                 <cooldownTime>1.75</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
@@ -812,7 +864,7 @@
                   <li>Blunt</li>
                 </capacities>
                 <power>7.8</power>
-                <armorPenetrationBlunt>4.60</armorPenetrationBlunt>
+                <armorPenetrationBlunt>4.6</armorPenetrationBlunt>
                 <cooldownTime>2.3</cooldownTime>
                 <linkedBodyPartsGroup>FrontLeftLeg</linkedBodyPartsGroup>
               </li>
@@ -823,7 +875,7 @@
                   <li>Blunt</li>
                 </capacities>
                 <power>7.8</power>
-                <armorPenetrationBlunt>4.60</armorPenetrationBlunt>
+                <armorPenetrationBlunt>4.6</armorPenetrationBlunt>
                 <cooldownTime>2.3</cooldownTime>
                 <linkedBodyPartsGroup>FrontRightLeg</linkedBodyPartsGroup>
               </li>

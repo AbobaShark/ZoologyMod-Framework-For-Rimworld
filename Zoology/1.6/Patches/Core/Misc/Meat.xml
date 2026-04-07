@@ -1,9 +1,101 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Patch>
 
-  <!-- =================================================
-       Dogs
-       ================================================= -->
+  <Operation Class="PatchOperationConditional">
+    <xpath>Defs/ThingDef[defName="Dromedary"]/race/meatLabel</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>Defs/ThingDef[defName="Dromedary"]/race/meatLabel</xpath>
+      <value>
+        <meatLabel>camel meat</meatLabel>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>Defs/ThingDef[defName="Dromedary"]/race</xpath>
+      <value>
+        <meatLabel>camel meat</meatLabel>
+      </value>
+    </nomatch>
+  </Operation>
+
+  <Operation Class="PatchOperationConditional">
+    <xpath>Defs/ThingDef[defName="Alphabeaver"]/race/meatLabel</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>Defs/ThingDef[defName="Alphabeaver"]/race/meatLabel</xpath>
+      <value>
+        <meatLabel>beaver meat</meatLabel>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>Defs/ThingDef[defName="Alphabeaver"]/race</xpath>
+      <value>
+        <meatLabel>beaver meat</meatLabel>
+      </value>
+    </nomatch>
+  </Operation>
+
+  <Operation Class="PatchOperationConditional">
+    <xpath>Defs/ThingDef[defName="Cobra"]/race/meatLabel</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>Defs/ThingDef[defName="Cobra"]/race/meatLabel</xpath>
+      <value>
+        <meatLabel>snake meat</meatLabel>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>Defs/ThingDef[defName="Cobra"]/race</xpath>
+      <value>
+        <meatLabel>snake meat</meatLabel>
+      </value>
+    </nomatch>
+  </Operation>
+  
+  <Operation Class="PatchOperationConditional">
+    <xpath>Defs/ThingDef[defName="Iguana"]/race/meatLabel</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>Defs/ThingDef[defName="Iguana"]/race/meatLabel</xpath>
+      <value>
+        <meatLabel>lizard meat</meatLabel>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>Defs/ThingDef[defName="Iguana"]/race</xpath>
+      <value>
+        <meatLabel>lizard meat</meatLabel>
+      </value>
+    </nomatch>
+  </Operation>
+  
+  <Operation Class="PatchOperationConditional">
+    <xpath>Defs/ThingDef[defName="Tortoise"]/race/meatLabel</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>Defs/ThingDef[defName="Tortoise"]/race/meatLabel</xpath>
+      <value>
+        <meatLabel>turtle meat</meatLabel>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>Defs/ThingDef[defName="Tortoise"]/race</xpath>
+      <value>
+        <meatLabel>turtle meat</meatLabel>
+      </value>
+    </nomatch>
+  </Operation>
+
+  <Operation Class="PatchOperationConditional">
+    <xpath>Defs/ThingDef[defName="Monkey"]/race/meatLabel</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>Defs/ThingDef[defName="Monkey"]/race/meatLabel</xpath>
+      <value>
+        <meatLabel>primate meat</meatLabel>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>Defs/ThingDef[defName="Monkey"]/race</xpath>
+      <value>
+        <meatLabel>primate meat</meatLabel>
+      </value>
+    </nomatch>
+  </Operation>
 	   
   <Operation Class="PatchOperationConditional">
     <xpath>Defs/ThingDef[defName="YorkshireTerrier"]/race/meatLabel</xpath>
@@ -20,19 +112,35 @@
       </value>
     </nomatch>
   </Operation>
-
+  
   <Operation Class="PatchOperationConditional">
-    <xpath>Defs/ThingDef[defName="LabradorRetriever" or defName="Husky"]/race/useMeatFrom</xpath>
+    <xpath>Defs/ThingDef[defName="Rat"]/race/meatLabel</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>Defs/ThingDef[defName="LabradorRetriever" or defName="Husky"]/race/useMeatFrom</xpath>
+      <xpath>Defs/ThingDef[defName="Rat"]/race/meatLabel</xpath>
       <value>
-        <useMeatFrom>YorkshireTerrier</useMeatFrom>
+        <meatLabel>small rodent meat</meatLabel>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
-      <xpath>Defs/ThingDef[defName="LabradorRetriever" or defName="Husky"]/race</xpath>
+      <xpath>Defs/ThingDef[defName="Rat"]/race</xpath>
       <value>
-        <useMeatFrom>YorkshireTerrier</useMeatFrom>
+        <meatLabel>small rodent meat</meatLabel>
+      </value>
+    </nomatch>
+  </Operation>
+  
+  <Operation Class="PatchOperationConditional">
+    <xpath>Defs/ThingDef[defName="Gazelle"]/race/meatLabel</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>Defs/ThingDef[defName="Gazelle"]/race/meatLabel</xpath>
+      <value>
+        <meatLabel>antelope meat</meatLabel>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>Defs/ThingDef[defName="Gazelle"]/race</xpath>
+      <value>
+        <meatLabel>antelope meat</meatLabel>
       </value>
     </nomatch>
   </Operation>

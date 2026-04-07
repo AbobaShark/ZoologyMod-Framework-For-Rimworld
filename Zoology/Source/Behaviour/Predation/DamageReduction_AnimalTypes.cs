@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using HarmonyLib;
 using RimWorld;
@@ -6,43 +7,135 @@ using Verse;
 
 namespace ZoologyMod.Patches
 {
-    [HarmonyPatch]
     public static class DamageReduction_AnimalTypes_PawnTakeDamage
     {
+        private const string DamageReductionHarmonyId = "com.abobashark.zoology.damage_reduction";
         private static readonly Type ScratchWorkerType = AccessTools.TypeByName("DamageWorker_Scratch");
         private static readonly Type BiteWorkerType = AccessTools.TypeByName("DamageWorker_Bite");
         private static readonly Type BluntWorkerType = AccessTools.TypeByName("DamageWorker_Blunt");
 
-        public static bool Prepare()
+        private static bool ShouldBeEnabledNow()
         {
-            var s = ZoologyModSettings.Instance;
-            return s == null || s.EnableAnimalDamageReduction;
+            var settings = ZoologyModSettings.Instance;
+            return settings == null || (!settings.DisableAllRuntimePatches && settings.EnableAnimalDamageReduction);
         }
 
-        static MethodBase TargetMethod()
+        public static void SyncPatchState()
         {
-            var method = AccessTools.Method(typeof(Pawn), "TakeDamage", new Type[] { typeof(DamageInfo) });
-            if (method != null)
+            if (ShouldBeEnabledNow())
             {
-                return method;
+                EnsurePatched();
             }
-
-            method = AccessTools.Method(typeof(Thing), "TakeDamage", new Type[] { typeof(DamageInfo) });
-            if (method == null)
+            else
             {
-                Log.Error("[ZoologyMod] DamageReduction_AnimalTypes: не найден целевой метод Pawn/Thing.TakeDamage(DamageInfo). Патч не будет применён.");
+                EnsureUnpatched();
             }
-
-            return method;
         }
 
-        [HarmonyPrefix]
+        public static void EnsurePatched()
+        {
+            try
+            {
+                MethodInfo prefixMethod = AccessTools.Method(typeof(DamageReduction_AnimalTypes_PawnTakeDamage), nameof(Prefix));
+                if (prefixMethod == null)
+                {
+                    return;
+                }
+
+                List<MethodBase> targetMethods = GetTargetMethods();
+                if (targetMethods.Count == 0)
+                {
+                    Log.Error("[ZoologyMod] DamageReduction_AnimalTypes: target methods not found. Patch will stay disabled.");
+                    return;
+                }
+
+                var harmony = new Harmony(DamageReductionHarmonyId);
+                for (int targetIndex = 0; targetIndex < targetMethods.Count; targetIndex++)
+                {
+                    MethodBase targetMethod = targetMethods[targetIndex];
+                    bool alreadyPatched = false;
+                    HarmonyLib.Patches patchInfo = Harmony.GetPatchInfo(targetMethod);
+                    if (patchInfo?.Prefixes != null)
+                    {
+                        for (int i = 0; i < patchInfo.Prefixes.Count; i++)
+                        {
+                            if (patchInfo.Prefixes[i].PatchMethod == prefixMethod)
+                            {
+                                alreadyPatched = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (!alreadyPatched)
+                    {
+                        harmony.Patch(targetMethod, prefix: new HarmonyMethod(prefixMethod));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Warning($"[ZoologyMod] DamageReduction_AnimalTypes EnsurePatched failed: {ex}");
+            }
+        }
+
+        public static void EnsureUnpatched()
+        {
+            try
+            {
+                MethodInfo prefixMethod = AccessTools.Method(typeof(DamageReduction_AnimalTypes_PawnTakeDamage), nameof(Prefix));
+                if (prefixMethod == null)
+                {
+                    return;
+                }
+
+                var harmony = new Harmony("com.abobashark.zoology.unpatcher");
+                List<MethodBase> targetMethods = GetTargetMethods();
+                for (int i = 0; i < targetMethods.Count; i++)
+                {
+                    harmony.Unpatch(targetMethods[i], prefixMethod);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Warning($"[ZoologyMod] DamageReduction_AnimalTypes EnsureUnpatched failed: {ex}");
+            }
+        }
+
+        private static List<MethodBase> GetTargetMethods()
+        {
+            var result = new List<MethodBase>(2);
+
+            MethodBase thingTakeDamage = AccessTools.DeclaredMethod(typeof(Thing), "TakeDamage", new Type[] { typeof(DamageInfo) });
+            if (thingTakeDamage != null)
+            {
+                result.Add(thingTakeDamage);
+            }
+
+            MethodBase pawnTakeDamage = AccessTools.DeclaredMethod(typeof(Pawn), "TakeDamage", new Type[] { typeof(DamageInfo) });
+            if (pawnTakeDamage != null && !result.Contains(pawnTakeDamage))
+            {
+                result.Add(pawnTakeDamage);
+            }
+
+            if (result.Count == 0)
+            {
+                // Fallback for unexpected method layout in modified environments.
+                MethodBase fallback = AccessTools.Method(typeof(Thing), "TakeDamage", new Type[] { typeof(DamageInfo) });
+                if (fallback != null)
+                {
+                    result.Add(fallback);
+                }
+            }
+
+            return result;
+        }
+
         public static void Prefix(Thing __instance, ref DamageInfo dinfo)
         {
             try
             {
-                var settings = ZoologyModSettings.Instance;
-                if (settings != null && !settings.EnableAnimalDamageReduction)
+                if (!ShouldBeEnabledNow())
                     return;
 
                 if (dinfo.Def == null) return;
@@ -58,32 +151,19 @@ namespace ZoologyMod.Patches
                     return;
                 }
 
-                Type workerClass = dinfo.Def.workerClass;
-                bool isScratch = ScratchWorkerType != null && (workerClass == ScratchWorkerType || workerClass.IsSubclassOf(ScratchWorkerType));
-                bool isBite = BiteWorkerType != null && (workerClass == BiteWorkerType || workerClass.IsSubclassOf(BiteWorkerType));
-                bool isBlunt = BluntWorkerType != null && (workerClass == BluntWorkerType || workerClass.IsSubclassOf(BluntWorkerType));
-                if (!isScratch && !isBite && !isBlunt) return;
+                if (!IsSupportedAnimalDamageType(dinfo)) return;
 
                 Pawn attackerPawn = instigator as Pawn;
                 if (attackerPawn == null) return;
 
                 bool instigatorIsAnimal = attackerPawn.IsAnimal;
-                bool isHumanNaturalToolAttack = IsHumanNaturalToolAttack(attackerPawn, dinfo);
+                bool isNaturalToolAttack = IsPawnNaturalToolAttack(attackerPawn, dinfo);
+                bool isHumanNaturalToolAttack = attackerPawn.RaceProps?.Humanlike == true && isNaturalToolAttack;
 
                 if (!instigatorIsAnimal && !isHumanNaturalToolAttack) return;
 
-                // Skip reduction for attacks done with weapons or hediff-based tools (bionics).
-                if (attackerPawn != null)
-                {
-                    if (dinfo.WeaponLinkedHediff != null)
-                    {
-                        return;
-                    }
-                    if (dinfo.Weapon != null && dinfo.Weapon != attackerPawn.def)
-                    {
-                        return;
-                    }
-                }
+                // Skip non-natural attacks (equipment/synthetic sources).
+                if (!isNaturalToolAttack) return;
 
                 bool victimIsPredator = victim.RaceProps?.predator ?? false;
                 bool attackerIsPredator = false;
@@ -188,20 +268,38 @@ namespace ZoologyMod.Patches
             }
         }
 
-        private static bool IsHumanNaturalToolAttack(Pawn attackerPawn, DamageInfo dinfo)
+        private static bool IsSupportedAnimalDamageType(DamageInfo dinfo)
         {
-            if (attackerPawn == null)
+            if (dinfo.Def == null)
             {
                 return false;
             }
 
-            var raceProps = attackerPawn.RaceProps;
-            if (raceProps == null || !raceProps.Humanlike)
+            Type workerClass = dinfo.Def.workerClass;
+            bool isScratch = ScratchWorkerType != null
+                && workerClass != null
+                && (workerClass == ScratchWorkerType || workerClass.IsSubclassOf(ScratchWorkerType));
+            bool isBite = BiteWorkerType != null
+                && workerClass != null
+                && (workerClass == BiteWorkerType || workerClass.IsSubclassOf(BiteWorkerType));
+            bool isBlunt = BluntWorkerType != null
+                && workerClass != null
+                && (workerClass == BluntWorkerType || workerClass.IsSubclassOf(BluntWorkerType));
+
+            if (isScratch || isBite || isBlunt)
+            {
+                return true;
+            }
+
+            // CE-legacy fallback: some old saves carry non-vanilla worker class.
+            if (dinfo.Def.isRanged)
             {
                 return false;
             }
 
-            return IsPawnNaturalToolAttack(attackerPawn, dinfo);
+            DamageArmorCategoryDef armorCategory = dinfo.Def.armorCategory;
+            return armorCategory == DamageArmorCategoryDefOf.Sharp
+                || (armorCategory != null && string.Equals(armorCategory.defName, "Blunt", StringComparison.OrdinalIgnoreCase));
         }
 
         private static bool IsPawnNaturalToolAttack(Pawn attackerPawn, DamageInfo dinfo)
@@ -233,9 +331,32 @@ namespace ZoologyMod.Patches
                 return true;
             }
 
+            // CE-legacy fallback for animal natural melee where weapon/source is stale.
+            if (attackerPawn.IsAnimal
+                && attackerPawn.equipment?.Primary == null
+                && dinfo.Def != null
+                && !dinfo.Def.isRanged)
+            {
+                DamageArmorCategoryDef armorCategory = dinfo.Def.armorCategory;
+                if (armorCategory == DamageArmorCategoryDefOf.Sharp
+                    || (armorCategory != null && string.Equals(armorCategory.defName, "Blunt", StringComparison.OrdinalIgnoreCase)))
+                {
+                    return true;
+                }
+            }
+
             return false;
         }
 
 
+    }
+
+    [StaticConstructorOnStartup]
+    internal static class DamageReduction_AnimalTypes_Bootstrap
+    {
+        static DamageReduction_AnimalTypes_Bootstrap()
+        {
+            LongEventHandler.ExecuteWhenFinished(DamageReduction_AnimalTypes_PawnTakeDamage.SyncPatchState);
+        }
     }
 }

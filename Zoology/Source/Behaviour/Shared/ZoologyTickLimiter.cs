@@ -71,6 +71,7 @@ namespace ZoologyMod
             public const int MotherCacheDurationTicks = 120;
             public const int WanderNearMotherMinTicks = 125;
             public const int WanderNearMotherMaxTicks = 200;
+            public const int WanderNearMotherScanBudgetPerTickPerMap = 12;
         }
 
         // Scavenging AI timing.

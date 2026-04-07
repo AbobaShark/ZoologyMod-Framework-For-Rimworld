@@ -2,19 +2,29 @@
 <Patch>
   <!---->
   <!-- AEXP_Giraffe -->
+  <Operation Class="PatchOperationAttributeSet">
+    <xpath>/Defs/ThingDef[defName = "AEXP_Giraffe"]</xpath>
+    <attribute>ParentName</attribute>
+    <value>AnimalThingBase</value>
+  </Operation>
+  <Operation Class="PatchOperationAttributeSet">
+    <xpath>/Defs/PawnKindDef[defName = "AEXP_Giraffe"]</xpath>
+    <attribute>ParentName</attribute>
+    <value>AnimalKindBase</value>
+  </Operation>
   <!-- AEXP_Giraffe StatBases -->
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AEXP_Giraffe"]/statBases/MarketValue</xpath>
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AEXP_Giraffe"]/statBases/MarketValue</xpath>
       <value>
-        <MarketValue>750</MarketValue>
+        <MarketValue>775</MarketValue>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AEXP_Giraffe"]/statBases</xpath>
       <value>
-        <MarketValue>750</MarketValue>
+        <MarketValue>775</MarketValue>
       </value>
     </nomatch>
   </Operation>
@@ -177,13 +187,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AEXP_Giraffe"]/race/baseHealthScale</xpath>
       <value>
-        <baseHealthScale>3.50</baseHealthScale>
+        <baseHealthScale>3.5</baseHealthScale>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AEXP_Giraffe"]/race</xpath>
       <value>
-        <baseHealthScale>3.50</baseHealthScale>
+        <baseHealthScale>3.5</baseHealthScale>
       </value>
     </nomatch>
   </Operation>
@@ -293,6 +303,27 @@
     </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AEXP_Giraffe"]/race/leatherDef</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "AEXP_Giraffe"]/race/leatherDef</xpath>
+      <value>
+        <leatherDef>Leather_Plain</leatherDef>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "AEXP_Giraffe"]/race</xpath>
+      <value>
+        <leatherDef>Leather_Plain</leatherDef>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AEXP_Giraffe"]/race/useLeatherFrom</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AEXP_Giraffe"]/race/useLeatherFrom</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AEXP_Giraffe"]/race/manhunterOnTameFailChance</xpath>
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AEXP_Giraffe"]/race/manhunterOnTameFailChance</xpath>
@@ -351,9 +382,18 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AEXP_Giraffe"]/race/trainability</xpath>
-    <match Class="PatchOperationRemove">
+    <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AEXP_Giraffe"]/race/trainability</xpath>
+      <value>
+        <trainability>None</trainability>
+      </value>
     </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "AEXP_Giraffe"]/race</xpath>
+      <value>
+        <trainability>None</trainability>
+      </value>
+    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AEXP_Giraffe"]/race/packAnimal</xpath>
@@ -458,11 +498,23 @@
     </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AEXP_Giraffe"]/race/useMeatFrom</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AEXP_Giraffe"]/race/useMeatFrom</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AEXP_Giraffe"]/race/wildBiomes</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AEXP_Giraffe"]/race/wildBiomes</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AEXP_Giraffe"]/race/lifeStageAges/li[def = 'AnimalJuvenile']</xpath>
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AEXP_Giraffe"]/race/lifeStageAges/li[def = 'AnimalJuvenile']/minAge</xpath>
       <value>
-        <minAge>0.30</minAge>
+        <minAge>0.3</minAge>
       </value>
     </match>
     <nomatch/>
@@ -472,7 +524,7 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AEXP_Giraffe"]/race/lifeStageAges/li[def = 'AnimalAdult']/minAge</xpath>
       <value>
-        <minAge>0.60</minAge>
+        <minAge>0.6</minAge>
       </value>
     </match>
     <nomatch/>
@@ -530,13 +582,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "AEXP_Giraffe"]/combatPower</xpath>
       <value>
-        <combatPower>230</combatPower>
+        <combatPower>235</combatPower>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "AEXP_Giraffe"]</xpath>
       <value>
-        <combatPower>230</combatPower>
+        <combatPower>235</combatPower>
       </value>
     </nomatch>
   </Operation>
@@ -545,13 +597,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "AEXP_Giraffe"]/ecoSystemWeight</xpath>
       <value>
-        <ecoSystemWeight>2.10</ecoSystemWeight>
+        <ecoSystemWeight>2.1</ecoSystemWeight>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "AEXP_Giraffe"]</xpath>
       <value>
-        <ecoSystemWeight>2.10</ecoSystemWeight>
+        <ecoSystemWeight>2.1</ecoSystemWeight>
       </value>
     </nomatch>
   </Operation>
@@ -592,6 +644,16 @@
     </match>
   </Operation>
   <!-- AEXP_Wildebeest -->
+  <Operation Class="PatchOperationAttributeSet">
+    <xpath>/Defs/ThingDef[defName = "AEXP_Wildebeest"]</xpath>
+    <attribute>ParentName</attribute>
+    <value>AnimalThingBase</value>
+  </Operation>
+  <Operation Class="PatchOperationAttributeSet">
+    <xpath>/Defs/PawnKindDef[defName = "AEXP_Wildebeest"]</xpath>
+    <attribute>ParentName</attribute>
+    <value>AnimalKindBase</value>
+  </Operation>
   <!-- AEXP_Wildebeest StatBases -->
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AEXP_Wildebeest"]/statBases/MarketValue</xpath>
@@ -749,7 +811,7 @@
             <li>Scratch</li>
           </capacities>
           <power>15.5</power>
-          <cooldownTime>2.10</cooldownTime>
+          <cooldownTime>2.1</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
         </li>
       </tools>
@@ -776,13 +838,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AEXP_Wildebeest"]/race/baseHealthScale</xpath>
       <value>
-        <baseHealthScale>2.00</baseHealthScale>
+        <baseHealthScale>2</baseHealthScale>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AEXP_Wildebeest"]/race</xpath>
       <value>
-        <baseHealthScale>2.00</baseHealthScale>
+        <baseHealthScale>2</baseHealthScale>
       </value>
     </nomatch>
   </Operation>
@@ -791,13 +853,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AEXP_Wildebeest"]/race/baseHungerRate</xpath>
       <value>
-        <baseHungerRate>0.90</baseHungerRate>
+        <baseHungerRate>0.9</baseHungerRate>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AEXP_Wildebeest"]/race</xpath>
       <value>
-        <baseHungerRate>0.90</baseHungerRate>
+        <baseHungerRate>0.9</baseHungerRate>
       </value>
     </nomatch>
   </Operation>
@@ -821,13 +883,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AEXP_Wildebeest"]/race/gestationPeriodDays</xpath>
       <value>
-        <gestationPeriodDays>11.0</gestationPeriodDays>
+        <gestationPeriodDays>11</gestationPeriodDays>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AEXP_Wildebeest"]/race</xpath>
       <value>
-        <gestationPeriodDays>11.0</gestationPeriodDays>
+        <gestationPeriodDays>11</gestationPeriodDays>
       </value>
     </nomatch>
   </Operation>
@@ -892,6 +954,27 @@
     </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AEXP_Wildebeest"]/race/leatherDef</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "AEXP_Wildebeest"]/race/leatherDef</xpath>
+      <value>
+        <leatherDef>Leather_Plain</leatherDef>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "AEXP_Wildebeest"]/race</xpath>
+      <value>
+        <leatherDef>Leather_Plain</leatherDef>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AEXP_Wildebeest"]/race/useLeatherFrom</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AEXP_Wildebeest"]/race/useLeatherFrom</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AEXP_Wildebeest"]/race/manhunterOnTameFailChance</xpath>
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AEXP_Wildebeest"]/race/manhunterOnTameFailChance</xpath>
@@ -950,9 +1033,18 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AEXP_Wildebeest"]/race/trainability</xpath>
-    <match Class="PatchOperationRemove">
+    <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AEXP_Wildebeest"]/race/trainability</xpath>
+      <value>
+        <trainability>None</trainability>
+      </value>
     </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "AEXP_Wildebeest"]/race</xpath>
+      <value>
+        <trainability>None</trainability>
+      </value>
+    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AEXP_Wildebeest"]/race/packAnimal</xpath>
@@ -1057,6 +1149,27 @@
     </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AEXP_Wildebeest"]/race/useMeatFrom</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "AEXP_Wildebeest"]/race/useMeatFrom</xpath>
+      <value>
+        <useMeatFrom>Gazelle</useMeatFrom>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "AEXP_Wildebeest"]/race</xpath>
+      <value>
+        <useMeatFrom>Gazelle</useMeatFrom>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AEXP_Wildebeest"]/race/wildBiomes</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AEXP_Wildebeest"]/race/wildBiomes</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AEXP_Wildebeest"]/race/lifeStageAges/li[def = 'AnimalJuvenile']</xpath>
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AEXP_Wildebeest"]/race/lifeStageAges/li[def = 'AnimalJuvenile']/minAge</xpath>
@@ -1071,7 +1184,7 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AEXP_Wildebeest"]/race/lifeStageAges/li[def = 'AnimalAdult']/minAge</xpath>
       <value>
-        <minAge>0.30</minAge>
+        <minAge>0.3</minAge>
       </value>
     </match>
     <nomatch/>
@@ -1129,13 +1242,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "AEXP_Wildebeest"]/combatPower</xpath>
       <value>
-        <combatPower>135</combatPower>
+        <combatPower>140</combatPower>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "AEXP_Wildebeest"]</xpath>
       <value>
-        <combatPower>135</combatPower>
+        <combatPower>140</combatPower>
       </value>
     </nomatch>
   </Operation>
@@ -1144,13 +1257,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "AEXP_Wildebeest"]/ecoSystemWeight</xpath>
       <value>
-        <ecoSystemWeight>1.10</ecoSystemWeight>
+        <ecoSystemWeight>1.1</ecoSystemWeight>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "AEXP_Wildebeest"]</xpath>
       <value>
-        <ecoSystemWeight>1.10</ecoSystemWeight>
+        <ecoSystemWeight>1.1</ecoSystemWeight>
       </value>
     </nomatch>
   </Operation>
@@ -1233,13 +1346,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="AEXP_Giraffe"]/statBases/MeleeParryChance</xpath>
             <value>
-              <MeleeParryChance>0.00</MeleeParryChance>
+              <MeleeParryChance>0</MeleeParryChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="AEXP_Giraffe"]/statBases</xpath>
             <value>
-              <MeleeParryChance>0.00</MeleeParryChance>
+              <MeleeParryChance>0</MeleeParryChance>
             </value>
           </nomatch>
         </li>
@@ -1287,14 +1400,14 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="AEXP_Giraffe"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]/Durability</xpath>
             <value>
-              <Durability>1750.00</Durability>
+              <Durability>1750</Durability>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="AEXP_Giraffe"]/comps</xpath>
             <value>
               <li Class="CombatExtended.CompProperties_ArmorDurability">
-                <Durability>1750.00</Durability>
+                <Durability>1750</Durability>
                 <Regenerates>true</Regenerates>
                 <RegenInterval>600</RegenInterval>
                 <RegenValue>5</RegenValue>
@@ -1348,9 +1461,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>21.50</power>
+                <power>21.5</power>
                 <armorPenetrationBlunt>21.15</armorPenetrationBlunt>
-                <cooldownTime>2.20</cooldownTime>
+                <cooldownTime>2.2</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                 <chanceFactor>0.2</chanceFactor>
@@ -1362,7 +1475,7 @@
                   <li>Blunt</li>
                 </capacities>
                 <power>33.4</power>
-                <armorPenetrationBlunt>23.40</armorPenetrationBlunt>
+                <armorPenetrationBlunt>23.4</armorPenetrationBlunt>
                 <cooldownTime>3.25</cooldownTime>
                 <linkedBodyPartsGroup>FrontLeftLeg</linkedBodyPartsGroup>
               </li>
@@ -1373,7 +1486,7 @@
                   <li>Blunt</li>
                 </capacities>
                 <power>33.4</power>
-                <armorPenetrationBlunt>23.40</armorPenetrationBlunt>
+                <armorPenetrationBlunt>23.4</armorPenetrationBlunt>
                 <cooldownTime>3.25</cooldownTime>
                 <linkedBodyPartsGroup>FrontRightLeg</linkedBodyPartsGroup>
               </li>
@@ -1392,13 +1505,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="AEXP_Wildebeest"]/statBases/MeleeDodgeChance</xpath>
             <value>
-              <MeleeDodgeChance>0.20</MeleeDodgeChance>
+              <MeleeDodgeChance>0.2</MeleeDodgeChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="AEXP_Wildebeest"]/statBases</xpath>
             <value>
-              <MeleeDodgeChance>0.20</MeleeDodgeChance>
+              <MeleeDodgeChance>0.2</MeleeDodgeChance>
             </value>
           </nomatch>
         </li>
@@ -1422,13 +1535,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="AEXP_Wildebeest"]/statBases/MeleeParryChance</xpath>
             <value>
-              <MeleeParryChance>0.00</MeleeParryChance>
+              <MeleeParryChance>0</MeleeParryChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="AEXP_Wildebeest"]/statBases</xpath>
             <value>
-              <MeleeParryChance>0.00</MeleeParryChance>
+              <MeleeParryChance>0</MeleeParryChance>
             </value>
           </nomatch>
         </li>
@@ -1476,14 +1589,14 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="AEXP_Wildebeest"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]/Durability</xpath>
             <value>
-              <Durability>1000.00</Durability>
+              <Durability>1000</Durability>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="AEXP_Wildebeest"]/comps</xpath>
             <value>
               <li Class="CombatExtended.CompProperties_ArmorDurability">
-                <Durability>1000.00</Durability>
+                <Durability>1000</Durability>
                 <Regenerates>true</Regenerates>
                 <RegenInterval>600</RegenInterval>
                 <RegenValue>5</RegenValue>
@@ -1537,8 +1650,8 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>6.10</power>
-                <armorPenetrationBlunt>5.40</armorPenetrationBlunt>
+                <power>6.1</power>
+                <armorPenetrationBlunt>5.4</armorPenetrationBlunt>
                 <cooldownTime>1.75</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
@@ -1551,7 +1664,7 @@
                   <li>Blunt</li>
                 </capacities>
                 <power>10.6</power>
-                <armorPenetrationBlunt>6.50</armorPenetrationBlunt>
+                <armorPenetrationBlunt>6.5</armorPenetrationBlunt>
                 <cooldownTime>2.5</cooldownTime>
                 <linkedBodyPartsGroup>FrontLeftLeg</linkedBodyPartsGroup>
               </li>
@@ -1562,7 +1675,7 @@
                   <li>Blunt</li>
                 </capacities>
                 <power>10.6</power>
-                <armorPenetrationBlunt>6.50</armorPenetrationBlunt>
+                <armorPenetrationBlunt>6.5</armorPenetrationBlunt>
                 <cooldownTime>2.5</cooldownTime>
                 <linkedBodyPartsGroup>FrontRightLeg</linkedBodyPartsGroup>
               </li>
@@ -1572,7 +1685,7 @@
                   <li>Scratch</li>
                 </capacities>
                 <power>23.7</power>
-                <armorPenetrationBlunt>7.80</armorPenetrationBlunt>
+                <armorPenetrationBlunt>7.8</armorPenetrationBlunt>
                 <armorPenetrationSharp>0.45</armorPenetrationSharp>
                 <cooldownTime>3.05</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>

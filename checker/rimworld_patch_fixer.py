@@ -80,6 +80,11 @@ def format_prob_value(s):
         t = '0'
     return t
 
+def is_excel_source(path):
+    if not path:
+        return False
+    return os.path.splitext(str(path))[1].lower() in ('.xlsx', '.xlsm', '.xls')
+
 # ---------------- Column aliases ----------------
 COLUMN_ALIASES = {
     'MarketValue': ['MarketValue', 'Market value', 'market value', 'marketvalue'],
@@ -131,6 +136,8 @@ COLUMN_ALIASES = {
     'Horn/Antler/Tusks damage': ['Horn/Antler/Tusks damage', 'Horn damage'],
     # LeatherDef alias (added to ensure Leather handling)
     'LeatherDef': ['Leather def', 'LeatherDef', 'Leather_Def', 'Leather'],
+    'useMeatFrom': ['useMeatFrom', 'UseMeatFrom', 'use meat from', 'Use meat from', 'Meat from'],
+    'ModConflict': ['ModConflict', 'Mod Conflict', 'modConflict', 'Mod conflict'],
 }
 
 def find_alias_in_row(row, candidates):
@@ -171,10 +178,83 @@ class PatchGenerator:
     ODYSSEY_BIOMES = {'Grasslands', 'Glowforest', 'LavaField', 'GlacialPlain', 'Scarlands'}
     ODYSSEY_MAYREQUIRE = 'Ludeon.RimWorld.Odyssey'
 
-    def __init__(self, vanilla_tsv, ce_tsv, xml_paths):
-        self.vanilla_df = pd.read_csv(vanilla_tsv, sep='\t', dtype=str, keep_default_na=False) if vanilla_tsv else None
-        self.ce_df = pd.read_csv(ce_tsv, sep='\t', dtype=str, keep_default_na=False) if ce_tsv else None
+    def __init__(self, vanilla_source, ce_source, xml_paths):
+        self.vanilla_df = self._load_table(vanilla_source, sheet_name='Animals', required=True) if vanilla_source else None
+        if ce_source:
+            ce_sheet = 'Animals CE' if is_excel_source(ce_source) else None
+            self.ce_df = self._load_table(ce_source, sheet_name=ce_sheet, required=True)
+        elif vanilla_source and is_excel_source(vanilla_source):
+            # Convenience mode: one AnimalStats.xlsx path provides both sheets.
+            self.ce_df = self._load_table(vanilla_source, sheet_name='Animals CE', required=False)
+        else:
+            self.ce_df = None
         self.xml_paths = xml_paths
+
+    def _load_table(self, source_path, sheet_name=None, required=True):
+        def _normalize_df(df):
+            num_re = re.compile(r'^[+-]?\d+(?:\.\d+)?$')
+
+            def _cell_to_text(v):
+                if v is None:
+                    return ''
+                try:
+                    if pd.isna(v):
+                        return ''
+                except Exception:
+                    pass
+                if isinstance(v, float):
+                    return ('{:.15g}'.format(v)).rstrip()
+                if isinstance(v, int):
+                    return str(v)
+                s = str(v).strip()
+                if num_re.match(s):
+                    try:
+                        if '.' in s:
+                            return ('{:.6f}'.format(float(s))).rstrip('0').rstrip('.')
+                        return str(int(float(s)))
+                    except Exception:
+                        return s
+                return s
+
+            out = df.apply(lambda col: col.map(_cell_to_text))
+            return out.fillna('')
+
+        if not source_path:
+            if required:
+                raise RuntimeError("Table source path is empty.")
+            return None
+        if not os.path.exists(source_path):
+            if required:
+                raise RuntimeError(f"Table source not found: {source_path}")
+            return None
+
+        if is_excel_source(source_path):
+            try:
+                read_kwargs = {'dtype': str, 'keep_default_na': False}
+                if sheet_name:
+                    read_kwargs['sheet_name'] = sheet_name
+                return _normalize_df(pd.read_excel(source_path, **read_kwargs))
+            except ValueError as e:
+                if sheet_name and required:
+                    raise RuntimeError(
+                        f"Sheet '{sheet_name}' not found in workbook: {source_path}"
+                    ) from e
+                if required:
+                    raise
+                return None
+            except ImportError:
+                try:
+                    read_kwargs = {'dtype': str, 'keep_default_na': False, 'engine': 'calamine'}
+                    if sheet_name:
+                        read_kwargs['sheet_name'] = sheet_name
+                    return _normalize_df(pd.read_excel(source_path, **read_kwargs))
+                except Exception as e:
+                    raise RuntimeError(
+                        "Excel support requires openpyxl (or python-calamine). "
+                        "Install with: pip install openpyxl"
+                    ) from e
+
+        return _normalize_df(pd.read_csv(source_path, sep='\t', dtype=str, keep_default_na=False))
 
     def get_patched_names(self, root):
         patched_defnames = set()
@@ -192,7 +272,7 @@ class PatchGenerator:
         return patched_defnames, patched_abstracts
 
     # =========================
-    # Build tools from TSV (vanilla + CE)
+    # Build tools from tables (TSV or Excel sheets)
     # =========================
 
     def _split_and_strip(self, s):
@@ -223,11 +303,137 @@ class PatchGenerator:
             out.append(p)
         return out
 
+    def _split_mod_list(self, s):
+        """Split mod list by comma/semicolon/newline, keep order and drop duplicates."""
+        if s is None:
+            return []
+        if isinstance(s, (list, tuple, set)):
+            out = []
+            seen = set()
+            for item in s:
+                p = str(item).strip()
+                if not p or p.lower() in ('no', 'none'):
+                    continue
+                key = p.lower()
+                if key in seen:
+                    continue
+                seen.add(key)
+                out.append(p)
+            return out
+        ss = str(s).strip()
+        if ss == '' or ss.lower() in ('no', 'none'):
+            return []
+        out = []
+        seen = set()
+        for part in re.split(r'[,\n;]+', ss):
+            p = part.strip()
+            if not p:
+                continue
+            key = p.lower()
+            if key in seen:
+                continue
+            seen.add(key)
+            out.append(p)
+        return out
+
+    def _build_wild_biomes_element(self, biome_names, eco_system_number):
+        """
+        Build <wildBiomes> node from list of biome names and one eco weight.
+        Odyssey biomes get MayRequire="Ludeon.RimWorld.Odyssey".
+        """
+        if not biome_names:
+            return None
+        eco_text = '' if eco_system_number is None else str(eco_system_number).strip()
+        if eco_text == '' or eco_text.lower() in ('no', 'none'):
+            return None
+
+        node = LET.Element('wildBiomes')
+        for biome in biome_names:
+            biome_name = str(biome).strip()
+            if not biome_name:
+                continue
+            entry = LET.SubElement(node, biome_name)
+            entry.text = eco_text
+            if biome_name in self.ODYSSEY_BIOMES:
+                entry.set('MayRequire', self.ODYSSEY_MAYREQUIRE)
+        return node if len(node) > 0 else None
+
+    def _wrap_ops_in_mod_conflict(self, ops, conflict_mods, as_li=False):
+        """
+        Wrap operations into PatchOperationFindMod with nomatch PatchOperationSequence
+        so payload runs only when conflicting mod is NOT found.
+        """
+        payload = list(ops or [])
+        mods = self._split_mod_list(conflict_mods)
+        has_real_ops = any(hasattr(op, 'tag') and isinstance(op.tag, str) for op in payload)
+        if not mods or not payload or not has_real_ops:
+            return payload
+
+        wrapper_tag = 'li' if as_li else 'Operation'
+        wrapper = LET.Element(wrapper_tag, Class='PatchOperationFindMod')
+        mods_el = LET.SubElement(wrapper, 'mods')
+        for mod_name in mods:
+            LET.SubElement(mods_el, 'li').text = mod_name
+
+        nomatch = LET.SubElement(wrapper, 'nomatch', Class='PatchOperationSequence')
+        seq_ops = LET.SubElement(nomatch, 'operations')
+
+        def _to_sequence_item(node):
+            if not isinstance(getattr(node, 'tag', None), str):
+                return copy.deepcopy(node)
+            if node.tag == 'li':
+                return copy.deepcopy(node)
+            if node.tag == 'Operation':
+                src = copy.deepcopy(node)
+                li = LET.Element('li')
+                for k, v in src.attrib.items():
+                    li.set(k, v)
+                li.text = src.text
+                for child in src:
+                    li.append(copy.deepcopy(child))
+                li.tail = src.tail
+                return li
+            return copy.deepcopy(node)
+
+        for op in payload:
+            seq_ops.append(_to_sequence_item(op))
+        return [wrapper]
+
     def _is_no_like(self, v):
         if v is None:
             return True
         s = str(v).strip().lower()
         return s in ('', 'no', 'none')
+
+    def _is_use_meat_from_col(self, col):
+        if col is None:
+            return False
+        key = norm(col).replace(' ', '')
+        return key == 'usemeatfrom'
+
+    def _normalize_use_meat_from_value(self, v):
+        """
+        Normalize values for race/useMeatFrom.
+        Table may contain "<li>DefName</li>" (or escaped "&lt;li&gt;...&lt;/li&gt;").
+        Return only plain defName text.
+        """
+        if v is None:
+            return ''
+        s = str(v).strip()
+        if s == '':
+            return ''
+
+        # Unescape XML-like entities often coming from table cells.
+        s = s.replace('&lt;', '<').replace('&gt;', '>').replace('&amp;', '&').strip()
+
+        # If list item markup is present, extract first li text.
+        m = re.search(r'<li[^>]*>(.*?)</li>', s, flags=re.I | re.S)
+        if m:
+            s = m.group(1).strip()
+
+        # Fallback cleanup in case only opening/closing li remained.
+        s = re.sub(r'</?li[^>]*>', '', s, flags=re.I).strip()
+        return s
 
     def _is_truthy(self, v):
         if v is None:
@@ -279,6 +485,28 @@ class PatchGenerator:
                 li.set('MayRequire', may_require)
         return op
 
+    def create_biome_pack_animals_safe_ops(self, biome_name, entries):
+        """
+        Create safe operations that add one pack animal only if it's not already present.
+        """
+        ops = []
+        for animal_def, may_require in entries:
+            animal_name = str(animal_def).strip()
+            if not animal_name:
+                continue
+            check_xpath = f'/Defs/BiomeDef[defName="{biome_name}"]/allowedPackAnimals/li[text()="{animal_name}"]'
+            op = LET.Element("Operation", Class="PatchOperationConditional")
+            LET.SubElement(op, "xpath").text = check_xpath
+            nomatch = LET.SubElement(op, "nomatch", Class="PatchOperationAdd")
+            LET.SubElement(nomatch, "xpath").text = f'/Defs/BiomeDef[defName="{biome_name}"]/allowedPackAnimals'
+            value = LET.SubElement(nomatch, "value")
+            li = LET.SubElement(value, "li")
+            li.text = animal_name
+            if may_require:
+                li.set('MayRequire', may_require)
+            ops.append(op)
+        return ops
+
     def create_biome_container_reset_ops(self, biome_name, container_tag):
         """
         Create two operations:
@@ -298,14 +526,24 @@ class PatchGenerator:
 
         return [remove_op, add_op]
 
+    def create_biome_container_ensure_op(self, biome_name, container_tag):
+        """Create one conditional op that ensures biome container exists."""
+        op = LET.Element("Operation", Class="PatchOperationConditional")
+        LET.SubElement(op, "xpath").text = f'/Defs/BiomeDef[defName="{biome_name}"]/{container_tag}'
+        nomatch = LET.SubElement(op, "nomatch", Class="PatchOperationAdd")
+        LET.SubElement(nomatch, "xpath").text = f'/Defs/BiomeDef[defName="{biome_name}"]'
+        value = LET.SubElement(nomatch, "value")
+        LET.SubElement(value, container_tag)
+        return op
+
     def generate_biome_patch_files(self, output_dir):
         """
-        Build standalone biome patch files from vanilla TSV.
+        Build standalone biome patch files from vanilla table.
         Produces one file per biome: Biomes_<BiomeName>.xml
         Each file contains 3 operations for wildAnimals, pollutionWildAnimals, coastalWildAnimals.
         """
         if self.vanilla_df is None:
-            raise RuntimeError("Vanilla TSV not provided")
+            raise RuntimeError("Vanilla table not provided")
 
         biomes_data = defaultdict(lambda: {
             'wildAnimals': OrderedDict(),
@@ -332,6 +570,10 @@ class PatchGenerator:
                 row.get('XML name', '') if 'XML name' in row.index else (row.iloc[0] if len(row.index) > 0 else '')
             )
             if not def_name:
+                continue
+
+            # Animals with ModConflict are handled in ThingDef animal patches, not in biome patch files.
+            if self._split_mod_list(get_row_value(row, 'ModConflict')):
                 continue
 
             wild_biomes = self._split_biomes(get_row_value(row, 'WildBiomes'))
@@ -385,14 +627,16 @@ class PatchGenerator:
             coastal_entries = [(k, v[0], self._filter_may_require_for_biome(biome_name, v[1])) for k, v in biomes_data[biome_name]['coastalWildAnimals'].items()]
             pack_entries = [(k, self._filter_may_require_for_biome(biome_name, v)) for k, v in biomes_data[biome_name]['allowedPackAnimals'].items()]
 
-            for container_tag in ('wildAnimals', 'pollutionWildAnimals', 'coastalWildAnimals', 'allowedPackAnimals'):
+            for container_tag in ('wildAnimals', 'pollutionWildAnimals', 'coastalWildAnimals'):
                 for op in self.create_biome_container_reset_ops(biome_name, container_tag):
                     root.append(op)
+            root.append(self.create_biome_container_ensure_op(biome_name, 'allowedPackAnimals'))
 
             root.append(self.create_biome_list_operation(biome_name, 'wildAnimals', wild_entries))
             root.append(self.create_biome_list_operation(biome_name, 'pollutionWildAnimals', pollution_entries))
             root.append(self.create_biome_list_operation(biome_name, 'coastalWildAnimals', coastal_entries))
-            root.append(self.create_biome_pack_animals_operation(biome_name, pack_entries))
+            for op in self.create_biome_pack_animals_safe_ops(biome_name, pack_entries):
+                root.append(op)
 
             filename = f"Biomes_{self._safe_biome_filename(biome_name)}.xml"
             out_path = os.path.join(output_dir, filename)
@@ -912,6 +1156,8 @@ class PatchGenerator:
                     v = get_row_value(r, col)
                 else:
                     v = r.get(col, '')
+                if self._is_use_meat_from_col(col):
+                    v = self._normalize_use_meat_from_value(v)
                 vals.append(norm(v))
             vals_non_empty = [v for v in vals if v != '']
             if len(vals_non_empty) == 0:
@@ -921,6 +1167,8 @@ class PatchGenerator:
                     common_values[col] = get_row_value(first_row, col)
                 else:
                     common_values[col] = first_row.get(col)
+                if self._is_use_meat_from_col(col):
+                    common_values[col] = self._normalize_use_meat_from_value(common_values[col])
             else:
                 differing_cols.append(col)
 
@@ -1056,9 +1304,10 @@ class PatchGenerator:
             def_row_all = {}
             present_abstract_groups = defaultdict(list)
             def_to_row = {}
+            def_mod_conflicts = {}
 
             if self.vanilla_df is None:
-                raise RuntimeError("Vanilla TSV not provided")
+                raise RuntimeError("Vanilla table not provided")
 
             # First pass: collect ALL TSV rows into def_row_all and all_abstract_groups
             for _, row in self.vanilla_df.iterrows():
@@ -1072,6 +1321,12 @@ class PatchGenerator:
 
                 # store in global TSV map
                 def_row_all[def_name] = row
+                mods_for_def = self._split_mod_list(get_row_value(row, 'ModConflict'))
+                if mods_for_def:
+                    existing_mods = def_mod_conflicts.setdefault(def_name, [])
+                    for mod_name in mods_for_def:
+                        if mod_name not in existing_mods:
+                            existing_mods.append(mod_name)
                 if parent and parent != 'None':
                     all_abstract_groups[parent].append(def_name)
 
@@ -1264,14 +1519,23 @@ class PatchGenerator:
                 if parent is None:
                     parent = 'None'
                 parent = parent.strip()
-                new_operations.extend(self.generate_def_patches(def_name, row, original_root, parent if parent != 'None' else None, parent_common_map, pawn_parent_common_map))
+                def_ops = self.generate_def_patches(
+                    def_name,
+                    row,
+                    original_root,
+                    parent if parent != 'None' else None,
+                    parent_common_map,
+                    pawn_parent_common_map
+                )
+                wrapped_def_ops = self._wrap_ops_in_mod_conflict(def_ops, def_mod_conflicts.get(def_name), as_li=False)
+                new_operations.extend(wrapped_def_ops)
 
             # Вставляем комментарий перед CE-блоком (пустая строка + комментарий)
             new_operations.append(LET.Comment(""))
             new_operations.append(LET.Comment(" Combat Extended specific patches "))
 
             # CE блок — pass def_to_row (only present defs) so CE block will only be generated for present defs
-            new_operations.append(self.generate_ce_block(def_to_row, original_root))
+            new_operations.append(self.generate_ce_block(def_to_row, original_root, def_mod_conflicts=def_mod_conflicts))
 
             # --- deduplicate identical operations (by exact XML text) to avoid double removes ---
             seen = set()
@@ -1348,6 +1612,8 @@ class PatchGenerator:
                         v = get_row_value(r, col)
                     else:
                         v = r.get(col, '')
+                    if self._is_use_meat_from_col(col):
+                        v = self._normalize_use_meat_from_value(v)
                     vals.append(norm(v))
                 vals_non_empty = [v for v in vals if v != '']
                 if len(vals_non_empty) == 0:
@@ -1357,6 +1623,8 @@ class PatchGenerator:
                         common_values[col] = get_row_value(first_row, col)
                     else:
                         common_values[col] = first_row.get(col)
+                    if self._is_use_meat_from_col(col):
+                        common_values[col] = self._normalize_use_meat_from_value(common_values[col])
                 else:
                     differing_cols.append(col)
 
@@ -1456,6 +1724,7 @@ class PatchGenerator:
             'herdMigrationAllowed': 'herdMigrationAllowed',
             'foodType': 'Foodtype',  # важная связка: tag 'foodType' -> canonical 'Foodtype'
             'roamMtbDays': 'roamMtbDays',
+            'LeatherDef': 'LeatherDef',
             'manhunterOnTameFailChance': 'manhunterOnTameFailChance',
             'manhunterOnDamageChance': 'manhunterOnDamageChance',
             'petness': 'petness',
@@ -1470,15 +1739,17 @@ class PatchGenerator:
             'waterCellCost': 'waterCellCost',
             'waterSeeker': 'waterSeeker',
             'canFishForFood': 'canFishForFood',
+            'useMeatFrom': 'useMeatFrom',
         }
 
         race_order = ['baseBodySize', 'baseHealthScale', 'baseHungerRate', 'lifeExpectancy', 'gestationPeriodDays',
-                      'herdAnimal', 'herdMigrationAllowed', 'foodType', 'roamMtbDays',
+                      'herdAnimal', 'herdMigrationAllowed', 'foodType', 'roamMtbDays', 'LeatherDef',
                       'manhunterOnTameFailChance', 'manhunterOnDamageChance',
-                      'petness', 'nuzzleMtbHours', 'mateMtbHours', 'trainability', 'predator', 'maxPreyBodySize', 'nameOnTameChance', 'Body', 'waterCellCost', 'waterSeeker', 'canFishForFood']
+                      'petness', 'nuzzleMtbHours', 'mateMtbHours', 'trainability', 'predator', 'maxPreyBodySize', 'nameOnTameChance', 'Body', 'waterCellCost', 'waterSeeker', 'canFishForFood', 'useMeatFrom']
 
         for tag in race_order:
             col = race_mapping.get(tag, tag)
+            xml_tag = tag if tag and tag[0].islower() else (tag[0].lower() + tag[1:] if tag else tag)
             if tag == 'lifeExpectancy':
                 col = 'Lifespan (years)'
             elif tag == 'gestationPeriodDays':
@@ -1489,7 +1760,23 @@ class PatchGenerator:
                 if val is None or str(val).strip() == '':
                     continue
                 s = str(val).strip()
-                xml_tag = tag if tag and tag[0].islower() else (tag[0].lower() + tag[1:] if tag else tag)
+                if xml_tag == 'useMeatFrom':
+                    s = self._normalize_use_meat_from_value(s)
+
+                # LeatherDef: всегда replace/remove + удаляем useLeatherFrom
+                if xml_tag == 'leatherDef':
+                    if s.lower() in ('', 'no', 'none'):
+                        ops.append(self.create_safe_remove(abstract, 'race', 'leatherDef', is_abstract=True))
+                    else:
+                        ops.append(self.create_safe_replace(abstract, 'race', 'leatherDef', s, is_abstract=True))
+                    ops.append(self.create_safe_remove(abstract, 'race', 'useLeatherFrom', is_abstract=True))
+                    continue
+
+                # RimWorld enum: Trainability.None is a valid value and must be written, not removed.
+                if xml_tag == 'trainability' and s.lower() == 'none':
+                    ops.append(self.create_safe_replace(abstract, 'race', 'trainability', 'None', is_abstract=True))
+                    continue
+
                 if s.lower() in ('', 'no', 'none'):
                     ops.append(self.create_safe_remove(abstract, 'race', xml_tag, is_abstract=True))
                     continue
@@ -1528,7 +1815,11 @@ class PatchGenerator:
                 else:
                     ops.append(self.create_safe_replace(abstract, 'race', xml_tag, s, is_abstract=True))
             elif col in differing_cols:
-                ops.append(self.create_safe_remove(abstract, 'race', tag, is_abstract=True))
+                if xml_tag == 'leatherDef':
+                    ops.append(self.create_safe_remove(abstract, 'race', 'leatherDef', is_abstract=True))
+                    ops.append(self.create_safe_remove(abstract, 'race', 'useLeatherFrom', is_abstract=True))
+                else:
+                    ops.append(self.create_safe_remove(abstract, 'race', tag, is_abstract=True))
 
         # lifeStageAges handling using common_values/differing_cols
         # If parent (abstract) has sound tags in original XML, create full lifeStageAges (with sounds)
@@ -1705,6 +1996,28 @@ class PatchGenerator:
         ops.append(LET.Comment(""))
         ops.append(LET.Comment(f" {def_name} "))
 
+        # Parent safety: force ParentName from table before other vanilla patches.
+        # If parent columns are None/empty, use AnimalThingBase / AnimalKindBase.
+        thing_parent = ''
+        if 'Parrent abstract' in row.index:
+            thing_parent = str(row.get('Parrent abstract', '')).strip()
+        elif 'Parent abstract' in row.index:
+            thing_parent = str(row.get('Parent abstract', '')).strip()
+        if thing_parent.lower() in ('', 'none', 'no'):
+            thing_parent = 'AnimalThingBase'
+        ops.append(self.create_attribute_set(def_name, 'ParentName', thing_parent, is_pawn=False))
+
+        pawn_parent_forced = ''
+        if 'Parrent Pawn kind abstract' in row.index:
+            pawn_parent_forced = str(row.get('Parrent Pawn kind abstract', '')).strip()
+        elif 'Parent Pawn kind abstract' in row.index:
+            pawn_parent_forced = str(row.get('Parent Pawn kind abstract', '')).strip()
+        elif 'Parrent Pawn kind' in row.index:
+            pawn_parent_forced = str(row.get('Parrent Pawn kind', '')).strip()
+        if pawn_parent_forced.lower() in ('', 'none', 'no'):
+            pawn_parent_forced = 'AnimalKindBase'
+        ops.append(self.create_attribute_set(def_name, 'ParentName', pawn_parent_forced, is_pawn=True))
+
         # StatBases
         ops.append(LET.Comment(f" {def_name} StatBases "))
         if parent:
@@ -1830,11 +2143,12 @@ class PatchGenerator:
             'waterCellCost': 'waterCellCost',
             'waterSeeker': 'waterSeeker',
             'canFishForFood': 'canFishForFood',
+            'useMeatFrom': 'useMeatFrom',
         }
         race_order = ['baseBodySize', 'baseHealthScale', 'baseHungerRate', 'lifeExpectancy', 'gestationPeriodDays',
                       'herdAnimal', 'herdMigrationAllowed', 'foodType', 'roamMtbDays', 'LeatherDef',
                       'manhunterOnTameFailChance', 'manhunterOnDamageChance',
-                      'petness', 'nuzzleMtbHours', 'mateMtbHours', 'trainability', 'packAnimal', 'predator', 'maxPreyBodySize', 'nameOnTameChance', 'Body', 'waterCellCost', 'waterSeeker', 'canFishForFood']
+                      'petness', 'nuzzleMtbHours', 'mateMtbHours', 'trainability', 'packAnimal', 'predator', 'maxPreyBodySize', 'nameOnTameChance', 'Body', 'waterCellCost', 'waterSeeker', 'canFishForFood', 'useMeatFrom']
 
         for tag in race_order:
             col = race_mapping.get(tag, tag)
@@ -1848,6 +2162,8 @@ class PatchGenerator:
                 # проверяем несколько вариантов ключей (col, tag, xml_tag, регистронезависимо)
                 if (col in parent_common) or (tag in parent_common) or (xml_tag in parent_common) or any(k.lower() == col.lower() for k in parent_common.keys()):
                     ops.append(self.create_safe_remove(def_name, 'race', xml_tag))
+                    if tag == 'LeatherDef':
+                        ops.append(self.create_safe_remove(def_name, 'race', 'useLeatherFrom'))
                     continue
 
             # special handling: LeatherDef comes from column 'LeatherDef'
@@ -1855,10 +2171,14 @@ class PatchGenerator:
                 value = get_row_value(row, 'LeatherDef')
                 if value is None or str(value).strip() == '':
                     continue
-                # If LeatherDef == 'no' -> remove LeatherDef from race on child
-                if str(value).strip().lower() == 'no':
-                    ops.append(self.create_safe_remove(def_name, 'race', 'LeatherDef'))
-                # else: do nothing for positive leather values (we don't replace)
+                sval = str(value).strip()
+                # If LeatherDef == 'No'/'None' -> remove; otherwise replace
+                if sval.lower() in ('', 'no', 'none'):
+                    ops.append(self.create_safe_remove(def_name, 'race', 'leatherDef'))
+                else:
+                    ops.append(self.create_safe_replace(def_name, 'race', 'leatherDef', sval))
+                # Всегда удаляем useLeatherFrom после обработки LeatherDef
+                ops.append(self.create_safe_remove(def_name, 'race', 'useLeatherFrom'))
                 continue
 
             # generic handlers
@@ -1866,8 +2186,15 @@ class PatchGenerator:
             if value is None or str(value).strip() == '':
                 continue
             s = str(value).strip()
+            if xml_tag == 'useMeatFrom':
+                s = self._normalize_use_meat_from_value(s)
 
             # universal "remove" markers -> safe remove
+            # RimWorld enum: Trainability.None is a valid value and must be written, not removed.
+            if xml_tag == 'trainability' and s.lower() == 'none':
+                ops.append(self.create_safe_replace(def_name, 'race', 'trainability', 'None'))
+                continue
+
             if s.lower() in ('', 'no', 'none'):
                 ops.append(self.create_safe_remove(def_name, 'race', xml_tag))
                 continue
@@ -1917,6 +2244,21 @@ class PatchGenerator:
                 ops.append(self.create_safe_replace(def_name, 'race', xml_tag, formatted))
             else:
                 ops.append(self.create_safe_replace(def_name, 'race', xml_tag, s))
+
+        # race/wildBiomes:
+        # - default: always safely remove
+        # - when ModConflict is set: safely replace/add from table WildBiomes + Eco system number
+        mod_conflicts = self._split_mod_list(get_row_value(row, 'ModConflict'))
+        wild_biomes = self._split_biomes(get_row_value(row, 'WildBiomes'))
+        eco_number = get_row_value(row, 'Eco system number')
+        if mod_conflicts and wild_biomes and not self._is_no_like(eco_number):
+            wild_biomes_node = self._build_wild_biomes_element(wild_biomes, eco_number)
+            if wild_biomes_node is not None:
+                ops.append(self.create_safe_replace(def_name, 'race', 'wildBiomes', wild_biomes_node))
+            else:
+                ops.append(self.create_safe_remove(def_name, 'race', 'wildBiomes'))
+        else:
+            ops.append(self.create_safe_remove(def_name, 'race', 'wildBiomes'))
 
         # lifeStageAges handling
         # читаем из строки и нормализуем: 'No' -> None
@@ -2244,6 +2586,15 @@ class PatchGenerator:
         val = LET.SubElement(nomatch, "value")
         LET.SubElement(val, container_tag)
 
+        return op
+
+    def create_attribute_set(self, def_name, attribute, value, is_pawn=False, is_abstract=False):
+        base_path = 'PawnKindDef' if is_pawn else 'ThingDef'
+        attr = '@Name' if is_abstract else 'defName'
+        op = LET.Element("Operation", Class="PatchOperationAttributeSet")
+        LET.SubElement(op, "xpath").text = f"/Defs/{base_path}[{attr} = \"{def_name}\"]"
+        LET.SubElement(op, "attribute").text = str(attribute)
+        LET.SubElement(op, "value").text = str(value)
         return op
     
     def create_safe_replace(self, def_name, path, tag, value, is_abstract=False, is_pawn=False):
@@ -2786,12 +3137,14 @@ class PatchGenerator:
         ops.append(add_op)
         return ops
 
-    def generate_ce_block(self, def_to_row, original_root):
+    def generate_ce_block(self, def_to_row, original_root, def_mod_conflicts=None):
         """
         Generate Combat Extended specific patches.
         """
         if self.ce_df is None or self.ce_df.empty:
-            return LET.Comment(" No CE TSV provided or empty ")
+            return LET.Comment(" No CE table provided or empty ")
+        if def_mod_conflicts is None:
+            def_mod_conflicts = {}
 
         # Build quick lookup of CE rows (all CE TSV rows) by def name
         ce_rows_all = {}
@@ -3150,6 +3503,7 @@ class PatchGenerator:
 
         # --- Per-child CE patches (only for present defs) ---
         for def_name, vanilla_row in def_to_row.items():
+            child_start_idx = len(operations)
             ce_row = ce_rows_all.get(def_name)
             operations.append(LET.Comment(f" {def_name} CE patches "))
 
@@ -3329,6 +3683,17 @@ class PatchGenerator:
                 LET.SubElement(LET.SubElement(rem_heat, "match", Class="PatchOperationRemove"), "xpath").text = f"Defs/ThingDef[defName=\"{def_name}\"]/statBases/ArmorRating_Heat"
                 operations.append(rem_heat)
 
+            # If this animal has ModConflict, run its CE child block only when conflicting mod is absent.
+            conflict_mods = def_mod_conflicts.get(def_name)
+            if self._split_mod_list(conflict_mods):
+                child_nodes = [operations[idx] for idx in range(child_start_idx, len(operations))]
+                has_real_ops = any(hasattr(node, 'tag') and isinstance(node.tag, str) for node in child_nodes)
+                if has_real_ops:
+                    while len(operations) > child_start_idx:
+                        operations.remove(operations[child_start_idx])
+                    for wrapped in self._wrap_ops_in_mod_conflict(child_nodes, conflict_mods, as_li=True):
+                        operations.append(wrapped)
+
         return ce_op
 
     # --- helper to check whether a name likely represents an abstract (@Name) or concrete (defName)
@@ -3353,7 +3718,12 @@ class GeneratorApp(tk.Tk):
         self.title("RimWorld Patch Generator/Fixer")
         self.geometry("950x600")
         self.cfg = load_config()
-        self.vanilla_tsv = tk.StringVar(value=self.cfg.get('vanilla_tsv', ''))
+        script_dir = os.path.dirname(os.path.abspath(sys.argv[0])) or os.getcwd()
+        default_stats_path = os.path.join(script_dir, "AnimalStats.xlsx")
+        default_vanilla_source = self.cfg.get('vanilla_tsv', '')
+        if not default_vanilla_source and os.path.exists(default_stats_path):
+            default_vanilla_source = default_stats_path
+        self.vanilla_tsv = tk.StringVar(value=default_vanilla_source)
         self.ce_tsv = tk.StringVar(value=self.cfg.get('ce_tsv', ''))
         self.xml_paths, changed, dropped = self._normalize_xml_paths(self.cfg.get('xmls', []))
         if changed or dropped:
@@ -3420,12 +3790,12 @@ class GeneratorApp(tk.Tk):
         main.pack(fill='both', expand=True, padx=10, pady=10)
         v_frame = ttk.Frame(main)
         v_frame.pack(fill='x')
-        ttk.Label(v_frame, text="Vanilla TSV:").pack(side='left')
+        ttk.Label(v_frame, text="Vanilla table (TSV/XLSX):").pack(side='left')
         ttk.Entry(v_frame, textvariable=self.vanilla_tsv, width=80).pack(side='left', padx=6)
         ttk.Button(v_frame, text="Browse", command=self.pick_vanilla_tsv).pack(side='left')
         c_frame = ttk.Frame(main)
         c_frame.pack(fill='x', pady=5)
-        ttk.Label(c_frame, text="CE TSV:").pack(side='left')
+        ttk.Label(c_frame, text="CE table (TSV/XLSX, optional):").pack(side='left')
         ttk.Entry(c_frame, textvariable=self.ce_tsv, width=80).pack(side='left', padx=6)
         ttk.Button(c_frame, text="Browse", command=self.pick_ce_tsv).pack(side='left')
         mid = ttk.Frame(main)
@@ -3456,14 +3826,20 @@ class GeneratorApp(tk.Tk):
         ttk.Label(main, textvariable=self.status).pack(fill='x', pady=(8,0))
 
     def pick_vanilla_tsv(self):
-        p = filedialog.askopenfilename(title="Select Vanilla TSV", filetypes=[("TSV","*.tsv"),("All","*.*")])
+        p = filedialog.askopenfilename(
+            title="Select Vanilla table (TSV or AnimalStats.xlsx)",
+            filetypes=[("Tables", "*.tsv *.xlsx *.xlsm *.xls"), ("TSV", "*.tsv"), ("Excel", "*.xlsx *.xlsm *.xls"), ("All", "*.*")]
+        )
         if p:
             self.vanilla_tsv.set(p)
             self.cfg['vanilla_tsv'] = p
             save_config(self.cfg)
 
     def pick_ce_tsv(self):
-        p = filedialog.askopenfilename(title="Select CE TSV", filetypes=[("TSV","*.tsv"),("All","*.*")])
+        p = filedialog.askopenfilename(
+            title="Select CE table (TSV or AnimalStats.xlsx)",
+            filetypes=[("Tables", "*.tsv *.xlsx *.xlsm *.xls"), ("TSV", "*.tsv"), ("Excel", "*.xlsx *.xlsm *.xls"), ("All", "*.*")]
+        )
         if p:
             self.ce_tsv.set(p)
             self.cfg['ce_tsv'] = p
@@ -3539,10 +3915,10 @@ class GeneratorApp(tk.Tk):
             messagebox.showerror("Error", str(e))
 
     def run_generation(self):
-        v_tsv = self.vanilla_tsv.get()
-        c_tsv = self.ce_tsv.get() or None
-        if not v_tsv or not os.path.exists(v_tsv):
-            messagebox.showerror("Error", "Vanilla TSV missing or not found.")
+        v_source = self.vanilla_tsv.get()
+        c_source = self.ce_tsv.get() or None
+        if not v_source or not os.path.exists(v_source):
+            messagebox.showerror("Error", "Vanilla table missing or not found (TSV/XLSX).")
             return
         if not self.xml_paths:
             messagebox.showerror("Error", "No XML files selected.")
@@ -3555,29 +3931,33 @@ class GeneratorApp(tk.Tk):
             )
             if not proceed:
                 return
-        generator = PatchGenerator(v_tsv, c_tsv, self.xml_paths)
-        results = []
-        used_names = {}
-        for xml in self.xml_paths:
-            out_xml = xml if replace_in_place else self._make_unique_output_path(xml, used_names)
-            success = generator.generate_fixed_xml(xml, out_xml)
-            results.append((xml, out_xml, success))
-        if replace_in_place:
-            msg = "\n".join([f"{os.path.basename(x)} ({'OK' if s else 'FAILED'})" for x, _, s in results])
-            messagebox.showinfo("Done", f"Updated files in place:\n{msg}")
-            self.status.set(f"Processed {len(results)} file(s) in place.")
-        else:
-            msg = "\n".join([f"{os.path.basename(x)} → {os.path.basename(o)} ({'OK' if s else 'FAILED'})" for x, o, s in results])
-            messagebox.showinfo("Done", f"Generated patches:\n{msg}\n\nFolder: {self.report_dir}")
-            self.status.set(f"Processed {len(results)} file(s).")
+        try:
+            generator = PatchGenerator(v_source, c_source, self.xml_paths)
+            results = []
+            used_names = {}
+            for xml in self.xml_paths:
+                out_xml = xml if replace_in_place else self._make_unique_output_path(xml, used_names)
+                success = generator.generate_fixed_xml(xml, out_xml)
+                results.append((xml, out_xml, success))
+            if replace_in_place:
+                msg = "\n".join([f"{os.path.basename(x)} ({'OK' if s else 'FAILED'})" for x, _, s in results])
+                messagebox.showinfo("Done", f"Updated files in place:\n{msg}")
+                self.status.set(f"Processed {len(results)} file(s) in place.")
+            else:
+                msg = "\n".join([f"{os.path.basename(x)} → {os.path.basename(o)} ({'OK' if s else 'FAILED'})" for x, o, s in results])
+                messagebox.showinfo("Done", f"Generated patches:\n{msg}\n\nFolder: {self.report_dir}")
+                self.status.set(f"Processed {len(results)} file(s).")
+        except Exception as e:
+            traceback.print_exc()
+            messagebox.showerror("Error", str(e))
 
     def run_biome_generation(self):
-        v_tsv = self.vanilla_tsv.get()
-        if not v_tsv or not os.path.exists(v_tsv):
-            messagebox.showerror("Error", "Vanilla TSV missing or not found.")
+        v_source = self.vanilla_tsv.get()
+        if not v_source or not os.path.exists(v_source):
+            messagebox.showerror("Error", "Vanilla table missing or not found (TSV/XLSX).")
             return
         try:
-            generator = PatchGenerator(v_tsv, self.ce_tsv.get() or None, self.xml_paths)
+            generator = PatchGenerator(v_source, self.ce_tsv.get() or None, self.xml_paths)
             created = generator.generate_biome_patch_files(self.report_dir)
             if created:
                 preview = "\n".join([os.path.basename(p) for p in created[:20]])

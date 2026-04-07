@@ -7,11 +7,14 @@ namespace ZoologyMod
     {
         private readonly struct AcceptablePreyCacheEntry
         {
-            public AcceptablePreyCacheEntry(bool value, int tick)
+            public AcceptablePreyCacheEntry(long pairKey, bool value, int tick)
             {
+                PairKey = pairKey;
                 Value = value;
                 Tick = tick;
             }
+
+            public long PairKey { get; }
 
             public bool Value { get; }
 
@@ -20,11 +23,14 @@ namespace ZoologyMod
 
         private readonly struct PreyScoreCacheEntry
         {
-            public PreyScoreCacheEntry(float value, int tick)
+            public PreyScoreCacheEntry(long pairKey, float value, int tick)
             {
+                PairKey = pairKey;
                 Value = value;
                 Tick = tick;
             }
+
+            public long PairKey { get; }
 
             public float Value { get; }
 
@@ -33,19 +39,20 @@ namespace ZoologyMod
 
         private const int AcceptablePreyCacheDurationTicks = ZoologyTickLimiter.PredationDecision.AcceptablePreyCacheDurationTicks;
         private const int PreyScoreCacheDurationTicks = ZoologyTickLimiter.PredationDecision.PreyScoreCacheDurationTicks;
-        private const int CacheCleanupIntervalTicks = ZoologyTickLimiter.PredationDecision.CacheCleanupIntervalTicks;
+        private const int AcceptablePreyHotCacheSize = 32768;
+        private const int AcceptablePreyHotCacheMask = AcceptablePreyHotCacheSize - 1;
+        private const int PreyScoreHotCacheSize = 16384;
+        private const int PreyScoreHotCacheMask = PreyScoreHotCacheSize - 1;
 
-        private static readonly Dictionary<long, AcceptablePreyCacheEntry> acceptablePreyCacheByPairKey = new Dictionary<long, AcceptablePreyCacheEntry>(512);
-        private static readonly Dictionary<long, PreyScoreCacheEntry> preyScoreCacheByPairKey = new Dictionary<long, PreyScoreCacheEntry>(256);
-        private static int lastCleanupTick = -CacheCleanupIntervalTicks;
+        private static readonly AcceptablePreyCacheEntry[] acceptablePreyHotCacheSlots = new AcceptablePreyCacheEntry[AcceptablePreyHotCacheSize];
+        private static readonly PreyScoreCacheEntry[] preyScoreHotCacheSlots = new PreyScoreCacheEntry[PreyScoreHotCacheSize];
         private static Game runtimeCacheGame;
         private static int runtimeCacheLastTick = -1;
 
         public static void ClearAll()
         {
-            acceptablePreyCacheByPairKey.Clear();
-            preyScoreCacheByPairKey.Clear();
-            lastCleanupTick = -CacheCleanupIntervalTicks;
+            System.Array.Clear(acceptablePreyHotCacheSlots, 0, acceptablePreyHotCacheSlots.Length);
+            System.Array.Clear(preyScoreHotCacheSlots, 0, preyScoreHotCacheSlots.Length);
             runtimeCacheGame = Current.Game;
             runtimeCacheLastTick = Find.TickManager?.TicksGame ?? 0;
         }
@@ -56,11 +63,21 @@ namespace ZoologyMod
             long pairKey = PairKey(predator, prey);
             int currentTick = Find.TickManager?.TicksGame ?? 0;
             EnsureRuntimeState(currentTick);
-            return pairKey != 0L
-                && currentTick > 0
-                && acceptablePreyCacheByPairKey.TryGetValue(pairKey, out AcceptablePreyCacheEntry cached)
-                && currentTick - cached.Tick <= AcceptablePreyCacheDurationTicks
-                && (value = cached.Value) == cached.Value;
+            if (pairKey == 0L || currentTick <= 0)
+            {
+                return false;
+            }
+
+            int slotIndex = (int)((ulong)pairKey & AcceptablePreyHotCacheMask);
+            AcceptablePreyCacheEntry cached = acceptablePreyHotCacheSlots[slotIndex];
+            if (cached.PairKey != pairKey
+                || currentTick - cached.Tick > AcceptablePreyCacheDurationTicks)
+            {
+                return false;
+            }
+
+            value = cached.Value;
+            return true;
         }
 
         public static void StoreAcceptablePrey(Pawn predator, Pawn prey, bool value)
@@ -73,8 +90,8 @@ namespace ZoologyMod
                 return;
             }
 
-            acceptablePreyCacheByPairKey[pairKey] = new AcceptablePreyCacheEntry(value, currentTick);
-            CleanupIfNeeded(currentTick);
+            int slotIndex = (int)((ulong)pairKey & AcceptablePreyHotCacheMask);
+            acceptablePreyHotCacheSlots[slotIndex] = new AcceptablePreyCacheEntry(pairKey, value, currentTick);
         }
 
         public static bool TryGetPreyScore(Pawn predator, Pawn prey, out float value)
@@ -83,11 +100,21 @@ namespace ZoologyMod
             long pairKey = PairKey(predator, prey);
             int currentTick = Find.TickManager?.TicksGame ?? 0;
             EnsureRuntimeState(currentTick);
-            return pairKey != 0L
-                && currentTick > 0
-                && preyScoreCacheByPairKey.TryGetValue(pairKey, out PreyScoreCacheEntry cached)
-                && currentTick - cached.Tick <= PreyScoreCacheDurationTicks
-                && (value = cached.Value) == cached.Value;
+            if (pairKey == 0L || currentTick <= 0)
+            {
+                return false;
+            }
+
+            int slotIndex = (int)((ulong)pairKey & PreyScoreHotCacheMask);
+            PreyScoreCacheEntry cached = preyScoreHotCacheSlots[slotIndex];
+            if (cached.PairKey != pairKey
+                || currentTick - cached.Tick > PreyScoreCacheDurationTicks)
+            {
+                return false;
+            }
+
+            value = cached.Value;
+            return true;
         }
 
         public static void StorePreyScore(Pawn predator, Pawn prey, float value)
@@ -100,8 +127,8 @@ namespace ZoologyMod
                 return;
             }
 
-            preyScoreCacheByPairKey[pairKey] = new PreyScoreCacheEntry(value, currentTick);
-            CleanupIfNeeded(currentTick);
+            int slotIndex = (int)((ulong)pairKey & PreyScoreHotCacheMask);
+            preyScoreHotCacheSlots[slotIndex] = new PreyScoreCacheEntry(pairKey, value, currentTick);
         }
 
         private static void EnsureRuntimeState(int currentTick)
@@ -111,85 +138,14 @@ namespace ZoologyMod
             bool tickRewound = currentTick > 0 && runtimeCacheLastTick > 0 && currentTick < runtimeCacheLastTick;
             if (gameChanged || tickRewound)
             {
-                acceptablePreyCacheByPairKey.Clear();
-                preyScoreCacheByPairKey.Clear();
-                lastCleanupTick = -CacheCleanupIntervalTicks;
+                System.Array.Clear(acceptablePreyHotCacheSlots, 0, acceptablePreyHotCacheSlots.Length);
+                System.Array.Clear(preyScoreHotCacheSlots, 0, preyScoreHotCacheSlots.Length);
                 runtimeCacheGame = currentGame;
             }
 
             if (currentTick > 0)
             {
                 runtimeCacheLastTick = currentTick;
-            }
-        }
-
-        private static void CleanupIfNeeded(int currentTick)
-        {
-            if (currentTick - lastCleanupTick < CacheCleanupIntervalTicks)
-            {
-                return;
-            }
-
-            lastCleanupTick = currentTick;
-            CleanupAcceptablePreyCache(currentTick);
-            CleanupPreyScoreCache(currentTick);
-        }
-
-        private static void CleanupAcceptablePreyCache(int currentTick)
-        {
-            List<long> staleKeys = null;
-            foreach (KeyValuePair<long, AcceptablePreyCacheEntry> entry in acceptablePreyCacheByPairKey)
-            {
-                if (currentTick - entry.Value.Tick <= AcceptablePreyCacheDurationTicks)
-                {
-                    continue;
-                }
-
-                if (staleKeys == null)
-                {
-                    staleKeys = new List<long>(64);
-                }
-
-                staleKeys.Add(entry.Key);
-            }
-
-            if (staleKeys == null)
-            {
-                return;
-            }
-
-            for (int i = 0; i < staleKeys.Count; i++)
-            {
-                acceptablePreyCacheByPairKey.Remove(staleKeys[i]);
-            }
-        }
-
-        private static void CleanupPreyScoreCache(int currentTick)
-        {
-            List<long> staleKeys = null;
-            foreach (KeyValuePair<long, PreyScoreCacheEntry> entry in preyScoreCacheByPairKey)
-            {
-                if (currentTick - entry.Value.Tick <= PreyScoreCacheDurationTicks)
-                {
-                    continue;
-                }
-
-                if (staleKeys == null)
-                {
-                    staleKeys = new List<long>(64);
-                }
-
-                staleKeys.Add(entry.Key);
-            }
-
-            if (staleKeys == null)
-            {
-                return;
-            }
-
-            for (int i = 0; i < staleKeys.Count; i++)
-            {
-                preyScoreCacheByPairKey.Remove(staleKeys[i]);
             }
         }
 

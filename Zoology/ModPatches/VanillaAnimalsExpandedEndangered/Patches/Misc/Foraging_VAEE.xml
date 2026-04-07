@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Patch>
+
+	<!-- Rockhopper Penguin -> remove DigWhenHungry comp -->
+	<Operation Class="PatchOperationConditional">
+	  <xpath>/Defs/ThingDef[defName="AEXP_RockhopperPenguin"]/comps/li[@Class="VEF.AnimalBehaviours.CompProperties_DigWhenHungry"]</xpath>
+	  <match Class="PatchOperationRemove">
+		<xpath>/Defs/ThingDef[defName="AEXP_RockhopperPenguin"]/comps/li[@Class="VEF.AnimalBehaviours.CompProperties_DigWhenHungry"]</xpath>
+	  </match>
+	</Operation>
+
+	<!-- Remove Raw Fish defs -->
+	<Operation Class="PatchOperationConditional">
+	  <xpath>/Defs/ThingDef[@Name="AEXP_RawFishBase"]</xpath>
+	  <match Class="PatchOperationRemove">
+		<xpath>/Defs/ThingDef[@Name="AEXP_RawFishBase"]</xpath>
+	  </match>
+	</Operation>
+
+	<Operation Class="PatchOperationConditional">
+	  <xpath>/Defs/ThingDef[defName="AEXP_RawFish"]</xpath>
+	  <match Class="PatchOperationRemove">
+		<xpath>/Defs/ThingDef[defName="AEXP_RawFish"]</xpath>
+	  </match>
+	</Operation>
+
+</Patch>

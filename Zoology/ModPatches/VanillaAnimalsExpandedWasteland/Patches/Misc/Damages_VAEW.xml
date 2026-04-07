@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Patch>
+
+  <!-- Replace VAEWaste_FluBite -->
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/DamageDef[defName="VAEWaste_FluBite"]</xpath>
+    <value>
+      <DamageDef ParentName="Bite">
+        <defName>VAEWaste_FluBite</defName>
+        <label>toxflu bite</label>
+        <additionalHediffs>
+          <li>
+            <hediff>VAEWaste_Toxflu</hediff>
+            <severityPerDamageDealt>1</severityPerDamageDealt>
+            <victimSeverityScaling>ToxicResistance</victimSeverityScaling>
+            <inverseStatScaling>true</inverseStatScaling>
+            <victimSeverityScalingByInvBodySize>true</victimSeverityScalingByInvBodySize>
+          </li>
+        </additionalHediffs>
+        <applyAdditionalHediffsIfHuntingForFood>false</applyAdditionalHediffsIfHuntingForFood>
+        <impactSoundType>Toxic</impactSoundType>
+        <damageEffecter>Impact_Toxic</damageEffecter>
+      </DamageDef>
+    </value>
+  </Operation>
+
+  <!-- Replace VAEWaste_FluClaws -->
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/DamageDef[defName="VAEWaste_FluClaws"]</xpath>
+    <value>
+      <DamageDef ParentName="Scratch">
+        <defName>VAEWaste_FluClaws</defName>
+        <label>toxflu claws</label>
+        <additionalHediffs>
+          <li>
+            <hediff>VAEWaste_Toxflu</hediff>
+            <severityPerDamageDealt>1</severityPerDamageDealt>
+            <victimSeverityScaling>ToxicResistance</victimSeverityScaling>
+            <inverseStatScaling>true</inverseStatScaling>
+            <victimSeverityScalingByInvBodySize>true</victimSeverityScalingByInvBodySize>
+          </li>
+        </additionalHediffs>
+        <applyAdditionalHediffsIfHuntingForFood>false</applyAdditionalHediffsIfHuntingForFood>
+        <impactSoundType>Toxic</impactSoundType>
+        <damageEffecter>Impact_Toxic</damageEffecter>
+      </DamageDef>
+    </value>
+  </Operation>
+
+</Patch>

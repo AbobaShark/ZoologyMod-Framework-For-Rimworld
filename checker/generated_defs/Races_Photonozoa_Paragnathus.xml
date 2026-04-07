@@ -1,0 +1,135 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Defs>
+  <ThingDef ParentName="PhotonozoaThingBase">
+    <defName>Paragnathus</defName>
+    <label>paragnathus</label>
+    <description>The Paragnathus may seem terrifying against the backdrop of other herbivorous photonozoa, but it harbors no predatory intent. Beneath its segmented carapace moves a patient forager — calm, thoughtful, tireless. The blades on its tentacle-like tongues are not weapons, but tools: they delicately slice through dense vegetation with precise, measured motions, as if it is not feeding, but working.
+	
+	As it feeds, the Paragnathus observes. Observing, it adapts. Adapting, it endures. For the Paragnathus is not yet complete. What it becomes as it grows is not horror, but a vast, enduring force of life, shaped by time.</description>
+    <statBases>
+      <MoveSpeed>4.5</MoveSpeed>
+      <MarketValue>900</MarketValue>
+      <FilthRate>7</FilthRate>
+      <ArmorRating_Blunt>1.6</ArmorRating_Blunt>
+      <ArmorRating_Sharp>0.3</ArmorRating_Sharp>
+      <ArmorRating_Heat>0.25</ArmorRating_Heat>
+      <ComfyTemperatureMin>-165</ComfyTemperatureMin>
+    </statBases>
+    <race>
+      <body>Paragnahus</body>
+      <predator>false</predator>
+      <baseBodySize>1.25</baseBodySize>
+      <baseHungerRate>0.65</baseHungerRate>
+      <baseHealthScale>1.25</baseHealthScale>
+      <foodType>OmnivoreRoughAnimal, OvivoreAnimal</foodType>
+      <leatherDef>Leather_PhotonozoaS</leatherDef>
+      <nameOnTameChance>0</nameOnTameChance>
+      <specialTrainables>
+        <li MayRequire="Ludeon.RimWorld.Odyssey">Forage</li>
+      </specialTrainables>
+      <manhunterOnTameFailChance>0.025</manhunterOnTameFailChance>
+      <manhunterOnDamageChance>0.1</manhunterOnDamageChance>
+      <lifeExpectancy>3</lifeExpectancy>
+      <lifeStageAges>
+        <li>
+          <def>PhotonozoaLarvaSmall</def>
+          <minAge>0.0</minAge>
+        </li>
+        <li>
+          <def>PhotonozoaLarvaMedium</def>
+          <minAge>0.2</minAge>
+        </li>
+        <li>
+          <def>PhotonozoaLarvaLarge</def>
+          <minAge>0.4</minAge>
+          <soundWounded>Pawn_Cobra_Wounded</soundWounded>
+          <soundDeath>Pawn_Cobra_Death</soundDeath>
+          <soundCall>Pawn_Cobra_Call</soundCall>
+          <soundAngry>Pawn_Cobra_Angry</soundAngry>
+        </li>
+      </lifeStageAges>
+      <soundMeleeHitPawn>Pawn_Melee_SmallScratch_HitPawn</soundMeleeHitPawn>
+      <soundMeleeHitBuilding>Pawn_Melee_SmallScratch_HitBuilding</soundMeleeHitBuilding>
+      <soundMeleeMiss>Pawn_Melee_SmallScratch_Miss</soundMeleeMiss>
+      <soundEating>Reptile_Eat</soundEating>
+      <headPosPerRotation>
+        <li>(-0.03, 0, 0.35)</li>
+        <li>(0.03, 0, 0.36)</li>
+        <li>(-0.05, 0, 0.28)</li>
+        <li>(-0.03, 0, 0.36)</li>
+      </headPosPerRotation>
+      <canFishForFood>false</canFishForFood>
+      <trainability>None</trainability>
+    </race>
+    <modExtensions>
+      <li Class="PhotonozoaMod.PhotonozoaTerritorialExtension, PhotonozoaMod">
+        <isTerritorial>true</isTerritorial>
+        <targetAcquireRadius>6</targetAcquireRadius>
+        <targetKeepRadius>9</targetKeepRadius>
+      </li>
+      <li Class="PhotonozoaMod.PhotonozoaProperties">
+      </li>
+      <li Class="PhotonozoaMod.PhotonozoaRaceExtension, PhotonozoaMod">
+        <diet>Herbivore</diet>
+        <!-- Carnivore / Omnivore / Herbivore -->
+      </li>
+    </modExtensions>
+    <comps>
+      <li Class="PhotonozoaMod.CompProperties_PawnToCocoon, PhotonozoaMod">
+        <cocoonDef>ParagnathusCocoon</cocoonDef>
+        <jobDefToPupate>Pupate</jobDefToPupate>
+        <showMetamorphosisMessage>true</showMetamorphosisMessage>
+        <showMetamorphosisMessageTamed>true</showMetamorphosisMessageTamed>
+      </li>
+    </comps>
+    <tools>
+      <li>
+        <label>head</label>
+        <capacities>
+          <li>Blunt</li>
+        </capacities>
+        <power>8.5</power>
+        <cooldownTime>2.15</cooldownTime>
+        <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
+        <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
+        <chanceFactor>0.2</chanceFactor>
+      </li>
+      <li>
+        <label>tongue</label>
+        <capacities>
+          <li>Scratch</li>
+        </capacities>
+        <power>17.5</power>
+        <cooldownTime>1.7</cooldownTime>
+        <linkedBodyPartsGroup>TongueAttackTool</linkedBodyPartsGroup>
+      </li>
+    </tools>
+  </ThingDef>
+  <PawnKindDef ParentName="PhotonozoaKindBase">
+    <defName>Paragnathus</defName>
+    <label>paragnathus</label>
+    <race>Paragnathus</race>
+    <combatPower>235</combatPower>
+    <ecoSystemWeight>0.75</ecoSystemWeight>
+    <lifeStages>
+      <li>
+        <bodyGraphicData>
+          <texPath>Things/Pawn/Animal/Paragnathus/Paragnathus</texPath>
+          <drawSize>1.25</drawSize>
+        </bodyGraphicData>
+      </li>
+      <li>
+        <bodyGraphicData>
+          <texPath>Things/Pawn/Animal/Paragnathus/Paragnathus</texPath>
+          <drawSize>1.75</drawSize>
+        </bodyGraphicData>
+      </li>
+      <li>
+        <bodyGraphicData>
+          <texPath>Things/Pawn/Animal/Paragnathus/Paragnathus</texPath>
+          <drawSize>2.5</drawSize>
+        </bodyGraphicData>
+      </li>
+    </lifeStages>
+  </PawnKindDef>
+</Defs>

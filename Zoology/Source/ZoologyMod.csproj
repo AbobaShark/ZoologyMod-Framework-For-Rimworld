@@ -5,6 +5,7 @@
     <AssemblyName>ZoologyMod</AssemblyName>
     <RootNamespace>ZoologyMod</RootNamespace>
     <OutputPath>..\Assemblies</OutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
@@ -33,9 +34,14 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Lib.Harmony" Version="2.4.1" />
+    <PackageReference Include="Lib.Harmony" Version="2.4.1">
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="codex-build\**\*.cs" />
   </ItemGroup>
+  <Target Name="RemoveHarmonyFromOutput" AfterTargets="Build">
+    <Delete Files="$(TargetDir)0Harmony.dll" />
+  </Target>
 </Project>

@@ -1,0 +1,611 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<Patch>
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>Odyssey</li>
+    </mods>
+    <nomatch Class="PatchOperationSequence">
+      <operations>
+        <!-- Odyssey fallback body defs for VAE (only when Odyssey is absent) -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/BodyDef[defName="Pinniped"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs</xpath>
+            <value>
+				<BodyDef>
+					<defName>Pinniped</defName>
+					<label>pinniped</label>
+					<corePart>
+					  <def>Body</def>
+					  <height>Middle</height>
+					  <depth>Outside</depth>
+					  <parts>
+						<li>
+						  <def>Tail</def>
+						  <coverage>0.04</coverage>
+						</li>
+						<li>
+						  <def>Spine</def>
+						  <coverage>0.1</coverage>
+						  <depth>Inside</depth>
+						</li>
+						<li>
+						  <def>Stomach</def>
+						  <coverage>0.04</coverage>
+						  <depth>Inside</depth>
+						</li>
+						<li>
+						  <def>Heart</def>
+						  <coverage>0.03</coverage>
+						  <depth>Inside</depth>
+						</li>
+						<li>
+						  <def>Lung</def>
+						  <customLabel>left lung</customLabel>
+						  <coverage>0.04</coverage>
+						  <depth>Inside</depth>
+						</li>
+						<li>
+						  <def>Lung</def>
+						  <customLabel>right lung</customLabel>
+						  <coverage>0.04</coverage>
+						  <depth>Inside</depth>
+						</li>
+						<li>
+						  <def>Kidney</def>
+						  <customLabel>left kidney</customLabel>
+						  <coverage>0.03</coverage>
+						  <depth>Inside</depth>
+						</li>
+						<li>
+						  <def>Kidney</def>
+						  <customLabel>right kidney</customLabel>
+						  <coverage>0.03</coverage>
+						  <depth>Inside</depth>
+						</li>
+						<li>
+						  <def>Liver</def>
+						  <coverage>0.05</coverage>
+						  <depth>Inside</depth>
+						</li>
+						<li>
+						  <def>Neck</def>
+						  <coverage>0.15</coverage>
+						  <height>Top</height>
+						  <parts>
+							<li>
+							  <def>HeadWithEarHoles</def>
+							  <coverage>0.9</coverage>
+							  <groups>
+								<li>HeadAttackTool</li>
+							  </groups>
+							  <parts>
+								<li>
+								  <def>Skull</def>
+								  <coverage>0.60</coverage>
+								  <depth>Inside</depth>
+								  <parts>
+									<li>
+									  <def>Brain</def>
+									  <coverage>0.60</coverage>
+									  <depth>Inside</depth>
+									</li>
+								  </parts>
+								</li>
+								<li>
+								  <def>Eye</def>
+								  <customLabel>left eye</customLabel>
+								  <coverage>0.05</coverage>
+								</li>
+								<li>
+								  <def>Eye</def>
+								  <customLabel>right eye</customLabel>
+								  <coverage>0.05</coverage>
+								</li>
+								<li>
+								  <def>AnimalJaw</def>
+								  <coverage>0.10</coverage>
+								  <groups>
+									<li>Teeth</li>
+								  </groups>
+								</li>
+							  </parts>
+							</li>
+						  </parts>
+						</li>
+						<li>
+						  <def>Leg</def>
+						  <customLabel>left forelimb</customLabel>
+						  <coverage>0.03</coverage>
+						  <height>Bottom</height>
+						  <parts>
+							<li>
+							  <def>Paw</def>
+							  <customLabel>front left flipper</customLabel>
+							  <coverage>0.5</coverage>
+							  <groups>
+								<li>FrontLeftPaw</li>
+							  </groups>
+							</li>
+						  </parts>
+						</li>
+						<li>
+						  <def>Leg</def>
+						  <customLabel>right forelimb</customLabel>
+						  <coverage>0.03</coverage>
+						  <height>Bottom</height>
+						  <parts>
+							<li>
+							  <def>Paw</def>
+							  <customLabel>front right flipper</customLabel>
+							  <coverage>0.5</coverage>
+							  <groups>
+								<li>FrontRightPaw</li>
+							  </groups>
+							</li>
+						  </parts>
+						</li>
+						<li>
+						  <def>Leg</def>
+						  <customLabel>left hindlimb</customLabel>
+						  <coverage>0.05</coverage>
+						  <height>Bottom</height>
+						  <parts>
+							<li>
+							  <def>Paw</def>
+							  <customLabel>rear left flipper</customLabel>
+							  <coverage>0.5</coverage>
+							</li>
+						  </parts>
+						</li>
+						<li>
+						  <def>Leg</def>
+						  <customLabel>right hindlimb</customLabel>
+						  <coverage>0.05</coverage>
+						  <height>Bottom</height>
+						  <parts>
+							<li>
+							  <def>Paw</def>
+							  <customLabel>rear right flipper</customLabel>
+							  <coverage>0.5</coverage>
+							</li>
+						  </parts>
+						</li>
+					  </parts>
+					</corePart>
+				  </BodyDef>
+			  </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/BodyDef[defName="PinnipedWithTusks"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs</xpath>
+            <value>
+				<BodyDef>
+					<defName>PinnipedWithTusks</defName>
+					<label>pinniped</label>
+					<corePart>
+					  <def>Body</def>
+					  <height>Middle</height>
+					  <depth>Outside</depth>
+					  <parts>
+						<li>
+						  <def>Tail</def>
+						  <coverage>0.04</coverage>
+						</li>
+						<li>
+						  <def>Spine</def>
+						  <coverage>0.1</coverage>
+						  <depth>Inside</depth>
+						</li>
+						<li>
+						  <def>Stomach</def>
+						  <coverage>0.04</coverage>
+						  <depth>Inside</depth>
+						</li>
+						<li>
+						  <def>Heart</def>
+						  <coverage>0.03</coverage>
+						  <depth>Inside</depth>
+						</li>
+						<li>
+						  <def>Lung</def>
+						  <customLabel>left lung</customLabel>
+						  <coverage>0.04</coverage>
+						  <depth>Inside</depth>
+						</li>
+						<li>
+						  <def>Lung</def>
+						  <customLabel>right lung</customLabel>
+						  <coverage>0.04</coverage>
+						  <depth>Inside</depth>
+						</li>
+						<li>
+						  <def>Kidney</def>
+						  <customLabel>left kidney</customLabel>
+						  <coverage>0.03</coverage>
+						  <depth>Inside</depth>
+						</li>
+						<li>
+						  <def>Kidney</def>
+						  <customLabel>right kidney</customLabel>
+						  <coverage>0.03</coverage>
+						  <depth>Inside</depth>
+						</li>
+						<li>
+						  <def>Liver</def>
+						  <coverage>0.05</coverage>
+						  <depth>Inside</depth>
+						</li>
+						<li>
+						  <def>Neck</def>
+						  <coverage>0.15</coverage>
+						  <height>Top</height>
+						  <parts>
+							<li>
+							  <def>HeadWithEarHoles</def>
+							  <coverage>0.9</coverage>
+							  <groups>
+								<li>HeadAttackTool</li>
+							  </groups>
+							  <parts>
+								<li>
+								  <def>Skull</def>
+								  <coverage>0.60</coverage>
+								  <depth>Inside</depth>
+								  <parts>
+									<li>
+									  <def>Brain</def>
+									  <coverage>0.60</coverage>
+									  <depth>Inside</depth>
+									</li>
+								  </parts>
+								</li>
+								<li>
+								  <def>Eye</def>
+								  <customLabel>left eye</customLabel>
+								  <coverage>0.05</coverage>
+								</li>
+								<li>
+								  <def>Eye</def>
+								  <customLabel>right eye</customLabel>
+								  <coverage>0.05</coverage>
+								</li>
+								<li>
+								  <def>AnimalJaw</def>
+								  <coverage>0.10</coverage>
+								  <groups>
+									<li>Teeth</li>
+								  </groups>
+								</li>
+								<li>
+								  <def>Tusk</def>
+								  <coverage>0.05</coverage>
+								  <customLabel>left tusk</customLabel>
+								  <groups>
+									<li>TuskAttackTool</li>
+								  </groups>
+								</li>
+								<li>
+								  <def>Tusk</def>
+								  <coverage>0.05</coverage>
+								  <customLabel>right tusk</customLabel>
+								  <groups>
+									<li>TuskAttackTool</li>
+								  </groups>
+								</li>
+							  </parts>
+							</li>
+						  </parts>
+						</li>
+						<li>
+						  <def>Leg</def>
+						  <customLabel>left forelimb</customLabel>
+						  <coverage>0.03</coverage>
+						  <height>Bottom</height>
+						  <parts>
+							<li>
+							  <def>Paw</def>
+							  <customLabel>front left flipper</customLabel>
+							  <coverage>0.5</coverage>
+							  <groups>
+								<li>FrontLeftPaw</li>
+							  </groups>
+							</li>
+						  </parts>
+						</li>
+						<li>
+						  <def>Leg</def>
+						  <customLabel>right forelimb</customLabel>
+						  <coverage>0.03</coverage>
+						  <height>Bottom</height>
+						  <parts>
+							<li>
+							  <def>Paw</def>
+							  <customLabel>front right flipper</customLabel>
+							  <coverage>0.5</coverage>
+							  <groups>
+								<li>FrontRightPaw</li>
+							  </groups>
+							</li>
+						  </parts>
+						</li>
+						<li>
+						  <def>Leg</def>
+						  <customLabel>left hindlimb</customLabel>
+						  <coverage>0.05</coverage>
+						  <height>Bottom</height>
+						  <parts>
+							<li>
+							  <def>Paw</def>
+							  <customLabel>rear left flipper</customLabel>
+							  <coverage>0.5</coverage>
+							</li>
+						  </parts>
+						</li>
+						<li>
+						  <def>Leg</def>
+						  <customLabel>right hindlimb</customLabel>
+						  <coverage>0.05</coverage>
+						  <height>Bottom</height>
+						  <parts>
+							<li>
+							  <def>Paw</def>
+							  <customLabel>rear right flipper</customLabel>
+							  <coverage>0.5</coverage>
+							</li>
+						  </parts>
+						</li>
+					  </parts>
+					</corePart>
+			  </BodyDef>
+			</value>
+          </nomatch>
+        </li>
+		
+        <!-- CE adjustments for fallback body defs (only when CE present) -->
+        <li Class="PatchOperationFindMod">
+          <mods>
+            <li>Combat Extended</li>
+          </mods>
+          <match Class="PatchOperationSequence">
+            <operations>
+				<li Class="PatchOperationConditional">
+					<xpath>Defs/BodyDef[defName="Pinniped"]/corePart/groups</xpath>
+					<nomatch Class="PatchOperationAdd">
+						<xpath>Defs/BodyDef[defName="Pinniped"]/corePart</xpath>
+						<value>
+							<groups/>
+						</value>
+					</nomatch>
+				</li>
+			<li Class="PatchOperationConditional">
+				<xpath>Defs/BodyDef[defName="Pinniped"]/corePart/parts/li[def="Tail"]/groups</xpath>
+				<nomatch Class="PatchOperationAdd">
+					<xpath>Defs/BodyDef[defName="Pinniped"]/corePart/parts/li[def="Tail"]</xpath>
+					<value>
+						<groups/>
+					</value>
+				</nomatch>
+			</li>
+			<li Class="PatchOperationConditional">
+				<xpath>Defs/BodyDef[defName="Pinniped"]/corePart/parts/li[def="Neck"]/groups</xpath>
+				<nomatch Class="PatchOperationAdd">
+					<xpath>Defs/BodyDef[defName="Pinniped"]/corePart/parts/li[def="Neck"]</xpath>
+					<value>
+						<groups/>
+					</value>
+				</nomatch>
+			</li>
+			<li Class="PatchOperationConditional">
+				<xpath>Defs/BodyDef[defName="Pinniped"]/corePart/parts/li[def="Neck"]/parts/li[def="HeadWithEarHoles"]/groups</xpath>
+				<nomatch Class="PatchOperationAdd">
+					<xpath>Defs/BodyDef[defName="Pinniped"]/corePart/parts/li[def="Neck"]/parts/li[def="HeadWithEarHoles"]</xpath>
+					<value>
+						<groups/>
+					</value>
+				</nomatch>
+			</li>
+			<li Class="PatchOperationConditional">
+				<xpath>Defs/BodyDef[defName="Pinniped"]/corePart/parts/li[def="Neck"]/parts/li[def="HeadWithEarHoles"]/parts/li[def="AnimalJaw"]/groups</xpath>
+				<nomatch Class="PatchOperationAdd">
+					<xpath>Defs/BodyDef[defName="Pinniped"]/corePart/parts/li[def="Neck"]/parts/li[def="HeadWithEarHoles"]/parts/li[def="AnimalJaw"]</xpath>
+					<value>
+						<groups/>
+					</value>
+				</nomatch>
+			</li>
+			<li Class="PatchOperationConditional">
+				<xpath>Defs/BodyDef[defName="Pinniped"]/corePart/parts/li[def="Leg"]/groups</xpath>
+				<nomatch Class="PatchOperationAdd">
+					<xpath>Defs/BodyDef[defName="Pinniped"]/corePart/parts/li[def="Leg"]</xpath>
+					<value>
+						<groups/>
+					</value>
+				</nomatch>
+			</li>
+			<li Class="PatchOperationConditional">
+				<xpath>Defs/BodyDef[defName="Pinniped"]/corePart/parts/li[def="Leg"]/parts/li[def="Paw"]/groups</xpath>
+				<nomatch Class="PatchOperationAdd">
+					<xpath>Defs/BodyDef[defName="Pinniped"]/corePart/parts/li[def="Leg"]/parts/li[def="Paw"]</xpath>
+					<value>
+						<groups/>
+					</value>
+				</nomatch>
+			</li>
+			<li Class="PatchOperationAdd">
+				<xpath>Defs/BodyDef[defName="Pinniped"]/corePart/groups</xpath>
+				<value>
+					<li>CoveredByNaturalArmor</li>
+				</value>
+			</li>
+			<li Class="PatchOperationAdd">
+				<xpath>Defs/BodyDef[defName="Pinniped"]/corePart/parts/li[def="Tail"]/groups</xpath>
+				<value>
+					<li>CoveredByNaturalArmor</li>
+				</value>
+			</li>
+
+			<li Class="PatchOperationAdd">
+				<xpath>Defs/BodyDef[defName="Pinniped"]/corePart/parts/li[def="Neck"]/groups</xpath>
+				<value>
+					<li>CoveredByNaturalArmor</li>
+				</value>
+			</li>
+
+			<li Class="PatchOperationAdd">
+				<xpath>Defs/BodyDef[defName="Pinniped"]/corePart/parts/li[def="Neck"]/parts/li[def="HeadWithEarHoles"]/groups</xpath>
+				<value>
+					<li>CoveredByNaturalArmor</li>
+				</value>
+			</li>
+
+			<li Class="PatchOperationAdd">
+				<xpath>Defs/BodyDef[defName="Pinniped"]/corePart/parts/li[def="Neck"]/parts/li[def="HeadWithEarHoles"]/parts/li[def="AnimalJaw"]/groups</xpath>
+				<value>
+					<li>CoveredByNaturalArmor</li>
+				</value>
+			</li>
+
+			<li Class="PatchOperationAdd">
+				<xpath>Defs/BodyDef[defName="Pinniped"]/corePart/parts/li[def="Leg"]/groups</xpath>
+				<value>
+					<li>CoveredByNaturalArmor</li>
+				</value>
+			</li>
+
+			<li Class="PatchOperationAdd">
+				<xpath>Defs/BodyDef[defName="Pinniped"]/corePart/parts/li[def="Leg"]/parts/li[def="Paw"]/groups</xpath>
+				<value>
+					<li>CoveredByNaturalArmor</li>
+				</value>
+			</li>
+
+			<li Class="PatchOperationConditional">
+					<xpath>Defs/BodyDef[defName="PinnipedWithTusks"]/corePart/groups</xpath>
+					<nomatch Class="PatchOperationAdd">
+						<xpath>Defs/BodyDef[defName="PinnipedWithTusks"]/corePart</xpath>
+						<value>
+							<groups/>
+						</value>
+					</nomatch>
+				</li>
+				<li Class="PatchOperationConditional">
+					<xpath>Defs/BodyDef[defName="PinnipedWithTusks"]/corePart/parts/li[def="Tail"]/groups</xpath>
+					<nomatch Class="PatchOperationAdd">
+						<xpath>Defs/BodyDef[defName="PinnipedWithTusks"]/corePart/parts/li[def="Tail"]</xpath>
+						<value>
+							<groups/>
+						</value>
+					</nomatch>
+				</li>
+				<li Class="PatchOperationConditional">
+					<xpath>Defs/BodyDef[defName="PinnipedWithTusks"]/corePart/parts/li[def="Neck"]/groups</xpath>
+					<nomatch Class="PatchOperationAdd">
+						<xpath>Defs/BodyDef[defName="PinnipedWithTusks"]/corePart/parts/li[def="Neck"]</xpath>
+						<value>
+							<groups/>
+						</value>
+					</nomatch>
+				</li>
+				<li Class="PatchOperationConditional">
+					<xpath>Defs/BodyDef[defName="PinnipedWithTusks"]/corePart/parts/li[def="Neck"]/parts/li[def="HeadWithEarHoles"]/groups</xpath>
+					<nomatch Class="PatchOperationAdd">
+						<xpath>Defs/BodyDef[defName="PinnipedWithTusks"]/corePart/parts/li[def="Neck"]/parts/li[def="HeadWithEarHoles"]</xpath>
+						<value>
+							<groups/>
+						</value>
+					</nomatch>
+				</li>
+				<li Class="PatchOperationConditional">
+					<xpath>Defs/BodyDef[defName="PinnipedWithTusks"]/corePart/parts/li[def="Neck"]/parts/li[def="HeadWithEarHoles"]/parts/li[def="AnimalJaw"]/groups</xpath>
+					<nomatch Class="PatchOperationAdd">
+						<xpath>Defs/BodyDef[defName="PinnipedWithTusks"]/corePart/parts/li[def="Neck"]/parts/li[def="HeadWithEarHoles"]/parts/li[def="AnimalJaw"]</xpath>
+						<value>
+							<groups/>
+						</value>
+					</nomatch>
+				</li>
+				<li Class="PatchOperationConditional">
+					<xpath>Defs/BodyDef[defName="PinnipedWithTusks"]/corePart/parts/li[def="Neck"]/parts/li[def="HeadWithEarHoles"]/parts/li[def="Tusk"]/groups</xpath>
+					<nomatch Class="PatchOperationAdd">
+						<xpath>Defs/BodyDef[defName="PinnipedWithTusks"]/corePart/parts/li[def="Neck"]/parts/li[def="HeadWithEarHoles"]/parts/li[def="Tusk"]</xpath>
+						<value>
+							<groups/>
+						</value>
+					</nomatch>
+				</li>
+				<li Class="PatchOperationConditional">
+					<xpath>Defs/BodyDef[defName="PinnipedWithTusks"]/corePart/parts/li[def="Leg"]/groups</xpath>
+					<nomatch Class="PatchOperationAdd">
+						<xpath>Defs/BodyDef[defName="PinnipedWithTusks"]/corePart/parts/li[def="Leg"]</xpath>
+						<value>
+							<groups/>
+						</value>
+					</nomatch>
+				</li>
+				<li Class="PatchOperationConditional">
+					<xpath>Defs/BodyDef[defName="PinnipedWithTusks"]/corePart/parts/li[def="Leg"]/parts/li[def="Paw"]/groups</xpath>
+					<nomatch Class="PatchOperationAdd">
+						<xpath>Defs/BodyDef[defName="PinnipedWithTusks"]/corePart/parts/li[def="Leg"]/parts/li[def="Paw"]</xpath>
+						<value>
+							<groups/>
+						</value>
+					</nomatch>
+				</li>
+				<li Class="PatchOperationAdd">
+					<xpath>Defs/BodyDef[defName="PinnipedWithTusks"]/corePart/groups</xpath>
+					<value>
+						<li>CoveredByNaturalArmor</li>
+					</value>
+				</li>
+				<li Class="PatchOperationAdd">
+					<xpath>Defs/BodyDef[defName="PinnipedWithTusks"]/corePart/parts/li[def="Tail"]/groups</xpath>
+					<value>
+						<li>CoveredByNaturalArmor</li>
+					</value>
+				</li>
+				<li Class="PatchOperationAdd">
+					<xpath>Defs/BodyDef[defName="PinnipedWithTusks"]/corePart/parts/li[def="Neck"]/groups</xpath>
+					<value>
+						<li>CoveredByNaturalArmor</li>
+					</value>
+				</li>
+				<li Class="PatchOperationAdd">
+					<xpath>Defs/BodyDef[defName="PinnipedWithTusks"]/corePart/parts/li[def="Neck"]/parts/li[def="HeadWithEarHoles"]/groups</xpath>
+					<value>
+						<li>CoveredByNaturalArmor</li>
+					</value>
+				</li>
+				<li Class="PatchOperationAdd">
+					<xpath>Defs/BodyDef[defName="PinnipedWithTusks"]/corePart/parts/li[def="Neck"]/parts/li[def="HeadWithEarHoles"]/parts/li[def="AnimalJaw"]/groups</xpath>
+					<value>
+						<li>CoveredByNaturalArmor</li>
+					</value>
+				</li>
+				<li Class="PatchOperationAdd">
+					<xpath>Defs/BodyDef[defName="PinnipedWithTusks"]/corePart/parts/li[def="Neck"]/parts/li[def="HeadWithEarHoles"]/parts/li[def="Tusk"]/groups</xpath>
+					<value>
+						<li>CoveredByNaturalArmor</li>
+					</value>
+				</li>
+				<li Class="PatchOperationAdd">
+					<xpath>Defs/BodyDef[defName="PinnipedWithTusks"]/corePart/parts/li[def="Leg"]/groups</xpath>
+					<value>
+						<li>CoveredByNaturalArmor</li>
+					</value>
+				</li>
+				<li Class="PatchOperationAdd">
+					<xpath>Defs/BodyDef[defName="PinnipedWithTusks"]/corePart/parts/li[def="Leg"]/parts/li[def="Paw"]/groups</xpath>
+					<value>
+						<li>CoveredByNaturalArmor</li>
+					</value>
+				</li>
+			</operations>
+          </match>
+        </li>
+      </operations>
+    </nomatch>
+  </Operation>
+</Patch>

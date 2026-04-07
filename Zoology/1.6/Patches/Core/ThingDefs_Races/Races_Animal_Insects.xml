@@ -171,6 +171,18 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[@Name = "BaseInsect"]/race/leatherDef</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[@Name = "BaseInsect"]/race/leatherDef</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[@Name = "BaseInsect"]/race/useLeatherFrom</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[@Name = "BaseInsect"]/race/useLeatherFrom</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[@Name = "BaseInsect"]/race/manhunterOnTameFailChance</xpath>
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[@Name = "BaseInsect"]/race/manhunterOnTameFailChance</xpath>
@@ -186,21 +198,6 @@
     </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[@Name = "BaseInsect"]/race/manhunterOnTameFailChance</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[@Name = "BaseInsect"]/race/manhunterOnTameFailChance</xpath>
-      <value>
-        <manhunterOnTameFailChance>1.000</manhunterOnTameFailChance>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[@Name = "BaseInsect"]/race</xpath>
-      <value>
-        <manhunterOnTameFailChance>1.000</manhunterOnTameFailChance>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[@Name = "BaseInsect"]/race/manhunterOnDamageChance</xpath>
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[@Name = "BaseInsect"]/race/manhunterOnDamageChance</xpath>
@@ -212,21 +209,6 @@
       <xpath>/Defs/ThingDef[@Name = "BaseInsect"]/race</xpath>
       <value>
         <manhunterOnDamageChance>1</manhunterOnDamageChance>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[@Name = "BaseInsect"]/race/manhunterOnDamageChance</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[@Name = "BaseInsect"]/race/manhunterOnDamageChance</xpath>
-      <value>
-        <manhunterOnDamageChance>1.000</manhunterOnDamageChance>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[@Name = "BaseInsect"]/race</xpath>
-      <value>
-        <manhunterOnDamageChance>1.000</manhunterOnDamageChance>
       </value>
     </nomatch>
   </Operation>
@@ -351,6 +333,12 @@
     </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[@Name = "BaseInsect"]/race/useMeatFrom</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[@Name = "BaseInsect"]/race/useMeatFrom</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[@Name = "BaseInsect"]/race/lifeStageAges</xpath>
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[@Name = "BaseInsect"]/race/lifeStageAges</xpath>
@@ -431,6 +419,16 @@
     </match>
   </Operation>
   <!-- Megascarab -->
+  <Operation Class="PatchOperationAttributeSet">
+    <xpath>/Defs/ThingDef[defName = "Megascarab"]</xpath>
+    <attribute>ParentName</attribute>
+    <value>BaseInsect</value>
+  </Operation>
+  <Operation Class="PatchOperationAttributeSet">
+    <xpath>/Defs/PawnKindDef[defName = "Megascarab"]</xpath>
+    <attribute>ParentName</attribute>
+    <value>InsectKindBase</value>
+  </Operation>
   <!-- Megascarab StatBases -->
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Megascarab"]/statBases</xpath>
@@ -518,13 +516,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Megascarab"]/statBases/ArmorRating_Blunt</xpath>
       <value>
-        <ArmorRating_Blunt>0.05</ArmorRating_Blunt>
+        <ArmorRating_Blunt>0.1</ArmorRating_Blunt>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Megascarab"]/statBases</xpath>
       <value>
-        <ArmorRating_Blunt>0.05</ArmorRating_Blunt>
+        <ArmorRating_Blunt>0.1</ArmorRating_Blunt>
       </value>
     </nomatch>
   </Operation>
@@ -533,13 +531,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Megascarab"]/statBases/ArmorRating_Sharp</xpath>
       <value>
-        <ArmorRating_Sharp>0.40</ArmorRating_Sharp>
+        <ArmorRating_Sharp>0.4</ArmorRating_Sharp>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Megascarab"]/statBases</xpath>
       <value>
-        <ArmorRating_Sharp>0.40</ArmorRating_Sharp>
+        <ArmorRating_Sharp>0.4</ArmorRating_Sharp>
       </value>
     </nomatch>
   </Operation>
@@ -565,8 +563,8 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>5.0</power>
-          <cooldownTime>1.70</cooldownTime>
+          <power>5</power>
+          <cooldownTime>1.7</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
           <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
           <chanceFactor>0.2</chanceFactor>
@@ -576,7 +574,7 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>15.0</power>
+          <power>15</power>
           <cooldownTime>2.05</cooldownTime>
           <linkedBodyPartsGroup>Mouth</linkedBodyPartsGroup>
           <surpriseAttack>
@@ -636,13 +634,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Megascarab"]/race/baseHungerRate</xpath>
       <value>
-        <baseHungerRate>0.10</baseHungerRate>
+        <baseHungerRate>0.1</baseHungerRate>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Megascarab"]/race</xpath>
       <value>
-        <baseHungerRate>0.10</baseHungerRate>
+        <baseHungerRate>0.1</baseHungerRate>
       </value>
     </nomatch>
   </Operation>
@@ -695,6 +693,12 @@
     <xpath>/Defs/ThingDef[defName = "Megascarab"]/race/leatherDef</xpath>
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Megascarab"]/race/leatherDef</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Megascarab"]/race/useLeatherFrom</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Megascarab"]/race/useLeatherFrom</xpath>
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
@@ -800,6 +804,27 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Megascarab"]/race/useMeatFrom</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "Megascarab"]/race/useMeatFrom</xpath>
+      <value>
+        <useMeatFrom>Megaspider</useMeatFrom>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "Megascarab"]/race</xpath>
+      <value>
+        <useMeatFrom>Megaspider</useMeatFrom>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Megascarab"]/race/wildBiomes</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Megascarab"]/race/wildBiomes</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Megascarab"]/race/lifeStageAges/li[def = 'EusocialInsectJuvenile']</xpath>
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Megascarab"]/race/lifeStageAges/li[def = 'EusocialInsectJuvenile']/minAge</xpath>
@@ -814,7 +839,7 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Megascarab"]/race/lifeStageAges/li[def = 'EusocialInsectAdult']/minAge</xpath>
       <value>
-        <minAge>0.30</minAge>
+        <minAge>0.3</minAge>
       </value>
     </match>
     <nomatch/>
@@ -871,13 +896,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "Megascarab"]/ecoSystemWeight</xpath>
       <value>
-        <ecoSystemWeight>0.20</ecoSystemWeight>
+        <ecoSystemWeight>0.2</ecoSystemWeight>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "Megascarab"]</xpath>
       <value>
-        <ecoSystemWeight>0.20</ecoSystemWeight>
+        <ecoSystemWeight>0.2</ecoSystemWeight>
       </value>
     </nomatch>
   </Operation>
@@ -909,6 +934,16 @@
     </match>
   </Operation>
   <!-- Spelopede -->
+  <Operation Class="PatchOperationAttributeSet">
+    <xpath>/Defs/ThingDef[defName = "Spelopede"]</xpath>
+    <attribute>ParentName</attribute>
+    <value>BaseInsect</value>
+  </Operation>
+  <Operation Class="PatchOperationAttributeSet">
+    <xpath>/Defs/PawnKindDef[defName = "Spelopede"]</xpath>
+    <attribute>ParentName</attribute>
+    <value>InsectKindBase</value>
+  </Operation>
   <!-- Spelopede StatBases -->
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Spelopede"]/statBases</xpath>
@@ -924,13 +959,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Spelopede"]/statBases/MarketValue</xpath>
       <value>
-        <MarketValue>900</MarketValue>
+        <MarketValue>725</MarketValue>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Spelopede"]/statBases</xpath>
       <value>
-        <MarketValue>900</MarketValue>
+        <MarketValue>725</MarketValue>
       </value>
     </nomatch>
   </Operation>
@@ -996,13 +1031,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Spelopede"]/statBases/ArmorRating_Blunt</xpath>
       <value>
-        <ArmorRating_Blunt>0.10</ArmorRating_Blunt>
+        <ArmorRating_Blunt>0.1</ArmorRating_Blunt>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Spelopede"]/statBases</xpath>
       <value>
-        <ArmorRating_Blunt>0.10</ArmorRating_Blunt>
+        <ArmorRating_Blunt>0.1</ArmorRating_Blunt>
       </value>
     </nomatch>
   </Operation>
@@ -1011,13 +1046,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Spelopede"]/statBases/ArmorRating_Sharp</xpath>
       <value>
-        <ArmorRating_Sharp>0.70</ArmorRating_Sharp>
+        <ArmorRating_Sharp>0.7</ArmorRating_Sharp>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Spelopede"]/statBases</xpath>
       <value>
-        <ArmorRating_Sharp>0.70</ArmorRating_Sharp>
+        <ArmorRating_Sharp>0.7</ArmorRating_Sharp>
       </value>
     </nomatch>
   </Operation>
@@ -1044,7 +1079,7 @@
             <li>Blunt</li>
           </capacities>
           <power>9.5</power>
-          <cooldownTime>2.30</cooldownTime>
+          <cooldownTime>2.3</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
           <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
           <chanceFactor>0.2</chanceFactor>
@@ -1055,8 +1090,8 @@
           <capacities>
             <li>Scratch</li>
           </capacities>
-          <power>23.0</power>
-          <cooldownTime>2.50</cooldownTime>
+          <power>23</power>
+          <cooldownTime>2.5</cooldownTime>
           <linkedBodyPartsGroup>HeadClaw</linkedBodyPartsGroup>
           <surpriseAttack>
             <extraMeleeDamages>
@@ -1072,7 +1107,7 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>28.0</power>
+          <power>28</power>
           <cooldownTime>2.75</cooldownTime>
           <linkedBodyPartsGroup>Mouth</linkedBodyPartsGroup>
           <surpriseAttack>
@@ -1117,13 +1152,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Spelopede"]/race/baseHealthScale</xpath>
       <value>
-        <baseHealthScale>1.50</baseHealthScale>
+        <baseHealthScale>1.5</baseHealthScale>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Spelopede"]/race</xpath>
       <value>
-        <baseHealthScale>1.50</baseHealthScale>
+        <baseHealthScale>1.5</baseHealthScale>
       </value>
     </nomatch>
   </Operation>
@@ -1132,13 +1167,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Spelopede"]/race/baseHungerRate</xpath>
       <value>
-        <baseHungerRate>0.20</baseHungerRate>
+        <baseHungerRate>0.2</baseHungerRate>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Spelopede"]/race</xpath>
       <value>
-        <baseHungerRate>0.20</baseHungerRate>
+        <baseHungerRate>0.2</baseHungerRate>
       </value>
     </nomatch>
   </Operation>
@@ -1191,6 +1226,12 @@
     <xpath>/Defs/ThingDef[defName = "Spelopede"]/race/leatherDef</xpath>
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Spelopede"]/race/leatherDef</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Spelopede"]/race/useLeatherFrom</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Spelopede"]/race/useLeatherFrom</xpath>
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
@@ -1296,6 +1337,27 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Spelopede"]/race/useMeatFrom</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "Spelopede"]/race/useMeatFrom</xpath>
+      <value>
+        <useMeatFrom>Megaspider</useMeatFrom>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "Spelopede"]/race</xpath>
+      <value>
+        <useMeatFrom>Megaspider</useMeatFrom>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Spelopede"]/race/wildBiomes</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Spelopede"]/race/wildBiomes</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Spelopede"]/race/lifeStageAges/li[def = 'EusocialInsectJuvenile']</xpath>
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Spelopede"]/race/lifeStageAges/li[def = 'EusocialInsectJuvenile']/minAge</xpath>
@@ -1310,7 +1372,7 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Spelopede"]/race/lifeStageAges/li[def = 'EusocialInsectAdult']/minAge</xpath>
       <value>
-        <minAge>0.30</minAge>
+        <minAge>0.3</minAge>
       </value>
     </match>
     <nomatch/>
@@ -1352,13 +1414,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "Spelopede"]/combatPower</xpath>
       <value>
-        <combatPower>260</combatPower>
+        <combatPower>185</combatPower>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "Spelopede"]</xpath>
       <value>
-        <combatPower>260</combatPower>
+        <combatPower>185</combatPower>
       </value>
     </nomatch>
   </Operation>
@@ -1405,6 +1467,16 @@
     </match>
   </Operation>
   <!-- Megaspider -->
+  <Operation Class="PatchOperationAttributeSet">
+    <xpath>/Defs/ThingDef[defName = "Megaspider"]</xpath>
+    <attribute>ParentName</attribute>
+    <value>BaseInsect</value>
+  </Operation>
+  <Operation Class="PatchOperationAttributeSet">
+    <xpath>/Defs/PawnKindDef[defName = "Megaspider"]</xpath>
+    <attribute>ParentName</attribute>
+    <value>InsectKindBase</value>
+  </Operation>
   <!-- Megaspider StatBases -->
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Megaspider"]/statBases</xpath>
@@ -1420,13 +1492,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Megaspider"]/statBases/MarketValue</xpath>
       <value>
-        <MarketValue>1300</MarketValue>
+        <MarketValue>1050</MarketValue>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Megaspider"]/statBases</xpath>
       <value>
-        <MarketValue>1300</MarketValue>
+        <MarketValue>1050</MarketValue>
       </value>
     </nomatch>
   </Operation>
@@ -1492,13 +1564,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Megaspider"]/statBases/ArmorRating_Blunt</xpath>
       <value>
-        <ArmorRating_Blunt>0.10</ArmorRating_Blunt>
+        <ArmorRating_Blunt>0.1</ArmorRating_Blunt>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Megaspider"]/statBases</xpath>
       <value>
-        <ArmorRating_Blunt>0.10</ArmorRating_Blunt>
+        <ArmorRating_Blunt>0.1</ArmorRating_Blunt>
       </value>
     </nomatch>
   </Operation>
@@ -1507,13 +1579,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Megaspider"]/statBases/ArmorRating_Sharp</xpath>
       <value>
-        <ArmorRating_Sharp>0.90</ArmorRating_Sharp>
+        <ArmorRating_Sharp>0.9</ArmorRating_Sharp>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Megaspider"]/statBases</xpath>
       <value>
-        <ArmorRating_Sharp>0.90</ArmorRating_Sharp>
+        <ArmorRating_Sharp>0.9</ArmorRating_Sharp>
       </value>
     </nomatch>
   </Operation>
@@ -1539,21 +1611,39 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>13.0</power>
+          <power>13</power>
           <cooldownTime>2.55</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
           <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
           <chanceFactor>0.2</chanceFactor>
         </li>
         <li>
-          <label>head claw</label>
-          <labelNoLocation>claw</labelNoLocation>
+          <label>left pincer</label>
+          <labelNoLocation>pincer</labelNoLocation>
           <capacities>
             <li>Scratch</li>
           </capacities>
           <power>31.5</power>
-          <cooldownTime>2.80</cooldownTime>
-          <linkedBodyPartsGroup>HeadClaw</linkedBodyPartsGroup>
+          <cooldownTime>2.8</cooldownTime>
+          <linkedBodyPartsGroup>LeftPincer</linkedBodyPartsGroup>
+          <surpriseAttack>
+            <extraMeleeDamages>
+              <li>
+                <def>Stun</def>
+                <amount>25</amount>
+              </li>
+            </extraMeleeDamages>
+          </surpriseAttack>
+        </li>
+        <li>
+          <label>right pincer</label>
+          <labelNoLocation>pincer</labelNoLocation>
+          <capacities>
+            <li>Scratch</li>
+          </capacities>
+          <power>31.5</power>
+          <cooldownTime>2.8</cooldownTime>
+          <linkedBodyPartsGroup>RightPincer</linkedBodyPartsGroup>
           <surpriseAttack>
             <extraMeleeDamages>
               <li>
@@ -1569,7 +1659,7 @@
             <li>Bite</li>
           </capacities>
           <power>37.5</power>
-          <cooldownTime>3.10</cooldownTime>
+          <cooldownTime>3.1</cooldownTime>
           <linkedBodyPartsGroup>Mouth</linkedBodyPartsGroup>
           <surpriseAttack>
             <extraMeleeDamages>
@@ -1690,6 +1780,12 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Megaspider"]/race/useLeatherFrom</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Megaspider"]/race/useLeatherFrom</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Megaspider"]/race/manhunterOnTameFailChance</xpath>
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Megaspider"]/race/manhunterOnTameFailChance</xpath>
@@ -1763,13 +1859,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Megaspider"]/race/body</xpath>
       <value>
-        <body>BeetleLikeWithClaw</body>
+        <body>ScorpionLike</body>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Megaspider"]/race</xpath>
       <value>
-        <body>BeetleLikeWithClaw</body>
+        <body>ScorpionLike</body>
       </value>
     </nomatch>
   </Operation>
@@ -1792,11 +1888,23 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Megaspider"]/race/useMeatFrom</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Megaspider"]/race/useMeatFrom</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Megaspider"]/race/wildBiomes</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Megaspider"]/race/wildBiomes</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Megaspider"]/race/lifeStageAges/li[def = 'EusocialInsectJuvenile']</xpath>
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Megaspider"]/race/lifeStageAges/li[def = 'EusocialInsectJuvenile']/minAge</xpath>
       <value>
-        <minAge>0.20</minAge>
+        <minAge>0.2</minAge>
       </value>
     </match>
     <nomatch/>
@@ -1806,7 +1914,7 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Megaspider"]/race/lifeStageAges/li[def = 'EusocialInsectAdult']/minAge</xpath>
       <value>
-        <minAge>0.40</minAge>
+        <minAge>0.4</minAge>
       </value>
     </match>
     <nomatch/>
@@ -1848,13 +1956,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "Megaspider"]/combatPower</xpath>
       <value>
-        <combatPower>400</combatPower>
+        <combatPower>285</combatPower>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "Megaspider"]</xpath>
       <value>
-        <combatPower>400</combatPower>
+        <combatPower>285</combatPower>
       </value>
     </nomatch>
   </Operation>
@@ -2050,13 +2158,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Megascarab"]/statBases/ArmorRating_Sharp</xpath>
             <value>
-              <ArmorRating_Sharp>0.70</ArmorRating_Sharp>
+              <ArmorRating_Sharp>0.7</ArmorRating_Sharp>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Megascarab"]/statBases</xpath>
             <value>
-              <ArmorRating_Sharp>0.70</ArmorRating_Sharp>
+              <ArmorRating_Sharp>0.7</ArmorRating_Sharp>
             </value>
           </nomatch>
         </li>
@@ -2089,14 +2197,14 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Megascarab"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]/Durability</xpath>
             <value>
-              <Durability>325.00</Durability>
+              <Durability>325</Durability>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Megascarab"]/comps</xpath>
             <value>
               <li Class="CombatExtended.CompProperties_ArmorDurability">
-                <Durability>325.00</Durability>
+                <Durability>325</Durability>
                 <Regenerates>true</Regenerates>
                 <RegenInterval>600</RegenInterval>
                 <RegenValue>5</RegenValue>
@@ -2120,7 +2228,7 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>0.50</power>
+                <power>0.5</power>
                 <armorPenetrationBlunt>0.37</armorPenetrationBlunt>
                 <cooldownTime>2.15</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
@@ -2133,7 +2241,7 @@
                   <li>Bite</li>
                 </capacities>
                 <power>15.4</power>
-                <armorPenetrationBlunt>3.30</armorPenetrationBlunt>
+                <armorPenetrationBlunt>3.3</armorPenetrationBlunt>
                 <armorPenetrationSharp>0.3</armorPenetrationSharp>
                 <cooldownTime>1.8</cooldownTime>
                 <linkedBodyPartsGroup>Mouth</linkedBodyPartsGroup>
@@ -2251,14 +2359,14 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Spelopede"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]/Durability</xpath>
             <value>
-              <Durability>750.00</Durability>
+              <Durability>750</Durability>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Spelopede"]/comps</xpath>
             <value>
               <li Class="CombatExtended.CompProperties_ArmorDurability">
-                <Durability>750.00</Durability>
+                <Durability>750</Durability>
                 <Regenerates>true</Regenerates>
                 <RegenInterval>600</RegenInterval>
                 <RegenValue>5</RegenValue>
@@ -2282,7 +2390,7 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>2.10</power>
+                <power>2.1</power>
                 <armorPenetrationBlunt>1.87</armorPenetrationBlunt>
                 <cooldownTime>2.85</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
@@ -2349,13 +2457,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Megaspider"]/statBases/MeleeDodgeChance</xpath>
             <value>
-              <MeleeDodgeChance>0.10</MeleeDodgeChance>
+              <MeleeDodgeChance>0.1</MeleeDodgeChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Megaspider"]/statBases</xpath>
             <value>
-              <MeleeDodgeChance>0.10</MeleeDodgeChance>
+              <MeleeDodgeChance>0.1</MeleeDodgeChance>
             </value>
           </nomatch>
         </li>
@@ -2433,14 +2541,14 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Megaspider"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]/Durability</xpath>
             <value>
-              <Durability>1125.00</Durability>
+              <Durability>1125</Durability>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Megaspider"]/comps</xpath>
             <value>
               <li Class="CombatExtended.CompProperties_ArmorDurability">
-                <Durability>1125.00</Durability>
+                <Durability>1125</Durability>
                 <Regenerates>true</Regenerates>
                 <RegenInterval>600</RegenInterval>
                 <RegenValue>5</RegenValue>
@@ -2464,7 +2572,7 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>3.90</power>
+                <power>3.9</power>
                 <armorPenetrationBlunt>3.51</armorPenetrationBlunt>
                 <cooldownTime>3.25</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
@@ -2472,8 +2580,8 @@
                 <chanceFactor>0.2</chanceFactor>
               </li>
               <li Class="CombatExtended.ToolCE">
-                <label>head claw</label>
-                <labelNoLocation>claw</labelNoLocation>
+                <label>left pincer</label>
+                <labelNoLocation>pincer</labelNoLocation>
                 <capacities>
                   <li>Scratch</li>
                 </capacities>
@@ -2481,7 +2589,27 @@
                 <armorPenetrationBlunt>19.35</armorPenetrationBlunt>
                 <armorPenetrationSharp>6.43</armorPenetrationSharp>
                 <cooldownTime>3.45</cooldownTime>
-                <linkedBodyPartsGroup>HeadClaw</linkedBodyPartsGroup>
+                <linkedBodyPartsGroup>LeftPincer</linkedBodyPartsGroup>
+                <surpriseAttack>
+                  <extraMeleeDamages>
+                    <li>
+                      <def>Stun</def>
+                      <amount>25</amount>
+                    </li>
+                  </extraMeleeDamages>
+                </surpriseAttack>
+              </li>
+              <li Class="CombatExtended.ToolCE">
+                <label>right pincer</label>
+                <labelNoLocation>pincer</labelNoLocation>
+                <capacities>
+                  <li>Scratch</li>
+                </capacities>
+                <power>33.5</power>
+                <armorPenetrationBlunt>19.35</armorPenetrationBlunt>
+                <armorPenetrationSharp>6.43</armorPenetrationSharp>
+                <cooldownTime>3.45</cooldownTime>
+                <linkedBodyPartsGroup>RightPincer</linkedBodyPartsGroup>
                 <surpriseAttack>
                   <extraMeleeDamages>
                     <li>
