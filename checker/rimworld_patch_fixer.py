@@ -136,6 +136,7 @@ COLUMN_ALIASES = {
     'Horn/Antler/Tusks damage': ['Horn/Antler/Tusks damage', 'Horn damage'],
     # LeatherDef alias (added to ensure Leather handling)
     'LeatherDef': ['Leather def', 'LeatherDef', 'Leather_Def', 'Leather'],
+    'useMeatFrom': ['useMeatFrom', 'UseMeatFrom', 'use meat from', 'Use meat from', 'Meat from'],
     'ModConflict': ['ModConflict', 'Mod Conflict', 'modConflict', 'Mod conflict'],
 }
 
@@ -403,6 +404,36 @@ class PatchGenerator:
             return True
         s = str(v).strip().lower()
         return s in ('', 'no', 'none')
+
+    def _is_use_meat_from_col(self, col):
+        if col is None:
+            return False
+        key = norm(col).replace(' ', '')
+        return key == 'usemeatfrom'
+
+    def _normalize_use_meat_from_value(self, v):
+        """
+        Normalize values for race/useMeatFrom.
+        Table may contain "<li>DefName</li>" (or escaped "&lt;li&gt;...&lt;/li&gt;").
+        Return only plain defName text.
+        """
+        if v is None:
+            return ''
+        s = str(v).strip()
+        if s == '':
+            return ''
+
+        # Unescape XML-like entities often coming from table cells.
+        s = s.replace('&lt;', '<').replace('&gt;', '>').replace('&amp;', '&').strip()
+
+        # If list item markup is present, extract first li text.
+        m = re.search(r'<li[^>]*>(.*?)</li>', s, flags=re.I | re.S)
+        if m:
+            s = m.group(1).strip()
+
+        # Fallback cleanup in case only opening/closing li remained.
+        s = re.sub(r'</?li[^>]*>', '', s, flags=re.I).strip()
+        return s
 
     def _is_truthy(self, v):
         if v is None:
@@ -1125,6 +1156,8 @@ class PatchGenerator:
                     v = get_row_value(r, col)
                 else:
                     v = r.get(col, '')
+                if self._is_use_meat_from_col(col):
+                    v = self._normalize_use_meat_from_value(v)
                 vals.append(norm(v))
             vals_non_empty = [v for v in vals if v != '']
             if len(vals_non_empty) == 0:
@@ -1134,6 +1167,8 @@ class PatchGenerator:
                     common_values[col] = get_row_value(first_row, col)
                 else:
                     common_values[col] = first_row.get(col)
+                if self._is_use_meat_from_col(col):
+                    common_values[col] = self._normalize_use_meat_from_value(common_values[col])
             else:
                 differing_cols.append(col)
 
@@ -1577,6 +1612,8 @@ class PatchGenerator:
                         v = get_row_value(r, col)
                     else:
                         v = r.get(col, '')
+                    if self._is_use_meat_from_col(col):
+                        v = self._normalize_use_meat_from_value(v)
                     vals.append(norm(v))
                 vals_non_empty = [v for v in vals if v != '']
                 if len(vals_non_empty) == 0:
@@ -1586,6 +1623,8 @@ class PatchGenerator:
                         common_values[col] = get_row_value(first_row, col)
                     else:
                         common_values[col] = first_row.get(col)
+                    if self._is_use_meat_from_col(col):
+                        common_values[col] = self._normalize_use_meat_from_value(common_values[col])
                 else:
                     differing_cols.append(col)
 
@@ -1700,12 +1739,13 @@ class PatchGenerator:
             'waterCellCost': 'waterCellCost',
             'waterSeeker': 'waterSeeker',
             'canFishForFood': 'canFishForFood',
+            'useMeatFrom': 'useMeatFrom',
         }
 
         race_order = ['baseBodySize', 'baseHealthScale', 'baseHungerRate', 'lifeExpectancy', 'gestationPeriodDays',
                       'herdAnimal', 'herdMigrationAllowed', 'foodType', 'roamMtbDays', 'LeatherDef',
                       'manhunterOnTameFailChance', 'manhunterOnDamageChance',
-                      'petness', 'nuzzleMtbHours', 'mateMtbHours', 'trainability', 'predator', 'maxPreyBodySize', 'nameOnTameChance', 'Body', 'waterCellCost', 'waterSeeker', 'canFishForFood']
+                      'petness', 'nuzzleMtbHours', 'mateMtbHours', 'trainability', 'predator', 'maxPreyBodySize', 'nameOnTameChance', 'Body', 'waterCellCost', 'waterSeeker', 'canFishForFood', 'useMeatFrom']
 
         for tag in race_order:
             col = race_mapping.get(tag, tag)
@@ -1720,6 +1760,8 @@ class PatchGenerator:
                 if val is None or str(val).strip() == '':
                     continue
                 s = str(val).strip()
+                if xml_tag == 'useMeatFrom':
+                    s = self._normalize_use_meat_from_value(s)
 
                 # LeatherDef: всегда replace/remove + удаляем useLeatherFrom
                 if xml_tag == 'leatherDef':
@@ -1728,6 +1770,11 @@ class PatchGenerator:
                     else:
                         ops.append(self.create_safe_replace(abstract, 'race', 'leatherDef', s, is_abstract=True))
                     ops.append(self.create_safe_remove(abstract, 'race', 'useLeatherFrom', is_abstract=True))
+                    continue
+
+                # RimWorld enum: Trainability.None is a valid value and must be written, not removed.
+                if xml_tag == 'trainability' and s.lower() == 'none':
+                    ops.append(self.create_safe_replace(abstract, 'race', 'trainability', 'None', is_abstract=True))
                     continue
 
                 if s.lower() in ('', 'no', 'none'):
@@ -2096,11 +2143,12 @@ class PatchGenerator:
             'waterCellCost': 'waterCellCost',
             'waterSeeker': 'waterSeeker',
             'canFishForFood': 'canFishForFood',
+            'useMeatFrom': 'useMeatFrom',
         }
         race_order = ['baseBodySize', 'baseHealthScale', 'baseHungerRate', 'lifeExpectancy', 'gestationPeriodDays',
                       'herdAnimal', 'herdMigrationAllowed', 'foodType', 'roamMtbDays', 'LeatherDef',
                       'manhunterOnTameFailChance', 'manhunterOnDamageChance',
-                      'petness', 'nuzzleMtbHours', 'mateMtbHours', 'trainability', 'packAnimal', 'predator', 'maxPreyBodySize', 'nameOnTameChance', 'Body', 'waterCellCost', 'waterSeeker', 'canFishForFood']
+                      'petness', 'nuzzleMtbHours', 'mateMtbHours', 'trainability', 'packAnimal', 'predator', 'maxPreyBodySize', 'nameOnTameChance', 'Body', 'waterCellCost', 'waterSeeker', 'canFishForFood', 'useMeatFrom']
 
         for tag in race_order:
             col = race_mapping.get(tag, tag)
@@ -2138,8 +2186,15 @@ class PatchGenerator:
             if value is None or str(value).strip() == '':
                 continue
             s = str(value).strip()
+            if xml_tag == 'useMeatFrom':
+                s = self._normalize_use_meat_from_value(s)
 
             # universal "remove" markers -> safe remove
+            # RimWorld enum: Trainability.None is a valid value and must be written, not removed.
+            if xml_tag == 'trainability' and s.lower() == 'none':
+                ops.append(self.create_safe_replace(def_name, 'race', 'trainability', 'None'))
+                continue
+
             if s.lower() in ('', 'no', 'none'):
                 ops.append(self.create_safe_remove(def_name, 'race', xml_tag))
                 continue

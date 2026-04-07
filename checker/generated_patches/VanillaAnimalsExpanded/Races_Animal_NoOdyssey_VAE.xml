@@ -546,6 +546,12 @@
           </nomatch>
         </li>
         <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "AEXP_Tiger"]/race/useMeatFrom</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "AEXP_Tiger"]/race/useMeatFrom</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Tiger"]/race/wildBiomes</xpath>
           <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "AEXP_Tiger"]/race/wildBiomes</xpath>
@@ -1118,9 +1124,18 @@
         </li>
         <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Alligator"]/race/trainability</xpath>
-          <match Class="PatchOperationRemove">
+          <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "AEXP_Alligator"]/race/trainability</xpath>
+            <value>
+              <trainability>None</trainability>
+            </value>
           </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "AEXP_Alligator"]/race</xpath>
+            <value>
+              <trainability>None</trainability>
+            </value>
+          </nomatch>
         </li>
         <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Alligator"]/race/packAnimal</xpath>
@@ -1241,6 +1256,12 @@
               <canFishForFood>true</canFishForFood>
             </value>
           </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "AEXP_Alligator"]/race/useMeatFrom</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "AEXP_Alligator"]/race/useMeatFrom</xpath>
+          </match>
         </li>
         <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Alligator"]/race/wildBiomes</xpath>
@@ -1807,9 +1828,18 @@
         </li>
         <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Moose"]/race/trainability</xpath>
-          <match Class="PatchOperationRemove">
+          <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "AEXP_Moose"]/race/trainability</xpath>
+            <value>
+              <trainability>None</trainability>
+            </value>
           </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "AEXP_Moose"]/race</xpath>
+            <value>
+              <trainability>None</trainability>
+            </value>
+          </nomatch>
         </li>
         <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Moose"]/race/packAnimal</xpath>
@@ -1910,6 +1940,21 @@
             <xpath>/Defs/ThingDef[defName = "AEXP_Moose"]/race</xpath>
             <value>
               <canFishForFood>false</canFishForFood>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "AEXP_Moose"]/race/useMeatFrom</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "AEXP_Moose"]/race/useMeatFrom</xpath>
+            <value>
+              <useMeatFrom>Deer</useMeatFrom>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "AEXP_Moose"]/race</xpath>
+            <value>
+              <useMeatFrom>Deer</useMeatFrom>
             </value>
           </nomatch>
         </li>
@@ -2494,9 +2539,18 @@
         </li>
         <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Muskox"]/race/trainability</xpath>
-          <match Class="PatchOperationRemove">
+          <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "AEXP_Muskox"]/race/trainability</xpath>
+            <value>
+              <trainability>None</trainability>
+            </value>
           </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "AEXP_Muskox"]/race</xpath>
+            <value>
+              <trainability>None</trainability>
+            </value>
+          </nomatch>
         </li>
         <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Muskox"]/race/packAnimal</xpath>
@@ -2597,6 +2651,21 @@
             <xpath>/Defs/ThingDef[defName = "AEXP_Muskox"]/race</xpath>
             <value>
               <canFishForFood>false</canFishForFood>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "AEXP_Muskox"]/race/useMeatFrom</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "AEXP_Muskox"]/race/useMeatFrom</xpath>
+            <value>
+              <useMeatFrom>Sheep</useMeatFrom>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "AEXP_Muskox"]/race</xpath>
+            <value>
+              <useMeatFrom>Sheep</useMeatFrom>
             </value>
           </nomatch>
         </li>
@@ -3260,6 +3329,12 @@
               <canFishForFood>false</canFishForFood>
             </value>
           </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "AEXP_Badger"]/race/useMeatFrom</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "AEXP_Badger"]/race/useMeatFrom</xpath>
+          </match>
         </li>
         <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Badger"]/race/wildBiomes</xpath>
@@ -3966,6 +4041,21 @@
           </nomatch>
         </li>
         <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "AEXP_Gorilla"]/race/useMeatFrom</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "AEXP_Gorilla"]/race/useMeatFrom</xpath>
+            <value>
+              <useMeatFrom>Monkey</useMeatFrom>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "AEXP_Gorilla"]/race</xpath>
+            <value>
+              <useMeatFrom>Monkey</useMeatFrom>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Gorilla"]/race/wildBiomes</xpath>
           <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "AEXP_Gorilla"]/race/wildBiomes</xpath>
@@ -4518,9 +4608,18 @@
         </li>
         <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Penguin"]/race/trainability</xpath>
-          <match Class="PatchOperationRemove">
+          <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "AEXP_Penguin"]/race/trainability</xpath>
+            <value>
+              <trainability>None</trainability>
+            </value>
           </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "AEXP_Penguin"]/race</xpath>
+            <value>
+              <trainability>None</trainability>
+            </value>
+          </nomatch>
         </li>
         <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Penguin"]/race/packAnimal</xpath>
@@ -4630,6 +4729,21 @@
             <xpath>/Defs/ThingDef[defName = "AEXP_Penguin"]/race</xpath>
             <value>
               <canFishForFood>true</canFishForFood>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "AEXP_Penguin"]/race/useMeatFrom</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "AEXP_Penguin"]/race/useMeatFrom</xpath>
+            <value>
+              <useMeatFrom>Cassowary</useMeatFrom>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "AEXP_Penguin"]/race</xpath>
+            <value>
+              <useMeatFrom>Cassowary</useMeatFrom>
             </value>
           </nomatch>
         </li>
@@ -5179,9 +5293,18 @@
         </li>
         <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Hippopotamus"]/race/trainability</xpath>
-          <match Class="PatchOperationRemove">
+          <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "AEXP_Hippopotamus"]/race/trainability</xpath>
+            <value>
+              <trainability>None</trainability>
+            </value>
           </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "AEXP_Hippopotamus"]/race</xpath>
+            <value>
+              <trainability>None</trainability>
+            </value>
+          </nomatch>
         </li>
         <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Hippopotamus"]/race/packAnimal</xpath>
@@ -5293,6 +5416,12 @@
               <canFishForFood>false</canFishForFood>
             </value>
           </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "AEXP_Hippopotamus"]/race/useMeatFrom</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "AEXP_Hippopotamus"]/race/useMeatFrom</xpath>
+          </match>
         </li>
         <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Hippopotamus"]/race/wildBiomes</xpath>
@@ -5996,6 +6125,12 @@
               <canFishForFood>true</canFishForFood>
             </value>
           </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "AEXP_Otter"]/race/useMeatFrom</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "AEXP_Otter"]/race/useMeatFrom</xpath>
+          </match>
         </li>
         <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Otter"]/race/wildBiomes</xpath>
@@ -6713,6 +6848,12 @@
           </nomatch>
         </li>
         <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "AEXP_Seal"]/race/useMeatFrom</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "AEXP_Seal"]/race/useMeatFrom</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Seal"]/race/wildBiomes</xpath>
           <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "AEXP_Seal"]/race/wildBiomes</xpath>
@@ -7415,6 +7556,21 @@
           </nomatch>
         </li>
         <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "AEXP_Walrus"]/race/useMeatFrom</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "AEXP_Walrus"]/race/useMeatFrom</xpath>
+            <value>
+              <useMeatFrom>Seal</useMeatFrom>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "AEXP_Walrus"]/race</xpath>
+            <value>
+              <useMeatFrom>Seal</useMeatFrom>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Walrus"]/race/wildBiomes</xpath>
           <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "AEXP_Walrus"]/race/wildBiomes</xpath>
@@ -7974,9 +8130,18 @@
         </li>
         <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Porcupine"]/race/trainability</xpath>
-          <match Class="PatchOperationRemove">
+          <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "AEXP_Porcupine"]/race/trainability</xpath>
+            <value>
+              <trainability>None</trainability>
+            </value>
           </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "AEXP_Porcupine"]/race</xpath>
+            <value>
+              <trainability>None</trainability>
+            </value>
+          </nomatch>
         </li>
         <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Porcupine"]/race/packAnimal</xpath>
@@ -8079,6 +8244,12 @@
               <canFishForFood>false</canFishForFood>
             </value>
           </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "AEXP_Porcupine"]/race/useMeatFrom</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "AEXP_Porcupine"]/race/useMeatFrom</xpath>
+          </match>
         </li>
         <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Porcupine"]/race/wildBiomes</xpath>

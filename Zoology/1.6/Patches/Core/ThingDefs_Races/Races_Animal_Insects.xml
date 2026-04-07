@@ -333,6 +333,12 @@
     </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[@Name = "BaseInsect"]/race/useMeatFrom</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[@Name = "BaseInsect"]/race/useMeatFrom</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[@Name = "BaseInsect"]/race/lifeStageAges</xpath>
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[@Name = "BaseInsect"]/race/lifeStageAges</xpath>
@@ -796,6 +802,21 @@
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Megascarab"]/race/canFishForFood</xpath>
     </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Megascarab"]/race/useMeatFrom</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "Megascarab"]/race/useMeatFrom</xpath>
+      <value>
+        <useMeatFrom>Megaspider</useMeatFrom>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "Megascarab"]/race</xpath>
+      <value>
+        <useMeatFrom>Megaspider</useMeatFrom>
+      </value>
+    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Megascarab"]/race/wildBiomes</xpath>
@@ -1314,6 +1335,21 @@
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Spelopede"]/race/canFishForFood</xpath>
     </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Spelopede"]/race/useMeatFrom</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "Spelopede"]/race/useMeatFrom</xpath>
+      <value>
+        <useMeatFrom>Megaspider</useMeatFrom>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "Spelopede"]/race</xpath>
+      <value>
+        <useMeatFrom>Megaspider</useMeatFrom>
+      </value>
+    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Spelopede"]/race/wildBiomes</xpath>
@@ -1849,6 +1885,12 @@
     <xpath>/Defs/ThingDef[defName = "Megaspider"]/race/canFishForFood</xpath>
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Megaspider"]/race/canFishForFood</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Megaspider"]/race/useMeatFrom</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Megaspider"]/race/useMeatFrom</xpath>
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">

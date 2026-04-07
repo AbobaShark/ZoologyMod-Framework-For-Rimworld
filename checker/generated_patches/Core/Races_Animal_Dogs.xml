@@ -513,6 +513,12 @@
     </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/race/useMeatFrom</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/race/useMeatFrom</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/race/wildBiomes</xpath>
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/race/wildBiomes</xpath>
@@ -1208,6 +1214,21 @@
       <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/race</xpath>
       <value>
         <canFishForFood>false</canFishForFood>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/race/useMeatFrom</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/race/useMeatFrom</xpath>
+      <value>
+        <useMeatFrom>YorkshireTerrier</useMeatFrom>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/race</xpath>
+      <value>
+        <useMeatFrom>YorkshireTerrier</useMeatFrom>
       </value>
     </nomatch>
   </Operation>
@@ -1911,6 +1932,21 @@
       <xpath>/Defs/ThingDef[defName = "Husky"]/race</xpath>
       <value>
         <canFishForFood>false</canFishForFood>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Husky"]/race/useMeatFrom</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "Husky"]/race/useMeatFrom</xpath>
+      <value>
+        <useMeatFrom>YorkshireTerrier</useMeatFrom>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "Husky"]/race</xpath>
+      <value>
+        <useMeatFrom>YorkshireTerrier</useMeatFrom>
       </value>
     </nomatch>
   </Operation>

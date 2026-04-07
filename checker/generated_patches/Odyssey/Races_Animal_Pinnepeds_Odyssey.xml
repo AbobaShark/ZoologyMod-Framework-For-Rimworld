@@ -504,6 +504,21 @@
     </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "SeaLion"]/race/useMeatFrom</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "SeaLion"]/race/useMeatFrom</xpath>
+      <value>
+        <useMeatFrom>Seal</useMeatFrom>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "SeaLion"]/race</xpath>
+      <value>
+        <useMeatFrom>Seal</useMeatFrom>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "SeaLion"]/race/wildBiomes</xpath>
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "SeaLion"]/race/wildBiomes</xpath>
@@ -1222,6 +1237,12 @@
     </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Seal"]/race/useMeatFrom</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Seal"]/race/useMeatFrom</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Seal"]/race/wildBiomes</xpath>
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Seal"]/race/wildBiomes</xpath>
@@ -1883,6 +1904,21 @@
       <xpath>/Defs/ThingDef[defName = "Walrus"]/race</xpath>
       <value>
         <canFishForFood>true</canFishForFood>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Walrus"]/race/useMeatFrom</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "Walrus"]/race/useMeatFrom</xpath>
+      <value>
+        <useMeatFrom>Seal</useMeatFrom>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "Walrus"]/race</xpath>
+      <value>
+        <useMeatFrom>Seal</useMeatFrom>
       </value>
     </nomatch>
   </Operation>

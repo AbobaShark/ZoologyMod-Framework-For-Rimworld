@@ -504,6 +504,21 @@
     </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "BogHound"]/race/useMeatFrom</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "BogHound"]/race/useMeatFrom</xpath>
+      <value>
+        <useMeatFrom>YorkshireTerrier</useMeatFrom>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "BogHound"]/race</xpath>
+      <value>
+        <useMeatFrom>YorkshireTerrier</useMeatFrom>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "BogHound"]/race/wildBiomes</xpath>
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "BogHound"]/race/wildBiomes</xpath>
@@ -1039,6 +1054,21 @@
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Wolf_Great"]/race/canFishForFood</xpath>
     </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Wolf_Great"]/race/useMeatFrom</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "Wolf_Great"]/race/useMeatFrom</xpath>
+      <value>
+        <useMeatFrom>Wolf_Timber</useMeatFrom>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "Wolf_Great"]/race</xpath>
+      <value>
+        <useMeatFrom>Wolf_Timber</useMeatFrom>
+      </value>
+    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Wolf_Great"]/race/wildBiomes</xpath>

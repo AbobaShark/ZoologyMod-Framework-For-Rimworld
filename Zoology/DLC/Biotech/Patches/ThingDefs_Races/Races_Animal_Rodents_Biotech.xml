@@ -18,13 +18,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "WasteRat"]/statBases/MarketValue</xpath>
       <value>
-        <MarketValue>75</MarketValue>
+        <MarketValue>150</MarketValue>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "WasteRat"]/statBases</xpath>
       <value>
-        <MarketValue>75</MarketValue>
+        <MarketValue>150</MarketValue>
       </value>
     </nomatch>
   </Operation>
@@ -296,13 +296,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "WasteRat"]/race/leatherDef</xpath>
       <value>
-        <leatherDef>Leather_Light</leatherDef>
+        <leatherDef>ToxicLeather</leatherDef>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "WasteRat"]/race</xpath>
       <value>
-        <leatherDef>Leather_Light</leatherDef>
+        <leatherDef>ToxicLeather</leatherDef>
       </value>
     </nomatch>
   </Operation>
@@ -380,9 +380,18 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "WasteRat"]/race/trainability</xpath>
-    <match Class="PatchOperationRemove">
+    <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "WasteRat"]/race/trainability</xpath>
+      <value>
+        <trainability>Intermediate</trainability>
+      </value>
     </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "WasteRat"]/race</xpath>
+      <value>
+        <trainability>Intermediate</trainability>
+      </value>
+    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "WasteRat"]/race/packAnimal</xpath>
@@ -425,13 +434,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "WasteRat"]/race/nameOnTameChance</xpath>
       <value>
-        <nameOnTameChance>0</nameOnTameChance>
+        <nameOnTameChance>1</nameOnTameChance>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "WasteRat"]/race</xpath>
       <value>
-        <nameOnTameChance>0</nameOnTameChance>
+        <nameOnTameChance>1</nameOnTameChance>
       </value>
     </nomatch>
   </Operation>
@@ -485,6 +494,12 @@
         <canFishForFood>false</canFishForFood>
       </value>
     </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "WasteRat"]/race/useMeatFrom</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "WasteRat"]/race/useMeatFrom</xpath>
+    </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "WasteRat"]/race/wildBiomes</xpath>
