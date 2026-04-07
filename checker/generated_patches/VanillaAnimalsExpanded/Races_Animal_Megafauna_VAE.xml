@@ -294,6 +294,27 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AEXP_IndianElephant"]/race/leatherDef</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "AEXP_IndianElephant"]/race/leatherDef</xpath>
+      <value>
+        <leatherDef>Leather_Elephant</leatherDef>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "AEXP_IndianElephant"]/race</xpath>
+      <value>
+        <leatherDef>Leather_Elephant</leatherDef>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AEXP_IndianElephant"]/race/useLeatherFrom</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AEXP_IndianElephant"]/race/useLeatherFrom</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AEXP_IndianElephant"]/race/manhunterOnTameFailChance</xpath>
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AEXP_IndianElephant"]/race/manhunterOnTameFailChance</xpath>
@@ -466,6 +487,12 @@
         <canFishForFood>false</canFishForFood>
       </value>
     </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AEXP_IndianElephant"]/race/wildBiomes</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AEXP_IndianElephant"]/race/wildBiomes</xpath>
+    </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AEXP_IndianElephant"]/race/lifeStageAges/li[def = 'AnimalJuvenile']</xpath>

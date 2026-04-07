@@ -243,6 +243,27 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[@Name = "BaseHare"]/race/leatherDef</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[@Name = "BaseHare"]/race/leatherDef</xpath>
+      <value>
+        <leatherDef>Leather_Light</leatherDef>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[@Name = "BaseHare"]/race</xpath>
+      <value>
+        <leatherDef>Leather_Light</leatherDef>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[@Name = "BaseHare"]/race/useLeatherFrom</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[@Name = "BaseHare"]/race/useLeatherFrom</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[@Name = "BaseHare"]/race/manhunterOnTameFailChance</xpath>
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[@Name = "BaseHare"]/race/manhunterOnTameFailChance</xpath>
@@ -719,6 +740,12 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Hare"]/race/useLeatherFrom</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Hare"]/race/useLeatherFrom</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Hare"]/race/manhunterOnTameFailChance</xpath>
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Hare"]/race/manhunterOnTameFailChance</xpath>
@@ -800,6 +827,12 @@
     <xpath>/Defs/ThingDef[defName = "Hare"]/race/canFishForFood</xpath>
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Hare"]/race/canFishForFood</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Hare"]/race/wildBiomes</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Hare"]/race/wildBiomes</xpath>
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
@@ -1015,6 +1048,12 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Snowhare"]/race/useLeatherFrom</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Snowhare"]/race/useLeatherFrom</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Snowhare"]/race/manhunterOnTameFailChance</xpath>
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Snowhare"]/race/manhunterOnTameFailChance</xpath>
@@ -1096,6 +1135,12 @@
     <xpath>/Defs/ThingDef[defName = "Snowhare"]/race/canFishForFood</xpath>
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Snowhare"]/race/canFishForFood</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Snowhare"]/race/wildBiomes</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Snowhare"]/race/wildBiomes</xpath>
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">

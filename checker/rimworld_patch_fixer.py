@@ -136,6 +136,7 @@ COLUMN_ALIASES = {
     'Horn/Antler/Tusks damage': ['Horn/Antler/Tusks damage', 'Horn damage'],
     # LeatherDef alias (added to ensure Leather handling)
     'LeatherDef': ['Leather def', 'LeatherDef', 'Leather_Def', 'Leather'],
+    'ModConflict': ['ModConflict', 'Mod Conflict', 'modConflict', 'Mod conflict'],
 }
 
 def find_alias_in_row(row, candidates):
@@ -301,6 +302,84 @@ class PatchGenerator:
             out.append(p)
         return out
 
+    def _split_mod_list(self, s):
+        """Split mod list by comma/semicolon/newline, keep order and drop duplicates."""
+        if s is None:
+            return []
+        if isinstance(s, (list, tuple, set)):
+            out = []
+            seen = set()
+            for item in s:
+                p = str(item).strip()
+                if not p or p.lower() in ('no', 'none'):
+                    continue
+                key = p.lower()
+                if key in seen:
+                    continue
+                seen.add(key)
+                out.append(p)
+            return out
+        ss = str(s).strip()
+        if ss == '' or ss.lower() in ('no', 'none'):
+            return []
+        out = []
+        seen = set()
+        for part in re.split(r'[,\n;]+', ss):
+            p = part.strip()
+            if not p:
+                continue
+            key = p.lower()
+            if key in seen:
+                continue
+            seen.add(key)
+            out.append(p)
+        return out
+
+    def _build_wild_biomes_element(self, biome_names, eco_system_number):
+        """
+        Build <wildBiomes> node from list of biome names and one eco weight.
+        Odyssey biomes get MayRequire="Ludeon.RimWorld.Odyssey".
+        """
+        if not biome_names:
+            return None
+        eco_text = '' if eco_system_number is None else str(eco_system_number).strip()
+        if eco_text == '' or eco_text.lower() in ('no', 'none'):
+            return None
+
+        node = LET.Element('wildBiomes')
+        for biome in biome_names:
+            biome_name = str(biome).strip()
+            if not biome_name:
+                continue
+            entry = LET.SubElement(node, biome_name)
+            entry.text = eco_text
+            if biome_name in self.ODYSSEY_BIOMES:
+                entry.set('MayRequire', self.ODYSSEY_MAYREQUIRE)
+        return node if len(node) > 0 else None
+
+    def _wrap_ops_in_mod_conflict(self, ops, conflict_mods, as_li=False):
+        """
+        Wrap operations into PatchOperationFindMod with nomatch PatchOperationSequence
+        so payload runs only when conflicting mod is NOT found.
+        """
+        payload = list(ops or [])
+        mods = self._split_mod_list(conflict_mods)
+        has_real_ops = any(hasattr(op, 'tag') and isinstance(op.tag, str) for op in payload)
+        if not mods or not payload or not has_real_ops:
+            return payload
+
+        wrapper_tag = 'li' if as_li else 'Operation'
+        wrapper = LET.Element(wrapper_tag, Class='PatchOperationFindMod')
+        mods_el = LET.SubElement(wrapper, 'mods')
+        for mod_name in mods:
+            LET.SubElement(mods_el, 'li').text = mod_name
+
+        nomatch = LET.SubElement(wrapper, 'nomatch', Class='PatchOperationSequence')
+        seq_ops = LET.SubElement(nomatch, 'operations')
+        for op in payload:
+            seq_ops.append(copy.deepcopy(op))
+        return [wrapper]
+
     def _is_no_like(self, v):
         if v is None:
             return True
@@ -357,6 +436,28 @@ class PatchGenerator:
                 li.set('MayRequire', may_require)
         return op
 
+    def create_biome_pack_animals_safe_ops(self, biome_name, entries):
+        """
+        Create safe operations that add one pack animal only if it's not already present.
+        """
+        ops = []
+        for animal_def, may_require in entries:
+            animal_name = str(animal_def).strip()
+            if not animal_name:
+                continue
+            check_xpath = f'/Defs/BiomeDef[defName="{biome_name}"]/allowedPackAnimals/li[text()="{animal_name}"]'
+            op = LET.Element("Operation", Class="PatchOperationConditional")
+            LET.SubElement(op, "xpath").text = check_xpath
+            nomatch = LET.SubElement(op, "nomatch", Class="PatchOperationAdd")
+            LET.SubElement(nomatch, "xpath").text = f'/Defs/BiomeDef[defName="{biome_name}"]/allowedPackAnimals'
+            value = LET.SubElement(nomatch, "value")
+            li = LET.SubElement(value, "li")
+            li.text = animal_name
+            if may_require:
+                li.set('MayRequire', may_require)
+            ops.append(op)
+        return ops
+
     def create_biome_container_reset_ops(self, biome_name, container_tag):
         """
         Create two operations:
@@ -375,6 +476,16 @@ class PatchGenerator:
         LET.SubElement(value, container_tag)
 
         return [remove_op, add_op]
+
+    def create_biome_container_ensure_op(self, biome_name, container_tag):
+        """Create one conditional op that ensures biome container exists."""
+        op = LET.Element("Operation", Class="PatchOperationConditional")
+        LET.SubElement(op, "xpath").text = f'/Defs/BiomeDef[defName="{biome_name}"]/{container_tag}'
+        nomatch = LET.SubElement(op, "nomatch", Class="PatchOperationAdd")
+        LET.SubElement(nomatch, "xpath").text = f'/Defs/BiomeDef[defName="{biome_name}"]'
+        value = LET.SubElement(nomatch, "value")
+        LET.SubElement(value, container_tag)
+        return op
 
     def generate_biome_patch_files(self, output_dir):
         """
@@ -410,6 +521,10 @@ class PatchGenerator:
                 row.get('XML name', '') if 'XML name' in row.index else (row.iloc[0] if len(row.index) > 0 else '')
             )
             if not def_name:
+                continue
+
+            # Animals with ModConflict are handled in ThingDef animal patches, not in biome patch files.
+            if self._split_mod_list(get_row_value(row, 'ModConflict')):
                 continue
 
             wild_biomes = self._split_biomes(get_row_value(row, 'WildBiomes'))
@@ -463,14 +578,16 @@ class PatchGenerator:
             coastal_entries = [(k, v[0], self._filter_may_require_for_biome(biome_name, v[1])) for k, v in biomes_data[biome_name]['coastalWildAnimals'].items()]
             pack_entries = [(k, self._filter_may_require_for_biome(biome_name, v)) for k, v in biomes_data[biome_name]['allowedPackAnimals'].items()]
 
-            for container_tag in ('wildAnimals', 'pollutionWildAnimals', 'coastalWildAnimals', 'allowedPackAnimals'):
+            for container_tag in ('wildAnimals', 'pollutionWildAnimals', 'coastalWildAnimals'):
                 for op in self.create_biome_container_reset_ops(biome_name, container_tag):
                     root.append(op)
+            root.append(self.create_biome_container_ensure_op(biome_name, 'allowedPackAnimals'))
 
             root.append(self.create_biome_list_operation(biome_name, 'wildAnimals', wild_entries))
             root.append(self.create_biome_list_operation(biome_name, 'pollutionWildAnimals', pollution_entries))
             root.append(self.create_biome_list_operation(biome_name, 'coastalWildAnimals', coastal_entries))
-            root.append(self.create_biome_pack_animals_operation(biome_name, pack_entries))
+            for op in self.create_biome_pack_animals_safe_ops(biome_name, pack_entries):
+                root.append(op)
 
             filename = f"Biomes_{self._safe_biome_filename(biome_name)}.xml"
             out_path = os.path.join(output_dir, filename)
@@ -1134,6 +1251,7 @@ class PatchGenerator:
             def_row_all = {}
             present_abstract_groups = defaultdict(list)
             def_to_row = {}
+            def_mod_conflicts = {}
 
             if self.vanilla_df is None:
                 raise RuntimeError("Vanilla table not provided")
@@ -1150,6 +1268,12 @@ class PatchGenerator:
 
                 # store in global TSV map
                 def_row_all[def_name] = row
+                mods_for_def = self._split_mod_list(get_row_value(row, 'ModConflict'))
+                if mods_for_def:
+                    existing_mods = def_mod_conflicts.setdefault(def_name, [])
+                    for mod_name in mods_for_def:
+                        if mod_name not in existing_mods:
+                            existing_mods.append(mod_name)
                 if parent and parent != 'None':
                     all_abstract_groups[parent].append(def_name)
 
@@ -1342,14 +1466,23 @@ class PatchGenerator:
                 if parent is None:
                     parent = 'None'
                 parent = parent.strip()
-                new_operations.extend(self.generate_def_patches(def_name, row, original_root, parent if parent != 'None' else None, parent_common_map, pawn_parent_common_map))
+                def_ops = self.generate_def_patches(
+                    def_name,
+                    row,
+                    original_root,
+                    parent if parent != 'None' else None,
+                    parent_common_map,
+                    pawn_parent_common_map
+                )
+                wrapped_def_ops = self._wrap_ops_in_mod_conflict(def_ops, def_mod_conflicts.get(def_name), as_li=False)
+                new_operations.extend(wrapped_def_ops)
 
             # Вставляем комментарий перед CE-блоком (пустая строка + комментарий)
             new_operations.append(LET.Comment(""))
             new_operations.append(LET.Comment(" Combat Extended specific patches "))
 
             # CE блок — pass def_to_row (only present defs) so CE block will only be generated for present defs
-            new_operations.append(self.generate_ce_block(def_to_row, original_root))
+            new_operations.append(self.generate_ce_block(def_to_row, original_root, def_mod_conflicts=def_mod_conflicts))
 
             # --- deduplicate identical operations (by exact XML text) to avoid double removes ---
             seen = set()
@@ -2016,6 +2149,21 @@ class PatchGenerator:
                 ops.append(self.create_safe_replace(def_name, 'race', xml_tag, formatted))
             else:
                 ops.append(self.create_safe_replace(def_name, 'race', xml_tag, s))
+
+        # race/wildBiomes:
+        # - default: always safely remove
+        # - when ModConflict is set: safely replace/add from table WildBiomes + Eco system number
+        mod_conflicts = self._split_mod_list(get_row_value(row, 'ModConflict'))
+        wild_biomes = self._split_biomes(get_row_value(row, 'WildBiomes'))
+        eco_number = get_row_value(row, 'Eco system number')
+        if mod_conflicts and wild_biomes and not self._is_no_like(eco_number):
+            wild_biomes_node = self._build_wild_biomes_element(wild_biomes, eco_number)
+            if wild_biomes_node is not None:
+                ops.append(self.create_safe_replace(def_name, 'race', 'wildBiomes', wild_biomes_node))
+            else:
+                ops.append(self.create_safe_remove(def_name, 'race', 'wildBiomes'))
+        else:
+            ops.append(self.create_safe_remove(def_name, 'race', 'wildBiomes'))
 
         # lifeStageAges handling
         # читаем из строки и нормализуем: 'No' -> None
@@ -2885,12 +3033,14 @@ class PatchGenerator:
         ops.append(add_op)
         return ops
 
-    def generate_ce_block(self, def_to_row, original_root):
+    def generate_ce_block(self, def_to_row, original_root, def_mod_conflicts=None):
         """
         Generate Combat Extended specific patches.
         """
         if self.ce_df is None or self.ce_df.empty:
             return LET.Comment(" No CE table provided or empty ")
+        if def_mod_conflicts is None:
+            def_mod_conflicts = {}
 
         # Build quick lookup of CE rows (all CE TSV rows) by def name
         ce_rows_all = {}
@@ -3249,6 +3399,7 @@ class PatchGenerator:
 
         # --- Per-child CE patches (only for present defs) ---
         for def_name, vanilla_row in def_to_row.items():
+            child_start_idx = len(operations)
             ce_row = ce_rows_all.get(def_name)
             operations.append(LET.Comment(f" {def_name} CE patches "))
 
@@ -3427,6 +3578,17 @@ class PatchGenerator:
                 LET.SubElement(rem_heat, "xpath").text = f"Defs/ThingDef[defName=\"{def_name}\"]/statBases/ArmorRating_Heat"
                 LET.SubElement(LET.SubElement(rem_heat, "match", Class="PatchOperationRemove"), "xpath").text = f"Defs/ThingDef[defName=\"{def_name}\"]/statBases/ArmorRating_Heat"
                 operations.append(rem_heat)
+
+            # If this animal has ModConflict, run its CE child block only when conflicting mod is absent.
+            conflict_mods = def_mod_conflicts.get(def_name)
+            if self._split_mod_list(conflict_mods):
+                child_nodes = [operations[idx] for idx in range(child_start_idx, len(operations))]
+                has_real_ops = any(hasattr(node, 'tag') and isinstance(node.tag, str) for node in child_nodes)
+                if has_real_ops:
+                    while len(operations) > child_start_idx:
+                        operations.remove(operations[child_start_idx])
+                    for wrapped in self._wrap_ops_in_mod_conflict(child_nodes, conflict_mods, as_li=True):
+                        operations.append(wrapped)
 
         return ce_op
 
