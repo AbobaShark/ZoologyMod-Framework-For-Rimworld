@@ -1,0 +1,42 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<Patch>
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>Biotech</li>
+    </mods>
+    <match Class="PatchOperationSequence">
+      <operations>
+		<li Class="PatchOperationConditional">
+		  <xpath>Defs/ThingDef[defName="WasteRat"]/race/leatherDef</xpath>
+		  <nomatch Class="PatchOperationAdd">
+			<xpath>Defs/ThingDef[defName="WasteRat"]/race</xpath>
+			<value>
+			  <leatherDef>VAEWaste_ToxicLeather</leatherDef>
+			</value>
+		  </nomatch>
+		  <match Class="PatchOperationReplace">
+			<xpath>Defs/ThingDef[defName="WasteRat"]/race/leatherDef</xpath>
+			<value>
+			  <leatherDef>VAEWaste_ToxicLeather</leatherDef>
+			</value>
+		  </match>
+		</li>
+		<li Class="PatchOperationConditional">
+		  <xpath>Defs/ThingDef[defName="Toxalope"]/race/leatherDef</xpath>
+		  <nomatch Class="PatchOperationAdd">
+			<xpath>Defs/ThingDef[defName="Toxalope"]/race</xpath>
+			<value>
+			  <leatherDef>VAEWaste_ToxicLeather</leatherDef>
+			</value>
+		  </nomatch>
+		  <match Class="PatchOperationReplace">
+			<xpath>Defs/ThingDef[defName="Toxalope"]/race/leatherDef</xpath>
+			<value>
+			  <leatherDef>VAEWaste_ToxicLeather</leatherDef>
+			</value>
+		  </match>
+		</li>
+      </operations>
+	</match>
+  </Operation>
+</Patch>

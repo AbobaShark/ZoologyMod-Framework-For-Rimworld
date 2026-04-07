@@ -38,15 +38,12 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/BiomeDef[defName="SeaIce"]/allowedPackAnimals</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/BiomeDef[defName="SeaIce"]/allowedPackAnimals</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/BiomeDef[defName="SeaIce"]</xpath>
-    <value>
-      <allowedPackAnimals/>
-    </value>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/BiomeDef[defName="SeaIce"]</xpath>
+      <value>
+        <allowedPackAnimals/>
+      </value>
+    </nomatch>
   </Operation>
   <Operation Class="PatchOperationAdd">
     <xpath>/Defs/BiomeDef[defName="SeaIce"]/wildAnimals</xpath>
@@ -58,7 +55,9 @@
   </Operation>
   <Operation Class="PatchOperationAdd">
     <xpath>/Defs/BiomeDef[defName="SeaIce"]/pollutionWildAnimals</xpath>
-    <value/>
+    <value>
+      <VAEWaste_Megatardi MayRequire="VanillaExpanded.VAEWaste">0.075</VAEWaste_Megatardi>
+    </value>
   </Operation>
   <Operation Class="PatchOperationAdd">
     <xpath>/Defs/BiomeDef[defName="SeaIce"]/coastalWildAnimals</xpath>
@@ -70,11 +69,31 @@
       <AEXP_RockhopperPenguin MayRequire="VanillaExpanded.VAEEndAndExt">0.05</AEXP_RockhopperPenguin>
     </value>
   </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/BiomeDef[defName="SeaIce"]/allowedPackAnimals</xpath>
-    <value>
-      <li>Muffalo</li>
-      <li>Horse</li>
-    </value>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/BiomeDef[defName="SeaIce"]/allowedPackAnimals/li[text()="VAEWaste_Megatardi"]</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/BiomeDef[defName="SeaIce"]/allowedPackAnimals</xpath>
+      <value>
+        <li MayRequire="VanillaExpanded.VAEWaste">VAEWaste_Megatardi</li>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/BiomeDef[defName="SeaIce"]/allowedPackAnimals/li[text()="Muffalo"]</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/BiomeDef[defName="SeaIce"]/allowedPackAnimals</xpath>
+      <value>
+        <li>Muffalo</li>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/BiomeDef[defName="SeaIce"]/allowedPackAnimals/li[text()="Horse"]</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/BiomeDef[defName="SeaIce"]/allowedPackAnimals</xpath>
+      <value>
+        <li>Horse</li>
+      </value>
+    </nomatch>
   </Operation>
 </Patch>

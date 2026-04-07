@@ -38,15 +38,12 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/BiomeDef[defName="TropicalSwamp"]/allowedPackAnimals</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/BiomeDef[defName="TropicalSwamp"]/allowedPackAnimals</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/BiomeDef[defName="TropicalSwamp"]</xpath>
-    <value>
-      <allowedPackAnimals/>
-    </value>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/BiomeDef[defName="TropicalSwamp"]</xpath>
+      <value>
+        <allowedPackAnimals/>
+      </value>
+    </nomatch>
   </Operation>
   <Operation Class="PatchOperationAdd">
     <xpath>/Defs/BiomeDef[defName="TropicalSwamp"]/wildAnimals</xpath>
@@ -74,7 +71,7 @@
       <Bullfrog MayRequire="Ludeon.RimWorld.Odyssey">1</Bullfrog>
       <ColossusToad MayRequire="Ludeon.RimWorld.Odyssey">0.225</ColossusToad>
       <Hippo MayRequire="Ludeon.RimWorld.Odyssey">0.125</Hippo>
-      <Armadillo MayRequire="Ludeon.RimWorld.Odyssey">0.425</Armadillo>
+      <Armadillo MayRequire="Ludeon.RimWorld.Odyssey">0.375</Armadillo>
       <Gorilla MayRequire="Ludeon.RimWorld.Odyssey">0.175</Gorilla>
       <Alligator MayRequire="Ludeon.RimWorld.Odyssey">0.175</Alligator>
       <AEXP_Koala MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.05</AEXP_Koala>
@@ -100,6 +97,12 @@
       <WasteRat MayRequire="Ludeon.RimWorld.Biotech">0.325</WasteRat>
       <Sparrow MayRequire="Ludeon.RimWorld.Odyssey">0.8</Sparrow>
       <Crow MayRequire="Ludeon.RimWorld.Odyssey">0.8</Crow>
+      <VAEWaste_Hydra MayRequire="VanillaExpanded.VAEWaste">0.35</VAEWaste_Hydra>
+      <VAEWaste_Megatardi MayRequire="VanillaExpanded.VAEWaste">0.075</VAEWaste_Megatardi>
+      <VAEWaste_Pestigator MayRequire="VanillaExpanded.VAEWaste">0.15</VAEWaste_Pestigator>
+      <VAEWaste_Toxiguana MayRequire="VanillaExpanded.VAEWaste">0.475</VAEWaste_Toxiguana>
+      <VAEWaste_Toxscorpion MayRequire="VanillaExpanded.VAEWaste">0.2</VAEWaste_Toxscorpion>
+      <VAEWaste_Wasteboar MayRequire="VanillaExpanded.VAEWaste">0.175</VAEWaste_Wasteboar>
     </value>
   </Operation>
   <Operation Class="PatchOperationAdd">
@@ -111,11 +114,31 @@
       <AEXP_Crocodile MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.15</AEXP_Crocodile>
     </value>
   </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/BiomeDef[defName="TropicalSwamp"]/allowedPackAnimals</xpath>
-    <value>
-      <li MayRequire="VanillaExpanded.VanillaAnimalsExpanded">AEXP_IndianElephant</li>
-      <li>Horse</li>
-    </value>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/BiomeDef[defName="TropicalSwamp"]/allowedPackAnimals/li[text()="AEXP_IndianElephant"]</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/BiomeDef[defName="TropicalSwamp"]/allowedPackAnimals</xpath>
+      <value>
+        <li MayRequire="VanillaExpanded.VanillaAnimalsExpanded">AEXP_IndianElephant</li>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/BiomeDef[defName="TropicalSwamp"]/allowedPackAnimals/li[text()="VAEWaste_Megatardi"]</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/BiomeDef[defName="TropicalSwamp"]/allowedPackAnimals</xpath>
+      <value>
+        <li MayRequire="VanillaExpanded.VAEWaste">VAEWaste_Megatardi</li>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/BiomeDef[defName="TropicalSwamp"]/allowedPackAnimals/li[text()="Horse"]</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/BiomeDef[defName="TropicalSwamp"]/allowedPackAnimals</xpath>
+      <value>
+        <li>Horse</li>
+      </value>
+    </nomatch>
   </Operation>
 </Patch>

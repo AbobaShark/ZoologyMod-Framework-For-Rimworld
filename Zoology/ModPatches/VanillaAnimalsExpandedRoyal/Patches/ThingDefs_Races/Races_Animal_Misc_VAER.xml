@@ -2,6 +2,16 @@
 <Patch>
   <!---->
   <!-- VAERoy_RoyalTiger -->
+  <Operation Class="PatchOperationAttributeSet">
+    <xpath>/Defs/ThingDef[defName = "VAERoy_RoyalTiger"]</xpath>
+    <attribute>ParentName</attribute>
+    <value>AnimalThingBase</value>
+  </Operation>
+  <Operation Class="PatchOperationAttributeSet">
+    <xpath>/Defs/PawnKindDef[defName = "VAERoy_RoyalTiger"]</xpath>
+    <attribute>ParentName</attribute>
+    <value>AnimalKindBase</value>
+  </Operation>
   <!-- VAERoy_RoyalTiger StatBases -->
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "VAERoy_RoyalTiger"]/statBases/MarketValue</xpath>
@@ -317,6 +327,27 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAERoy_RoyalTiger"]/race/leatherDef</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "VAERoy_RoyalTiger"]/race/leatherDef</xpath>
+      <value>
+        <leatherDef>Leather_Panthera</leatherDef>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "VAERoy_RoyalTiger"]/race</xpath>
+      <value>
+        <leatherDef>Leather_Panthera</leatherDef>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAERoy_RoyalTiger"]/race/useLeatherFrom</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "VAERoy_RoyalTiger"]/race/useLeatherFrom</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "VAERoy_RoyalTiger"]/race/manhunterOnTameFailChance</xpath>
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "VAERoy_RoyalTiger"]/race/manhunterOnTameFailChance</xpath>
@@ -507,6 +538,12 @@
         <canFishForFood>false</canFishForFood>
       </value>
     </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAERoy_RoyalTiger"]/race/wildBiomes</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "VAERoy_RoyalTiger"]/race/wildBiomes</xpath>
+    </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "VAERoy_RoyalTiger"]/race/lifeStageAges</xpath>
@@ -709,6 +746,16 @@
     </match>
   </Operation>
   <!-- VAERoy_Pheasant -->
+  <Operation Class="PatchOperationAttributeSet">
+    <xpath>/Defs/ThingDef[defName = "VAERoy_Pheasant"]</xpath>
+    <attribute>ParentName</attribute>
+    <value>AnimalThingBase</value>
+  </Operation>
+  <Operation Class="PatchOperationAttributeSet">
+    <xpath>/Defs/PawnKindDef[defName = "VAERoy_Pheasant"]</xpath>
+    <attribute>ParentName</attribute>
+    <value>AnimalKindBase</value>
+  </Operation>
   <!-- VAERoy_Pheasant StatBases -->
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "VAERoy_Pheasant"]/statBases/MarketValue</xpath>
@@ -1015,9 +1062,15 @@
     </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "VAERoy_Pheasant"]/race/LeatherDef</xpath>
+    <xpath>/Defs/ThingDef[defName = "VAERoy_Pheasant"]/race/leatherDef</xpath>
     <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "VAERoy_Pheasant"]/race/LeatherDef</xpath>
+      <xpath>/Defs/ThingDef[defName = "VAERoy_Pheasant"]/race/leatherDef</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAERoy_Pheasant"]/race/useLeatherFrom</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "VAERoy_Pheasant"]/race/useLeatherFrom</xpath>
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
@@ -1186,6 +1239,12 @@
     </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAERoy_Pheasant"]/race/wildBiomes</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "VAERoy_Pheasant"]/race/wildBiomes</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "VAERoy_Pheasant"]/race/lifeStageAges/li[def = 'AnimalJuvenile']</xpath>
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "VAERoy_Pheasant"]/race/lifeStageAges/li[def = 'AnimalJuvenile']/minAge</xpath>
@@ -1308,6 +1367,16 @@
     </match>
   </Operation>
   <!-- VAERoy_Orangutan -->
+  <Operation Class="PatchOperationAttributeSet">
+    <xpath>/Defs/ThingDef[defName = "VAERoy_Orangutan"]</xpath>
+    <attribute>ParentName</attribute>
+    <value>AnimalThingBase</value>
+  </Operation>
+  <Operation Class="PatchOperationAttributeSet">
+    <xpath>/Defs/PawnKindDef[defName = "VAERoy_Orangutan"]</xpath>
+    <attribute>ParentName</attribute>
+    <value>AnimalKindBase</value>
+  </Operation>
   <!-- VAERoy_Orangutan StatBases -->
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "VAERoy_Orangutan"]/statBases/MarketValue</xpath>
@@ -1599,6 +1668,27 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAERoy_Orangutan"]/race/leatherDef</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "VAERoy_Orangutan"]/race/leatherDef</xpath>
+      <value>
+        <leatherDef>Leather_Light</leatherDef>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "VAERoy_Orangutan"]/race</xpath>
+      <value>
+        <leatherDef>Leather_Light</leatherDef>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAERoy_Orangutan"]/race/useLeatherFrom</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "VAERoy_Orangutan"]/race/useLeatherFrom</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "VAERoy_Orangutan"]/race/manhunterOnTameFailChance</xpath>
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "VAERoy_Orangutan"]/race/manhunterOnTameFailChance</xpath>
@@ -1773,6 +1863,12 @@
     </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAERoy_Orangutan"]/race/wildBiomes</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "VAERoy_Orangutan"]/race/wildBiomes</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "VAERoy_Orangutan"]/race/lifeStageAges/li[def = 'AnimalJuvenile']</xpath>
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "VAERoy_Orangutan"]/race/lifeStageAges/li[def = 'AnimalJuvenile']/minAge</xpath>
@@ -1900,6 +1996,16 @@
     </match>
   </Operation>
   <!-- VAERoy_Megachicken -->
+  <Operation Class="PatchOperationAttributeSet">
+    <xpath>/Defs/ThingDef[defName = "VAERoy_Megachicken"]</xpath>
+    <attribute>ParentName</attribute>
+    <value>AnimalThingBase</value>
+  </Operation>
+  <Operation Class="PatchOperationAttributeSet">
+    <xpath>/Defs/PawnKindDef[defName = "VAERoy_Megachicken"]</xpath>
+    <attribute>ParentName</attribute>
+    <value>AnimalKindBase</value>
+  </Operation>
   <!-- VAERoy_Megachicken StatBases -->
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "VAERoy_Megachicken"]/statBases/MarketValue</xpath>
@@ -2008,21 +2114,6 @@
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "VAERoy_Megachicken"]/statBases/ToxicEnvironmentResistance</xpath>
     </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "VAERoy_Megachicken"]/statBases/LeatherAmount</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "VAERoy_Megachicken"]/statBases/LeatherAmount</xpath>
-      <value>
-        <LeatherAmount>0</LeatherAmount>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "VAERoy_Megachicken"]/statBases</xpath>
-      <value>
-        <LeatherAmount>0</LeatherAmount>
-      </value>
-    </nomatch>
   </Operation>
   <!-- VAERoy_Megachicken tools -->
   <Operation Class="PatchOperationConditional">
@@ -2206,9 +2297,24 @@
     </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "VAERoy_Megachicken"]/race/LeatherDef</xpath>
+    <xpath>/Defs/ThingDef[defName = "VAERoy_Megachicken"]/race/leatherDef</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "VAERoy_Megachicken"]/race/leatherDef</xpath>
+      <value>
+        <leatherDef>Leather_Bird</leatherDef>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "VAERoy_Megachicken"]/race</xpath>
+      <value>
+        <leatherDef>Leather_Bird</leatherDef>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAERoy_Megachicken"]/race/useLeatherFrom</xpath>
     <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "VAERoy_Megachicken"]/race/LeatherDef</xpath>
+      <xpath>/Defs/ThingDef[defName = "VAERoy_Megachicken"]/race/useLeatherFrom</xpath>
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
@@ -2377,6 +2483,12 @@
     </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAERoy_Megachicken"]/race/wildBiomes</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "VAERoy_Megachicken"]/race/wildBiomes</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "VAERoy_Megachicken"]/race/specialTrainables</xpath>
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "VAERoy_Megachicken"]/race/specialTrainables</xpath>
@@ -2476,6 +2588,16 @@
     </match>
   </Operation>
   <!-- VAERoy_Crane -->
+  <Operation Class="PatchOperationAttributeSet">
+    <xpath>/Defs/ThingDef[defName = "VAERoy_Crane"]</xpath>
+    <attribute>ParentName</attribute>
+    <value>AnimalThingBase</value>
+  </Operation>
+  <Operation Class="PatchOperationAttributeSet">
+    <xpath>/Defs/PawnKindDef[defName = "VAERoy_Crane"]</xpath>
+    <attribute>ParentName</attribute>
+    <value>AnimalKindBase</value>
+  </Operation>
   <!-- VAERoy_Crane StatBases -->
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "VAERoy_Crane"]/statBases/MarketValue</xpath>
@@ -2762,9 +2884,15 @@
     </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "VAERoy_Crane"]/race/LeatherDef</xpath>
+    <xpath>/Defs/ThingDef[defName = "VAERoy_Crane"]/race/leatherDef</xpath>
     <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "VAERoy_Crane"]/race/LeatherDef</xpath>
+      <xpath>/Defs/ThingDef[defName = "VAERoy_Crane"]/race/leatherDef</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAERoy_Crane"]/race/useLeatherFrom</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "VAERoy_Crane"]/race/useLeatherFrom</xpath>
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
@@ -2942,6 +3070,12 @@
     </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAERoy_Crane"]/race/wildBiomes</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "VAERoy_Crane"]/race/wildBiomes</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "VAERoy_Crane"]/race/lifeStageAges/li[def = 'AnimalJuvenile']</xpath>
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "VAERoy_Crane"]/race/lifeStageAges/li[def = 'AnimalJuvenile']/minAge</xpath>
@@ -3055,6 +3189,16 @@
     </match>
   </Operation>
   <!-- VAERoy_AngoraRabbit -->
+  <Operation Class="PatchOperationAttributeSet">
+    <xpath>/Defs/ThingDef[defName = "VAERoy_AngoraRabbit"]</xpath>
+    <attribute>ParentName</attribute>
+    <value>AnimalThingBase</value>
+  </Operation>
+  <Operation Class="PatchOperationAttributeSet">
+    <xpath>/Defs/PawnKindDef[defName = "VAERoy_AngoraRabbit"]</xpath>
+    <attribute>ParentName</attribute>
+    <value>AnimalKindBase</value>
+  </Operation>
   <!-- VAERoy_AngoraRabbit StatBases -->
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "VAERoy_AngoraRabbit"]/statBases/MarketValue</xpath>
@@ -3326,6 +3470,27 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAERoy_AngoraRabbit"]/race/leatherDef</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "VAERoy_AngoraRabbit"]/race/leatherDef</xpath>
+      <value>
+        <leatherDef>Leather_Light</leatherDef>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "VAERoy_AngoraRabbit"]/race</xpath>
+      <value>
+        <leatherDef>Leather_Light</leatherDef>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAERoy_AngoraRabbit"]/race/useLeatherFrom</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "VAERoy_AngoraRabbit"]/race/useLeatherFrom</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "VAERoy_AngoraRabbit"]/race/manhunterOnTameFailChance</xpath>
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "VAERoy_AngoraRabbit"]/race/manhunterOnTameFailChance</xpath>
@@ -3507,6 +3672,12 @@
         <canFishForFood>false</canFishForFood>
       </value>
     </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAERoy_AngoraRabbit"]/race/wildBiomes</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "VAERoy_AngoraRabbit"]/race/wildBiomes</xpath>
+    </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "VAERoy_AngoraRabbit"]/race/lifeStageAges/li[def = 'AnimalJuvenile']</xpath>

@@ -2,19 +2,29 @@
 <Patch>
   <!---->
   <!-- Moose -->
+  <Operation Class="PatchOperationAttributeSet">
+    <xpath>/Defs/ThingDef[defName = "Moose"]</xpath>
+    <attribute>ParentName</attribute>
+    <value>AnimalThingBase</value>
+  </Operation>
+  <Operation Class="PatchOperationAttributeSet">
+    <xpath>/Defs/PawnKindDef[defName = "Moose"]</xpath>
+    <attribute>ParentName</attribute>
+    <value>AnimalKindBase</value>
+  </Operation>
   <!-- Moose StatBases -->
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Moose"]/statBases/MarketValue</xpath>
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Moose"]/statBases/MarketValue</xpath>
       <value>
-        <MarketValue>350</MarketValue>
+        <MarketValue>400</MarketValue>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Moose"]/statBases</xpath>
       <value>
-        <MarketValue>350</MarketValue>
+        <MarketValue>400</MarketValue>
       </value>
     </nomatch>
   </Operation>
@@ -53,13 +63,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Moose"]/statBases/FilthRate</xpath>
       <value>
-        <FilthRate>13</FilthRate>
+        <FilthRate>14</FilthRate>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Moose"]/statBases</xpath>
       <value>
-        <FilthRate>13</FilthRate>
+        <FilthRate>14</FilthRate>
       </value>
     </nomatch>
   </Operation>
@@ -127,7 +137,7 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>14</power>
+          <power>14.5</power>
           <cooldownTime>2.65</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
           <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
@@ -139,7 +149,7 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>17</power>
+          <power>18</power>
           <cooldownTime>2.65</cooldownTime>
           <linkedBodyPartsGroup>FrontLeftLeg</linkedBodyPartsGroup>
         </li>
@@ -149,7 +159,7 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>17</power>
+          <power>18</power>
           <cooldownTime>2.65</cooldownTime>
           <linkedBodyPartsGroup>FrontRightLeg</linkedBodyPartsGroup>
         </li>
@@ -158,7 +168,7 @@
           <capacities>
             <li>Scratch</li>
           </capacities>
-          <power>19.5</power>
+          <power>20</power>
           <cooldownTime>2.25</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
         </li>
@@ -171,13 +181,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Moose"]/race/baseBodySize</xpath>
       <value>
-        <baseBodySize>2.5</baseBodySize>
+        <baseBodySize>2.75</baseBodySize>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Moose"]/race</xpath>
       <value>
-        <baseBodySize>2.5</baseBodySize>
+        <baseBodySize>2.75</baseBodySize>
       </value>
     </nomatch>
   </Operation>
@@ -186,13 +196,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Moose"]/race/baseHealthScale</xpath>
       <value>
-        <baseHealthScale>2.5</baseHealthScale>
+        <baseHealthScale>2.75</baseHealthScale>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Moose"]/race</xpath>
       <value>
-        <baseHealthScale>2.5</baseHealthScale>
+        <baseHealthScale>2.75</baseHealthScale>
       </value>
     </nomatch>
   </Operation>
@@ -201,13 +211,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Moose"]/race/baseHungerRate</xpath>
       <value>
-        <baseHungerRate>1.05</baseHungerRate>
+        <baseHungerRate>1.1</baseHungerRate>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Moose"]/race</xpath>
       <value>
-        <baseHungerRate>1.05</baseHungerRate>
+        <baseHungerRate>1.1</baseHungerRate>
       </value>
     </nomatch>
   </Operation>
@@ -300,6 +310,27 @@
         <roamMtbDays>2</roamMtbDays>
       </value>
     </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Moose"]/race/leatherDef</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "Moose"]/race/leatherDef</xpath>
+      <value>
+        <leatherDef>Leather_Plain</leatherDef>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "Moose"]/race</xpath>
+      <value>
+        <leatherDef>Leather_Plain</leatherDef>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Moose"]/race/useLeatherFrom</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Moose"]/race/useLeatherFrom</xpath>
+    </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Moose"]/race/manhunterOnTameFailChance</xpath>
@@ -467,6 +498,12 @@
     </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Moose"]/race/wildBiomes</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Moose"]/race/wildBiomes</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Moose"]/race/lifeStageAges/li[def = 'AnimalJuvenile']</xpath>
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Moose"]/race/lifeStageAges/li[def = 'AnimalJuvenile']/minAge</xpath>
@@ -566,13 +603,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "Moose"]/combatPower</xpath>
       <value>
-        <combatPower>170</combatPower>
+        <combatPower>190</combatPower>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "Moose"]</xpath>
       <value>
-        <combatPower>170</combatPower>
+        <combatPower>190</combatPower>
       </value>
     </nomatch>
   </Operation>
@@ -581,13 +618,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "Moose"]/ecoSystemWeight</xpath>
       <value>
-        <ecoSystemWeight>1.35</ecoSystemWeight>
+        <ecoSystemWeight>1.45</ecoSystemWeight>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "Moose"]</xpath>
       <value>
-        <ecoSystemWeight>1.35</ecoSystemWeight>
+        <ecoSystemWeight>1.45</ecoSystemWeight>
       </value>
     </nomatch>
   </Operation>
@@ -619,6 +656,16 @@
     </match>
   </Operation>
   <!-- Muskox -->
+  <Operation Class="PatchOperationAttributeSet">
+    <xpath>/Defs/ThingDef[defName = "Muskox"]</xpath>
+    <attribute>ParentName</attribute>
+    <value>AnimalThingBase</value>
+  </Operation>
+  <Operation Class="PatchOperationAttributeSet">
+    <xpath>/Defs/PawnKindDef[defName = "Muskox"]</xpath>
+    <attribute>ParentName</attribute>
+    <value>AnimalKindBase</value>
+  </Operation>
   <!-- Muskox StatBases -->
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Muskox"]/statBases/MarketValue</xpath>
@@ -919,6 +966,27 @@
     </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Muskox"]/race/leatherDef</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "Muskox"]/race/leatherDef</xpath>
+      <value>
+        <leatherDef>Leather_Plain</leatherDef>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "Muskox"]/race</xpath>
+      <value>
+        <leatherDef>Leather_Plain</leatherDef>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Muskox"]/race/useLeatherFrom</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Muskox"]/race/useLeatherFrom</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Muskox"]/race/manhunterOnTameFailChance</xpath>
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Muskox"]/race/manhunterOnTameFailChance</xpath>
@@ -1082,6 +1150,12 @@
         <canFishForFood>false</canFishForFood>
       </value>
     </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Muskox"]/race/wildBiomes</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Muskox"]/race/wildBiomes</xpath>
+    </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Muskox"]/race/lifeStageAges/li[def = 'AnimalJuvenile']</xpath>
@@ -1314,14 +1388,14 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Moose"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]/Durability</xpath>
             <value>
-              <Durability>1250</Durability>
+              <Durability>1375</Durability>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Moose"]/comps</xpath>
             <value>
               <li Class="CombatExtended.CompProperties_ArmorDurability">
-                <Durability>1250</Durability>
+                <Durability>1375</Durability>
                 <Regenerates>true</Regenerates>
                 <RegenInterval>600</RegenInterval>
                 <RegenValue>5</RegenValue>
@@ -1375,8 +1449,8 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>9</power>
-                <armorPenetrationBlunt>8.26</armorPenetrationBlunt>
+                <power>9.5</power>
+                <armorPenetrationBlunt>8.82</armorPenetrationBlunt>
                 <cooldownTime>1.85</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
@@ -1388,9 +1462,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>15.2</power>
-                <armorPenetrationBlunt>9.68</armorPenetrationBlunt>
-                <cooldownTime>2.7</cooldownTime>
+                <power>16</power>
+                <armorPenetrationBlunt>10.3</armorPenetrationBlunt>
+                <cooldownTime>2.75</cooldownTime>
                 <linkedBodyPartsGroup>FrontLeftLeg</linkedBodyPartsGroup>
               </li>
               <li Class="CombatExtended.ToolCE">
@@ -1399,9 +1473,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>15.2</power>
-                <armorPenetrationBlunt>9.68</armorPenetrationBlunt>
-                <cooldownTime>2.7</cooldownTime>
+                <power>16</power>
+                <armorPenetrationBlunt>10.3</armorPenetrationBlunt>
+                <cooldownTime>2.75</cooldownTime>
                 <linkedBodyPartsGroup>FrontRightLeg</linkedBodyPartsGroup>
               </li>
               <li Class="CombatExtended.ToolCE">
@@ -1409,10 +1483,10 @@
                 <capacities>
                   <li>Scratch</li>
                 </capacities>
-                <power>28.2</power>
-                <armorPenetrationBlunt>11.62</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.64</armorPenetrationSharp>
-                <cooldownTime>3.15</cooldownTime>
+                <power>29</power>
+                <armorPenetrationBlunt>12.36</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.67</armorPenetrationSharp>
+                <cooldownTime>3.2</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
               </li>
             </tools>
@@ -1575,8 +1649,8 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>11.2</power>
-                <armorPenetrationBlunt>10.2</armorPenetrationBlunt>
+                <power>11.3</power>
+                <armorPenetrationBlunt>10.27</armorPenetrationBlunt>
                 <cooldownTime>1.6</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
@@ -1588,8 +1662,8 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>13.6</power>
-                <armorPenetrationBlunt>8.6</armorPenetrationBlunt>
+                <power>13.7</power>
+                <armorPenetrationBlunt>8.66</armorPenetrationBlunt>
                 <cooldownTime>2.65</cooldownTime>
                 <linkedBodyPartsGroup>FrontLeftLeg</linkedBodyPartsGroup>
               </li>
@@ -1599,8 +1673,8 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>13.6</power>
-                <armorPenetrationBlunt>8.6</armorPenetrationBlunt>
+                <power>13.7</power>
+                <armorPenetrationBlunt>8.66</armorPenetrationBlunt>
                 <cooldownTime>2.65</cooldownTime>
                 <linkedBodyPartsGroup>FrontRightLeg</linkedBodyPartsGroup>
               </li>
@@ -1609,8 +1683,8 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>13.4</power>
-                <armorPenetrationBlunt>12.24</armorPenetrationBlunt>
+                <power>13.5</power>
+                <armorPenetrationBlunt>12.32</armorPenetrationBlunt>
                 <cooldownTime>2.6</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
               </li>

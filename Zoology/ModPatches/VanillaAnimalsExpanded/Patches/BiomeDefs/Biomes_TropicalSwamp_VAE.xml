@@ -1,12 +1,13 @@
-<?xml version="1.0" encoding="utf-8" ?>
+<?xml version='1.0' encoding='UTF-8'?>
 <Patch>
-	
-	<!-- Caravan animals -->
-	<Operation Class="PatchOperationAdd"> 
-		<xpath>/Defs/BiomeDef[defName="TropicalSwamp"]/allowedPackAnimals</xpath>
-		<value>
-			<li>AEXP_IndianElephant</li>
-		</value>
-	</Operation>
-
+  <!-- Caravan animals -->
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/BiomeDef[defName="TropicalSwamp"]/allowedPackAnimals/li[text()="AEXP_IndianElephant"]</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/BiomeDef[defName="TropicalSwamp"]/allowedPackAnimals</xpath>
+      <value>
+        <li>AEXP_IndianElephant</li>
+      </value>
+    </nomatch>
+  </Operation>
 </Patch>

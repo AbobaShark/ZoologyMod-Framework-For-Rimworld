@@ -38,15 +38,12 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/BiomeDef[defName="Grasslands"]/allowedPackAnimals</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/BiomeDef[defName="Grasslands"]/allowedPackAnimals</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/BiomeDef[defName="Grasslands"]</xpath>
-    <value>
-      <allowedPackAnimals/>
-    </value>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/BiomeDef[defName="Grasslands"]</xpath>
+      <value>
+        <allowedPackAnimals/>
+      </value>
+    </nomatch>
   </Operation>
   <Operation Class="PatchOperationAdd">
     <xpath>/Defs/BiomeDef[defName="Grasslands"]/wildAnimals</xpath>
@@ -68,14 +65,14 @@
       <Crow>1</Crow>
       <Quail>1</Quail>
       <Vulture>0.375</Vulture>
-      <Armadillo>0.425</Armadillo>
+      <Armadillo>0.375</Armadillo>
       <MonitorLizard>0.2</MonitorLizard>
-      <PrairieDog>0.625</PrairieDog>
+      <PrairieDog>0.7</PrairieDog>
       <AEXP_Coyote MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.075</AEXP_Coyote>
       <AEXP_Giraffe MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.125</AEXP_Giraffe>
       <AEXP_Zebra MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.15</AEXP_Zebra>
       <AEXP_Wildebeest MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.175</AEXP_Wildebeest>
-      <AEXP_Cheetah MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.075</AEXP_Cheetah>
+      <AEXP_Cheetah MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.05</AEXP_Cheetah>
       <AEXP_Boombat MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.125</AEXP_Boombat>
       <AEXP_Kangaroo MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.225</AEXP_Kangaroo>
       <AEXP_Koala MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.05</AEXP_Koala>
@@ -101,6 +98,10 @@
       <Sparrow>0.8</Sparrow>
       <Crow>0.8</Crow>
       <AEXP_Boombat MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.1</AEXP_Boombat>
+      <VAEWaste_Hydra MayRequire="VanillaExpanded.VAEWaste">0.35</VAEWaste_Hydra>
+      <VAEWaste_Megatardi MayRequire="VanillaExpanded.VAEWaste">0.075</VAEWaste_Megatardi>
+      <VAEWaste_Toxlion MayRequire="VanillaExpanded.VAEWaste">0.05</VAEWaste_Toxlion>
+      <VAEWaste_Toxscorpion MayRequire="VanillaExpanded.VAEWaste">0.2</VAEWaste_Toxscorpion>
     </value>
   </Operation>
   <Operation Class="PatchOperationAdd">
@@ -112,13 +113,49 @@
       <AEXP_Crocodile MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.15</AEXP_Crocodile>
     </value>
   </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/BiomeDef[defName="Grasslands"]/allowedPackAnimals</xpath>
-    <value>
-      <li>Horse</li>
-      <li>Donkey</li>
-      <li>Elephant</li>
-      <li>Bison</li>
-    </value>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/BiomeDef[defName="Grasslands"]/allowedPackAnimals/li[text()="Horse"]</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/BiomeDef[defName="Grasslands"]/allowedPackAnimals</xpath>
+      <value>
+        <li>Horse</li>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/BiomeDef[defName="Grasslands"]/allowedPackAnimals/li[text()="Donkey"]</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/BiomeDef[defName="Grasslands"]/allowedPackAnimals</xpath>
+      <value>
+        <li>Donkey</li>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/BiomeDef[defName="Grasslands"]/allowedPackAnimals/li[text()="Elephant"]</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/BiomeDef[defName="Grasslands"]/allowedPackAnimals</xpath>
+      <value>
+        <li>Elephant</li>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/BiomeDef[defName="Grasslands"]/allowedPackAnimals/li[text()="Bison"]</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/BiomeDef[defName="Grasslands"]/allowedPackAnimals</xpath>
+      <value>
+        <li>Bison</li>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/BiomeDef[defName="Grasslands"]/allowedPackAnimals/li[text()="VAEWaste_Megatardi"]</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/BiomeDef[defName="Grasslands"]/allowedPackAnimals</xpath>
+      <value>
+        <li MayRequire="VanillaExpanded.VAEWaste">VAEWaste_Megatardi</li>
+      </value>
+    </nomatch>
   </Operation>
 </Patch>

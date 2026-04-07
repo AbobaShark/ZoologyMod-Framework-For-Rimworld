@@ -2,6 +2,16 @@
 <Patch>
   <!---->
   <!-- AEXP_BlackBear -->
+  <Operation Class="PatchOperationAttributeSet">
+    <xpath>/Defs/ThingDef[defName = "AEXP_BlackBear"]</xpath>
+    <attribute>ParentName</attribute>
+    <value>BaseBear</value>
+  </Operation>
+  <Operation Class="PatchOperationAttributeSet">
+    <xpath>/Defs/PawnKindDef[defName = "AEXP_BlackBear"]</xpath>
+    <attribute>ParentName</attribute>
+    <value>BearBase</value>
+  </Operation>
   <!-- AEXP_BlackBear StatBases -->
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AEXP_BlackBear"]/statBases</xpath>
@@ -323,6 +333,12 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AEXP_BlackBear"]/race/useLeatherFrom</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AEXP_BlackBear"]/race/useLeatherFrom</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AEXP_BlackBear"]/race/manhunterOnTameFailChance</xpath>
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "AEXP_BlackBear"]/race/manhunterOnTameFailChance</xpath>
@@ -413,6 +429,12 @@
     <xpath>/Defs/ThingDef[defName = "AEXP_BlackBear"]/race/canFishForFood</xpath>
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "AEXP_BlackBear"]/race/canFishForFood</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AEXP_BlackBear"]/race/wildBiomes</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AEXP_BlackBear"]/race/wildBiomes</xpath>
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">

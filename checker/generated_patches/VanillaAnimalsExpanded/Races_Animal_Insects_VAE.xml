@@ -153,13 +153,32 @@
           <chanceFactor>0.2</chanceFactor>
         </li>
         <li>
-          <label>stinger</label>
+          <label>left pincer</label>
+          <labelNoLocation>pincer</labelNoLocation>
           <capacities>
-            <li>ScratchToxic</li>
+            <li>Scratch</li>
           </capacities>
           <power>36</power>
           <cooldownTime>2.95</cooldownTime>
-          <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
+          <linkedBodyPartsGroup>LeftPincer</linkedBodyPartsGroup>
+          <surpriseAttack>
+            <extraMeleeDamages>
+              <li>
+                <def>Stun</def>
+                <amount>30</amount>
+              </li>
+            </extraMeleeDamages>
+          </surpriseAttack>
+        </li>
+        <li>
+          <label>right pincer</label>
+          <labelNoLocation>pincer</labelNoLocation>
+          <capacities>
+            <li>Scratch</li>
+          </capacities>
+          <power>36</power>
+          <cooldownTime>2.95</cooldownTime>
+          <linkedBodyPartsGroup>RightPincer</linkedBodyPartsGroup>
           <surpriseAttack>
             <extraMeleeDamages>
               <li>
@@ -375,13 +394,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/body</xpath>
       <value>
-        <body>BeetleLike</body>
+        <body>ScorpionLike</body>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race</xpath>
       <value>
-        <body>BeetleLike</body>
+        <body>ScorpionLike</body>
       </value>
     </nomatch>
   </Operation>
@@ -660,15 +679,36 @@
                 <chanceFactor>0.2</chanceFactor>
               </li>
               <li Class="CombatExtended.ToolCE">
-                <label>stinger</label>
+                <label>left pincer</label>
+                <labelNoLocation>pincer</labelNoLocation>
                 <capacities>
-                  <li>ScratchToxic</li>
+                  <li>Scratch</li>
                 </capacities>
                 <power>39</power>
                 <armorPenetrationBlunt>24.36</armorPenetrationBlunt>
                 <armorPenetrationSharp>7.19</armorPenetrationSharp>
                 <cooldownTime>3.6</cooldownTime>
-                <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
+                <linkedBodyPartsGroup>LeftPincer</linkedBodyPartsGroup>
+                <surpriseAttack>
+                  <extraMeleeDamages>
+                    <li>
+                      <def>Stun</def>
+                      <amount>30</amount>
+                    </li>
+                  </extraMeleeDamages>
+                </surpriseAttack>
+              </li>
+              <li Class="CombatExtended.ToolCE">
+                <label>right pincer</label>
+                <labelNoLocation>pincer</labelNoLocation>
+                <capacities>
+                  <li>Scratch</li>
+                </capacities>
+                <power>39</power>
+                <armorPenetrationBlunt>24.36</armorPenetrationBlunt>
+                <armorPenetrationSharp>7.19</armorPenetrationSharp>
+                <cooldownTime>3.6</cooldownTime>
+                <linkedBodyPartsGroup>RightPincer</linkedBodyPartsGroup>
                 <surpriseAttack>
                   <extraMeleeDamages>
                     <li>

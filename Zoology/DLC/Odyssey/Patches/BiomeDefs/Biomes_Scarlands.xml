@@ -38,15 +38,12 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/BiomeDef[defName="Scarlands"]/allowedPackAnimals</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/BiomeDef[defName="Scarlands"]/allowedPackAnimals</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/BiomeDef[defName="Scarlands"]</xpath>
-    <value>
-      <allowedPackAnimals/>
-    </value>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/BiomeDef[defName="Scarlands"]</xpath>
+      <value>
+        <allowedPackAnimals/>
+      </value>
+    </nomatch>
   </Operation>
   <Operation Class="PatchOperationAdd">
     <xpath>/Defs/BiomeDef[defName="Scarlands"]/wildAnimals</xpath>
@@ -81,6 +78,17 @@
       <Sparrow>0.8</Sparrow>
       <Crow>0.8</Crow>
       <BogHound>0.05</BogHound>
+      <VAEWaste_Hydra MayRequire="VanillaExpanded.VAEWaste">0.35</VAEWaste_Hydra>
+      <VAEWaste_Megatardi MayRequire="VanillaExpanded.VAEWaste">0.075</VAEWaste_Megatardi>
+      <VAEWaste_Pestigator MayRequire="VanillaExpanded.VAEWaste">0.15</VAEWaste_Pestigator>
+      <VAEWaste_Toxafox MayRequire="VanillaExpanded.VAEWaste">0.1</VAEWaste_Toxafox>
+      <VAEWaste_Toxbear MayRequire="VanillaExpanded.VAEWaste">0.05</VAEWaste_Toxbear>
+      <VAEWaste_Toxiguana MayRequire="VanillaExpanded.VAEWaste">0.475</VAEWaste_Toxiguana>
+      <VAEWaste_Toxlion MayRequire="VanillaExpanded.VAEWaste">0.05</VAEWaste_Toxlion>
+      <VAEWaste_Toxscorpion MayRequire="VanillaExpanded.VAEWaste">0.2</VAEWaste_Toxscorpion>
+      <VAEWaste_Wasteboar MayRequire="VanillaExpanded.VAEWaste">0.175</VAEWaste_Wasteboar>
+      <VAEWaste_Wastedeer MayRequire="VanillaExpanded.VAEWaste">0.2</VAEWaste_Wastedeer>
+      <VAEWaste_Wasteffalo MayRequire="VanillaExpanded.VAEWaste">0.15</VAEWaste_Wasteffalo>
     </value>
   </Operation>
   <Operation Class="PatchOperationAdd">
@@ -89,12 +97,49 @@
       <StoneCrab>1</StoneCrab>
     </value>
   </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/BiomeDef[defName="Scarlands"]/allowedPackAnimals</xpath>
-    <value>
-      <li>Dromedary</li>
-      <li>Horse</li>
-      <li>Donkey</li>
-    </value>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/BiomeDef[defName="Scarlands"]/allowedPackAnimals/li[text()="Dromedary"]</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/BiomeDef[defName="Scarlands"]/allowedPackAnimals</xpath>
+      <value>
+        <li>Dromedary</li>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/BiomeDef[defName="Scarlands"]/allowedPackAnimals/li[text()="Horse"]</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/BiomeDef[defName="Scarlands"]/allowedPackAnimals</xpath>
+      <value>
+        <li>Horse</li>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/BiomeDef[defName="Scarlands"]/allowedPackAnimals/li[text()="Donkey"]</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/BiomeDef[defName="Scarlands"]/allowedPackAnimals</xpath>
+      <value>
+        <li>Donkey</li>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/BiomeDef[defName="Scarlands"]/allowedPackAnimals/li[text()="VAEWaste_Megatardi"]</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/BiomeDef[defName="Scarlands"]/allowedPackAnimals</xpath>
+      <value>
+        <li MayRequire="VanillaExpanded.VAEWaste">VAEWaste_Megatardi</li>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/BiomeDef[defName="Scarlands"]/allowedPackAnimals/li[text()="VAEWaste_Wasteffalo"]</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/BiomeDef[defName="Scarlands"]/allowedPackAnimals</xpath>
+      <value>
+        <li MayRequire="VanillaExpanded.VAEWaste">VAEWaste_Wasteffalo</li>
+      </value>
+    </nomatch>
   </Operation>
 </Patch>

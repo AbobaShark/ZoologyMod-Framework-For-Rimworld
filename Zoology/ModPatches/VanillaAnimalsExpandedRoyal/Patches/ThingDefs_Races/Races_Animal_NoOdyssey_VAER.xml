@@ -1,0 +1,2549 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Patch>
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>Odyssey</li>
+    </mods>
+    <nomatch Class="PatchOperationSequence">
+      <operations>
+        <!---->
+        <!-- VAERoy_Quail -->
+        <li Class="PatchOperationAttributeSet">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]</xpath>
+          <attribute>ParentName</attribute>
+          <value>AnimalThingBase</value>
+        </li>
+        <li Class="PatchOperationAttributeSet">
+          <xpath>/Defs/PawnKindDef[defName = "VAERoy_Quail"]</xpath>
+          <attribute>ParentName</attribute>
+          <value>AnimalKindBase</value>
+        </li>
+        <!-- VAERoy_Quail StatBases -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/statBases/MarketValue</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/statBases/MarketValue</xpath>
+            <value>
+              <MarketValue>100</MarketValue>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/statBases</xpath>
+            <value>
+              <MarketValue>100</MarketValue>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/statBases/MoveSpeed</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/statBases/MoveSpeed</xpath>
+            <value>
+              <MoveSpeed>2</MoveSpeed>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/statBases</xpath>
+            <value>
+              <MoveSpeed>2</MoveSpeed>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/statBases/Wildness</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/statBases/Wildness</xpath>
+            <value>
+              <Wildness>0.5</Wildness>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/statBases</xpath>
+            <value>
+              <Wildness>0.5</Wildness>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/statBases/FilthRate</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/statBases/FilthRate</xpath>
+            <value>
+              <FilthRate>2</FilthRate>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/statBases</xpath>
+            <value>
+              <FilthRate>2</FilthRate>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/statBases/ComfyTemperatureMin</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/statBases/ComfyTemperatureMin</xpath>
+            <value>
+              <ComfyTemperatureMin>-25</ComfyTemperatureMin>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/statBases</xpath>
+            <value>
+              <ComfyTemperatureMin>-25</ComfyTemperatureMin>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/statBases/ComfyTemperatureMax</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/statBases/ComfyTemperatureMax</xpath>
+            <value>
+              <ComfyTemperatureMax>50</ComfyTemperatureMax>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/statBases</xpath>
+            <value>
+              <ComfyTemperatureMax>50</ComfyTemperatureMax>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/statBases/ArmorRating_Blunt</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/statBases/ArmorRating_Blunt</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/statBases/ArmorRating_Sharp</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/statBases/ArmorRating_Sharp</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/statBases/ToxicEnvironmentResistance</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/statBases/ToxicEnvironmentResistance</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/statBases/LeatherAmount</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/statBases/LeatherAmount</xpath>
+            <value>
+              <LeatherAmount>0</LeatherAmount>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/statBases</xpath>
+            <value>
+              <LeatherAmount>0</LeatherAmount>
+            </value>
+          </nomatch>
+        </li>
+        <!-- VAERoy_Quail tools -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/tools</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/tools</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]</xpath>
+          <value>
+            <tools>
+              <li>
+                <label>head</label>
+                <capacities>
+                  <li>Blunt</li>
+                </capacities>
+                <power>1</power>
+                <cooldownTime>1</cooldownTime>
+                <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
+                <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
+                <chanceFactor>0.2</chanceFactor>
+              </li>
+              <li>
+                <label>rear left claw</label>
+                <labelNoLocation>claw</labelNoLocation>
+                <capacities>
+                  <li>Scratch</li>
+                </capacities>
+                <power>1</power>
+                <cooldownTime>1</cooldownTime>
+                <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
+              </li>
+              <li>
+                <label>rear  right claw</label>
+                <labelNoLocation>claw</labelNoLocation>
+                <capacities>
+                  <li>Scratch</li>
+                </capacities>
+                <power>1</power>
+                <cooldownTime>1</cooldownTime>
+                <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
+              </li>
+              <li>
+                <label>beak</label>
+                <capacities>
+                  <li>Blunt</li>
+                </capacities>
+                <power>1</power>
+                <cooldownTime>1</cooldownTime>
+                <linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>
+              </li>
+            </tools>
+          </value>
+        </li>
+        <!-- VAERoy_Quail RaceProperties -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/baseBodySize</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/baseBodySize</xpath>
+            <value>
+              <baseBodySize>0.1</baseBodySize>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race</xpath>
+            <value>
+              <baseBodySize>0.1</baseBodySize>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/baseHealthScale</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/baseHealthScale</xpath>
+            <value>
+              <baseHealthScale>0.1</baseHealthScale>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race</xpath>
+            <value>
+              <baseHealthScale>0.1</baseHealthScale>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/baseHungerRate</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/baseHungerRate</xpath>
+            <value>
+              <baseHungerRate>0.25</baseHungerRate>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race</xpath>
+            <value>
+              <baseHungerRate>0.25</baseHungerRate>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/lifeExpectancy</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/lifeExpectancy</xpath>
+            <value>
+              <lifeExpectancy>8</lifeExpectancy>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race</xpath>
+            <value>
+              <lifeExpectancy>8</lifeExpectancy>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/gestationPeriodDays</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/gestationPeriodDays</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/herdAnimal</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/herdAnimal</xpath>
+            <value>
+              <herdAnimal>true</herdAnimal>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race</xpath>
+            <value>
+              <herdAnimal>true</herdAnimal>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/herdMigrationAllowed</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/herdMigrationAllowed</xpath>
+            <value>
+              <herdMigrationAllowed>false</herdMigrationAllowed>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race</xpath>
+            <value>
+              <herdMigrationAllowed>false</herdMigrationAllowed>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/foodType</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/foodType</xpath>
+            <value>
+              <foodType>VegetarianRoughAnimal</foodType>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race</xpath>
+            <value>
+              <foodType>VegetarianRoughAnimal</foodType>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/roamMtbDays</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/roamMtbDays</xpath>
+            <value>
+              <roamMtbDays>4</roamMtbDays>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race</xpath>
+            <value>
+              <roamMtbDays>4</roamMtbDays>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/leatherDef</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/leatherDef</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/useLeatherFrom</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/useLeatherFrom</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/manhunterOnTameFailChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/manhunterOnTameFailChance</xpath>
+            <value>
+              <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race</xpath>
+            <value>
+              <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/manhunterOnDamageChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/manhunterOnDamageChance</xpath>
+            <value>
+              <manhunterOnDamageChance>0</manhunterOnDamageChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race</xpath>
+            <value>
+              <manhunterOnDamageChance>0</manhunterOnDamageChance>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/petness</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/petness</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/nuzzleMtbHours</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/nuzzleMtbHours</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/mateMtbHours</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/mateMtbHours</xpath>
+            <value>
+              <mateMtbHours>8</mateMtbHours>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race</xpath>
+            <value>
+              <mateMtbHours>8</mateMtbHours>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/trainability</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/trainability</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/packAnimal</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/packAnimal</xpath>
+            <value>
+              <packAnimal>false</packAnimal>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race</xpath>
+            <value>
+              <packAnimal>false</packAnimal>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/predator</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/predator</xpath>
+            <value>
+              <predator>false</predator>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race</xpath>
+            <value>
+              <predator>false</predator>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/maxPreyBodySize</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/maxPreyBodySize</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/nameOnTameChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/nameOnTameChance</xpath>
+            <value>
+              <nameOnTameChance>0</nameOnTameChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race</xpath>
+            <value>
+              <nameOnTameChance>0</nameOnTameChance>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/body</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/body</xpath>
+            <value>
+              <body>Bird</body>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race</xpath>
+            <value>
+              <body>Bird</body>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/waterCellCost</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/waterCellCost</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/waterSeeker</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/waterSeeker</xpath>
+            <value>
+              <waterSeeker>false</waterSeeker>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race</xpath>
+            <value>
+              <waterSeeker>false</waterSeeker>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/canFishForFood</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/canFishForFood</xpath>
+            <value>
+              <canFishForFood>false</canFishForFood>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race</xpath>
+            <value>
+              <canFishForFood>false</canFishForFood>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/wildBiomes</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/wildBiomes</xpath>
+            <value>
+              <wildBiomes>
+                <TemperateForest>1</TemperateForest>
+                <TemperateSwamp>1</TemperateSwamp>
+                <AridShrubland>1</AridShrubland>
+                <Grasslands MayRequire="Ludeon.RimWorld.Odyssey">1</Grasslands>
+                <LavaField MayRequire="Ludeon.RimWorld.Odyssey">1</LavaField>
+              </wildBiomes>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race</xpath>
+            <value>
+              <wildBiomes>
+                <TemperateForest>1</TemperateForest>
+                <TemperateSwamp>1</TemperateSwamp>
+                <AridShrubland>1</AridShrubland>
+                <Grasslands MayRequire="Ludeon.RimWorld.Odyssey">1</Grasslands>
+                <LavaField MayRequire="Ludeon.RimWorld.Odyssey">1</LavaField>
+              </wildBiomes>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/lifeStageAges/li[def = 'AnimalJuvenile']</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/lifeStageAges/li[def = 'AnimalJuvenile']/minAge</xpath>
+            <value>
+              <minAge>0.15</minAge>
+            </value>
+          </match>
+          <nomatch/>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/lifeStageAges/li[def = 'AnimalAdult']</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/lifeStageAges/li[def = 'AnimalAdult']/minAge</xpath>
+            <value>
+              <minAge>0.3</minAge>
+            </value>
+          </match>
+          <nomatch/>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/specialTrainables</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/specialTrainables</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/tradeTags/li[text()="AnimalCommon" or text()="AnimalUncommon" or text()="AnimalExotic" or text()="AnimalFighter" or text()="AnimalInsect" or text()="AnimalPet" or text()="AnimalFarm"]</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/tradeTags/li[text()="AnimalCommon" or text()="AnimalUncommon" or text()="AnimalExotic" or text()="AnimalFighter" or text()="AnimalInsect" or text()="AnimalPet" or text()="AnimalFarm"]</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/tradeTags</xpath>
+          <match Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/tradeTags</xpath>
+            <value>
+              <li>AnimalCommon</li>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]</xpath>
+            <value>
+              <tradeTags>
+                <li>AnimalCommon</li>
+              </tradeTags>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationAddModExtension">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]</xpath>
+          <value>
+            <li Class="ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod"/>
+          </value>
+        </li>
+        <!-- VAERoy_Quail PawnKindDef -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName = "VAERoy_Quail"]/combatPower</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/PawnKindDef[defName = "VAERoy_Quail"]/combatPower</xpath>
+            <value>
+              <combatPower>20</combatPower>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName = "VAERoy_Quail"]</xpath>
+            <value>
+              <combatPower>20</combatPower>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName = "VAERoy_Quail"]/ecoSystemWeight</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/PawnKindDef[defName = "VAERoy_Quail"]/ecoSystemWeight</xpath>
+            <value>
+              <ecoSystemWeight>0.2</ecoSystemWeight>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName = "VAERoy_Quail"]</xpath>
+            <value>
+              <ecoSystemWeight>0.2</ecoSystemWeight>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName = "VAERoy_Quail"]/canArriveManhunter</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/PawnKindDef[defName = "VAERoy_Quail"]/canArriveManhunter</xpath>
+            <value>
+              <canArriveManhunter>false</canArriveManhunter>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName = "VAERoy_Quail"]</xpath>
+            <value>
+              <canArriveManhunter>false</canArriveManhunter>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName = "VAERoy_Quail"]/wildGroupSize</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/PawnKindDef[defName = "VAERoy_Quail"]/wildGroupSize</xpath>
+            <value>
+              <wildGroupSize>3~8</wildGroupSize>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName = "VAERoy_Quail"]</xpath>
+            <value>
+              <wildGroupSize>3~8</wildGroupSize>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName = "VAERoy_Quail"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/PawnKindDef[defName = "VAERoy_Quail"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
+          </match>
+        </li>
+      </operations>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>Odyssey</li>
+    </mods>
+    <nomatch Class="PatchOperationSequence">
+      <operations>
+        <!---->
+        <!-- VAERoy_Swan -->
+        <li Class="PatchOperationAttributeSet">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]</xpath>
+          <attribute>ParentName</attribute>
+          <value>AnimalThingBase</value>
+        </li>
+        <li Class="PatchOperationAttributeSet">
+          <xpath>/Defs/PawnKindDef[defName = "VAERoy_Swan"]</xpath>
+          <attribute>ParentName</attribute>
+          <value>AnimalKindBase</value>
+        </li>
+        <!-- VAERoy_Swan StatBases -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/statBases/MarketValue</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/statBases/MarketValue</xpath>
+            <value>
+              <MarketValue>175</MarketValue>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/statBases</xpath>
+            <value>
+              <MarketValue>175</MarketValue>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/statBases/MoveSpeed</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/statBases/MoveSpeed</xpath>
+            <value>
+              <MoveSpeed>1.5</MoveSpeed>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/statBases</xpath>
+            <value>
+              <MoveSpeed>1.5</MoveSpeed>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/statBases/Wildness</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/statBases/Wildness</xpath>
+            <value>
+              <Wildness>0.6</Wildness>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/statBases</xpath>
+            <value>
+              <Wildness>0.6</Wildness>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/statBases/FilthRate</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/statBases/FilthRate</xpath>
+            <value>
+              <FilthRate>5</FilthRate>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/statBases</xpath>
+            <value>
+              <FilthRate>5</FilthRate>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/statBases/ComfyTemperatureMin</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/statBases/ComfyTemperatureMin</xpath>
+            <value>
+              <ComfyTemperatureMin>-35</ComfyTemperatureMin>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/statBases</xpath>
+            <value>
+              <ComfyTemperatureMin>-35</ComfyTemperatureMin>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/statBases/ComfyTemperatureMax</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/statBases/ComfyTemperatureMax</xpath>
+            <value>
+              <ComfyTemperatureMax>35</ComfyTemperatureMax>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/statBases</xpath>
+            <value>
+              <ComfyTemperatureMax>35</ComfyTemperatureMax>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/statBases/ArmorRating_Blunt</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/statBases/ArmorRating_Blunt</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/statBases/ArmorRating_Sharp</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/statBases/ArmorRating_Sharp</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/statBases/ToxicEnvironmentResistance</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/statBases/ToxicEnvironmentResistance</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/statBases/LeatherAmount</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/statBases/LeatherAmount</xpath>
+            <value>
+              <LeatherAmount>0</LeatherAmount>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/statBases</xpath>
+            <value>
+              <LeatherAmount>0</LeatherAmount>
+            </value>
+          </nomatch>
+        </li>
+        <!-- VAERoy_Swan tools -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/tools</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/tools</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]</xpath>
+          <value>
+            <tools>
+              <li>
+                <label>head</label>
+                <capacities>
+                  <li>Blunt</li>
+                </capacities>
+                <power>3.5</power>
+                <cooldownTime>1.45</cooldownTime>
+                <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
+                <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
+                <chanceFactor>0.2</chanceFactor>
+              </li>
+              <li>
+                <label>beak</label>
+                <capacities>
+                  <li>Blunt</li>
+                </capacities>
+                <power>3.5</power>
+                <cooldownTime>1.15</cooldownTime>
+                <linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>
+              </li>
+            </tools>
+          </value>
+        </li>
+        <!-- VAERoy_Swan RaceProperties -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/baseBodySize</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/baseBodySize</xpath>
+            <value>
+              <baseBodySize>0.4</baseBodySize>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race</xpath>
+            <value>
+              <baseBodySize>0.4</baseBodySize>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/baseHealthScale</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/baseHealthScale</xpath>
+            <value>
+              <baseHealthScale>0.4</baseHealthScale>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race</xpath>
+            <value>
+              <baseHealthScale>0.4</baseHealthScale>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/baseHungerRate</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/baseHungerRate</xpath>
+            <value>
+              <baseHungerRate>0.4</baseHungerRate>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race</xpath>
+            <value>
+              <baseHungerRate>0.4</baseHungerRate>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/lifeExpectancy</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/lifeExpectancy</xpath>
+            <value>
+              <lifeExpectancy>25</lifeExpectancy>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race</xpath>
+            <value>
+              <lifeExpectancy>25</lifeExpectancy>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/gestationPeriodDays</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/gestationPeriodDays</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/herdAnimal</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/herdAnimal</xpath>
+            <value>
+              <herdAnimal>false</herdAnimal>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race</xpath>
+            <value>
+              <herdAnimal>false</herdAnimal>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/herdMigrationAllowed</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/herdMigrationAllowed</xpath>
+            <value>
+              <herdMigrationAllowed>false</herdMigrationAllowed>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race</xpath>
+            <value>
+              <herdMigrationAllowed>false</herdMigrationAllowed>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/foodType</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/foodType</xpath>
+            <value>
+              <foodType>VegetarianRoughAnimal</foodType>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race</xpath>
+            <value>
+              <foodType>VegetarianRoughAnimal</foodType>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/roamMtbDays</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/roamMtbDays</xpath>
+            <value>
+              <roamMtbDays>4</roamMtbDays>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race</xpath>
+            <value>
+              <roamMtbDays>4</roamMtbDays>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/leatherDef</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/leatherDef</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/useLeatherFrom</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/useLeatherFrom</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/manhunterOnTameFailChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/manhunterOnTameFailChance</xpath>
+            <value>
+              <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race</xpath>
+            <value>
+              <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/manhunterOnDamageChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/manhunterOnDamageChance</xpath>
+            <value>
+              <manhunterOnDamageChance>0</manhunterOnDamageChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race</xpath>
+            <value>
+              <manhunterOnDamageChance>0</manhunterOnDamageChance>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/petness</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/petness</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/nuzzleMtbHours</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/nuzzleMtbHours</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/mateMtbHours</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/mateMtbHours</xpath>
+            <value>
+              <mateMtbHours>12</mateMtbHours>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race</xpath>
+            <value>
+              <mateMtbHours>12</mateMtbHours>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/trainability</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/trainability</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/packAnimal</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/packAnimal</xpath>
+            <value>
+              <packAnimal>false</packAnimal>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race</xpath>
+            <value>
+              <packAnimal>false</packAnimal>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/predator</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/predator</xpath>
+            <value>
+              <predator>false</predator>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race</xpath>
+            <value>
+              <predator>false</predator>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/maxPreyBodySize</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/maxPreyBodySize</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/nameOnTameChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/nameOnTameChance</xpath>
+            <value>
+              <nameOnTameChance>0</nameOnTameChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race</xpath>
+            <value>
+              <nameOnTameChance>0</nameOnTameChance>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/body</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/body</xpath>
+            <value>
+              <body>Bird</body>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race</xpath>
+            <value>
+              <body>Bird</body>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/waterCellCost</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/waterCellCost</xpath>
+            <value>
+              <waterCellCost>1</waterCellCost>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race</xpath>
+            <value>
+              <waterCellCost>1</waterCellCost>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/waterSeeker</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/waterSeeker</xpath>
+            <value>
+              <waterSeeker>true</waterSeeker>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race</xpath>
+            <value>
+              <waterSeeker>true</waterSeeker>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/canFishForFood</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/canFishForFood</xpath>
+            <value>
+              <canFishForFood>false</canFishForFood>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race</xpath>
+            <value>
+              <canFishForFood>false</canFishForFood>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/wildBiomes</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/wildBiomes</xpath>
+            <value>
+              <wildBiomes>
+                <ColdBog>0.325</ColdBog>
+                <TemperateSwamp>0.325</TemperateSwamp>
+              </wildBiomes>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race</xpath>
+            <value>
+              <wildBiomes>
+                <ColdBog>0.325</ColdBog>
+                <TemperateSwamp>0.325</TemperateSwamp>
+              </wildBiomes>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/lifeStageAges/li[def = 'AnimalJuvenile']</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/lifeStageAges/li[def = 'AnimalJuvenile']/minAge</xpath>
+            <value>
+              <minAge>0.2</minAge>
+            </value>
+          </match>
+          <nomatch/>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/lifeStageAges/li[def = 'AnimalAdult']</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/lifeStageAges/li[def = 'AnimalAdult']/minAge</xpath>
+            <value>
+              <minAge>0.4</minAge>
+            </value>
+          </match>
+          <nomatch/>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/specialTrainables</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/specialTrainables</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/tradeTags/li[text()="AnimalCommon" or text()="AnimalUncommon" or text()="AnimalExotic" or text()="AnimalFighter" or text()="AnimalInsect" or text()="AnimalPet" or text()="AnimalFarm"]</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/tradeTags/li[text()="AnimalCommon" or text()="AnimalUncommon" or text()="AnimalExotic" or text()="AnimalFighter" or text()="AnimalInsect" or text()="AnimalPet" or text()="AnimalFarm"]</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/tradeTags</xpath>
+          <match Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/tradeTags</xpath>
+            <value>
+              <li>AnimalUncommon</li>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]</xpath>
+            <value>
+              <tradeTags>
+                <li>AnimalUncommon</li>
+              </tradeTags>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationAddModExtension">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]</xpath>
+          <value>
+            <li Class="ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod"/>
+          </value>
+        </li>
+        <!-- VAERoy_Swan PawnKindDef -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName = "VAERoy_Swan"]/combatPower</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/PawnKindDef[defName = "VAERoy_Swan"]/combatPower</xpath>
+            <value>
+              <combatPower>35</combatPower>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName = "VAERoy_Swan"]</xpath>
+            <value>
+              <combatPower>35</combatPower>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName = "VAERoy_Swan"]/ecoSystemWeight</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/PawnKindDef[defName = "VAERoy_Swan"]/ecoSystemWeight</xpath>
+            <value>
+              <ecoSystemWeight>0.4</ecoSystemWeight>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName = "VAERoy_Swan"]</xpath>
+            <value>
+              <ecoSystemWeight>0.4</ecoSystemWeight>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName = "VAERoy_Swan"]/canArriveManhunter</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/PawnKindDef[defName = "VAERoy_Swan"]/canArriveManhunter</xpath>
+            <value>
+              <canArriveManhunter>false</canArriveManhunter>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName = "VAERoy_Swan"]</xpath>
+            <value>
+              <canArriveManhunter>false</canArriveManhunter>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName = "VAERoy_Swan"]/wildGroupSize</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/PawnKindDef[defName = "VAERoy_Swan"]/wildGroupSize</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName = "VAERoy_Swan"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/PawnKindDef[defName = "VAERoy_Swan"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
+          </match>
+        </li>
+      </operations>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>Odyssey</li>
+    </mods>
+    <nomatch Class="PatchOperationSequence">
+      <operations>
+        <!---->
+        <!-- VAERoy_Peacock -->
+        <li Class="PatchOperationAttributeSet">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]</xpath>
+          <attribute>ParentName</attribute>
+          <value>AnimalThingBase</value>
+        </li>
+        <li Class="PatchOperationAttributeSet">
+          <xpath>/Defs/PawnKindDef[defName = "VAERoy_Peacock"]</xpath>
+          <attribute>ParentName</attribute>
+          <value>AnimalKindBase</value>
+        </li>
+        <!-- VAERoy_Peacock StatBases -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/statBases/MarketValue</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/statBases/MarketValue</xpath>
+            <value>
+              <MarketValue>125</MarketValue>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/statBases</xpath>
+            <value>
+              <MarketValue>125</MarketValue>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/statBases/MoveSpeed</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/statBases/MoveSpeed</xpath>
+            <value>
+              <MoveSpeed>2</MoveSpeed>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/statBases</xpath>
+            <value>
+              <MoveSpeed>2</MoveSpeed>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/statBases/Wildness</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/statBases/Wildness</xpath>
+            <value>
+              <Wildness>0.55</Wildness>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/statBases</xpath>
+            <value>
+              <Wildness>0.55</Wildness>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/statBases/FilthRate</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/statBases/FilthRate</xpath>
+            <value>
+              <FilthRate>4</FilthRate>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/statBases</xpath>
+            <value>
+              <FilthRate>4</FilthRate>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/statBases/ComfyTemperatureMin</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/statBases/ComfyTemperatureMin</xpath>
+            <value>
+              <ComfyTemperatureMin>5</ComfyTemperatureMin>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/statBases</xpath>
+            <value>
+              <ComfyTemperatureMin>5</ComfyTemperatureMin>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/statBases/ComfyTemperatureMax</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/statBases/ComfyTemperatureMax</xpath>
+            <value>
+              <ComfyTemperatureMax>40</ComfyTemperatureMax>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/statBases</xpath>
+            <value>
+              <ComfyTemperatureMax>40</ComfyTemperatureMax>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/statBases/ArmorRating_Blunt</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/statBases/ArmorRating_Blunt</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/statBases/ArmorRating_Sharp</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/statBases/ArmorRating_Sharp</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/statBases/ToxicEnvironmentResistance</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/statBases/ToxicEnvironmentResistance</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/statBases/LeatherAmount</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/statBases/LeatherAmount</xpath>
+            <value>
+              <LeatherAmount>0</LeatherAmount>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/statBases</xpath>
+            <value>
+              <LeatherAmount>0</LeatherAmount>
+            </value>
+          </nomatch>
+        </li>
+        <!-- VAERoy_Peacock tools -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/tools</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/tools</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]</xpath>
+          <value>
+            <tools>
+              <li>
+                <label>head</label>
+                <capacities>
+                  <li>Blunt</li>
+                </capacities>
+                <power>2.5</power>
+                <cooldownTime>1.25</cooldownTime>
+                <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
+                <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
+                <chanceFactor>0.2</chanceFactor>
+              </li>
+              <li>
+                <label>rear left claw</label>
+                <labelNoLocation>claw</labelNoLocation>
+                <capacities>
+                  <li>Scratch</li>
+                </capacities>
+                <power>4</power>
+                <cooldownTime>1.25</cooldownTime>
+                <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
+              </li>
+              <li>
+                <label>rear  right claw</label>
+                <labelNoLocation>claw</labelNoLocation>
+                <capacities>
+                  <li>Scratch</li>
+                </capacities>
+                <power>4</power>
+                <cooldownTime>1.25</cooldownTime>
+                <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
+              </li>
+              <li>
+                <label>beak</label>
+                <capacities>
+                  <li>Blunt</li>
+                </capacities>
+                <power>2.5</power>
+                <cooldownTime>1.25</cooldownTime>
+                <linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>
+              </li>
+            </tools>
+          </value>
+        </li>
+        <!-- VAERoy_Peacock RaceProperties -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/baseBodySize</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/baseBodySize</xpath>
+            <value>
+              <baseBodySize>0.3</baseBodySize>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race</xpath>
+            <value>
+              <baseBodySize>0.3</baseBodySize>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/baseHealthScale</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/baseHealthScale</xpath>
+            <value>
+              <baseHealthScale>0.3</baseHealthScale>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race</xpath>
+            <value>
+              <baseHealthScale>0.3</baseHealthScale>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/baseHungerRate</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/baseHungerRate</xpath>
+            <value>
+              <baseHungerRate>0.35</baseHungerRate>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race</xpath>
+            <value>
+              <baseHungerRate>0.35</baseHungerRate>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/lifeExpectancy</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/lifeExpectancy</xpath>
+            <value>
+              <lifeExpectancy>12</lifeExpectancy>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race</xpath>
+            <value>
+              <lifeExpectancy>12</lifeExpectancy>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/gestationPeriodDays</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/gestationPeriodDays</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/herdAnimal</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/herdAnimal</xpath>
+            <value>
+              <herdAnimal>true</herdAnimal>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race</xpath>
+            <value>
+              <herdAnimal>true</herdAnimal>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/herdMigrationAllowed</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/herdMigrationAllowed</xpath>
+            <value>
+              <herdMigrationAllowed>false</herdMigrationAllowed>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race</xpath>
+            <value>
+              <herdMigrationAllowed>false</herdMigrationAllowed>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/foodType</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/foodType</xpath>
+            <value>
+              <foodType>VegetarianRoughAnimal</foodType>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race</xpath>
+            <value>
+              <foodType>VegetarianRoughAnimal</foodType>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/roamMtbDays</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/roamMtbDays</xpath>
+            <value>
+              <roamMtbDays>4</roamMtbDays>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race</xpath>
+            <value>
+              <roamMtbDays>4</roamMtbDays>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/leatherDef</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/leatherDef</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/useLeatherFrom</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/useLeatherFrom</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/manhunterOnTameFailChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/manhunterOnTameFailChance</xpath>
+            <value>
+              <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race</xpath>
+            <value>
+              <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/manhunterOnDamageChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/manhunterOnDamageChance</xpath>
+            <value>
+              <manhunterOnDamageChance>0</manhunterOnDamageChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race</xpath>
+            <value>
+              <manhunterOnDamageChance>0</manhunterOnDamageChance>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/petness</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/petness</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/nuzzleMtbHours</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/nuzzleMtbHours</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/mateMtbHours</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/mateMtbHours</xpath>
+            <value>
+              <mateMtbHours>8</mateMtbHours>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race</xpath>
+            <value>
+              <mateMtbHours>8</mateMtbHours>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/trainability</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/trainability</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/packAnimal</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/packAnimal</xpath>
+            <value>
+              <packAnimal>false</packAnimal>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race</xpath>
+            <value>
+              <packAnimal>false</packAnimal>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/predator</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/predator</xpath>
+            <value>
+              <predator>false</predator>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race</xpath>
+            <value>
+              <predator>false</predator>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/maxPreyBodySize</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/maxPreyBodySize</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/nameOnTameChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/nameOnTameChance</xpath>
+            <value>
+              <nameOnTameChance>0</nameOnTameChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race</xpath>
+            <value>
+              <nameOnTameChance>0</nameOnTameChance>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/body</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/body</xpath>
+            <value>
+              <body>Bird</body>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race</xpath>
+            <value>
+              <body>Bird</body>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/waterCellCost</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/waterCellCost</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/waterSeeker</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/waterSeeker</xpath>
+            <value>
+              <waterSeeker>false</waterSeeker>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race</xpath>
+            <value>
+              <waterSeeker>false</waterSeeker>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/canFishForFood</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/canFishForFood</xpath>
+            <value>
+              <canFishForFood>false</canFishForFood>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race</xpath>
+            <value>
+              <canFishForFood>false</canFishForFood>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/wildBiomes</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/wildBiomes</xpath>
+            <value>
+              <wildBiomes>
+                <TropicalRainforest>0.425</TropicalRainforest>
+                <TropicalSwamp>0.425</TropicalSwamp>
+                <Glowforest MayRequire="Ludeon.RimWorld.Odyssey">0.425</Glowforest>
+              </wildBiomes>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race</xpath>
+            <value>
+              <wildBiomes>
+                <TropicalRainforest>0.425</TropicalRainforest>
+                <TropicalSwamp>0.425</TropicalSwamp>
+                <Glowforest MayRequire="Ludeon.RimWorld.Odyssey">0.425</Glowforest>
+              </wildBiomes>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/lifeStageAges/li[def = 'AnimalJuvenile']</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/lifeStageAges/li[def = 'AnimalJuvenile']/minAge</xpath>
+            <value>
+              <minAge>0.2</minAge>
+            </value>
+          </match>
+          <nomatch/>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/lifeStageAges/li[def = 'AnimalAdult']</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/lifeStageAges/li[def = 'AnimalAdult']/minAge</xpath>
+            <value>
+              <minAge>0.4</minAge>
+            </value>
+          </match>
+          <nomatch/>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/specialTrainables</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/specialTrainables</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/tradeTags/li[text()="AnimalCommon" or text()="AnimalUncommon" or text()="AnimalExotic" or text()="AnimalFighter" or text()="AnimalInsect" or text()="AnimalPet" or text()="AnimalFarm"]</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/tradeTags/li[text()="AnimalCommon" or text()="AnimalUncommon" or text()="AnimalExotic" or text()="AnimalFighter" or text()="AnimalInsect" or text()="AnimalPet" or text()="AnimalFarm"]</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/tradeTags</xpath>
+          <match Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/tradeTags</xpath>
+            <value>
+              <li>AnimalCommon</li>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]</xpath>
+            <value>
+              <tradeTags>
+                <li>AnimalCommon</li>
+              </tradeTags>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationAddModExtension">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]</xpath>
+          <value>
+            <li Class="ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod"/>
+          </value>
+        </li>
+        <!-- VAERoy_Peacock PawnKindDef -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName = "VAERoy_Peacock"]/combatPower</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/PawnKindDef[defName = "VAERoy_Peacock"]/combatPower</xpath>
+            <value>
+              <combatPower>30</combatPower>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName = "VAERoy_Peacock"]</xpath>
+            <value>
+              <combatPower>30</combatPower>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName = "VAERoy_Peacock"]/ecoSystemWeight</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/PawnKindDef[defName = "VAERoy_Peacock"]/ecoSystemWeight</xpath>
+            <value>
+              <ecoSystemWeight>0.35</ecoSystemWeight>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName = "VAERoy_Peacock"]</xpath>
+            <value>
+              <ecoSystemWeight>0.35</ecoSystemWeight>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName = "VAERoy_Peacock"]/canArriveManhunter</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/PawnKindDef[defName = "VAERoy_Peacock"]/canArriveManhunter</xpath>
+            <value>
+              <canArriveManhunter>false</canArriveManhunter>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName = "VAERoy_Peacock"]</xpath>
+            <value>
+              <canArriveManhunter>false</canArriveManhunter>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName = "VAERoy_Peacock"]/wildGroupSize</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/PawnKindDef[defName = "VAERoy_Peacock"]/wildGroupSize</xpath>
+            <value>
+              <wildGroupSize>2~6</wildGroupSize>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName = "VAERoy_Peacock"]</xpath>
+            <value>
+              <wildGroupSize>2~6</wildGroupSize>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName = "VAERoy_Peacock"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/PawnKindDef[defName = "VAERoy_Peacock"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
+          </match>
+        </li>
+      </operations>
+    </nomatch>
+  </Operation>
+  <!---->
+  <!-- Combat Extended specific patches -->
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>Combat Extended</li>
+    </mods>
+    <match Class="PatchOperationSequence">
+      <operations>
+        <li Class="PatchOperationFindMod">
+          <mods>
+            <li>Odyssey</li>
+          </mods>
+          <nomatch Class="PatchOperationSequence">
+            <operations>
+              <!-- VAERoy_Quail CE patches -->
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="VAERoy_Quail"]/statBases/MeleeDodgeChance</xpath>
+                <match Class="PatchOperationReplace">
+                  <xpath>Defs/ThingDef[defName="VAERoy_Quail"]/statBases/MeleeDodgeChance</xpath>
+                  <value>
+                    <MeleeDodgeChance>1.46</MeleeDodgeChance>
+                  </value>
+                </match>
+                <nomatch Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[defName="VAERoy_Quail"]/statBases</xpath>
+                  <value>
+                    <MeleeDodgeChance>1.46</MeleeDodgeChance>
+                  </value>
+                </nomatch>
+              </li>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="VAERoy_Quail"]/statBases/MeleeCritChance</xpath>
+                <match Class="PatchOperationReplace">
+                  <xpath>Defs/ThingDef[defName="VAERoy_Quail"]/statBases/MeleeCritChance</xpath>
+                  <value>
+                    <MeleeCritChance>0</MeleeCritChance>
+                  </value>
+                </match>
+                <nomatch Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[defName="VAERoy_Quail"]/statBases</xpath>
+                  <value>
+                    <MeleeCritChance>0</MeleeCritChance>
+                  </value>
+                </nomatch>
+              </li>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="VAERoy_Quail"]/statBases/MeleeParryChance</xpath>
+                <match Class="PatchOperationReplace">
+                  <xpath>Defs/ThingDef[defName="VAERoy_Quail"]/statBases/MeleeParryChance</xpath>
+                  <value>
+                    <MeleeParryChance>0</MeleeParryChance>
+                  </value>
+                </match>
+                <nomatch Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[defName="VAERoy_Quail"]/statBases</xpath>
+                  <value>
+                    <MeleeParryChance>0</MeleeParryChance>
+                  </value>
+                </nomatch>
+              </li>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="VAERoy_Quail"]/statBases/ArmorRating_Sharp</xpath>
+                <match Class="PatchOperationReplace">
+                  <xpath>Defs/ThingDef[defName="VAERoy_Quail"]/statBases/ArmorRating_Sharp</xpath>
+                  <value>
+                    <ArmorRating_Sharp>0</ArmorRating_Sharp>
+                  </value>
+                </match>
+                <nomatch Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[defName="VAERoy_Quail"]/statBases</xpath>
+                  <value>
+                    <ArmorRating_Sharp>0</ArmorRating_Sharp>
+                  </value>
+                </nomatch>
+              </li>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="VAERoy_Quail"]/statBases/ArmorRating_Blunt</xpath>
+                <match Class="PatchOperationReplace">
+                  <xpath>Defs/ThingDef[defName="VAERoy_Quail"]/statBases/ArmorRating_Blunt</xpath>
+                  <value>
+                    <ArmorRating_Blunt>0</ArmorRating_Blunt>
+                  </value>
+                </match>
+                <nomatch Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[defName="VAERoy_Quail"]/statBases</xpath>
+                  <value>
+                    <ArmorRating_Blunt>0</ArmorRating_Blunt>
+                  </value>
+                </nomatch>
+              </li>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="VAERoy_Quail"]/comps</xpath>
+                <nomatch Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[defName="VAERoy_Quail"]</xpath>
+                  <value>
+                    <comps/>
+                  </value>
+                </nomatch>
+              </li>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="VAERoy_Quail"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]</xpath>
+                <match Class="PatchOperationReplace">
+                  <xpath>Defs/ThingDef[defName="VAERoy_Quail"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]/Durability</xpath>
+                  <value>
+                    <Durability>50</Durability>
+                  </value>
+                </match>
+                <nomatch Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[defName="VAERoy_Quail"]/comps</xpath>
+                  <value>
+                    <li Class="CombatExtended.CompProperties_ArmorDurability">
+                      <Durability>50</Durability>
+                      <Regenerates>true</Regenerates>
+                      <RegenInterval>600</RegenInterval>
+                      <RegenValue>5</RegenValue>
+                      <MinArmorPct>0.5</MinArmorPct>
+                    </li>
+                  </value>
+                </nomatch>
+              </li>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="VAERoy_Quail"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
+                <match Class="PatchOperationSequence">
+                  <operations>
+                    <li Class="PatchOperationConditional">
+                      <xpath>Defs/ThingDef[defName="VAERoy_Quail"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
+                      <match Class="PatchOperationReplace">
+                        <xpath>Defs/ThingDef[defName="VAERoy_Quail"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
+                        <value>
+                          <bodyShape>Birdlike</bodyShape>
+                        </value>
+                      </match>
+                      <nomatch Class="PatchOperationAdd">
+                        <xpath>Defs/ThingDef[defName="VAERoy_Quail"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
+                        <value>
+                          <bodyShape>Birdlike</bodyShape>
+                        </value>
+                      </nomatch>
+                    </li>
+                  </operations>
+                </match>
+                <nomatch Class="PatchOperationAddModExtension">
+                  <xpath>Defs/ThingDef[defName="VAERoy_Quail"]</xpath>
+                  <value>
+                    <li Class="CombatExtended.RacePropertiesExtensionCE">
+                      <bodyShape>Birdlike</bodyShape>
+                    </li>
+                  </value>
+                </nomatch>
+              </li>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/ThingDef[defName="VAERoy_Quail"]/tools</xpath>
+                <match Class="PatchOperationRemove">
+                  <xpath>/Defs/ThingDef[defName="VAERoy_Quail"]/tools</xpath>
+                </match>
+              </li>
+              <li Class="PatchOperationAdd">
+                <xpath>Defs/ThingDef[defName="VAERoy_Quail"]</xpath>
+                <value>
+                  <tools>
+                    <li Class="CombatExtended.ToolCE">
+                      <label>head</label>
+                      <capacities>
+                        <li>Blunt</li>
+                      </capacities>
+                      <power>0.05</power>
+                      <armorPenetrationBlunt>0.01</armorPenetrationBlunt>
+                      <cooldownTime>1.05</cooldownTime>
+                      <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
+                      <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
+                      <chanceFactor>0.2</chanceFactor>
+                    </li>
+                    <li Class="CombatExtended.ToolCE">
+                      <label>rear left claw</label>
+                      <labelNoLocation>claw</labelNoLocation>
+                      <capacities>
+                        <li>Scratch</li>
+                      </capacities>
+                      <power>0.6</power>
+                      <armorPenetrationBlunt>0.01</armorPenetrationBlunt>
+                      <armorPenetrationSharp>0.01</armorPenetrationSharp>
+                      <cooldownTime>1.45</cooldownTime>
+                      <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
+                    </li>
+                    <li Class="CombatExtended.ToolCE">
+                      <label>rear  right claw</label>
+                      <labelNoLocation>claw</labelNoLocation>
+                      <capacities>
+                        <li>Scratch</li>
+                      </capacities>
+                      <power>0.6</power>
+                      <armorPenetrationBlunt>0.01</armorPenetrationBlunt>
+                      <armorPenetrationSharp>0.01</armorPenetrationSharp>
+                      <cooldownTime>1.45</cooldownTime>
+                      <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
+                    </li>
+                    <li Class="CombatExtended.ToolCE">
+                      <label>beak</label>
+                      <capacities>
+                        <li>Blunt</li>
+                      </capacities>
+                      <power>0.3</power>
+                      <armorPenetrationBlunt>0.01</armorPenetrationBlunt>
+                      <armorPenetrationSharp>0.01</armorPenetrationSharp>
+                      <cooldownTime>1.75</cooldownTime>
+                      <linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>
+                    </li>
+                  </tools>
+                </value>
+              </li>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="VAERoy_Quail"]/statBases/ArmorRating_Heat</xpath>
+                <match Class="PatchOperationRemove">
+                  <xpath>Defs/ThingDef[defName="VAERoy_Quail"]/statBases/ArmorRating_Heat</xpath>
+                </match>
+              </li>
+            </operations>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationFindMod">
+          <mods>
+            <li>Odyssey</li>
+          </mods>
+          <nomatch Class="PatchOperationSequence">
+            <operations>
+              <!-- VAERoy_Swan CE patches -->
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="VAERoy_Swan"]/statBases/MeleeDodgeChance</xpath>
+                <match Class="PatchOperationReplace">
+                  <xpath>Defs/ThingDef[defName="VAERoy_Swan"]/statBases/MeleeDodgeChance</xpath>
+                  <value>
+                    <MeleeDodgeChance>0.69</MeleeDodgeChance>
+                  </value>
+                </match>
+                <nomatch Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[defName="VAERoy_Swan"]/statBases</xpath>
+                  <value>
+                    <MeleeDodgeChance>0.69</MeleeDodgeChance>
+                  </value>
+                </nomatch>
+              </li>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="VAERoy_Swan"]/statBases/MeleeCritChance</xpath>
+                <match Class="PatchOperationReplace">
+                  <xpath>Defs/ThingDef[defName="VAERoy_Swan"]/statBases/MeleeCritChance</xpath>
+                  <value>
+                    <MeleeCritChance>0</MeleeCritChance>
+                  </value>
+                </match>
+                <nomatch Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[defName="VAERoy_Swan"]/statBases</xpath>
+                  <value>
+                    <MeleeCritChance>0</MeleeCritChance>
+                  </value>
+                </nomatch>
+              </li>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="VAERoy_Swan"]/statBases/MeleeParryChance</xpath>
+                <match Class="PatchOperationReplace">
+                  <xpath>Defs/ThingDef[defName="VAERoy_Swan"]/statBases/MeleeParryChance</xpath>
+                  <value>
+                    <MeleeParryChance>0</MeleeParryChance>
+                  </value>
+                </match>
+                <nomatch Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[defName="VAERoy_Swan"]/statBases</xpath>
+                  <value>
+                    <MeleeParryChance>0</MeleeParryChance>
+                  </value>
+                </nomatch>
+              </li>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="VAERoy_Swan"]/statBases/ArmorRating_Sharp</xpath>
+                <match Class="PatchOperationReplace">
+                  <xpath>Defs/ThingDef[defName="VAERoy_Swan"]/statBases/ArmorRating_Sharp</xpath>
+                  <value>
+                    <ArmorRating_Sharp>0</ArmorRating_Sharp>
+                  </value>
+                </match>
+                <nomatch Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[defName="VAERoy_Swan"]/statBases</xpath>
+                  <value>
+                    <ArmorRating_Sharp>0</ArmorRating_Sharp>
+                  </value>
+                </nomatch>
+              </li>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="VAERoy_Swan"]/statBases/ArmorRating_Blunt</xpath>
+                <match Class="PatchOperationReplace">
+                  <xpath>Defs/ThingDef[defName="VAERoy_Swan"]/statBases/ArmorRating_Blunt</xpath>
+                  <value>
+                    <ArmorRating_Blunt>0.01</ArmorRating_Blunt>
+                  </value>
+                </match>
+                <nomatch Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[defName="VAERoy_Swan"]/statBases</xpath>
+                  <value>
+                    <ArmorRating_Blunt>0.01</ArmorRating_Blunt>
+                  </value>
+                </nomatch>
+              </li>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="VAERoy_Swan"]/comps</xpath>
+                <nomatch Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[defName="VAERoy_Swan"]</xpath>
+                  <value>
+                    <comps/>
+                  </value>
+                </nomatch>
+              </li>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="VAERoy_Swan"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]</xpath>
+                <match Class="PatchOperationReplace">
+                  <xpath>Defs/ThingDef[defName="VAERoy_Swan"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]/Durability</xpath>
+                  <value>
+                    <Durability>200</Durability>
+                  </value>
+                </match>
+                <nomatch Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[defName="VAERoy_Swan"]/comps</xpath>
+                  <value>
+                    <li Class="CombatExtended.CompProperties_ArmorDurability">
+                      <Durability>200</Durability>
+                      <Regenerates>true</Regenerates>
+                      <RegenInterval>600</RegenInterval>
+                      <RegenValue>5</RegenValue>
+                      <MinArmorPct>0.5</MinArmorPct>
+                    </li>
+                  </value>
+                </nomatch>
+              </li>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="VAERoy_Swan"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
+                <match Class="PatchOperationSequence">
+                  <operations>
+                    <li Class="PatchOperationConditional">
+                      <xpath>Defs/ThingDef[defName="VAERoy_Swan"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
+                      <match Class="PatchOperationReplace">
+                        <xpath>Defs/ThingDef[defName="VAERoy_Swan"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
+                        <value>
+                          <bodyShape>Birdlike</bodyShape>
+                        </value>
+                      </match>
+                      <nomatch Class="PatchOperationAdd">
+                        <xpath>Defs/ThingDef[defName="VAERoy_Swan"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
+                        <value>
+                          <bodyShape>Birdlike</bodyShape>
+                        </value>
+                      </nomatch>
+                    </li>
+                  </operations>
+                </match>
+                <nomatch Class="PatchOperationAddModExtension">
+                  <xpath>Defs/ThingDef[defName="VAERoy_Swan"]</xpath>
+                  <value>
+                    <li Class="CombatExtended.RacePropertiesExtensionCE">
+                      <bodyShape>Birdlike</bodyShape>
+                    </li>
+                  </value>
+                </nomatch>
+              </li>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/ThingDef[defName="VAERoy_Swan"]/tools</xpath>
+                <match Class="PatchOperationRemove">
+                  <xpath>/Defs/ThingDef[defName="VAERoy_Swan"]/tools</xpath>
+                </match>
+              </li>
+              <li Class="PatchOperationAdd">
+                <xpath>Defs/ThingDef[defName="VAERoy_Swan"]</xpath>
+                <value>
+                  <tools>
+                    <li Class="CombatExtended.ToolCE">
+                      <label>head</label>
+                      <capacities>
+                        <li>Blunt</li>
+                      </capacities>
+                      <power>0.4</power>
+                      <armorPenetrationBlunt>0.3</armorPenetrationBlunt>
+                      <cooldownTime>1.45</cooldownTime>
+                      <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
+                      <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
+                      <chanceFactor>0.2</chanceFactor>
+                    </li>
+                    <li Class="CombatExtended.ToolCE">
+                      <label>beak</label>
+                      <capacities>
+                        <li>Blunt</li>
+                      </capacities>
+                      <power>2.1</power>
+                      <armorPenetrationBlunt>0.07</armorPenetrationBlunt>
+                      <armorPenetrationSharp>0.01</armorPenetrationSharp>
+                      <cooldownTime>1.8</cooldownTime>
+                      <linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>
+                    </li>
+                  </tools>
+                </value>
+              </li>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="VAERoy_Swan"]/statBases/ArmorRating_Heat</xpath>
+                <match Class="PatchOperationRemove">
+                  <xpath>Defs/ThingDef[defName="VAERoy_Swan"]/statBases/ArmorRating_Heat</xpath>
+                </match>
+              </li>
+            </operations>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationFindMod">
+          <mods>
+            <li>Odyssey</li>
+          </mods>
+          <nomatch Class="PatchOperationSequence">
+            <operations>
+              <!-- VAERoy_Peacock CE patches -->
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="VAERoy_Peacock"]/statBases/MeleeDodgeChance</xpath>
+                <match Class="PatchOperationReplace">
+                  <xpath>Defs/ThingDef[defName="VAERoy_Peacock"]/statBases/MeleeDodgeChance</xpath>
+                  <value>
+                    <MeleeDodgeChance>0.79</MeleeDodgeChance>
+                  </value>
+                </match>
+                <nomatch Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[defName="VAERoy_Peacock"]/statBases</xpath>
+                  <value>
+                    <MeleeDodgeChance>0.79</MeleeDodgeChance>
+                  </value>
+                </nomatch>
+              </li>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="VAERoy_Peacock"]/statBases/MeleeCritChance</xpath>
+                <match Class="PatchOperationReplace">
+                  <xpath>Defs/ThingDef[defName="VAERoy_Peacock"]/statBases/MeleeCritChance</xpath>
+                  <value>
+                    <MeleeCritChance>0</MeleeCritChance>
+                  </value>
+                </match>
+                <nomatch Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[defName="VAERoy_Peacock"]/statBases</xpath>
+                  <value>
+                    <MeleeCritChance>0</MeleeCritChance>
+                  </value>
+                </nomatch>
+              </li>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="VAERoy_Peacock"]/statBases/MeleeParryChance</xpath>
+                <match Class="PatchOperationReplace">
+                  <xpath>Defs/ThingDef[defName="VAERoy_Peacock"]/statBases/MeleeParryChance</xpath>
+                  <value>
+                    <MeleeParryChance>0</MeleeParryChance>
+                  </value>
+                </match>
+                <nomatch Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[defName="VAERoy_Peacock"]/statBases</xpath>
+                  <value>
+                    <MeleeParryChance>0</MeleeParryChance>
+                  </value>
+                </nomatch>
+              </li>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="VAERoy_Peacock"]/statBases/ArmorRating_Sharp</xpath>
+                <match Class="PatchOperationReplace">
+                  <xpath>Defs/ThingDef[defName="VAERoy_Peacock"]/statBases/ArmorRating_Sharp</xpath>
+                  <value>
+                    <ArmorRating_Sharp>0</ArmorRating_Sharp>
+                  </value>
+                </match>
+                <nomatch Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[defName="VAERoy_Peacock"]/statBases</xpath>
+                  <value>
+                    <ArmorRating_Sharp>0</ArmorRating_Sharp>
+                  </value>
+                </nomatch>
+              </li>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="VAERoy_Peacock"]/statBases/ArmorRating_Blunt</xpath>
+                <match Class="PatchOperationReplace">
+                  <xpath>Defs/ThingDef[defName="VAERoy_Peacock"]/statBases/ArmorRating_Blunt</xpath>
+                  <value>
+                    <ArmorRating_Blunt>0.01</ArmorRating_Blunt>
+                  </value>
+                </match>
+                <nomatch Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[defName="VAERoy_Peacock"]/statBases</xpath>
+                  <value>
+                    <ArmorRating_Blunt>0.01</ArmorRating_Blunt>
+                  </value>
+                </nomatch>
+              </li>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="VAERoy_Peacock"]/comps</xpath>
+                <nomatch Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[defName="VAERoy_Peacock"]</xpath>
+                  <value>
+                    <comps/>
+                  </value>
+                </nomatch>
+              </li>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="VAERoy_Peacock"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]</xpath>
+                <match Class="PatchOperationReplace">
+                  <xpath>Defs/ThingDef[defName="VAERoy_Peacock"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]/Durability</xpath>
+                  <value>
+                    <Durability>150</Durability>
+                  </value>
+                </match>
+                <nomatch Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[defName="VAERoy_Peacock"]/comps</xpath>
+                  <value>
+                    <li Class="CombatExtended.CompProperties_ArmorDurability">
+                      <Durability>150</Durability>
+                      <Regenerates>true</Regenerates>
+                      <RegenInterval>600</RegenInterval>
+                      <RegenValue>5</RegenValue>
+                      <MinArmorPct>0.5</MinArmorPct>
+                    </li>
+                  </value>
+                </nomatch>
+              </li>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="VAERoy_Peacock"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
+                <match Class="PatchOperationSequence">
+                  <operations>
+                    <li Class="PatchOperationConditional">
+                      <xpath>Defs/ThingDef[defName="VAERoy_Peacock"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
+                      <match Class="PatchOperationReplace">
+                        <xpath>Defs/ThingDef[defName="VAERoy_Peacock"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
+                        <value>
+                          <bodyShape>Birdlike</bodyShape>
+                        </value>
+                      </match>
+                      <nomatch Class="PatchOperationAdd">
+                        <xpath>Defs/ThingDef[defName="VAERoy_Peacock"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
+                        <value>
+                          <bodyShape>Birdlike</bodyShape>
+                        </value>
+                      </nomatch>
+                    </li>
+                  </operations>
+                </match>
+                <nomatch Class="PatchOperationAddModExtension">
+                  <xpath>Defs/ThingDef[defName="VAERoy_Peacock"]</xpath>
+                  <value>
+                    <li Class="CombatExtended.RacePropertiesExtensionCE">
+                      <bodyShape>Birdlike</bodyShape>
+                    </li>
+                  </value>
+                </nomatch>
+              </li>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/ThingDef[defName="VAERoy_Peacock"]/tools</xpath>
+                <match Class="PatchOperationRemove">
+                  <xpath>/Defs/ThingDef[defName="VAERoy_Peacock"]/tools</xpath>
+                </match>
+              </li>
+              <li Class="PatchOperationAdd">
+                <xpath>Defs/ThingDef[defName="VAERoy_Peacock"]</xpath>
+                <value>
+                  <tools>
+                    <li Class="CombatExtended.ToolCE">
+                      <label>head</label>
+                      <capacities>
+                        <li>Blunt</li>
+                      </capacities>
+                      <power>0.2</power>
+                      <armorPenetrationBlunt>0.14</armorPenetrationBlunt>
+                      <cooldownTime>1.3</cooldownTime>
+                      <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
+                      <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
+                      <chanceFactor>0.2</chanceFactor>
+                    </li>
+                    <li Class="CombatExtended.ToolCE">
+                      <label>rear left claw</label>
+                      <labelNoLocation>claw</labelNoLocation>
+                      <capacities>
+                        <li>Scratch</li>
+                      </capacities>
+                      <power>3.3</power>
+                      <armorPenetrationBlunt>0.22</armorPenetrationBlunt>
+                      <armorPenetrationSharp>0.04</armorPenetrationSharp>
+                      <cooldownTime>2.15</cooldownTime>
+                      <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
+                    </li>
+                    <li Class="CombatExtended.ToolCE">
+                      <label>rear  right claw</label>
+                      <labelNoLocation>claw</labelNoLocation>
+                      <capacities>
+                        <li>Scratch</li>
+                      </capacities>
+                      <power>3.3</power>
+                      <armorPenetrationBlunt>0.22</armorPenetrationBlunt>
+                      <armorPenetrationSharp>0.04</armorPenetrationSharp>
+                      <cooldownTime>2.15</cooldownTime>
+                      <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
+                    </li>
+                    <li Class="CombatExtended.ToolCE">
+                      <label>beak</label>
+                      <capacities>
+                        <li>Blunt</li>
+                      </capacities>
+                      <power>1.1</power>
+                      <armorPenetrationBlunt>0.04</armorPenetrationBlunt>
+                      <armorPenetrationSharp>0.01</armorPenetrationSharp>
+                      <cooldownTime>2.25</cooldownTime>
+                      <linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>
+                    </li>
+                  </tools>
+                </value>
+              </li>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="VAERoy_Peacock"]/statBases/ArmorRating_Heat</xpath>
+                <match Class="PatchOperationRemove">
+                  <xpath>Defs/ThingDef[defName="VAERoy_Peacock"]/statBases/ArmorRating_Heat</xpath>
+                </match>
+              </li>
+            </operations>
+          </nomatch>
+        </li>
+      </operations>
+    </match>
+  </Operation>
+</Patch>

@@ -38,15 +38,12 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/BiomeDef[defName="TemperateForest"]/allowedPackAnimals</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/BiomeDef[defName="TemperateForest"]/allowedPackAnimals</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/BiomeDef[defName="TemperateForest"]</xpath>
-    <value>
-      <allowedPackAnimals/>
-    </value>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/BiomeDef[defName="TemperateForest"]</xpath>
+      <value>
+        <allowedPackAnimals/>
+      </value>
+    </nomatch>
   </Operation>
   <Operation Class="PatchOperationAdd">
     <xpath>/Defs/BiomeDef[defName="TemperateForest"]/wildAnimals</xpath>
@@ -104,6 +101,12 @@
       <WasteRat MayRequire="Ludeon.RimWorld.Biotech">0.325</WasteRat>
       <Sparrow MayRequire="Ludeon.RimWorld.Odyssey">0.8</Sparrow>
       <Crow MayRequire="Ludeon.RimWorld.Odyssey">0.8</Crow>
+      <VAEWaste_Megatardi MayRequire="VanillaExpanded.VAEWaste">0.075</VAEWaste_Megatardi>
+      <VAEWaste_Toxafox MayRequire="VanillaExpanded.VAEWaste">0.1</VAEWaste_Toxafox>
+      <VAEWaste_Toxbear MayRequire="VanillaExpanded.VAEWaste">0.05</VAEWaste_Toxbear>
+      <VAEWaste_Wasteboar MayRequire="VanillaExpanded.VAEWaste">0.175</VAEWaste_Wasteboar>
+      <VAEWaste_Wastedeer MayRequire="VanillaExpanded.VAEWaste">0.2</VAEWaste_Wastedeer>
+      <VAEWaste_Wasteffalo MayRequire="VanillaExpanded.VAEWaste">0.15</VAEWaste_Wasteffalo>
     </value>
   </Operation>
   <Operation Class="PatchOperationAdd">
@@ -114,12 +117,49 @@
       <StoneCrab MayRequire="Ludeon.RimWorld.Odyssey">1</StoneCrab>
     </value>
   </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/BiomeDef[defName="TemperateForest"]/allowedPackAnimals</xpath>
-    <value>
-      <li>Horse</li>
-      <li>Bison</li>
-      <li>Muffalo</li>
-    </value>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/BiomeDef[defName="TemperateForest"]/allowedPackAnimals/li[text()="Horse"]</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/BiomeDef[defName="TemperateForest"]/allowedPackAnimals</xpath>
+      <value>
+        <li>Horse</li>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/BiomeDef[defName="TemperateForest"]/allowedPackAnimals/li[text()="Bison"]</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/BiomeDef[defName="TemperateForest"]/allowedPackAnimals</xpath>
+      <value>
+        <li>Bison</li>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/BiomeDef[defName="TemperateForest"]/allowedPackAnimals/li[text()="Muffalo"]</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/BiomeDef[defName="TemperateForest"]/allowedPackAnimals</xpath>
+      <value>
+        <li>Muffalo</li>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/BiomeDef[defName="TemperateForest"]/allowedPackAnimals/li[text()="VAEWaste_Megatardi"]</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/BiomeDef[defName="TemperateForest"]/allowedPackAnimals</xpath>
+      <value>
+        <li MayRequire="VanillaExpanded.VAEWaste">VAEWaste_Megatardi</li>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/BiomeDef[defName="TemperateForest"]/allowedPackAnimals/li[text()="VAEWaste_Wasteffalo"]</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/BiomeDef[defName="TemperateForest"]/allowedPackAnimals</xpath>
+      <value>
+        <li MayRequire="VanillaExpanded.VAEWaste">VAEWaste_Wasteffalo</li>
+      </value>
+    </nomatch>
   </Operation>
 </Patch>

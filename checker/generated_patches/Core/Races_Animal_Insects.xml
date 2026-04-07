@@ -1582,14 +1582,32 @@
           <chanceFactor>0.2</chanceFactor>
         </li>
         <li>
-          <label>head claw</label>
-          <labelNoLocation>claw</labelNoLocation>
+          <label>left pincer</label>
+          <labelNoLocation>pincer</labelNoLocation>
           <capacities>
             <li>Scratch</li>
           </capacities>
           <power>31.5</power>
           <cooldownTime>2.8</cooldownTime>
-          <linkedBodyPartsGroup>HeadClaw</linkedBodyPartsGroup>
+          <linkedBodyPartsGroup>LeftPincer</linkedBodyPartsGroup>
+          <surpriseAttack>
+            <extraMeleeDamages>
+              <li>
+                <def>Stun</def>
+                <amount>25</amount>
+              </li>
+            </extraMeleeDamages>
+          </surpriseAttack>
+        </li>
+        <li>
+          <label>right pincer</label>
+          <labelNoLocation>pincer</labelNoLocation>
+          <capacities>
+            <li>Scratch</li>
+          </capacities>
+          <power>31.5</power>
+          <cooldownTime>2.8</cooldownTime>
+          <linkedBodyPartsGroup>RightPincer</linkedBodyPartsGroup>
           <surpriseAttack>
             <extraMeleeDamages>
               <li>
@@ -1805,13 +1823,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Megaspider"]/race/body</xpath>
       <value>
-        <body>BeetleLikeWithClaw</body>
+        <body>ScorpionLike</body>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Megaspider"]/race</xpath>
       <value>
-        <body>BeetleLikeWithClaw</body>
+        <body>ScorpionLike</body>
       </value>
     </nomatch>
   </Operation>
@@ -2520,8 +2538,8 @@
                 <chanceFactor>0.2</chanceFactor>
               </li>
               <li Class="CombatExtended.ToolCE">
-                <label>head claw</label>
-                <labelNoLocation>claw</labelNoLocation>
+                <label>left pincer</label>
+                <labelNoLocation>pincer</labelNoLocation>
                 <capacities>
                   <li>Scratch</li>
                 </capacities>
@@ -2529,7 +2547,27 @@
                 <armorPenetrationBlunt>19.35</armorPenetrationBlunt>
                 <armorPenetrationSharp>6.43</armorPenetrationSharp>
                 <cooldownTime>3.45</cooldownTime>
-                <linkedBodyPartsGroup>HeadClaw</linkedBodyPartsGroup>
+                <linkedBodyPartsGroup>LeftPincer</linkedBodyPartsGroup>
+                <surpriseAttack>
+                  <extraMeleeDamages>
+                    <li>
+                      <def>Stun</def>
+                      <amount>25</amount>
+                    </li>
+                  </extraMeleeDamages>
+                </surpriseAttack>
+              </li>
+              <li Class="CombatExtended.ToolCE">
+                <label>right pincer</label>
+                <labelNoLocation>pincer</labelNoLocation>
+                <capacities>
+                  <li>Scratch</li>
+                </capacities>
+                <power>33.5</power>
+                <armorPenetrationBlunt>19.35</armorPenetrationBlunt>
+                <armorPenetrationSharp>6.43</armorPenetrationSharp>
+                <cooldownTime>3.45</cooldownTime>
+                <linkedBodyPartsGroup>RightPincer</linkedBodyPartsGroup>
                 <surpriseAttack>
                   <extraMeleeDamages>
                     <li>

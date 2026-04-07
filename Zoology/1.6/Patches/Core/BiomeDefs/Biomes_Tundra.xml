@@ -38,15 +38,12 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/BiomeDef[defName="Tundra"]/allowedPackAnimals</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/BiomeDef[defName="Tundra"]/allowedPackAnimals</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/BiomeDef[defName="Tundra"]</xpath>
-    <value>
-      <allowedPackAnimals/>
-    </value>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/BiomeDef[defName="Tundra"]</xpath>
+      <value>
+        <allowedPackAnimals/>
+      </value>
+    </nomatch>
   </Operation>
   <Operation Class="PatchOperationAdd">
     <xpath>/Defs/BiomeDef[defName="Tundra"]/wildAnimals</xpath>
@@ -71,6 +68,9 @@
     <value>
       <Sparrow MayRequire="Ludeon.RimWorld.Odyssey">0.8</Sparrow>
       <Crow MayRequire="Ludeon.RimWorld.Odyssey">0.8</Crow>
+      <VAEWaste_Megatardi MayRequire="VanillaExpanded.VAEWaste">0.075</VAEWaste_Megatardi>
+      <VAEWaste_Toxafox MayRequire="VanillaExpanded.VAEWaste">0.1</VAEWaste_Toxafox>
+      <VAEWaste_Toxbear MayRequire="VanillaExpanded.VAEWaste">0.05</VAEWaste_Toxbear>
     </value>
   </Operation>
   <Operation Class="PatchOperationAdd">
@@ -83,11 +83,31 @@
       <AEXP_RockhopperPenguin MayRequire="VanillaExpanded.VAEEndAndExt">0.05</AEXP_RockhopperPenguin>
     </value>
   </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/BiomeDef[defName="Tundra"]/allowedPackAnimals</xpath>
-    <value>
-      <li>Muffalo</li>
-      <li>Horse</li>
-    </value>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/BiomeDef[defName="Tundra"]/allowedPackAnimals/li[text()="Muffalo"]</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/BiomeDef[defName="Tundra"]/allowedPackAnimals</xpath>
+      <value>
+        <li>Muffalo</li>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/BiomeDef[defName="Tundra"]/allowedPackAnimals/li[text()="VAEWaste_Megatardi"]</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/BiomeDef[defName="Tundra"]/allowedPackAnimals</xpath>
+      <value>
+        <li MayRequire="VanillaExpanded.VAEWaste">VAEWaste_Megatardi</li>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/BiomeDef[defName="Tundra"]/allowedPackAnimals/li[text()="Horse"]</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/BiomeDef[defName="Tundra"]/allowedPackAnimals</xpath>
+      <value>
+        <li>Horse</li>
+      </value>
+    </nomatch>
   </Operation>
 </Patch>
