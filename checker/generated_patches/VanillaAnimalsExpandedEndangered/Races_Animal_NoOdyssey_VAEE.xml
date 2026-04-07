@@ -8,8 +8,18 @@
       <operations>
         <!---->
         <!-- AEXP_Panda -->
+        <li Class="PatchOperationAttributeSet">
+          <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]</xpath>
+          <attribute>ParentName</attribute>
+          <value>AnimalThingBase</value>
+        </li>
+        <li Class="PatchOperationAttributeSet">
+          <xpath>/Defs/PawnKindDef[defName = "AEXP_Panda"]</xpath>
+          <attribute>ParentName</attribute>
+          <value>AnimalKindBase</value>
+        </li>
         <!-- AEXP_Panda StatBases -->
-        <Operation Class="PatchOperationConditional">
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/statBases/MarketValue</xpath>
           <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/statBases/MarketValue</xpath>
@@ -23,8 +33,8 @@
               <MarketValue>600</MarketValue>
             </value>
           </nomatch>
-        </Operation>
-        <Operation Class="PatchOperationConditional">
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/statBases/MoveSpeed</xpath>
           <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/statBases/MoveSpeed</xpath>
@@ -38,8 +48,8 @@
               <MoveSpeed>5</MoveSpeed>
             </value>
           </nomatch>
-        </Operation>
-        <Operation Class="PatchOperationConditional">
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/statBases/Wildness</xpath>
           <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/statBases/Wildness</xpath>
@@ -53,8 +63,8 @@
               <Wildness>0.7</Wildness>
             </value>
           </nomatch>
-        </Operation>
-        <Operation Class="PatchOperationConditional">
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/statBases/FilthRate</xpath>
           <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/statBases/FilthRate</xpath>
@@ -68,8 +78,8 @@
               <FilthRate>2</FilthRate>
             </value>
           </nomatch>
-        </Operation>
-        <Operation Class="PatchOperationConditional">
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/statBases/ComfyTemperatureMin</xpath>
           <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/statBases/ComfyTemperatureMin</xpath>
@@ -83,8 +93,8 @@
               <ComfyTemperatureMin>-35</ComfyTemperatureMin>
             </value>
           </nomatch>
-        </Operation>
-        <Operation Class="PatchOperationConditional">
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/statBases/ComfyTemperatureMax</xpath>
           <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/statBases/ComfyTemperatureMax</xpath>
@@ -98,33 +108,33 @@
               <ComfyTemperatureMax>35</ComfyTemperatureMax>
             </value>
           </nomatch>
-        </Operation>
-        <Operation Class="PatchOperationConditional">
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/statBases/ArmorRating_Blunt</xpath>
           <match Class="PatchOperationRemove">
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/statBases/ArmorRating_Blunt</xpath>
           </match>
-        </Operation>
-        <Operation Class="PatchOperationConditional">
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/statBases/ArmorRating_Sharp</xpath>
           <match Class="PatchOperationRemove">
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/statBases/ArmorRating_Sharp</xpath>
           </match>
-        </Operation>
-        <Operation Class="PatchOperationConditional">
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/statBases/ToxicEnvironmentResistance</xpath>
           <match Class="PatchOperationRemove">
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/statBases/ToxicEnvironmentResistance</xpath>
           </match>
-        </Operation>
+        </li>
         <!-- AEXP_Panda tools -->
-        <Operation Class="PatchOperationConditional">
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/tools</xpath>
           <match Class="PatchOperationRemove">
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/tools</xpath>
           </match>
-        </Operation>
-        <Operation Class="PatchOperationAdd">
+        </li>
+        <li Class="PatchOperationAdd">
           <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]</xpath>
           <value>
             <tools>
@@ -170,9 +180,9 @@
               </li>
             </tools>
           </value>
-        </Operation>
+        </li>
         <!-- AEXP_Panda RaceProperties -->
-        <Operation Class="PatchOperationConditional">
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/baseBodySize</xpath>
           <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/baseBodySize</xpath>
@@ -186,8 +196,8 @@
               <baseBodySize>1.3</baseBodySize>
             </value>
           </nomatch>
-        </Operation>
-        <Operation Class="PatchOperationConditional">
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/baseHealthScale</xpath>
           <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/baseHealthScale</xpath>
@@ -201,8 +211,8 @@
               <baseHealthScale>1.55</baseHealthScale>
             </value>
           </nomatch>
-        </Operation>
-        <Operation Class="PatchOperationConditional">
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/baseHungerRate</xpath>
           <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/baseHungerRate</xpath>
@@ -216,8 +226,8 @@
               <baseHungerRate>0.65</baseHungerRate>
             </value>
           </nomatch>
-        </Operation>
-        <Operation Class="PatchOperationConditional">
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/lifeExpectancy</xpath>
           <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/lifeExpectancy</xpath>
@@ -231,8 +241,8 @@
               <lifeExpectancy>20</lifeExpectancy>
             </value>
           </nomatch>
-        </Operation>
-        <Operation Class="PatchOperationConditional">
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/gestationPeriodDays</xpath>
           <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/gestationPeriodDays</xpath>
@@ -246,8 +256,8 @@
               <gestationPeriodDays>6</gestationPeriodDays>
             </value>
           </nomatch>
-        </Operation>
-        <Operation Class="PatchOperationConditional">
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/herdAnimal</xpath>
           <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/herdAnimal</xpath>
@@ -261,8 +271,8 @@
               <herdAnimal>false</herdAnimal>
             </value>
           </nomatch>
-        </Operation>
-        <Operation Class="PatchOperationConditional">
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/herdMigrationAllowed</xpath>
           <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/herdMigrationAllowed</xpath>
@@ -276,8 +286,8 @@
               <herdMigrationAllowed>false</herdMigrationAllowed>
             </value>
           </nomatch>
-        </Operation>
-        <Operation Class="PatchOperationConditional">
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/foodType</xpath>
           <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/foodType</xpath>
@@ -291,14 +301,14 @@
               <foodType>VegetarianRoughAnimal</foodType>
             </value>
           </nomatch>
-        </Operation>
-        <Operation Class="PatchOperationConditional">
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/roamMtbDays</xpath>
           <match Class="PatchOperationRemove">
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/roamMtbDays</xpath>
           </match>
-        </Operation>
-        <Operation Class="PatchOperationConditional">
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/leatherDef</xpath>
           <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/leatherDef</xpath>
@@ -312,14 +322,14 @@
               <leatherDef>Leather_Bear</leatherDef>
             </value>
           </nomatch>
-        </Operation>
-        <Operation Class="PatchOperationConditional">
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/useLeatherFrom</xpath>
           <match Class="PatchOperationRemove">
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/useLeatherFrom</xpath>
           </match>
-        </Operation>
-        <Operation Class="PatchOperationConditional">
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/manhunterOnTameFailChance</xpath>
           <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/manhunterOnTameFailChance</xpath>
@@ -333,8 +343,8 @@
               <manhunterOnTameFailChance>0.025</manhunterOnTameFailChance>
             </value>
           </nomatch>
-        </Operation>
-        <Operation Class="PatchOperationConditional">
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/manhunterOnDamageChance</xpath>
           <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/manhunterOnDamageChance</xpath>
@@ -348,20 +358,20 @@
               <manhunterOnDamageChance>0.1</manhunterOnDamageChance>
             </value>
           </nomatch>
-        </Operation>
-        <Operation Class="PatchOperationConditional">
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/petness</xpath>
           <match Class="PatchOperationRemove">
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/petness</xpath>
           </match>
-        </Operation>
-        <Operation Class="PatchOperationConditional">
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/nuzzleMtbHours</xpath>
           <match Class="PatchOperationRemove">
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/nuzzleMtbHours</xpath>
           </match>
-        </Operation>
-        <Operation Class="PatchOperationConditional">
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/mateMtbHours</xpath>
           <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/mateMtbHours</xpath>
@@ -375,8 +385,8 @@
               <mateMtbHours>12</mateMtbHours>
             </value>
           </nomatch>
-        </Operation>
-        <Operation Class="PatchOperationConditional">
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/trainability</xpath>
           <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/trainability</xpath>
@@ -390,8 +400,8 @@
               <trainability>Advanced</trainability>
             </value>
           </nomatch>
-        </Operation>
-        <Operation Class="PatchOperationConditional">
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/packAnimal</xpath>
           <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/packAnimal</xpath>
@@ -405,8 +415,8 @@
               <packAnimal>false</packAnimal>
             </value>
           </nomatch>
-        </Operation>
-        <Operation Class="PatchOperationConditional">
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/predator</xpath>
           <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/predator</xpath>
@@ -420,14 +430,14 @@
               <predator>false</predator>
             </value>
           </nomatch>
-        </Operation>
-        <Operation Class="PatchOperationConditional">
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/maxPreyBodySize</xpath>
           <match Class="PatchOperationRemove">
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/maxPreyBodySize</xpath>
           </match>
-        </Operation>
-        <Operation Class="PatchOperationConditional">
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/nameOnTameChance</xpath>
           <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/nameOnTameChance</xpath>
@@ -441,8 +451,8 @@
               <nameOnTameChance>1</nameOnTameChance>
             </value>
           </nomatch>
-        </Operation>
-        <Operation Class="PatchOperationConditional">
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/body</xpath>
           <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/body</xpath>
@@ -456,14 +466,14 @@
               <body>QuadrupedAnimalWithPaws</body>
             </value>
           </nomatch>
-        </Operation>
-        <Operation Class="PatchOperationConditional">
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/waterCellCost</xpath>
           <match Class="PatchOperationRemove">
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/waterCellCost</xpath>
           </match>
-        </Operation>
-        <Operation Class="PatchOperationConditional">
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/waterSeeker</xpath>
           <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/waterSeeker</xpath>
@@ -477,8 +487,8 @@
               <waterSeeker>false</waterSeeker>
             </value>
           </nomatch>
-        </Operation>
-        <Operation Class="PatchOperationConditional">
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/canFishForFood</xpath>
           <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/canFishForFood</xpath>
@@ -492,8 +502,8 @@
               <canFishForFood>false</canFishForFood>
             </value>
           </nomatch>
-        </Operation>
-        <Operation Class="PatchOperationConditional">
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/wildBiomes</xpath>
           <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/wildBiomes</xpath>
@@ -513,8 +523,8 @@
               </wildBiomes>
             </value>
           </nomatch>
-        </Operation>
-        <Operation Class="PatchOperationConditional">
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/lifeStageAges/li[def = 'AnimalJuvenile']</xpath>
           <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/lifeStageAges/li[def = 'AnimalJuvenile']/minAge</xpath>
@@ -523,8 +533,8 @@
             </value>
           </match>
           <nomatch/>
-        </Operation>
-        <Operation Class="PatchOperationConditional">
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/lifeStageAges/li[def = 'AnimalAdult']</xpath>
           <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/lifeStageAges/li[def = 'AnimalAdult']/minAge</xpath>
@@ -533,8 +543,8 @@
             </value>
           </match>
           <nomatch/>
-        </Operation>
-        <Operation Class="PatchOperationConditional">
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/litterSizeCurve</xpath>
           <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/litterSizeCurve</xpath>
@@ -566,20 +576,20 @@
               </litterSizeCurve>
             </value>
           </nomatch>
-        </Operation>
-        <Operation Class="PatchOperationConditional">
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/specialTrainables</xpath>
           <match Class="PatchOperationRemove">
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/specialTrainables</xpath>
           </match>
-        </Operation>
-        <Operation Class="PatchOperationConditional">
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/tradeTags/li[text()="AnimalCommon" or text()="AnimalUncommon" or text()="AnimalExotic" or text()="AnimalFighter" or text()="AnimalInsect" or text()="AnimalPet" or text()="AnimalFarm"]</xpath>
           <match Class="PatchOperationRemove">
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/tradeTags/li[text()="AnimalCommon" or text()="AnimalUncommon" or text()="AnimalExotic" or text()="AnimalFighter" or text()="AnimalInsect" or text()="AnimalPet" or text()="AnimalFarm"]</xpath>
           </match>
-        </Operation>
-        <Operation Class="PatchOperationConditional">
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/tradeTags</xpath>
           <match Class="PatchOperationAdd">
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/tradeTags</xpath>
@@ -597,21 +607,21 @@
               </tradeTags>
             </value>
           </nomatch>
-        </Operation>
-        <Operation Class="PatchOperationAddModExtension">
+        </li>
+        <li Class="PatchOperationAddModExtension">
           <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]</xpath>
           <value>
             <li Class="ZoologyMod.ModExtension_IsMammal, ZoologyMod"/>
           </value>
-        </Operation>
-        <Operation Class="PatchOperationAddModExtension">
+        </li>
+        <li Class="PatchOperationAddModExtension">
           <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]</xpath>
           <value>
             <li Class="ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod"/>
           </value>
-        </Operation>
+        </li>
         <!-- AEXP_Panda PawnKindDef -->
-        <Operation Class="PatchOperationConditional">
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/PawnKindDef[defName = "AEXP_Panda"]/combatPower</xpath>
           <match Class="PatchOperationReplace">
             <xpath>/Defs/PawnKindDef[defName = "AEXP_Panda"]/combatPower</xpath>
@@ -625,8 +635,8 @@
               <combatPower>140</combatPower>
             </value>
           </nomatch>
-        </Operation>
-        <Operation Class="PatchOperationConditional">
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/PawnKindDef[defName = "AEXP_Panda"]/ecoSystemWeight</xpath>
           <match Class="PatchOperationReplace">
             <xpath>/Defs/PawnKindDef[defName = "AEXP_Panda"]/ecoSystemWeight</xpath>
@@ -640,8 +650,8 @@
               <ecoSystemWeight>0.8</ecoSystemWeight>
             </value>
           </nomatch>
-        </Operation>
-        <Operation Class="PatchOperationConditional">
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/PawnKindDef[defName = "AEXP_Panda"]/canArriveManhunter</xpath>
           <match Class="PatchOperationReplace">
             <xpath>/Defs/PawnKindDef[defName = "AEXP_Panda"]/canArriveManhunter</xpath>
@@ -655,19 +665,19 @@
               <canArriveManhunter>false</canArriveManhunter>
             </value>
           </nomatch>
-        </Operation>
-        <Operation Class="PatchOperationConditional">
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/PawnKindDef[defName = "AEXP_Panda"]/wildGroupSize</xpath>
           <match Class="PatchOperationRemove">
             <xpath>/Defs/PawnKindDef[defName = "AEXP_Panda"]/wildGroupSize</xpath>
           </match>
-        </Operation>
-        <Operation Class="PatchOperationConditional">
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/PawnKindDef[defName = "AEXP_Panda"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
           <match Class="PatchOperationRemove">
             <xpath>/Defs/PawnKindDef[defName = "AEXP_Panda"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
           </match>
-        </Operation>
+        </li>
       </operations>
     </nomatch>
   </Operation>

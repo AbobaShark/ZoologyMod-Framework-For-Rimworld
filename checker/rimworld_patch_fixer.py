@@ -376,8 +376,26 @@ class PatchGenerator:
 
         nomatch = LET.SubElement(wrapper, 'nomatch', Class='PatchOperationSequence')
         seq_ops = LET.SubElement(nomatch, 'operations')
+
+        def _to_sequence_item(node):
+            if not isinstance(getattr(node, 'tag', None), str):
+                return copy.deepcopy(node)
+            if node.tag == 'li':
+                return copy.deepcopy(node)
+            if node.tag == 'Operation':
+                src = copy.deepcopy(node)
+                li = LET.Element('li')
+                for k, v in src.attrib.items():
+                    li.set(k, v)
+                li.text = src.text
+                for child in src:
+                    li.append(copy.deepcopy(child))
+                li.tail = src.tail
+                return li
+            return copy.deepcopy(node)
+
         for op in payload:
-            seq_ops.append(copy.deepcopy(op))
+            seq_ops.append(_to_sequence_item(op))
         return [wrapper]
 
     def _is_no_like(self, v):
@@ -1931,6 +1949,28 @@ class PatchGenerator:
         ops.append(LET.Comment(""))
         ops.append(LET.Comment(f" {def_name} "))
 
+        # Parent safety: force ParentName from table before other vanilla patches.
+        # If parent columns are None/empty, use AnimalThingBase / AnimalKindBase.
+        thing_parent = ''
+        if 'Parrent abstract' in row.index:
+            thing_parent = str(row.get('Parrent abstract', '')).strip()
+        elif 'Parent abstract' in row.index:
+            thing_parent = str(row.get('Parent abstract', '')).strip()
+        if thing_parent.lower() in ('', 'none', 'no'):
+            thing_parent = 'AnimalThingBase'
+        ops.append(self.create_attribute_set(def_name, 'ParentName', thing_parent, is_pawn=False))
+
+        pawn_parent_forced = ''
+        if 'Parrent Pawn kind abstract' in row.index:
+            pawn_parent_forced = str(row.get('Parrent Pawn kind abstract', '')).strip()
+        elif 'Parent Pawn kind abstract' in row.index:
+            pawn_parent_forced = str(row.get('Parent Pawn kind abstract', '')).strip()
+        elif 'Parrent Pawn kind' in row.index:
+            pawn_parent_forced = str(row.get('Parrent Pawn kind', '')).strip()
+        if pawn_parent_forced.lower() in ('', 'none', 'no'):
+            pawn_parent_forced = 'AnimalKindBase'
+        ops.append(self.create_attribute_set(def_name, 'ParentName', pawn_parent_forced, is_pawn=True))
+
         # StatBases
         ops.append(LET.Comment(f" {def_name} StatBases "))
         if parent:
@@ -2491,6 +2531,15 @@ class PatchGenerator:
         val = LET.SubElement(nomatch, "value")
         LET.SubElement(val, container_tag)
 
+        return op
+
+    def create_attribute_set(self, def_name, attribute, value, is_pawn=False, is_abstract=False):
+        base_path = 'PawnKindDef' if is_pawn else 'ThingDef'
+        attr = '@Name' if is_abstract else 'defName'
+        op = LET.Element("Operation", Class="PatchOperationAttributeSet")
+        LET.SubElement(op, "xpath").text = f"/Defs/{base_path}[{attr} = \"{def_name}\"]"
+        LET.SubElement(op, "attribute").text = str(attribute)
+        LET.SubElement(op, "value").text = str(value)
         return op
     
     def create_safe_replace(self, def_name, path, tag, value, is_abstract=False, is_pawn=False):
