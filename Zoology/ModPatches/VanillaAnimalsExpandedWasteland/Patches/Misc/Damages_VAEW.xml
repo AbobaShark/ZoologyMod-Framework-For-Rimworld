@@ -46,5 +46,27 @@
       </DamageDef>
     </value>
   </Operation>
+  
+  <!-- Replace VAEWaste_Sting -->
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/DamageDef[defName="VAEWaste_Sting"]</xpath>
+    <value>
+      <DamageDef ParentName="BaseStinger">
+        <defName>VAEWaste_Sting</defName>
+        <label>toxic sting</label>
+        <workerClass>VanillaAnimalsExpandedWaste.DamageWorker_Carcinoma</workerClass>
+        <additionalHediffs>
+          <li>
+            <hediff>VEF_ToxicBuildup</hediff>
+            <severityPerDamageDealt>0.015</severityPerDamageDealt>
+            <victimSeverityScaling>ToxicResistance</victimSeverityScaling>
+            <inverseStatScaling>true</inverseStatScaling>
+          </li>
+        </additionalHediffs>
+        <impactSoundType>Toxic</impactSoundType>
+		<damageEffecter>Impact_Toxic</damageEffecter>
+      </DamageDef>
+    </value>
+  </Operation>
 
 </Patch>
