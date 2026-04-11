@@ -271,10 +271,12 @@ Most invasive behavior systems can be disabled in mod settings if conflicts occu
 
 **Explicit compatibility exists for**
 
-* All official DLCs  
-* Vanilla Expanded Framework  
-* Animals Are Fun  
-* Vanilla Animals Expanded (non-Odyssey animals)  
+* All official DLCs
+* Vanilla Expanded Framework
+* Animals Are Fun
+* Animal Genetics
+* Animal Traits System
+* All Vanilla Animals Expanded series mods (Vanilla Animals Expanded, Vanilla Animals Expanded - Royal Animals, Vanilla Animals Expanded - Endangered, Vanilla Animals Expanded - Waste Animals)
 * Combat Extended
 
 ---
