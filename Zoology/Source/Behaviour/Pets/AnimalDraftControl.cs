@@ -19,6 +19,10 @@ namespace ZoologyMod
         private static HediffDef cachedSentienceCatalystHediff;
         private static readonly HashSet<Pawn> masterRingCache = new HashSet<Pawn>();
         private static int masterRingCacheFrame = -1;
+        private static int anySelectedDraftControlFrame = -1;
+        private static bool anySelectedDraftControl;
+        private static int draftedMoveContextDepth;
+        private static bool draftedMoveContextIsMultiselect;
         private static readonly AccessTools.FieldRef<Pawn_TrainingTracker, DefMap<TrainableDef, bool>> WantedTrainablesRef =
             AccessTools.FieldRefAccess<Pawn_TrainingTracker, DefMap<TrainableDef, bool>>("wantedTrainables");
         private static readonly AccessTools.FieldRef<Pawn_TrainingTracker, DefMap<TrainableDef, int>> StepsRef =
@@ -108,7 +112,7 @@ namespace ZoologyMod
 
         internal static bool IsDraftControlActivePawn(Pawn pawn)
         {
-            return IsDraftControlCandidate(pawn) && pawn.Drafted;
+            return pawn != null && pawn.Drafted && IsDraftControlCandidate(pawn);
         }
 
         internal static bool ShouldHideAttackTargetCommands(Pawn pawn)
@@ -408,12 +412,12 @@ namespace ZoologyMod
                 masterRingCacheFrame = frame;
                 masterRingCache.Clear();
 
-                List<Pawn> selectedPawns = Find.Selector.SelectedPawns;
-                if (selectedPawns != null && selectedPawns.Count > 0)
+                List<object> selectedObjects = Find.Selector.SelectedObjectsListForReading;
+                if (selectedObjects != null && selectedObjects.Count > 0)
                 {
-                    for (int i = 0; i < selectedPawns.Count; i++)
+                    for (int i = 0; i < selectedObjects.Count; i++)
                     {
-                        Pawn selected = selectedPawns[i];
+                        Pawn selected = selectedObjects[i] as Pawn;
                         if (!IsDraftControlActivePawn(selected))
                         {
                             continue;
@@ -431,15 +435,85 @@ namespace ZoologyMod
             return masterRingCache.Contains(master);
         }
 
-        internal static bool CanCommandFromMasterTo(Pawn master, IntVec3 cell)
+        internal static bool AnySelectedDraftControlPawn()
         {
-            if (master == null || !master.Spawned || !cell.InBounds(master.Map))
+            if (!IsFeatureEnabledNow() || Find.Selector == null)
             {
                 return false;
             }
 
-            return cell.InHorDistOf(master.Position, Pawn_TrainingTracker.AttackTargetRange);
+            int frame = Time.frameCount;
+            if (anySelectedDraftControlFrame == frame)
+            {
+                return anySelectedDraftControl;
+            }
+
+            anySelectedDraftControlFrame = frame;
+            anySelectedDraftControl = false;
+
+            List<object> selectedObjects = Find.Selector.SelectedObjectsListForReading;
+            if (selectedObjects == null || selectedObjects.Count == 0)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < selectedObjects.Count; i++)
+            {
+                if (IsDraftControlActivePawn(selectedObjects[i] as Pawn))
+                {
+                    anySelectedDraftControl = true;
+                    break;
+                }
+            }
+
+            return anySelectedDraftControl;
         }
+
+        internal static void PushDraftedMoveContext(bool isMultiselect)
+        {
+            draftedMoveContextDepth++;
+            draftedMoveContextIsMultiselect = isMultiselect;
+        }
+
+        internal static void PopDraftedMoveContext()
+        {
+            if (draftedMoveContextDepth > 0)
+            {
+                draftedMoveContextDepth--;
+            }
+
+            if (draftedMoveContextDepth == 0)
+            {
+                draftedMoveContextIsMultiselect = false;
+            }
+        }
+
+        internal static bool IsDraftedMoveMultiselectContext()
+        {
+            return draftedMoveContextDepth > 0 && draftedMoveContextIsMultiselect;
+        }
+
+        internal static IntVec3 FindNearestMasterRangeGotoCell(Pawn pawn, IntVec3 desiredRoot, List<IntVec3> reservedCells = null)
+        {
+            if (!IsDraftControlActivePawn(pawn) || !pawn.Spawned || pawn.MapHeld == null)
+            {
+                return IntVec3.Invalid;
+            }
+
+            Map map = pawn.MapHeld;
+            IntVec3 root = desiredRoot;
+            if (!root.IsValid || !root.InBounds(map))
+            {
+                root = pawn.Position;
+            }
+
+            return RCellFinder.BestOrderedGotoDestNear(
+                root,
+                pawn,
+                c => (reservedCells == null || !reservedCells.Contains(c))
+                    && InMasterCommandRange(pawn, c));
+        }
+
     }
 
     [HarmonyPatch]
@@ -667,6 +741,21 @@ namespace ZoologyMod
         }
     }
 
+    [HarmonyPatch(typeof(FloatMenuOptionProvider_DraftedMove), "GetSingleOption")]
+    public static class Patch_DraftedMove_GetSingleOption_ContextFlag
+    {
+        private static void Prefix(FloatMenuContext context)
+        {
+            AnimalDraftControlUtility.PushDraftedMoveContext(context != null && context.IsMultiselect);
+        }
+
+        private static Exception Finalizer(Exception __exception)
+        {
+            AnimalDraftControlUtility.PopDraftedMoveContext();
+            return __exception;
+        }
+    }
+
     [HarmonyPatch(typeof(FloatMenuOptionProvider_DraftedMove), nameof(FloatMenuOptionProvider_DraftedMove.PawnCanGoto))]
     public static class Patch_DraftedMove_PawnCanGoto_AnimalDraftControl
     {
@@ -677,9 +766,145 @@ namespace ZoologyMod
                 return;
             }
 
-            if (!AnimalDraftControlUtility.InMasterCommandRange(pawn, gotoLoc))
+            if (AnimalDraftControlUtility.InMasterCommandRange(pawn, gotoLoc))
+            {
+                return;
+            }
+
+            if (!AnimalDraftControlUtility.IsDraftedMoveMultiselectContext())
             {
                 __result = "CannotGoOutOfRange".Translate() + ": " + "OutOfCommandRange".Translate();
+                return;
+            }
+
+            IntVec3 fallbackCell = AnimalDraftControlUtility.FindNearestMasterRangeGotoCell(pawn, gotoLoc);
+            if (!fallbackCell.IsValid)
+            {
+                __result = "CannotGoOutOfRange".Translate() + ": " + "OutOfCommandRange".Translate();
+            }
+        }
+    }
+
+    [HarmonyPatch(typeof(MultiPawnGotoController), nameof(MultiPawnGotoController.RecomputeDestinations))]
+    public static class Patch_MultiPawnGotoController_RecomputeDestinations_AnimalDraftControl
+    {
+        private static readonly AccessTools.FieldRef<MultiPawnGotoController, List<Pawn>> PawnsRef =
+            AccessTools.FieldRefAccess<MultiPawnGotoController, List<Pawn>>("pawns");
+
+        private static readonly AccessTools.FieldRef<MultiPawnGotoController, List<IntVec3>> DestsRef =
+            AccessTools.FieldRefAccess<MultiPawnGotoController, List<IntVec3>>("dests");
+
+        private static readonly AccessTools.FieldRef<MultiPawnGotoController, IntVec3> EndRef =
+            AccessTools.FieldRefAccess<MultiPawnGotoController, IntVec3>("end");
+
+        private static void Postfix(MultiPawnGotoController __instance)
+        {
+            if (__instance == null)
+            {
+                return;
+            }
+
+            List<Pawn> pawns = PawnsRef(__instance);
+            List<IntVec3> dests = DestsRef(__instance);
+            if (pawns == null || dests == null || pawns.Count == 0 || pawns.Count != dests.Count)
+            {
+                return;
+            }
+
+            IntVec3 desiredRoot = EndRef(__instance);
+            for (int i = 0; i < pawns.Count; i++)
+            {
+                Pawn pawn = pawns[i];
+                if (!AnimalDraftControlUtility.IsDraftControlActivePawn(pawn))
+                {
+                    continue;
+                }
+
+                IntVec3 destination = dests[i];
+                if (destination.IsValid && AnimalDraftControlUtility.InMasterCommandRange(pawn, destination))
+                {
+                    continue;
+                }
+
+                IntVec3 fallbackCell = AnimalDraftControlUtility.FindNearestMasterRangeGotoCell(pawn, desiredRoot, dests);
+                dests[i] = fallbackCell.IsValid ? fallbackCell : IntVec3.Invalid;
+            }
+        }
+    }
+
+    [HarmonyPatch(typeof(FloatMenuOptionProvider_DraftedAttack), "CanTarget")]
+    public static class Patch_DraftedAttack_CanTarget_NullGuard
+    {
+        private static bool Prefix(Thing clickedThing, ref bool __result)
+        {
+            if (clickedThing != null)
+            {
+                return true;
+            }
+
+            __result = false;
+            return false;
+        }
+    }
+
+    [HarmonyPatch(typeof(FloatMenuOptionProvider_DraftedAttack), nameof(FloatMenuOptionProvider_DraftedAttack.GetOptionsFor))]
+    public static class Patch_DraftedAttack_GetOptionsFor_SkipNullMultiselectOption
+    {
+        private static readonly MethodInfo CanTargetMethod =
+            AccessTools.Method(typeof(FloatMenuOptionProvider_DraftedAttack), "CanTarget");
+
+        private static readonly MethodInfo GetMultiselectAttackOptionMethod =
+            AccessTools.Method(typeof(FloatMenuOptionProvider_DraftedAttack), "GetMultiselectAttackOption");
+
+        private static bool Prefix(FloatMenuOptionProvider_DraftedAttack __instance, Thing clickedThing, FloatMenuContext context, ref IEnumerable<FloatMenuOption> __result)
+        {
+            if (context == null || !context.IsMultiselect)
+            {
+                return true;
+            }
+
+            bool hasDraftControlPawn = false;
+            foreach (Pawn pawn in context.ValidSelectedPawns)
+            {
+                if (AnimalDraftControlUtility.IsDraftControlActivePawn(pawn))
+                {
+                    hasDraftControlPawn = true;
+                    break;
+                }
+            }
+
+            if (!hasDraftControlPawn)
+            {
+                return true;
+            }
+
+            if (clickedThing == null || CanTargetMethod == null || GetMultiselectAttackOptionMethod == null)
+            {
+                __result = EmptyOptions();
+                return false;
+            }
+
+            if (!(bool)CanTargetMethod.Invoke(null, new object[] { clickedThing }))
+            {
+                __result = EmptyOptions();
+                return false;
+            }
+
+            FloatMenuOption option = GetMultiselectAttackOptionMethod.Invoke(__instance, new object[] { clickedThing, context }) as FloatMenuOption;
+            __result = option == null ? EmptyOptions() : SingleOption(option);
+            return false;
+        }
+
+        private static IEnumerable<FloatMenuOption> EmptyOptions()
+        {
+            yield break;
+        }
+
+        private static IEnumerable<FloatMenuOption> SingleOption(FloatMenuOption option)
+        {
+            if (option != null)
+            {
+                yield return option;
             }
         }
     }
@@ -689,7 +914,13 @@ namespace ZoologyMod
     {
         private static bool Prefix(Pawn pawn, ref bool __result)
         {
-            if (pawn == null || !AnimalDraftControlUtility.IsDraftControlActivePawn(pawn))
+            if (pawn == null)
+            {
+                __result = false;
+                return false;
+            }
+
+            if (!AnimalDraftControlUtility.IsDraftControlActivePawn(pawn))
             {
                 return true;
             }
@@ -709,6 +940,13 @@ namespace ZoologyMod
     {
         private static bool Prefix(Pawn pawn, LocalTargetInfo target, ref string failStr, ref Action __result)
         {
+            if (pawn == null)
+            {
+                failStr = "Incapable".Translate();
+                __result = null;
+                return false;
+            }
+
             if (!AnimalDraftControlUtility.IsDraftControlActivePawn(pawn))
             {
                 return true;
@@ -796,6 +1034,13 @@ namespace ZoologyMod
     {
         private static bool Prefix(Pawn pawn, LocalTargetInfo target, bool ignoreControlled, ref string failStr, ref Action __result)
         {
+            if (pawn == null)
+            {
+                failStr = "Incapable".Translate();
+                __result = null;
+                return false;
+            }
+
             if (!AnimalDraftControlUtility.IsDraftControlActivePawn(pawn))
             {
                 return true;
@@ -865,7 +1110,27 @@ namespace ZoologyMod
     {
         private static void Postfix(Pawn __instance)
         {
+            if (__instance == null
+                || __instance.Faction != Faction.OfPlayer
+                || __instance.playerSettings == null
+                || __instance.RaceProps == null
+                || !__instance.RaceProps.Humanlike)
+            {
+                return;
+            }
+
+            if (!AnimalDraftControlUtility.AnySelectedDraftControlPawn())
+            {
+                return;
+            }
+
             if (!AnimalDraftControlUtility.ShouldDrawMasterRadius(__instance))
+            {
+                return;
+            }
+
+            Map map = __instance.MapHeld;
+            if (map == null)
             {
                 return;
             }
@@ -874,7 +1139,7 @@ namespace ZoologyMod
                 __instance.Position,
                 Pawn_TrainingTracker.AttackTargetRange,
                 Color.white,
-                c => AnimalDraftControlUtility.CanCommandFromMasterTo(__instance, c));
+                c => c.InBounds(map));
         }
     }
 }
