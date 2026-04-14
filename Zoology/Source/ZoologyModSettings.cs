@@ -93,6 +93,7 @@ namespace ZoologyMod
         
         
         public bool EnableAnimalDamageReduction = true;
+        public bool EnableAnimalDraftControl = true;
 
         private float _smallPetBodySizeThreshold = ModConstants.DefaultSmallPetBodySizeThreshold;
         private float _safePredatorBodySizeThreshold = ModConstants.DefaultSafePredatorBodySizeThreshold;
@@ -284,7 +285,7 @@ namespace ZoologyMod
                 case SettingsPage.Physiology:
                     return 1180f + (!EnableMammalLactation ? 30f : 0f);
                 case SettingsPage.Combat:
-                    return 500f;
+                    return 580f;
                 case SettingsPage.OtherBehavior:
                     return 1560f
                         + (EnableCustomFleeDanger ? 170f : 0f)
@@ -423,6 +424,13 @@ namespace ZoologyMod
                 list.GapLine(6f);
                 EnableOverrideCEPenetration = false;
             }
+
+            list.GapLine(12f);
+            list.CheckboxLabeled(
+                "Enable animal draft control (Zoology_DraftControl)",
+                ref EnableAnimalDraftControl,
+                "Enables Zoology draft-control behavior for trained animals (including SentienceCatalyst support) and replaces AttackTarget when both trainables are available."
+            );
 
             list.GapLine(12f);
             if (_cePresent)
@@ -751,6 +759,7 @@ namespace ZoologyMod
             AnimalFeatureIntParameterOverrides.Clear();
             AnimalFeatureFloatParameterOverrides.Clear();
             EnableAnimalDamageReduction = !_cePresent;
+            EnableAnimalDraftControl = true;
             EnableOverrideCEPenetration = _cePresent ? true : false;
             DisableAllRuntimePatches = false;
             ClampFleeAndThreatSettings();
@@ -847,6 +856,7 @@ namespace ZoologyMod
                 EnableAnimalDamageReduction = false;
             }
 
+            Scribe_Values.Look(ref EnableAnimalDraftControl, "EnableAnimalDraftControl", true);
             Scribe_Values.Look(ref EnableOverrideCEPenetration, "EnableOverrideCEPenetration", false);
             if (!_cePresent)
             {
@@ -894,6 +904,7 @@ namespace ZoologyMod
                 hash = hash * 31 + (EnableDrugsImmunePatch ? 1 : 0);
                 hash = hash * 31 + (EnableNoPorcupineQuillPatch ? 1 : 0);
                 hash = hash * 31 + (EnableAnimalDamageReduction ? 1 : 0);
+                hash = hash * 31 + (EnableAnimalDraftControl ? 1 : 0);
                 hash = hash * 31 + (EnableOverrideCEPenetration ? 1 : 0);
                 return hash;
             }
@@ -1895,6 +1906,7 @@ namespace ZoologyMod
                 && !EnablePredatorDefendCorpse
                 && !EnableScavengering
                 && !EnableAnimalDamageReduction
+                && !EnableAnimalDraftControl
                 && !EnableOverrideCEPenetration;
         }
     }
