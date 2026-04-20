@@ -112,7 +112,10 @@ namespace ZoologyMod
 
         internal static bool IsDraftControlActivePawn(Pawn pawn)
         {
-            return pawn != null && pawn.Drafted && IsDraftControlCandidate(pawn);
+            return pawn != null
+                && pawn.Drafted
+                && IsDraftControlCandidate(pawn)
+                && CanDoDraftControl(pawn).Accepted;
         }
 
         internal static bool ShouldHideAttackTargetCommands(Pawn pawn)
@@ -265,6 +268,21 @@ namespace ZoologyMod
                 return false;
             }
 
+            if (pawn.Downed)
+            {
+                return "IsIncapped".Translate(pawn.LabelShort, pawn);
+            }
+
+            if (pawn.Deathresting)
+            {
+                return "IsDeathresting".Translate(pawn.Named("PAWN"));
+            }
+
+            if (pawn.InMentalState)
+            {
+                return "InMentalState".Translate(pawn.Named("PAWN"), pawn.MentalStateDef.Named("MENTALSTATE"));
+            }
+
             if (pawn.playerSettings?.Master == null)
             {
                 return "NoMaster".Translate();
@@ -274,6 +292,21 @@ namespace ZoologyMod
             if (!master.Spawned || master.Map != pawn.Map)
             {
                 return "MasterNotSpawned".Translate();
+            }
+
+            if (master.Downed)
+            {
+                return "IsIncapped".Translate(master.LabelShort, master);
+            }
+
+            if (master.Deathresting)
+            {
+                return "IsDeathresting".Translate(master.Named("PAWN"));
+            }
+
+            if (master.InMentalState)
+            {
+                return "InMentalState".Translate(master.Named("PAWN"), master.MentalStateDef.Named("MENTALSTATE"));
             }
 
             return true;
@@ -715,6 +748,26 @@ namespace ZoologyMod
             }
 
             yield return AnimalDraftControlUtility.CreateDraftToggle(__instance);
+        }
+    }
+
+    [HarmonyPatch(typeof(Pawn_TrainingTracker), nameof(Pawn_TrainingTracker.GetGizmos))]
+    public static class Patch_PawnTrainingTracker_GetGizmos_AnimalDraftControl
+    {
+        private static bool Prefix(Pawn_TrainingTracker __instance, ref IEnumerable<Gizmo> __result)
+        {
+            if (!AnimalDraftControlUtility.ShouldHideAttackTargetCommands(__instance?.pawn))
+            {
+                return true;
+            }
+
+            __result = EmptyGizmos();
+            return false;
+        }
+
+        private static IEnumerable<Gizmo> EmptyGizmos()
+        {
+            yield break;
         }
     }
 
