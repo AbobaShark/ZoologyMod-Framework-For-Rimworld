@@ -63,7 +63,6 @@ namespace ZoologyMod
             if (pawn?.health?.hediffSet == null) return;
 
             HashSet<HediffDef> forb = AgelessUtils.GetAgeRelatedHediffDefsForPawnView(pawn);
-            if (forb == null || forb.Count == 0) return;
 
             List<Hediff> hs = pawn.health.hediffSet.hediffs;
             if (hs == null || hs.Count == 0) return;
@@ -73,7 +72,7 @@ namespace ZoologyMod
             {
                 Hediff h = hs[i];
                 if (h == null || h.def == null) continue;
-                if (forb.Contains(h.def) || AgelessUtils.IsChronicDiseaseHediff(h.def))
+                if ((forb != null && forb.Contains(h.def)) || AgelessUtils.IsDiseaseHediff(h.def))
                 {
                     hediffRemovalBuffer.Add(h);
                 }
@@ -108,6 +107,8 @@ namespace ZoologyMod
         private static readonly Dictionary<string, HashSet<HediffDef>> pawnKindCache = new Dictionary<string, HashSet<HediffDef>>();
         private static readonly Dictionary<Type, bool> chronicDiseaseTypeCache = new Dictionary<Type, bool>();
         private static readonly Dictionary<HediffDef, bool> chronicDiseaseDefCache = new Dictionary<HediffDef, bool>();
+        private static readonly Dictionary<HediffDef, bool> diseaseDefCache = new Dictionary<HediffDef, bool>();
+        private static readonly Dictionary<string, float> growthCompletionAgeCache = new Dictionary<string, float>();
         private const string FallbackHediffGiverSetDefName = "OrganicStandard";
 
         
@@ -274,12 +275,62 @@ namespace ZoologyMod
         public static bool IsHediffForbiddenForPawn(Pawn pawn, HediffDef hediff)
         {
             if (pawn == null || hediff == null) return false;
-            if (IsChronicDiseaseHediff(hediff))
+            if (IsDiseaseHediff(hediff))
             {
                 return true;
             }
             var forb = GetAgeRelatedHediffDefsForPawnCached(pawn);
             return forb != null && forb.Contains(hediff);
+        }
+
+        public static bool IsDiseaseHediff(HediffDef hediff)
+        {
+            if (hediff == null) return false;
+
+            if (diseaseDefCache.TryGetValue(hediff, out bool cached))
+            {
+                return cached;
+            }
+
+            bool result = false;
+            try
+            {
+                if (IsChronicDiseaseHediff(hediff))
+                {
+                    diseaseDefCache[hediff] = true;
+                    return true;
+                }
+            }
+            catch
+            {
+            }
+
+            try
+            {
+                if (hediff.PossibleToDevelopImmunityNaturally())
+                {
+                    diseaseDefCache[hediff] = true;
+                    return true;
+                }
+            }
+            catch
+            {
+            }
+
+            if (!result)
+            {
+                try
+                {
+                    result = IsDefDescendantOf(hediff, "DiseaseBase");
+                }
+                catch
+                {
+                    result = false;
+                }
+            }
+
+            diseaseDefCache[hediff] = result;
+            return result;
         }
 
         public static bool IsChronicDiseaseHediff(HediffDef hediff)
@@ -353,6 +404,103 @@ namespace ZoologyMod
             return result;
         }
 
+        public static bool ShouldStopBiologicalAgingNow(Pawn pawn, Pawn_AgeTracker ageTracker = null)
+        {
+            if (pawn == null || pawn.Dead || pawn.Destroyed)
+            {
+                return false;
+            }
+
+            Pawn_AgeTracker tracker = ageTracker ?? pawn.ageTracker;
+            if (tracker == null)
+            {
+                return false;
+            }
+
+            var race = pawn.RaceProps;
+            if (race?.lifeStageAges == null || race.lifeStageAges.Count == 0)
+            {
+                return false;
+            }
+
+            float stopAge = GetGrowthCompletionMinAgeYears(pawn, tracker);
+            if (stopAge <= 0f)
+            {
+                return false;
+            }
+
+            return tracker.AgeBiologicalYearsFloat >= stopAge - 0.0001f;
+        }
+
+        private static float GetGrowthCompletionMinAgeYears(Pawn pawn, Pawn_AgeTracker tracker)
+        {
+            if (pawn == null)
+            {
+                return 0f;
+            }
+
+            string key = pawn.def?.defName;
+            if (!string.IsNullOrEmpty(key) && growthCompletionAgeCache.TryGetValue(key, out float cached))
+            {
+                return cached;
+            }
+
+            float result = 0f;
+            List<LifeStageAge> stages = pawn.RaceProps?.lifeStageAges;
+            if (stages != null && stages.Count > 0)
+            {
+                float maxBodySizeFactor = float.MinValue;
+                for (int i = 0; i < stages.Count; i++)
+                {
+                    LifeStageAge stage = stages[i];
+                    if (stage?.def == null) continue;
+                    if (stage.def.bodySizeFactor > maxBodySizeFactor)
+                    {
+                        maxBodySizeFactor = stage.def.bodySizeFactor;
+                    }
+                }
+
+                if (maxBodySizeFactor > float.MinValue)
+                {
+                    bool found = false;
+                    float earliestAgeAtMaxBody = float.MaxValue;
+                    for (int i = 0; i < stages.Count; i++)
+                    {
+                        LifeStageAge stage = stages[i];
+                        if (stage?.def == null) continue;
+                        if (stage.def.bodySizeFactor + 0.0001f < maxBodySizeFactor) continue;
+
+                        found = true;
+                        if (stage.minAge < earliestAgeAtMaxBody)
+                        {
+                            earliestAgeAtMaxBody = stage.minAge;
+                        }
+                    }
+
+                    if (found && earliestAgeAtMaxBody > 0f)
+                    {
+                        result = earliestAgeAtMaxBody;
+                    }
+                }
+            }
+
+            if (result <= 0f && tracker != null)
+            {
+                float fallbackAdultMinAge = tracker.AdultMinAge;
+                if (fallbackAdultMinAge > 0f)
+                {
+                    result = fallbackAdultMinAge;
+                }
+            }
+
+            if (!string.IsNullOrEmpty(key))
+            {
+                growthCompletionAgeCache[key] = result;
+            }
+
+            return result;
+        }
+
         private static bool IsDefDescendantOf(HediffDef candidate, string baseDefName)
         {
             try
@@ -421,6 +569,8 @@ namespace ZoologyMod
             AccessTools.FieldRefAccess<Pawn_HealthTracker, Pawn>("pawn");
         private static readonly AccessTools.FieldRef<HediffSet, Pawn> HediffSetPawnRef =
             AccessTools.FieldRefAccess<HediffSet, Pawn>("pawn");
+        private static readonly AccessTools.FieldRef<Pawn_AgeTracker, Pawn> AgeTrackerPawnRef =
+            AccessTools.FieldRefAccess<Pawn_AgeTracker, Pawn>("pawn");
 
         static AgelessHarmonyInit()
         {
@@ -471,6 +621,7 @@ namespace ZoologyMod
 
                 PatchAddHediffMethods(harmony);
                 PatchHediffSetAddMethods(harmony);
+                PatchAgeTrackerMethods(harmony);
             }
             catch (Exception e)
             {
@@ -603,6 +754,65 @@ namespace ZoologyMod
             catch (Exception e)
             {
                 Log.Error($"[Zoology] AgelessHarmonyInit failed to patch HediffSet Add/AddDirect: {e}");
+            }
+        }
+
+        private static void PatchAgeTrackerMethods(Harmony harmony)
+        {
+            try
+            {
+                var ageTrackerType = typeof(Pawn_AgeTracker);
+                var tickBiologicalAgeMethod = AccessTools.Method(ageTrackerType, "TickBiologicalAge", new[] { typeof(int) });
+                if (tickBiologicalAgeMethod == null)
+                {
+                    Log.Error("[Zoology] AgelessHarmonyInit: couldn't find Pawn_AgeTracker.TickBiologicalAge(int) to patch.");
+                    return;
+                }
+
+                var prefix = new HarmonyMethod(typeof(AgelessHarmonyInit).GetMethod(nameof(TickBiologicalAge_Prefix), BindingFlags.Static | BindingFlags.NonPublic));
+                harmony.Patch(tickBiologicalAgeMethod, prefix: prefix);
+            }
+            catch (Exception e)
+            {
+                Log.Error($"[Zoology] AgelessHarmonyInit failed to patch Pawn_AgeTracker.TickBiologicalAge: {e}");
+            }
+        }
+
+        private static void TickBiologicalAge_Prefix(Pawn_AgeTracker __instance, ref int interval)
+        {
+            try
+            {
+                if (interval <= 0)
+                {
+                    return;
+                }
+
+                var settings = ZoologyModSettings.Instance;
+                if (settings != null && !settings.EnableAgelessPatch)
+                {
+                    return;
+                }
+
+                Pawn pawn = AgeTrackerPawnRef(__instance);
+                if (pawn == null)
+                {
+                    return;
+                }
+
+                var comp = pawn.TryGetComp<CompAgeless>();
+                if (comp == null)
+                {
+                    return;
+                }
+
+                if (AgelessUtils.ShouldStopBiologicalAgingNow(pawn, __instance))
+                {
+                    interval = 0;
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error($"[Zoology] TickBiologicalAge_Prefix exception: {e}");
             }
         }
 

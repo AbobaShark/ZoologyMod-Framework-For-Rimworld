@@ -23,6 +23,7 @@ namespace ZoologyMod
         private static bool anySelectedDraftControl;
         private static int draftedMoveContextDepth;
         private static bool draftedMoveContextIsMultiselect;
+        private static bool loggedLinkedTrainingSyncFailure;
         private static readonly AccessTools.FieldRef<Pawn_TrainingTracker, DefMap<TrainableDef, bool>> WantedTrainablesRef =
             AccessTools.FieldRefAccess<Pawn_TrainingTracker, DefMap<TrainableDef, bool>>("wantedTrainables");
         private static readonly AccessTools.FieldRef<Pawn_TrainingTracker, DefMap<TrainableDef, int>> StepsRef =
@@ -192,40 +193,51 @@ namespace ZoologyMod
                 return;
             }
 
-            int attackSteps = steps[attackTarget];
-            int draftSteps = steps[draftControl];
-            int sharedSteps = Math.Max(attackSteps, draftSteps);
-            if (attackSteps != sharedSteps)
+            try
             {
-                steps[attackTarget] = sharedSteps;
-            }
+                int attackSteps = steps[attackTarget];
+                int draftSteps = steps[draftControl];
+                int sharedSteps = Math.Max(attackSteps, draftSteps);
+                if (attackSteps != sharedSteps)
+                {
+                    steps[attackTarget] = sharedSteps;
+                }
 
-            if (draftSteps != sharedSteps)
-            {
-                steps[draftControl] = sharedSteps;
-            }
+                if (draftSteps != sharedSteps)
+                {
+                    steps[draftControl] = sharedSteps;
+                }
 
-            bool sharedWanted = wanted[attackTarget] || wanted[draftControl];
-            if (wanted[attackTarget] != sharedWanted)
-            {
-                wanted[attackTarget] = sharedWanted;
-            }
+                bool sharedWanted = wanted[attackTarget] || wanted[draftControl];
+                if (wanted[attackTarget] != sharedWanted)
+                {
+                    wanted[attackTarget] = sharedWanted;
+                }
 
-            if (wanted[draftControl] != sharedWanted)
-            {
-                wanted[draftControl] = sharedWanted;
-            }
+                if (wanted[draftControl] != sharedWanted)
+                {
+                    wanted[draftControl] = sharedWanted;
+                }
 
-            bool attackLearned = learned[attackTarget] || learned[draftControl] || sharedSteps >= attackTarget.steps;
-            bool draftLearned = learned[draftControl] || learned[attackTarget] || sharedSteps >= draftControl.steps;
-            if (learned[attackTarget] != attackLearned)
-            {
-                learned[attackTarget] = attackLearned;
-            }
+                bool attackLearned = learned[attackTarget] || learned[draftControl] || sharedSteps >= attackTarget.steps;
+                bool draftLearned = learned[draftControl] || learned[attackTarget] || sharedSteps >= draftControl.steps;
+                if (learned[attackTarget] != attackLearned)
+                {
+                    learned[attackTarget] = attackLearned;
+                }
 
-            if (learned[draftControl] != draftLearned)
+                if (learned[draftControl] != draftLearned)
+                {
+                    learned[draftControl] = draftLearned;
+                }
+            }
+            catch (Exception ex)
             {
-                learned[draftControl] = draftLearned;
+                if (!loggedLinkedTrainingSyncFailure)
+                {
+                    loggedLinkedTrainingSyncFailure = true;
+                    Log.Warning("[Zoology] Skipped linked training sync because training maps are not fully initialized yet. " + ex.GetType().Name);
+                }
             }
         }
 
@@ -552,6 +564,8 @@ namespace ZoologyMod
     [HarmonyPatch]
     public static class Patch_PawnTrainingTracker_CanAssignToTrain_AnimalDraftControl
     {
+        private static bool loggedCanAssignToTrainGuard;
+
         private static MethodBase TargetMethod()
         {
             return AccessTools.Method(
@@ -560,10 +574,72 @@ namespace ZoologyMod
                 new[] { typeof(TrainableDef), typeof(ThingDef), typeof(bool).MakeByRefType(), typeof(Pawn) });
         }
 
+        private static bool Prefix(TrainableDef td, ThingDef pawnDef, Pawn pawn, ref bool visible, ref AcceptanceReport __result)
+        {
+            if (Scribe.mode != LoadSaveMode.PostLoadInit)
+            {
+                return true;
+            }
+
+            if (td == null || pawnDef?.race == null)
+            {
+                visible = false;
+                __result = false;
+                return false;
+            }
+
+            TrainabilityDef trainability = TrainableUtility.GetTrainability(pawn) ?? pawnDef.race.trainability;
+            if (td.requiredTrainability != null && trainability == null)
+            {
+                visible = false;
+                __result = false;
+                if (!loggedCanAssignToTrainGuard)
+                {
+                    loggedCanAssignToTrainGuard = true;
+                    Log.Warning("[Zoology] Guarded Pawn_TrainingTracker.CanAssignToTrain during PostLoadInit due to missing trainability data.");
+                }
+                return false;
+            }
+
+            return true;
+        }
+
+        private static Exception Finalizer(
+            Exception __exception,
+            TrainableDef td,
+            ThingDef pawnDef,
+            ref bool visible,
+            ref AcceptanceReport __result)
+        {
+            if (__exception == null)
+            {
+                return null;
+            }
+
+            if (Scribe.mode == LoadSaveMode.PostLoadInit && __exception is NullReferenceException)
+            {
+                visible = false;
+                __result = false;
+                if (!loggedCanAssignToTrainGuard)
+                {
+                    loggedCanAssignToTrainGuard = true;
+                    Log.Warning("[Zoology] Suppressed Pawn_TrainingTracker.CanAssignToTrain nullref during PostLoadInit.");
+                }
+                return null;
+            }
+
+            return __exception;
+        }
+
         private static void Postfix(TrainableDef td, ThingDef pawnDef, Pawn pawn, ref bool visible, ref AcceptanceReport __result)
         {
             TrainableDef draftControl = AnimalDraftControlUtility.DraftControlTrainable;
             if (td == null)
+            {
+                return;
+            }
+
+            if (Scribe.mode == LoadSaveMode.PostLoadInit)
             {
                 return;
             }

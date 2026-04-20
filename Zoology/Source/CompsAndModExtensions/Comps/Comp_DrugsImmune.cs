@@ -114,6 +114,20 @@ namespace ZoologyMod
 
         
         private static readonly string[] addictionBaseNames = new[] { "AddictionBase", "DrugToleranceBase" };
+        private static readonly string[] optionalExternalDrugLikeHediffNames = new[]
+        {
+            "SmokeInhalation",
+            "VenomBuildup",
+            "MuscleSpasms",
+            "Tranquilizer",
+            "Neuralizer",
+            "Neuralizer_weak",
+            "Flashbanged",
+            "VWE_TearGas",
+            "VWE_Anesthetic"
+        };
+        private static readonly HashSet<string> optionalExternalDrugLikeHediffNameSet =
+            new HashSet<string>(optionalExternalDrugLikeHediffNames, StringComparer.OrdinalIgnoreCase);
 
         
         
@@ -272,8 +286,70 @@ namespace ZoologyMod
                 Log.Error($"[Zoology] DrugUtils.GetAllDrugOutcomeAndAddictionRelatedHediffs exception: {e}");
             }
 
+            try
+            {
+                AddOptionalExternalHediffs(result);
+            }
+            catch (Exception e)
+            {
+                Log.Error($"[Zoology] DrugUtils.AddOptionalExternalHediffs exception: {e}");
+            }
+
             cachedExpandedSet = result;
             return cachedExpandedSet;
+        }
+
+        private static void AddOptionalExternalHediffs(HashSet<HediffDef> targetSet)
+        {
+            if (targetSet == null || optionalExternalDrugLikeHediffNames == null || optionalExternalDrugLikeHediffNames.Length == 0)
+            {
+                return;
+            }
+
+            Dictionary<string, HediffDef> byNameIgnoreCase = null;
+            for (int i = 0; i < optionalExternalDrugLikeHediffNames.Length; i++)
+            {
+                string defName = optionalExternalDrugLikeHediffNames[i];
+                if (string.IsNullOrEmpty(defName))
+                {
+                    continue;
+                }
+
+                HediffDef def = DefDatabase<HediffDef>.GetNamedSilentFail(defName);
+                if (def == null)
+                {
+                    byNameIgnoreCase ??= BuildHediffNameLookupIgnoreCase();
+                    byNameIgnoreCase.TryGetValue(defName, out def);
+                }
+
+                if (def != null)
+                {
+                    targetSet.Add(def);
+                }
+            }
+        }
+
+        private static Dictionary<string, HediffDef> BuildHediffNameLookupIgnoreCase()
+        {
+            var lookup = new Dictionary<string, HediffDef>(StringComparer.OrdinalIgnoreCase);
+            List<HediffDef> allDefs = DefDatabase<HediffDef>.AllDefsListForReading;
+            if (allDefs == null)
+            {
+                return lookup;
+            }
+
+            for (int i = 0; i < allDefs.Count; i++)
+            {
+                HediffDef def = allDefs[i];
+                if (def == null || string.IsNullOrEmpty(def.defName))
+                {
+                    continue;
+                }
+
+                lookup[def.defName] = def;
+            }
+
+            return lookup;
         }
 
         
@@ -478,6 +554,11 @@ namespace ZoologyMod
         {
             if (hediff == null) return false;
 
+            if (!string.IsNullOrEmpty(hediff.defName) && optionalExternalDrugLikeHediffNameSet.Contains(hediff.defName))
+            {
+                return true;
+            }
+
             try
             {
                 return EnsureExpandedSet().Contains(hediff);
@@ -495,6 +576,10 @@ namespace ZoologyMod
     public static class DrugsImmuneHarmonyInit
     {
         private static bool patched;
+        private static readonly AccessTools.FieldRef<Pawn_HealthTracker, Pawn> HealthTrackerPawnRef =
+            AccessTools.FieldRefAccess<Pawn_HealthTracker, Pawn>("pawn");
+        private static readonly AccessTools.FieldRef<HediffSet, Pawn> HediffSetPawnRef =
+            AccessTools.FieldRefAccess<HediffSet, Pawn>("pawn");
 
         static DrugsImmuneHarmonyInit()
         {
@@ -570,6 +655,9 @@ namespace ZoologyMod
 
                 var prefix = new HarmonyMethod(typeof(DrugsImmuneHarmonyInit).GetMethod(nameof(DoerGiveHediff_Prefix), BindingFlags.Static | BindingFlags.NonPublic));
                 harmony.Patch(targetMethod, prefix: prefix);
+
+                PatchAddHediffMethods(harmony);
+                PatchHediffSetAddMethods(harmony);
             }
             catch (Exception e)
             {
@@ -580,6 +668,178 @@ namespace ZoologyMod
         public static void ResetPatchedState()
         {
             patched = false;
+        }
+
+        private static void PatchAddHediffMethods(Harmony harmony)
+        {
+            try
+            {
+                var ht = typeof(Pawn_HealthTracker);
+                var addHediffDef = AccessTools.Method(ht, nameof(Pawn_HealthTracker.AddHediff),
+                    new[] { typeof(HediffDef), typeof(BodyPartRecord), typeof(DamageInfo?), typeof(DamageWorker.DamageResult) });
+                if (addHediffDef != null)
+                {
+                    var prefix = new HarmonyMethod(typeof(DrugsImmuneHarmonyInit).GetMethod(nameof(AddHediffDef_Prefix), BindingFlags.Static | BindingFlags.NonPublic));
+                    harmony.Patch(addHediffDef, prefix: prefix);
+                }
+                else
+                {
+                    Log.Error("[Zoology] DrugsImmuneHarmonyInit: couldn't find Pawn_HealthTracker.AddHediff(HediffDef) to patch.");
+                }
+
+                var addHediff = AccessTools.Method(ht, nameof(Pawn_HealthTracker.AddHediff),
+                    new[] { typeof(Hediff), typeof(BodyPartRecord), typeof(DamageInfo?), typeof(DamageWorker.DamageResult) });
+                if (addHediff != null)
+                {
+                    var prefix = new HarmonyMethod(typeof(DrugsImmuneHarmonyInit).GetMethod(nameof(AddHediff_Prefix), BindingFlags.Static | BindingFlags.NonPublic));
+                    harmony.Patch(addHediff, prefix: prefix);
+                }
+                else
+                {
+                    Log.Error("[Zoology] DrugsImmuneHarmonyInit: couldn't find Pawn_HealthTracker.AddHediff(Hediff) to patch.");
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error($"[Zoology] DrugsImmuneHarmonyInit failed to patch AddHediff: {e}");
+            }
+        }
+
+        private static void PatchHediffSetAddMethods(Harmony harmony)
+        {
+            try
+            {
+                var hs = typeof(HediffSet);
+                var methods = hs.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                int patchedCount = 0;
+
+                foreach (var m in methods)
+                {
+                    if (m.Name != "AddDirect" && m.Name != "Add") continue;
+                    var parms = m.GetParameters();
+                    if (parms.Length == 0 || parms[0].ParameterType != typeof(Hediff)) continue;
+
+                    var prefix = new HarmonyMethod(typeof(DrugsImmuneHarmonyInit).GetMethod(nameof(HediffSetAdd_Prefix), BindingFlags.Static | BindingFlags.NonPublic));
+                    harmony.Patch(m, prefix: prefix);
+                    patchedCount++;
+                }
+
+                if (patchedCount == 0)
+                {
+                    Log.Error("[Zoology] DrugsImmuneHarmonyInit: couldn't find HediffSet Add/AddDirect(Hediff) to patch.");
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error($"[Zoology] DrugsImmuneHarmonyInit failed to patch HediffSet Add/AddDirect: {e}");
+            }
+        }
+
+        private static bool AddHediffDef_Prefix(Pawn_HealthTracker __instance, HediffDef def)
+        {
+            try
+            {
+                var settings = ZoologyModSettings.Instance;
+                if (settings != null && !settings.EnableDrugsImmunePatch)
+                {
+                    return true;
+                }
+
+                if (def == null) return true;
+
+                Pawn pawn = HealthTrackerPawnRef(__instance);
+                if (pawn == null) return true;
+
+                var comp = pawn.TryGetComp<CompDrugsImmune>();
+                if (comp == null) return true;
+
+                if (DrugUtils.IsHediffDrugOrAddiction(def))
+                {
+                    if (Prefs.DevMode)
+                    {
+                        Log.Message($"[Zoology] blocked AddHediff(HediffDef) {def.defName} on {pawn.LabelShortCap}");
+                    }
+                    return false;
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error($"[Zoology] AddHediffDef_Prefix exception: {e}");
+            }
+
+            return true;
+        }
+
+        private static bool AddHediff_Prefix(Pawn_HealthTracker __instance, Hediff hediff)
+        {
+            try
+            {
+                var settings = ZoologyModSettings.Instance;
+                if (settings != null && !settings.EnableDrugsImmunePatch)
+                {
+                    return true;
+                }
+
+                HediffDef def = hediff?.def;
+                if (def == null) return true;
+
+                Pawn pawn = HealthTrackerPawnRef(__instance);
+                if (pawn == null) return true;
+
+                var comp = pawn.TryGetComp<CompDrugsImmune>();
+                if (comp == null) return true;
+
+                if (DrugUtils.IsHediffDrugOrAddiction(def))
+                {
+                    if (Prefs.DevMode)
+                    {
+                        Log.Message($"[Zoology] blocked AddHediff(Hediff) {def.defName} on {pawn.LabelShortCap}");
+                    }
+                    return false;
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error($"[Zoology] AddHediff_Prefix exception: {e}");
+            }
+
+            return true;
+        }
+
+        private static bool HediffSetAdd_Prefix(HediffSet __instance, Hediff hediff)
+        {
+            try
+            {
+                var settings = ZoologyModSettings.Instance;
+                if (settings != null && !settings.EnableDrugsImmunePatch)
+                {
+                    return true;
+                }
+
+                HediffDef def = hediff?.def;
+                if (def == null) return true;
+
+                Pawn pawn = HediffSetPawnRef(__instance);
+                if (pawn == null) return true;
+
+                var comp = pawn.TryGetComp<CompDrugsImmune>();
+                if (comp == null) return true;
+
+                if (DrugUtils.IsHediffDrugOrAddiction(def))
+                {
+                    if (Prefs.DevMode)
+                    {
+                        Log.Message($"[Zoology] blocked HediffSet.Add/AddDirect {def.defName} on {pawn.LabelShortCap}");
+                    }
+                    return false;
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error($"[Zoology] HediffSetAdd_Prefix exception: {e}");
+            }
+
+            return true;
         }
 
         

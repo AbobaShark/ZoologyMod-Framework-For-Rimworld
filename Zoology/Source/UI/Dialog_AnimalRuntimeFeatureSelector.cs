@@ -43,6 +43,12 @@ namespace ZoologyMod
 
         public override Vector2 InitialSize => new Vector2(1080f, 720f);
 
+        public override void PostClose()
+        {
+            base.PostClose();
+            settings?.Write();
+        }
+
         public override void DoWindowContents(Rect inRect)
         {
             BuildAnimalLists();
