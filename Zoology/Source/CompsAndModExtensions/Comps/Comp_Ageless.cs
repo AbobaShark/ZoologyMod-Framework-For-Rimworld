@@ -759,61 +759,7 @@ namespace ZoologyMod
 
         private static void PatchAgeTrackerMethods(Harmony harmony)
         {
-            try
-            {
-                var ageTrackerType = typeof(Pawn_AgeTracker);
-                var tickBiologicalAgeMethod = AccessTools.Method(ageTrackerType, "TickBiologicalAge", new[] { typeof(int) });
-                if (tickBiologicalAgeMethod == null)
-                {
-                    Log.Error("[Zoology] AgelessHarmonyInit: couldn't find Pawn_AgeTracker.TickBiologicalAge(int) to patch.");
-                    return;
-                }
-
-                var prefix = new HarmonyMethod(typeof(AgelessHarmonyInit).GetMethod(nameof(TickBiologicalAge_Prefix), BindingFlags.Static | BindingFlags.NonPublic));
-                harmony.Patch(tickBiologicalAgeMethod, prefix: prefix);
-            }
-            catch (Exception e)
-            {
-                Log.Error($"[Zoology] AgelessHarmonyInit failed to patch Pawn_AgeTracker.TickBiologicalAge: {e}");
-            }
-        }
-
-        private static void TickBiologicalAge_Prefix(Pawn_AgeTracker __instance, ref int interval)
-        {
-            try
-            {
-                if (interval <= 0)
-                {
-                    return;
-                }
-
-                var settings = ZoologyModSettings.Instance;
-                if (settings != null && !settings.EnableAgelessPatch)
-                {
-                    return;
-                }
-
-                Pawn pawn = AgeTrackerPawnRef(__instance);
-                if (pawn == null)
-                {
-                    return;
-                }
-
-                var comp = pawn.TryGetComp<CompAgeless>();
-                if (comp == null)
-                {
-                    return;
-                }
-
-                if (AgelessUtils.ShouldStopBiologicalAgingNow(pawn, __instance))
-                {
-                    interval = 0;
-                }
-            }
-            catch (Exception e)
-            {
-                Log.Error($"[Zoology] TickBiologicalAge_Prefix exception: {e}");
-            }
+            return;
         }
 
         private static bool AddHediffDef_Prefix(Pawn_HealthTracker __instance, HediffDef def)
