@@ -10,9 +10,9 @@ namespace ZoologyMod
     internal static class MammalBabyCache
     {
         private static int lastTick = -1;
-        private static readonly Dictionary<int, bool> isBabyByPawnId = new Dictionary<int, bool>(128);
+        private static readonly Dictionary<int, bool> shouldUseBabyFoodRulesByPawnId = new Dictionary<int, bool>(128);
 
-        public static bool IsMammalBaby(Pawn pawn)
+        public static bool ShouldUseBabyFoodRules(Pawn pawn)
         {
             if (pawn == null)
             {
@@ -23,23 +23,34 @@ namespace ZoologyMod
             if (tick != lastTick)
             {
                 lastTick = tick;
-                isBabyByPawnId.Clear();
+                shouldUseBabyFoodRulesByPawnId.Clear();
             }
 
             int id = pawn.thingIDNumber;
-            if (isBabyByPawnId.TryGetValue(id, out bool cached))
+            if (shouldUseBabyFoodRulesByPawnId.TryGetValue(id, out bool cached))
             {
                 return cached;
             }
 
-            bool isBaby = IsMammalInfantStage(pawn);
-            isBabyByPawnId[id] = isBaby;
-            return isBaby;
+            bool shouldUse = ComputeShouldUseBabyFoodRules(pawn);
+            shouldUseBabyFoodRulesByPawnId[id] = shouldUse;
+            return shouldUse;
         }
 
-        private static bool IsMammalInfantStage(Pawn pawn)
+        public static bool IsMammalBaby(Pawn pawn)
+        {
+            return ShouldUseBabyFoodRules(pawn);
+        }
+
+        private static bool ComputeShouldUseBabyFoodRules(Pawn pawn)
         {
             if (pawn == null) return false;
+            if (pawn.RaceProps?.Animal != true) return false;
+            if (!ZoologyCacheUtility.HasMammalExtension(pawn.def)
+                && !ZoologyCacheUtility.HasMammalExtension(pawn.kindDef))
+            {
+                return false;
+            }
 
             var stage = pawn.ageTracker?.CurLifeStage;
             if (AnimalLactationUtility.IsAnimalBabyLifeStage(stage))
@@ -87,22 +98,32 @@ namespace ZoologyMod
 
                 if (p == null || food == null) return true; 
 
-                
-                if (!p.IsMammal()) return true;
-
                 if (p.needs?.food == null)
                 {
                     __result = false;
                     return false;
                 }
 
-                bool isBaby = MammalBabyCache.IsMammalBaby(p);
-                if (!isBaby)
+                if (!MammalBabyCache.ShouldUseBabyFoodRules(p))
                 {
                     return true;
                 }
 
-                bool ok = (food.ingestible != null && food.ingestible.babiesCanIngest) && p.RaceProps.CanEverEat(food);
+                IngestibleProperties ingestible = food.ingestible;
+                if (ingestible == null)
+                {
+                    __result = false;
+                    return false;
+                }
+
+                bool ok = ingestible.babiesCanIngest && p.RaceProps.CanEverEat(food);
+                if (p.MapHeld == null)
+                {
+                    bool isDrug = food.IsDrug || ingestible.drugCategory != DrugCategory.None;
+                    bool isCorpse = typeof(Corpse).IsAssignableFrom(food.thingClass);
+                    ok = ok && food.IsNutritionGivingIngestible && !isDrug && !isCorpse;
+                }
+
                 __result = ok;
                 return false; 
             }
@@ -136,16 +157,13 @@ namespace ZoologyMod
                 if (pawn == null) return true;
 
                 
-                if (!pawn.IsMammal()) return true;
-
-                
                 if (pawn.needs?.food == null)
                 {
                     __result = null;
                     return false;
                 }
 
-                if (MammalBabyCache.IsMammalBaby(pawn))
+                if (MammalBabyCache.ShouldUseBabyFoodRules(pawn))
                 {
                     __result = null;
                     return false; 
@@ -180,11 +198,12 @@ namespace ZoologyMod
                 if (ZoologyModSettings.Instance == null || !ZoologyModSettings.EnableMammalLactation)
                     return true; 
 
-                if (p == null || food == null) return true;
-                if (p.RaceProps?.Animal != true) return true;
+                if (p == null || !(food is Corpse)) return true;
 
-                
-                if (!p.IsMammal()) return true;
+                if (!MammalBabyCache.ShouldUseBabyFoodRules(p))
+                {
+                    return true;
+                }
 
                 if (p.needs?.food == null)
                 {
@@ -192,23 +211,8 @@ namespace ZoologyMod
                     return false;
                 }
 
-                bool isBaby = MammalBabyCache.IsMammalBaby(p);
-                if (!isBaby) return true;
-
-                if (!ZoologyTickLimiter.TryConsumeWillEat(ZoologyTickLimiter.WillEatBudgetPerTick))
-                {
-                    return true;
-                }
-
-                
-                if (food is Corpse)
-                {
-                    __result = false;
-                    return false; 
-                }
-
-                
-                return true;
+                __result = false;
+                return false; 
             }
             catch (Exception ex)
             {
