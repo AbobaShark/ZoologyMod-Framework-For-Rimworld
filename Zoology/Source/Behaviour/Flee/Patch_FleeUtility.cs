@@ -1,6 +1,7 @@
 using HarmonyLib;
 using RimWorld;
 using Verse;
+using Verse.AI;
 using Verse.AI.Group;
 
 namespace ZoologyMod
@@ -16,9 +17,11 @@ namespace ZoologyMod
 
         public static bool Prefix(Pawn pawn, ref bool __result)
         {
-            var settings = ModConstants.Settings;
+            ZoologyModSettings settings = ModConstants.Settings;
             if (settings != null && !settings.EnableCustomFleeDanger)
+            {
                 return true;
+            }
 
             if (pawn == null)
             {
@@ -50,18 +53,18 @@ namespace ZoologyMod
                 return false;
             }
 
-            var faction = pawn.Faction;
+            Faction faction = pawn.Faction;
             if (faction != null && !faction.def.animalsFleeDanger)
             {
                 __result = false;
                 return false;
             }
 
-            var map = pawn.Map;
+            Map map = pawn.Map;
             Faction playerFaction = Faction.OfPlayerSilentFail;
             if (playerFaction != null && ReferenceEquals(faction, playerFaction) && map != null && map.IsPlayerHome)
             {
-                var raceProps = pawn.RaceProps;
+                RaceProperties raceProps = pawn.RaceProps;
                 bool predator = raceProps?.predator ?? false;
                 float baseSize = raceProps?.baseBodySize ?? pawn.BodySize;
                 bool safeOnHome =
@@ -75,8 +78,8 @@ namespace ZoologyMod
                 }
             }
 
-            var curJob = pawn.CurJob;
-            var curJobDef = curJob?.def;
+            Job curJob = pawn.CurJob;
+            JobDef curJobDef = curJob?.def;
             if (curJobDef != null && curJobDef.neverFleeFromEnemies)
             {
                 __result = false;

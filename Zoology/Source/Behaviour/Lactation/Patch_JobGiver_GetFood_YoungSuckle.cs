@@ -8,13 +8,13 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(JobGiver_GetFood), "TryGiveJob")]
     public static class Patch_JobGiver_GetFood_YoungSuckle
     {
-        private static bool Prepare() => ZoologyModSettings.EnableMammalLactation;
+        private static bool Prepare() => LactationSettingsGate.Enabled();
 
         private static void Postfix(Pawn pawn, ref Job __result)
         {
             try
             {
-                if (!ZoologyModSettings.EnableMammalLactation)
+                if (!LactationSettingsGate.Enabled())
                 {
                     return;
                 }

@@ -7,7 +7,7 @@ using Verse.AI.Group;
 
 namespace ZoologyMod
 {
-    [HarmonyPatch(typeof(Pawn), "ThreatDisabledBecauseNonAggressiveRoamer")]
+    [HarmonyPatch(typeof(Pawn), nameof(Pawn.ThreatDisabled))]
     public static class Patch_SmallPetThreatDisabled
     {
         private const float DefaultSmallPetThreshold = ModConstants.DefaultSmallPetBodySizeThreshold;
@@ -39,7 +39,6 @@ namespace ZoologyMod
         }
 
         private static readonly Dictionary<int, HostilityCacheEntry> hostilityCacheByFactionId = new Dictionary<int, HostilityCacheEntry>(64);
-        private static readonly Dictionary<int, int> hostilePawnCountByMapId = new Dictionary<int, int>(8);
         private static readonly HashSet<int> smallPetCandidateOverflowIds = new HashSet<int>();
 
         private static void ResetCachesForGame(Game currentGame)
@@ -55,19 +54,16 @@ namespace ZoologyMod
             smallPetCandidateCount = 0;
             hasAnySmallPetCandidates = false;
             hostilityCacheByFactionId.Clear();
-            hostilePawnCountByMapId.Clear();
             ClearCandidateMembershipLookup();
         }
 
         private static void ResetCachesForCurrentGameIfNeeded()
         {
             Game currentGame = Current.Game;
-            if (ReferenceEquals(cachedGame, currentGame))
+            if (!ReferenceEquals(cachedGame, currentGame))
             {
-                return;
+                ResetCachesForGame(currentGame);
             }
-
-            ResetCachesForGame(currentGame);
         }
 
         internal static void NotifySettingsChanged()
@@ -79,7 +75,6 @@ namespace ZoologyMod
             smallPetCandidateSetInitialized = false;
             ClearSmallPetCandidates();
             hostilityCacheByFactionId.Clear();
-            hostilePawnCountByMapId.Clear();
         }
 
         private static bool EnsureCandidateMarkCapacity(int pawnId)
@@ -287,153 +282,6 @@ namespace ZoologyMod
             hasAnySmallPetCandidates = smallPetCandidateCount > 0;
         }
 
-        private static int CountHostileRepresentativesOnMap(Map map, Faction playerFaction)
-        {
-            if (map?.mapPawns?.AllPawnsSpawned == null || playerFaction == null)
-            {
-                return 0;
-            }
-
-            int hostileCount = 0;
-            IReadOnlyList<Pawn> pawns = map.mapPawns.AllPawnsSpawned;
-            for (int i = 0; i < pawns.Count; i++)
-            {
-                Pawn pawn = pawns[i];
-                if (pawn == null || pawn.Dead || pawn.Destroyed || !pawn.Spawned)
-                {
-                    continue;
-                }
-
-                Faction pawnFaction = pawn.Faction;
-                if (pawnFaction == null || ReferenceEquals(pawnFaction, playerFaction))
-                {
-                    continue;
-                }
-
-                if (IsHostileToPlayerFactionSafe(pawnFaction, playerFaction))
-                {
-                    hostileCount++;
-                }
-            }
-
-            return hostileCount;
-        }
-
-        private static void RecomputeHostileCountForMap(Map map)
-        {
-            if (map == null)
-            {
-                return;
-            }
-
-            Faction playerFaction = GetPlayerFactionCached();
-            int hostileCount = CountHostileRepresentativesOnMap(map, playerFaction);
-            int mapId = map.uniqueID;
-            hostilePawnCountByMapId[mapId] = hostileCount;
-        }
-
-        private static bool IsHostileRepresentative(Pawn pawn, Faction playerFaction)
-        {
-            if (pawn == null || playerFaction == null)
-            {
-                return false;
-            }
-
-            if (pawn.Dead || pawn.Destroyed || !pawn.Spawned || pawn.Map == null)
-            {
-                return false;
-            }
-
-            Faction pawnFaction = pawn.Faction;
-            return pawnFaction != null
-                && !ReferenceEquals(pawnFaction, playerFaction)
-                && IsHostileToPlayerFactionSafe(pawnFaction, playerFaction);
-        }
-
-        private static void AdjustHostileRepresentativeCount(Map map, int delta)
-        {
-            if (map == null || delta == 0)
-            {
-                return;
-            }
-
-            int mapId = map.uniqueID;
-            int current = hostilePawnCountByMapId.TryGetValue(mapId, out int existing)
-                ? existing
-                : 0;
-            int next = current + delta;
-            hostilePawnCountByMapId[mapId] = next > 0 ? next : 0;
-        }
-
-        private static void TryAddHostileRepresentative(Pawn pawn)
-        {
-            Faction playerFaction = GetPlayerFactionCached();
-            if (!IsHostileRepresentative(pawn, playerFaction))
-            {
-                return;
-            }
-
-            AdjustHostileRepresentativeCount(pawn.Map, 1);
-        }
-
-        private static void TryRemoveHostileRepresentative(Pawn pawn)
-        {
-            Faction playerFaction = GetPlayerFactionCached();
-            if (!IsHostileRepresentative(pawn, playerFaction))
-            {
-                return;
-            }
-
-            AdjustHostileRepresentativeCount(pawn.Map, -1);
-        }
-
-        private static bool HasAnyHostileRepresentativesOnMap(Map map)
-        {
-            if (map == null)
-            {
-                return false;
-            }
-
-            int mapId = map.uniqueID;
-            if (!hostilePawnCountByMapId.TryGetValue(mapId, out int hostileCount))
-            {
-                RecomputeHostileCountForMap(map);
-                hostileCount = hostilePawnCountByMapId.TryGetValue(mapId, out int recomputed)
-                    ? recomputed
-                    : 0;
-            }
-
-            return hostileCount > 0;
-        }
-
-        private static void RebuildHostileMapCounts()
-        {
-            hostilePawnCountByMapId.Clear();
-            Faction playerFaction = GetPlayerFactionCached();
-            if (playerFaction == null)
-            {
-                return;
-            }
-
-            List<Map> maps = Find.Maps;
-            if (maps == null || maps.Count == 0)
-            {
-                return;
-            }
-
-            for (int i = 0; i < maps.Count; i++)
-            {
-                Map map = maps[i];
-                if (map == null)
-                {
-                    continue;
-                }
-
-                int hostileCount = CountHostileRepresentativesOnMap(map, playerFaction);
-                hostilePawnCountByMapId[map.uniqueID] = hostileCount;
-            }
-        }
-
         private static void EnsureSettingsSnapshot(int currentTick)
         {
             if (settingsSnapshotInitialized
@@ -482,9 +330,9 @@ namespace ZoologyMod
                 return;
             }
 
-            for (int mi = 0; mi < maps.Count; mi++)
+            for (int mapIndex = 0; mapIndex < maps.Count; mapIndex++)
             {
-                List<Pawn> playerPawns = maps[mi]?.mapPawns?.SpawnedPawnsInFaction(playerFaction);
+                List<Pawn> playerPawns = maps[mapIndex]?.mapPawns?.SpawnedPawnsInFaction(playerFaction);
                 if (playerPawns == null || playerPawns.Count == 0)
                 {
                     continue;
@@ -503,6 +351,7 @@ namespace ZoologyMod
 
         private static bool EnsureSmallPetCandidateSetCached(int currentTick)
         {
+            ResetCachesForCurrentGameIfNeeded();
             EnsureSettingsSnapshot(currentTick);
             if (!cachedIgnoreSmallPetsEnabled)
             {
@@ -517,10 +366,31 @@ namespace ZoologyMod
             return hasAnySmallPetCandidates;
         }
 
+        private static bool IsCurrentSmallPetCandidate(Pawn pawn, int currentTick)
+        {
+            Faction playerFaction = GetPlayerFactionCached();
+            if (playerFaction == null)
+            {
+                return false;
+            }
+
+            EnsureSettingsSnapshot(currentTick);
+            if (!cachedIgnoreSmallPetsEnabled)
+            {
+                return false;
+            }
+
+            if (smallPetCandidateSetInitialized)
+            {
+                return hasAnySmallPetCandidates && pawn != null && CandidateMembershipContains(pawn.thingIDNumber);
+            }
+
+            return IsSmallPetCandidate(pawn, playerFaction, cachedSmallPetThreshold);
+        }
+
         private static void UpdateCachedMembership(Pawn pawn)
         {
             ResetCachesForCurrentGameIfNeeded();
-            TryAddHostileRepresentative(pawn);
             if (!smallPetCandidateSetInitialized)
             {
                 return;
@@ -541,14 +411,11 @@ namespace ZoologyMod
             {
                 RemoveSmallPetCandidateId(pawn.thingIDNumber);
             }
-
         }
 
         private static void RemoveCachedMembership(Pawn pawn)
         {
             ResetCachesForCurrentGameIfNeeded();
-            TryRemoveHostileRepresentative(pawn);
-
             if (!smallPetCandidateSetInitialized || pawn == null)
             {
                 return;
@@ -560,7 +427,6 @@ namespace ZoologyMod
         private static void InvalidateHostilityCache()
         {
             hostilityCacheByFactionId.Clear();
-            RebuildHostileMapCounts();
         }
 
         private static bool IsCandidateSourceEligible(Pawn pawn, int currentTick)
@@ -581,40 +447,73 @@ namespace ZoologyMod
             }
 
             int lastEngageTick = pawn.mindState?.lastEngageTargetTick ?? int.MinValue;
-            if (currentTick < lastEngageTick + 360)
-            {
-                return false;
-            }
-
-            return true;
+            return currentTick >= lastEngageTick + 360;
         }
 
-        private static bool CanOtherPawnThreatSmallPet(Pawn otherPawn, Faction playerFaction)
+        private static bool CanIgnoreThreatForSmallPet(Pawn smallPet, Pawn otherPawn, Faction playerFaction)
         {
-            if (otherPawn == null || playerFaction == null)
+            if (smallPet == null || playerFaction == null)
             {
                 return false;
             }
 
-            bool canThreat = true;
+            if (otherPawn == null)
+            {
+                return true;
+            }
+
+            bool hostileThreat = true;
             if (otherPawn.RaceProps?.Humanlike != true)
             {
                 Faction otherFaction = otherPawn.Faction;
-                canThreat = otherFaction != null && IsHostileToPlayerFactionSafe(otherFaction, playerFaction);
+                hostileThreat = otherFaction != null && IsHostileToPlayerFactionSafe(otherFaction, playerFaction);
             }
 
-            if (canThreat)
+            if (!hostileThreat)
             {
-                Lord lord = otherPawn.GetLord();
-                if (lord != null
-                    && lord.CurLordToil != null
-                    && lord.CurLordToil.AllowAggressiveTargetingOfRoamers)
-                {
-                    canThreat = false;
-                }
+                return false;
             }
 
-            return canThreat;
+            Lord lord = otherPawn.GetLord();
+            if (lord != null
+                && lord.CurLordToil != null
+                && lord.CurLordToil.AllowAggressiveTargetingOfRoamers)
+            {
+                return false;
+            }
+
+            return !ZoologyFleeSafetyUtility.IsThreatMeleeAttackingPawn(otherPawn, smallPet);
+        }
+
+        private static bool ShouldDisableThreatForSmallPet(Pawn targetPawn, IAttackTargetSearcher disabledFor, int currentTick)
+        {
+            if (targetPawn == null || !EnsureSmallPetCandidateSetCached(currentTick))
+            {
+                return false;
+            }
+
+            Faction playerFaction = GetPlayerFactionCached();
+            if (playerFaction == null)
+            {
+                return false;
+            }
+
+            Pawn searcherPawn = disabledFor?.Thing as Pawn;
+
+            if (IsCurrentSmallPetCandidate(targetPawn, currentTick)
+                && IsCandidateSourceEligible(targetPawn, currentTick))
+            {
+                return CanIgnoreThreatForSmallPet(targetPawn, searcherPawn, playerFaction);
+            }
+
+            if (searcherPawn == null
+                || !IsCurrentSmallPetCandidate(searcherPawn, currentTick)
+                || !IsCandidateSourceEligible(searcherPawn, currentTick))
+            {
+                return false;
+            }
+
+            return CanIgnoreThreatForSmallPet(searcherPawn, targetPawn, playerFaction);
         }
 
         private static bool IsFeatureEnabledNow()
@@ -628,92 +527,225 @@ namespace ZoologyMod
             return IsFeatureEnabledNow();
         }
 
-        public static void Postfix(Pawn __instance, Pawn otherPawn, ref bool __result)
+        public static void Postfix(Pawn __instance, IAttackTargetSearcher disabledFor, ref bool __result)
         {
-            if (__instance == null || otherPawn == null)
+            if (__result || __instance == null)
             {
                 return;
             }
 
+            ResetCachesForCurrentGameIfNeeded();
             if (cachedGame == null)
-            {
-                Game currentGame = Current.Game;
-                if (!ReferenceEquals(cachedGame, currentGame))
-                {
-                    ResetCachesForGame(currentGame);
-                }
-
-                if (cachedGame == null)
-                {
-                    return;
-                }
-            }
-
-            // Vanilla already disabled threat for a non-aggressive roamer;
-            // keep threat enabled only while the "threat" is actively melee-attacking this pawn.
-            if (__result)
-            {
-                if (ZoologyFleeSafetyUtility.IsThreatMeleeAttackingPawn(otherPawn, __instance))
-                {
-                    __result = false;
-                }
-                return;
-            }
-
-            Faction playerFaction = GetPlayerFactionCached();
-            if (playerFaction == null || !ReferenceEquals(__instance.Faction, playerFaction))
-            {
-                return;
-            }
-
-            RaceProperties raceProps = __instance.RaceProps;
-            if (raceProps?.Animal != true || __instance.Roamer)
             {
                 return;
             }
 
             int currentTick = Find.TickManager?.TicksGame ?? 0;
-            EnsureSettingsSnapshot(currentTick);
-            if (!cachedIgnoreSmallPetsEnabled || raceProps.baseBodySize >= cachedSmallPetThreshold)
+            if (ShouldDisableThreatForSmallPet(__instance, disabledFor, currentTick))
             {
-                return;
+                __result = true;
+            }
+        }
+
+        internal static bool ShouldPreventSmallPetMeleeRetaliation(Pawn smallPet, Pawn threat, int currentTick)
+        {
+            ZoologyModSettings settings = ZoologyModSettings.Instance;
+            if (settings != null
+                && (!settings.EnableIgnoreSmallPetsByRaiders || !settings.EnableSmallPetNoMeleeRetaliation))
+            {
+                return false;
             }
 
-            int sourceId = __instance.thingIDNumber;
-            if (smallPetCandidateSetInitialized)
+            if (smallPet == null || threat == null || !EnsureSmallPetCandidateSetCached(currentTick))
             {
-                if (!hasAnySmallPetCandidates || !CandidateMembershipContains(sourceId))
+                return false;
+            }
+
+            Faction playerFaction = GetPlayerFactionCached();
+            if (playerFaction == null
+                || !IsCurrentSmallPetCandidate(smallPet, currentTick)
+                || !IsCandidateSourceEligible(smallPet, currentTick))
+            {
+                return false;
+            }
+
+            return CanIgnoreThreatForSmallPet(smallPet, threat, playerFaction);
+        }
+
+        private static bool IsNoMeleeRetaliationEnabled()
+        {
+            ZoologyModSettings settings = ZoologyModSettings.Instance;
+            return settings == null
+                || (!settings.DisableAllRuntimePatches
+                    && settings.EnableIgnoreSmallPetsByRaiders
+                    && settings.EnableSmallPetNoMeleeRetaliation);
+        }
+
+        private static bool ShouldSuppressMutualHostility(Pawn firstPawn, Pawn secondPawn, int currentTick)
+        {
+            if (!IsNoMeleeRetaliationEnabled() || firstPawn == null || secondPawn == null)
+            {
+                return false;
+            }
+
+            return ShouldDisableThreatForSmallPet(firstPawn, secondPawn, currentTick)
+                || ShouldDisableThreatForSmallPet(secondPawn, firstPawn, currentTick);
+        }
+
+        [HarmonyPatch(typeof(Pawn_MindState), "get_MeleeThreatStillThreat")]
+        private static class Patch_Pawn_MindState_MeleeThreatStillThreat_SmallPetIgnore
+        {
+            private static bool Prepare() => IsFeatureEnabledNow();
+
+            private static void Postfix(Pawn_MindState __instance, ref bool __result)
+            {
+                if (!__result || __instance == null)
                 {
                     return;
                 }
-            }
-            else if (!IsSmallPetCandidate(__instance, playerFaction, cachedSmallPetThreshold))
-            {
-                return;
-            }
 
-            if (!IsCandidateSourceEligible(__instance, currentTick))
-            {
-                return;
-            }
+                int currentTick = Find.TickManager?.TicksGame ?? 0;
+                Pawn smallPet = __instance.pawn;
+                Pawn threat = __instance.meleeThreat;
+                if (!ShouldPreventSmallPetMeleeRetaliation(smallPet, threat, currentTick))
+                {
+                    return;
+                }
 
-            if (!HasAnyHostileRepresentativesOnMap(__instance.Map))
-            {
-                return;
-            }
-
-            if (!CanOtherPawnThreatSmallPet(otherPawn, playerFaction))
-            {
-                return;
-            }
-
-            if (ZoologyFleeSafetyUtility.IsThreatMeleeAttackingPawn(otherPawn, __instance))
-            {
+                __instance.meleeThreat = null;
                 __result = false;
-                return;
             }
+        }
 
-            __result = true;
+        [HarmonyPatch(typeof(JobGiver_AIFightEnemy), "TryGiveJob")]
+        private static class Patch_JobGiver_AIFightEnemy_TryGiveJob_SmallPetIgnore
+        {
+            private static bool Prepare() => IsFeatureEnabledNow();
+
+            private static void Postfix(Pawn pawn, ref Job __result)
+            {
+                if (__result?.def != JobDefOf.AttackMelee)
+                {
+                    return;
+                }
+
+                Pawn threat = __result.targetA.Thing as Pawn;
+                int currentTick = Find.TickManager?.TicksGame ?? 0;
+                if (!ShouldPreventSmallPetMeleeRetaliation(pawn, threat, currentTick))
+                {
+                    return;
+                }
+
+                if (pawn?.mindState != null && ReferenceEquals(pawn.mindState.enemyTarget, threat))
+                {
+                    pawn.mindState.enemyTarget = null;
+                }
+
+                __result = null;
+            }
+        }
+
+        [HarmonyPatch(typeof(GenHostility), nameof(GenHostility.HostileTo), new[] { typeof(Thing), typeof(Thing) })]
+        private static class Patch_GenHostility_HostileTo_ThingThing_SmallPetIgnore
+        {
+            private static bool Prepare() => IsFeatureEnabledNow();
+
+            private static void Postfix(Thing a, Thing b, ref bool __result)
+            {
+                if (!IsNoMeleeRetaliationEnabled() || !__result || a is not Pawn pawnA || b is not Pawn pawnB)
+                {
+                    return;
+                }
+
+                ResetCachesForCurrentGameIfNeeded();
+                if (cachedGame == null)
+                {
+                    return;
+                }
+
+                int currentTick = Find.TickManager?.TicksGame ?? 0;
+                if (ShouldSuppressMutualHostility(pawnA, pawnB, currentTick))
+                {
+                    __result = false;
+                }
+            }
+        }
+
+        [HarmonyPatch(typeof(GenHostility), nameof(GenHostility.HostileTo), new[] { typeof(Thing), typeof(Faction) })]
+        private static class Patch_GenHostility_HostileTo_ThingFaction_SmallPetIgnore
+        {
+            private static bool Prepare() => IsFeatureEnabledNow();
+
+            private static void Postfix(Thing t, Faction fac, ref bool __result)
+            {
+                if (!IsNoMeleeRetaliationEnabled() || !__result || t is not Pawn pawn)
+                {
+                    return;
+                }
+
+                ResetCachesForCurrentGameIfNeeded();
+                if (cachedGame == null)
+                {
+                    return;
+                }
+
+                int currentTick = Find.TickManager?.TicksGame ?? 0;
+                if (!EnsureSmallPetCandidateSetCached(currentTick))
+                {
+                    return;
+                }
+
+                Faction playerFaction = GetPlayerFactionCached();
+                if (playerFaction == null
+                    || !IsCurrentSmallPetCandidate(pawn, currentTick)
+                    || !IsCandidateSourceEligible(pawn, currentTick)
+                    || !IsHostileToPlayerFactionSafe(fac, playerFaction))
+                {
+                    return;
+                }
+
+                __result = false;
+            }
+        }
+
+        [HarmonyPatch(typeof(AttackTargetsCache), nameof(AttackTargetsCache.GetPotentialTargetsFor))]
+        private static class Patch_AttackTargetsCache_GetPotentialTargetsFor_SmallPetFilter
+        {
+            private static bool Prepare() => IsFeatureEnabledNow();
+
+            private static void Postfix(IAttackTargetSearcher th, ref List<IAttackTarget> __result)
+            {
+                if (__result == null || __result.Count == 0)
+                {
+                    return;
+                }
+
+                ResetCachesForCurrentGameIfNeeded();
+                if (cachedGame == null)
+                {
+                    return;
+                }
+
+                int currentTick = Find.TickManager?.TicksGame ?? 0;
+                if (!EnsureSmallPetCandidateSetCached(currentTick))
+                {
+                    return;
+                }
+
+                for (int i = __result.Count - 1; i >= 0; i--)
+                {
+                    IAttackTarget target = __result[i];
+                    if (target?.Thing is not Pawn targetPawn || !IsCurrentSmallPetCandidate(targetPawn, currentTick))
+                    {
+                        continue;
+                    }
+
+                    if (target.ThreatDisabled(th))
+                    {
+                        __result.RemoveAt(i);
+                    }
+                }
+            }
         }
 
         [HarmonyPatch(typeof(Pawn), nameof(Pawn.SpawnSetup))]
@@ -799,7 +831,6 @@ namespace ZoologyMod
             private static void Postfix(Game __instance)
             {
                 ResetCachesForGame(__instance);
-                RebuildHostileMapCounts();
             }
         }
 
@@ -816,6 +847,5 @@ namespace ZoologyMod
                 }
             }
         }
-
     }
 }

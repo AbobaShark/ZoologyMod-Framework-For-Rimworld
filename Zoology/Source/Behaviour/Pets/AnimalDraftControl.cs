@@ -1234,26 +1234,12 @@ namespace ZoologyMod
         }
     }
 
-    [HarmonyPatch(typeof(Pawn), "DrawAt")]
-    public static class Patch_Pawn_DrawAt_AnimalDraftControl
+    [HarmonyPatch(typeof(Pawn), nameof(Pawn.DrawExtraSelectionOverlays))]
+    public static class Patch_Pawn_DrawExtraSelectionOverlays_AnimalDraftControl
     {
         private static void Postfix(Pawn __instance)
         {
-            if (__instance == null
-                || __instance.Faction != Faction.OfPlayer
-                || __instance.playerSettings == null
-                || __instance.RaceProps == null
-                || !__instance.RaceProps.Humanlike)
-            {
-                return;
-            }
-
-            if (!AnimalDraftControlUtility.AnySelectedDraftControlPawn())
-            {
-                return;
-            }
-
-            if (!AnimalDraftControlUtility.ShouldDrawMasterRadius(__instance))
+            if (__instance == null || !AnimalDraftControlUtility.IsFeatureEnabledNow())
             {
                 return;
             }
@@ -1264,8 +1250,40 @@ namespace ZoologyMod
                 return;
             }
 
+            Pawn master = null;
+            IntVec3 center = IntVec3.Invalid;
+
+            if (AnimalDraftControlUtility.IsDraftControlActivePawn(__instance))
+            {
+                master = __instance.playerSettings?.Master;
+                if (master == null || !master.Spawned || master.MapHeld != map)
+                {
+                    return;
+                }
+
+                center = master.Position;
+            }
+            else
+            {
+                if (__instance.Faction != Faction.OfPlayer
+                    || __instance.playerSettings == null
+                    || __instance.RaceProps == null
+                    || !__instance.RaceProps.Humanlike
+                    || !AnimalDraftControlUtility.ShouldDrawMasterRadius(__instance))
+                {
+                    return;
+                }
+
+                center = __instance.Position;
+            }
+
+            if (!center.IsValid)
+            {
+                return;
+            }
+
             GenDraw.DrawRadiusRing(
-                __instance.Position,
+                center,
                 Pawn_TrainingTracker.AttackTargetRange,
                 Color.white,
                 c => c.InBounds(map));

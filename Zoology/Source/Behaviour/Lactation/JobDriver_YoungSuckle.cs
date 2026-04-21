@@ -67,9 +67,15 @@ namespace ZoologyMod
                             return;
                         }
 
-                        if (mom == null || mom.Dead || mom.Downed || !mom.Spawned || mom.InMentalState)
+                        if (mom == null || mom.Dead || !mom.Spawned || mom.InMentalState)
                         {
                             baby.jobs?.EndCurrentJob(JobCondition.Incompletable);
+                            return;
+                        }
+
+                        if (!AnimalLactationUtility.CanPupSelfSuckleFromMother(mom))
+                        {
+                            baby.jobs?.EndCurrentJob(JobCondition.InterruptForced);
                             return;
                         }
 

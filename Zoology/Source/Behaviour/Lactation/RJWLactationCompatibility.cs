@@ -23,6 +23,16 @@ namespace ZoologyMod
             }
         }
 
+        internal static bool ShouldObserveRecentBirths()
+        {
+            if (!LactationSettingsGate.Enabled())
+            {
+                return false;
+            }
+
+            return IsRJWActive;
+        }
+
         internal static void ResetCache()
         {
             resolved = false;

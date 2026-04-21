@@ -2,11 +2,17 @@
 
 namespace ZoologyMod
 {
-    
+    internal static class LactationSettingsGate
+    {
+        public static bool Enabled()
+        {
+            ZoologyModSettings settings = ZoologyModSettings.Instance;
+            return settings == null || (!settings.DisableAllRuntimePatches && ZoologyModSettings.EnableMammalLactation);
+        }
+    }
+
     public class ModExtension_IsMammal : DefModExtension
     {
-        
-        
     }
 
     public static class MammalExtensions

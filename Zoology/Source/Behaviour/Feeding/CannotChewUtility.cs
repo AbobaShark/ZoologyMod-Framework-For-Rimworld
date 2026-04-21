@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using RimWorld;
 using Verse;
 
@@ -5,6 +6,11 @@ namespace ZoologyMod
 {
     internal static class CannotChewUtility
     {
+        private static readonly Dictionary<int, bool> hasCannotChewByPawnId = new Dictionary<int, bool>(128);
+        private static readonly Dictionary<int, float> predationBodySizeLimitByPawnId = new Dictionary<int, float>(128);
+        private static Game runtimeCacheGame;
+        private static int runtimeCacheTick = int.MinValue;
+
         public static bool HasCannotChew(Pawn pawn)
         {
             if (pawn == null || !CannotChewSettingsGate.Enabled())
@@ -12,7 +18,17 @@ namespace ZoologyMod
                 return false;
             }
 
-            return DefModExtensionCache<ModExtension_CannotChew>.Has(pawn);
+            EnsureRuntimeCaches();
+
+            int pawnId = pawn.thingIDNumber;
+            if (hasCannotChewByPawnId.TryGetValue(pawnId, out bool cached))
+            {
+                return cached;
+            }
+
+            bool hasCannotChew = DefModExtensionCache<ModExtension_CannotChew>.Has(pawn);
+            hasCannotChewByPawnId[pawnId] = hasCannotChew;
+            return hasCannotChew;
         }
 
         public static bool IsCorpseTooLarge(Pawn eater, Corpse corpse)
@@ -42,19 +58,45 @@ namespace ZoologyMod
                 return 0f;
             }
 
+            EnsureRuntimeCaches();
+
+            int predatorId = predator.thingIDNumber;
+            if (predationBodySizeLimitByPawnId.TryGetValue(predatorId, out float cachedLimit))
+            {
+                return cachedLimit;
+            }
+
             float maxPreyBodySize = predator.RaceProps?.maxPreyBodySize ?? float.MaxValue;
+            float result = maxPreyBodySize;
             if (!HasCannotChew(predator))
             {
-                return maxPreyBodySize;
+                predationBodySizeLimitByPawnId[predatorId] = result;
+                return result;
             }
 
             if (IsNonAdultGrowthStage(predator))
             {
                 float currentBodySize = predator.BodySize;
-                return currentBodySize < maxPreyBodySize ? currentBodySize : maxPreyBodySize;
+                result = currentBodySize < maxPreyBodySize ? currentBodySize : maxPreyBodySize;
             }
 
-            return maxPreyBodySize;
+            predationBodySizeLimitByPawnId[predatorId] = result;
+            return result;
+        }
+
+        private static void EnsureRuntimeCaches()
+        {
+            Game currentGame = Current.Game;
+            int currentTick = Find.TickManager?.TicksGame ?? int.MinValue;
+            if (ReferenceEquals(runtimeCacheGame, currentGame) && runtimeCacheTick == currentTick)
+            {
+                return;
+            }
+
+            runtimeCacheGame = currentGame;
+            runtimeCacheTick = currentTick;
+            hasCannotChewByPawnId.Clear();
+            predationBodySizeLimitByPawnId.Clear();
         }
 
         private static bool IsNonAdultGrowthStage(Pawn pawn)

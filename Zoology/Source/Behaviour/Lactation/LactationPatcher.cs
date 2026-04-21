@@ -38,13 +38,7 @@ namespace ZoologyMod
 
             try
             {
-                ZoologyModSettings settings = ZoologyModSettings.Instance;
-                if (settings != null && settings.DisableAllRuntimePatches)
-                {
-                    return;
-                }
-
-                if (!ZoologyModSettings.EnableMammalLactation)
+                if (!LactationSettingsGate.Enabled())
                 {
                     return;
                 }
@@ -120,7 +114,7 @@ namespace ZoologyMod
 
         private static void ProcessBirth(object instance, object[] args)
         {
-            if (!ZoologyModSettings.EnableMammalLactation)
+            if (!LactationSettingsGate.Enabled())
             {
                 return;
             }

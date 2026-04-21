@@ -36,13 +36,13 @@ namespace ZoologyMod
         private static readonly bool recordIsValueType = animalCountRecordType != null && animalCountRecordType.IsValueType;
         private static readonly List<KeyValuePair<ThingDef, object>> updateBuffer = new List<KeyValuePair<ThingDef, object>>(64);
 
-        static bool Prepare() => ZoologyModSettings.EnableMammalLactation;
+        static bool Prepare() => LactationSettingsGate.Enabled();
 
         static void Postfix(Dialog_AutoSlaughter __instance)
         {
             try
             {
-                if (!ZoologyModSettings.EnableMammalLactation)
+                if (!LactationSettingsGate.Enabled())
                 {
                     return;
                 }
@@ -248,13 +248,13 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(WorkGiver_Slaughter), nameof(WorkGiver_Slaughter.HasJobOnThing))]
     static class Patch_WorkGiver_Slaughter_HasJobOnThing_BlockLactatingAutoSlaughter
     {
-        static bool Prepare() => ZoologyModSettings.EnableMammalLactation;
+        static bool Prepare() => LactationSettingsGate.Enabled();
 
         static void Postfix(Pawn pawn, Thing t, bool forced, ref bool __result)
         {
             try
             {
-                if (!__result || forced || !ZoologyModSettings.EnableMammalLactation)
+                if (!__result || forced || !LactationSettingsGate.Enabled())
                 {
                     return;
                 }

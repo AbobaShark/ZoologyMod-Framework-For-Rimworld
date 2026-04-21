@@ -127,7 +127,8 @@ namespace ZoologyMod
             if (rememberedThreat != null
                 && pawn.mindState.MeleeThreatStillThreat
                 && IsValidThreatForFlee(rememberedThreat, pawn)
-                && rememberedThreat.Position.AdjacentTo8WayOrInside(pawn.Position))
+                && rememberedThreat.Position.AdjacentTo8WayOrInside(pawn.Position)
+                && IsThreatMeleeAttackingPawn(rememberedThreat, pawn))
             {
                 attacker = rememberedThreat;
                 return true;

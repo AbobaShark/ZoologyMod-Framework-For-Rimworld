@@ -97,7 +97,7 @@ namespace ZoologyMod
 
         private void TryObserveRecentBirthsForRJW()
         {
-            if (!ZoologyModSettings.EnableMammalLactation || !RJWLactationCompatibility.IsRJWActive)
+            if (!IsLactationFeatureEnabledNow() || !RJWLactationCompatibility.ShouldObserveRecentBirths())
             {
                 return;
             }
@@ -127,7 +127,12 @@ namespace ZoologyMod
 
         private bool ShouldRunBackfill()
         {
-            return ZoologyModSettings.EnableMammalLactation && !backfillDone;
+            return IsLactationFeatureEnabledNow() && !backfillDone;
+        }
+
+        private static bool IsLactationFeatureEnabledNow()
+        {
+            return LactationSettingsGate.Enabled();
         }
 
         private void BuildPendingList()
@@ -155,6 +160,37 @@ namespace ZoologyMod
                         pendingBabies.Add(p);
                     }
                 }
+
+                if (Find.WorldObjects == null)
+                {
+                    return;
+                }
+
+                List<Caravan> caravans = Find.WorldObjects.Caravans;
+                if (caravans == null)
+                {
+                    return;
+                }
+
+                for (int caravanIndex = 0; caravanIndex < caravans.Count; caravanIndex++)
+                {
+                    Caravan caravan = caravans[caravanIndex];
+                    List<Pawn> pawns = caravan?.PawnsListForReading;
+                    if (pawns == null)
+                    {
+                        continue;
+                    }
+
+                    for (int i = 0; i < pawns.Count; i++)
+                    {
+                        Pawn p = pawns[i];
+                        if (p == null || p.Dead) continue;
+                        if (!p.IsMammal()) continue;
+                        if (!AnimalLactationUtility.IsAnimalBabyLifeStage(p.ageTracker?.CurLifeStage)) continue;
+                        if (!IsFirstLifeStage(p)) continue;
+                        pendingBabies.Add(p);
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -168,19 +204,27 @@ namespace ZoologyMod
         {
             try
             {
-                if (baby == null || baby.Dead || !baby.Spawned) return;
+                if (baby == null || baby.Dead) return;
                 if (!baby.IsMammal()) return;
                 if (!AnimalLactationUtility.IsAnimalBabyLifeStage(baby.ageTracker?.CurLifeStage)) return;
                 if (!IsFirstLifeStage(baby)) return;
 
                 Pawn mother = TryGetMotherFromRelations(baby);
-                if (!IsValidMotherForBackfill(mother, baby)) return;
-                if (!IsMotherNearBaby(mother, baby)) return;
+                if (baby.Spawned)
+                {
+                    if (!IsValidMotherForBackfill(mother, baby)) return;
+                    if (!IsMotherNearBaby(mother, baby)) return;
+                }
+                else
+                {
+                    Caravan caravan = baby.GetCaravan();
+                    if (!IsValidCaravanMotherForBackfill(mother, baby, caravan)) return;
+                }
 
                 int mid = mother.thingIDNumber;
                 if (processedMotherIds.Contains(mid)) return;
 
-                if (EnsureLactatingHediff(mother))
+                if (AnimalLactationUtility.EnsureLactatingHediff(mother))
                 {
                     processedMotherIds.Add(mid);
                 }
@@ -424,6 +468,40 @@ namespace ZoologyMod
                 && !mother.health.hediffSet.HasHediff(lactDef);
         }
 
+        private static bool IsValidCaravanMotherForBackfill(Pawn mother, Pawn baby, Caravan caravan)
+        {
+            if (mother == null || baby == null || caravan == null)
+            {
+                return false;
+            }
+
+            if (mother.Dead || baby.Dead || mother.gender != Gender.Female || !mother.IsMammal())
+            {
+                return false;
+            }
+
+            if (!baby.IsMammal() || !AnimalLactationUtility.IsAnimalBabyLifeStage(baby.ageTracker?.CurLifeStage) || !IsFirstLifeStage(baby))
+            {
+                return false;
+            }
+
+            if (!AnimalLactationUtility.IsCrossBreedCompatible(mother, baby))
+            {
+                return false;
+            }
+
+            List<Pawn> pawns = caravan.PawnsListForReading;
+            if (pawns == null || !pawns.Contains(mother) || !pawns.Contains(baby))
+            {
+                return false;
+            }
+
+            HediffDef lactDef = AnimalLactationUtility.LactatingHediffDef;
+            return lactDef != null
+                && mother.health?.hediffSet != null
+                && !mother.health.hediffSet.HasHediff(lactDef);
+        }
+
         private static bool IsFirstLifeStage(Pawn pawn)
         {
             try
@@ -445,30 +523,6 @@ namespace ZoologyMod
                 if (mother.Map != baby.Map) return false;
                 int distSq = (mother.Position - baby.Position).LengthHorizontalSquared;
                 return distSq <= MotherNearBabyMaxDistanceSq;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        private static bool EnsureLactatingHediff(Pawn mother)
-        {
-            try
-            {
-                var lactDef = AnimalLactationUtility.LactatingHediffDef;
-                if (lactDef == null) return false;
-                if (mother.health?.hediffSet == null) return false;
-
-                Hediff lact = mother.health.hediffSet.GetFirstHediffOfDef(lactDef);
-                if (lact == null)
-                {
-                    lact = HediffMaker.MakeHediff(lactDef, mother);
-                    mother.health.AddHediff(lact);
-                }
-
-                lact.Severity = Math.Max(0.25f, lact.Severity);
-                return true;
             }
             catch
             {

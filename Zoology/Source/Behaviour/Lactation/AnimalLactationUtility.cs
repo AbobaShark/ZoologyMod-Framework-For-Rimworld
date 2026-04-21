@@ -100,7 +100,7 @@ namespace ZoologyMod
         {
             try
             {
-                if (!ZoologyModSettings.EnableMammalLactation)
+                if (!LactationSettingsGate.Enabled())
                 {
                     return;
                 }
@@ -147,6 +147,47 @@ namespace ZoologyMod
             return Mathf.Min(1f, 0.25f + 0.12f * (pups - 1));
         }
 
+        public static bool EnsureLactatingHediff(Pawn mother, float minimumSeverity = 0.25f)
+        {
+            try
+            {
+                if (!LactationSettingsGate.Enabled())
+                {
+                    return false;
+                }
+
+                if (mother == null || mother.Dead || mother.Destroyed)
+                {
+                    return false;
+                }
+
+                if (mother.gender != Gender.Female || !mother.IsMammal())
+                {
+                    return false;
+                }
+
+                HediffDef lactDef = LactatingHediffDef;
+                if (lactDef == null || mother.health?.hediffSet == null)
+                {
+                    return false;
+                }
+
+                Hediff lact = mother.health.hediffSet.GetFirstHediffOfDef(lactDef);
+                if (lact == null)
+                {
+                    lact = HediffMaker.MakeHediff(lactDef, mother);
+                    mother.health.AddHediff(lact);
+                }
+
+                lact.Severity = Math.Max(minimumSeverity, lact.Severity);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public static bool CanMotherFeed(Pawn mom, out string failReason)
         {
             failReason = null;
@@ -154,7 +195,7 @@ namespace ZoologyMod
             if (mom.Dead) { failReason = "Dead mom"; return false; }
             if (mom.Downed) { failReason = "Downed mom"; return false; }
             if (!mom.IsMammal()) { failReason = "Not a mammal"; return false; }
-            if (!ZoologyModSettings.EnableMammalLactation) { failReason = "Mammal lactation disabled"; return false; }
+            if (!LactationSettingsGate.Enabled()) { failReason = "Mammal lactation disabled"; return false; }
 
             if (mom.InMentalState)
             {
@@ -177,13 +218,59 @@ namespace ZoologyMod
         public static bool CanMotherFeed(Pawn mom)
         {
             if (mom == null || mom.Dead || mom.Downed) return false;
-            if (!mom.IsMammal() || !ZoologyModSettings.EnableMammalLactation) return false;
+            if (!mom.IsMammal() || !LactationSettingsGate.Enabled()) return false;
             if (mom.InMentalState) return false;
 
             var lactDef = LactatingHediffDef;
             if (lactDef == null || !mom.health.hediffSet.HasHediff(lactDef)) return false;
 
             return MotherHasSufficientNutrition(mom);
+        }
+
+        public static bool IsMotherLyingForYoungSuckle(Pawn mom)
+        {
+            if (mom == null || mom.Dead || mom.Destroyed || !mom.Spawned)
+            {
+                return false;
+            }
+
+            if (mom.Downed)
+            {
+                return true;
+            }
+
+            return mom.GetPosture() != PawnPosture.Standing;
+        }
+
+        public static bool CanPupSelfSuckleFromMother(Pawn mom)
+        {
+            if (mom == null || mom.Dead || mom.Destroyed || !mom.Spawned)
+            {
+                return false;
+            }
+
+            if (!mom.IsMammal() || !LactationSettingsGate.Enabled())
+            {
+                return false;
+            }
+
+            if (mom.InMentalState)
+            {
+                return false;
+            }
+
+            var lactDef = LactatingHediffDef;
+            if (lactDef == null || !mom.health.hediffSet.HasHediff(lactDef))
+            {
+                return false;
+            }
+
+            if (!MotherHasSufficientNutrition(mom))
+            {
+                return false;
+            }
+
+            return IsMotherLyingForYoungSuckle(mom);
         }
 
         private static HashSet<string> GetCrossBreedDefNames(ThingDef motherDef)
@@ -245,6 +332,7 @@ namespace ZoologyMod
 
         public static bool ChildWantsSuckle(Pawn pup)
         {
+            if (!LactationSettingsGate.Enabled()) return false;
             if (pup == null || pup.Dead) return false;
             if (pup.needs == null || pup.needs.food == null) return false;
             if (pup.InMentalState) return false;
@@ -288,7 +376,7 @@ namespace ZoologyMod
             {
                 Pawn p = pawns[i];
                 if (p == null || !p.Spawned || p.Dead) continue;
-                if (!CanMotherFeed(p)) continue;
+                if (!CanMotherFeed(p) && !CanPupSelfSuckleFromMother(p)) continue;
                 candidates.Add(p);
             }
 
@@ -387,6 +475,7 @@ namespace ZoologyMod
             {
                 Pawn p = candidates[i];
                 if (p == null || !p.Spawned || p.Dead) continue;
+                if (!CanPupSelfSuckleFromMother(p)) continue;
 
                 if (!IsCrossBreedCompatible(p, pup)) continue;
                 if (!IsPupFactionCompatible(p, pup)) continue;
@@ -495,7 +584,7 @@ namespace ZoologyMod
                 return false;
             }
 
-            if (!CanMotherFeed(mom))
+            if (!CanPupSelfSuckleFromMother(mom))
             {
                 return false;
             }
@@ -544,7 +633,11 @@ namespace ZoologyMod
             {
                 return false;
             }
-            if (mom.Dead || mom.Downed || mom.InMentalState || !mom.Spawned)
+            if (mom.Dead || mom.InMentalState || !mom.Spawned)
+            {
+                return false;
+            }
+            if (!CanPupSelfSuckleFromMother(mom))
             {
                 return false;
             }
@@ -595,7 +688,7 @@ namespace ZoologyMod
         {
             try
             {
-                if (pup == null || pup.Dead || mom == null || mom.Dead || mom.Downed) return false;
+                if (pup == null || pup.Dead || mom == null || mom.Dead) return false;
 
                 if (!IsCrossBreedCompatible(mom, pup)) return false;
 

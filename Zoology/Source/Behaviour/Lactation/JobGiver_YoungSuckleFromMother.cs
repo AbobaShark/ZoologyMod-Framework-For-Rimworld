@@ -7,7 +7,7 @@ namespace ZoologyMod
     {
         protected override Job TryGiveJob(Pawn pawn)
         {
-            if (!ZoologyModSettings.EnableMammalLactation) return null;
+            if (!LactationSettingsGate.Enabled()) return null;
             if (pawn == null || pawn.Dead || pawn.Downed || !pawn.Spawned) return null;
             if (pawn.Map == null) return null;
             if (pawn.InMentalState) return null;

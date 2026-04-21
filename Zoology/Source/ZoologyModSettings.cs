@@ -13,8 +13,8 @@ namespace ZoologyMod
         public bool EnableOverrideCEPenetration;
 
         public bool EnableCustomFleeDanger = true;
-        public bool EnableSmallPetFleeFromRaiders = true;
         public bool EnableIgnoreSmallPetsByRaiders = true;
+        public bool EnableSmallPetNoMeleeRetaliation = true;
         public bool EnablePreyFleeFromPredators = true;
         public bool AnimalsFleeFromNonHostlePredators = true;
         public bool EnablePackHunt = true;
@@ -182,12 +182,6 @@ namespace ZoologyMod
         {
             var prevFont = Text.Font;
             var prevAnchor = Text.Anchor;
-
-            if (!EnableIgnoreSmallPetsByRaiders)
-            {
-                EnableSmallPetFleeFromRaiders = true;
-            }
-
             int runtimePatchToggleHashBefore = GetRuntimePatchToggleHash();
 
             Text.Font = GameFont.Medium;
@@ -289,7 +283,7 @@ namespace ZoologyMod
                 case SettingsPage.OtherBehavior:
                     return 1560f
                         + (EnableCustomFleeDanger ? 170f : 0f)
-                        + (EnableIgnoreSmallPetsByRaiders ? 150f : 0f)
+                        + (EnableIgnoreSmallPetsByRaiders ? 200f : 0f)
                         + (AnimalsFreeFromHumans ? 130f : 0f);
                 case SettingsPage.Dev:
                 default:
@@ -490,9 +484,6 @@ namespace ZoologyMod
             if (EnableIgnoreSmallPetsByRaiders)
             {
                 list.GapLine(12f);
-                list.CheckboxLabeled("Enable small pets fleeing from raiders", ref EnableSmallPetFleeFromRaiders, "Allows small pets to flee from nearby hostile humanlike pawns (raiders), even when not threatened.");
-
-                list.GapLine(6f);
                 Text.Font = GameFont.Small;
                 Text.Anchor = TextAnchor.MiddleCenter;
                 list.Label("Small Pet Body Size Threshold (min: 0, max: 30)");
@@ -502,10 +493,13 @@ namespace ZoologyMod
                 _smallPetBodySizeThreshold = list.Slider(_smallPetBodySizeThreshold, 0f, 30f);
                 list.Label($"Small Pet Body Size Threshold: {SmallPetBodySizeThreshold:F2} (pets smaller than this will be affected by raider ignoring)");
                 list.GapLine(12f);
-            }
-            else
-            {
-                EnableSmallPetFleeFromRaiders = true;
+
+                list.CheckboxLabeled(
+                    "Prevent small pets from melee attacking hostile humanlikes and mechanoids",
+                    ref EnableSmallPetNoMeleeRetaliation,
+                    "Uses the same small-pet conditions as raider ignoring, but suppresses close-range melee retaliation against hostile humanlike and mechanoid pawns while still allowing fleeing."
+                );
+                list.GapLine(12f);
             }
 
             list.GapLine(12f);
@@ -710,8 +704,8 @@ namespace ZoologyMod
             EnsureCollectionsInitialized();
 
             EnableCustomFleeDanger = true;
-            EnableSmallPetFleeFromRaiders = true;
             EnableIgnoreSmallPetsByRaiders = true;
+            EnableSmallPetNoMeleeRetaliation = true;
             EnablePreyFleeFromPredators = true;
             AnimalsFleeFromNonHostlePredators = true;
             EnablePackHunt = true;
@@ -777,12 +771,8 @@ namespace ZoologyMod
             Instance = this;
 
             Scribe_Values.Look(ref EnableCustomFleeDanger, "EnableCustomFleeDanger", true);
-            Scribe_Values.Look(ref EnableSmallPetFleeFromRaiders, "EnableSmallPetFleeFromRaiders", true);
             Scribe_Values.Look(ref EnableIgnoreSmallPetsByRaiders, "EnableIgnoreSmallPetsByRaiders", true);
-            if (!EnableIgnoreSmallPetsByRaiders)
-            {
-                EnableSmallPetFleeFromRaiders = true;
-            }
+            Scribe_Values.Look(ref EnableSmallPetNoMeleeRetaliation, "EnableSmallPetNoMeleeRetaliation", true);
             Scribe_Values.Look(ref EnablePreyFleeFromPredators, "EnablePreyFleeFromPredators", true);
             Scribe_Values.Look(ref AnimalsFleeFromNonHostlePredators, "AnimalsFleeFromNonHostlePredators", true);
             Scribe_Values.Look(ref EnablePackHunt, "EnablePackHunt", true);
@@ -880,8 +870,8 @@ namespace ZoologyMod
                 int hash = 17;
                 hash = hash * 31 + (DisableAllRuntimePatches ? 1 : 0);
                 hash = hash * 31 + (EnableCustomFleeDanger ? 1 : 0);
-                hash = hash * 31 + (EnableSmallPetFleeFromRaiders ? 1 : 0);
                 hash = hash * 31 + (EnableIgnoreSmallPetsByRaiders ? 1 : 0);
+                hash = hash * 31 + (EnableSmallPetNoMeleeRetaliation ? 1 : 0);
                 hash = hash * 31 + (EnablePreyFleeFromPredators ? 1 : 0);
                 hash = hash * 31 + (AnimalsFleeFromNonHostlePredators ? 1 : 0);
                 hash = hash * 31 + (AnimalsFreeFromHumans ? 1 : 0);
@@ -1881,7 +1871,7 @@ namespace ZoologyMod
 
             return !EnableCustomFleeDanger
                 && !EnableIgnoreSmallPetsByRaiders
-                && (!EnableIgnoreSmallPetsByRaiders || !EnableSmallPetFleeFromRaiders)
+                && (!EnableIgnoreSmallPetsByRaiders || !EnableSmallPetNoMeleeRetaliation)
                 && !EnablePreyFleeFromPredators
                 && !AnimalsFreeFromHumans
                 && !EnablePackHunt

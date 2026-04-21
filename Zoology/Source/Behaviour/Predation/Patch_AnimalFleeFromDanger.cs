@@ -66,7 +66,22 @@ namespace ZoologyMod
 
         private static void Postfix(Pawn pawn, ref Job __result)
         {
-            // Intentionally no-op: do not force melee attacks or override vanilla behavior.
+            if (__result?.def != JobDefOf.AttackMelee)
+            {
+                return;
+            }
+
+            Pawn threat = __result.targetA.Thing as Pawn;
+            int currentTick = Find.TickManager?.TicksGame ?? 0;
+            if (Patch_SmallPetThreatDisabled.ShouldPreventSmallPetMeleeRetaliation(pawn, threat, currentTick))
+            {
+                if (pawn?.mindState != null)
+                {
+                    pawn.mindState.meleeThreat = null;
+                }
+
+                __result = null;
+            }
         }
     }
 
@@ -1072,7 +1087,7 @@ namespace ZoologyMod
                 || settings.EnableFleeFromCarrier
                 || settings.EnablePredatorDefendCorpse
                 || settings.EnableAnimalChildcare
-                || (settings.EnableIgnoreSmallPetsByRaiders && settings.EnableSmallPetFleeFromRaiders);
+                || settings.EnableIgnoreSmallPetsByRaiders;
         }
 
         public static void Postfix(JobGiver_AnimalFlee __instance, Pawn pawn, ref Job __result)
@@ -1094,8 +1109,7 @@ namespace ZoologyMod
                 bool fleeFromHumansEnabled = settings == null || settings.AnimalsFreeFromHumans;
                 bool fleeFromCarriersEnabled = settings == null || settings.EnableFleeFromCarrier;
                 bool fleeFromRaidersForSmallPetsEnabled = settings != null
-                    && settings.EnableIgnoreSmallPetsByRaiders
-                    && settings.EnableSmallPetFleeFromRaiders;
+                    && settings.EnableIgnoreSmallPetsByRaiders;
                 bool fleeFromNonTargetPredatorsEnabled = settings == null
                     || (settings.EnablePreyFleeFromPredators && settings.AnimalsFleeFromNonHostlePredators);
                 bool fleeFromDefendCorpseEnabled = settings == null || settings.EnablePredatorDefendCorpse;
@@ -2081,8 +2095,7 @@ namespace ZoologyMod
                 return null;
             }
 
-            bool shouldAnimalFleeDanger = FleeUtility.ShouldAnimalFleeDanger(pawn);
-            if (!shouldAnimalFleeDanger && !CanBypassShouldAnimalFleeDangerForSmallPetRaider(pawn, threat))
+            if (!FleeUtility.ShouldAnimalFleeDanger(pawn))
             {
                 return null;
             }
@@ -2094,28 +2107,6 @@ namespace ZoologyMod
             }
 
             return FleeUtility.FleeJob(pawn, threat, GetSmallPetRaiderFleeDistance());
-        }
-
-        private static bool CanBypassShouldAnimalFleeDangerForSmallPetRaider(Pawn pawn, Pawn threat)
-        {
-            if (pawn == null || threat == null)
-            {
-                return false;
-            }
-
-            Faction playerFaction = Faction.OfPlayerSilentFail;
-            if (!pawn.RaceProps.Animal || playerFaction == null || pawn.Faction != playerFaction || pawn.Roamer)
-            {
-                return false;
-            }
-
-            Faction threatFaction = threat.Faction;
-            if (threatFaction == null || ReferenceEquals(threatFaction, pawn.Faction))
-            {
-                return false;
-            }
-
-            return IsHostileToPlayerSafe(threat);
         }
 
         private static bool CanAnimalFleeFromHumans(Pawn pawn, ZoologyModSettings settings, ThreatMapCacheData threatCache = null)
@@ -2269,20 +2260,6 @@ namespace ZoologyMod
             }
 
             Map map = pawn.Map;
-            int pawnId = pawn.thingIDNumber;
-            int mapId = map.uniqueID;
-
-            if (TryUseNoThreatScanCache(
-                pawnId,
-                mapId,
-                currentTick,
-                predatorsEnabled,
-                humansEnabled,
-                carriersEnabled,
-                smallPetRaidersEnabled))
-            {
-                return true;
-            }
 
             if (!TryGetFreshThreatCacheFast(map, currentTick, out ThreatMapCacheData freshThreatCache))
             {
@@ -2357,30 +2334,7 @@ namespace ZoologyMod
                 }
             }
 
-            int scanIntervalTicks = freshThreatCache.ScanIntervalTicks;
-            if (scanIntervalTicks < MinThreatScanIntervalTicks)
-            {
-                scanIntervalTicks = MinThreatScanIntervalTicks;
-            }
-
-            if (scanIntervalTicks > 1 && ((currentTick + pawnId) % scanIntervalTicks) != 0)
-            {
-                return true;
-            }
-
-            if (!TryConsumeThreatScanBudget(map, currentTick))
-            {
-                RememberNoThreatScan(
-                    pawn,
-                    currentTick,
-                    predatorsEnabled,
-                    humansEnabled,
-                    carriersEnabled,
-                    smallPetRaidersEnabled,
-                    ThreatScanBudgetCooldownTicks);
-                return true;
-            }
-
+            ClearNoThreatScanCache(pawn);
             return false;
         }
 

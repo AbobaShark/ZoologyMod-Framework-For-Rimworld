@@ -84,14 +84,14 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(FoodUtility), "FoodIsSuitable", new Type[] { typeof(Pawn), typeof(ThingDef) })]
     static class Patch_FoodUtility_FoodIsSuitable
     {
-        static bool Prepare() => ZoologyModSettings.EnableMammalLactation;
+        static bool Prepare() => LactationSettingsGate.Enabled();
 
         static bool Prefix(Pawn p, ThingDef food, ref bool __result)
         {
             try
             {
                 
-                if (ZoologyModSettings.Instance == null || !ZoologyModSettings.EnableMammalLactation)
+                if (!LactationSettingsGate.Enabled())
                 {
                     return true;
                 }
@@ -141,16 +141,14 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(JobGiver_GetFood), "TryFindFishJob", new Type[] { typeof(Pawn) })]
     static class Patch_JobGiver_GetFood_TryFindFishJob_BlockForMammalBabies
     {
-        static bool Prepare() => ZoologyModSettings.EnableMammalLactation;
+        static bool Prepare() => LactationSettingsGate.Enabled();
 
         static bool Prefix(Pawn pawn, ref Job __result)
         {
             try
             {
-                var settings = ZoologyModSettings.Instance;
-                if (settings == null || !ZoologyModSettings.EnableMammalLactation)
+                if (!LactationSettingsGate.Enabled())
                 {
-                    
                     return true;
                 }
 
@@ -188,14 +186,14 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(FoodUtility), "WillEat", new Type[] { typeof(Pawn), typeof(Thing), typeof(Pawn), typeof(bool), typeof(bool) })]
     static class Patch_FoodUtility_WillEat_Thing_CorpseBlockForMammalBabies
     {
-        static bool Prepare() => ZoologyModSettings.EnableMammalLactation;
+        static bool Prepare() => LactationSettingsGate.Enabled();
 
         static bool Prefix(Pawn p, Thing food, Pawn getter, bool careIfNotAcceptableForTitle, bool allowVenerated, ref bool __result)
         {
             try
             {
                 
-                if (ZoologyModSettings.Instance == null || !ZoologyModSettings.EnableMammalLactation)
+                if (!LactationSettingsGate.Enabled())
                     return true; 
 
                 if (p == null || !(food is Corpse)) return true;
