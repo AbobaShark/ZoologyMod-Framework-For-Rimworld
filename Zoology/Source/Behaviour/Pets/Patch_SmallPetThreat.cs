@@ -563,14 +563,9 @@ namespace ZoologyMod
             RebuildHostileMapCounts();
         }
 
-        private static bool IsCandidateSourceEligible(Pawn pawn, int pawnId, int currentTick)
+        private static bool IsCandidateSourceEligible(Pawn pawn, int currentTick)
         {
             if (pawn == null)
-            {
-                return false;
-            }
-
-            if (!CandidateMembershipContains(pawnId))
             {
                 return false;
             }
@@ -654,8 +649,6 @@ namespace ZoologyMod
                 }
             }
 
-            int currentTick = Find.TickManager?.TicksGame ?? 0;
-
             // Vanilla already disabled threat for a non-aggressive roamer;
             // keep threat enabled only while the "threat" is actively melee-attacking this pawn.
             if (__result)
@@ -667,14 +660,39 @@ namespace ZoologyMod
                 return;
             }
 
-            EnsureSettingsSnapshot(currentTick);
-            if (!cachedIgnoreSmallPetsEnabled)
+            Faction playerFaction = GetPlayerFactionCached();
+            if (playerFaction == null || !ReferenceEquals(__instance.Faction, playerFaction))
             {
                 return;
             }
 
-            Faction playerFaction = GetPlayerFactionCached();
-            if (playerFaction == null)
+            RaceProperties raceProps = __instance.RaceProps;
+            if (raceProps?.Animal != true || __instance.Roamer)
+            {
+                return;
+            }
+
+            int currentTick = Find.TickManager?.TicksGame ?? 0;
+            EnsureSettingsSnapshot(currentTick);
+            if (!cachedIgnoreSmallPetsEnabled || raceProps.baseBodySize >= cachedSmallPetThreshold)
+            {
+                return;
+            }
+
+            int sourceId = __instance.thingIDNumber;
+            if (smallPetCandidateSetInitialized)
+            {
+                if (!hasAnySmallPetCandidates || !CandidateMembershipContains(sourceId))
+                {
+                    return;
+                }
+            }
+            else if (!IsSmallPetCandidate(__instance, playerFaction, cachedSmallPetThreshold))
+            {
+                return;
+            }
+
+            if (!IsCandidateSourceEligible(__instance, currentTick))
             {
                 return;
             }
@@ -685,27 +703,6 @@ namespace ZoologyMod
             }
 
             if (!CanOtherPawnThreatSmallPet(otherPawn, playerFaction))
-            {
-                return;
-            }
-
-            if (!smallPetCandidateSetInitialized && !EnsureSmallPetCandidateSetCached(currentTick))
-            {
-                return;
-            }
-
-            if (!hasAnySmallPetCandidates)
-            {
-                return;
-            }
-
-            int sourceId = __instance.thingIDNumber;
-            if (!CandidateMembershipContains(sourceId))
-            {
-                return;
-            }
-
-            if (!IsCandidateSourceEligible(__instance, sourceId, currentTick))
             {
                 return;
             }

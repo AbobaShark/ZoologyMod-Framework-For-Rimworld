@@ -15,6 +15,7 @@ namespace ZoologyMod
         [ThreadStatic] private static Pawn forcePawn;
         [ThreadStatic] private static int forceCorpseId;
         [ThreadStatic] private static int forceTick;
+        private static int changeVersion = 1;
 
         private struct HandFeedEntry
         {
@@ -26,6 +27,19 @@ namespace ZoologyMod
         private static Dictionary<int, Pawn> CorpseMap => corpseToPawn ?? (corpseToPawn = new Dictionary<int, Pawn>(64));
         private static Dictionary<int, HandFeedEntry> HandMap => handFedByCorpseId ?? (handFedByCorpseId = new Dictionary<int, HandFeedEntry>(32));
         private static List<int> HandCleanup => handCleanupBuffer ?? (handCleanupBuffer = new List<int>(8));
+        public static int ChangeVersion => changeVersion;
+
+        private static void MarkChanged()
+        {
+            if (changeVersion == int.MaxValue)
+            {
+                changeVersion = 1;
+            }
+            else
+            {
+                changeVersion++;
+            }
+        }
 
         public static bool HasAnyActiveEatingContext()
         {
@@ -77,6 +91,8 @@ namespace ZoologyMod
                 {
                     reverse[corpse.thingIDNumber] = pawn;
                 }
+
+                MarkChanged();
             }
             catch (Exception e)
             {
@@ -96,6 +112,7 @@ namespace ZoologyMod
 
                 int now = Find.TickManager?.TicksGame ?? 0;
                 HandMap[corpse.thingIDNumber] = new HandFeedEntry { Pawn = pawn, Tick = now };
+                MarkChanged();
             }
             catch (Exception e)
             {
@@ -116,6 +133,7 @@ namespace ZoologyMod
                 forcePawn = pawn;
                 forceCorpseId = corpse.thingIDNumber;
                 forceTick = Find.TickManager?.TicksGame ?? 0;
+                MarkChanged();
             }
             catch (Exception e)
             {
@@ -162,7 +180,11 @@ namespace ZoologyMod
                         reverse.Remove(oldCorpse.thingIDNumber);
                     }
                 }
-                map.Remove(pawn);
+
+                if (map.Remove(pawn))
+                {
+                    MarkChanged();
+                }
             }
             catch (Exception e)
             {
@@ -192,6 +214,12 @@ namespace ZoologyMod
                 {
                     map.Remove(buffer[i]);
                 }
+
+                if (buffer.Count > 0)
+                {
+                    MarkChanged();
+                }
+
                 buffer.Clear();
             }
             catch (Exception e)
@@ -210,6 +238,7 @@ namespace ZoologyMod
                     forcePawn = null;
                     forceCorpseId = 0;
                     forceTick = 0;
+                    MarkChanged();
                 }
             }
             catch (Exception e)
