@@ -1179,9 +1179,18 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Donkey"]/race/useMeatFrom</xpath>
-    <match Class="PatchOperationRemove">
+    <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Donkey"]/race/useMeatFrom</xpath>
+      <value>
+        <useMeatFrom>Horse</useMeatFrom>
+      </value>
     </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "Donkey"]/race</xpath>
+      <value>
+        <useMeatFrom>Horse</useMeatFrom>
+      </value>
+    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Donkey"]/race/wildBiomes</xpath>
