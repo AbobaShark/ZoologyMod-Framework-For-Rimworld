@@ -495,9 +495,9 @@ namespace ZoologyMod
                 list.GapLine(12f);
 
                 list.CheckboxLabeled(
-                    "Prevent small pets from melee attacking hostile humanlikes and mechanoids",
+                    "Prevent small pets from melee attacking hostiles",
                     ref EnableSmallPetNoMeleeRetaliation,
-                    "Uses the same small-pet conditions as raider ignoring, but suppresses close-range melee retaliation against hostile humanlike and mechanoid pawns while still allowing fleeing."
+                    "Uses the same small-pet conditions as raider ignoring, but suppresses close-range melee retaliation against hostile pawns while still allowing fleeing."
                 );
                 list.GapLine(12f);
             }
