@@ -157,7 +157,7 @@ Raiders treat small, non-threatening pets (for example, cats) like penned livest
 
 * **Enable raiders ignoring small pets**  
 * **Small Pet Body Size Threshold**  
-* **Enable small pets fleeing from raiders**
+* **Prevent small pets from melee attacking hostiles**
 
 ---
 
