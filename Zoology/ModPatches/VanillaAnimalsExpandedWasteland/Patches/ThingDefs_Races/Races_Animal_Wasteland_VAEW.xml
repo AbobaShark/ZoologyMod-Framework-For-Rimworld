@@ -276,6 +276,12 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[@Name = "VAEWaste_BaseInsect"]/race/lifeStageAges</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[@Name = "VAEWaste_BaseInsect"]/race/lifeStageAges</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[@Name = "VAEWaste_BaseInsect"]/race/specialTrainables</xpath>
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[@Name = "VAEWaste_BaseInsect"]/race/specialTrainables</xpath>
@@ -471,8 +477,8 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>3</power>
-          <cooldownTime>1.4</cooldownTime>
+          <power>3.5</power>
+          <cooldownTime>1.45</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
           <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
           <chanceFactor>0.2</chanceFactor>
@@ -483,7 +489,7 @@
             <li>ToxicBite</li>
           </capacities>
           <power>4.5</power>
-          <cooldownTime>0.4</cooldownTime>
+          <cooldownTime>0.45</cooldownTime>
           <linkedBodyPartsGroup>Mouth</linkedBodyPartsGroup>
           <surpriseAttack>
             <extraMeleeDamages>
@@ -898,13 +904,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "VAEWaste_Hydra"]/combatPower</xpath>
       <value>
-        <combatPower>75</combatPower>
+        <combatPower>70</combatPower>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "VAEWaste_Hydra"]</xpath>
       <value>
-        <combatPower>75</combatPower>
+        <combatPower>70</combatPower>
       </value>
     </nomatch>
   </Operation>
@@ -1194,18 +1200,9 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "VAEWaste_Megatardi"]/race/gestationPeriodDays</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "VAEWaste_Megatardi"]/race/gestationPeriodDays</xpath>
-      <value>
-        <gestationPeriodDays>11</gestationPeriodDays>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "VAEWaste_Megatardi"]/race</xpath>
-      <value>
-        <gestationPeriodDays>11</gestationPeriodDays>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "VAEWaste_Megatardi"]/race/herdAnimal</xpath>
@@ -1419,39 +1416,6 @@
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "VAEWaste_Megatardi"]/race/wildBiomes</xpath>
     </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "VAEWaste_Megatardi"]/race/litterSizeCurve</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "VAEWaste_Megatardi"]/race/litterSizeCurve</xpath>
-      <value>
-        <litterSizeCurve>
-          <points>
-            <li>(0.6000, 0)</li>
-            <li>(1.2000, 0.2)</li>
-            <li>(2.4000, 1)</li>
-            <li>(3.6000, 1)</li>
-            <li>(4.8000, 0.2)</li>
-            <li>(5.4000, 0)</li>
-          </points>
-        </litterSizeCurve>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "VAEWaste_Megatardi"]/race</xpath>
-      <value>
-        <litterSizeCurve>
-          <points>
-            <li>(0.6000, 0)</li>
-            <li>(1.2000, 0.2)</li>
-            <li>(2.4000, 1)</li>
-            <li>(3.6000, 1)</li>
-            <li>(4.8000, 0.2)</li>
-            <li>(5.4000, 0)</li>
-          </points>
-        </litterSizeCurve>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "VAEWaste_Megatardi"]/race/specialTrainables</xpath>
@@ -2235,13 +2199,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxafox"]/statBases/MoveSpeed</xpath>
       <value>
-        <MoveSpeed>5.5</MoveSpeed>
+        <MoveSpeed>6</MoveSpeed>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxafox"]/statBases</xpath>
       <value>
-        <MoveSpeed>5.5</MoveSpeed>
+        <MoveSpeed>6</MoveSpeed>
       </value>
     </nomatch>
   </Operation>
@@ -2349,7 +2313,7 @@
             <li>Blunt</li>
           </capacities>
           <power>3</power>
-          <cooldownTime>1.35</cooldownTime>
+          <cooldownTime>1.4</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
           <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
           <chanceFactor>0.2</chanceFactor>
@@ -2359,8 +2323,8 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>5</power>
-          <cooldownTime>1.1</cooldownTime>
+          <power>6</power>
+          <cooldownTime>1.15</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
           <surpriseAttack>
             <extraMeleeDamages>
@@ -2380,13 +2344,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxafox"]/race/baseBodySize</xpath>
       <value>
-        <baseBodySize>0.35</baseBodySize>
+        <baseBodySize>0.4</baseBodySize>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxafox"]/race</xpath>
       <value>
-        <baseBodySize>0.35</baseBodySize>
+        <baseBodySize>0.4</baseBodySize>
       </value>
     </nomatch>
   </Operation>
@@ -2395,13 +2359,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxafox"]/race/baseHealthScale</xpath>
       <value>
-        <baseHealthScale>0.4</baseHealthScale>
+        <baseHealthScale>0.5</baseHealthScale>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxafox"]/race</xpath>
       <value>
-        <baseHealthScale>0.4</baseHealthScale>
+        <baseHealthScale>0.5</baseHealthScale>
       </value>
     </nomatch>
   </Operation>
@@ -2410,13 +2374,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxafox"]/race/baseHungerRate</xpath>
       <value>
-        <baseHungerRate>0.3</baseHungerRate>
+        <baseHungerRate>0.35</baseHungerRate>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxafox"]/race</xpath>
       <value>
-        <baseHungerRate>0.3</baseHungerRate>
+        <baseHungerRate>0.35</baseHungerRate>
       </value>
     </nomatch>
   </Operation>
@@ -2843,13 +2807,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "VAEWaste_Toxafox"]/combatPower</xpath>
       <value>
-        <combatPower>50</combatPower>
+        <combatPower>55</combatPower>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "VAEWaste_Toxafox"]</xpath>
       <value>
-        <combatPower>50</combatPower>
+        <combatPower>55</combatPower>
       </value>
     </nomatch>
   </Operation>
@@ -2858,13 +2822,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "VAEWaste_Toxafox"]/ecoSystemWeight</xpath>
       <value>
-        <ecoSystemWeight>0.3</ecoSystemWeight>
+        <ecoSystemWeight>0.35</ecoSystemWeight>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "VAEWaste_Toxafox"]</xpath>
       <value>
-        <ecoSystemWeight>0.3</ecoSystemWeight>
+        <ecoSystemWeight>0.35</ecoSystemWeight>
       </value>
     </nomatch>
   </Operation>
@@ -3054,7 +3018,7 @@
           </capacities>
           <power>38</power>
           <cooldownTime>2.3</cooldownTime>
-          <linkedBodyPartsGroup>FrontRightPaw</linkedBodyPartsGroup>
+          <linkedBodyPartsGroup>FrontLeftPaw</linkedBodyPartsGroup>
           <surpriseAttack>
             <extraMeleeDamages>
               <li>
@@ -3399,9 +3363,18 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxbear"]/race/waterCellCost</xpath>
-    <match Class="PatchOperationRemove">
+    <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxbear"]/race/waterCellCost</xpath>
+      <value>
+        <waterCellCost>10</waterCellCost>
+      </value>
     </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxbear"]/race</xpath>
+      <value>
+        <waterCellCost>10</waterCellCost>
+      </value>
+    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxbear"]/race/waterSeeker</xpath>
@@ -3647,13 +3620,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxiguana"]/statBases/MarketValue</xpath>
       <value>
-        <MarketValue>175</MarketValue>
+        <MarketValue>225</MarketValue>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxiguana"]/statBases</xpath>
       <value>
-        <MarketValue>175</MarketValue>
+        <MarketValue>225</MarketValue>
       </value>
     </nomatch>
   </Operation>
@@ -3677,13 +3650,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxiguana"]/statBases/Wildness</xpath>
       <value>
-        <Wildness>0.55</Wildness>
+        <Wildness>0.65</Wildness>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxiguana"]/statBases</xpath>
       <value>
-        <Wildness>0.55</Wildness>
+        <Wildness>0.65</Wildness>
       </value>
     </nomatch>
   </Operation>
@@ -3775,8 +3748,8 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>2.5</power>
-          <cooldownTime>1.2</cooldownTime>
+          <power>4</power>
+          <cooldownTime>1.5</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
           <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
           <chanceFactor>0.2</chanceFactor>
@@ -3787,8 +3760,8 @@
           <capacities>
             <li>Scratch</li>
           </capacities>
-          <power>3</power>
-          <cooldownTime>0.85</cooldownTime>
+          <power>5</power>
+          <cooldownTime>1.05</cooldownTime>
           <linkedBodyPartsGroup>FrontLeftClaws</linkedBodyPartsGroup>
         </li>
         <li>
@@ -3797,8 +3770,8 @@
           <capacities>
             <li>Scratch</li>
           </capacities>
-          <power>3</power>
-          <cooldownTime>0.85</cooldownTime>
+          <power>5</power>
+          <cooldownTime>1.05</cooldownTime>
           <linkedBodyPartsGroup>FrontRightClaws</linkedBodyPartsGroup>
         </li>
         <li>
@@ -3806,8 +3779,8 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>3</power>
-          <cooldownTime>1.1</cooldownTime>
+          <power>5.5</power>
+          <cooldownTime>1.35</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
         </li>
       </tools>
@@ -3819,13 +3792,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxiguana"]/race/baseBodySize</xpath>
       <value>
-        <baseBodySize>0.25</baseBodySize>
+        <baseBodySize>0.45</baseBodySize>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxiguana"]/race</xpath>
       <value>
-        <baseBodySize>0.25</baseBodySize>
+        <baseBodySize>0.45</baseBodySize>
       </value>
     </nomatch>
   </Operation>
@@ -3834,13 +3807,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxiguana"]/race/baseHealthScale</xpath>
       <value>
-        <baseHealthScale>0.3</baseHealthScale>
+        <baseHealthScale>0.55</baseHealthScale>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxiguana"]/race</xpath>
       <value>
-        <baseHealthScale>0.3</baseHealthScale>
+        <baseHealthScale>0.55</baseHealthScale>
       </value>
     </nomatch>
   </Operation>
@@ -3849,13 +3822,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxiguana"]/race/baseHungerRate</xpath>
       <value>
-        <baseHungerRate>0.05</baseHungerRate>
+        <baseHungerRate>0.1</baseHungerRate>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxiguana"]/race</xpath>
       <value>
-        <baseHungerRate>0.05</baseHungerRate>
+        <baseHungerRate>0.1</baseHungerRate>
       </value>
     </nomatch>
   </Operation>
@@ -4199,13 +4172,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "VAEWaste_Toxiguana"]/combatPower</xpath>
       <value>
-        <combatPower>35</combatPower>
+        <combatPower>50</combatPower>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "VAEWaste_Toxiguana"]</xpath>
       <value>
-        <combatPower>35</combatPower>
+        <combatPower>50</combatPower>
       </value>
     </nomatch>
   </Operation>
@@ -4214,13 +4187,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "VAEWaste_Toxiguana"]/ecoSystemWeight</xpath>
       <value>
-        <ecoSystemWeight>0.1</ecoSystemWeight>
+        <ecoSystemWeight>0.15</ecoSystemWeight>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "VAEWaste_Toxiguana"]</xpath>
       <value>
-        <ecoSystemWeight>0.1</ecoSystemWeight>
+        <ecoSystemWeight>0.15</ecoSystemWeight>
       </value>
     </nomatch>
   </Operation>
@@ -4410,7 +4383,7 @@
           </capacities>
           <power>15.5</power>
           <cooldownTime>1.5</cooldownTime>
-          <linkedBodyPartsGroup>FrontRightPaw</linkedBodyPartsGroup>
+          <linkedBodyPartsGroup>FrontLeftPaw</linkedBodyPartsGroup>
           <surpriseAttack>
             <extraMeleeDamages>
               <li>
@@ -5307,13 +5280,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxscorpion"]/race/foodType</xpath>
       <value>
-        <foodType>OmnivoreAnimal, OvivoreAnimal</foodType>
+        <foodType>CarnivoreAnimal, OvivoreAnimal</foodType>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxscorpion"]/race</xpath>
       <value>
-        <foodType>OmnivoreAnimal, OvivoreAnimal</foodType>
+        <foodType>CarnivoreAnimal, OvivoreAnimal</foodType>
       </value>
     </nomatch>
   </Operation>
@@ -5511,6 +5484,26 @@
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxscorpion"]/race/wildBiomes</xpath>
     </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxscorpion"]/race/lifeStageAges/li[def = 'AnimalJuvenile']</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxscorpion"]/race/lifeStageAges/li[def = 'AnimalJuvenile']/minAge</xpath>
+      <value>
+        <minAge>0.2</minAge>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxscorpion"]/race/lifeStageAges/li[def = 'AnimalAdult']</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxscorpion"]/race/lifeStageAges/li[def = 'AnimalAdult']/minAge</xpath>
+      <value>
+        <minAge>0.4</minAge>
+      </value>
+    </match>
+    <nomatch/>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxscorpion"]/race/specialTrainables/li[text()="SludgeSpew" or text()="EggSpew" or text()="TerrorRoar" or text()="WarTrumpet" or text()="Forage" or text()="Comfort" or text()="AttackTarget" or text()="Dig"]</xpath>
@@ -7653,21 +7646,48 @@
         <!-- VAEWaste_BaseInsect CE parent properties -->
         <li Class="PatchOperationConditional">
           <xpath>Defs/ThingDef[@Name="VAEWaste_BaseInsect"]/statBases/MeleeDodgeChance</xpath>
-          <match Class="PatchOperationRemove">
+          <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[@Name="VAEWaste_BaseInsect"]/statBases/MeleeDodgeChance</xpath>
+            <value>
+              <MeleeDodgeChance>0.1</MeleeDodgeChance>
+            </value>
           </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[@Name="VAEWaste_BaseInsect"]/statBases</xpath>
+            <value>
+              <MeleeDodgeChance>0.1</MeleeDodgeChance>
+            </value>
+          </nomatch>
         </li>
         <li Class="PatchOperationConditional">
           <xpath>Defs/ThingDef[@Name="VAEWaste_BaseInsect"]/statBases/MeleeCritChance</xpath>
-          <match Class="PatchOperationRemove">
+          <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[@Name="VAEWaste_BaseInsect"]/statBases/MeleeCritChance</xpath>
+            <value>
+              <MeleeCritChance>0.25</MeleeCritChance>
+            </value>
           </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[@Name="VAEWaste_BaseInsect"]/statBases</xpath>
+            <value>
+              <MeleeCritChance>0.25</MeleeCritChance>
+            </value>
+          </nomatch>
         </li>
         <li Class="PatchOperationConditional">
           <xpath>Defs/ThingDef[@Name="VAEWaste_BaseInsect"]/statBases/MeleeParryChance</xpath>
-          <match Class="PatchOperationRemove">
+          <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[@Name="VAEWaste_BaseInsect"]/statBases/MeleeParryChance</xpath>
+            <value>
+              <MeleeParryChance>0.05</MeleeParryChance>
+            </value>
           </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[@Name="VAEWaste_BaseInsect"]/statBases</xpath>
+            <value>
+              <MeleeParryChance>0.05</MeleeParryChance>
+            </value>
+          </nomatch>
         </li>
         <li Class="PatchOperationConditional">
           <xpath>Defs/ThingDef[@Name="VAEWaste_BaseInsect"]/statBases/ArmorRating_Sharp</xpath>
@@ -7738,13 +7758,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="VAEWaste_Hydra"]/statBases/MeleeCritChance</xpath>
             <value>
-              <MeleeCritChance>0.14</MeleeCritChance>
+              <MeleeCritChance>0.15</MeleeCritChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="VAEWaste_Hydra"]/statBases</xpath>
             <value>
-              <MeleeCritChance>0.14</MeleeCritChance>
+              <MeleeCritChance>0.15</MeleeCritChance>
             </value>
           </nomatch>
         </li>
@@ -7753,13 +7773,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="VAEWaste_Hydra"]/statBases/MeleeParryChance</xpath>
             <value>
-              <MeleeParryChance>0.04</MeleeParryChance>
+              <MeleeParryChance>0.05</MeleeParryChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="VAEWaste_Hydra"]/statBases</xpath>
             <value>
-              <MeleeParryChance>0.04</MeleeParryChance>
+              <MeleeParryChance>0.05</MeleeParryChance>
             </value>
           </nomatch>
         </li>
@@ -7768,13 +7788,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="VAEWaste_Hydra"]/statBases/ArmorRating_Sharp</xpath>
             <value>
-              <ArmorRating_Sharp>0.03</ArmorRating_Sharp>
+              <ArmorRating_Sharp>0.04</ArmorRating_Sharp>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="VAEWaste_Hydra"]/statBases</xpath>
             <value>
-              <ArmorRating_Sharp>0.03</ArmorRating_Sharp>
+              <ArmorRating_Sharp>0.04</ArmorRating_Sharp>
             </value>
           </nomatch>
         </li>
@@ -7783,13 +7803,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="VAEWaste_Hydra"]/statBases/ArmorRating_Blunt</xpath>
             <value>
-              <ArmorRating_Blunt>0.14</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0.05</ArmorRating_Blunt>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="VAEWaste_Hydra"]/statBases</xpath>
             <value>
-              <ArmorRating_Blunt>0.14</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0.05</ArmorRating_Blunt>
             </value>
           </nomatch>
         </li>
@@ -7869,8 +7889,8 @@
                   <li>Blunt</li>
                 </capacities>
                 <power>0.4</power>
-                <armorPenetrationBlunt>0.26</armorPenetrationBlunt>
-                <cooldownTime>1.55</cooldownTime>
+                <armorPenetrationBlunt>0.35</armorPenetrationBlunt>
+                <cooldownTime>1.6</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                 <chanceFactor>0.2</chanceFactor>
@@ -7880,9 +7900,9 @@
                 <capacities>
                   <li>ToxicBite</li>
                 </capacities>
-                <power>3.1</power>
-                <armorPenetrationBlunt>0.24</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.03</armorPenetrationSharp>
+                <power>3.4</power>
+                <armorPenetrationBlunt>0.35</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.05</armorPenetrationSharp>
                 <cooldownTime>1</cooldownTime>
                 <linkedBodyPartsGroup>Mouth</linkedBodyPartsGroup>
                 <surpriseAttack>
@@ -7905,68 +7925,41 @@
         </li>
         <!-- VAEWaste_Megatardi CE patches -->
         <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="VAEWaste_Megatardi"]/statBases/MeleeCritChance</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>Defs/ThingDef[defName="VAEWaste_Megatardi"]/statBases/MeleeCritChance</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="VAEWaste_Megatardi"]/statBases/MeleeDodgeChance</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>Defs/ThingDef[defName="VAEWaste_Megatardi"]/statBases/MeleeDodgeChance</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="VAEWaste_Megatardi"]/statBases/MeleeParryChance</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>Defs/ThingDef[defName="VAEWaste_Megatardi"]/statBases/MeleeParryChance</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>Defs/ThingDef[defName="VAEWaste_Megatardi"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
           <match Class="PatchOperationRemove">
             <xpath>Defs/ThingDef[defName="VAEWaste_Megatardi"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
           </match>
         </li>
         <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="VAEWaste_Megatardi"]/statBases/MeleeDodgeChance</xpath>
-          <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="VAEWaste_Megatardi"]/statBases/MeleeDodgeChance</xpath>
-            <value>
-              <MeleeDodgeChance>0.1</MeleeDodgeChance>
-            </value>
-          </match>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="VAEWaste_Megatardi"]/statBases</xpath>
-            <value>
-              <MeleeDodgeChance>0.1</MeleeDodgeChance>
-            </value>
-          </nomatch>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="VAEWaste_Megatardi"]/statBases/MeleeCritChance</xpath>
-          <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="VAEWaste_Megatardi"]/statBases/MeleeCritChance</xpath>
-            <value>
-              <MeleeCritChance>0.25</MeleeCritChance>
-            </value>
-          </match>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="VAEWaste_Megatardi"]/statBases</xpath>
-            <value>
-              <MeleeCritChance>0.25</MeleeCritChance>
-            </value>
-          </nomatch>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="VAEWaste_Megatardi"]/statBases/MeleeParryChance</xpath>
-          <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="VAEWaste_Megatardi"]/statBases/MeleeParryChance</xpath>
-            <value>
-              <MeleeParryChance>0.06</MeleeParryChance>
-            </value>
-          </match>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="VAEWaste_Megatardi"]/statBases</xpath>
-            <value>
-              <MeleeParryChance>0.06</MeleeParryChance>
-            </value>
-          </nomatch>
-        </li>
-        <li Class="PatchOperationConditional">
           <xpath>Defs/ThingDef[defName="VAEWaste_Megatardi"]/statBases/ArmorRating_Sharp</xpath>
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="VAEWaste_Megatardi"]/statBases/ArmorRating_Sharp</xpath>
             <value>
-              <ArmorRating_Sharp>1.58</ArmorRating_Sharp>
+              <ArmorRating_Sharp>1.6</ArmorRating_Sharp>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="VAEWaste_Megatardi"]/statBases</xpath>
             <value>
-              <ArmorRating_Sharp>1.58</ArmorRating_Sharp>
+              <ArmorRating_Sharp>1.6</ArmorRating_Sharp>
             </value>
           </nomatch>
         </li>
@@ -7975,13 +7968,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="VAEWaste_Megatardi"]/statBases/ArmorRating_Blunt</xpath>
             <value>
-              <ArmorRating_Blunt>0.11</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0.1</ArmorRating_Blunt>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="VAEWaste_Megatardi"]/statBases</xpath>
             <value>
-              <ArmorRating_Blunt>0.11</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0.1</ArmorRating_Blunt>
             </value>
           </nomatch>
         </li>
@@ -8031,7 +8024,7 @@
                   <li>Blunt</li>
                 </capacities>
                 <power>3.3</power>
-                <armorPenetrationBlunt>2.97</armorPenetrationBlunt>
+                <armorPenetrationBlunt>3</armorPenetrationBlunt>
                 <cooldownTime>2.4</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
@@ -8043,8 +8036,8 @@
                   <li>Bite</li>
                 </capacities>
                 <power>21</power>
-                <armorPenetrationBlunt>20.9</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.75</armorPenetrationSharp>
+                <armorPenetrationBlunt>20.95</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.76</armorPenetrationSharp>
                 <cooldownTime>2.1</cooldownTime>
                 <linkedBodyPartsGroup>Mouth</linkedBodyPartsGroup>
               </li>
@@ -8063,13 +8056,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="VAEWaste_Pestigator"]/statBases/MeleeDodgeChance</xpath>
             <value>
-              <MeleeDodgeChance>0.08</MeleeDodgeChance>
+              <MeleeDodgeChance>0.1</MeleeDodgeChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="VAEWaste_Pestigator"]/statBases</xpath>
             <value>
-              <MeleeDodgeChance>0.08</MeleeDodgeChance>
+              <MeleeDodgeChance>0.1</MeleeDodgeChance>
             </value>
           </nomatch>
         </li>
@@ -8078,13 +8071,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="VAEWaste_Pestigator"]/statBases/MeleeCritChance</xpath>
             <value>
-              <MeleeCritChance>0.31</MeleeCritChance>
+              <MeleeCritChance>0.3</MeleeCritChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="VAEWaste_Pestigator"]/statBases</xpath>
             <value>
-              <MeleeCritChance>0.31</MeleeCritChance>
+              <MeleeCritChance>0.3</MeleeCritChance>
             </value>
           </nomatch>
         </li>
@@ -8093,13 +8086,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="VAEWaste_Pestigator"]/statBases/MeleeParryChance</xpath>
             <value>
-              <MeleeParryChance>0.08</MeleeParryChance>
+              <MeleeParryChance>0.1</MeleeParryChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="VAEWaste_Pestigator"]/statBases</xpath>
             <value>
-              <MeleeParryChance>0.08</MeleeParryChance>
+              <MeleeParryChance>0.1</MeleeParryChance>
             </value>
           </nomatch>
         </li>
@@ -8123,13 +8116,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="VAEWaste_Pestigator"]/statBases/ArmorRating_Blunt</xpath>
             <value>
-              <ArmorRating_Blunt>0.68</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0.7</ArmorRating_Blunt>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="VAEWaste_Pestigator"]/statBases</xpath>
             <value>
-              <ArmorRating_Blunt>0.68</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0.7</ArmorRating_Blunt>
             </value>
           </nomatch>
         </li>
@@ -8209,7 +8202,7 @@
                   <li>Blunt</li>
                 </capacities>
                 <power>21.3</power>
-                <armorPenetrationBlunt>20.96</armorPenetrationBlunt>
+                <armorPenetrationBlunt>20.95</armorPenetrationBlunt>
                 <cooldownTime>2.65</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
@@ -8221,8 +8214,8 @@
                   <li>Bite</li>
                 </capacities>
                 <power>49.7</power>
-                <armorPenetrationBlunt>51.5</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.38</armorPenetrationSharp>
+                <armorPenetrationBlunt>51.55</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.39</armorPenetrationSharp>
                 <cooldownTime>2.8</cooldownTime>
                 <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
                 <surpriseAttack>
@@ -8249,13 +8242,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="VAEWaste_Toxafox"]/statBases/MeleeDodgeChance</xpath>
             <value>
-              <MeleeDodgeChance>0.74</MeleeDodgeChance>
+              <MeleeDodgeChance>0.7</MeleeDodgeChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="VAEWaste_Toxafox"]/statBases</xpath>
             <value>
-              <MeleeDodgeChance>0.74</MeleeDodgeChance>
+              <MeleeDodgeChance>0.7</MeleeDodgeChance>
             </value>
           </nomatch>
         </li>
@@ -8264,13 +8257,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="VAEWaste_Toxafox"]/statBases/MeleeCritChance</xpath>
             <value>
-              <MeleeCritChance>0.27</MeleeCritChance>
+              <MeleeCritChance>0.3</MeleeCritChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="VAEWaste_Toxafox"]/statBases</xpath>
             <value>
-              <MeleeCritChance>0.27</MeleeCritChance>
+              <MeleeCritChance>0.3</MeleeCritChance>
             </value>
           </nomatch>
         </li>
@@ -8279,13 +8272,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="VAEWaste_Toxafox"]/statBases/MeleeParryChance</xpath>
             <value>
-              <MeleeParryChance>0.03</MeleeParryChance>
+              <MeleeParryChance>0.05</MeleeParryChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="VAEWaste_Toxafox"]/statBases</xpath>
             <value>
-              <MeleeParryChance>0.03</MeleeParryChance>
+              <MeleeParryChance>0.05</MeleeParryChance>
             </value>
           </nomatch>
         </li>
@@ -8309,13 +8302,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="VAEWaste_Toxafox"]/statBases/ArmorRating_Blunt</xpath>
             <value>
-              <ArmorRating_Blunt>0.31</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0.2</ArmorRating_Blunt>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="VAEWaste_Toxafox"]/statBases</xpath>
             <value>
-              <ArmorRating_Blunt>0.31</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0.2</ArmorRating_Blunt>
             </value>
           </nomatch>
         </li>
@@ -8333,14 +8326,14 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="VAEWaste_Toxafox"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]/Durability</xpath>
             <value>
-              <Durability>187.5</Durability>
+              <Durability>225</Durability>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="VAEWaste_Toxafox"]/comps</xpath>
             <value>
               <li Class="CombatExtended.CompProperties_ArmorDurability">
-                <Durability>187.5</Durability>
+                <Durability>225</Durability>
                 <Regenerates>true</Regenerates>
                 <RegenInterval>600</RegenInterval>
                 <RegenValue>5</RegenValue>
@@ -8394,9 +8387,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>0.3</power>
-                <armorPenetrationBlunt>0.2</armorPenetrationBlunt>
-                <cooldownTime>1.45</cooldownTime>
+                <power>0.4</power>
+                <armorPenetrationBlunt>0.25</armorPenetrationBlunt>
+                <cooldownTime>1.55</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                 <chanceFactor>0.2</chanceFactor>
@@ -8406,10 +8399,10 @@
                 <capacities>
                   <li>Bite</li>
                 </capacities>
-                <power>5.4</power>
-                <armorPenetrationBlunt>0.76</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.12</armorPenetrationSharp>
-                <cooldownTime>2</cooldownTime>
+                <power>6.3</power>
+                <armorPenetrationBlunt>1.05</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.15</armorPenetrationSharp>
+                <cooldownTime>2.1</cooldownTime>
                 <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
                 <surpriseAttack>
                   <extraMeleeDamages>
@@ -8450,13 +8443,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="VAEWaste_Toxbear"]/statBases/MeleeCritChance</xpath>
             <value>
-              <MeleeCritChance>0.53</MeleeCritChance>
+              <MeleeCritChance>0.55</MeleeCritChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="VAEWaste_Toxbear"]/statBases</xpath>
             <value>
-              <MeleeCritChance>0.53</MeleeCritChance>
+              <MeleeCritChance>0.55</MeleeCritChance>
             </value>
           </nomatch>
         </li>
@@ -8465,13 +8458,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="VAEWaste_Toxbear"]/statBases/MeleeParryChance</xpath>
             <value>
-              <MeleeParryChance>0.09</MeleeParryChance>
+              <MeleeParryChance>0.1</MeleeParryChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="VAEWaste_Toxbear"]/statBases</xpath>
             <value>
-              <MeleeParryChance>0.09</MeleeParryChance>
+              <MeleeParryChance>0.1</MeleeParryChance>
             </value>
           </nomatch>
         </li>
@@ -8480,13 +8473,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="VAEWaste_Toxbear"]/statBases/ArmorRating_Sharp</xpath>
             <value>
-              <ArmorRating_Sharp>0.32</ArmorRating_Sharp>
+              <ArmorRating_Sharp>0.3</ArmorRating_Sharp>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="VAEWaste_Toxbear"]/statBases</xpath>
             <value>
-              <ArmorRating_Sharp>0.32</ArmorRating_Sharp>
+              <ArmorRating_Sharp>0.3</ArmorRating_Sharp>
             </value>
           </nomatch>
         </li>
@@ -8495,13 +8488,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="VAEWaste_Toxbear"]/statBases/ArmorRating_Blunt</xpath>
             <value>
-              <ArmorRating_Blunt>2.39</ArmorRating_Blunt>
+              <ArmorRating_Blunt>1.25</ArmorRating_Blunt>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="VAEWaste_Toxbear"]/statBases</xpath>
             <value>
-              <ArmorRating_Blunt>2.39</ArmorRating_Blunt>
+              <ArmorRating_Blunt>1.25</ArmorRating_Blunt>
             </value>
           </nomatch>
         </li>
@@ -8581,7 +8574,7 @@
                   <li>Blunt</li>
                 </capacities>
                 <power>38.3</power>
-                <armorPenetrationBlunt>39.36</armorPenetrationBlunt>
+                <armorPenetrationBlunt>39.35</armorPenetrationBlunt>
                 <cooldownTime>3</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
@@ -8594,10 +8587,10 @@
                   <li>Scratch</li>
                 </capacities>
                 <power>49.5</power>
-                <armorPenetrationBlunt>41.9</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.64</armorPenetrationSharp>
+                <armorPenetrationBlunt>41.95</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.65</armorPenetrationSharp>
                 <cooldownTime>1.95</cooldownTime>
-                <linkedBodyPartsGroup>FrontRightPaw</linkedBodyPartsGroup>
+                <linkedBodyPartsGroup>FrontLeftPaw</linkedBodyPartsGroup>
                 <surpriseAttack>
                   <extraMeleeDamages>
                     <li>
@@ -8614,8 +8607,8 @@
                   <li>Scratch</li>
                 </capacities>
                 <power>49.5</power>
-                <armorPenetrationBlunt>41.9</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.64</armorPenetrationSharp>
+                <armorPenetrationBlunt>41.95</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.65</armorPenetrationSharp>
                 <cooldownTime>1.95</cooldownTime>
                 <linkedBodyPartsGroup>FrontRightPaw</linkedBodyPartsGroup>
                 <surpriseAttack>
@@ -8633,8 +8626,8 @@
                   <li>Bite</li>
                 </capacities>
                 <power>45.3</power>
-                <armorPenetrationBlunt>34.26</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.52</armorPenetrationSharp>
+                <armorPenetrationBlunt>34.3</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.53</armorPenetrationSharp>
                 <cooldownTime>2.55</cooldownTime>
                 <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
                 <surpriseAttack>
@@ -8661,13 +8654,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="VAEWaste_Toxiguana"]/statBases/MeleeDodgeChance</xpath>
             <value>
-              <MeleeDodgeChance>0.42</MeleeDodgeChance>
+              <MeleeDodgeChance>0.35</MeleeDodgeChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="VAEWaste_Toxiguana"]/statBases</xpath>
             <value>
-              <MeleeDodgeChance>0.42</MeleeDodgeChance>
+              <MeleeDodgeChance>0.35</MeleeDodgeChance>
             </value>
           </nomatch>
         </li>
@@ -8706,13 +8699,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="VAEWaste_Toxiguana"]/statBases/ArmorRating_Sharp</xpath>
             <value>
-              <ArmorRating_Sharp>0.03</ArmorRating_Sharp>
+              <ArmorRating_Sharp>0.04</ArmorRating_Sharp>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="VAEWaste_Toxiguana"]/statBases</xpath>
             <value>
-              <ArmorRating_Sharp>0.03</ArmorRating_Sharp>
+              <ArmorRating_Sharp>0.04</ArmorRating_Sharp>
             </value>
           </nomatch>
         </li>
@@ -8721,13 +8714,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="VAEWaste_Toxiguana"]/statBases/ArmorRating_Blunt</xpath>
             <value>
-              <ArmorRating_Blunt>0.11</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0.15</ArmorRating_Blunt>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="VAEWaste_Toxiguana"]/statBases</xpath>
             <value>
-              <ArmorRating_Blunt>0.11</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0.15</ArmorRating_Blunt>
             </value>
           </nomatch>
         </li>
@@ -8745,14 +8738,14 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="VAEWaste_Toxiguana"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]/Durability</xpath>
             <value>
-              <Durability>137.5</Durability>
+              <Durability>250</Durability>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="VAEWaste_Toxiguana"]/comps</xpath>
             <value>
               <li Class="CombatExtended.CompProperties_ArmorDurability">
-                <Durability>137.5</Durability>
+                <Durability>250</Durability>
                 <Regenerates>true</Regenerates>
                 <RegenInterval>600</RegenInterval>
                 <RegenValue>5</RegenValue>
@@ -8806,9 +8799,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>0.2</power>
-                <armorPenetrationBlunt>0.11</armorPenetrationBlunt>
-                <cooldownTime>1.3</cooldownTime>
+                <power>0.5</power>
+                <armorPenetrationBlunt>0.4</armorPenetrationBlunt>
+                <cooldownTime>1.4</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                 <chanceFactor>0.2</chanceFactor>
@@ -8819,10 +8812,10 @@
                 <capacities>
                   <li>Scratch</li>
                 </capacities>
-                <power>2.8</power>
-                <armorPenetrationBlunt>0.16</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.04</armorPenetrationSharp>
-                <cooldownTime>1.15</cooldownTime>
+                <power>4.6</power>
+                <armorPenetrationBlunt>0.6</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.08</armorPenetrationSharp>
+                <cooldownTime>1.25</cooldownTime>
                 <linkedBodyPartsGroup>FrontLeftClaws</linkedBodyPartsGroup>
               </li>
               <li Class="CombatExtended.ToolCE">
@@ -8831,10 +8824,10 @@
                 <capacities>
                   <li>Scratch</li>
                 </capacities>
-                <power>2.8</power>
-                <armorPenetrationBlunt>0.16</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.04</armorPenetrationSharp>
-                <cooldownTime>1.15</cooldownTime>
+                <power>4.6</power>
+                <armorPenetrationBlunt>0.6</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.08</armorPenetrationSharp>
+                <cooldownTime>1.25</cooldownTime>
                 <linkedBodyPartsGroup>FrontRightClaws</linkedBodyPartsGroup>
               </li>
               <li Class="CombatExtended.ToolCE">
@@ -8842,10 +8835,10 @@
                 <capacities>
                   <li>Bite</li>
                 </capacities>
-                <power>4.9</power>
-                <armorPenetrationBlunt>0.77</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.17</armorPenetrationSharp>
-                <cooldownTime>2.2</cooldownTime>
+                <power>8.2</power>
+                <armorPenetrationBlunt>2.5</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.31</armorPenetrationSharp>
+                <cooldownTime>2.4</cooldownTime>
                 <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
               </li>
             </tools>
@@ -8863,13 +8856,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="VAEWaste_Toxlion"]/statBases/MeleeDodgeChance</xpath>
             <value>
-              <MeleeDodgeChance>0.54</MeleeDodgeChance>
+              <MeleeDodgeChance>0.55</MeleeDodgeChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="VAEWaste_Toxlion"]/statBases</xpath>
             <value>
-              <MeleeDodgeChance>0.54</MeleeDodgeChance>
+              <MeleeDodgeChance>0.55</MeleeDodgeChance>
             </value>
           </nomatch>
         </li>
@@ -8878,13 +8871,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="VAEWaste_Toxlion"]/statBases/MeleeCritChance</xpath>
             <value>
-              <MeleeCritChance>0.58</MeleeCritChance>
+              <MeleeCritChance>0.6</MeleeCritChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="VAEWaste_Toxlion"]/statBases</xpath>
             <value>
-              <MeleeCritChance>0.58</MeleeCritChance>
+              <MeleeCritChance>0.6</MeleeCritChance>
             </value>
           </nomatch>
         </li>
@@ -8893,13 +8886,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="VAEWaste_Toxlion"]/statBases/MeleeParryChance</xpath>
             <value>
-              <MeleeParryChance>0.06</MeleeParryChance>
+              <MeleeParryChance>0.05</MeleeParryChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="VAEWaste_Toxlion"]/statBases</xpath>
             <value>
-              <MeleeParryChance>0.06</MeleeParryChance>
+              <MeleeParryChance>0.05</MeleeParryChance>
             </value>
           </nomatch>
         </li>
@@ -8908,13 +8901,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="VAEWaste_Toxlion"]/statBases/ArmorRating_Sharp</xpath>
             <value>
-              <ArmorRating_Sharp>0.13</ArmorRating_Sharp>
+              <ArmorRating_Sharp>0.12</ArmorRating_Sharp>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="VAEWaste_Toxlion"]/statBases</xpath>
             <value>
-              <ArmorRating_Sharp>0.13</ArmorRating_Sharp>
+              <ArmorRating_Sharp>0.12</ArmorRating_Sharp>
             </value>
           </nomatch>
         </li>
@@ -8923,13 +8916,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="VAEWaste_Toxlion"]/statBases/ArmorRating_Blunt</xpath>
             <value>
-              <ArmorRating_Blunt>0.99</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0.55</ArmorRating_Blunt>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="VAEWaste_Toxlion"]/statBases</xpath>
             <value>
-              <ArmorRating_Blunt>0.99</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0.55</ArmorRating_Blunt>
             </value>
           </nomatch>
         </li>
@@ -9009,7 +9002,7 @@
                   <li>Blunt</li>
                 </capacities>
                 <power>4.5</power>
-                <armorPenetrationBlunt>3.96</armorPenetrationBlunt>
+                <armorPenetrationBlunt>3.95</armorPenetrationBlunt>
                 <cooldownTime>2.1</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
@@ -9022,10 +9015,10 @@
                   <li>VAEWaste_FluClaws</li>
                 </capacities>
                 <power>17.7</power>
-                <armorPenetrationBlunt>4.86</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.21</armorPenetrationSharp>
+                <armorPenetrationBlunt>4.9</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.22</armorPenetrationSharp>
                 <cooldownTime>1.45</cooldownTime>
-                <linkedBodyPartsGroup>FrontRightPaw</linkedBodyPartsGroup>
+                <linkedBodyPartsGroup>FrontLeftPaw</linkedBodyPartsGroup>
                 <surpriseAttack>
                   <extraMeleeDamages>
                     <li>
@@ -9042,8 +9035,8 @@
                   <li>VAEWaste_FluClaws</li>
                 </capacities>
                 <power>17.7</power>
-                <armorPenetrationBlunt>4.86</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.21</armorPenetrationSharp>
+                <armorPenetrationBlunt>4.9</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.22</armorPenetrationSharp>
                 <cooldownTime>1.45</cooldownTime>
                 <linkedBodyPartsGroup>FrontRightPaw</linkedBodyPartsGroup>
                 <surpriseAttack>
@@ -9061,8 +9054,8 @@
                   <li>VAEWaste_FluBite</li>
                 </capacities>
                 <power>21.5</power>
-                <armorPenetrationBlunt>9.19</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.39</armorPenetrationSharp>
+                <armorPenetrationBlunt>9.25</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.4</armorPenetrationSharp>
                 <cooldownTime>2.05</cooldownTime>
                 <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
                 <surpriseAttack>
@@ -9085,68 +9078,41 @@
         </li>
         <!-- VAEWaste_Toxscorpion CE patches -->
         <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="VAEWaste_Toxscorpion"]/statBases/MeleeCritChance</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>Defs/ThingDef[defName="VAEWaste_Toxscorpion"]/statBases/MeleeCritChance</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="VAEWaste_Toxscorpion"]/statBases/MeleeDodgeChance</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>Defs/ThingDef[defName="VAEWaste_Toxscorpion"]/statBases/MeleeDodgeChance</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="VAEWaste_Toxscorpion"]/statBases/MeleeParryChance</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>Defs/ThingDef[defName="VAEWaste_Toxscorpion"]/statBases/MeleeParryChance</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>Defs/ThingDef[defName="VAEWaste_Toxscorpion"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
           <match Class="PatchOperationRemove">
             <xpath>Defs/ThingDef[defName="VAEWaste_Toxscorpion"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
           </match>
         </li>
         <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="VAEWaste_Toxscorpion"]/statBases/MeleeDodgeChance</xpath>
-          <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="VAEWaste_Toxscorpion"]/statBases/MeleeDodgeChance</xpath>
-            <value>
-              <MeleeDodgeChance>0.09</MeleeDodgeChance>
-            </value>
-          </match>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="VAEWaste_Toxscorpion"]/statBases</xpath>
-            <value>
-              <MeleeDodgeChance>0.09</MeleeDodgeChance>
-            </value>
-          </nomatch>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="VAEWaste_Toxscorpion"]/statBases/MeleeCritChance</xpath>
-          <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="VAEWaste_Toxscorpion"]/statBases/MeleeCritChance</xpath>
-            <value>
-              <MeleeCritChance>0.27</MeleeCritChance>
-            </value>
-          </match>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="VAEWaste_Toxscorpion"]/statBases</xpath>
-            <value>
-              <MeleeCritChance>0.27</MeleeCritChance>
-            </value>
-          </nomatch>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="VAEWaste_Toxscorpion"]/statBases/MeleeParryChance</xpath>
-          <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="VAEWaste_Toxscorpion"]/statBases/MeleeParryChance</xpath>
-            <value>
-              <MeleeParryChance>0.07</MeleeParryChance>
-            </value>
-          </match>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="VAEWaste_Toxscorpion"]/statBases</xpath>
-            <value>
-              <MeleeParryChance>0.07</MeleeParryChance>
-            </value>
-          </nomatch>
-        </li>
-        <li Class="PatchOperationConditional">
           <xpath>Defs/ThingDef[defName="VAEWaste_Toxscorpion"]/statBases/ArmorRating_Sharp</xpath>
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="VAEWaste_Toxscorpion"]/statBases/ArmorRating_Sharp</xpath>
             <value>
-              <ArmorRating_Sharp>1.86</ArmorRating_Sharp>
+              <ArmorRating_Sharp>1.85</ArmorRating_Sharp>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="VAEWaste_Toxscorpion"]/statBases</xpath>
             <value>
-              <ArmorRating_Sharp>1.86</ArmorRating_Sharp>
+              <ArmorRating_Sharp>1.85</ArmorRating_Sharp>
             </value>
           </nomatch>
         </li>
@@ -9155,13 +9121,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="VAEWaste_Toxscorpion"]/statBases/ArmorRating_Blunt</xpath>
             <value>
-              <ArmorRating_Blunt>0.19</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0.2</ArmorRating_Blunt>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="VAEWaste_Toxscorpion"]/statBases</xpath>
             <value>
-              <ArmorRating_Blunt>0.19</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0.2</ArmorRating_Blunt>
             </value>
           </nomatch>
         </li>
@@ -9211,7 +9177,7 @@
                   <li>Blunt</li>
                 </capacities>
                 <power>4.9</power>
-                <armorPenetrationBlunt>4.56</armorPenetrationBlunt>
+                <armorPenetrationBlunt>4.55</armorPenetrationBlunt>
                 <cooldownTime>3.4</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
@@ -9224,8 +9190,8 @@
                   <li>Scratch</li>
                 </capacities>
                 <power>40.8</power>
-                <armorPenetrationBlunt>24.36</armorPenetrationBlunt>
-                <armorPenetrationSharp>7.19</armorPenetrationSharp>
+                <armorPenetrationBlunt>24.4</armorPenetrationBlunt>
+                <armorPenetrationSharp>7.2</armorPenetrationSharp>
                 <cooldownTime>3.6</cooldownTime>
                 <linkedBodyPartsGroup>LeftPincer</linkedBodyPartsGroup>
                 <surpriseAttack>
@@ -9244,8 +9210,8 @@
                   <li>Scratch</li>
                 </capacities>
                 <power>40.8</power>
-                <armorPenetrationBlunt>24.36</armorPenetrationBlunt>
-                <armorPenetrationSharp>7.19</armorPenetrationSharp>
+                <armorPenetrationBlunt>24.4</armorPenetrationBlunt>
+                <armorPenetrationSharp>7.2</armorPenetrationSharp>
                 <cooldownTime>3.6</cooldownTime>
                 <linkedBodyPartsGroup>RightPincer</linkedBodyPartsGroup>
                 <surpriseAttack>
@@ -9263,8 +9229,8 @@
                   <li>VAEWaste_Sting</li>
                 </capacities>
                 <power>41.2</power>
-                <armorPenetrationBlunt>29.23</armorPenetrationBlunt>
-                <armorPenetrationSharp>1.59</armorPenetrationSharp>
+                <armorPenetrationBlunt>29.3</armorPenetrationBlunt>
+                <armorPenetrationSharp>1.6</armorPenetrationSharp>
                 <cooldownTime>5.1</cooldownTime>
                 <linkedBodyPartsGroup>Sting</linkedBodyPartsGroup>
                 <surpriseAttack>
@@ -9282,8 +9248,8 @@
                   <li>Bite</li>
                 </capacities>
                 <power>38.1</power>
-                <armorPenetrationBlunt>30.45</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.9</armorPenetrationSharp>
+                <armorPenetrationBlunt>30.5</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.91</armorPenetrationSharp>
                 <cooldownTime>3</cooldownTime>
                 <linkedBodyPartsGroup>Mouth</linkedBodyPartsGroup>
                 <surpriseAttack>
@@ -9310,13 +9276,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="VAEWaste_Wasteboar"]/statBases/MeleeDodgeChance</xpath>
             <value>
-              <MeleeDodgeChance>0.22</MeleeDodgeChance>
+              <MeleeDodgeChance>0.2</MeleeDodgeChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="VAEWaste_Wasteboar"]/statBases</xpath>
             <value>
-              <MeleeDodgeChance>0.22</MeleeDodgeChance>
+              <MeleeDodgeChance>0.2</MeleeDodgeChance>
             </value>
           </nomatch>
         </li>
@@ -9325,13 +9291,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="VAEWaste_Wasteboar"]/statBases/MeleeCritChance</xpath>
             <value>
-              <MeleeCritChance>0.23</MeleeCritChance>
+              <MeleeCritChance>0.25</MeleeCritChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="VAEWaste_Wasteboar"]/statBases</xpath>
             <value>
-              <MeleeCritChance>0.23</MeleeCritChance>
+              <MeleeCritChance>0.25</MeleeCritChance>
             </value>
           </nomatch>
         </li>
@@ -9340,13 +9306,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="VAEWaste_Wasteboar"]/statBases/MeleeParryChance</xpath>
             <value>
-              <MeleeParryChance>0.06</MeleeParryChance>
+              <MeleeParryChance>0.05</MeleeParryChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="VAEWaste_Wasteboar"]/statBases</xpath>
             <value>
-              <MeleeParryChance>0.06</MeleeParryChance>
+              <MeleeParryChance>0.05</MeleeParryChance>
             </value>
           </nomatch>
         </li>
@@ -9355,13 +9321,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="VAEWaste_Wasteboar"]/statBases/ArmorRating_Sharp</xpath>
             <value>
-              <ArmorRating_Sharp>0.05</ArmorRating_Sharp>
+              <ArmorRating_Sharp>0.08</ArmorRating_Sharp>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="VAEWaste_Wasteboar"]/statBases</xpath>
             <value>
-              <ArmorRating_Sharp>0.05</ArmorRating_Sharp>
+              <ArmorRating_Sharp>0.08</ArmorRating_Sharp>
             </value>
           </nomatch>
         </li>
@@ -9370,13 +9336,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="VAEWaste_Wasteboar"]/statBases/ArmorRating_Blunt</xpath>
             <value>
-              <ArmorRating_Blunt>0.29</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0.3</ArmorRating_Blunt>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="VAEWaste_Wasteboar"]/statBases</xpath>
             <value>
-              <ArmorRating_Blunt>0.29</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0.3</ArmorRating_Blunt>
             </value>
           </nomatch>
         </li>
@@ -9456,7 +9422,7 @@
                   <li>Blunt</li>
                 </capacities>
                 <power>4.3</power>
-                <armorPenetrationBlunt>3.74</armorPenetrationBlunt>
+                <armorPenetrationBlunt>3.75</armorPenetrationBlunt>
                 <cooldownTime>1.75</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
@@ -9468,8 +9434,8 @@
                   <li>Scratch</li>
                 </capacities>
                 <power>25.4</power>
-                <armorPenetrationBlunt>9.12</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.55</armorPenetrationSharp>
+                <armorPenetrationBlunt>9.15</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.56</armorPenetrationSharp>
                 <cooldownTime>3.3</cooldownTime>
                 <linkedBodyPartsGroup>TuskAttackTool</linkedBodyPartsGroup>
                 <restrictedGender>Male</restrictedGender>
@@ -9480,8 +9446,8 @@
                   <li>Bite</li>
                 </capacities>
                 <power>23.3</power>
-                <armorPenetrationBlunt>7.6</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.33</armorPenetrationSharp>
+                <armorPenetrationBlunt>7.65</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.34</armorPenetrationSharp>
                 <cooldownTime>2.85</cooldownTime>
                 <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
               </li>
@@ -9545,13 +9511,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="VAEWaste_Wastedeer"]/statBases/ArmorRating_Sharp</xpath>
             <value>
-              <ArmorRating_Sharp>0.04</ArmorRating_Sharp>
+              <ArmorRating_Sharp>0.06</ArmorRating_Sharp>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="VAEWaste_Wastedeer"]/statBases</xpath>
             <value>
-              <ArmorRating_Sharp>0.04</ArmorRating_Sharp>
+              <ArmorRating_Sharp>0.06</ArmorRating_Sharp>
             </value>
           </nomatch>
         </li>
@@ -9560,13 +9526,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="VAEWaste_Wastedeer"]/statBases/ArmorRating_Blunt</xpath>
             <value>
-              <ArmorRating_Blunt>0.23</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0.25</ArmorRating_Blunt>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="VAEWaste_Wastedeer"]/statBases</xpath>
             <value>
-              <ArmorRating_Blunt>0.23</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0.25</ArmorRating_Blunt>
             </value>
           </nomatch>
         </li>
@@ -9646,7 +9612,7 @@
                   <li>Blunt</li>
                 </capacities>
                 <power>2.3</power>
-                <armorPenetrationBlunt>1.87</armorPenetrationBlunt>
+                <armorPenetrationBlunt>1.9</armorPenetrationBlunt>
                 <cooldownTime>1.65</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
@@ -9659,7 +9625,7 @@
                   <li>Blunt</li>
                 </capacities>
                 <power>4.3</power>
-                <armorPenetrationBlunt>2.4</armorPenetrationBlunt>
+                <armorPenetrationBlunt>2.45</armorPenetrationBlunt>
                 <cooldownTime>2.1</cooldownTime>
                 <linkedBodyPartsGroup>FrontLeftLeg</linkedBodyPartsGroup>
               </li>
@@ -9670,7 +9636,7 @@
                   <li>Blunt</li>
                 </capacities>
                 <power>4.3</power>
-                <armorPenetrationBlunt>2.4</armorPenetrationBlunt>
+                <armorPenetrationBlunt>2.45</armorPenetrationBlunt>
                 <cooldownTime>2.1</cooldownTime>
                 <linkedBodyPartsGroup>FrontRightLeg</linkedBodyPartsGroup>
               </li>
@@ -9680,8 +9646,8 @@
                   <li>Scratch</li>
                 </capacities>
                 <power>15.3</power>
-                <armorPenetrationBlunt>2.88</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.19</armorPenetrationSharp>
+                <armorPenetrationBlunt>2.95</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.2</armorPenetrationSharp>
                 <cooldownTime>2.85</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <restrictedGender>Male</restrictedGender>
@@ -9701,13 +9667,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="VAEWaste_Wasteffalo"]/statBases/MeleeDodgeChance</xpath>
             <value>
-              <MeleeDodgeChance>0.19</MeleeDodgeChance>
+              <MeleeDodgeChance>0.2</MeleeDodgeChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="VAEWaste_Wasteffalo"]/statBases</xpath>
             <value>
-              <MeleeDodgeChance>0.19</MeleeDodgeChance>
+              <MeleeDodgeChance>0.2</MeleeDodgeChance>
             </value>
           </nomatch>
         </li>
@@ -9746,13 +9712,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="VAEWaste_Wasteffalo"]/statBases/ArmorRating_Sharp</xpath>
             <value>
-              <ArmorRating_Sharp>0.07</ArmorRating_Sharp>
+              <ArmorRating_Sharp>0.1</ArmorRating_Sharp>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="VAEWaste_Wasteffalo"]/statBases</xpath>
             <value>
-              <ArmorRating_Sharp>0.07</ArmorRating_Sharp>
+              <ArmorRating_Sharp>0.1</ArmorRating_Sharp>
             </value>
           </nomatch>
         </li>
@@ -9761,13 +9727,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="VAEWaste_Wasteffalo"]/statBases/ArmorRating_Blunt</xpath>
             <value>
-              <ArmorRating_Blunt>0.39</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0.45</ArmorRating_Blunt>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="VAEWaste_Wasteffalo"]/statBases</xpath>
             <value>
-              <ArmorRating_Blunt>0.39</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0.45</ArmorRating_Blunt>
             </value>
           </nomatch>
         </li>
@@ -9847,7 +9813,7 @@
                   <li>Blunt</li>
                 </capacities>
                 <power>9.8</power>
-                <armorPenetrationBlunt>9.11</armorPenetrationBlunt>
+                <armorPenetrationBlunt>9.1</armorPenetrationBlunt>
                 <cooldownTime>1.9</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
@@ -9860,7 +9826,7 @@
                   <li>Blunt</li>
                 </capacities>
                 <power>16.5</power>
-                <armorPenetrationBlunt>10.62</armorPenetrationBlunt>
+                <armorPenetrationBlunt>10.65</armorPenetrationBlunt>
                 <cooldownTime>2.75</cooldownTime>
                 <linkedBodyPartsGroup>FrontLeftLeg</linkedBodyPartsGroup>
               </li>
@@ -9871,7 +9837,7 @@
                   <li>Blunt</li>
                 </capacities>
                 <power>16.5</power>
-                <armorPenetrationBlunt>10.62</armorPenetrationBlunt>
+                <armorPenetrationBlunt>10.65</armorPenetrationBlunt>
                 <cooldownTime>2.75</cooldownTime>
                 <linkedBodyPartsGroup>FrontRightLeg</linkedBodyPartsGroup>
               </li>
@@ -9881,8 +9847,8 @@
                   <li>Scratch</li>
                 </capacities>
                 <power>29.4</power>
-                <armorPenetrationBlunt>12.74</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.69</armorPenetrationSharp>
+                <armorPenetrationBlunt>12.8</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.7</armorPenetrationSharp>
                 <cooldownTime>3.2</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
               </li>
