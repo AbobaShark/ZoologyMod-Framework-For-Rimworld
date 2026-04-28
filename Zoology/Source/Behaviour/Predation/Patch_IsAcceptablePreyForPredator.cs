@@ -184,92 +184,9 @@ namespace ZoologyMod
 
     internal static class PreyCombatPowerUtility
     {
-        private const float BabyCombatPowerFactor = 0.2f;
-        private const float JuvenileCombatPowerFactor = 0.5f;
-
-        private static LifeStageDef animalBabyLifeStageDef;
-        private static LifeStageDef animalBabyTinyLifeStageDef;
-        private static LifeStageDef eusocialLarvaLifeStageDef;
-        private static LifeStageDef animalJuvenileLifeStageDef;
-        private static LifeStageDef eusocialJuvenileLifeStageDef;
-
         public static float GetAdjustedCombatPower(Pawn prey)
         {
-            if (prey?.kindDef == null)
-            {
-                return 0f;
-            }
-
-            float basePower = prey.kindDef.combatPower;
-            float factor = GetStageFactor(prey);
-            if (factor <= 0f || factor == 1f)
-            {
-                return basePower;
-            }
-
-            return basePower * factor;
-        }
-
-        private static float GetStageFactor(Pawn pawn)
-        {
-            if (pawn == null)
-            {
-                return 1f;
-            }
-
-            var stages = pawn.RaceProps?.lifeStageAges;
-            if (stages == null || stages.Count <= 1)
-            {
-                return 1f;
-            }
-
-            LifeStageDef stage = pawn.ageTracker?.CurLifeStage;
-            if (stage == null)
-            {
-                return 1f;
-            }
-
-            if (IsBabyStage(stage))
-            {
-                return BabyCombatPowerFactor;
-            }
-
-            if (IsJuvenileStage(stage))
-            {
-                return JuvenileCombatPowerFactor;
-            }
-
-            return 1f;
-        }
-
-        private static bool IsBabyStage(LifeStageDef stage)
-        {
-            var cached = animalBabyLifeStageDef ?? (animalBabyLifeStageDef = DefDatabase<LifeStageDef>.GetNamedSilentFail("AnimalBaby"));
-            if (stage == cached || string.Equals(stage.defName, "AnimalBaby", StringComparison.OrdinalIgnoreCase))
-            {
-                return true;
-            }
-
-            var tiny = animalBabyTinyLifeStageDef ?? (animalBabyTinyLifeStageDef = DefDatabase<LifeStageDef>.GetNamedSilentFail("AnimalBabyTiny"));
-            if (stage == tiny || string.Equals(stage.defName, "AnimalBabyTiny", StringComparison.OrdinalIgnoreCase))
-            {
-                return true;
-            }
-
-            var larva = eusocialLarvaLifeStageDef ?? (eusocialLarvaLifeStageDef = DefDatabase<LifeStageDef>.GetNamedSilentFail("EusocialInsectLarva"));
-            return stage == larva || string.Equals(stage.defName, "EusocialInsectLarva", StringComparison.OrdinalIgnoreCase);
-        }
-
-        private static bool IsJuvenileStage(LifeStageDef stage)
-        {
-            var cached = animalJuvenileLifeStageDef ?? (animalJuvenileLifeStageDef = DefDatabase<LifeStageDef>.GetNamedSilentFail("AnimalJuvenile"));
-            if (stage == cached || string.Equals(stage.defName, "AnimalJuvenile", StringComparison.OrdinalIgnoreCase))
-            {
-                return true;
-            }
-
-            var eusocial = eusocialJuvenileLifeStageDef ?? (eusocialJuvenileLifeStageDef = DefDatabase<LifeStageDef>.GetNamedSilentFail("EusocialInsectJuvenile"));
-            return stage == eusocial || string.Equals(stage.defName, "EusocialInsectJuvenile", StringComparison.OrdinalIgnoreCase);
+            return AnimalCombatPowerUtility.GetAdjustedCombatPower(prey);
         }
     }
 

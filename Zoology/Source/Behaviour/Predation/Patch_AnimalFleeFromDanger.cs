@@ -1384,7 +1384,7 @@ namespace ZoologyMod
                     continue;
                 }
 
-                if (!IsThreatTargetingPawn(predator, pawn))
+                if (!CanThreatTargetPawnForFlee(predator, pawn))
                 {
                     continue;
                 }
@@ -1464,7 +1464,7 @@ namespace ZoologyMod
                     continue;
                 }
 
-                if (!IsThreatTargetingPawn(threat, pawn))
+                if (!CanThreatTargetPawnForFlee(threat, pawn))
                 {
                     continue;
                 }
@@ -1629,7 +1629,7 @@ namespace ZoologyMod
                 }
 
                 if (!IsTargetedPredatorThreatJob(predator, prey)
-                    || !IsThreatTargetingPawn(predator, prey)
+                    || !CanThreatTargetPawnForFlee(predator, prey)
                     || !HasReachability(predator, prey))
                 {
                     continue;
@@ -1693,7 +1693,7 @@ namespace ZoologyMod
                     continue;
                 }
 
-                if (!IsThreatTargetingPawn(protector, pawn))
+                if (!CanThreatTargetPawnForFlee(protector, pawn))
                 {
                     continue;
                 }
@@ -1903,7 +1903,7 @@ namespace ZoologyMod
             }
 
             bool shouldAnimalFleeDanger = photonozoaPredatorException || FleeUtility.ShouldAnimalFleeDanger(pawn);
-            bool threatAimingAtPawn = IsThreatTargetingPawn(threat, pawn);
+            bool threatAimingAtPawn = CanThreatTargetPawnForFlee(threat, pawn);
             if (threatAimingAtPawn)
             {
                 return false;
@@ -3064,7 +3064,7 @@ namespace ZoologyMod
                 return true;
             }
 
-            return curJob.def == JobDefOf.AttackMelee && IsThreatTargetingPawn(predator, prey);
+            return curJob.def == JobDefOf.AttackMelee && CanThreatTargetPawnForFlee(predator, prey);
         }
 
         private static bool IsProtectYoungThreatJob(Job curJob, JobDriver curDriver)
@@ -4285,6 +4285,13 @@ namespace ZoologyMod
         private static bool IsThreatTargetingPawn(Pawn predator, Pawn prey)
         {
             return IsActivePredatorThreat(predator, prey, out bool targetsPreyDirectly) && targetsPreyDirectly;
+        }
+
+        private static bool CanThreatTargetPawnForFlee(Pawn threat, Pawn prey)
+        {
+            return IsThreatTargetingPawn(threat, prey)
+                && (AnimalCombatPowerUtility.CanAnimalThreatTriggerTargetedFlee(threat, prey)
+                    || IsAcceptablePreyForFlee(threat, prey));
         }
 
         private static bool TryGetThreatTargetPawn(Pawn predator, out Pawn targetPawn)
