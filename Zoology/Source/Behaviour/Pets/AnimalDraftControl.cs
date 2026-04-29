@@ -360,6 +360,48 @@ namespace ZoologyMod
             }
         }
 
+        internal static bool ShouldUndraftForMasterState(Pawn pawn)
+        {
+            if (pawn?.drafter == null
+                || !pawn.drafter.Drafted
+                || pawn.Faction != Faction.OfPlayer
+                || pawn.playerSettings == null)
+            {
+                return false;
+            }
+
+            if (pawn.RaceProps == null || !pawn.RaceProps.Animal)
+            {
+                return false;
+            }
+
+            Pawn master = pawn.playerSettings.Master;
+            return master == null || master.Dead || master.Downed;
+        }
+
+        internal static void UndraftIfMasterUnavailable(Pawn pawn)
+        {
+            if (!ShouldUndraftForMasterState(pawn))
+            {
+                return;
+            }
+
+            pawn.drafter.Drafted = false;
+        }
+
+        internal static void UndraftMasteredAnimalsIfMasterDowned(Pawn master)
+        {
+            if (master == null || !master.Downed)
+            {
+                return;
+            }
+
+            foreach (Pawn pawn in PawnUtility.SpawnedMasteredPawns(master))
+            {
+                UndraftIfMasterUnavailable(pawn);
+            }
+        }
+
         internal static void ApplyDraftCommandRestrictions(Command_Toggle command, Pawn pawn, AcceptanceReport report)
         {
             if (command == null || pawn == null || command.Disabled)
@@ -824,6 +866,46 @@ namespace ZoologyMod
             }
 
             yield return AnimalDraftControlUtility.CreateDraftToggle(__instance);
+        }
+    }
+
+    [HarmonyPatch]
+    public static class Patch_PawnPlayerSettings_MasterSetter_AnimalDraftControl
+    {
+        private static readonly AccessTools.FieldRef<Pawn_PlayerSettings, Pawn> PawnRef =
+            AccessTools.FieldRefAccess<Pawn_PlayerSettings, Pawn>("pawn");
+
+        private static MethodBase TargetMethod()
+        {
+            return AccessTools.PropertySetter(typeof(Pawn_PlayerSettings), nameof(Pawn_PlayerSettings.Master));
+        }
+
+        private static void Postfix(Pawn_PlayerSettings __instance)
+        {
+            AnimalDraftControlUtility.UndraftIfMasterUnavailable(PawnRef(__instance));
+        }
+    }
+
+    [HarmonyPatch(typeof(Pawn), nameof(Pawn.ExposeData))]
+    public static class Patch_Pawn_ExposeData_AnimalDraftControl
+    {
+        private static void Postfix(Pawn __instance)
+        {
+            if (Scribe.mode != LoadSaveMode.PostLoadInit)
+            {
+                return;
+            }
+
+            AnimalDraftControlUtility.UndraftIfMasterUnavailable(__instance);
+        }
+    }
+
+    [HarmonyPatch(typeof(Pawn), nameof(Pawn.Notify_Downed))]
+    public static class Patch_Pawn_NotifyDowned_AnimalDraftControl
+    {
+        private static void Postfix(Pawn __instance)
+        {
+            AnimalDraftControlUtility.UndraftMasteredAnimalsIfMasterDowned(__instance);
         }
     }
 

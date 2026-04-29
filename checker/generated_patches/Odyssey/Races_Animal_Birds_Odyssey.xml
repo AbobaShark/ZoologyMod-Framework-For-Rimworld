@@ -362,18 +362,9 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Swan"]/race/mateMtbHours</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Swan"]/race/mateMtbHours</xpath>
-      <value>
-        <mateMtbHours>12</mateMtbHours>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Swan"]/race</xpath>
-      <value>
-        <mateMtbHours>12</mateMtbHours>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Swan"]/race/trainability</xpath>
@@ -945,18 +936,9 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Heron"]/race/mateMtbHours</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Heron"]/race/mateMtbHours</xpath>
-      <value>
-        <mateMtbHours>8</mateMtbHours>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Heron"]/race</xpath>
-      <value>
-        <mateMtbHours>8</mateMtbHours>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Heron"]/race/trainability</xpath>
@@ -1528,18 +1510,9 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Flamingo"]/race/mateMtbHours</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Flamingo"]/race/mateMtbHours</xpath>
-      <value>
-        <mateMtbHours>8</mateMtbHours>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Flamingo"]/race</xpath>
-      <value>
-        <mateMtbHours>8</mateMtbHours>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Flamingo"]/race/trainability</xpath>
@@ -2120,18 +2093,9 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Penguin"]/race/mateMtbHours</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Penguin"]/race/mateMtbHours</xpath>
-      <value>
-        <mateMtbHours>12</mateMtbHours>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Penguin"]/race</xpath>
-      <value>
-        <mateMtbHours>12</mateMtbHours>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Penguin"]/race/trainability</xpath>
@@ -2753,18 +2717,9 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Peacock"]/race/mateMtbHours</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Peacock"]/race/mateMtbHours</xpath>
-      <value>
-        <mateMtbHours>8</mateMtbHours>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Peacock"]/race</xpath>
-      <value>
-        <mateMtbHours>8</mateMtbHours>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Peacock"]/race/trainability</xpath>
@@ -3347,18 +3302,9 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Vulture"]/race/mateMtbHours</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Vulture"]/race/mateMtbHours</xpath>
-      <value>
-        <mateMtbHours>8</mateMtbHours>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Vulture"]/race</xpath>
-      <value>
-        <mateMtbHours>8</mateMtbHours>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Vulture"]/race/trainability</xpath>
@@ -3575,6 +3521,12 @@
       <operations>
         <!-- Swan CE patches -->
         <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="Swan"]/statBases/ArmorRating_Blunt</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>Defs/ThingDef[defName="Swan"]/statBases/ArmorRating_Blunt</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>Defs/ThingDef[defName="Swan"]/statBases/ArmorRating_Sharp</xpath>
           <match Class="PatchOperationRemove">
             <xpath>Defs/ThingDef[defName="Swan"]/statBases/ArmorRating_Sharp</xpath>
@@ -3591,13 +3543,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Swan"]/statBases/MeleeDodgeChance</xpath>
             <value>
-              <MeleeDodgeChance>0.69</MeleeDodgeChance>
+              <MeleeDodgeChance>0.7</MeleeDodgeChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Swan"]/statBases</xpath>
             <value>
-              <MeleeDodgeChance>0.69</MeleeDodgeChance>
+              <MeleeDodgeChance>0.7</MeleeDodgeChance>
             </value>
           </nomatch>
         </li>
@@ -3628,21 +3580,6 @@
             <xpath>Defs/ThingDef[defName="Swan"]/statBases</xpath>
             <value>
               <MeleeParryChance>0</MeleeParryChance>
-            </value>
-          </nomatch>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="Swan"]/statBases/ArmorRating_Blunt</xpath>
-          <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="Swan"]/statBases/ArmorRating_Blunt</xpath>
-            <value>
-              <ArmorRating_Blunt>0.01</ArmorRating_Blunt>
-            </value>
-          </match>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="Swan"]/statBases</xpath>
-            <value>
-              <ArmorRating_Blunt>0.01</ArmorRating_Blunt>
             </value>
           </nomatch>
         </li>
@@ -3704,8 +3641,8 @@
                   <li>Blunt</li>
                 </capacities>
                 <power>2.1</power>
-                <armorPenetrationBlunt>0.07</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.01</armorPenetrationSharp>
+                <armorPenetrationBlunt>0.1</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.02</armorPenetrationSharp>
                 <cooldownTime>1.8</cooldownTime>
                 <linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>
               </li>
@@ -3719,6 +3656,12 @@
           </match>
         </li>
         <!-- Heron CE patches -->
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="Heron"]/statBases/ArmorRating_Blunt</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>Defs/ThingDef[defName="Heron"]/statBases/ArmorRating_Blunt</xpath>
+          </match>
+        </li>
         <li Class="PatchOperationConditional">
           <xpath>Defs/ThingDef[defName="Heron"]/statBases/ArmorRating_Sharp</xpath>
           <match Class="PatchOperationRemove">
@@ -3736,13 +3679,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Heron"]/statBases/MeleeDodgeChance</xpath>
             <value>
-              <MeleeDodgeChance>0.94</MeleeDodgeChance>
+              <MeleeDodgeChance>0.95</MeleeDodgeChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Heron"]/statBases</xpath>
             <value>
-              <MeleeDodgeChance>0.94</MeleeDodgeChance>
+              <MeleeDodgeChance>0.95</MeleeDodgeChance>
             </value>
           </nomatch>
         </li>
@@ -3773,21 +3716,6 @@
             <xpath>Defs/ThingDef[defName="Heron"]/statBases</xpath>
             <value>
               <MeleeParryChance>0</MeleeParryChance>
-            </value>
-          </nomatch>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="Heron"]/statBases/ArmorRating_Blunt</xpath>
-          <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="Heron"]/statBases/ArmorRating_Blunt</xpath>
-            <value>
-              <ArmorRating_Blunt>0</ArmorRating_Blunt>
-            </value>
-          </match>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="Heron"]/statBases</xpath>
-            <value>
-              <ArmorRating_Blunt>0</ArmorRating_Blunt>
             </value>
           </nomatch>
         </li>
@@ -3837,7 +3765,7 @@
                   <li>Blunt</li>
                 </capacities>
                 <power>0.1</power>
-                <armorPenetrationBlunt>0.06</armorPenetrationBlunt>
+                <armorPenetrationBlunt>0.05</armorPenetrationBlunt>
                 <cooldownTime>1.25</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
@@ -3849,8 +3777,8 @@
                   <li>Blunt</li>
                 </capacities>
                 <power>1.3</power>
-                <armorPenetrationBlunt>0.02</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.01</armorPenetrationSharp>
+                <armorPenetrationBlunt>0.05</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.02</armorPenetrationSharp>
                 <cooldownTime>1.7</cooldownTime>
                 <linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>
               </li>
@@ -3864,6 +3792,12 @@
           </match>
         </li>
         <!-- Flamingo CE patches -->
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="Flamingo"]/statBases/ArmorRating_Blunt</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>Defs/ThingDef[defName="Flamingo"]/statBases/ArmorRating_Blunt</xpath>
+          </match>
+        </li>
         <li Class="PatchOperationConditional">
           <xpath>Defs/ThingDef[defName="Flamingo"]/statBases/ArmorRating_Sharp</xpath>
           <match Class="PatchOperationRemove">
@@ -3881,13 +3815,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Flamingo"]/statBases/MeleeDodgeChance</xpath>
             <value>
-              <MeleeDodgeChance>0.82</MeleeDodgeChance>
+              <MeleeDodgeChance>0.8</MeleeDodgeChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Flamingo"]/statBases</xpath>
             <value>
-              <MeleeDodgeChance>0.82</MeleeDodgeChance>
+              <MeleeDodgeChance>0.8</MeleeDodgeChance>
             </value>
           </nomatch>
         </li>
@@ -3918,21 +3852,6 @@
             <xpath>Defs/ThingDef[defName="Flamingo"]/statBases</xpath>
             <value>
               <MeleeParryChance>0</MeleeParryChance>
-            </value>
-          </nomatch>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="Flamingo"]/statBases/ArmorRating_Blunt</xpath>
-          <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="Flamingo"]/statBases/ArmorRating_Blunt</xpath>
-            <value>
-              <ArmorRating_Blunt>0.01</ArmorRating_Blunt>
-            </value>
-          </match>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="Flamingo"]/statBases</xpath>
-            <value>
-              <ArmorRating_Blunt>0.01</ArmorRating_Blunt>
             </value>
           </nomatch>
         </li>
@@ -3982,7 +3901,7 @@
                   <li>Blunt</li>
                 </capacities>
                 <power>0.2</power>
-                <armorPenetrationBlunt>0.11</armorPenetrationBlunt>
+                <armorPenetrationBlunt>0.1</armorPenetrationBlunt>
                 <cooldownTime>1.35</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
@@ -3994,8 +3913,8 @@
                   <li>Blunt</li>
                 </capacities>
                 <power>1.7</power>
-                <armorPenetrationBlunt>0.03</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.01</armorPenetrationSharp>
+                <armorPenetrationBlunt>0.1</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.02</armorPenetrationSharp>
                 <cooldownTime>1.85</cooldownTime>
                 <linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>
               </li>
@@ -4009,6 +3928,12 @@
           </match>
         </li>
         <!-- Penguin CE patches -->
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="Penguin"]/statBases/ArmorRating_Blunt</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>Defs/ThingDef[defName="Penguin"]/statBases/ArmorRating_Blunt</xpath>
+          </match>
+        </li>
         <li Class="PatchOperationConditional">
           <xpath>Defs/ThingDef[defName="Penguin"]/statBases/ArmorRating_Sharp</xpath>
           <match Class="PatchOperationRemove">
@@ -4026,13 +3951,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Penguin"]/statBases/MeleeDodgeChance</xpath>
             <value>
-              <MeleeDodgeChance>0.57</MeleeDodgeChance>
+              <MeleeDodgeChance>0.55</MeleeDodgeChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Penguin"]/statBases</xpath>
             <value>
-              <MeleeDodgeChance>0.57</MeleeDodgeChance>
+              <MeleeDodgeChance>0.55</MeleeDodgeChance>
             </value>
           </nomatch>
         </li>
@@ -4063,21 +3988,6 @@
             <xpath>Defs/ThingDef[defName="Penguin"]/statBases</xpath>
             <value>
               <MeleeParryChance>0</MeleeParryChance>
-            </value>
-          </nomatch>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="Penguin"]/statBases/ArmorRating_Blunt</xpath>
-          <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="Penguin"]/statBases/ArmorRating_Blunt</xpath>
-            <value>
-              <ArmorRating_Blunt>0.01</ArmorRating_Blunt>
-            </value>
-          </match>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="Penguin"]/statBases</xpath>
-            <value>
-              <ArmorRating_Blunt>0.01</ArmorRating_Blunt>
             </value>
           </nomatch>
         </li>
@@ -4139,8 +4049,8 @@
                   <li>Blunt</li>
                 </capacities>
                 <power>3.2</power>
-                <armorPenetrationBlunt>0.17</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.01</armorPenetrationSharp>
+                <armorPenetrationBlunt>0.2</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.02</armorPenetrationSharp>
                 <cooldownTime>2.1</cooldownTime>
                 <linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>
               </li>
@@ -4154,6 +4064,12 @@
           </match>
         </li>
         <!-- Peacock CE patches -->
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="Peacock"]/statBases/ArmorRating_Blunt</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>Defs/ThingDef[defName="Peacock"]/statBases/ArmorRating_Blunt</xpath>
+          </match>
+        </li>
         <li Class="PatchOperationConditional">
           <xpath>Defs/ThingDef[defName="Peacock"]/statBases/ArmorRating_Sharp</xpath>
           <match Class="PatchOperationRemove">
@@ -4171,13 +4087,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Peacock"]/statBases/MeleeDodgeChance</xpath>
             <value>
-              <MeleeDodgeChance>0.79</MeleeDodgeChance>
+              <MeleeDodgeChance>0.8</MeleeDodgeChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Peacock"]/statBases</xpath>
             <value>
-              <MeleeDodgeChance>0.79</MeleeDodgeChance>
+              <MeleeDodgeChance>0.8</MeleeDodgeChance>
             </value>
           </nomatch>
         </li>
@@ -4208,21 +4124,6 @@
             <xpath>Defs/ThingDef[defName="Peacock"]/statBases</xpath>
             <value>
               <MeleeParryChance>0</MeleeParryChance>
-            </value>
-          </nomatch>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="Peacock"]/statBases/ArmorRating_Blunt</xpath>
-          <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="Peacock"]/statBases/ArmorRating_Blunt</xpath>
-            <value>
-              <ArmorRating_Blunt>0.01</ArmorRating_Blunt>
-            </value>
-          </match>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="Peacock"]/statBases</xpath>
-            <value>
-              <ArmorRating_Blunt>0.01</ArmorRating_Blunt>
             </value>
           </nomatch>
         </li>
@@ -4272,7 +4173,7 @@
                   <li>Blunt</li>
                 </capacities>
                 <power>0.2</power>
-                <armorPenetrationBlunt>0.14</armorPenetrationBlunt>
+                <armorPenetrationBlunt>0.15</armorPenetrationBlunt>
                 <cooldownTime>1.3</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
@@ -4285,8 +4186,8 @@
                   <li>Scratch</li>
                 </capacities>
                 <power>3.3</power>
-                <armorPenetrationBlunt>0.22</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.04</armorPenetrationSharp>
+                <armorPenetrationBlunt>0.25</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.05</armorPenetrationSharp>
                 <cooldownTime>2.15</cooldownTime>
                 <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
               </li>
@@ -4297,8 +4198,8 @@
                   <li>Scratch</li>
                 </capacities>
                 <power>3.3</power>
-                <armorPenetrationBlunt>0.22</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.04</armorPenetrationSharp>
+                <armorPenetrationBlunt>0.25</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.05</armorPenetrationSharp>
                 <cooldownTime>2.15</cooldownTime>
                 <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
               </li>
@@ -4308,8 +4209,8 @@
                   <li>Blunt</li>
                 </capacities>
                 <power>1.1</power>
-                <armorPenetrationBlunt>0.04</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.01</armorPenetrationSharp>
+                <armorPenetrationBlunt>0.1</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.02</armorPenetrationSharp>
                 <cooldownTime>2.25</cooldownTime>
                 <linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>
               </li>
@@ -4323,6 +4224,12 @@
           </match>
         </li>
         <!-- Vulture CE patches -->
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="Vulture"]/statBases/ArmorRating_Blunt</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>Defs/ThingDef[defName="Vulture"]/statBases/ArmorRating_Blunt</xpath>
+          </match>
+        </li>
         <li Class="PatchOperationConditional">
           <xpath>Defs/ThingDef[defName="Vulture"]/statBases/ArmorRating_Sharp</xpath>
           <match Class="PatchOperationRemove">
@@ -4340,13 +4247,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Vulture"]/statBases/MeleeDodgeChance</xpath>
             <value>
-              <MeleeDodgeChance>0.76</MeleeDodgeChance>
+              <MeleeDodgeChance>0.75</MeleeDodgeChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Vulture"]/statBases</xpath>
             <value>
-              <MeleeDodgeChance>0.76</MeleeDodgeChance>
+              <MeleeDodgeChance>0.75</MeleeDodgeChance>
             </value>
           </nomatch>
         </li>
@@ -4355,13 +4262,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Vulture"]/statBases/MeleeCritChance</xpath>
             <value>
-              <MeleeCritChance>0.13</MeleeCritChance>
+              <MeleeCritChance>0.15</MeleeCritChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Vulture"]/statBases</xpath>
             <value>
-              <MeleeCritChance>0.13</MeleeCritChance>
+              <MeleeCritChance>0.15</MeleeCritChance>
             </value>
           </nomatch>
         </li>
@@ -4370,28 +4277,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Vulture"]/statBases/MeleeParryChance</xpath>
             <value>
-              <MeleeParryChance>0.03</MeleeParryChance>
+              <MeleeParryChance>0.05</MeleeParryChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Vulture"]/statBases</xpath>
             <value>
-              <MeleeParryChance>0.03</MeleeParryChance>
-            </value>
-          </nomatch>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="Vulture"]/statBases/ArmorRating_Blunt</xpath>
-          <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="Vulture"]/statBases/ArmorRating_Blunt</xpath>
-            <value>
-              <ArmorRating_Blunt>0.01</ArmorRating_Blunt>
-            </value>
-          </match>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="Vulture"]/statBases</xpath>
-            <value>
-              <ArmorRating_Blunt>0.01</ArmorRating_Blunt>
+              <MeleeParryChance>0.05</MeleeParryChance>
             </value>
           </nomatch>
         </li>
@@ -4441,7 +4333,7 @@
                   <li>Blunt</li>
                 </capacities>
                 <power>0.3</power>
-                <armorPenetrationBlunt>0.18</armorPenetrationBlunt>
+                <armorPenetrationBlunt>0.2</armorPenetrationBlunt>
                 <cooldownTime>1.45</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
@@ -4454,8 +4346,8 @@
                   <li>Scratch</li>
                 </capacities>
                 <power>3.7</power>
-                <armorPenetrationBlunt>0.27</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.05</armorPenetrationSharp>
+                <armorPenetrationBlunt>0.3</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.06</armorPenetrationSharp>
                 <cooldownTime>2.25</cooldownTime>
                 <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
               </li>
@@ -4466,8 +4358,8 @@
                   <li>Scratch</li>
                 </capacities>
                 <power>3.7</power>
-                <armorPenetrationBlunt>0.27</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.05</armorPenetrationSharp>
+                <armorPenetrationBlunt>0.3</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.06</armorPenetrationSharp>
                 <cooldownTime>2.25</cooldownTime>
                 <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
               </li>
@@ -4477,8 +4369,8 @@
                   <li>Blunt</li>
                 </capacities>
                 <power>1.6</power>
-                <armorPenetrationBlunt>0.05</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.01</armorPenetrationSharp>
+                <armorPenetrationBlunt>0.1</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.02</armorPenetrationSharp>
                 <cooldownTime>2.35</cooldownTime>
                 <linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>
               </li>

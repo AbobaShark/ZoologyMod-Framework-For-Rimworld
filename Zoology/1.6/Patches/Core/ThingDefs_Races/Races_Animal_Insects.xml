@@ -163,9 +163,18 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[@Name = "BaseInsect"]/race/leatherDef</xpath>
-    <match Class="PatchOperationRemove">
+    <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[@Name = "BaseInsect"]/race/leatherDef</xpath>
+      <value>
+        <leatherDef>Leather_Chitin</leatherDef>
+      </value>
     </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[@Name = "BaseInsect"]/race</xpath>
+      <value>
+        <leatherDef>Leather_Chitin</leatherDef>
+      </value>
+    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[@Name = "BaseInsect"]/race/useLeatherFrom</xpath>
