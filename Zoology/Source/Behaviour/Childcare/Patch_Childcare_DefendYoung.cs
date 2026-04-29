@@ -100,11 +100,11 @@ namespace ZoologyMod
 
         private static bool IsAttackerTooStrong(Pawn attacker, Pawn mother)
         {
-            float attackerCp = attacker?.kindDef?.combatPower ?? 0f;
-            float motherCp = mother?.kindDef?.combatPower ?? 0f;
+            float attackerCp = AnimalCombatPowerUtility.GetAdjustedCombatPower(attacker);
+            float motherCp = AnimalCombatPowerUtility.GetAdjustedCombatPower(mother);
 
             if (attackerCp <= 0f || motherCp <= 0f) return false;
-            return attackerCp >= motherCp * 1.3f;
+            return attackerCp >= motherCp * ModConstants.CombatPowerDominanceFactor;
         }
 
         private static bool IsMotherAcceptablePrey(Pawn attacker, Pawn mother)

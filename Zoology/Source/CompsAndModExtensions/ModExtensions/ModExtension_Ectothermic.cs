@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using HarmonyLib;
+using System.Reflection;
+using System.Runtime.Serialization;
 using RimWorld;
-using UnityEngine;
 using Verse;
 
 namespace ZoologyMod
@@ -14,23 +14,12 @@ namespace ZoologyMod
     [StaticConstructorOnStartup]
     public static class Ectothermic_HarmonyPatches
     {
+        private const string OrganicStandardDefName = "OrganicStandard";
+        private const string EctothermicOrganicStandardDefName = "Zoology_Ectothermic_OrganicStandard";
         private static bool patched;
-        private readonly struct FrostbitePartEntry
-        {
-            public FrostbitePartEntry(BodyPartRecord part, float vulnerability, int damageAmount)
-            {
-                Part = part;
-                Vulnerability = vulnerability;
-                DamageAmount = damageAmount;
-            }
-
-            public BodyPartRecord Part { get; }
-            public float Vulnerability { get; }
-            public int DamageAmount { get; }
-        }
-
-        private static readonly Dictionary<BodyDef, List<FrostbitePartEntry>> frostbitePartsByBodyDef
-            = new Dictionary<BodyDef, List<FrostbitePartEntry>>(16);
+        private static readonly Dictionary<ThingDef, List<HediffGiverSetDef>> originalHediffGiverSetsByDef
+            = new Dictionary<ThingDef, List<HediffGiverSetDef>>(64);
+        private static HediffGiverSetDef ectothermicOrganicStandardSet;
 
         static Ectothermic_HarmonyPatches()
         {
@@ -55,241 +44,198 @@ namespace ZoologyMod
                 return;
             }
 
-            patched = true;
-            var harmony = new Harmony("com.abobashark.zoology.ectothermic");
-            var original = AccessTools.Method(typeof(HediffGiver_Hypothermia), nameof(HediffGiver_Hypothermia.OnIntervalPassed));
-            var prefix = new HarmonyMethod(typeof(Ectothermic_HarmonyPatches), nameof(OnIntervalPassed_Prefix));
-            harmony.Patch(original, prefix: prefix);
+            try
+            {
+                ApplyEctothermicHediffGiverOverrides();
+                patched = true;
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"[Zoology.Ectothermic] failed to apply runtime hediff giver overrides: {ex}");
+            }
         }
 
         public static void ResetPatchedState()
         {
+            RestoreOriginalHediffGiverSets();
+            ectothermicOrganicStandardSet = null;
             patched = false;
         }
 
-        public static bool OnIntervalPassed_Prefix(HediffGiver_Hypothermia __instance, Pawn pawn, Hediff cause)
+        private static void ApplyEctothermicHediffGiverOverrides()
         {
-            ThingDef def = pawn?.def;
-            if (def == null || !ZoologyCacheUtility.HasEctothermicExtension(def))
+            HediffGiverSetDef organicStandard = DefDatabase<HediffGiverSetDef>.GetNamedSilentFail(OrganicStandardDefName);
+            if (organicStandard == null)
             {
-                return true;
-            }
-
-            return HandleEctothermicHypothermia(__instance, pawn);
-        }
-
-        private static bool HandleEctothermicHypothermia(HediffGiver_Hypothermia giver, Pawn pawn)
-        {
-            try
-            {
-                if (giver == null || pawn == null)
-                {
-                    return true;
-                }
-
-                HediffSet hediffSet = pawn.health?.hediffSet;
-                if (hediffSet == null)
-                {
-                    return false;
-                }
-
-                HediffDef hediffDef = giver.hediffInsectoid ?? giver.hediff;
-                if (hediffDef == null)
-                {
-                    return false;
-                }
-
-                float ambientTemperature = pawn.AmbientTemperature;
-                FloatRange safeRange = pawn.SafeTemperatureRange();
-                Hediff hypothermia = hediffSet.GetFirstHediffOfDef(hediffDef, false);
-
-                if (ambientTemperature < safeRange.min)
-                {
-                    float addedSeverity = Mathf.Abs(ambientTemperature - safeRange.min) * 6.45E-05f;
-                    if (addedSeverity < 0.00075f)
-                    {
-                        addedSeverity = 0.00075f;
-                    }
-
-                    HealthUtility.AdjustSeverity(pawn, hediffDef, addedSeverity);
-                    if (pawn.Dead)
-                    {
-                        return false;
-                    }
-                }
-
-                if (hypothermia == null)
-                {
-                    return false;
-                }
-
-                if (!pawn.SpawnedOrAnyParentSpawned || TerrainProvidesHeat(pawn))
-                {
-                    ReduceHypothermiaSeverity(hypothermia);
-                    return false;
-                }
-
-                if (ambientTemperature > pawn.ComfortableTemperatureRange().min)
-                {
-                    ReduceHypothermiaSeverity(hypothermia);
-                    return false;
-                }
-
-                if (pawn.RaceProps.FleshType != FleshTypeDefOf.Insectoid
-                    && ambientTemperature < 0f
-                    && hypothermia.Severity > 0.37f)
-                {
-                    float frostbiteChance = 0.025f * hypothermia.Severity;
-                    if (frostbiteChance > 0f
-                        && Rand.Value < frostbiteChance
-                        && TryGetRandomFrostbitePart(pawn, hediffSet, out FrostbitePartEntry part))
-                    {
-                        DamageInfo dinfo = new DamageInfo(
-                            DamageDefOf.Frostbite,
-                            part.DamageAmount,
-                            0f,
-                            -1f,
-                            null,
-                            part.Part,
-                            null,
-                            DamageInfo.SourceCategory.ThingOrUnknown,
-                            null,
-                            true,
-                            true,
-                            QualityCategory.Normal,
-                            true,
-                            false);
-                        pawn.TakeDamage(dinfo);
-                    }
-                }
-
-                return false;
-            }
-            catch (Exception e)
-            {
-                Log.Error($"[Zoology.Ectothermic] error in OnIntervalPassed prefix: {e}");
-                return true;
-            }
-        }
-
-        private static void ReduceHypothermiaSeverity(Hediff hediff)
-        {
-            if (hediff == null)
-            {
+                Log.Warning("[Zoology.Ectothermic] OrganicStandard hediff giver set was not found.");
                 return;
             }
 
-            float reduction = hediff.Severity * 0.027f;
-            if (reduction < 0.0015f)
+            HediffGiverSetDef replacement = GetOrCreateEctothermicOrganicStandardSet(organicStandard);
+            List<ThingDef> allDefs = DefDatabase<ThingDef>.AllDefsListForReading;
+            for (int i = 0; i < allDefs.Count; i++)
             {
-                reduction = 0.0015f;
-            }
-            else if (reduction > 0.015f)
-            {
-                reduction = 0.015f;
-            }
-
-            hediff.Severity -= reduction;
-        }
-
-        private static bool TerrainProvidesHeat(Pawn pawn)
-        {
-            if (pawn == null || !pawn.SpawnedOrAnyParentSpawned)
-            {
-                return false;
-            }
-
-            Map map = pawn.MapHeld;
-            if (map?.terrainGrid == null)
-            {
-                return false;
-            }
-
-            TerrainDef terrain = map.terrainGrid.TerrainAt(pawn.PositionHeld);
-            return terrain != null && terrain.heatPerTick > 0f;
-        }
-
-        private static bool TryGetRandomFrostbitePart(Pawn pawn, HediffSet hediffSet, out FrostbitePartEntry result)
-        {
-            result = default(FrostbitePartEntry);
-            BodyDef bodyDef = pawn?.RaceProps?.body;
-            if (bodyDef == null || hediffSet == null)
-            {
-                return false;
-            }
-
-            List<FrostbitePartEntry> parts = GetFrostbiteParts(bodyDef);
-            if (parts == null || parts.Count == 0)
-            {
-                return false;
-            }
-
-            float totalWeight = 0f;
-            bool found = false;
-            FrostbitePartEntry selected = default(FrostbitePartEntry);
-            for (int i = 0; i < parts.Count; i++)
-            {
-                FrostbitePartEntry entry = parts[i];
-                BodyPartRecord part = entry.Part;
-                if (part == null || entry.Vulnerability <= 0f || hediffSet.PartIsMissing(part))
+                ThingDef def = allDefs[i];
+                if (def?.race?.hediffGiverSets == null || !ZoologyCacheUtility.HasEctothermicExtension(def))
                 {
                     continue;
                 }
 
-                totalWeight += entry.Vulnerability;
-                if (Rand.Value * totalWeight <= entry.Vulnerability)
-                {
-                    selected = entry;
-                    found = true;
-                }
+                ReplaceOrganicStandardForThingDef(def, organicStandard, replacement);
             }
-
-            if (!found)
-            {
-                return false;
-            }
-
-            result = selected;
-            return true;
         }
 
-        private static List<FrostbitePartEntry> GetFrostbiteParts(BodyDef bodyDef)
+        private static void ReplaceOrganicStandardForThingDef(
+            ThingDef def,
+            HediffGiverSetDef organicStandard,
+            HediffGiverSetDef replacement)
         {
-            if (bodyDef == null)
+            List<HediffGiverSetDef> sourceSets = def?.race?.hediffGiverSets;
+            if (sourceSets == null || sourceSets.Count == 0 || replacement == null)
+            {
+                return;
+            }
+
+            bool replacedAny = false;
+            List<HediffGiverSetDef> updatedSets = null;
+            for (int i = 0; i < sourceSets.Count; i++)
+            {
+                HediffGiverSetDef current = sourceSets[i];
+                if (!ReferenceEquals(current, organicStandard)
+                    && !string.Equals(current?.defName, OrganicStandardDefName, StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                if (updatedSets == null)
+                {
+                    updatedSets = new List<HediffGiverSetDef>(sourceSets);
+                }
+
+                updatedSets[i] = replacement;
+                replacedAny = true;
+            }
+
+            if (!replacedAny || updatedSets == null)
+            {
+                return;
+            }
+
+            originalHediffGiverSetsByDef[def] = new List<HediffGiverSetDef>(sourceSets);
+            def.race.hediffGiverSets = updatedSets;
+        }
+
+        private static void RestoreOriginalHediffGiverSets()
+        {
+            if (originalHediffGiverSetsByDef.Count == 0)
+            {
+                return;
+            }
+
+            foreach (KeyValuePair<ThingDef, List<HediffGiverSetDef>> entry in originalHediffGiverSetsByDef)
+            {
+                ThingDef def = entry.Key;
+                if (def?.race == null)
+                {
+                    continue;
+                }
+
+                def.race.hediffGiverSets = entry.Value != null
+                    ? new List<HediffGiverSetDef>(entry.Value)
+                    : null;
+            }
+
+            originalHediffGiverSetsByDef.Clear();
+        }
+
+        private static HediffGiverSetDef GetOrCreateEctothermicOrganicStandardSet(HediffGiverSetDef organicStandard)
+        {
+            if (ectothermicOrganicStandardSet != null)
+            {
+                return ectothermicOrganicStandardSet;
+            }
+
+            var clone = new HediffGiverSetDef
+            {
+                defName = EctothermicOrganicStandardDefName,
+                hediffGivers = CloneHediffGivers(organicStandard.hediffGivers)
+            };
+
+            ectothermicOrganicStandardSet = clone;
+            return ectothermicOrganicStandardSet;
+        }
+
+        private static List<HediffGiver> CloneHediffGivers(List<HediffGiver> source)
+        {
+            if (source == null)
             {
                 return null;
             }
 
-            if (frostbitePartsByBodyDef.TryGetValue(bodyDef, out List<FrostbitePartEntry> cached))
+            var cloned = new List<HediffGiver>(source.Count);
+            for (int i = 0; i < source.Count; i++)
             {
-                return cached;
+                cloned.Add(CloneHediffGiver(source[i]));
             }
 
-            List<FrostbitePartEntry> parts = new List<FrostbitePartEntry>();
-            List<BodyPartRecord> source = bodyDef.AllPartsVulnerableToFrostbite;
-            if (source != null)
+            return cloned;
+        }
+
+        private static HediffGiver CloneHediffGiver(HediffGiver source)
+        {
+            if (source == null)
             {
-                for (int i = 0; i < source.Count; i++)
+                return null;
+            }
+
+            HediffGiver clone = (HediffGiver)CloneObject(source);
+            if (clone is HediffGiver_Hypothermia hypothermia)
+            {
+                HediffDef ectothermicDef = hypothermia.hediffInsectoid ?? hypothermia.hediff;
+                if (ectothermicDef != null)
                 {
-                    BodyPartRecord part = source[i];
-                    if (part?.def == null)
-                    {
-                        continue;
-                    }
-
-                    float vulnerability = part.def.frostbiteVulnerability;
-                    if (vulnerability <= 0f)
-                    {
-                        continue;
-                    }
-
-                    int damageAmount = Mathf.Max(1, Mathf.CeilToInt(part.def.hitPoints * 0.5f));
-                    parts.Add(new FrostbitePartEntry(part, vulnerability, damageAmount));
+                    hypothermia.hediff = ectothermicDef;
                 }
             }
 
-            frostbitePartsByBodyDef[bodyDef] = parts;
-            return parts;
+            return clone;
+        }
+
+        private static object CloneObject(object source)
+        {
+            Type type = source.GetType();
+            object clone;
+            try
+            {
+                clone = Activator.CreateInstance(type, true);
+            }
+            catch
+            {
+                clone = FormatterServices.GetUninitializedObject(type);
+            }
+
+            CopyInstanceFields(type, source, clone);
+            return clone;
+        }
+
+        private static void CopyInstanceFields(Type type, object source, object target)
+        {
+            while (type != null && type != typeof(object))
+            {
+                FieldInfo[] fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly);
+                for (int i = 0; i < fields.Length; i++)
+                {
+                    FieldInfo field = fields[i];
+                    if (field.IsStatic)
+                    {
+                        continue;
+                    }
+
+                    field.SetValue(target, field.GetValue(source));
+                }
+
+                type = type.BaseType;
+            }
         }
     }
 }

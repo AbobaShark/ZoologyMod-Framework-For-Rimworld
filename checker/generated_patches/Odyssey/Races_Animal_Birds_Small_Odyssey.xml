@@ -199,9 +199,18 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[@Name = "SmallBirdThingBase"]/race/mateMtbHours</xpath>
-    <match Class="PatchOperationRemove">
+    <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[@Name = "SmallBirdThingBase"]/race/mateMtbHours</xpath>
+      <value>
+        <mateMtbHours>12</mateMtbHours>
+      </value>
     </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[@Name = "SmallBirdThingBase"]/race</xpath>
+      <value>
+        <mateMtbHours>12</mateMtbHours>
+      </value>
+    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[@Name = "SmallBirdThingBase"]/race/trainability</xpath>
@@ -653,18 +662,9 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Sparrow"]/race/mateMtbHours</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Sparrow"]/race/mateMtbHours</xpath>
-      <value>
-        <mateMtbHours>12</mateMtbHours>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Sparrow"]/race</xpath>
-      <value>
-        <mateMtbHours>12</mateMtbHours>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Sparrow"]/race/trainability</xpath>
@@ -1225,18 +1225,9 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Bluebird"]/race/mateMtbHours</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Bluebird"]/race/mateMtbHours</xpath>
-      <value>
-        <mateMtbHours>12</mateMtbHours>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Bluebird"]/race</xpath>
-      <value>
-        <mateMtbHours>12</mateMtbHours>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Bluebird"]/race/trainability</xpath>
@@ -1797,18 +1788,9 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Crow"]/race/mateMtbHours</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Crow"]/race/mateMtbHours</xpath>
-      <value>
-        <mateMtbHours>12</mateMtbHours>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Crow"]/race</xpath>
-      <value>
-        <mateMtbHours>12</mateMtbHours>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Crow"]/race/trainability</xpath>
@@ -2375,18 +2357,9 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Macaw"]/race/mateMtbHours</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Macaw"]/race/mateMtbHours</xpath>
-      <value>
-        <mateMtbHours>12</mateMtbHours>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Macaw"]/race</xpath>
-      <value>
-        <mateMtbHours>12</mateMtbHours>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Macaw"]/race/trainability</xpath>
@@ -2956,18 +2929,9 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Quail"]/race/mateMtbHours</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Quail"]/race/mateMtbHours</xpath>
-      <value>
-        <mateMtbHours>8</mateMtbHours>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Quail"]/race</xpath>
-      <value>
-        <mateMtbHours>8</mateMtbHours>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Quail"]/race/trainability</xpath>
@@ -3333,13 +3297,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Sparrow"]/statBases/MeleeDodgeChance</xpath>
             <value>
-              <MeleeDodgeChance>1.81</MeleeDodgeChance>
+              <MeleeDodgeChance>1.8</MeleeDodgeChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Sparrow"]/statBases</xpath>
             <value>
-              <MeleeDodgeChance>1.81</MeleeDodgeChance>
+              <MeleeDodgeChance>1.8</MeleeDodgeChance>
             </value>
           </nomatch>
         </li>
@@ -3419,7 +3383,7 @@
                   <li>Blunt</li>
                 </capacities>
                 <power>0.05</power>
-                <armorPenetrationBlunt>0.01</armorPenetrationBlunt>
+                <armorPenetrationBlunt>0</armorPenetrationBlunt>
                 <cooldownTime>1</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
@@ -3432,7 +3396,7 @@
                   <li>Scratch</li>
                 </capacities>
                 <power>0.2</power>
-                <armorPenetrationBlunt>0.01</armorPenetrationBlunt>
+                <armorPenetrationBlunt>0.05</armorPenetrationBlunt>
                 <armorPenetrationSharp>0.01</armorPenetrationSharp>
                 <cooldownTime>1.25</cooldownTime>
                 <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
@@ -3444,7 +3408,7 @@
                   <li>Scratch</li>
                 </capacities>
                 <power>0.2</power>
-                <armorPenetrationBlunt>0.01</armorPenetrationBlunt>
+                <armorPenetrationBlunt>0.05</armorPenetrationBlunt>
                 <armorPenetrationSharp>0.01</armorPenetrationSharp>
                 <cooldownTime>1.25</cooldownTime>
                 <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
@@ -3455,7 +3419,7 @@
                   <li>Blunt</li>
                 </capacities>
                 <power>0.2</power>
-                <armorPenetrationBlunt>0.01</armorPenetrationBlunt>
+                <armorPenetrationBlunt>0.05</armorPenetrationBlunt>
                 <armorPenetrationSharp>0.01</armorPenetrationSharp>
                 <cooldownTime>1.55</cooldownTime>
                 <linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>
@@ -3493,13 +3457,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Bluebird"]/statBases/MeleeDodgeChance</xpath>
             <value>
-              <MeleeDodgeChance>1.74</MeleeDodgeChance>
+              <MeleeDodgeChance>1.75</MeleeDodgeChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Bluebird"]/statBases</xpath>
             <value>
-              <MeleeDodgeChance>1.74</MeleeDodgeChance>
+              <MeleeDodgeChance>1.75</MeleeDodgeChance>
             </value>
           </nomatch>
         </li>
@@ -3579,7 +3543,7 @@
                   <li>Blunt</li>
                 </capacities>
                 <power>0.05</power>
-                <armorPenetrationBlunt>0.01</armorPenetrationBlunt>
+                <armorPenetrationBlunt>0</armorPenetrationBlunt>
                 <cooldownTime>1</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
@@ -3592,7 +3556,7 @@
                   <li>Scratch</li>
                 </capacities>
                 <power>0.3</power>
-                <armorPenetrationBlunt>0.01</armorPenetrationBlunt>
+                <armorPenetrationBlunt>0.05</armorPenetrationBlunt>
                 <armorPenetrationSharp>0.01</armorPenetrationSharp>
                 <cooldownTime>1.25</cooldownTime>
                 <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
@@ -3604,7 +3568,7 @@
                   <li>Scratch</li>
                 </capacities>
                 <power>0.3</power>
-                <armorPenetrationBlunt>0.01</armorPenetrationBlunt>
+                <armorPenetrationBlunt>0.05</armorPenetrationBlunt>
                 <armorPenetrationSharp>0.01</armorPenetrationSharp>
                 <cooldownTime>1.25</cooldownTime>
                 <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
@@ -3615,7 +3579,7 @@
                   <li>Blunt</li>
                 </capacities>
                 <power>0.2</power>
-                <armorPenetrationBlunt>0.01</armorPenetrationBlunt>
+                <armorPenetrationBlunt>0.05</armorPenetrationBlunt>
                 <armorPenetrationSharp>0.01</armorPenetrationSharp>
                 <cooldownTime>1.65</cooldownTime>
                 <linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>
@@ -3653,13 +3617,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Crow"]/statBases/MeleeDodgeChance</xpath>
             <value>
-              <MeleeDodgeChance>1.13</MeleeDodgeChance>
+              <MeleeDodgeChance>1.15</MeleeDodgeChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Crow"]/statBases</xpath>
             <value>
-              <MeleeDodgeChance>1.13</MeleeDodgeChance>
+              <MeleeDodgeChance>1.15</MeleeDodgeChance>
             </value>
           </nomatch>
         </li>
@@ -3668,13 +3632,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Crow"]/statBases/MeleeCritChance</xpath>
             <value>
-              <MeleeCritChance>0.09</MeleeCritChance>
+              <MeleeCritChance>0.1</MeleeCritChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Crow"]/statBases</xpath>
             <value>
-              <MeleeCritChance>0.09</MeleeCritChance>
+              <MeleeCritChance>0.1</MeleeCritChance>
             </value>
           </nomatch>
         </li>
@@ -3683,13 +3647,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Crow"]/statBases/MeleeParryChance</xpath>
             <value>
-              <MeleeParryChance>0.02</MeleeParryChance>
+              <MeleeParryChance>0</MeleeParryChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Crow"]/statBases</xpath>
             <value>
-              <MeleeParryChance>0.02</MeleeParryChance>
+              <MeleeParryChance>0</MeleeParryChance>
             </value>
           </nomatch>
         </li>
@@ -3739,7 +3703,7 @@
                   <li>Blunt</li>
                 </capacities>
                 <power>0.05</power>
-                <armorPenetrationBlunt>0.02</armorPenetrationBlunt>
+                <armorPenetrationBlunt>0.05</armorPenetrationBlunt>
                 <cooldownTime>1.15</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
@@ -3752,8 +3716,8 @@
                   <li>Scratch</li>
                 </capacities>
                 <power>1.3</power>
-                <armorPenetrationBlunt>0.03</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.02</armorPenetrationSharp>
+                <armorPenetrationBlunt>0.1</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.03</armorPenetrationSharp>
                 <cooldownTime>1.6</cooldownTime>
                 <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
               </li>
@@ -3764,8 +3728,8 @@
                   <li>Scratch</li>
                 </capacities>
                 <power>1.3</power>
-                <armorPenetrationBlunt>0.03</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.02</armorPenetrationSharp>
+                <armorPenetrationBlunt>0.1</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.03</armorPenetrationSharp>
                 <cooldownTime>1.6</cooldownTime>
                 <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
               </li>
@@ -3775,8 +3739,8 @@
                   <li>Blunt</li>
                 </capacities>
                 <power>3.6</power>
-                <armorPenetrationBlunt>0.23</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.03</armorPenetrationSharp>
+                <armorPenetrationBlunt>0.3</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.04</armorPenetrationSharp>
                 <cooldownTime>1.9</cooldownTime>
                 <linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>
               </li>
@@ -3843,13 +3807,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Macaw"]/statBases/MeleeParryChance</xpath>
             <value>
-              <MeleeParryChance>0.03</MeleeParryChance>
+              <MeleeParryChance>0.05</MeleeParryChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Macaw"]/statBases</xpath>
             <value>
-              <MeleeParryChance>0.03</MeleeParryChance>
+              <MeleeParryChance>0.05</MeleeParryChance>
             </value>
           </nomatch>
         </li>
@@ -3899,7 +3863,7 @@
                   <li>Blunt</li>
                 </capacities>
                 <power>0.1</power>
-                <armorPenetrationBlunt>0.04</armorPenetrationBlunt>
+                <armorPenetrationBlunt>0.05</armorPenetrationBlunt>
                 <cooldownTime>1.15</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
@@ -3912,8 +3876,8 @@
                   <li>Scratch</li>
                 </capacities>
                 <power>1.7</power>
-                <armorPenetrationBlunt>0.06</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.02</armorPenetrationSharp>
+                <armorPenetrationBlunt>0.1</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.03</armorPenetrationSharp>
                 <cooldownTime>1.75</cooldownTime>
                 <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
               </li>
@@ -3924,8 +3888,8 @@
                   <li>Scratch</li>
                 </capacities>
                 <power>1.7</power>
-                <armorPenetrationBlunt>0.06</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.02</armorPenetrationSharp>
+                <armorPenetrationBlunt>0.1</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.03</armorPenetrationSharp>
                 <cooldownTime>1.75</cooldownTime>
                 <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
               </li>
@@ -3935,8 +3899,8 @@
                   <li>Blunt</li>
                 </capacities>
                 <power>5.2</power>
-                <armorPenetrationBlunt>0.71</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.08</armorPenetrationSharp>
+                <armorPenetrationBlunt>0.75</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.09</armorPenetrationSharp>
                 <cooldownTime>2.25</cooldownTime>
                 <linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>
               </li>
@@ -3973,13 +3937,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Quail"]/statBases/MeleeDodgeChance</xpath>
             <value>
-              <MeleeDodgeChance>1.46</MeleeDodgeChance>
+              <MeleeDodgeChance>1.45</MeleeDodgeChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Quail"]/statBases</xpath>
             <value>
-              <MeleeDodgeChance>1.46</MeleeDodgeChance>
+              <MeleeDodgeChance>1.45</MeleeDodgeChance>
             </value>
           </nomatch>
         </li>
@@ -4059,7 +4023,7 @@
                   <li>Blunt</li>
                 </capacities>
                 <power>0.05</power>
-                <armorPenetrationBlunt>0.01</armorPenetrationBlunt>
+                <armorPenetrationBlunt>0</armorPenetrationBlunt>
                 <cooldownTime>1.05</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
@@ -4072,8 +4036,8 @@
                   <li>Scratch</li>
                 </capacities>
                 <power>0.6</power>
-                <armorPenetrationBlunt>0.01</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.01</armorPenetrationSharp>
+                <armorPenetrationBlunt>0.05</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.02</armorPenetrationSharp>
                 <cooldownTime>1.45</cooldownTime>
                 <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
               </li>
@@ -4084,8 +4048,8 @@
                   <li>Scratch</li>
                 </capacities>
                 <power>0.6</power>
-                <armorPenetrationBlunt>0.01</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.01</armorPenetrationSharp>
+                <armorPenetrationBlunt>0.05</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.02</armorPenetrationSharp>
                 <cooldownTime>1.45</cooldownTime>
                 <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
               </li>
@@ -4095,7 +4059,7 @@
                   <li>Blunt</li>
                 </capacities>
                 <power>0.3</power>
-                <armorPenetrationBlunt>0.01</armorPenetrationBlunt>
+                <armorPenetrationBlunt>0.05</armorPenetrationBlunt>
                 <armorPenetrationSharp>0.01</armorPenetrationSharp>
                 <cooldownTime>1.75</cooldownTime>
                 <linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>

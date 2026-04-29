@@ -1,0 +1,78 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<Patch>
+
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>Vanilla Animals Expanded — Waste Animals</li>
+    </mods>
+    <nomatch Class="PatchOperationSequence">
+      <operations>
+        <li Class="PatchOperationAdd">
+          <xpath>/Defs</xpath>
+          <value>
+            <ThingDef ParentName="LeatherBase">
+              <defName>VAEWaste_ToxicLeather</defName>
+              <label>wasteleather</label>
+              <description>A poor, dark-greenish brown coloured leather that flakes quite easily. Very flammable.</description>
+              <graphicData>
+                <texPath>Things/Item/Resource/Leather</texPath>
+                <graphicClass>Graphic_StackCount</graphicClass>
+                <color>(87,70,14)</color>
+              </graphicData>
+              <statBases>
+                <MaxHitPoints>50</MaxHitPoints>
+                <DeteriorationRate>2</DeteriorationRate>
+                <Mass>0.03</Mass>
+                <Flammability>2</Flammability>
+                <MarketValue>1.7</MarketValue>
+                <StuffPower_Armor_Sharp>0.7</StuffPower_Armor_Sharp>
+                <StuffPower_Armor_Blunt>0.15</StuffPower_Armor_Blunt>
+                <StuffPower_Armor_Heat>0.8</StuffPower_Armor_Heat>
+                <StuffPower_Insulation_Cold>14</StuffPower_Insulation_Cold>
+                <StuffPower_Insulation_Heat>14</StuffPower_Insulation_Heat>
+              </statBases>
+              <stuffProps>
+                <color>(87,70,14)</color>
+                <commonality>0</commonality>
+                <statFactors>
+                  <MaxHitPoints>1.2</MaxHitPoints>
+                  <Flammability>2</Flammability>
+                  <Beauty>0.7</Beauty>
+                </statFactors>
+              </stuffProps>
+            </ThingDef>
+          </value>
+        </li>
+
+        <li Class="PatchOperationFindMod">
+          <mods>
+            <li>Combat Extended</li>
+          </mods>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationReplace">
+                <xpath>/Defs/ThingDef[defName="VAEWaste_ToxicLeather"]/statBases/StuffPower_Armor_Sharp</xpath>
+                <value>
+                  <StuffPower_Armor_Sharp>0.045</StuffPower_Armor_Sharp>
+                </value>
+              </li>
+              <li Class="PatchOperationReplace">
+                <xpath>/Defs/ThingDef[defName="VAEWaste_ToxicLeather"]/statBases/StuffPower_Armor_Blunt</xpath>
+                <value>
+                  <StuffPower_Armor_Blunt>0.02</StuffPower_Armor_Blunt>
+                </value>
+              </li>
+              <li Class="PatchOperationReplace">
+                <xpath>/Defs/ThingDef[defName="VAEWaste_ToxicLeather"]/statBases/StuffPower_Armor_Heat</xpath>
+                <value>
+                  <StuffPower_Armor_Heat>0.009</StuffPower_Armor_Heat>
+                </value>
+              </li>
+            </operations>
+          </match>
+        </li>
+      </operations>
+    </nomatch>
+  </Operation>
+  
+</Patch>

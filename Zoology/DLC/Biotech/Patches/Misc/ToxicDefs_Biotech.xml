@@ -1,85 +1,49 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Patch>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName="VAEWaste_ToxicMeat"]</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName="VAEWaste_ToxicMeat"]</xpath>
-    </match>
-  </Operation>
 
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName="VAEWaste_ToxicLeather"]</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName="VAEWaste_ToxicLeather"]</xpath>
-    </match>
-  </Operation>
-
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/RecipeDef[defName = "Make_Pemmican"]/defaultIngredientFilter/disallowedThingDefs/li[text()="VAEWaste_ToxicMeat"]</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/RecipeDef[defName = "Make_Pemmican"]/defaultIngredientFilter/disallowedThingDefs/li[text()="VAEWaste_ToxicMeat"]</xpath>
-      <value>
-        <li>ToxicMeat</li>
-      </value>
-    </match>
-  </Operation>
-
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/RecipeDef[defName = "Make_PemmicanBulk"]/defaultIngredientFilter/disallowedThingDefs/li[text()="VAEWaste_ToxicMeat"]</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/RecipeDef[defName = "Make_PemmicanBulk"]/defaultIngredientFilter/disallowedThingDefs/li[text()="VAEWaste_ToxicMeat"]</xpath>
-      <value>
-        <li>ToxicMeat</li>
-      </value>
-    </match>
-  </Operation>
-
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/RecipeDef[@Name = "CookMealBase"]/defaultIngredientFilter/disallowedThingDefs/li[text()="VAEWaste_ToxicMeat"]</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/RecipeDef[@Name = "CookMealBase"]/defaultIngredientFilter/disallowedThingDefs/li[text()="VAEWaste_ToxicMeat"]</xpath>
-      <value>
-        <li>ToxicMeat</li>
-      </value>
-    </match>
-  </Operation>
-
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/RecipeDef[defName = "Make_Pemmican"]/defaultIngredientFilter/disallowedThingDefs</xpath>
-    <match Class="PatchOperationConditional">
-      <xpath>/Defs/RecipeDef[defName = "Make_Pemmican"]/defaultIngredientFilter/disallowedThingDefs/li[text()="ToxicMeat"]</xpath>
-      <nomatch Class="PatchOperationAdd">
-        <xpath>/Defs/RecipeDef[defName = "Make_Pemmican"]/defaultIngredientFilter/disallowedThingDefs</xpath>
-        <value>
-          <li>ToxicMeat</li>
-        </value>
-      </nomatch>
-    </match>
-  </Operation>
-
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/RecipeDef[defName = "Make_PemmicanBulk"]/defaultIngredientFilter/disallowedThingDefs</xpath>
-    <match Class="PatchOperationConditional">
-      <xpath>/Defs/RecipeDef[defName = "Make_PemmicanBulk"]/defaultIngredientFilter/disallowedThingDefs/li[text()="ToxicMeat"]</xpath>
-      <nomatch Class="PatchOperationAdd">
-        <xpath>/Defs/RecipeDef[defName = "Make_PemmicanBulk"]/defaultIngredientFilter/disallowedThingDefs</xpath>
-        <value>
-          <li>ToxicMeat</li>
-        </value>
-      </nomatch>
-    </match>
-  </Operation>
-
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/RecipeDef[@Name = "CookMealBase"]/defaultIngredientFilter/disallowedThingDefs</xpath>
-    <match Class="PatchOperationConditional">
-      <xpath>/Defs/RecipeDef[@Name = "CookMealBase"]/defaultIngredientFilter/disallowedThingDefs/li[text()="ToxicMeat"]</xpath>
-      <nomatch Class="PatchOperationAdd">
-        <xpath>/Defs/RecipeDef[@Name = "CookMealBase"]/defaultIngredientFilter/disallowedThingDefs</xpath>
-        <value>
-          <li>ToxicMeat</li>
-        </value>
-      </nomatch>
-    </match>
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>Vanilla Animals Expanded — Waste Animals</li>
+    </mods>
+    <nomatch Class="PatchOperationSequence">
+      <operations>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/RecipeDef[defName = "Make_Pemmican"]/defaultIngredientFilter/disallowedThingDefs</xpath>
+          <match Class="PatchOperationConditional">
+            <xpath>/Defs/RecipeDef[defName = "Make_Pemmican"]/defaultIngredientFilter/disallowedThingDefs/li[text()="ToxicMeat"]</xpath>
+            <nomatch Class="PatchOperationAdd">
+              <xpath>/Defs/RecipeDef[defName = "Make_Pemmican"]/defaultIngredientFilter/disallowedThingDefs</xpath>
+              <value>
+                <li>ToxicMeat</li>
+              </value>
+            </nomatch>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/RecipeDef[defName = "Make_PemmicanBulk"]/defaultIngredientFilter/disallowedThingDefs</xpath>
+          <match Class="PatchOperationConditional">
+            <xpath>/Defs/RecipeDef[defName = "Make_PemmicanBulk"]/defaultIngredientFilter/disallowedThingDefs/li[text()="ToxicMeat"]</xpath>
+            <nomatch Class="PatchOperationAdd">
+              <xpath>/Defs/RecipeDef[defName = "Make_PemmicanBulk"]/defaultIngredientFilter/disallowedThingDefs</xpath>
+              <value>
+                <li>ToxicMeat</li>
+              </value>
+            </nomatch>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/RecipeDef[@Name = "CookMealBase"]/defaultIngredientFilter/disallowedThingDefs</xpath>
+          <match Class="PatchOperationConditional">
+            <xpath>/Defs/RecipeDef[@Name = "CookMealBase"]/defaultIngredientFilter/disallowedThingDefs/li[text()="ToxicMeat"]</xpath>
+            <nomatch Class="PatchOperationAdd">
+              <xpath>/Defs/RecipeDef[@Name = "CookMealBase"]/defaultIngredientFilter/disallowedThingDefs</xpath>
+              <value>
+                <li>ToxicMeat</li>
+              </value>
+            </nomatch>
+          </match>
+        </li>
+      </operations>
+    </nomatch>
   </Operation>
 </Patch>

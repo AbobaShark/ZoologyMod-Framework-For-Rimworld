@@ -1,5 +1,33 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Patch>
+
+	<!-- Fennec fox eats insects -->
+	<Operation Class="PatchOperationSequence">
+		<operations>
+			<li Class="PatchOperationConditional">
+				<xpath>Defs/ThingDef[defName="Fox_Fennec"]/comps</xpath>
+				<nomatch Class="PatchOperationAdd">
+					<xpath>Defs/ThingDef[defName="Fox_Fennec"]</xpath>
+					<value>
+						<comps/>
+					</value>
+				</nomatch>
+			</li>
+			<li Class="PatchOperationConditional">
+				<xpath>Defs/ThingDef[defName="Fox_Fennec"]/comps/li[@Class="VEF.AnimalBehaviours.CompProperties_AutoNutrition"]</xpath>
+				<nomatch Class="PatchOperationAdd">
+					<xpath>Defs/ThingDef[defName="Fox_Fennec"]/comps</xpath>
+					<value>
+						<li Class="VEF.AnimalBehaviours.CompProperties_AutoNutrition">
+							<tickInterval>2000</tickInterval>
+							<consumingFoodReportString>Eating insects</consumingFoodReportString>
+						</li>
+					</value>
+				</nomatch>
+			</li>
+		</operations>
+	</Operation>
+
 	<!-- Pangolin replace EatAntsWhenHungry with AutoNutrition safely -->
 	<Operation Class="PatchOperationFindMod">
 	  <mods>

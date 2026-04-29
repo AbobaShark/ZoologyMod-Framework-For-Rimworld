@@ -1,8 +1,173 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <Patch>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName="ToxicMeat"]</xpath>
+
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>Vanilla Animals Expanded — Waste Animals</li>
+    </mods>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs</xpath>
+      <value>
+        <!-- Bases -->
+        <ThingDef Name="ToxicRawMeatBase" Abstract="True" ParentName="OrganicProductBase">
+          <label>Base meat properties</label>
+          <comps>
+            <li Class="CompProperties_Rottable">
+              <daysToRotStart>2</daysToRotStart>
+              <rotDestroys>True</rotDestroys>
+            </li>
+          </comps>
+          <statBases>
+            <Nutrition>0.05</Nutrition>
+            <Flammability>0.5</Flammability>
+            <FoodPoisonChanceFixedHuman>0.02</FoodPoisonChanceFixedHuman>
+          </statBases>
+          <ingestible>
+            <foodType>Meat</foodType>
+            <preferability>DesperateOnly</preferability>
+            <ingestEffect>EatMeat</ingestEffect>
+            <ingestSound>RawMeat_Eat</ingestSound>
+          </ingestible>
+          <ingredient>
+            <mergeCompatibilityTags>
+              <li>ToxicMeat</li>
+            </mergeCompatibilityTags>
+          </ingredient>
+          <thingCategories>
+            <li>MeatRaw</li>
+          </thingCategories>
+        </ThingDef>
+        <!-- Toxic meat -->
+        <ThingDef ParentName="ToxicRawMeatBase">
+          <defName>ToxicMeat</defName>
+          <label>toxic meat</label>
+          <description>Raw meat from a toxic animal.\n\nChewy, gelatinous and disgusting.</description>
+		  <graphicData>
+		    <texPath>Things/Item/Resource/Meat</texPath>
+		    <graphicClass>Graphic_StackCount</graphicClass>
+		    <color>(120,160,90)</color>
+		  </graphicData>
+          <statBases>
+            <Mass>0.03</Mass>
+            <MarketValue>2</MarketValue>
+          </statBases>
+          <ingestible>
+            <specialThoughtDirect>AteToxicMeatDirect</specialThoughtDirect>
+            <specialThoughtAsIngredient>AteToxicMeatAsIngredient</specialThoughtAsIngredient>
+            <outcomeDoers>
+              <li Class="IngestionOutcomeDoer_GiveHediff">
+                <hediffDef>ToxicBuildup</hediffDef>
+                <severity>0.05</severity>
+              </li>
+            </outcomeDoers>
+          </ingestible>
+        </ThingDef>
+      </value>
+    </nomatch>
+  </Operation>
+  
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>Vanilla Animals Expanded — Waste Animals</li>
+    </mods>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs</xpath>
+      <value>
+        <ThoughtDef>
+          <defName>AteToxicMeatDirect</defName>
+          <showBubble>true</showBubble>
+          <icon>Things/Mote/ThoughtSymbol/Food</icon>
+          <durationDays>1</durationDays>
+          <stages>
+            <li>
+              <label>ate toxic meat</label>
+              <description>I ate some toxic meat. It was, possibly, the most disgusting thing I've ever tasted.</description>
+              <baseMoodEffect>-6</baseMoodEffect>
+            </li>
+          </stages>
+        </ThoughtDef>
+        <ThoughtDef>
+          <defName>AteToxicMeatAsIngredient</defName>
+          <showBubble>true</showBubble>
+          <icon>Things/Mote/ThoughtSymbol/Food</icon>
+          <durationDays>1</durationDays>
+          <stages>
+            <li>
+              <label>ate cooked toxic meat</label>
+              <description>I ate a meal cooked from toxic meat. The seasoning partly covered the taste, but it still tasted quite poisonous.</description>
+              <baseMoodEffect>-3</baseMoodEffect>
+            </li>
+          </stages>
+        </ThoughtDef>
+      </value>
+    </nomatch>
+  </Operation>
+  
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>Vanilla Animals Expanded — Waste Animals</li>
+    </mods>
     <match Class="PatchOperationSequence">
+      <operations>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName="WasteRat"]/race</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/ThingDef[defName="WasteRat"]/race/useMeatFrom</xpath>
+                <match Class="PatchOperationRemove">
+                  <xpath>/Defs/ThingDef[defName="WasteRat"]/race/useMeatFrom</xpath>
+                </match>
+              </li>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/ThingDef[defName="WasteRat"]/race/specificMeatDef</xpath>
+                <match Class="PatchOperationReplace">
+                  <xpath>/Defs/ThingDef[defName="WasteRat"]/race/specificMeatDef</xpath>
+                  <value>
+                    <specificMeatDef>VAEWaste_ToxicMeat</specificMeatDef>
+                  </value>
+                </match>
+                <nomatch Class="PatchOperationAdd">
+                  <xpath>/Defs/ThingDef[defName="WasteRat"]/race</xpath>
+                  <value>
+                    <specificMeatDef>VAEWaste_ToxicMeat</specificMeatDef>
+                  </value>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName="Toxalope"]/race</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/ThingDef[defName="Toxalope"]/race/useMeatFrom</xpath>
+                <match Class="PatchOperationRemove">
+                  <xpath>/Defs/ThingDef[defName="Toxalope"]/race/useMeatFrom</xpath>
+                </match>
+              </li>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/ThingDef[defName="Toxalope"]/race/specificMeatDef</xpath>
+                <match Class="PatchOperationReplace">
+                  <xpath>/Defs/ThingDef[defName="Toxalope"]/race/specificMeatDef</xpath>
+                  <value>
+                    <specificMeatDef>VAEWaste_ToxicMeat</specificMeatDef>
+                  </value>
+                </match>
+                <nomatch Class="PatchOperationAdd">
+                  <xpath>/Defs/ThingDef[defName="Toxalope"]/race</xpath>
+                  <value>
+                    <specificMeatDef>VAEWaste_ToxicMeat</specificMeatDef>
+                  </value>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+        </li>
+      </operations>
+    </match>
+    <nomatch Class="PatchOperationSequence">
       <operations>
         <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName="WasteRat"]/race</xpath>
@@ -61,6 +226,6 @@
           </match>
         </li>
       </operations>
-    </match>
+    </nomatch>
   </Operation>
 </Patch>

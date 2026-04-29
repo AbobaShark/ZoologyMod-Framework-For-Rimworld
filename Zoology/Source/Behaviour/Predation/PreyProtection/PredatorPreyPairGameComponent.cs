@@ -1496,11 +1496,11 @@ namespace ZoologyMod
                 try
                 {
                     float ownerPower = 1f, eaterPower = 1f;
-                    if (owner != null && owner.kindDef != null) ownerPower = owner.kindDef.combatPower;
-                    if (eater != null && eater.kindDef != null) eaterPower = eater.kindDef.combatPower;
+                    ownerPower = AnimalCombatPowerUtility.GetAdjustedCombatPower(owner);
+                    eaterPower = AnimalCombatPowerUtility.GetAdjustedCombatPower(eater);
                     if (ownerPower <= 0f) ownerPower = 1f;
                     if (eaterPower <= 0f) eaterPower = 1f;
-                    if (eaterPower >= ownerPower * 1.3f) return true;
+                    if (eaterPower >= ownerPower * ModConstants.CombatPowerDominanceFactor) return true;
                 }
                 catch { }
 

@@ -28,6 +28,7 @@ namespace ZoologyMod.HarmonyPatches
         private static readonly Dictionary<int, ScavengerCorpseState> scavengerCorpseStateById =
             new Dictionary<int, ScavengerCorpseState>(64);
         private static int scavengerCorpseStateTick = int.MinValue;
+        private static int scavengerCorpseStateContextVersion = int.MinValue;
         private static readonly Dictionary<int, int> adjacentFallbackScansByMapId = new Dictionary<int, int>(4);
         private static int adjacentFallbackScansTick = int.MinValue;
         private const int MaxAdjacentFallbackScansPerMapPerTick = 1;
@@ -147,11 +148,6 @@ namespace ZoologyMod.HarmonyPatches
                     return false;
                 }
 
-                if (!ScavengerEatingContext.HasAnyActiveEatingContext())
-                {
-                    return false;
-                }
-
                 if (!TryConsumeAdjacentFallbackBudget(corpse.Map))
                 {
                     return false;
@@ -167,6 +163,20 @@ namespace ZoologyMod.HarmonyPatches
             }
         }
 
+        private static void EnsureScavengerCorpseStateCacheFresh(int currentTick)
+        {
+            int contextVersion = ScavengerEatingContext.ChangeVersion;
+            if (scavengerCorpseStateTick == currentTick
+                && scavengerCorpseStateContextVersion == contextVersion)
+            {
+                return;
+            }
+
+            scavengerCorpseStateTick = currentTick;
+            scavengerCorpseStateContextVersion = contextVersion;
+            scavengerCorpseStateById.Clear();
+        }
+
         private static bool TryGetScavengerCorpseState(Corpse corpse, out ScavengerCorpseState state)
         {
             state = default;
@@ -176,11 +186,7 @@ namespace ZoologyMod.HarmonyPatches
             }
 
             int currentTick = Find.TickManager?.TicksGame ?? 0;
-            if (scavengerCorpseStateTick != currentTick)
-            {
-                scavengerCorpseStateTick = currentTick;
-                scavengerCorpseStateById.Clear();
-            }
+            EnsureScavengerCorpseStateCacheFresh(currentTick);
 
             int corpseId = corpse.thingIDNumber;
             if (scavengerCorpseStateById.TryGetValue(corpseId, out state)

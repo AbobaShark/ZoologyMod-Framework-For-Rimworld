@@ -1,0 +1,61 @@
+<Patch>
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>Alpha Animals</li>
+    </mods>
+    <nomatch Class="PatchOperationSequence">
+      <operations>
+        <li Class="PatchOperationAdd">
+          <xpath>/Defs</xpath>
+          <value>
+            <ThingDef ParentName="LeatherBase">
+              <defName>Leather_Chitin</defName>
+              <label>chitin</label>
+              <description>Hard overlapping scales of insect chitin. It is exceptionally durable in combat, but provides little protection from weather.</description>
+              <graphicData>
+                <texPath>Things/Item/Resource/Chitin</texPath>
+                <graphicClass>Graphic_StackCount</graphicClass>
+                <color>(126,112,116)</color>
+              </graphicData>
+              <statBases>
+                <MarketValue>3</MarketValue>
+                <StuffPower_Armor_Sharp>1.12</StuffPower_Armor_Sharp>
+                <StuffPower_Insulation_Cold>14</StuffPower_Insulation_Cold>
+                <StuffPower_Insulation_Heat>14</StuffPower_Insulation_Heat>
+              </statBases>
+              <stuffProps>
+                <color>(126,112,116)</color>
+                <commonality>0.001</commonality>
+                <statFactors>
+                  <MaxHitPoints>1.5</MaxHitPoints>
+                </statFactors>
+              </stuffProps>
+            </ThingDef>
+          </value>
+        </li>
+
+        <li Class="PatchOperationFindMod">
+          <mods>
+            <li>Combat Extended</li>
+          </mods>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationReplace">
+                <xpath>/Defs/ThingDef[defName="Leather_Chitin"]/statBases/StuffPower_Armor_Sharp</xpath>
+                <value>
+                  <StuffPower_Armor_Sharp>0.15</StuffPower_Armor_Sharp>
+                </value>
+              </li>
+              <li Class="PatchOperationAdd">
+                <xpath>/Defs/ThingDef[defName="Leather_Chitin"]/statBases</xpath>
+                <value>
+                  <StuffPower_Armor_Blunt>0.08</StuffPower_Armor_Blunt>
+                </value>
+              </li>
+            </operations>
+          </match>
+        </li>
+      </operations>
+    </nomatch>
+  </Operation>
+</Patch>
