@@ -462,6 +462,11 @@ namespace ZoologyMod
                 return true;
             }
 
+            if (HasAggressiveTargetingOverride(otherPawn, smallPet))
+            {
+                return false;
+            }
+
             bool hostileThreat = true;
             if (otherPawn.RaceProps?.Humanlike != true)
             {
@@ -522,14 +527,109 @@ namespace ZoologyMod
             return settings == null || (!settings.DisableAllRuntimePatches && settings.EnableIgnoreSmallPetsByRaiders);
         }
 
+        private static bool IsThreatPatchRuntimeEnabledNow()
+        {
+            ZoologyModSettings settings = ZoologyModSettings.Instance;
+            return settings == null || !settings.DisableAllRuntimePatches;
+        }
+
+        private static bool IsPlayerFactionRoamer(Pawn pawn)
+        {
+            return pawn != null
+                && pawn.Roamer
+                && ReferenceEquals(pawn.Faction, Faction.OfPlayerSilentFail);
+        }
+
+        private static bool ShouldAllowThreatForDirectRoamerMeleeRetaliation(Pawn threat, Pawn threatenedRoamer)
+        {
+            return threat != null
+                && IsPlayerFactionRoamer(threatenedRoamer)
+                && ZoologyFleeSafetyUtility.IsThreatMeleeAttackingPawn(threat, threatenedRoamer);
+        }
+
+        private static bool ShouldForceMutualHostilityForDirectRoamerMeleeAttack(Pawn firstPawn, Pawn secondPawn)
+        {
+            return ShouldAllowThreatForDirectRoamerMeleeRetaliation(firstPawn, secondPawn)
+                || ShouldAllowThreatForDirectRoamerMeleeRetaliation(secondPawn, firstPawn);
+        }
+
+        private static bool HasAggressiveTargetingOverride(Pawn threat, Pawn target)
+        {
+            if (threat == null || target == null)
+            {
+                return false;
+            }
+
+            if (threat.kindDef?.hostileToAll == true || target.kindDef?.hostileToAll == true)
+            {
+                return true;
+            }
+
+            MentalState threatMentalState = threat.MentalState;
+            if (threatMentalState != null && threatMentalState.ForceHostileTo(target))
+            {
+                return true;
+            }
+
+            MentalState targetMentalState = target.MentalState;
+            if (targetMentalState != null && targetMentalState.ForceHostileTo(threat))
+            {
+                return true;
+            }
+
+            if (threat.IsPrisoner
+                && ReferenceEquals(threat.HostFaction, target.Faction)
+                && PrisonBreakUtility.IsPrisonBreaking(threat))
+            {
+                return true;
+            }
+
+            if (threat.IsSlave
+                && ReferenceEquals(threat.Faction, target.Faction)
+                && SlaveRebellionUtility.IsRebelling(threat))
+            {
+                return true;
+            }
+
+            if (threat.InAggroMentalState || target.InAggroMentalState)
+            {
+                return true;
+            }
+
+            if (ZoologyFleeSafetyUtility.IsThreatMeleeAttackingPawn(threat, target))
+            {
+                return true;
+            }
+
+            Lord lord = threat.GetLord();
+            return lord?.CurLordToil != null
+                && lord.CurLordToil.AllowAggressiveTargetingOfRoamers;
+        }
+
         public static bool Prepare()
         {
-            return IsFeatureEnabledNow();
+            return IsThreatPatchRuntimeEnabledNow();
         }
 
         public static void Postfix(Pawn __instance, IAttackTargetSearcher disabledFor, ref bool __result)
         {
-            if (__result || __instance == null)
+            if (__instance == null)
+            {
+                return;
+            }
+
+            Pawn disabledForPawn = disabledFor?.Thing as Pawn;
+            if (__result)
+            {
+                if (ShouldAllowThreatForDirectRoamerMeleeRetaliation(__instance, disabledForPawn))
+                {
+                    __result = false;
+                }
+
+                return;
+            }
+
+            if (!IsFeatureEnabledNow())
             {
                 return;
             }
@@ -648,11 +748,22 @@ namespace ZoologyMod
         [HarmonyPatch(typeof(GenHostility), nameof(GenHostility.HostileTo), new[] { typeof(Thing), typeof(Thing) })]
         private static class Patch_GenHostility_HostileTo_ThingThing_SmallPetIgnore
         {
-            private static bool Prepare() => IsFeatureEnabledNow();
+            private static bool Prepare() => IsThreatPatchRuntimeEnabledNow();
 
             private static void Postfix(Thing a, Thing b, ref bool __result)
             {
-                if (!IsNoMeleeRetaliationEnabled() || !__result || a is not Pawn pawnA || b is not Pawn pawnB)
+                if (a is not Pawn pawnA || b is not Pawn pawnB)
+                {
+                    return;
+                }
+
+                if (ShouldForceMutualHostilityForDirectRoamerMeleeAttack(pawnA, pawnB))
+                {
+                    __result = true;
+                    return;
+                }
+
+                if (!IsNoMeleeRetaliationEnabled() || !__result)
                 {
                     return;
                 }
