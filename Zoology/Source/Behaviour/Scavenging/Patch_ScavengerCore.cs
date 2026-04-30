@@ -32,6 +32,29 @@ namespace ZoologyMod.HarmonyPatches
         private static readonly Dictionary<int, int> adjacentFallbackScansByMapId = new Dictionary<int, int>(4);
         private static int adjacentFallbackScansTick = int.MinValue;
         private const int MaxAdjacentFallbackScansPerMapPerTick = 1;
+        private static Game runtimeStateGame;
+        private static int runtimeStateLastTick = -1;
+
+        private static void EnsureRuntimeState(int currentTick)
+        {
+            Game currentGame = Current.Game;
+            bool gameChanged = !ReferenceEquals(runtimeStateGame, currentGame);
+            bool tickRewound = currentTick > 0 && runtimeStateLastTick > 0 && currentTick < runtimeStateLastTick;
+            if (gameChanged || tickRewound)
+            {
+                scavengerCorpseStateById.Clear();
+                scavengerCorpseStateTick = int.MinValue;
+                scavengerCorpseStateContextVersion = int.MinValue;
+                adjacentFallbackScansByMapId.Clear();
+                adjacentFallbackScansTick = int.MinValue;
+                runtimeStateGame = currentGame;
+            }
+
+            if (currentTick > 0)
+            {
+                runtimeStateLastTick = currentTick;
+            }
+        }
 
         private static bool TryConsumeAdjacentFallbackBudget(Map map)
         {
@@ -41,6 +64,7 @@ namespace ZoologyMod.HarmonyPatches
             }
 
             int currentTick = Find.TickManager?.TicksGame ?? 0;
+            EnsureRuntimeState(currentTick);
             if (adjacentFallbackScansTick != currentTick)
             {
                 adjacentFallbackScansTick = currentTick;
@@ -138,6 +162,20 @@ namespace ZoologyMod.HarmonyPatches
                 return true;
             }
 
+            if (corpse.Spawned && corpse.Map != null)
+            {
+                ScavengerEatingContext.EnsureMapRecovered(corpse.Map);
+                eater = ScavengerEatingContext.GetEatingPawnForCorpse(corpse);
+                if (eater != null
+                    && !eater.Dead
+                    && !eater.Destroyed
+                    && DefModExtensionCache<ModExtension_IsScavenger>.TryGet(eater, out scav)
+                    && scav != null)
+                {
+                    return true;
+                }
+            }
+
             try
             {
                 eater = null;
@@ -186,6 +224,7 @@ namespace ZoologyMod.HarmonyPatches
             }
 
             int currentTick = Find.TickManager?.TicksGame ?? 0;
+            EnsureRuntimeState(currentTick);
             EnsureScavengerCorpseStateCacheFresh(currentTick);
 
             int corpseId = corpse.thingIDNumber;
@@ -428,13 +467,12 @@ namespace ZoologyMod.HarmonyPatches
                     Action oldInit = toil.initAction;
                     toil.initAction = () =>
                     {
+                        Thing target = null;
+                        Pawn actor = toil.actor;
                         try
                         {
-                            
                             try
                             {
-                                Thing target = null;
-                                Pawn actor = toil.actor;
                                 Job actorJob = actor?.CurJob;
                                 target = TryGetCorpseTarget(actorJob, ingestibleInd);
 
@@ -460,6 +498,12 @@ namespace ZoologyMod.HarmonyPatches
                             Log.Error("[Zoology] Exception in FinalizeIngest init wrapper (outer): " + ex);
                         }
 
+                        if (!IsSafeIngestTarget(target))
+                        {
+                            TryEndIngestJob(actor, ingester);
+                            return;
+                        }
+
                         try { oldInit?.Invoke(); }
                         catch (Exception ex) { Log.Error("[Zoology] Exception in FinalizeIngest oldInit: " + ex); }
                     };
@@ -480,6 +524,70 @@ namespace ZoologyMod.HarmonyPatches
                 catch (Exception e)
                 {
                     Log.Error("[Zoology] Error wrapping FinalizeIngest: " + e);
+                }
+            }
+        }
+
+        private static bool ShouldSendNotificationAboutSafely(Pawn pawn)
+        {
+            if (pawn == null)
+            {
+                return false;
+            }
+
+            try
+            {
+                return PawnUtility.ShouldSendNotificationAbout(pawn);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private static bool IsSafeIngestTarget(Thing target)
+        {
+            if (target == null || target.Destroyed)
+            {
+                return false;
+            }
+
+            if (target is Corpse corpse)
+            {
+                if (corpse.Bugged || corpse.InnerPawn == null)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private static void TryEndIngestJob(Pawn actor, Pawn ingester)
+        {
+            try
+            {
+                ScavengerEatingContext.Clear(ingester);
+                ScavengerEatingContext.ClearHandFeeding(ingester);
+                ScavengerEatingContext.ClearForceIngestible(ingester);
+            }
+            catch (Exception ex)
+            {
+                Log.Error("[Zoology] Exception clearing ScavengerEatingContext for invalid ingest target: " + ex);
+            }
+
+            try
+            {
+                actor?.jobs?.EndCurrentJob(JobCondition.Incompletable);
+            }
+            catch
+            {
+                try
+                {
+                    actor?.jobs?.curDriver?.EndJobWith(JobCondition.Incompletable);
+                }
+                catch
+                {
                 }
             }
         }
@@ -507,6 +615,88 @@ namespace ZoologyMod.HarmonyPatches
             }
         }
 
+        static bool Prefix_IngestedCalculateAmounts(Corpse __instance, Pawn ingester, float nutritionWanted, ref int numTaken, ref float nutritionIngested)
+        {
+            try
+            {
+                if (ingester == null)
+                {
+                    return true;
+                }
+
+                if (!DefModExtensionCache<ModExtension_IsScavenger>.TryGet(ingester, out ModExtension_IsScavenger scav) || scav == null)
+                {
+                    return true;
+                }
+
+                if (CannotChewSettingsGate.Enabled()
+                    && CannotChewUtility.HasCannotChew(ingester)
+                    && CannotChewUtility.IsCorpseTooLarge(ingester, __instance))
+                {
+                    numTaken = 0;
+                    nutritionIngested = 0f;
+                    return false;
+                }
+
+                Pawn innerPawn = __instance?.InnerPawn;
+                if (__instance == null || innerPawn == null || innerPawn.health?.hediffSet == null)
+                {
+                    numTaken = 0;
+                    nutritionIngested = 0f;
+                    return false;
+                }
+
+                BodyPartRecord bodyPart = __instance.GetBestBodyPartToEat(nutritionWanted);
+                if (bodyPart == null)
+                {
+                    Log.Error(ingester + " ate " + __instance + " but no body part was found. Replacing with core part.");
+                    bodyPart = innerPawn.RaceProps?.body?.corePart;
+                    if (bodyPart == null)
+                    {
+                        numTaken = 0;
+                        nutritionIngested = 0f;
+                        return false;
+                    }
+                }
+
+                float bodyPartNutrition = FoodUtility.GetBodyPartNutrition(__instance, bodyPart);
+                BodyPartRecord corePart = innerPawn.RaceProps?.body?.corePart;
+                if (bodyPart == corePart)
+                {
+                    if (ingester != null
+                        && innerPawn.RaceProps?.Humanlike == true
+                        && ShouldSendNotificationAboutSafely(innerPawn))
+                    {
+                        Messages.Message("MessageEatenByPredator".Translate(innerPawn.LabelShort, ingester.Named("PREDATOR"), innerPawn.Named("EATEN")).CapitalizeFirst(), ingester, MessageTypeDefOf.NegativeEvent);
+                    }
+
+                    numTaken = 1;
+                }
+                else
+                {
+                    Hediff_MissingPart hediffMissingPart = (Hediff_MissingPart)HediffMaker.MakeHediff(HediffDefOf.MissingBodyPart, innerPawn, bodyPart);
+                    if (ingester != null)
+                    {
+                        hediffMissingPart.lastInjury = HediffDefOf.Bite;
+                    }
+
+                    hediffMissingPart.IsFresh = true;
+                    innerPawn.health.AddHediff(hediffMissingPart);
+                    numTaken = 0;
+                }
+
+                nutritionIngested = bodyPartNutrition;
+                return false;
+            }
+            catch (Exception e)
+            {
+                Log.Error("[Zoology] Error in Scavenger Corpse.IngestedCalculateAmounts prefix: " + e);
+                numTaken = 0;
+                nutritionIngested = 0f;
+                return false;
+            }
+        }
+
         static void Postfix_IngestedCalculateAmounts(Pawn ingester)
         {
             try
@@ -530,6 +720,8 @@ namespace ZoologyMod.HarmonyPatches
             }
 
             static MethodBase TargetMethod() => TargetMethod_IngestedCalculateAmounts();
+            static bool Prefix(Corpse __instance, Pawn ingester, float nutritionWanted, ref int numTaken, ref float nutritionIngested)
+                => Prefix_IngestedCalculateAmounts(__instance, ingester, nutritionWanted, ref numTaken, ref nutritionIngested);
             static void Postfix(Pawn ingester) => Postfix_IngestedCalculateAmounts(ingester);
         }
 
@@ -555,10 +747,10 @@ namespace ZoologyMod.HarmonyPatches
                     Action oldInit = toil.initAction;
                     toil.initAction = () =>
                     {
+                        Thing target = null;
+                        Pawn actor = toil.actor;
                         try
                         {
-                            Thing target = null;
-                            Pawn actor = toil.actor;
                             Job actorJob = actor?.CurJob;
                             target = TryGetCorpseTarget(actorJob, ingestibleInd);
 
@@ -577,6 +769,12 @@ namespace ZoologyMod.HarmonyPatches
                         catch (Exception ex)
                         {
                             Log.Error("[Zoology] Exception in ChewIngestible init wrapper (SetEating): " + ex);
+                        }
+
+                        if (!IsSafeIngestTarget(target))
+                        {
+                            TryEndIngestJob(actor, chewer);
+                            return;
                         }
 
                         try { oldInit?.Invoke(); }

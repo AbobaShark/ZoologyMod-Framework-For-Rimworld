@@ -27,6 +27,27 @@ namespace ZoologyMod.HarmonyPatches
         private static readonly Dictionary<int, ScavengerSearchState> scavengerSearchStates = new Dictionary<int, ScavengerSearchState>(256);
         private static readonly Dictionary<int, int> mapScansThisTick = new Dictionary<int, int>(8);
         private static int mapScansTick = -1;
+        private static Game runtimeStateGame;
+        private static int runtimeStateLastTick = -1;
+
+        private static void EnsureRuntimeState(int currentTick)
+        {
+            Game currentGame = Current.Game;
+            bool gameChanged = !ReferenceEquals(runtimeStateGame, currentGame);
+            bool tickRewound = currentTick > 0 && runtimeStateLastTick > 0 && currentTick < runtimeStateLastTick;
+            if (gameChanged || tickRewound)
+            {
+                scavengerSearchStates.Clear();
+                mapScansThisTick.Clear();
+                mapScansTick = -1;
+                runtimeStateGame = currentGame;
+            }
+
+            if (currentTick > 0)
+            {
+                runtimeStateLastTick = currentTick;
+            }
+        }
 
         
         [HarmonyPatch(typeof(FoodUtility))]
@@ -56,6 +77,7 @@ namespace ZoologyMod.HarmonyPatches
 
                     if (!DefModExtensionCache<ModExtension_IsScavenger>.TryGet(eater, out ModExtension_IsScavenger scav)) return; 
                     int currentTick = Find.TickManager?.TicksGame ?? 0;
+                    EnsureRuntimeState(currentTick);
 
                     int pawnId = eater.thingIDNumber;
                     if (!scavengerSearchStates.TryGetValue(pawnId, out ScavengerSearchState state))

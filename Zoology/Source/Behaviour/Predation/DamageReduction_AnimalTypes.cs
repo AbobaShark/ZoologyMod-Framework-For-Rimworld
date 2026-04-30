@@ -10,14 +10,17 @@ namespace ZoologyMod.Patches
     public static class DamageReduction_AnimalTypes_PawnTakeDamage
     {
         private const string DamageReductionHarmonyId = "com.abobashark.zoology.damage_reduction";
-        private static readonly Type ScratchWorkerType = AccessTools.TypeByName("DamageWorker_Scratch");
-        private static readonly Type BiteWorkerType = AccessTools.TypeByName("DamageWorker_Bite");
-        private static readonly Type BluntWorkerType = AccessTools.TypeByName("DamageWorker_Blunt");
+        private static bool isPatched;
 
         private static bool ShouldBeEnabledNow()
         {
             var settings = ZoologyModSettings.Instance;
             return settings == null || (!settings.DisableAllRuntimePatches && settings.EnableAnimalDamageReduction);
+        }
+
+        public static void ResetPatchedState()
+        {
+            isPatched = false;
         }
 
         public static void SyncPatchState()
@@ -34,6 +37,11 @@ namespace ZoologyMod.Patches
 
         public static void EnsurePatched()
         {
+            if (isPatched)
+            {
+                return;
+            }
+
             try
             {
                 MethodInfo prefixMethod = AccessTools.Method(typeof(DamageReduction_AnimalTypes_PawnTakeDamage), nameof(Prefix));
@@ -72,9 +80,12 @@ namespace ZoologyMod.Patches
                         harmony.Patch(targetMethod, prefix: new HarmonyMethod(prefixMethod));
                     }
                 }
+
+                isPatched = true;
             }
             catch (Exception ex)
             {
+                isPatched = false;
                 Log.Warning($"[ZoologyMod] DamageReduction_AnimalTypes EnsurePatched failed: {ex}");
             }
         }
@@ -95,9 +106,12 @@ namespace ZoologyMod.Patches
                 {
                     harmony.Unpatch(targetMethods[i], prefixMethod);
                 }
+
+                isPatched = false;
             }
             catch (Exception ex)
             {
+                isPatched = false;
                 Log.Warning($"[ZoologyMod] DamageReduction_AnimalTypes EnsureUnpatched failed: {ex}");
             }
         }
@@ -136,34 +150,38 @@ namespace ZoologyMod.Patches
             try
             {
                 if (!ShouldBeEnabledNow())
-                    return;
-
-                if (dinfo.Def == null) return;
-
-                Pawn victim = __instance as Pawn;
-                if (victim == null) return;
-
-                Thing instigator = dinfo.Instigator;
-                if (instigator == null) return;
-
-                if (!victim.IsAnimal)
                 {
                     return;
                 }
 
-                if (!IsSupportedAnimalDamageType(dinfo)) return;
+                if (dinfo.Def == null)
+                {
+                    return;
+                }
 
-                Pawn attackerPawn = instigator as Pawn;
-                if (attackerPawn == null) return;
+                Pawn victim = __instance as Pawn;
+                if (victim == null || !victim.IsAnimal)
+                {
+                    return;
+                }
+
+                Pawn attackerPawn = dinfo.Instigator as Pawn;
+                if (attackerPawn == null)
+                {
+                    return;
+                }
 
                 bool instigatorIsAnimal = attackerPawn.IsAnimal;
-                bool isNaturalToolAttack = IsPawnNaturalToolAttack(attackerPawn, dinfo);
-                bool isHumanNaturalToolAttack = attackerPawn.RaceProps?.Humanlike == true && isNaturalToolAttack;
+                bool isHumanNaturalAttack = !instigatorIsAnimal && attackerPawn.RaceProps?.Humanlike == true;
+                if (!instigatorIsAnimal && !isHumanNaturalAttack)
+                {
+                    return;
+                }
 
-                if (!instigatorIsAnimal && !isHumanNaturalToolAttack) return;
-
-                // Skip non-natural attacks (equipment/synthetic sources).
-                if (!isNaturalToolAttack) return;
+                if (!IsSupportedNaturalPawnAttack(attackerPawn, dinfo))
+                {
+                    return;
+                }
 
                 bool victimIsPredator = victim.RaceProps?.predator ?? false;
                 bool attackerIsPredator = false;
@@ -177,26 +195,15 @@ namespace ZoologyMod.Patches
                 if (victim.def?.race != null)
                     victimBaseSize = victim.def.race.baseBodySize;
 
-                if (attackerPawn != null)
+                attackerBodySizeActual = attackerPawn.BodySize;
+                attackerIsPredator = attackerPawn.RaceProps?.predator ?? false;
+                if (isHumanNaturalAttack)
                 {
-                    attackerBodySizeActual = attackerPawn.BodySize;
-                    attackerIsPredator = attackerPawn.RaceProps?.predator ?? false;
-                    if (isHumanNaturalToolAttack)
-                    {
-                        attackerIsPredator = false;
-                    }
-                    if (attackerPawn.def?.race != null)
-                        attackerBaseSize = attackerPawn.def.race.baseBodySize;
+                    attackerIsPredator = false;
                 }
-                else
+                if (attackerPawn.def?.race != null)
                 {
-                    ThingDef attackerDef = instigator.def;
-                    if (attackerDef != null)
-                    {
-                        attackerIsPredator = attackerDef.race?.predator ?? false;
-                        attackerBaseSize = attackerDef.race?.baseBodySize ?? 1f;
-                        attackerBodySizeActual = attackerDef.race?.baseBodySize ?? 1f;
-                    }
+                    attackerBaseSize = attackerPawn.def.race.baseBodySize;
                 }
 
                 float beforeAmount = dinfo.Amount;
@@ -245,15 +252,9 @@ namespace ZoologyMod.Patches
                 {
                     try
                     {
-                        dinfo = new DamageInfo(
-                            dinfo.Def,
-                            newAmount,
-                            dinfo.ArmorPenetrationInt,
-                            dinfo.Angle,
-                            dinfo.Instigator,
-                            dinfo.HitPart,
-                            dinfo.Weapon
-                        );
+                        DamageInfo updatedDamageInfo = new DamageInfo(dinfo);
+                        updatedDamageInfo.SetAmount(newAmount);
+                        dinfo = updatedDamageInfo;
                     }
                     catch
                     {
@@ -268,49 +269,26 @@ namespace ZoologyMod.Patches
             }
         }
 
-        private static bool IsSupportedAnimalDamageType(DamageInfo dinfo)
+        private static bool IsSupportedNaturalPawnAttack(Pawn attackerPawn, DamageInfo dinfo)
         {
-            if (dinfo.Def == null)
+            if (attackerPawn == null || dinfo.Def == null)
             {
                 return false;
             }
 
-            Type workerClass = dinfo.Def.workerClass;
-            bool isScratch = ScratchWorkerType != null
-                && workerClass != null
-                && (workerClass == ScratchWorkerType || workerClass.IsSubclassOf(ScratchWorkerType));
-            bool isBite = BiteWorkerType != null
-                && workerClass != null
-                && (workerClass == BiteWorkerType || workerClass.IsSubclassOf(BiteWorkerType));
-            bool isBlunt = BluntWorkerType != null
-                && workerClass != null
-                && (workerClass == BluntWorkerType || workerClass.IsSubclassOf(BluntWorkerType));
-
-            if (isScratch || isBite || isBlunt)
-            {
-                return true;
-            }
-
-            // CE-legacy fallback: some old saves carry non-vanilla worker class.
-            if (dinfo.Def.isRanged)
+            if (!attackerPawn.IsAnimal && attackerPawn.RaceProps?.Humanlike != true)
             {
                 return false;
             }
 
-            DamageArmorCategoryDef armorCategory = dinfo.Def.armorCategory;
-            return armorCategory == DamageArmorCategoryDefOf.Sharp
-                || (armorCategory != null && string.Equals(armorCategory.defName, "Blunt", StringComparison.OrdinalIgnoreCase));
-        }
-
-        private static bool IsPawnNaturalToolAttack(Pawn attackerPawn, DamageInfo dinfo)
-        {
-            if (attackerPawn == null)
-            {
-                return false;
-            }
-
-            // Bionic or hediff-based tool (e.g., bionic arms/jaws) should not be reduced.
+            // Skip hediff-driven body attacks such as bionics/implants.
             if (dinfo.WeaponLinkedHediff != null)
+            {
+                return false;
+            }
+
+            ThingDef weapon = dinfo.Weapon;
+            if (weapon != null && weapon != attackerPawn.def)
             {
                 return false;
             }
@@ -318,36 +296,26 @@ namespace ZoologyMod.Patches
             Tool tool = dinfo.Tool;
             if (tool != null)
             {
-                var tools = attackerPawn.def?.tools;
-                if (tools != null && tools.Contains(tool))
+                List<Tool> naturalTools = attackerPawn.def?.tools;
+                if (naturalTools != null && naturalTools.Contains(tool))
                 {
                     return true;
                 }
             }
 
-            ThingDef weapon = dinfo.Weapon;
-            if (weapon != null && weapon == attackerPawn.def)
+            if (weapon == attackerPawn.def)
             {
                 return true;
             }
 
-            // CE-legacy fallback for animal natural melee where weapon/source is stale.
-            if (attackerPawn.IsAnimal
-                && attackerPawn.equipment?.Primary == null
-                && dinfo.Def != null
-                && !dinfo.Def.isRanged)
+            if (attackerPawn.equipment?.Primary != null)
             {
-                DamageArmorCategoryDef armorCategory = dinfo.Def.armorCategory;
-                if (armorCategory == DamageArmorCategoryDefOf.Sharp
-                    || (armorCategory != null && string.Equals(armorCategory.defName, "Blunt", StringComparison.OrdinalIgnoreCase)))
-                {
-                    return true;
-                }
+                return false;
             }
 
-            return false;
+            // Fallback for natural unarmed melee where a modded verb did not preserve tool/weapon metadata.
+            return !dinfo.Def.isRanged;
         }
-
 
     }
 

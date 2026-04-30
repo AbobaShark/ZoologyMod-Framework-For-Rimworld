@@ -135,6 +135,7 @@ namespace ZoologyMod
                 Ectothermic_HarmonyPatches.ResetPatchedState();
                 NoPorcupineQuill_HarmonyPatches.ResetPatchedState();
                 CEPatches_Melee.ResetPatchedState();
+                global::ZoologyMod.Patches.DamageReduction_AnimalTypes_PawnTakeDamage.ResetPatchedState();
 
                 if (logSummary)
                 {

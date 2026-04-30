@@ -6,6 +6,7 @@ using RimWorld;
 using UnityEngine;
 using Verse;
 using Verse.AI;
+using Verse.AI.Group;
 
 namespace ZoologyMod
 {
@@ -280,6 +281,11 @@ namespace ZoologyMod
                 return false;
             }
 
+            if (pawn.GetLord()?.LordJob is LordJob_Ritual && pawn.drafter?.Drafted != true)
+            {
+                return "ZoologyCannotDraftDuringRitual".Translate();
+            }
+
             if (pawn.Downed)
             {
                 return "IsIncapped".Translate(pawn.LabelShort, pawn);
@@ -399,6 +405,45 @@ namespace ZoologyMod
             foreach (Pawn pawn in PawnUtility.SpawnedMasteredPawns(master))
             {
                 UndraftIfMasterUnavailable(pawn);
+            }
+        }
+
+        internal static void UndraftMasteredAnimalsLeftOnMap(Pawn master, Map previousMap)
+        {
+            if (master == null
+                || previousMap == null
+                || master.Faction == null
+                || master.RaceProps == null
+                || !master.RaceProps.Humanlike)
+            {
+                return;
+            }
+
+            List<Pawn> pawns = previousMap.mapPawns?.SpawnedPawnsInFaction(master.Faction);
+            if (pawns == null || pawns.Count == 0)
+            {
+                return;
+            }
+
+            for (int i = 0; i < pawns.Count; i++)
+            {
+                Pawn pawn = pawns[i];
+                if (pawn.playerSettings?.Master != master)
+                {
+                    continue;
+                }
+
+                if (pawn.MapHeld != previousMap)
+                {
+                    continue;
+                }
+
+                if (pawn.drafter == null || !pawn.drafter.Drafted)
+                {
+                    continue;
+                }
+
+                pawn.drafter.Drafted = false;
             }
         }
 
@@ -906,6 +951,20 @@ namespace ZoologyMod
         private static void Postfix(Pawn __instance)
         {
             AnimalDraftControlUtility.UndraftMasteredAnimalsIfMasterDowned(__instance);
+        }
+    }
+
+    [HarmonyPatch(typeof(Pawn), nameof(Pawn.DeSpawn))]
+    public static class Patch_Pawn_DeSpawn_AnimalDraftControl
+    {
+        private static void Prefix(Pawn __instance, ref Map __state)
+        {
+            __state = __instance.Map;
+        }
+
+        private static void Postfix(Pawn __instance, Map __state)
+        {
+            AnimalDraftControlUtility.UndraftMasteredAnimalsLeftOnMap(__instance, __state);
         }
     }
 

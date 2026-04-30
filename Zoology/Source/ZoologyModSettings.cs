@@ -435,16 +435,11 @@ namespace ZoologyMod
             bool prevGuiEnabled = GUI.enabled;
             if (_cePresent) GUI.enabled = false;
 
-            bool wasAnimalDamageReductionEnabled = EnableAnimalDamageReduction;
             list.CheckboxLabeled(
-                "Enable animal damage reduction (halve animal-type damage for predators in defined cases)",
+                "Enable animal damage reduction (reduce natural animal/unarmed damage in predator mismatch cases)",
                 ref EnableAnimalDamageReduction,
-                "When enabled, animal damage types (Scratch/Bite and subclasses) will deal 50% damage to predator targets when: (1) target is predator and >=1.5x bodySize of attacker, or (2) target is predator and attacker is not predator."
+                "When enabled, natural attacks from animals and unarmed humanlikes against animal targets will be reduced in Zoology's predator/prey size-mismatch cases. This also covers blunt and modded natural damage defs, but still excludes hediff/implant-driven attacks such as bionics."
             );
-            if (wasAnimalDamageReductionEnabled != EnableAnimalDamageReduction)
-            {
-                global::ZoologyMod.Patches.DamageReduction_AnimalTypes_PawnTakeDamage.SyncPatchState();
-            }
 
             GUI.enabled = prevGuiEnabled;
 
