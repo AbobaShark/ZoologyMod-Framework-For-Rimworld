@@ -490,9 +490,47 @@ namespace ZoologyMod
             return !ZoologyFleeSafetyUtility.IsThreatMeleeAttackingPawn(otherPawn, smallPet);
         }
 
+        private static bool CouldBeCurrentSmallPetCandidateFast(Pawn pawn, int currentTick)
+        {
+            if (pawn == null)
+            {
+                return false;
+            }
+
+            ResetCachesForCurrentGameIfNeeded();
+            Faction playerFaction = GetPlayerFactionCached();
+            if (playerFaction == null || !ReferenceEquals(pawn.Faction, playerFaction))
+            {
+                return false;
+            }
+
+            RaceProperties raceProps = pawn.RaceProps;
+            if (raceProps?.Animal != true || pawn.Roamer || pawn.Destroyed || pawn.Dead)
+            {
+                return false;
+            }
+
+            EnsureSettingsSnapshot(currentTick);
+            return cachedIgnoreSmallPetsEnabled
+                && cachedSmallPetThreshold >= 0f
+                && raceProps.baseBodySize < cachedSmallPetThreshold;
+        }
+
         private static bool ShouldDisableThreatForSmallPet(Pawn targetPawn, IAttackTargetSearcher disabledFor, int currentTick)
         {
-            if (targetPawn == null || !EnsureSmallPetCandidateSetCached(currentTick))
+            if (targetPawn == null)
+            {
+                return false;
+            }
+
+            Pawn searcherPawn = disabledFor?.Thing as Pawn;
+            if (!CouldBeCurrentSmallPetCandidateFast(targetPawn, currentTick)
+                && !CouldBeCurrentSmallPetCandidateFast(searcherPawn, currentTick))
+            {
+                return false;
+            }
+
+            if (!EnsureSmallPetCandidateSetCached(currentTick))
             {
                 return false;
             }
@@ -502,8 +540,6 @@ namespace ZoologyMod
             {
                 return false;
             }
-
-            Pawn searcherPawn = disabledFor?.Thing as Pawn;
 
             if (IsCurrentSmallPetCandidate(targetPawn, currentTick)
                 && IsCandidateSourceEligible(targetPawn, currentTick))
@@ -525,32 +561,6 @@ namespace ZoologyMod
         {
             ZoologyModSettings settings = ZoologyModSettings.Instance;
             return settings == null || (!settings.DisableAllRuntimePatches && settings.EnableIgnoreSmallPetsByRaiders);
-        }
-
-        private static bool IsThreatPatchRuntimeEnabledNow()
-        {
-            ZoologyModSettings settings = ZoologyModSettings.Instance;
-            return settings == null || !settings.DisableAllRuntimePatches;
-        }
-
-        private static bool IsPlayerFactionRoamer(Pawn pawn)
-        {
-            return pawn != null
-                && pawn.Roamer
-                && ReferenceEquals(pawn.Faction, Faction.OfPlayerSilentFail);
-        }
-
-        private static bool ShouldAllowThreatForDirectRoamerMeleeRetaliation(Pawn threat, Pawn threatenedRoamer)
-        {
-            return threat != null
-                && IsPlayerFactionRoamer(threatenedRoamer)
-                && ZoologyFleeSafetyUtility.IsThreatMeleeAttackingPawn(threat, threatenedRoamer);
-        }
-
-        private static bool ShouldForceMutualHostilityForDirectRoamerMeleeAttack(Pawn firstPawn, Pawn secondPawn)
-        {
-            return ShouldAllowThreatForDirectRoamerMeleeRetaliation(firstPawn, secondPawn)
-                || ShouldAllowThreatForDirectRoamerMeleeRetaliation(secondPawn, firstPawn);
         }
 
         private static bool HasAggressiveTargetingOverride(Pawn threat, Pawn target)
@@ -608,28 +618,12 @@ namespace ZoologyMod
 
         public static bool Prepare()
         {
-            return IsThreatPatchRuntimeEnabledNow();
+            return IsFeatureEnabledNow();
         }
 
         public static void Postfix(Pawn __instance, IAttackTargetSearcher disabledFor, ref bool __result)
         {
-            if (__instance == null)
-            {
-                return;
-            }
-
-            Pawn disabledForPawn = disabledFor?.Thing as Pawn;
-            if (__result)
-            {
-                if (ShouldAllowThreatForDirectRoamerMeleeRetaliation(__instance, disabledForPawn))
-                {
-                    __result = false;
-                }
-
-                return;
-            }
-
-            if (!IsFeatureEnabledNow())
+            if (__result || __instance == null)
             {
                 return;
             }
@@ -656,7 +650,10 @@ namespace ZoologyMod
                 return false;
             }
 
-            if (smallPet == null || threat == null || !EnsureSmallPetCandidateSetCached(currentTick))
+            if (smallPet == null
+                || threat == null
+                || !CouldBeCurrentSmallPetCandidateFast(smallPet, currentTick)
+                || !EnsureSmallPetCandidateSetCached(currentTick))
             {
                 return false;
             }
@@ -748,33 +745,22 @@ namespace ZoologyMod
         [HarmonyPatch(typeof(GenHostility), nameof(GenHostility.HostileTo), new[] { typeof(Thing), typeof(Thing) })]
         private static class Patch_GenHostility_HostileTo_ThingThing_SmallPetIgnore
         {
-            private static bool Prepare() => IsThreatPatchRuntimeEnabledNow();
+            private static bool Prepare() => IsFeatureEnabledNow();
 
             private static void Postfix(Thing a, Thing b, ref bool __result)
             {
-                if (a is not Pawn pawnA || b is not Pawn pawnB)
-                {
-                    return;
-                }
-
-                if (ShouldForceMutualHostilityForDirectRoamerMeleeAttack(pawnA, pawnB))
-                {
-                    __result = true;
-                    return;
-                }
-
-                if (!IsNoMeleeRetaliationEnabled() || !__result)
-                {
-                    return;
-                }
-
-                ResetCachesForCurrentGameIfNeeded();
-                if (cachedGame == null)
+                if (!IsNoMeleeRetaliationEnabled() || !__result || a is not Pawn pawnA || b is not Pawn pawnB)
                 {
                     return;
                 }
 
                 int currentTick = Find.TickManager?.TicksGame ?? 0;
+                if (!CouldBeCurrentSmallPetCandidateFast(pawnA, currentTick)
+                    && !CouldBeCurrentSmallPetCandidateFast(pawnB, currentTick))
+                {
+                    return;
+                }
+
                 if (ShouldSuppressMutualHostility(pawnA, pawnB, currentTick))
                 {
                     __result = false;
@@ -794,14 +780,9 @@ namespace ZoologyMod
                     return;
                 }
 
-                ResetCachesForCurrentGameIfNeeded();
-                if (cachedGame == null)
-                {
-                    return;
-                }
-
                 int currentTick = Find.TickManager?.TicksGame ?? 0;
-                if (!EnsureSmallPetCandidateSetCached(currentTick))
+                if (!CouldBeCurrentSmallPetCandidateFast(pawn, currentTick)
+                    || !EnsureSmallPetCandidateSetCached(currentTick))
                 {
                     return;
                 }
