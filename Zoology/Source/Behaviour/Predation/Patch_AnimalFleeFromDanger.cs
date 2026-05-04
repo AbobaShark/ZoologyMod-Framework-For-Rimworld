@@ -365,18 +365,16 @@ namespace ZoologyMod
 
         private readonly struct PawnFleeDecisionCacheEntry
         {
-            public PawnFleeDecisionCacheEntry(int tick, int mapId, bool hasJob, Job job)
+            public PawnFleeDecisionCacheEntry(int tick, int mapId, bool hasJob)
             {
                 Tick = tick;
                 MapId = mapId;
                 HasJob = hasJob;
-                Job = job;
             }
 
             public int Tick { get; }
             public int MapId { get; }
             public bool HasJob { get; }
-            public Job Job { get; }
         }
 
         private readonly struct TargetedPredatorEntry
@@ -2783,7 +2781,6 @@ namespace ZoologyMod
             }
 
             hasJob = cached.HasJob;
-            job = cached.Job;
             return true;
         }
 
@@ -2794,11 +2791,21 @@ namespace ZoologyMod
                 return;
             }
 
-            pawnFleeDecisionCacheByPawnId[pawn.thingIDNumber] = new PawnFleeDecisionCacheEntry(
+            int pawnId = pawn.thingIDNumber;
+
+            // RimWorld pools Job instances aggressively. Keeping a live Job in a static cache
+            // can hand the same pooled object to a different pawn later in the same tick and
+            // corrupt cachedDriver ownership. Cache only negative decisions here.
+            if (job != null)
+            {
+                pawnFleeDecisionCacheByPawnId.Remove(pawnId);
+                return;
+            }
+
+            pawnFleeDecisionCacheByPawnId[pawnId] = new PawnFleeDecisionCacheEntry(
                 currentTick,
                 pawn.Map.uniqueID,
-                job != null,
-                job);
+                false);
         }
 
         private static bool HasAggressiveJob(Pawn pawn)
