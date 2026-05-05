@@ -1,79 +1,208 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Patch>
 
-  <Operation Class="PatchOperationFindMod">
-    <mods>
-      <li>Combat Extended</li>
-    </mods>
+	<!-- ==================== Theropod ==================== -->
 
-    <match Class="PatchOperationSequence">
-      <operations>
+	<!-- ========== Add groups entry if it doesn't exist already ========== -->
 
-        <li Class="PatchOperationAdd">
-          <xpath>Defs/BodyDef[defName="BipedalTheropodWithClawsTail"]/corePart/groups</xpath>
-          <value>
-            <li>CoveredByNaturalArmor</li>
-          </value>
-        </li>
+	<Operation Class="PatchOperationConditional">
+		<xpath>Defs/BodyDef[defName="Theropod"]/corePart/groups</xpath>
+		<nomatch Class="PatchOperationAdd">
+			<xpath>Defs/BodyDef[defName="Theropod"]/corePart</xpath>
+			<value>
+				<groups />
+			</value>
+		</nomatch>
+	</Operation>
 
-        <li Class="PatchOperationAdd">
-          <xpath>Defs/BodyDef[defName="BipedalTheropodWithClawsTail"]/corePart/parts/li[def="Tail"]/groups</xpath>
-          <value>
-            <li>CoveredByNaturalArmor</li>
-          </value>
-        </li>
+	<Operation Class="PatchOperationConditional">
+		<xpath>Defs/BodyDef[defName="Theropod"]/corePart/parts/li[def="Tail"]/groups</xpath>
+		<nomatch Class="PatchOperationAdd">
+			<xpath>Defs/BodyDef[defName="Theropod"]/corePart/parts/li[def="Tail"]</xpath>
+			<value>
+				<groups />
+			</value>
+		</nomatch>
+	</Operation>
 
-        <li Class="PatchOperationAdd">
-          <xpath>Defs/BodyDef[defName="BipedalTheropodWithClawsTail"]/corePart/parts/li[def="Neck"]/groups</xpath>
-          <value>
-            <li>CoveredByNaturalArmor</li>
-          </value>
-        </li>
+	<Operation Class="PatchOperationConditional">
+		<xpath>Defs/BodyDef[defName="Theropod"]/corePart/parts/li[def="Neck"]/groups</xpath>
+		<nomatch Class="PatchOperationAdd">
+			<xpath>Defs/BodyDef[defName="Theropod"]/corePart/parts/li[def="Neck"]</xpath>
+			<value>
+				<groups />
+			</value>
+		</nomatch>
+	</Operation>
 
-        <li Class="PatchOperationAdd">
-          <xpath>Defs/BodyDef[defName="BipedalTheropodWithClawsTail"]/corePart/parts/li[def="Neck"]/parts/li[def="HeadWithEarHoles"]/groups</xpath>
-          <value>
-            <li>CoveredByNaturalArmor</li>
-          </value>
-        </li>
+	<Operation Class="PatchOperationConditional">
+		<xpath>Defs/BodyDef[defName="Theropod"]/corePart/parts/li[def="Neck"]/parts/li[def="HeadWithEarHoles"]/groups</xpath>
+		<nomatch Class="PatchOperationAdd">
+			<xpath>Defs/BodyDef[defName="Theropod"]/corePart/parts/li[def="Neck"]/parts/li[def="HeadWithEarHoles"]</xpath>
+			<value>
+				<groups />
+			</value>
+		</nomatch>
+	</Operation>
 
-        <li Class="PatchOperationAdd">
-          <xpath>Defs/BodyDef[defName="BipedalTheropodWithClawsTail"]/corePart/parts/li[def="Neck"]/parts/li[def="HeadWithEarHoles"]/parts/li[def="AnimalJaw"]/groups</xpath>
-          <value>
-            <li>CoveredByNaturalArmor</li>
-          </value>
-        </li>
+	<Operation Class="PatchOperationConditional">
+		<xpath>Defs/BodyDef[defName="Theropod"]/corePart/parts/li[def="Neck"]/parts/li[def="HeadWithEarHoles"]/parts/li[def="AnimalJaw"]/groups</xpath>
+		<nomatch Class="PatchOperationAdd">
+			<xpath>Defs/BodyDef[defName="Theropod"]/corePart/parts/li[def="Neck"]/parts/li[def="HeadWithEarHoles"]/parts/li[def="AnimalJaw"]</xpath>
+			<value>
+				<groups />
+			</value>
+		</nomatch>
+	</Operation>
 
-        <li Class="PatchOperationAdd">
-          <xpath>Defs/BodyDef[defName="BipedalTheropodWithClawsTail"]/corePart/parts/li[def="Arm"]/groups</xpath>
-          <value>
-            <li>CoveredByNaturalArmor</li>
-          </value>
-        </li>
+	<!-- Arms (front limbs) -->
+	<Operation Class="PatchOperationConditional">
+		<xpath>Defs/BodyDef[defName="Theropod"]/corePart/parts/li[def="Arm"]/groups</xpath>
+		<nomatch Class="PatchOperationAdd">
+			<xpath>Defs/BodyDef[defName="Theropod"]/corePart/parts/li[def="Arm"]</xpath>
+			<value>
+				<groups />
+			</value>
+		</nomatch>
+	</Operation>
 
-        <li Class="PatchOperationAdd">
-          <xpath>Defs/BodyDef[defName="BipedalTheropodWithClawsTail"]/corePart/parts/li[def="Arm"]/parts/li[def="FrontClaw"]/groups</xpath>
-          <value>
-            <li>CoveredByNaturalArmor</li>
-          </value>
-        </li>
+	<Operation Class="PatchOperationConditional">
+		<xpath>Defs/BodyDef[defName="Theropod"]/corePart/parts/li[def="Arm"]/parts/li[def="Paw"]/groups</xpath>
+		<nomatch Class="PatchOperationAdd">
+			<xpath>Defs/BodyDef[defName="Theropod"]/corePart/parts/li[def="Arm"]/parts/li[def="Paw"]</xpath>
+			<value>
+				<groups />
+			</value>
+		</nomatch>
+	</Operation>
 
-        <li Class="PatchOperationAdd">
-          <xpath>Defs/BodyDef[defName="BipedalTheropodWithClawsTail"]/corePart/parts/li[def="Leg"]/groups</xpath>
-          <value>
-            <li>CoveredByNaturalArmor</li>
-          </value>
-        </li>
+	<!-- Specific paw customLabel checks (front paws) -->
+	<Operation Class="PatchOperationConditional">
+		<xpath>Defs/BodyDef[defName="Theropod"]/corePart/parts/li[def="Arm"]/parts/li[customLabel="front left paw"]/groups</xpath>
+		<nomatch Class="PatchOperationAdd">
+			<xpath>Defs/BodyDef[defName="Theropod"]/corePart/parts/li[def="Arm"]/parts/li[customLabel="front left paw"]</xpath>
+			<value>
+				<groups />
+			</value>
+		</nomatch>
+	</Operation>
 
-        <li Class="PatchOperationAdd">
-          <xpath>Defs/BodyDef[defName="BipedalTheropodWithClawsTail"]/corePart/parts/li[def="Leg"]/parts/li[def="RearClaw"]/groups</xpath>
-          <value>
-            <li>CoveredByNaturalArmor</li>
-          </value>
-        </li>
+	<Operation Class="PatchOperationConditional">
+		<xpath>Defs/BodyDef[defName="Theropod"]/corePart/parts/li[def="Arm"]/parts/li[customLabel="front right paw"]/groups</xpath>
+		<nomatch Class="PatchOperationAdd">
+			<xpath>Defs/BodyDef[defName="Theropod"]/corePart/parts/li[def="Arm"]/parts/li[customLabel="front right paw"]</xpath>
+			<value>
+				<groups />
+			</value>
+		</nomatch>
+	</Operation>
 
-      </operations>
-    </match>
-  </Operation>
+	<!-- Rear legs / rear paws -->
+	<Operation Class="PatchOperationConditional">
+		<xpath>Defs/BodyDef[defName="Theropod"]/corePart/parts/li[def="Leg"]/groups</xpath>
+		<nomatch Class="PatchOperationAdd">
+			<xpath>Defs/BodyDef[defName="Theropod"]/corePart/parts/li[def="Leg"]</xpath>
+			<value>
+				<groups />
+			</value>
+		</nomatch>
+	</Operation>
+
+	<Operation Class="PatchOperationConditional">
+		<xpath>Defs/BodyDef[defName="Theropod"]/corePart/parts/li[def="Leg"]/parts/li[def="Paw"]/groups</xpath>
+		<nomatch Class="PatchOperationAdd">
+			<xpath>Defs/BodyDef[defName="Theropod"]/corePart/parts/li[def="Leg"]/parts/li[def="Paw"]</xpath>
+			<value>
+				<groups />
+			</value>
+		</nomatch>
+	</Operation>
+
+	<Operation Class="PatchOperationConditional">
+		<xpath>Defs/BodyDef[defName="Theropod"]/corePart/parts/li[def="Leg"]/parts/li[customLabel="rear left paw"]/groups</xpath>
+		<nomatch Class="PatchOperationAdd">
+			<xpath>Defs/BodyDef[defName="Theropod"]/corePart/parts/li[def="Leg"]/parts/li[customLabel="rear left paw"]</xpath>
+			<value>
+				<groups />
+			</value>
+		</nomatch>
+	</Operation>
+
+	<Operation Class="PatchOperationConditional">
+		<xpath>Defs/BodyDef[defName="Theropod"]/corePart/parts/li[def="Leg"]/parts/li[customLabel="rear right paw"]/groups</xpath>
+		<nomatch Class="PatchOperationAdd">
+			<xpath>Defs/BodyDef[defName="Theropod"]/corePart/parts/li[def="Leg"]/parts/li[customLabel="rear right paw"]</xpath>
+			<value>
+				<groups />
+			</value>
+		</nomatch>
+	</Operation>
+
+	<!-- ========== Add armor coverage ========== -->
+
+	<Operation Class="PatchOperationAdd">
+		<xpath>Defs/BodyDef[defName="Theropod"]/corePart/groups</xpath>
+		<value>
+			<li>CoveredByNaturalArmor</li>
+		</value>
+	</Operation>
+
+	<Operation Class="PatchOperationAdd">
+		<xpath>Defs/BodyDef[defName="Theropod"]/corePart/parts/li[def="Tail"]/groups</xpath>
+		<value>
+			<li>CoveredByNaturalArmor</li>
+		</value>
+	</Operation>
+
+	<Operation Class="PatchOperationAdd">
+		<xpath>Defs/BodyDef[defName="Theropod"]/corePart/parts/li[def="Neck"]/groups</xpath>
+		<value>
+			<li>CoveredByNaturalArmor</li>
+		</value>
+	</Operation>
+
+	<Operation Class="PatchOperationAdd">
+		<xpath>Defs/BodyDef[defName="Theropod"]/corePart/parts/li[def="Neck"]/parts/li[def="HeadWithEarHoles"]/groups</xpath>
+		<value>
+			<li>CoveredByNaturalArmor</li>
+		</value>
+	</Operation>
+
+	<Operation Class="PatchOperationAdd">
+		<xpath>Defs/BodyDef[defName="Theropod"]/corePart/parts/li[def="Neck"]/parts/li[def="HeadWithEarHoles"]/parts/li[def="AnimalJaw"]/groups</xpath>
+		<value>
+			<li>CoveredByNaturalArmor</li>
+		</value>
+	</Operation>
+
+	<!-- Arms and front paws -->
+	<Operation Class="PatchOperationAdd">
+		<xpath>Defs/BodyDef[defName="Theropod"]/corePart/parts/li[def="Arm"]/groups</xpath>
+		<value>
+			<li>CoveredByNaturalArmor</li>
+		</value>
+	</Operation>
+
+	<Operation Class="PatchOperationAdd">
+		<xpath>Defs/BodyDef[defName="Theropod"]/corePart/parts/li[def="Arm"]/parts/li[def="Paw"]/groups</xpath>
+		<value>
+			<li>CoveredByNaturalArmor</li>
+		</value>
+	</Operation>
+
+	<!-- Rear legs and rear paws -->
+	<Operation Class="PatchOperationAdd">
+		<xpath>Defs/BodyDef[defName="Theropod"]/corePart/parts/li[def="Leg"]/groups</xpath>
+		<value>
+			<li>CoveredByNaturalArmor</li>
+		</value>
+	</Operation>
+
+	<Operation Class="PatchOperationAdd">
+		<xpath>Defs/BodyDef[defName="Theropod"]/corePart/parts/li[def="Leg"]/parts/li[def="Paw"]/groups</xpath>
+		<value>
+			<li>CoveredByNaturalArmor</li>
+		</value>
+	</Operation>
 
 </Patch>
