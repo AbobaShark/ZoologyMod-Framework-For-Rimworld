@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>Odyssey</li>
+    </mods>
+    <nomatch Class="PatchOperationSequence">
+      <operations>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/BodyPartDef[defName="EyeStalk"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs</xpath>
+            <value>
+              <BodyPartDef>
+                <defName>EyeStalk</defName>
+                <label>eye stalk</label>
+                <hitPoints>10</hitPoints>
+                <permanentInjuryChanceFactor>15</permanentInjuryChanceFactor>
+                <delicate>true</delicate>
+                <skinCovered>false</skinCovered>
+                <beautyRelated>true</beautyRelated>
+                <frostbiteVulnerability>1</frostbiteVulnerability>
+                <tags>
+                  <li>SightSource</li>
+                </tags>
+              </BodyPartDef>
+            </value>
+          </nomatch>
+        </li>
+
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/BodyPartDef[defName="SnailFoot"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs</xpath>
+            <value>
+              <BodyPartDef>
+                <defName>SnailFoot</defName>
+                <label>foot</label>
+                <hitPoints>40</hitPoints>
+                <frostbiteVulnerability>5</frostbiteVulnerability>
+                <permanentInjuryChanceFactor>0</permanentInjuryChanceFactor>
+                <skinCovered>true</skinCovered>
+                <tags>
+                  <li>MovingLimbCore</li>
+                  <li>ManipulationLimbCore</li>
+                </tags>
+              </BodyPartDef>
+            </value>
+          </nomatch>
+        </li>
+
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/BodyPartDef[defName="AnimalShell"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs</xpath>
+            <value>
+              <BodyPartDef>
+                <defName>AnimalShell</defName>
+                <label>shell</label>
+                <hitPoints>50</hitPoints>
+                <permanentInjuryChanceFactor>0</permanentInjuryChanceFactor>
+                <skinCovered>false</skinCovered>
+                <solid>true</solid>
+                <alive>false</alive>
+                <bleedRate>0</bleedRate>
+              </BodyPartDef>
+            </value>
+          </nomatch>
+        </li>
+
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/BodyPartDef[defName="Gills"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs</xpath>
+            <value>
+              <BodyPartDef>
+                <defName>Gills</defName>
+                <label>gills</label>
+                <hitPoints>15</hitPoints>
+                <skinCovered>false</skinCovered>
+                <tags>
+                  <li>BreathingSource</li>
+                </tags>
+              </BodyPartDef>
+            </value>
+          </nomatch>
+        </li>
+      </operations>
+    </nomatch>
+  </Operation>
+</Patch>

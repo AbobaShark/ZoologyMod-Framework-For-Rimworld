@@ -1191,13 +1191,17 @@ class PatchGenerator:
     def _map_lifestage_def(self, original_def, parent):
         if not parent:
             return original_def
-        if str(parent).strip().lower() == 'baseinsect':
-            if original_def == 'AnimalBaby':
-                return 'EusocialInsectLarva'
-            if original_def == 'AnimalJuvenile':
-                return 'EusocialInsectJuvenile'
-            if original_def == 'AnimalAdult':
-                return 'EusocialInsectAdult'
+
+        s = str(parent).strip().lower()
+
+        if s in {'baseinsect', 'baseinsect2'}:
+            mapping = {
+                'AnimalBaby': 'EusocialInsectLarva',
+                'AnimalJuvenile': 'EusocialInsectJuvenile',
+                'AnimalAdult': 'EusocialInsectAdult',
+            }
+            return mapping.get(original_def, original_def)
+
         return original_def
         
     # helper: считаем "No" как отсутствие значения

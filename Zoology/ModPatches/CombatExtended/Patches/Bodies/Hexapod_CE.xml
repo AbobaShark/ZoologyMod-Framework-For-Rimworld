@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+
+  <!-- ==================== AA_Hexapod ==================== -->
+
+  <!-- ========== Add groups entry if it doesn't exist already ========== -->
+
+  <Operation Class="PatchOperationConditional">
+    <xpath>Defs/BodyDef[defName="AA_Hexapod"]/corePart/groups</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>Defs/BodyDef[defName="AA_Hexapod"]/corePart</xpath>
+      <value>
+        <groups />
+      </value>
+    </nomatch>
+  </Operation>
+
+  <Operation Class="PatchOperationConditional">
+    <xpath>Defs/BodyDef[defName="AA_Hexapod"]/corePart/parts/li[def="Tail"]/groups</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>Defs/BodyDef[defName="AA_Hexapod"]/corePart/parts/li[def="Tail"]</xpath>
+      <value>
+        <groups />
+      </value>
+    </nomatch>
+  </Operation>
+
+  <Operation Class="PatchOperationConditional">
+    <xpath>Defs/BodyDef[defName="AA_Hexapod"]/corePart/parts/li[def="Neck"]/groups</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>Defs/BodyDef[defName="AA_Hexapod"]/corePart/parts/li[def="Neck"]</xpath>
+      <value>
+        <groups />
+      </value>
+    </nomatch>
+  </Operation>
+
+  <Operation Class="PatchOperationConditional">
+    <xpath>Defs/BodyDef[defName="AA_Hexapod"]/corePart/parts/li[def="Neck"]/parts/li[def="HeadWithEarHoles"]/groups</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>Defs/BodyDef[defName="AA_Hexapod"]/corePart/parts/li[def="Neck"]/parts/li[def="HeadWithEarHoles"]</xpath>
+      <value>
+        <groups />
+      </value>
+    </nomatch>
+  </Operation>
+
+  <Operation Class="PatchOperationConditional">
+    <xpath>Defs/BodyDef[defName="AA_Hexapod"]/corePart/parts/li[def="Leg"]/groups</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>Defs/BodyDef[defName="AA_Hexapod"]/corePart/parts/li[def="Leg"]</xpath>
+      <value>
+        <groups />
+      </value>
+    </nomatch>
+  </Operation>
+
+  <Operation Class="PatchOperationConditional">
+    <xpath>Defs/BodyDef[defName="AA_Hexapod"]/corePart/parts/li[customLabel="middle left leg"]/parts/li[def="Paw"]/groups</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>Defs/BodyDef[defName="AA_Hexapod"]/corePart/parts/li[customLabel="middle left leg"]/parts/li[def="Paw"]</xpath>
+      <value>
+        <groups />
+      </value>
+    </nomatch>
+  </Operation>
+
+  <Operation Class="PatchOperationConditional">
+    <xpath>Defs/BodyDef[defName="AA_Hexapod"]/corePart/parts/li[customLabel="middle right leg"]/parts/li[def="Paw"]/groups</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>Defs/BodyDef[defName="AA_Hexapod"]/corePart/parts/li[customLabel="middle right leg"]/parts/li[def="Paw"]</xpath>
+      <value>
+        <groups />
+      </value>
+    </nomatch>
+  </Operation>
+
+  <Operation Class="PatchOperationConditional">
+    <xpath>Defs/BodyDef[defName="AA_Hexapod"]/corePart/parts/li[customLabel="rear left leg"]/parts/li[def="Paw"]/groups</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>Defs/BodyDef[defName="AA_Hexapod"]/corePart/parts/li[customLabel="rear left leg"]/parts/li[def="Paw"]</xpath>
+      <value>
+        <groups />
+      </value>
+    </nomatch>
+  </Operation>
+
+  <Operation Class="PatchOperationConditional">
+    <xpath>Defs/BodyDef[defName="AA_Hexapod"]/corePart/parts/li[customLabel="rear right leg"]/parts/li[def="Paw"]/groups</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>Defs/BodyDef[defName="AA_Hexapod"]/corePart/parts/li[customLabel="rear right leg"]/parts/li[def="Paw"]</xpath>
+      <value>
+        <groups />
+      </value>
+    </nomatch>
+  </Operation>
+
+  <!-- ========== Add armor coverage ========== -->
+
+  <Operation Class="PatchOperationAdd">
+    <xpath>Defs/BodyDef[defName="AA_Hexapod"]/corePart/groups</xpath>
+    <value>
+      <li>CoveredByNaturalArmor</li>
+    </value>
+  </Operation>
+
+  <Operation Class="PatchOperationAdd">
+    <xpath>Defs/BodyDef[defName="AA_Hexapod"]/corePart/parts/li[def="Tail"]/groups</xpath>
+    <value>
+      <li>CoveredByNaturalArmor</li>
+    </value>
+  </Operation>
+
+  <Operation Class="PatchOperationAdd">
+    <xpath>Defs/BodyDef[defName="AA_Hexapod"]/corePart/parts/li[def="Neck"]/groups</xpath>
+    <value>
+      <li>CoveredByNaturalArmor</li>
+    </value>
+  </Operation>
+
+  <Operation Class="PatchOperationAdd">
+    <xpath>Defs/BodyDef[defName="AA_Hexapod"]/corePart/parts/li[def="Neck"]/parts/li[def="HeadWithEarHoles"]/groups</xpath>
+    <value>
+      <li>CoveredByNaturalArmor</li>
+    </value>
+  </Operation>
+
+  <Operation Class="PatchOperationAdd">
+    <xpath>Defs/BodyDef[defName="AA_Hexapod"]/corePart/parts/li[def="Neck"]/parts/li[def="HeadWithEarHoles"]/parts/li[def="AnimalJaw"]/groups</xpath>
+    <value>
+      <li>CoveredByNaturalArmor</li>
+    </value>
+  </Operation>
+
+  <Operation Class="PatchOperationAdd">
+    <xpath>Defs/BodyDef[defName="AA_Hexapod"]/corePart/parts/li[def="Leg"]/groups</xpath>
+    <value>
+      <li>CoveredByNaturalArmor</li>
+    </value>
+  </Operation>
+
+  <Operation Class="PatchOperationAdd">
+    <xpath>Defs/BodyDef[defName="AA_Hexapod"]/corePart/parts/li[customLabel="front left leg"]/parts/li[def="Paw"]/groups</xpath>
+    <value>
+      <li>CoveredByNaturalArmor</li>
+    </value>
+  </Operation>
+
+  <Operation Class="PatchOperationAdd">
+    <xpath>Defs/BodyDef[defName="AA_Hexapod"]/corePart/parts/li[customLabel="front right leg"]/parts/li[def="Paw"]/groups</xpath>
+    <value>
+      <li>CoveredByNaturalArmor</li>
+    </value>
+  </Operation>
+
+  <Operation Class="PatchOperationAdd">
+    <xpath>Defs/BodyDef[defName="AA_Hexapod"]/corePart/parts/li[customLabel="middle left leg"]/parts/li[def="Paw"]/groups</xpath>
+    <value>
+      <li>CoveredByNaturalArmor</li>
+    </value>
+  </Operation>
+
+  <Operation Class="PatchOperationAdd">
+    <xpath>Defs/BodyDef[defName="AA_Hexapod"]/corePart/parts/li[customLabel="middle right leg"]/parts/li[def="Paw"]/groups</xpath>
+    <value>
+      <li>CoveredByNaturalArmor</li>
+    </value>
+  </Operation>
+
+  <Operation Class="PatchOperationAdd">
+    <xpath>Defs/BodyDef[defName="AA_Hexapod"]/corePart/parts/li[customLabel="rear left leg"]/parts/li[def="Paw"]/groups</xpath>
+    <value>
+      <li>CoveredByNaturalArmor</li>
+    </value>
+  </Operation>
+
+  <Operation Class="PatchOperationAdd">
+    <xpath>Defs/BodyDef[defName="AA_Hexapod"]/corePart/parts/li[customLabel="rear right leg"]/parts/li[def="Paw"]/groups</xpath>
+    <value>
+      <li>CoveredByNaturalArmor</li>
+    </value>
+  </Operation>
+
+</Patch>
