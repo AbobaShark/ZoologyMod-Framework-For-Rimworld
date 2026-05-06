@@ -61,7 +61,7 @@
       <Caribou>0.175</Caribou>
       <Deer>0.225</Deer>
       <Wolf_Timber>0.075</Wolf_Timber>
-      <Fox_Red>0.1</Fox_Red>
+      <Fox_Red>0.075</Fox_Red>
       <Sparrow>0.5</Sparrow>
       <Bluebird>0.5</Bluebird>
       <Crow>0.5</Crow>
@@ -76,19 +76,37 @@
       <Wolf_Great>0.05</Wolf_Great>
       <AEXP_Coyote MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.075</AEXP_Coyote>
       <AEXP_BlackBear MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.05</AEXP_BlackBear>
+      <AA_AnimusVox MayRequire="sarg.alphaanimals">0.004</AA_AnimusVox>
+      <AA_ArcticLion MayRequire="sarg.alphaanimals">0.002</AA_ArcticLion>
+      <AA_FrostboundBehemoth MayRequire="sarg.alphaanimals">0.002</AA_FrostboundBehemoth>
+      <AA_Blizzarisk MayRequire="sarg.alphaanimals">0.002</AA_Blizzarisk>
+      <AA_BoulderMit MayRequire="sarg.alphaanimals">0.002</AA_BoulderMit>
+      <AA_ChameleonYak MayRequire="sarg.alphaanimals">0.002</AA_ChameleonYak>
+      <AA_CrystalMit MayRequire="sarg.alphaanimals">0.004</AA_CrystalMit>
+      <AA_Darkbeast MayRequire="sarg.alphaanimals">0.002</AA_Darkbeast>
+      <AA_FrostAve MayRequire="sarg.alphaanimals">0.003</AA_FrostAve>
+      <AA_FrostLynx MayRequire="sarg.alphaanimals">0.003</AA_FrostLynx>
+      <AA_Frostling MayRequire="sarg.alphaanimals">0.003</AA_Frostling>
+      <AA_Frostmite MayRequire="sarg.alphaanimals">0.004</AA_Frostmite>
+      <AA_Genix MayRequire="sarg.alphaanimals">0.002</AA_Genix>
+      <AA_PebbleMit MayRequire="sarg.alphaanimals">0.003</AA_PebbleMit>
+      <AA_Thunderbeast MayRequire="sarg.alphaanimals">0.002</AA_Thunderbeast>
+      <AA_WindBeast MayRequire="sarg.alphaanimals">0.002</AA_WindBeast>
     </value>
   </Operation>
   <Operation Class="PatchOperationAdd">
     <xpath>/Defs/BiomeDef[defName="GlacialPlain"]/pollutionWildAnimals</xpath>
     <value>
       <Raccoon>0.3</Raccoon>
-      <Sparrow>0.4</Sparrow>
-      <Crow>0.4</Crow>
-      <VAEWaste_Megatardi MayRequire="VanillaExpanded.VAEWaste">0.075</VAEWaste_Megatardi>
-      <VAEWaste_Toxafox MayRequire="VanillaExpanded.VAEWaste">0.1</VAEWaste_Toxafox>
+      <Sparrow>0.5</Sparrow>
+      <Crow>0.5</Crow>
+      <VAEWaste_Megatardi MayRequire="VanillaExpanded.VAEWaste">0.175</VAEWaste_Megatardi>
+      <VAEWaste_Toxafox MayRequire="VanillaExpanded.VAEWaste">0.075</VAEWaste_Toxafox>
       <VAEWaste_Toxbear MayRequire="VanillaExpanded.VAEWaste">0.05</VAEWaste_Toxbear>
       <VAEWaste_Wastedeer MayRequire="VanillaExpanded.VAEWaste">0.2</VAEWaste_Wastedeer>
       <VAEWaste_Wasteffalo MayRequire="VanillaExpanded.VAEWaste">0.15</VAEWaste_Wasteffalo>
+      <AA_Frostmite MayRequire="sarg.alphaanimals">0.006</AA_Frostmite>
+      <AA_Radyak MayRequire="sarg.alphaanimals">0.005</AA_Radyak>
     </value>
   </Operation>
   <Operation Class="PatchOperationAdd">
@@ -140,6 +158,33 @@
       <xpath>/Defs/BiomeDef[defName="GlacialPlain"]/allowedPackAnimals</xpath>
       <value>
         <li MayRequire="VanillaExpanded.VAEWaste">VAEWaste_Wasteffalo</li>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/BiomeDef[defName="GlacialPlain"]/allowedPackAnimals/li[text()="AA_ChameleonYak"]</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/BiomeDef[defName="GlacialPlain"]/allowedPackAnimals</xpath>
+      <value>
+        <li MayRequire="sarg.alphaanimals">AA_ChameleonYak</li>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/BiomeDef[defName="GlacialPlain"]/allowedPackAnimals/li[text()="AA_FrostAve"]</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/BiomeDef[defName="GlacialPlain"]/allowedPackAnimals</xpath>
+      <value>
+        <li MayRequire="sarg.alphaanimals">AA_FrostAve</li>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/BiomeDef[defName="GlacialPlain"]/allowedPackAnimals/li[text()="AA_Radyak"]</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/BiomeDef[defName="GlacialPlain"]/allowedPackAnimals</xpath>
+      <value>
+        <li MayRequire="sarg.alphaanimals">AA_Radyak</li>
       </value>
     </nomatch>
   </Operation>

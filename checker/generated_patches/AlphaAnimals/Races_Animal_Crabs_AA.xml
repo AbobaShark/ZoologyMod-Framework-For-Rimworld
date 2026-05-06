@@ -18,13 +18,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_BoulderMit"]/statBases/MarketValue</xpath>
       <value>
-        <MarketValue>1375</MarketValue>
+        <MarketValue>1275</MarketValue>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AA_BoulderMit"]/statBases</xpath>
       <value>
-        <MarketValue>1375</MarketValue>
+        <MarketValue>1275</MarketValue>
       </value>
     </nomatch>
   </Operation>
@@ -78,13 +78,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_BoulderMit"]/statBases/ComfyTemperatureMin</xpath>
       <value>
-        <ComfyTemperatureMin>5</ComfyTemperatureMin>
+        <ComfyTemperatureMin>-35</ComfyTemperatureMin>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AA_BoulderMit"]/statBases</xpath>
       <value>
-        <ComfyTemperatureMin>5</ComfyTemperatureMin>
+        <ComfyTemperatureMin>-35</ComfyTemperatureMin>
       </value>
     </nomatch>
   </Operation>
@@ -93,13 +93,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_BoulderMit"]/statBases/ComfyTemperatureMax</xpath>
       <value>
-        <ComfyTemperatureMax>35</ComfyTemperatureMax>
+        <ComfyTemperatureMax>50</ComfyTemperatureMax>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AA_BoulderMit"]/statBases</xpath>
       <value>
-        <ComfyTemperatureMax>35</ComfyTemperatureMax>
+        <ComfyTemperatureMax>50</ComfyTemperatureMax>
       </value>
     </nomatch>
   </Operation>
@@ -182,8 +182,8 @@
           <capacities>
             <li>Scratch</li>
           </capacities>
-          <power>91</power>
-          <cooldownTime>4.4</cooldownTime>
+          <power>89.5</power>
+          <cooldownTime>4.8</cooldownTime>
           <linkedBodyPartsGroup>FrontLeftClaws</linkedBodyPartsGroup>
         </li>
         <li>
@@ -192,8 +192,8 @@
           <capacities>
             <li>Scratch</li>
           </capacities>
-          <power>91</power>
-          <cooldownTime>4.4</cooldownTime>
+          <power>89.5</power>
+          <cooldownTime>4.8</cooldownTime>
           <linkedBodyPartsGroup>FrontRightClaws</linkedBodyPartsGroup>
         </li>
       </tools>
@@ -543,9 +543,29 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_BoulderMit"]/race/lifeStageAges/li[def = 'AnimalJuvenile']</xpath>
+    <xpath>/Defs/ThingDef[defName = "AA_BoulderMit"]/race/lifeStageAges/li[2]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_BoulderMit"]/race/lifeStageAges/li[def = 'AnimalJuvenile']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "AA_BoulderMit"]/race/lifeStageAges/li[2]/def</xpath>
+      <value>
+        <def>AnimalJuvenile</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_BoulderMit"]/race/lifeStageAges/li[3]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "AA_BoulderMit"]/race/lifeStageAges/li[3]/def</xpath>
+      <value>
+        <def>AnimalAdult</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_BoulderMit"]/race/lifeStageAges/li[2]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "AA_BoulderMit"]/race/lifeStageAges/li[2]/minAge</xpath>
       <value>
         <minAge>1.2</minAge>
       </value>
@@ -553,9 +573,9 @@
     <nomatch/>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_BoulderMit"]/race/lifeStageAges/li[def = 'AnimalAdult']</xpath>
+    <xpath>/Defs/ThingDef[defName = "AA_BoulderMit"]/race/lifeStageAges/li[3]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_BoulderMit"]/race/lifeStageAges/li[def = 'AnimalAdult']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "AA_BoulderMit"]/race/lifeStageAges/li[3]/minAge</xpath>
       <value>
         <minAge>2.4</minAge>
       </value>
@@ -648,13 +668,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "AA_BoulderMit"]/combatPower</xpath>
       <value>
-        <combatPower>830</combatPower>
+        <combatPower>755</combatPower>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "AA_BoulderMit"]</xpath>
       <value>
-        <combatPower>830</combatPower>
+        <combatPower>755</combatPower>
       </value>
     </nomatch>
   </Operation>
@@ -717,13 +737,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_CrystalMit"]/statBases/MarketValue</xpath>
       <value>
-        <MarketValue>125</MarketValue>
+        <MarketValue>100</MarketValue>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AA_CrystalMit"]/statBases</xpath>
       <value>
-        <MarketValue>125</MarketValue>
+        <MarketValue>100</MarketValue>
       </value>
     </nomatch>
   </Operation>
@@ -777,13 +797,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_CrystalMit"]/statBases/ComfyTemperatureMin</xpath>
       <value>
-        <ComfyTemperatureMin>5</ComfyTemperatureMin>
+        <ComfyTemperatureMin>-35</ComfyTemperatureMin>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AA_CrystalMit"]/statBases</xpath>
       <value>
-        <ComfyTemperatureMin>5</ComfyTemperatureMin>
+        <ComfyTemperatureMin>-35</ComfyTemperatureMin>
       </value>
     </nomatch>
   </Operation>
@@ -792,13 +812,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_CrystalMit"]/statBases/ComfyTemperatureMax</xpath>
       <value>
-        <ComfyTemperatureMax>35</ComfyTemperatureMax>
+        <ComfyTemperatureMax>50</ComfyTemperatureMax>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AA_CrystalMit"]/statBases</xpath>
       <value>
-        <ComfyTemperatureMax>35</ComfyTemperatureMax>
+        <ComfyTemperatureMax>50</ComfyTemperatureMax>
       </value>
     </nomatch>
   </Operation>
@@ -882,7 +902,7 @@
             <li>Scratch</li>
           </capacities>
           <power>9</power>
-          <cooldownTime>1.7</cooldownTime>
+          <cooldownTime>1.9</cooldownTime>
           <linkedBodyPartsGroup>FrontLeftClaws</linkedBodyPartsGroup>
         </li>
         <li>
@@ -892,7 +912,7 @@
             <li>Scratch</li>
           </capacities>
           <power>9</power>
-          <cooldownTime>1.7</cooldownTime>
+          <cooldownTime>1.9</cooldownTime>
           <linkedBodyPartsGroup>FrontRightClaws</linkedBodyPartsGroup>
         </li>
       </tools>
@@ -1251,9 +1271,29 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_CrystalMit"]/race/lifeStageAges/li[def = 'AnimalJuvenile']</xpath>
+    <xpath>/Defs/ThingDef[defName = "AA_CrystalMit"]/race/lifeStageAges/li[2]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_CrystalMit"]/race/lifeStageAges/li[def = 'AnimalJuvenile']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "AA_CrystalMit"]/race/lifeStageAges/li[2]/def</xpath>
+      <value>
+        <def>AnimalJuvenile</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_CrystalMit"]/race/lifeStageAges/li[3]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "AA_CrystalMit"]/race/lifeStageAges/li[3]/def</xpath>
+      <value>
+        <def>AnimalAdult</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_CrystalMit"]/race/lifeStageAges/li[2]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "AA_CrystalMit"]/race/lifeStageAges/li[2]/minAge</xpath>
       <value>
         <minAge>0.2</minAge>
       </value>
@@ -1261,9 +1301,9 @@
     <nomatch/>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_CrystalMit"]/race/lifeStageAges/li[def = 'AnimalAdult']</xpath>
+    <xpath>/Defs/ThingDef[defName = "AA_CrystalMit"]/race/lifeStageAges/li[3]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_CrystalMit"]/race/lifeStageAges/li[def = 'AnimalAdult']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "AA_CrystalMit"]/race/lifeStageAges/li[3]/minAge</xpath>
       <value>
         <minAge>0.4</minAge>
       </value>
@@ -1350,13 +1390,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "AA_CrystalMit"]/combatPower</xpath>
       <value>
-        <combatPower>65</combatPower>
+        <combatPower>60</combatPower>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "AA_CrystalMit"]</xpath>
       <value>
-        <combatPower>65</combatPower>
+        <combatPower>60</combatPower>
       </value>
     </nomatch>
   </Operation>
@@ -1419,13 +1459,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_PebbleMit"]/statBases/MarketValue</xpath>
       <value>
-        <MarketValue>150</MarketValue>
+        <MarketValue>125</MarketValue>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AA_PebbleMit"]/statBases</xpath>
       <value>
-        <MarketValue>150</MarketValue>
+        <MarketValue>125</MarketValue>
       </value>
     </nomatch>
   </Operation>
@@ -1479,13 +1519,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_PebbleMit"]/statBases/ComfyTemperatureMin</xpath>
       <value>
-        <ComfyTemperatureMin>5</ComfyTemperatureMin>
+        <ComfyTemperatureMin>-35</ComfyTemperatureMin>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AA_PebbleMit"]/statBases</xpath>
       <value>
-        <ComfyTemperatureMin>5</ComfyTemperatureMin>
+        <ComfyTemperatureMin>-35</ComfyTemperatureMin>
       </value>
     </nomatch>
   </Operation>
@@ -1494,13 +1534,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_PebbleMit"]/statBases/ComfyTemperatureMax</xpath>
       <value>
-        <ComfyTemperatureMax>35</ComfyTemperatureMax>
+        <ComfyTemperatureMax>50</ComfyTemperatureMax>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AA_PebbleMit"]/statBases</xpath>
       <value>
-        <ComfyTemperatureMax>35</ComfyTemperatureMax>
+        <ComfyTemperatureMax>50</ComfyTemperatureMax>
       </value>
     </nomatch>
   </Operation>
@@ -1584,7 +1624,7 @@
             <li>Scratch</li>
           </capacities>
           <power>11</power>
-          <cooldownTime>1.85</cooldownTime>
+          <cooldownTime>2.05</cooldownTime>
           <linkedBodyPartsGroup>FrontLeftClaws</linkedBodyPartsGroup>
         </li>
         <li>
@@ -1594,7 +1634,7 @@
             <li>Scratch</li>
           </capacities>
           <power>11</power>
-          <cooldownTime>1.85</cooldownTime>
+          <cooldownTime>2.05</cooldownTime>
           <linkedBodyPartsGroup>FrontRightClaws</linkedBodyPartsGroup>
         </li>
       </tools>
@@ -1953,9 +1993,29 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_PebbleMit"]/race/lifeStageAges/li[def = 'AnimalJuvenile']</xpath>
+    <xpath>/Defs/ThingDef[defName = "AA_PebbleMit"]/race/lifeStageAges/li[2]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_PebbleMit"]/race/lifeStageAges/li[def = 'AnimalJuvenile']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "AA_PebbleMit"]/race/lifeStageAges/li[2]/def</xpath>
+      <value>
+        <def>AnimalJuvenile</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_PebbleMit"]/race/lifeStageAges/li[3]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "AA_PebbleMit"]/race/lifeStageAges/li[3]/def</xpath>
+      <value>
+        <def>AnimalAdult</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_PebbleMit"]/race/lifeStageAges/li[2]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "AA_PebbleMit"]/race/lifeStageAges/li[2]/minAge</xpath>
       <value>
         <minAge>0.3</minAge>
       </value>
@@ -1963,9 +2023,9 @@
     <nomatch/>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_PebbleMit"]/race/lifeStageAges/li[def = 'AnimalAdult']</xpath>
+    <xpath>/Defs/ThingDef[defName = "AA_PebbleMit"]/race/lifeStageAges/li[3]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_PebbleMit"]/race/lifeStageAges/li[def = 'AnimalAdult']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "AA_PebbleMit"]/race/lifeStageAges/li[3]/minAge</xpath>
       <value>
         <minAge>0.6</minAge>
       </value>
@@ -2052,13 +2112,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "AA_PebbleMit"]/combatPower</xpath>
       <value>
-        <combatPower>80</combatPower>
+        <combatPower>75</combatPower>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "AA_PebbleMit"]</xpath>
       <value>
-        <combatPower>80</combatPower>
+        <combatPower>75</combatPower>
       </value>
     </nomatch>
   </Operation>
@@ -2121,13 +2181,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_SummitCrab"]/statBases/MarketValue</xpath>
       <value>
-        <MarketValue>6850</MarketValue>
+        <MarketValue>6325</MarketValue>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AA_SummitCrab"]/statBases</xpath>
       <value>
-        <MarketValue>6850</MarketValue>
+        <MarketValue>6325</MarketValue>
       </value>
     </nomatch>
   </Operation>
@@ -2285,8 +2345,8 @@
           <capacities>
             <li>Scratch</li>
           </capacities>
-          <power>344</power>
-          <cooldownTime>7.3</cooldownTime>
+          <power>341.5</power>
+          <cooldownTime>8</cooldownTime>
           <linkedBodyPartsGroup>FrontLeftClaws</linkedBodyPartsGroup>
         </li>
         <li>
@@ -2295,8 +2355,8 @@
           <capacities>
             <li>Scratch</li>
           </capacities>
-          <power>344</power>
-          <cooldownTime>7.3</cooldownTime>
+          <power>341.5</power>
+          <cooldownTime>8</cooldownTime>
           <linkedBodyPartsGroup>FrontRightClaws</linkedBodyPartsGroup>
         </li>
       </tools>
@@ -2625,9 +2685,29 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_SummitCrab"]/race/lifeStageAges/li[def = 'AnimalJuvenile']</xpath>
+    <xpath>/Defs/ThingDef[defName = "AA_SummitCrab"]/race/lifeStageAges/li[2]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_SummitCrab"]/race/lifeStageAges/li[def = 'AnimalJuvenile']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "AA_SummitCrab"]/race/lifeStageAges/li[2]/def</xpath>
+      <value>
+        <def>AnimalJuvenile</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_SummitCrab"]/race/lifeStageAges/li[3]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "AA_SummitCrab"]/race/lifeStageAges/li[3]/def</xpath>
+      <value>
+        <def>AnimalAdult</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_SummitCrab"]/race/lifeStageAges/li[2]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "AA_SummitCrab"]/race/lifeStageAges/li[2]/minAge</xpath>
       <value>
         <minAge>8.2</minAge>
       </value>
@@ -2635,9 +2715,9 @@
     <nomatch/>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_SummitCrab"]/race/lifeStageAges/li[def = 'AnimalAdult']</xpath>
+    <xpath>/Defs/ThingDef[defName = "AA_SummitCrab"]/race/lifeStageAges/li[3]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_SummitCrab"]/race/lifeStageAges/li[def = 'AnimalAdult']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "AA_SummitCrab"]/race/lifeStageAges/li[3]/minAge</xpath>
       <value>
         <minAge>16.4</minAge>
       </value>
@@ -2730,13 +2810,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "AA_SummitCrab"]/combatPower</xpath>
       <value>
-        <combatPower>4735</combatPower>
+        <combatPower>4315</combatPower>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "AA_SummitCrab"]</xpath>
       <value>
-        <combatPower>4735</combatPower>
+        <combatPower>4315</combatPower>
       </value>
     </nomatch>
   </Operation>
@@ -2859,13 +2939,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_Terramorph"]/statBases/ComfyTemperatureMin</xpath>
       <value>
-        <ComfyTemperatureMin>5</ComfyTemperatureMin>
+        <ComfyTemperatureMin>-15</ComfyTemperatureMin>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AA_Terramorph"]/statBases</xpath>
       <value>
-        <ComfyTemperatureMin>5</ComfyTemperatureMin>
+        <ComfyTemperatureMin>-15</ComfyTemperatureMin>
       </value>
     </nomatch>
   </Operation>
@@ -2874,13 +2954,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_Terramorph"]/statBases/ComfyTemperatureMax</xpath>
       <value>
-        <ComfyTemperatureMax>35</ComfyTemperatureMax>
+        <ComfyTemperatureMax>50</ComfyTemperatureMax>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AA_Terramorph"]/statBases</xpath>
       <value>
-        <ComfyTemperatureMax>35</ComfyTemperatureMax>
+        <ComfyTemperatureMax>50</ComfyTemperatureMax>
       </value>
     </nomatch>
   </Operation>
@@ -2889,13 +2969,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_Terramorph"]/statBases/ArmorRating_Blunt</xpath>
       <value>
-        <ArmorRating_Blunt>0.1</ArmorRating_Blunt>
+        <ArmorRating_Blunt>0.15</ArmorRating_Blunt>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AA_Terramorph"]/statBases</xpath>
       <value>
-        <ArmorRating_Blunt>0.1</ArmorRating_Blunt>
+        <ArmorRating_Blunt>0.15</ArmorRating_Blunt>
       </value>
     </nomatch>
   </Operation>
@@ -2904,13 +2984,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_Terramorph"]/statBases/ArmorRating_Sharp</xpath>
       <value>
-        <ArmorRating_Sharp>0.05</ArmorRating_Sharp>
+        <ArmorRating_Sharp>0.1</ArmorRating_Sharp>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AA_Terramorph"]/statBases</xpath>
       <value>
-        <ArmorRating_Sharp>0.05</ArmorRating_Sharp>
+        <ArmorRating_Sharp>0.1</ArmorRating_Sharp>
       </value>
     </nomatch>
   </Operation>
@@ -3292,9 +3372,29 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_Terramorph"]/race/lifeStageAges/li[def = 'AnimalJuvenile']</xpath>
+    <xpath>/Defs/ThingDef[defName = "AA_Terramorph"]/race/lifeStageAges/li[2]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_Terramorph"]/race/lifeStageAges/li[def = 'AnimalJuvenile']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "AA_Terramorph"]/race/lifeStageAges/li[2]/def</xpath>
+      <value>
+        <def>AnimalJuvenile</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_Terramorph"]/race/lifeStageAges/li[3]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "AA_Terramorph"]/race/lifeStageAges/li[3]/def</xpath>
+      <value>
+        <def>AnimalAdult</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_Terramorph"]/race/lifeStageAges/li[2]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "AA_Terramorph"]/race/lifeStageAges/li[2]/minAge</xpath>
       <value>
         <minAge>0.15</minAge>
       </value>
@@ -3302,9 +3402,9 @@
     <nomatch/>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_Terramorph"]/race/lifeStageAges/li[def = 'AnimalAdult']</xpath>
+    <xpath>/Defs/ThingDef[defName = "AA_Terramorph"]/race/lifeStageAges/li[3]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_Terramorph"]/race/lifeStageAges/li[def = 'AnimalAdult']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "AA_Terramorph"]/race/lifeStageAges/li[3]/minAge</xpath>
       <value>
         <minAge>0.3</minAge>
       </value>
@@ -3581,10 +3681,10 @@
                 <capacities>
                   <li>Scratch</li>
                 </capacities>
-                <power>95.3</power>
+                <power>80.7</power>
                 <armorPenetrationBlunt>169.35</armorPenetrationBlunt>
                 <armorPenetrationSharp>1.87</armorPenetrationSharp>
-                <cooldownTime>5</cooldownTime>
+                <cooldownTime>5.4</cooldownTime>
                 <linkedBodyPartsGroup>FrontLeftClaws</linkedBodyPartsGroup>
               </li>
               <li Class="CombatExtended.ToolCE">
@@ -3593,10 +3693,10 @@
                 <capacities>
                   <li>Scratch</li>
                 </capacities>
-                <power>95.3</power>
+                <power>80.7</power>
                 <armorPenetrationBlunt>169.35</armorPenetrationBlunt>
                 <armorPenetrationSharp>1.87</armorPenetrationSharp>
-                <cooldownTime>5</cooldownTime>
+                <cooldownTime>5.4</cooldownTime>
                 <linkedBodyPartsGroup>FrontRightClaws</linkedBodyPartsGroup>
               </li>
             </tools>
@@ -3775,7 +3875,7 @@
                 <power>9.2</power>
                 <armorPenetrationBlunt>1.8</armorPenetrationBlunt>
                 <armorPenetrationSharp>0.21</armorPenetrationSharp>
-                <cooldownTime>2.35</cooldownTime>
+                <cooldownTime>2.5</cooldownTime>
                 <linkedBodyPartsGroup>FrontLeftClaws</linkedBodyPartsGroup>
               </li>
               <li Class="CombatExtended.ToolCE">
@@ -3787,7 +3887,7 @@
                 <power>9.2</power>
                 <armorPenetrationBlunt>1.8</armorPenetrationBlunt>
                 <armorPenetrationSharp>0.21</armorPenetrationSharp>
-                <cooldownTime>2.35</cooldownTime>
+                <cooldownTime>2.5</cooldownTime>
                 <linkedBodyPartsGroup>FrontRightClaws</linkedBodyPartsGroup>
               </li>
             </tools>
@@ -3966,7 +4066,7 @@
                 <power>10</power>
                 <armorPenetrationBlunt>2.7</armorPenetrationBlunt>
                 <armorPenetrationSharp>0.25</armorPenetrationSharp>
-                <cooldownTime>2.5</cooldownTime>
+                <cooldownTime>2.7</cooldownTime>
                 <linkedBodyPartsGroup>FrontLeftClaws</linkedBodyPartsGroup>
               </li>
               <li Class="CombatExtended.ToolCE">
@@ -3978,7 +4078,7 @@
                 <power>10</power>
                 <armorPenetrationBlunt>2.7</armorPenetrationBlunt>
                 <armorPenetrationSharp>0.25</armorPenetrationSharp>
-                <cooldownTime>2.5</cooldownTime>
+                <cooldownTime>2.7</cooldownTime>
                 <linkedBodyPartsGroup>FrontRightClaws</linkedBodyPartsGroup>
               </li>
             </tools>
@@ -4154,10 +4254,10 @@
                 <capacities>
                   <li>Scratch</li>
                 </capacities>
-                <power>280.5</power>
+                <power>268.5</power>
                 <armorPenetrationBlunt>1988.9</armorPenetrationBlunt>
                 <armorPenetrationSharp>6.25</armorPenetrationSharp>
-                <cooldownTime>8.55</cooldownTime>
+                <cooldownTime>9.3</cooldownTime>
                 <linkedBodyPartsGroup>FrontLeftClaws</linkedBodyPartsGroup>
               </li>
               <li Class="CombatExtended.ToolCE">
@@ -4166,10 +4266,10 @@
                 <capacities>
                   <li>Scratch</li>
                 </capacities>
-                <power>280.5</power>
+                <power>268.5</power>
                 <armorPenetrationBlunt>1988.9</armorPenetrationBlunt>
                 <armorPenetrationSharp>6.25</armorPenetrationSharp>
-                <cooldownTime>8.55</cooldownTime>
+                <cooldownTime>9.3</cooldownTime>
                 <linkedBodyPartsGroup>FrontRightClaws</linkedBodyPartsGroup>
               </li>
             </tools>
@@ -4232,13 +4332,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="AA_Terramorph"]/statBases/ArmorRating_Sharp</xpath>
             <value>
-              <ArmorRating_Sharp>0.01</ArmorRating_Sharp>
+              <ArmorRating_Sharp>0.05</ArmorRating_Sharp>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="AA_Terramorph"]/statBases</xpath>
             <value>
-              <ArmorRating_Sharp>0.01</ArmorRating_Sharp>
+              <ArmorRating_Sharp>0.05</ArmorRating_Sharp>
             </value>
           </nomatch>
         </li>
@@ -4247,13 +4347,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="AA_Terramorph"]/statBases/ArmorRating_Blunt</xpath>
             <value>
-              <ArmorRating_Blunt>0.05</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0.2</ArmorRating_Blunt>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="AA_Terramorph"]/statBases</xpath>
             <value>
-              <ArmorRating_Blunt>0.05</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0.2</ArmorRating_Blunt>
             </value>
           </nomatch>
         </li>

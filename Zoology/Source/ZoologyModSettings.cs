@@ -421,9 +421,9 @@ namespace ZoologyMod
 
             list.GapLine(12f);
             list.CheckboxLabeled(
-                "Enable animal draft control (Zoology_DraftControl)",
+                "Enable animal draft control (Zoology_Beastmastery)",
                 ref EnableAnimalDraftControl,
-                "Enables Zoology draft-control behavior for trained animals (including SentienceCatalyst support) and replaces AttackTarget when both trainables are available."
+                "Enables Zoology beastmastery draft-control behavior for trained animals (including SentienceCatalyst support) and replaces AttackTarget when both trainables are available."
             );
 
             list.GapLine(12f);

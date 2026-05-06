@@ -61,16 +61,33 @@
       <Moose MayRequire="Ludeon.RimWorld.Odyssey">0.15</Moose>
       <Muskox MayRequire="Ludeon.RimWorld.Odyssey">0.15</Muskox>
       <AEXP_ArcticCoyote MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.075</AEXP_ArcticCoyote>
+      <AA_AnimusVox MayRequire="sarg.alphaanimals">0.004</AA_AnimusVox>
+      <AA_ArcticLion MayRequire="sarg.alphaanimals">0.002</AA_ArcticLion>
+      <AA_FrostboundBehemoth MayRequire="sarg.alphaanimals">0.002</AA_FrostboundBehemoth>
+      <AA_Blizzarisk MayRequire="sarg.alphaanimals">0.002</AA_Blizzarisk>
+      <AA_BoulderMit MayRequire="sarg.alphaanimals">0.002</AA_BoulderMit>
+      <AA_ChameleonYak MayRequire="sarg.alphaanimals">0.002</AA_ChameleonYak>
+      <AA_CrystalMit MayRequire="sarg.alphaanimals">0.004</AA_CrystalMit>
+      <AA_Darkbeast MayRequire="sarg.alphaanimals">0.002</AA_Darkbeast>
+      <AA_FrostAve MayRequire="sarg.alphaanimals">0.003</AA_FrostAve>
+      <AA_FrostLynx MayRequire="sarg.alphaanimals">0.003</AA_FrostLynx>
+      <AA_Frostling MayRequire="sarg.alphaanimals">0.003</AA_Frostling>
+      <AA_Frostmite MayRequire="sarg.alphaanimals">0.004</AA_Frostmite>
+      <AA_Genix MayRequire="sarg.alphaanimals">0.002</AA_Genix>
+      <AA_Thunderbeast MayRequire="sarg.alphaanimals">0.002</AA_Thunderbeast>
+      <AA_WindBeast MayRequire="sarg.alphaanimals">0.002</AA_WindBeast>
     </value>
   </Operation>
   <Operation Class="PatchOperationAdd">
     <xpath>/Defs/BiomeDef[defName="Tundra"]/pollutionWildAnimals</xpath>
     <value>
-      <Sparrow MayRequire="Ludeon.RimWorld.Odyssey">0.4</Sparrow>
-      <Crow MayRequire="Ludeon.RimWorld.Odyssey">0.4</Crow>
-      <VAEWaste_Megatardi MayRequire="VanillaExpanded.VAEWaste">0.075</VAEWaste_Megatardi>
-      <VAEWaste_Toxafox MayRequire="VanillaExpanded.VAEWaste">0.1</VAEWaste_Toxafox>
+      <Sparrow MayRequire="Ludeon.RimWorld.Odyssey">0.5</Sparrow>
+      <Crow MayRequire="Ludeon.RimWorld.Odyssey">0.5</Crow>
+      <VAEWaste_Megatardi MayRequire="VanillaExpanded.VAEWaste">0.175</VAEWaste_Megatardi>
+      <VAEWaste_Toxafox MayRequire="VanillaExpanded.VAEWaste">0.075</VAEWaste_Toxafox>
       <VAEWaste_Toxbear MayRequire="VanillaExpanded.VAEWaste">0.05</VAEWaste_Toxbear>
+      <AA_Frostmite MayRequire="sarg.alphaanimals">0.006</AA_Frostmite>
+      <AA_Radyak MayRequire="sarg.alphaanimals">0.005</AA_Radyak>
     </value>
   </Operation>
   <Operation Class="PatchOperationAdd">
@@ -80,7 +97,7 @@
       <SeaLion MayRequire="Ludeon.RimWorld.Odyssey">0.05</SeaLion>
       <Seal MayRequire="Ludeon.RimWorld.Odyssey">0.05</Seal>
       <Walrus MayRequire="Ludeon.RimWorld.Odyssey">0.125</Walrus>
-      <AEXP_RockhopperPenguin MayRequire="VanillaExpanded.VAEEndAndExt">0.05</AEXP_RockhopperPenguin>
+      <AEXP_RockhopperPenguin MayRequire="VanillaExpanded.VAEEndAndExt">0.041</AEXP_RockhopperPenguin>
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
@@ -98,6 +115,33 @@
       <xpath>/Defs/BiomeDef[defName="Tundra"]/allowedPackAnimals</xpath>
       <value>
         <li MayRequire="VanillaExpanded.VAEWaste">VAEWaste_Megatardi</li>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/BiomeDef[defName="Tundra"]/allowedPackAnimals/li[text()="AA_ChameleonYak"]</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/BiomeDef[defName="Tundra"]/allowedPackAnimals</xpath>
+      <value>
+        <li MayRequire="sarg.alphaanimals">AA_ChameleonYak</li>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/BiomeDef[defName="Tundra"]/allowedPackAnimals/li[text()="AA_FrostAve"]</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/BiomeDef[defName="Tundra"]/allowedPackAnimals</xpath>
+      <value>
+        <li MayRequire="sarg.alphaanimals">AA_FrostAve</li>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/BiomeDef[defName="Tundra"]/allowedPackAnimals/li[text()="AA_Radyak"]</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/BiomeDef[defName="Tundra"]/allowedPackAnimals</xpath>
+      <value>
+        <li MayRequire="sarg.alphaanimals">AA_Radyak</li>
       </value>
     </nomatch>
   </Operation>

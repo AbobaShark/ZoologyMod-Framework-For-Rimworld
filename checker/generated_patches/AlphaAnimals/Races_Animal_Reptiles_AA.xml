@@ -78,13 +78,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_AnimaColossus"]/statBases/ComfyTemperatureMin</xpath>
       <value>
-        <ComfyTemperatureMin>5</ComfyTemperatureMin>
+        <ComfyTemperatureMin>-25</ComfyTemperatureMin>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AA_AnimaColossus"]/statBases</xpath>
       <value>
-        <ComfyTemperatureMin>5</ComfyTemperatureMin>
+        <ComfyTemperatureMin>-25</ComfyTemperatureMin>
       </value>
     </nomatch>
   </Operation>
@@ -93,13 +93,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_AnimaColossus"]/statBases/ComfyTemperatureMax</xpath>
       <value>
-        <ComfyTemperatureMax>35</ComfyTemperatureMax>
+        <ComfyTemperatureMax>40</ComfyTemperatureMax>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AA_AnimaColossus"]/statBases</xpath>
       <value>
-        <ComfyTemperatureMax>35</ComfyTemperatureMax>
+        <ComfyTemperatureMax>40</ComfyTemperatureMax>
       </value>
     </nomatch>
   </Operation>
@@ -517,9 +517,29 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_AnimaColossus"]/race/lifeStageAges/li[def = 'AnimalJuvenile']</xpath>
+    <xpath>/Defs/ThingDef[defName = "AA_AnimaColossus"]/race/lifeStageAges/li[2]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_AnimaColossus"]/race/lifeStageAges/li[def = 'AnimalJuvenile']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "AA_AnimaColossus"]/race/lifeStageAges/li[2]/def</xpath>
+      <value>
+        <def>AnimalJuvenile</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_AnimaColossus"]/race/lifeStageAges/li[3]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "AA_AnimaColossus"]/race/lifeStageAges/li[3]/def</xpath>
+      <value>
+        <def>AnimalAdult</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_AnimaColossus"]/race/lifeStageAges/li[2]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "AA_AnimaColossus"]/race/lifeStageAges/li[2]/minAge</xpath>
       <value>
         <minAge>1.2</minAge>
       </value>
@@ -527,9 +547,9 @@
     <nomatch/>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_AnimaColossus"]/race/lifeStageAges/li[def = 'AnimalAdult']</xpath>
+    <xpath>/Defs/ThingDef[defName = "AA_AnimaColossus"]/race/lifeStageAges/li[3]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_AnimaColossus"]/race/lifeStageAges/li[def = 'AnimalAdult']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "AA_AnimaColossus"]/race/lifeStageAges/li[3]/minAge</xpath>
       <value>
         <minAge>2.4</minAge>
       </value>
@@ -724,13 +744,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_Behemoth"]/statBases/ComfyTemperatureMin</xpath>
       <value>
-        <ComfyTemperatureMin>5</ComfyTemperatureMin>
+        <ComfyTemperatureMin>-25</ComfyTemperatureMin>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AA_Behemoth"]/statBases</xpath>
       <value>
-        <ComfyTemperatureMin>5</ComfyTemperatureMin>
+        <ComfyTemperatureMin>-25</ComfyTemperatureMin>
       </value>
     </nomatch>
   </Operation>
@@ -899,13 +919,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_Behemoth"]/race/baseHungerRate</xpath>
       <value>
-        <baseHungerRate>0.95</baseHungerRate>
+        <baseHungerRate>3.05</baseHungerRate>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AA_Behemoth"]/race</xpath>
       <value>
-        <baseHungerRate>0.95</baseHungerRate>
+        <baseHungerRate>3.05</baseHungerRate>
       </value>
     </nomatch>
   </Operation>
@@ -1216,9 +1236,29 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_Behemoth"]/race/lifeStageAges/li[def = 'AnimalJuvenile']</xpath>
+    <xpath>/Defs/ThingDef[defName = "AA_Behemoth"]/race/lifeStageAges/li[2]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_Behemoth"]/race/lifeStageAges/li[def = 'AnimalJuvenile']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "AA_Behemoth"]/race/lifeStageAges/li[2]/def</xpath>
+      <value>
+        <def>AnimalJuvenile</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_Behemoth"]/race/lifeStageAges/li[3]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "AA_Behemoth"]/race/lifeStageAges/li[3]/def</xpath>
+      <value>
+        <def>AnimalAdult</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_Behemoth"]/race/lifeStageAges/li[2]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "AA_Behemoth"]/race/lifeStageAges/li[2]/minAge</xpath>
       <value>
         <minAge>1.2</minAge>
       </value>
@@ -1226,9 +1266,9 @@
     <nomatch/>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_Behemoth"]/race/lifeStageAges/li[def = 'AnimalAdult']</xpath>
+    <xpath>/Defs/ThingDef[defName = "AA_Behemoth"]/race/lifeStageAges/li[3]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_Behemoth"]/race/lifeStageAges/li[def = 'AnimalAdult']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "AA_Behemoth"]/race/lifeStageAges/li[3]/minAge</xpath>
       <value>
         <minAge>2.4</minAge>
       </value>
@@ -1290,12 +1330,6 @@
   <Operation Class="PatchOperationAddModExtension">
     <xpath>/Defs/ThingDef[defName = "AA_Behemoth"]</xpath>
     <value>
-      <li Class="ZoologyMod.ModExtension_Ectothermic, ZoologyMod"/>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationAddModExtension">
-    <xpath>/Defs/ThingDef[defName = "AA_Behemoth"]</xpath>
-    <value>
       <li Class="ZoologyMod.ModExtension_AgroAtSlaughter, ZoologyMod"/>
     </value>
   </Operation>
@@ -1320,13 +1354,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "AA_Behemoth"]/ecoSystemWeight</xpath>
       <value>
-        <ecoSystemWeight>1.95</ecoSystemWeight>
+        <ecoSystemWeight>3.65</ecoSystemWeight>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "AA_Behemoth"]</xpath>
       <value>
-        <ecoSystemWeight>1.95</ecoSystemWeight>
+        <ecoSystemWeight>3.65</ecoSystemWeight>
       </value>
     </nomatch>
   </Operation>
@@ -1434,13 +1468,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_CrescendoAnole"]/statBases/ComfyTemperatureMin</xpath>
       <value>
-        <ComfyTemperatureMin>5</ComfyTemperatureMin>
+        <ComfyTemperatureMin>15</ComfyTemperatureMin>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AA_CrescendoAnole"]/statBases</xpath>
       <value>
-        <ComfyTemperatureMin>5</ComfyTemperatureMin>
+        <ComfyTemperatureMin>15</ComfyTemperatureMin>
       </value>
     </nomatch>
   </Operation>
@@ -1449,13 +1483,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_CrescendoAnole"]/statBases/ComfyTemperatureMax</xpath>
       <value>
-        <ComfyTemperatureMax>35</ComfyTemperatureMax>
+        <ComfyTemperatureMax>40</ComfyTemperatureMax>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AA_CrescendoAnole"]/statBases</xpath>
       <value>
-        <ComfyTemperatureMax>35</ComfyTemperatureMax>
+        <ComfyTemperatureMax>40</ComfyTemperatureMax>
       </value>
     </nomatch>
   </Operation>
@@ -1899,9 +1933,29 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_CrescendoAnole"]/race/lifeStageAges/li[def = 'AnimalJuvenile']</xpath>
+    <xpath>/Defs/ThingDef[defName = "AA_CrescendoAnole"]/race/lifeStageAges/li[2]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_CrescendoAnole"]/race/lifeStageAges/li[def = 'AnimalJuvenile']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "AA_CrescendoAnole"]/race/lifeStageAges/li[2]/def</xpath>
+      <value>
+        <def>AnimalJuvenile</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_CrescendoAnole"]/race/lifeStageAges/li[3]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "AA_CrescendoAnole"]/race/lifeStageAges/li[3]/def</xpath>
+      <value>
+        <def>AnimalAdult</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_CrescendoAnole"]/race/lifeStageAges/li[2]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "AA_CrescendoAnole"]/race/lifeStageAges/li[2]/minAge</xpath>
       <value>
         <minAge>0.4</minAge>
       </value>
@@ -1909,9 +1963,9 @@
     <nomatch/>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_CrescendoAnole"]/race/lifeStageAges/li[def = 'AnimalAdult']</xpath>
+    <xpath>/Defs/ThingDef[defName = "AA_CrescendoAnole"]/race/lifeStageAges/li[3]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_CrescendoAnole"]/race/lifeStageAges/li[def = 'AnimalAdult']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "AA_CrescendoAnole"]/race/lifeStageAges/li[3]/minAge</xpath>
       <value>
         <minAge>0.8</minAge>
       </value>
@@ -2113,13 +2167,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_DecayDrake"]/statBases/ComfyTemperatureMin</xpath>
       <value>
-        <ComfyTemperatureMin>5</ComfyTemperatureMin>
+        <ComfyTemperatureMin>0</ComfyTemperatureMin>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AA_DecayDrake"]/statBases</xpath>
       <value>
-        <ComfyTemperatureMin>5</ComfyTemperatureMin>
+        <ComfyTemperatureMin>0</ComfyTemperatureMin>
       </value>
     </nomatch>
   </Operation>
@@ -2128,13 +2182,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_DecayDrake"]/statBases/ComfyTemperatureMax</xpath>
       <value>
-        <ComfyTemperatureMax>35</ComfyTemperatureMax>
+        <ComfyTemperatureMax>40</ComfyTemperatureMax>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AA_DecayDrake"]/statBases</xpath>
       <value>
-        <ComfyTemperatureMax>35</ComfyTemperatureMax>
+        <ComfyTemperatureMax>40</ComfyTemperatureMax>
       </value>
     </nomatch>
   </Operation>
@@ -2264,13 +2318,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_DecayDrake"]/race/baseHungerRate</xpath>
       <value>
-        <baseHungerRate>0.15</baseHungerRate>
+        <baseHungerRate>0.55</baseHungerRate>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AA_DecayDrake"]/race</xpath>
       <value>
-        <baseHungerRate>0.15</baseHungerRate>
+        <baseHungerRate>0.55</baseHungerRate>
       </value>
     </nomatch>
   </Operation>
@@ -2572,9 +2626,29 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_DecayDrake"]/race/lifeStageAges/li[def = 'AnimalJuvenile']</xpath>
+    <xpath>/Defs/ThingDef[defName = "AA_DecayDrake"]/race/lifeStageAges/li[2]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_DecayDrake"]/race/lifeStageAges/li[def = 'AnimalJuvenile']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "AA_DecayDrake"]/race/lifeStageAges/li[2]/def</xpath>
+      <value>
+        <def>AnimalJuvenile</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_DecayDrake"]/race/lifeStageAges/li[3]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "AA_DecayDrake"]/race/lifeStageAges/li[3]/def</xpath>
+      <value>
+        <def>AnimalAdult</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_DecayDrake"]/race/lifeStageAges/li[2]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "AA_DecayDrake"]/race/lifeStageAges/li[2]/minAge</xpath>
       <value>
         <minAge>0.2</minAge>
       </value>
@@ -2582,9 +2656,9 @@
     <nomatch/>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_DecayDrake"]/race/lifeStageAges/li[def = 'AnimalAdult']</xpath>
+    <xpath>/Defs/ThingDef[defName = "AA_DecayDrake"]/race/lifeStageAges/li[3]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_DecayDrake"]/race/lifeStageAges/li[def = 'AnimalAdult']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "AA_DecayDrake"]/race/lifeStageAges/li[3]/minAge</xpath>
       <value>
         <minAge>0.4</minAge>
       </value>
@@ -2655,12 +2729,6 @@
       </value>
     </nomatch>
   </Operation>
-  <Operation Class="PatchOperationAddModExtension">
-    <xpath>/Defs/ThingDef[defName = "AA_DecayDrake"]</xpath>
-    <value>
-      <li Class="ZoologyMod.ModExtension_Ectothermic, ZoologyMod"/>
-    </value>
-  </Operation>
   <!-- AA_DecayDrake PawnKindDef -->
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/PawnKindDef[defName = "AA_DecayDrake"]/combatPower</xpath>
@@ -2682,13 +2750,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "AA_DecayDrake"]/ecoSystemWeight</xpath>
       <value>
-        <ecoSystemWeight>0.3</ecoSystemWeight>
+        <ecoSystemWeight>0.65</ecoSystemWeight>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "AA_DecayDrake"]</xpath>
       <value>
-        <ecoSystemWeight>0.3</ecoSystemWeight>
+        <ecoSystemWeight>0.65</ecoSystemWeight>
       </value>
     </nomatch>
   </Operation>
@@ -2796,13 +2864,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_Lockjaw"]/statBases/ComfyTemperatureMin</xpath>
       <value>
-        <ComfyTemperatureMin>5</ComfyTemperatureMin>
+        <ComfyTemperatureMin>15</ComfyTemperatureMin>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AA_Lockjaw"]/statBases</xpath>
       <value>
-        <ComfyTemperatureMin>5</ComfyTemperatureMin>
+        <ComfyTemperatureMin>15</ComfyTemperatureMin>
       </value>
     </nomatch>
   </Operation>
@@ -2811,13 +2879,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_Lockjaw"]/statBases/ComfyTemperatureMax</xpath>
       <value>
-        <ComfyTemperatureMax>35</ComfyTemperatureMax>
+        <ComfyTemperatureMax>40</ComfyTemperatureMax>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AA_Lockjaw"]/statBases</xpath>
       <value>
-        <ComfyTemperatureMax>35</ComfyTemperatureMax>
+        <ComfyTemperatureMax>40</ComfyTemperatureMax>
       </value>
     </nomatch>
   </Operation>
@@ -3252,9 +3320,29 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_Lockjaw"]/race/lifeStageAges/li[def = 'AnimalJuvenile']</xpath>
+    <xpath>/Defs/ThingDef[defName = "AA_Lockjaw"]/race/lifeStageAges/li[2]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_Lockjaw"]/race/lifeStageAges/li[def = 'AnimalJuvenile']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "AA_Lockjaw"]/race/lifeStageAges/li[2]/def</xpath>
+      <value>
+        <def>AnimalJuvenile</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_Lockjaw"]/race/lifeStageAges/li[3]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "AA_Lockjaw"]/race/lifeStageAges/li[3]/def</xpath>
+      <value>
+        <def>AnimalAdult</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_Lockjaw"]/race/lifeStageAges/li[2]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "AA_Lockjaw"]/race/lifeStageAges/li[2]/minAge</xpath>
       <value>
         <minAge>1.2</minAge>
       </value>
@@ -3262,9 +3350,9 @@
     <nomatch/>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_Lockjaw"]/race/lifeStageAges/li[def = 'AnimalAdult']</xpath>
+    <xpath>/Defs/ThingDef[defName = "AA_Lockjaw"]/race/lifeStageAges/li[3]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_Lockjaw"]/race/lifeStageAges/li[def = 'AnimalAdult']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "AA_Lockjaw"]/race/lifeStageAges/li[3]/minAge</xpath>
       <value>
         <minAge>2.4</minAge>
       </value>
@@ -3903,9 +3991,29 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_MycoidColossus"]/race/lifeStageAges/li[def = 'AnimalJuvenile']</xpath>
+    <xpath>/Defs/ThingDef[defName = "AA_MycoidColossus"]/race/lifeStageAges/li[2]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_MycoidColossus"]/race/lifeStageAges/li[def = 'AnimalJuvenile']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "AA_MycoidColossus"]/race/lifeStageAges/li[2]/def</xpath>
+      <value>
+        <def>AnimalJuvenile</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_MycoidColossus"]/race/lifeStageAges/li[3]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "AA_MycoidColossus"]/race/lifeStageAges/li[3]/def</xpath>
+      <value>
+        <def>AnimalAdult</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_MycoidColossus"]/race/lifeStageAges/li[2]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "AA_MycoidColossus"]/race/lifeStageAges/li[2]/minAge</xpath>
       <value>
         <minAge>1.2</minAge>
       </value>
@@ -3913,9 +4021,9 @@
     <nomatch/>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_MycoidColossus"]/race/lifeStageAges/li[def = 'AnimalAdult']</xpath>
+    <xpath>/Defs/ThingDef[defName = "AA_MycoidColossus"]/race/lifeStageAges/li[3]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_MycoidColossus"]/race/lifeStageAges/li[def = 'AnimalAdult']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "AA_MycoidColossus"]/race/lifeStageAges/li[3]/minAge</xpath>
       <value>
         <minAge>2.4</minAge>
       </value>
@@ -4104,13 +4212,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_OvergrownColossus"]/statBases/ComfyTemperatureMin</xpath>
       <value>
-        <ComfyTemperatureMin>5</ComfyTemperatureMin>
+        <ComfyTemperatureMin>-25</ComfyTemperatureMin>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AA_OvergrownColossus"]/statBases</xpath>
       <value>
-        <ComfyTemperatureMin>5</ComfyTemperatureMin>
+        <ComfyTemperatureMin>-25</ComfyTemperatureMin>
       </value>
     </nomatch>
   </Operation>
@@ -4119,13 +4227,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_OvergrownColossus"]/statBases/ComfyTemperatureMax</xpath>
       <value>
-        <ComfyTemperatureMax>35</ComfyTemperatureMax>
+        <ComfyTemperatureMax>40</ComfyTemperatureMax>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AA_OvergrownColossus"]/statBases</xpath>
       <value>
-        <ComfyTemperatureMax>35</ComfyTemperatureMax>
+        <ComfyTemperatureMax>40</ComfyTemperatureMax>
       </value>
     </nomatch>
   </Operation>
@@ -4534,9 +4642,29 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_OvergrownColossus"]/race/lifeStageAges/li[def = 'AnimalJuvenile']</xpath>
+    <xpath>/Defs/ThingDef[defName = "AA_OvergrownColossus"]/race/lifeStageAges/li[2]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_OvergrownColossus"]/race/lifeStageAges/li[def = 'AnimalJuvenile']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "AA_OvergrownColossus"]/race/lifeStageAges/li[2]/def</xpath>
+      <value>
+        <def>AnimalJuvenile</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_OvergrownColossus"]/race/lifeStageAges/li[3]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "AA_OvergrownColossus"]/race/lifeStageAges/li[3]/def</xpath>
+      <value>
+        <def>AnimalAdult</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_OvergrownColossus"]/race/lifeStageAges/li[2]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "AA_OvergrownColossus"]/race/lifeStageAges/li[2]/minAge</xpath>
       <value>
         <minAge>1.2</minAge>
       </value>
@@ -4544,9 +4672,9 @@
     <nomatch/>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_OvergrownColossus"]/race/lifeStageAges/li[def = 'AnimalAdult']</xpath>
+    <xpath>/Defs/ThingDef[defName = "AA_OvergrownColossus"]/race/lifeStageAges/li[3]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_OvergrownColossus"]/race/lifeStageAges/li[def = 'AnimalAdult']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "AA_OvergrownColossus"]/race/lifeStageAges/li[3]/minAge</xpath>
       <value>
         <minAge>2.4</minAge>
       </value>
@@ -4741,13 +4869,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_RayHound"]/statBases/ComfyTemperatureMin</xpath>
       <value>
-        <ComfyTemperatureMin>5</ComfyTemperatureMin>
+        <ComfyTemperatureMin>15</ComfyTemperatureMin>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AA_RayHound"]/statBases</xpath>
       <value>
-        <ComfyTemperatureMin>5</ComfyTemperatureMin>
+        <ComfyTemperatureMin>15</ComfyTemperatureMin>
       </value>
     </nomatch>
   </Operation>
@@ -4756,13 +4884,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_RayHound"]/statBases/ComfyTemperatureMax</xpath>
       <value>
-        <ComfyTemperatureMax>35</ComfyTemperatureMax>
+        <ComfyTemperatureMax>40</ComfyTemperatureMax>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AA_RayHound"]/statBases</xpath>
       <value>
-        <ComfyTemperatureMax>35</ComfyTemperatureMax>
+        <ComfyTemperatureMax>40</ComfyTemperatureMax>
       </value>
     </nomatch>
   </Operation>
@@ -5206,9 +5334,29 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_RayHound"]/race/lifeStageAges/li[def = 'AnimalJuvenile']</xpath>
+    <xpath>/Defs/ThingDef[defName = "AA_RayHound"]/race/lifeStageAges/li[2]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_RayHound"]/race/lifeStageAges/li[def = 'AnimalJuvenile']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "AA_RayHound"]/race/lifeStageAges/li[2]/def</xpath>
+      <value>
+        <def>AnimalJuvenile</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_RayHound"]/race/lifeStageAges/li[3]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "AA_RayHound"]/race/lifeStageAges/li[3]/def</xpath>
+      <value>
+        <def>AnimalAdult</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_RayHound"]/race/lifeStageAges/li[2]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "AA_RayHound"]/race/lifeStageAges/li[2]/minAge</xpath>
       <value>
         <minAge>0.3</minAge>
       </value>
@@ -5216,9 +5364,9 @@
     <nomatch/>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_RayHound"]/race/lifeStageAges/li[def = 'AnimalAdult']</xpath>
+    <xpath>/Defs/ThingDef[defName = "AA_RayHound"]/race/lifeStageAges/li[3]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_RayHound"]/race/lifeStageAges/li[def = 'AnimalAdult']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "AA_RayHound"]/race/lifeStageAges/li[3]/minAge</xpath>
       <value>
         <minAge>0.6</minAge>
       </value>
@@ -5420,13 +5568,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_RoughPlatedMonitor"]/statBases/ComfyTemperatureMin</xpath>
       <value>
-        <ComfyTemperatureMin>5</ComfyTemperatureMin>
+        <ComfyTemperatureMin>-5</ComfyTemperatureMin>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AA_RoughPlatedMonitor"]/statBases</xpath>
       <value>
-        <ComfyTemperatureMin>5</ComfyTemperatureMin>
+        <ComfyTemperatureMin>-5</ComfyTemperatureMin>
       </value>
     </nomatch>
   </Operation>
@@ -5435,13 +5583,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_RoughPlatedMonitor"]/statBases/ComfyTemperatureMax</xpath>
       <value>
-        <ComfyTemperatureMax>35</ComfyTemperatureMax>
+        <ComfyTemperatureMax>50</ComfyTemperatureMax>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AA_RoughPlatedMonitor"]/statBases</xpath>
       <value>
-        <ComfyTemperatureMax>35</ComfyTemperatureMax>
+        <ComfyTemperatureMax>50</ComfyTemperatureMax>
       </value>
     </nomatch>
   </Operation>
@@ -5885,9 +6033,29 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_RoughPlatedMonitor"]/race/lifeStageAges/li[def = 'AnimalJuvenile']</xpath>
+    <xpath>/Defs/ThingDef[defName = "AA_RoughPlatedMonitor"]/race/lifeStageAges/li[2]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_RoughPlatedMonitor"]/race/lifeStageAges/li[def = 'AnimalJuvenile']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "AA_RoughPlatedMonitor"]/race/lifeStageAges/li[2]/def</xpath>
+      <value>
+        <def>AnimalJuvenile</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_RoughPlatedMonitor"]/race/lifeStageAges/li[3]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "AA_RoughPlatedMonitor"]/race/lifeStageAges/li[3]/def</xpath>
+      <value>
+        <def>AnimalAdult</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_RoughPlatedMonitor"]/race/lifeStageAges/li[2]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "AA_RoughPlatedMonitor"]/race/lifeStageAges/li[2]/minAge</xpath>
       <value>
         <minAge>0.4</minAge>
       </value>
@@ -5895,9 +6063,9 @@
     <nomatch/>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_RoughPlatedMonitor"]/race/lifeStageAges/li[def = 'AnimalAdult']</xpath>
+    <xpath>/Defs/ThingDef[defName = "AA_RoughPlatedMonitor"]/race/lifeStageAges/li[3]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_RoughPlatedMonitor"]/race/lifeStageAges/li[def = 'AnimalAdult']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "AA_RoughPlatedMonitor"]/race/lifeStageAges/li[3]/minAge</xpath>
       <value>
         <minAge>0.8</minAge>
       </value>
@@ -6099,13 +6267,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_SandProwler"]/statBases/ComfyTemperatureMin</xpath>
       <value>
-        <ComfyTemperatureMin>5</ComfyTemperatureMin>
+        <ComfyTemperatureMin>-5</ComfyTemperatureMin>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AA_SandProwler"]/statBases</xpath>
       <value>
-        <ComfyTemperatureMin>5</ComfyTemperatureMin>
+        <ComfyTemperatureMin>-5</ComfyTemperatureMin>
       </value>
     </nomatch>
   </Operation>
@@ -6114,13 +6282,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_SandProwler"]/statBases/ComfyTemperatureMax</xpath>
       <value>
-        <ComfyTemperatureMax>35</ComfyTemperatureMax>
+        <ComfyTemperatureMax>50</ComfyTemperatureMax>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AA_SandProwler"]/statBases</xpath>
       <value>
-        <ComfyTemperatureMax>35</ComfyTemperatureMax>
+        <ComfyTemperatureMax>50</ComfyTemperatureMax>
       </value>
     </nomatch>
   </Operation>
@@ -6564,9 +6732,29 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_SandProwler"]/race/lifeStageAges/li[def = 'AnimalJuvenile']</xpath>
+    <xpath>/Defs/ThingDef[defName = "AA_SandProwler"]/race/lifeStageAges/li[2]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_SandProwler"]/race/lifeStageAges/li[def = 'AnimalJuvenile']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "AA_SandProwler"]/race/lifeStageAges/li[2]/def</xpath>
+      <value>
+        <def>AnimalJuvenile</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_SandProwler"]/race/lifeStageAges/li[3]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "AA_SandProwler"]/race/lifeStageAges/li[3]/def</xpath>
+      <value>
+        <def>AnimalAdult</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_SandProwler"]/race/lifeStageAges/li[2]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "AA_SandProwler"]/race/lifeStageAges/li[2]/minAge</xpath>
       <value>
         <minAge>0.4</minAge>
       </value>
@@ -6574,9 +6762,9 @@
     <nomatch/>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_SandProwler"]/race/lifeStageAges/li[def = 'AnimalAdult']</xpath>
+    <xpath>/Defs/ThingDef[defName = "AA_SandProwler"]/race/lifeStageAges/li[3]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_SandProwler"]/race/lifeStageAges/li[def = 'AnimalAdult']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "AA_SandProwler"]/race/lifeStageAges/li[3]/minAge</xpath>
       <value>
         <minAge>0.8</minAge>
       </value>
@@ -7213,9 +7401,29 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_Skyeel"]/race/lifeStageAges/li[def = 'AnimalJuvenile']</xpath>
+    <xpath>/Defs/ThingDef[defName = "AA_Skyeel"]/race/lifeStageAges/li[2]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_Skyeel"]/race/lifeStageAges/li[def = 'AnimalJuvenile']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "AA_Skyeel"]/race/lifeStageAges/li[2]/def</xpath>
+      <value>
+        <def>AnimalJuvenile</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_Skyeel"]/race/lifeStageAges/li[3]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "AA_Skyeel"]/race/lifeStageAges/li[3]/def</xpath>
+      <value>
+        <def>AnimalAdult</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_Skyeel"]/race/lifeStageAges/li[2]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "AA_Skyeel"]/race/lifeStageAges/li[2]/minAge</xpath>
       <value>
         <minAge>0.4</minAge>
       </value>
@@ -7223,9 +7431,9 @@
     <nomatch/>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_Skyeel"]/race/lifeStageAges/li[def = 'AnimalAdult']</xpath>
+    <xpath>/Defs/ThingDef[defName = "AA_Skyeel"]/race/lifeStageAges/li[3]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_Skyeel"]/race/lifeStageAges/li[def = 'AnimalAdult']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "AA_Skyeel"]/race/lifeStageAges/li[3]/minAge</xpath>
       <value>
         <minAge>0.8</minAge>
       </value>

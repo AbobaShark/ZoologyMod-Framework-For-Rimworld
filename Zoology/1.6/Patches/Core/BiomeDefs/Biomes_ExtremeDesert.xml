@@ -48,28 +48,55 @@
   <Operation Class="PatchOperationAdd">
     <xpath>/Defs/BiomeDef[defName="ExtremeDesert"]/wildAnimals</xpath>
     <value>
+      <Ostrich>0.2</Ostrich>
       <Dromedary>0.15</Dromedary>
       <Donkey>0.175</Donkey>
       <Boomrat>0.15</Boomrat>
+      <Gazelle>0.25</Gazelle>
       <Fox_Fennec>0.125</Fox_Fennec>
       <Vulture MayRequire="Ludeon.RimWorld.Odyssey">0.375</Vulture>
-      <Armadillo MayRequire="Ludeon.RimWorld.Odyssey">0.375</Armadillo>
+      <Armadillo MayRequire="Ludeon.RimWorld.Odyssey">0.4</Armadillo>
       <AEXP_Boombat MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.125</AEXP_Boombat>
+      <AEXP_Kangaroo MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.225</AEXP_Kangaroo>
       <AEXP_DesertTortoise MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.225</AEXP_DesertTortoise>
       <AEXP_GilaMonster MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.5</AEXP_GilaMonster>
       <AEXP_Rattlesnake MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.375</AEXP_Rattlesnake>
+      <AA_Barbslinger MayRequire="sarg.alphaanimals">0.05</AA_Barbslinger>
+      <AA_BoulderMit MayRequire="sarg.alphaanimals">0.002</AA_BoulderMit>
+      <AA_Cactipine MayRequire="sarg.alphaanimals">0.004</AA_Cactipine>
+      <AA_ChameleonYak MayRequire="sarg.alphaanimals">0.002</AA_ChameleonYak>
+      <AA_CrystalMit MayRequire="sarg.alphaanimals">0.004</AA_CrystalMit>
+      <AA_Darkbeast MayRequire="sarg.alphaanimals">0.002</AA_Darkbeast>
+      <AA_DesertAve MayRequire="sarg.alphaanimals">0.003</AA_DesertAve>
+      <AA_Dunealisk MayRequire="sarg.alphaanimals">0.002</AA_Dunealisk>
+      <AA_GreatDevourer MayRequire="sarg.alphaanimals">0.002</AA_GreatDevourer>
+      <AA_Mantrap MayRequire="sarg.alphaanimals">0.003</AA_Mantrap>
+      <AA_Needlepost MayRequire="sarg.alphaanimals">0.003</AA_Needlepost>
+      <AA_Needleroll MayRequire="sarg.alphaanimals">0.003</AA_Needleroll>
+      <AA_PebbleMit MayRequire="sarg.alphaanimals">0.003</AA_PebbleMit>
+      <AA_SandLion MayRequire="sarg.alphaanimals">0.002</AA_SandLion>
+      <AA_SandProwler MayRequire="sarg.alphaanimals">0.05</AA_SandProwler>
+      <AA_SandSquid MayRequire="sarg.alphaanimals">0.05</AA_SandSquid>
+      <AA_Swarmling MayRequire="sarg.alphaanimals">0.005</AA_Swarmling>
+      <AA_Terramorph MayRequire="sarg.alphaanimals">0.003</AA_Terramorph>
+      <AA_Thunderbeast MayRequire="sarg.alphaanimals">0.002</AA_Thunderbeast>
+      <AA_WindBeast MayRequire="sarg.alphaanimals">0.002</AA_WindBeast>
     </value>
   </Operation>
   <Operation Class="PatchOperationAdd">
     <xpath>/Defs/BiomeDef[defName="ExtremeDesert"]/pollutionWildAnimals</xpath>
     <value>
-      <Boomrat>0.15</Boomrat>
-      <Toxalope MayRequire="Ludeon.RimWorld.Biotech">0.1</Toxalope>
+      <Boomrat>0.3</Boomrat>
+      <Toxalope MayRequire="Ludeon.RimWorld.Biotech">0.175</Toxalope>
       <WasteRat MayRequire="Ludeon.RimWorld.Biotech">0.325</WasteRat>
-      <AEXP_Boombat MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.1</AEXP_Boombat>
-      <VAEWaste_Hydra MayRequire="VanillaExpanded.VAEWaste">0.35</VAEWaste_Hydra>
-      <VAEWaste_Megatardi MayRequire="VanillaExpanded.VAEWaste">0.075</VAEWaste_Megatardi>
+      <AEXP_Boombat MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.225</AEXP_Boombat>
+      <VAEWaste_Hydra MayRequire="VanillaExpanded.VAEWaste">0.325</VAEWaste_Hydra>
+      <VAEWaste_Megatardi MayRequire="VanillaExpanded.VAEWaste">0.175</VAEWaste_Megatardi>
       <VAEWaste_Toxscorpion MayRequire="VanillaExpanded.VAEWaste">0.15</VAEWaste_Toxscorpion>
+      <AA_Radyak MayRequire="sarg.alphaanimals">0.005</AA_Radyak>
+      <AA_SandSquid MayRequire="sarg.alphaanimals">0.05</AA_SandSquid>
+      <AA_Swarmling MayRequire="sarg.alphaanimals">0.01</AA_Swarmling>
+      <AA_TarGuzzler MayRequire="sarg.alphaanimals">0.005</AA_TarGuzzler>
     </value>
   </Operation>
   <Operation Class="PatchOperationAdd">
@@ -103,6 +130,33 @@
       <xpath>/Defs/BiomeDef[defName="ExtremeDesert"]/allowedPackAnimals</xpath>
       <value>
         <li MayRequire="VanillaExpanded.VAEWaste">VAEWaste_Megatardi</li>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/BiomeDef[defName="ExtremeDesert"]/allowedPackAnimals/li[text()="AA_ChameleonYak"]</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/BiomeDef[defName="ExtremeDesert"]/allowedPackAnimals</xpath>
+      <value>
+        <li MayRequire="sarg.alphaanimals">AA_ChameleonYak</li>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/BiomeDef[defName="ExtremeDesert"]/allowedPackAnimals/li[text()="AA_DesertAve"]</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/BiomeDef[defName="ExtremeDesert"]/allowedPackAnimals</xpath>
+      <value>
+        <li MayRequire="sarg.alphaanimals">AA_DesertAve</li>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/BiomeDef[defName="ExtremeDesert"]/allowedPackAnimals/li[text()="AA_Radyak"]</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/BiomeDef[defName="ExtremeDesert"]/allowedPackAnimals</xpath>
+      <value>
+        <li MayRequire="sarg.alphaanimals">AA_Radyak</li>
       </value>
     </nomatch>
   </Operation>

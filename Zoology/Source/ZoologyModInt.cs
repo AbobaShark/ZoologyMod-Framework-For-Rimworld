@@ -30,6 +30,7 @@ namespace ZoologyMod
             LongEventHandler.ExecuteWhenFinished(() =>
             {
                 Settings?.ApplyRuntimeDefOverrides();
+                AnimalDraftControlDefNormalizer.NormalizeDefs();
                 SyncRuntimePatchesWithSettings(forceRebuild: true);
 
                 if (Settings != null

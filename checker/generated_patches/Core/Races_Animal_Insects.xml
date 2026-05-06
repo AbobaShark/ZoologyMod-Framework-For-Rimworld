@@ -223,18 +223,9 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[@Name = "BaseInsect"]/race/trainability</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[@Name = "BaseInsect"]/race/trainability</xpath>
-      <value>
-        <trainability>Advanced</trainability>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[@Name = "BaseInsect"]/race</xpath>
-      <value>
-        <trainability>Advanced</trainability>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[@Name = "BaseInsect"]/race/predator</xpath>
@@ -742,9 +733,18 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Megascarab"]/race/trainability</xpath>
-    <match Class="PatchOperationRemove">
+    <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Megascarab"]/race/trainability</xpath>
+      <value>
+        <trainability>Advanced</trainability>
+      </value>
     </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "Megascarab"]/race</xpath>
+      <value>
+        <trainability>Advanced</trainability>
+      </value>
+    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Megascarab"]/race/packAnimal</xpath>
@@ -834,9 +834,29 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Megascarab"]/race/lifeStageAges/li[def = 'EusocialInsectJuvenile']</xpath>
+    <xpath>/Defs/ThingDef[defName = "Megascarab"]/race/lifeStageAges/li[2]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Megascarab"]/race/lifeStageAges/li[def = 'EusocialInsectJuvenile']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "Megascarab"]/race/lifeStageAges/li[2]/def</xpath>
+      <value>
+        <def>EusocialInsectJuvenile</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Megascarab"]/race/lifeStageAges/li[3]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "Megascarab"]/race/lifeStageAges/li[3]/def</xpath>
+      <value>
+        <def>EusocialInsectAdult</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Megascarab"]/race/lifeStageAges/li[2]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "Megascarab"]/race/lifeStageAges/li[2]/minAge</xpath>
       <value>
         <minAge>0.15</minAge>
       </value>
@@ -844,9 +864,9 @@
     <nomatch/>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Megascarab"]/race/lifeStageAges/li[def = 'EusocialInsectAdult']</xpath>
+    <xpath>/Defs/ThingDef[defName = "Megascarab"]/race/lifeStageAges/li[3]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Megascarab"]/race/lifeStageAges/li[def = 'EusocialInsectAdult']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "Megascarab"]/race/lifeStageAges/li[3]/minAge</xpath>
       <value>
         <minAge>0.3</minAge>
       </value>
@@ -1300,9 +1320,18 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Spelopede"]/race/trainability</xpath>
-    <match Class="PatchOperationRemove">
+    <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Spelopede"]/race/trainability</xpath>
+      <value>
+        <trainability>Advanced</trainability>
+      </value>
     </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "Spelopede"]/race</xpath>
+      <value>
+        <trainability>Advanced</trainability>
+      </value>
+    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Spelopede"]/race/packAnimal</xpath>
@@ -1392,9 +1421,29 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Spelopede"]/race/lifeStageAges/li[def = 'EusocialInsectJuvenile']</xpath>
+    <xpath>/Defs/ThingDef[defName = "Spelopede"]/race/lifeStageAges/li[2]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Spelopede"]/race/lifeStageAges/li[def = 'EusocialInsectJuvenile']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "Spelopede"]/race/lifeStageAges/li[2]/def</xpath>
+      <value>
+        <def>EusocialInsectJuvenile</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Spelopede"]/race/lifeStageAges/li[3]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "Spelopede"]/race/lifeStageAges/li[3]/def</xpath>
+      <value>
+        <def>EusocialInsectAdult</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Spelopede"]/race/lifeStageAges/li[2]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "Spelopede"]/race/lifeStageAges/li[2]/minAge</xpath>
       <value>
         <minAge>0.15</minAge>
       </value>
@@ -1402,9 +1451,9 @@
     <nomatch/>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Spelopede"]/race/lifeStageAges/li[def = 'EusocialInsectAdult']</xpath>
+    <xpath>/Defs/ThingDef[defName = "Spelopede"]/race/lifeStageAges/li[3]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Spelopede"]/race/lifeStageAges/li[def = 'EusocialInsectAdult']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "Spelopede"]/race/lifeStageAges/li[3]/minAge</xpath>
       <value>
         <minAge>0.3</minAge>
       </value>
@@ -1860,9 +1909,18 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Megaspider"]/race/trainability</xpath>
-    <match Class="PatchOperationRemove">
+    <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Megaspider"]/race/trainability</xpath>
+      <value>
+        <trainability>Advanced</trainability>
+      </value>
     </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "Megaspider"]/race</xpath>
+      <value>
+        <trainability>Advanced</trainability>
+      </value>
+    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Megaspider"]/race/packAnimal</xpath>
@@ -1943,9 +2001,29 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Megaspider"]/race/lifeStageAges/li[def = 'EusocialInsectJuvenile']</xpath>
+    <xpath>/Defs/ThingDef[defName = "Megaspider"]/race/lifeStageAges/li[2]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Megaspider"]/race/lifeStageAges/li[def = 'EusocialInsectJuvenile']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "Megaspider"]/race/lifeStageAges/li[2]/def</xpath>
+      <value>
+        <def>EusocialInsectJuvenile</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Megaspider"]/race/lifeStageAges/li[3]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "Megaspider"]/race/lifeStageAges/li[3]/def</xpath>
+      <value>
+        <def>EusocialInsectAdult</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Megaspider"]/race/lifeStageAges/li[2]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "Megaspider"]/race/lifeStageAges/li[2]/minAge</xpath>
       <value>
         <minAge>0.2</minAge>
       </value>
@@ -1953,9 +2031,9 @@
     <nomatch/>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Megaspider"]/race/lifeStageAges/li[def = 'EusocialInsectAdult']</xpath>
+    <xpath>/Defs/ThingDef[defName = "Megaspider"]/race/lifeStageAges/li[3]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Megaspider"]/race/lifeStageAges/li[def = 'EusocialInsectAdult']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "Megaspider"]/race/lifeStageAges/li[3]/minAge</xpath>
       <value>
         <minAge>0.4</minAge>
       </value>

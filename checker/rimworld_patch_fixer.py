@@ -1291,6 +1291,29 @@ class PatchGenerator:
 
         return op
 
+    def create_life_stage_field_replace_by_index(self, def_name, li_index, field_name, field_value, is_abstract=False):
+        """
+        Безопасная замена поля внутри lifeStageAges по позиции li[2] / li[3],
+        а не по старому имени стадии.
+        """
+        attr = '@Name' if is_abstract else 'defName'
+        base_xpath = f'/Defs/ThingDef[{attr} = "{def_name}"]/race/lifeStageAges/li[{li_index}]'
+
+        op = LET.Element("Operation", Class="PatchOperationConditional")
+        LET.SubElement(op, "xpath").text = base_xpath
+
+        match = LET.SubElement(op, "match", Class="PatchOperationReplace")
+        LET.SubElement(match, "xpath").text = base_xpath + f'/{field_name}'
+
+        val = LET.SubElement(match, "value")
+        el = LET.SubElement(val, field_name)
+        el.text = str(field_value)
+
+        # чтобы структура совпадала с вашим стилем
+        LET.SubElement(op, "nomatch")
+
+        return op
+
     def generate_fixed_xml(self, xml_path, output_path):
         try:
             if not os.path.exists(xml_path):
@@ -2307,13 +2330,22 @@ class PatchGenerator:
                     ops.append(self.create_life_stage_full_replace_or_add(def_name, juv_text, adult_text, sounds=sounds, parent=parent, inherit_false=inherit))
                     # не добавляем отдельные minAge replace операции — они избыточны
                 else:
-                    # при отсутствии звуков — создаём отдельные minAge замены, маппя имена через _map_lifestage_def
                     juv_def = self._map_lifestage_def('AnimalJuvenile', parent)
                     adult_def = self._map_lifestage_def('AnimalAdult', parent)
-                    if juv_age is not None and str(juv_age).strip() != '':
-                        ops.append(self.create_life_stage_replace(def_name, juv_def, juv_age))
-                    if adult_age is not None and str(adult_age).strip() != '':
-                        ops.append(self.create_life_stage_replace(def_name, adult_def, adult_age))
+
+                    juv_age_text = str(juv_age).strip() if juv_age is not None else ''
+                    adult_age_text = str(adult_age).strip() if adult_age is not None else ''
+
+                    # 1) сначала безопасно переименовываем стадии по позиции
+                    #    li[2] = вторая стадия, li[3] = третья стадия
+                    ops.append(self.create_life_stage_field_replace_by_index(def_name, 2, 'def', juv_def))
+                    ops.append(self.create_life_stage_field_replace_by_index(def_name, 3, 'def', adult_def))
+
+                    # 2) потом уже меняем minAge на тех же позициях
+                    if juv_age_text != '':
+                        ops.append(self.create_life_stage_field_replace_by_index(def_name, 2, 'minAge', juv_age_text))
+                    if adult_age_text != '':
+                        ops.append(self.create_life_stage_field_replace_by_index(def_name, 3, 'minAge', adult_age_text))
 
         # litterSizeCurve
         litter = get_row_value(row, 'Litter size')
