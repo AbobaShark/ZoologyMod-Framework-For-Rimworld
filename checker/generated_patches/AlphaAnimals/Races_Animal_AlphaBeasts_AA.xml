@@ -18,13 +18,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_Darkbeast"]/statBases/MarketValue</xpath>
       <value>
-        <MarketValue>1225</MarketValue>
+        <MarketValue>1250</MarketValue>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AA_Darkbeast"]/statBases</xpath>
       <value>
-        <MarketValue>1225</MarketValue>
+        <MarketValue>1250</MarketValue>
       </value>
     </nomatch>
   </Operation>
@@ -195,7 +195,7 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>16</power>
+          <power>20.5</power>
           <cooldownTime>2.2</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
         </li>
@@ -644,13 +644,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "AA_Darkbeast"]/combatPower</xpath>
       <value>
-        <combatPower>340</combatPower>
+        <combatPower>355</combatPower>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "AA_Darkbeast"]</xpath>
       <value>
-        <combatPower>340</combatPower>
+        <combatPower>355</combatPower>
       </value>
     </nomatch>
   </Operation>
@@ -713,13 +713,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_Gallatross"]/statBases/MarketValue</xpath>
       <value>
-        <MarketValue>19475</MarketValue>
+        <MarketValue>16925</MarketValue>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AA_Gallatross"]/statBases</xpath>
       <value>
-        <MarketValue>19475</MarketValue>
+        <MarketValue>16925</MarketValue>
       </value>
     </nomatch>
   </Operation>
@@ -886,6 +886,26 @@
           <linkedBodyPartsGroup>FrontRightLeg</linkedBodyPartsGroup>
         </li>
         <li>
+          <label>left claw</label>
+          <labelNoLocation>claw</labelNoLocation>
+          <capacities>
+            <li>Scratch</li>
+          </capacities>
+          <power>77</power>
+          <cooldownTime>3.1</cooldownTime>
+          <linkedBodyPartsGroup>FrontLeftPaw</linkedBodyPartsGroup>
+        </li>
+        <li>
+          <label>right claw</label>
+          <labelNoLocation>claw</labelNoLocation>
+          <capacities>
+            <li>Scratch</li>
+          </capacities>
+          <power>77</power>
+          <cooldownTime>3.1</cooldownTime>
+          <linkedBodyPartsGroup>FrontRightPaw</linkedBodyPartsGroup>
+        </li>
+        <li>
           <label>horn</label>
           <capacities>
             <li>Scratch</li>
@@ -893,6 +913,15 @@
           <power>76</power>
           <cooldownTime>2.85</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
+        </li>
+        <li>
+          <label>teeth</label>
+          <capacities>
+            <li>Bite</li>
+          </capacities>
+          <power>66.5</power>
+          <cooldownTime>4.05</cooldownTime>
+          <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
         </li>
       </tools>
     </value>
@@ -918,13 +947,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_Gallatross"]/race/baseHealthScale</xpath>
       <value>
-        <baseHealthScale>60</baseHealthScale>
+        <baseHealthScale>48</baseHealthScale>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AA_Gallatross"]/race</xpath>
       <value>
-        <baseHealthScale>60</baseHealthScale>
+        <baseHealthScale>48</baseHealthScale>
       </value>
     </nomatch>
   </Operation>
@@ -1050,13 +1079,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_Gallatross"]/race/manhunterOnTameFailChance</xpath>
       <value>
-        <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
+        <manhunterOnTameFailChance>0.1</manhunterOnTameFailChance>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AA_Gallatross"]/race</xpath>
       <value>
-        <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
+        <manhunterOnTameFailChance>0.1</manhunterOnTameFailChance>
       </value>
     </nomatch>
   </Operation>
@@ -1173,13 +1202,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_Gallatross"]/race/body</xpath>
       <value>
-        <body>QuadrupedAnimalWithHoovesAndHorn</body>
+        <body>QuadrupedAnimalWithPawsAndHorn</body>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AA_Gallatross"]/race</xpath>
       <value>
-        <body>QuadrupedAnimalWithHoovesAndHorn</body>
+        <body>QuadrupedAnimalWithPawsAndHorn</body>
       </value>
     </nomatch>
   </Operation>
@@ -1321,6 +1350,24 @@
   <Operation Class="PatchOperationAddModExtension">
     <xpath>/Defs/ThingDef[defName = "AA_Gallatross"]</xpath>
     <value>
+      <li Class="ZoologyMod.ModExtension_CannotBeAugmented, ZoologyMod"/>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "AA_Gallatross"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_CannotBeMutated, ZoologyMod"/>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "AA_Gallatross"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_NoFlee, ZoologyMod"/>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "AA_Gallatross"]</xpath>
+    <value>
       <li Class="ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod"/>
     </value>
   </Operation>
@@ -1330,13 +1377,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "AA_Gallatross"]/combatPower</xpath>
       <value>
-        <combatPower>7730</combatPower>
+        <combatPower>6685</combatPower>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "AA_Gallatross"]</xpath>
       <value>
-        <combatPower>7730</combatPower>
+        <combatPower>6685</combatPower>
       </value>
     </nomatch>
   </Operation>
@@ -1399,13 +1446,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_GallatrossMoribund"]/statBases/MarketValue</xpath>
       <value>
-        <MarketValue>19525</MarketValue>
+        <MarketValue>17000</MarketValue>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AA_GallatrossMoribund"]/statBases</xpath>
       <value>
-        <MarketValue>19525</MarketValue>
+        <MarketValue>17000</MarketValue>
       </value>
     </nomatch>
   </Operation>
@@ -1572,6 +1619,26 @@
           <linkedBodyPartsGroup>FrontRightLeg</linkedBodyPartsGroup>
         </li>
         <li>
+          <label>left claw</label>
+          <labelNoLocation>claw</labelNoLocation>
+          <capacities>
+            <li>Scratch</li>
+          </capacities>
+          <power>77</power>
+          <cooldownTime>3.1</cooldownTime>
+          <linkedBodyPartsGroup>FrontLeftPaw</linkedBodyPartsGroup>
+        </li>
+        <li>
+          <label>right claw</label>
+          <labelNoLocation>claw</labelNoLocation>
+          <capacities>
+            <li>Scratch</li>
+          </capacities>
+          <power>77</power>
+          <cooldownTime>3.1</cooldownTime>
+          <linkedBodyPartsGroup>FrontRightPaw</linkedBodyPartsGroup>
+        </li>
+        <li>
           <label>horn</label>
           <capacities>
             <li>Scratch</li>
@@ -1579,6 +1646,15 @@
           <power>76</power>
           <cooldownTime>2.85</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
+        </li>
+        <li>
+          <label>teeth</label>
+          <capacities>
+            <li>Bite</li>
+          </capacities>
+          <power>66.5</power>
+          <cooldownTime>4.05</cooldownTime>
+          <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
         </li>
       </tools>
     </value>
@@ -1604,13 +1680,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_GallatrossMoribund"]/race/baseHealthScale</xpath>
       <value>
-        <baseHealthScale>60</baseHealthScale>
+        <baseHealthScale>48</baseHealthScale>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AA_GallatrossMoribund"]/race</xpath>
       <value>
-        <baseHealthScale>60</baseHealthScale>
+        <baseHealthScale>48</baseHealthScale>
       </value>
     </nomatch>
   </Operation>
@@ -1736,13 +1812,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_GallatrossMoribund"]/race/manhunterOnTameFailChance</xpath>
       <value>
-        <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
+        <manhunterOnTameFailChance>0.1</manhunterOnTameFailChance>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AA_GallatrossMoribund"]/race</xpath>
       <value>
-        <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
+        <manhunterOnTameFailChance>0.1</manhunterOnTameFailChance>
       </value>
     </nomatch>
   </Operation>
@@ -1859,13 +1935,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_GallatrossMoribund"]/race/body</xpath>
       <value>
-        <body>QuadrupedAnimalWithHoovesAndHorn</body>
+        <body>QuadrupedAnimalWithPawsAndHorn</body>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AA_GallatrossMoribund"]/race</xpath>
       <value>
-        <body>QuadrupedAnimalWithHoovesAndHorn</body>
+        <body>QuadrupedAnimalWithPawsAndHorn</body>
       </value>
     </nomatch>
   </Operation>
@@ -2016,6 +2092,24 @@
   <Operation Class="PatchOperationAddModExtension">
     <xpath>/Defs/ThingDef[defName = "AA_GallatrossMoribund"]</xpath>
     <value>
+      <li Class="ZoologyMod.ModExtension_CannotBeAugmented, ZoologyMod"/>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "AA_GallatrossMoribund"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_CannotBeMutated, ZoologyMod"/>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "AA_GallatrossMoribund"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_NoFlee, ZoologyMod"/>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "AA_GallatrossMoribund"]</xpath>
+    <value>
       <li Class="ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod"/>
     </value>
   </Operation>
@@ -2025,13 +2119,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "AA_GallatrossMoribund"]/combatPower</xpath>
       <value>
-        <combatPower>7730</combatPower>
+        <combatPower>6685</combatPower>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "AA_GallatrossMoribund"]</xpath>
       <value>
-        <combatPower>7730</combatPower>
+        <combatPower>6685</combatPower>
       </value>
     </nomatch>
   </Operation>
@@ -2094,13 +2188,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_Thunderbeast"]/statBases/MarketValue</xpath>
       <value>
-        <MarketValue>1225</MarketValue>
+        <MarketValue>1250</MarketValue>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AA_Thunderbeast"]/statBases</xpath>
       <value>
-        <MarketValue>1225</MarketValue>
+        <MarketValue>1250</MarketValue>
       </value>
     </nomatch>
   </Operation>
@@ -2271,7 +2365,7 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>16</power>
+          <power>20.5</power>
           <cooldownTime>2.2</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
         </li>
@@ -2720,13 +2814,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "AA_Thunderbeast"]/combatPower</xpath>
       <value>
-        <combatPower>340</combatPower>
+        <combatPower>355</combatPower>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "AA_Thunderbeast"]</xpath>
       <value>
-        <combatPower>340</combatPower>
+        <combatPower>355</combatPower>
       </value>
     </nomatch>
   </Operation>
@@ -2789,13 +2883,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_WindBeast"]/statBases/MarketValue</xpath>
       <value>
-        <MarketValue>1225</MarketValue>
+        <MarketValue>1250</MarketValue>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AA_WindBeast"]/statBases</xpath>
       <value>
-        <MarketValue>1225</MarketValue>
+        <MarketValue>1250</MarketValue>
       </value>
     </nomatch>
   </Operation>
@@ -2966,7 +3060,7 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>16</power>
+          <power>20.5</power>
           <cooldownTime>2.2</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
         </li>
@@ -3415,13 +3509,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "AA_WindBeast"]/combatPower</xpath>
       <value>
-        <combatPower>340</combatPower>
+        <combatPower>355</combatPower>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "AA_WindBeast"]</xpath>
       <value>
-        <combatPower>340</combatPower>
+        <combatPower>355</combatPower>
       </value>
     </nomatch>
   </Operation>
@@ -3665,6 +3759,17 @@
                 <cooldownTime>2.45</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
               </li>
+              <li Class="CombatExtended.ToolCE">
+                <label>teeth</label>
+                <capacities>
+                  <li>Bite</li>
+                </capacities>
+                <power>18.6</power>
+                <armorPenetrationBlunt>5.5</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.19</armorPenetrationSharp>
+                <cooldownTime>2.45</cooldownTime>
+                <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
+              </li>
             </tools>
           </value>
         </li>
@@ -3764,14 +3869,14 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="AA_Gallatross"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]/Durability</xpath>
             <value>
-              <Durability>16750</Durability>
+              <Durability>13750</Durability>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="AA_Gallatross"]/comps</xpath>
             <value>
               <li Class="CombatExtended.CompProperties_ArmorDurability">
-                <Durability>16750</Durability>
+                <Durability>13750</Durability>
                 <Regenerates>true</Regenerates>
                 <RegenInterval>600</RegenInterval>
                 <RegenValue>5</RegenValue>
@@ -3833,6 +3938,30 @@
                 <chanceFactor>0.2</chanceFactor>
               </li>
               <li Class="CombatExtended.ToolCE">
+                <label>left claw</label>
+                <labelNoLocation>claw</labelNoLocation>
+                <capacities>
+                  <li>Scratch</li>
+                </capacities>
+                <power>71.1</power>
+                <armorPenetrationBlunt>86.75</armorPenetrationBlunt>
+                <armorPenetrationSharp>6.3</armorPenetrationSharp>
+                <cooldownTime>3.4</cooldownTime>
+                <linkedBodyPartsGroup>FrontLeftPaw</linkedBodyPartsGroup>
+              </li>
+              <li Class="CombatExtended.ToolCE">
+                <label>right claw</label>
+                <labelNoLocation>claw</labelNoLocation>
+                <capacities>
+                  <li>Scratch</li>
+                </capacities>
+                <power>71.1</power>
+                <armorPenetrationBlunt>86.75</armorPenetrationBlunt>
+                <armorPenetrationSharp>6.3</armorPenetrationSharp>
+                <cooldownTime>3.4</cooldownTime>
+                <linkedBodyPartsGroup>FrontRightPaw</linkedBodyPartsGroup>
+              </li>
+              <li Class="CombatExtended.ToolCE">
                 <label>left foot</label>
                 <labelNoLocation>foot</labelNoLocation>
                 <capacities>
@@ -3840,7 +3969,7 @@
                 </capacities>
                 <power>68.1</power>
                 <armorPenetrationBlunt>86.75</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.64</armorPenetrationSharp>
+                <armorPenetrationSharp>6.3</armorPenetrationSharp>
                 <cooldownTime>4</cooldownTime>
                 <linkedBodyPartsGroup>FrontLeftLeg</linkedBodyPartsGroup>
               </li>
@@ -3852,7 +3981,7 @@
                 </capacities>
                 <power>68.1</power>
                 <armorPenetrationBlunt>86.75</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.64</armorPenetrationSharp>
+                <armorPenetrationSharp>6.3</armorPenetrationSharp>
                 <cooldownTime>4</cooldownTime>
                 <linkedBodyPartsGroup>FrontRightLeg</linkedBodyPartsGroup>
               </li>
@@ -3866,6 +3995,17 @@
                 <armorPenetrationSharp>49.77</armorPenetrationSharp>
                 <cooldownTime>3.25</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
+              </li>
+              <li Class="CombatExtended.ToolCE">
+                <label>teeth</label>
+                <capacities>
+                  <li>Bite</li>
+                </capacities>
+                <power>65.5</power>
+                <armorPenetrationBlunt>79.45</armorPenetrationBlunt>
+                <armorPenetrationSharp>5.77</armorPenetrationSharp>
+                <cooldownTime>2.8</cooldownTime>
+                <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
               </li>
             </tools>
           </value>
@@ -3966,14 +4106,14 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="AA_GallatrossMoribund"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]/Durability</xpath>
             <value>
-              <Durability>16750</Durability>
+              <Durability>13750</Durability>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="AA_GallatrossMoribund"]/comps</xpath>
             <value>
               <li Class="CombatExtended.CompProperties_ArmorDurability">
-                <Durability>16750</Durability>
+                <Durability>13750</Durability>
                 <Regenerates>true</Regenerates>
                 <RegenInterval>600</RegenInterval>
                 <RegenValue>5</RegenValue>
@@ -4035,6 +4175,30 @@
                 <chanceFactor>0.2</chanceFactor>
               </li>
               <li Class="CombatExtended.ToolCE">
+                <label>left claw</label>
+                <labelNoLocation>claw</labelNoLocation>
+                <capacities>
+                  <li>Scratch</li>
+                </capacities>
+                <power>71.1</power>
+                <armorPenetrationBlunt>86.75</armorPenetrationBlunt>
+                <armorPenetrationSharp>6.3</armorPenetrationSharp>
+                <cooldownTime>3.4</cooldownTime>
+                <linkedBodyPartsGroup>FrontLeftPaw</linkedBodyPartsGroup>
+              </li>
+              <li Class="CombatExtended.ToolCE">
+                <label>right claw</label>
+                <labelNoLocation>claw</labelNoLocation>
+                <capacities>
+                  <li>Scratch</li>
+                </capacities>
+                <power>71.1</power>
+                <armorPenetrationBlunt>86.75</armorPenetrationBlunt>
+                <armorPenetrationSharp>6.3</armorPenetrationSharp>
+                <cooldownTime>3.4</cooldownTime>
+                <linkedBodyPartsGroup>FrontRightPaw</linkedBodyPartsGroup>
+              </li>
+              <li Class="CombatExtended.ToolCE">
                 <label>left foot</label>
                 <labelNoLocation>foot</labelNoLocation>
                 <capacities>
@@ -4042,7 +4206,7 @@
                 </capacities>
                 <power>68.1</power>
                 <armorPenetrationBlunt>86.75</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.64</armorPenetrationSharp>
+                <armorPenetrationSharp>6.3</armorPenetrationSharp>
                 <cooldownTime>4</cooldownTime>
                 <linkedBodyPartsGroup>FrontLeftLeg</linkedBodyPartsGroup>
               </li>
@@ -4054,7 +4218,7 @@
                 </capacities>
                 <power>68.1</power>
                 <armorPenetrationBlunt>86.75</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.64</armorPenetrationSharp>
+                <armorPenetrationSharp>6.3</armorPenetrationSharp>
                 <cooldownTime>4</cooldownTime>
                 <linkedBodyPartsGroup>FrontRightLeg</linkedBodyPartsGroup>
               </li>
@@ -4068,6 +4232,17 @@
                 <armorPenetrationSharp>49.77</armorPenetrationSharp>
                 <cooldownTime>3.25</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
+              </li>
+              <li Class="CombatExtended.ToolCE">
+                <label>teeth</label>
+                <capacities>
+                  <li>Bite</li>
+                </capacities>
+                <power>65.5</power>
+                <armorPenetrationBlunt>79.45</armorPenetrationBlunt>
+                <armorPenetrationSharp>5.77</armorPenetrationSharp>
+                <cooldownTime>2.8</cooldownTime>
+                <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
               </li>
             </tools>
           </value>
@@ -4269,6 +4444,17 @@
                 <cooldownTime>2.45</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
               </li>
+              <li Class="CombatExtended.ToolCE">
+                <label>teeth</label>
+                <capacities>
+                  <li>Bite</li>
+                </capacities>
+                <power>18.6</power>
+                <armorPenetrationBlunt>5.5</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.19</armorPenetrationSharp>
+                <cooldownTime>2.45</cooldownTime>
+                <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
+              </li>
             </tools>
           </value>
         </li>
@@ -4468,6 +4654,17 @@
                 <armorPenetrationSharp>4.73</armorPenetrationSharp>
                 <cooldownTime>2.45</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
+              </li>
+              <li Class="CombatExtended.ToolCE">
+                <label>teeth</label>
+                <capacities>
+                  <li>Bite</li>
+                </capacities>
+                <power>18.6</power>
+                <armorPenetrationBlunt>5.5</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.19</armorPenetrationSharp>
+                <cooldownTime>2.45</cooldownTime>
+                <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
               </li>
             </tools>
           </value>
