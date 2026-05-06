@@ -278,6 +278,7 @@ Most invasive behavior systems can be disabled in mod settings if conflicts occu
 * Animal Traits System
 * All Vanilla Animals Expanded series mods (Vanilla Animals Expanded, Vanilla Animals Expanded - Royal Animals, Vanilla Animals Expanded - Endangered, Vanilla Animals Expanded - Waste Animals)
 * Combat Extended
+* Alpha Animals
 
 ---
 
@@ -299,7 +300,7 @@ The option **Override CE Penetration for animal life stages** modifies penetrati
 
 Future compatibility work is planned for additional animal mods such as:
 
-* Alpha Animals  
+* Megafauna
 * Dinosauria
 
 ---
