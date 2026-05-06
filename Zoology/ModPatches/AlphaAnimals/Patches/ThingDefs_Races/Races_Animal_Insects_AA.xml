@@ -3269,14 +3269,12 @@
       <xpath>/Defs/ThingDef[defName = "AA_Barbslinger"]/race/specialTrainables</xpath>
       <value>
         <li MayRequire="Ludeon.RimWorld.Odyssey">AttackTarget</li>
-        <li MayRequire="Ludeon.RimWorld.Odyssey">AttackTarget</li>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AA_Barbslinger"]/race</xpath>
       <value>
         <specialTrainables>
-          <li MayRequire="Ludeon.RimWorld.Odyssey">AttackTarget</li>
           <li MayRequire="Ludeon.RimWorld.Odyssey">AttackTarget</li>
         </specialTrainables>
       </value>
@@ -13363,6 +13361,27 @@
       <xpath>/Defs/ThingDef[defName = "AA_Swarmling"]/race</xpath>
       <value>
         <body>BeetleLikeWithClaw</body>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_Swarmling"]/race/waterCellCost</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_Swarmling"]/race/waterCellCost</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_Swarmling"]/race/waterSeeker</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "AA_Swarmling"]/race/waterSeeker</xpath>
+      <value>
+        <waterSeeker>false</waterSeeker>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "AA_Swarmling"]/race</xpath>
+      <value>
+        <waterSeeker>false</waterSeeker>
       </value>
     </nomatch>
   </Operation>
