@@ -871,7 +871,7 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>1</power>
+          <power>1.5</power>
           <cooldownTime>0.95</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
         </li>
@@ -1211,9 +1211,18 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race/useMeatFrom</xpath>
-    <match Class="PatchOperationRemove">
+    <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race/useMeatFrom</xpath>
+      <value>
+        <useMeatFrom>Rat</useMeatFrom>
+      </value>
     </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race</xpath>
+      <value>
+        <useMeatFrom>Rat</useMeatFrom>
+      </value>
+    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race/wildBiomes</xpath>
@@ -1557,7 +1566,7 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>1</power>
+          <power>1.5</power>
           <cooldownTime>0.95</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
         </li>
@@ -1897,9 +1906,18 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race/useMeatFrom</xpath>
-    <match Class="PatchOperationRemove">
+    <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race/useMeatFrom</xpath>
+      <value>
+        <useMeatFrom>Rat</useMeatFrom>
+      </value>
     </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race</xpath>
+      <value>
+        <useMeatFrom>Rat</useMeatFrom>
+      </value>
+    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race/wildBiomes</xpath>
@@ -2203,7 +2221,7 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>1</power>
+          <power>1.5</power>
           <cooldownTime>0.95</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
         </li>
@@ -2543,9 +2561,18 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race/useMeatFrom</xpath>
-    <match Class="PatchOperationRemove">
+    <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race/useMeatFrom</xpath>
+      <value>
+        <useMeatFrom>Rat</useMeatFrom>
+      </value>
     </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race</xpath>
+      <value>
+        <useMeatFrom>Rat</useMeatFrom>
+      </value>
+    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race/wildBiomes</xpath>
@@ -2893,13 +2920,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="AA_FissionMouse"]/statBases/MeleeDodgeChance</xpath>
             <value>
-              <MeleeDodgeChance>1</MeleeDodgeChance>
+              <MeleeDodgeChance>0.8</MeleeDodgeChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="AA_FissionMouse"]/statBases</xpath>
             <value>
-              <MeleeDodgeChance>1</MeleeDodgeChance>
+              <MeleeDodgeChance>0.8</MeleeDodgeChance>
             </value>
           </nomatch>
         </li>
@@ -3039,8 +3066,8 @@
                   <li>Blunt</li>
                 </capacities>
                 <power>0.05</power>
-                <armorPenetrationBlunt>0</armorPenetrationBlunt>
-                <cooldownTime>1.05</cooldownTime>
+                <armorPenetrationBlunt>0.05</armorPenetrationBlunt>
+                <cooldownTime>1.1</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                 <chanceFactor>0.2</chanceFactor>
@@ -3050,8 +3077,8 @@
                 <capacities>
                   <li>Bite</li>
                 </capacities>
-                <power>0.8</power>
-                <armorPenetrationBlunt>0.05</armorPenetrationBlunt>
+                <power>1.1</power>
+                <armorPenetrationBlunt>0.1</armorPenetrationBlunt>
                 <armorPenetrationSharp>0.03</armorPenetrationSharp>
                 <cooldownTime>1.9</cooldownTime>
                 <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
@@ -3071,13 +3098,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="AA_FissionMouseSecond"]/statBases/MeleeDodgeChance</xpath>
             <value>
-              <MeleeDodgeChance>1</MeleeDodgeChance>
+              <MeleeDodgeChance>0.85</MeleeDodgeChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="AA_FissionMouseSecond"]/statBases</xpath>
             <value>
-              <MeleeDodgeChance>1</MeleeDodgeChance>
+              <MeleeDodgeChance>0.85</MeleeDodgeChance>
             </value>
           </nomatch>
         </li>
@@ -3217,8 +3244,8 @@
                   <li>Blunt</li>
                 </capacities>
                 <power>0.05</power>
-                <armorPenetrationBlunt>0</armorPenetrationBlunt>
-                <cooldownTime>1.05</cooldownTime>
+                <armorPenetrationBlunt>0.05</armorPenetrationBlunt>
+                <cooldownTime>1.1</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                 <chanceFactor>0.2</chanceFactor>
@@ -3228,10 +3255,10 @@
                 <capacities>
                   <li>Bite</li>
                 </capacities>
-                <power>0.8</power>
-                <armorPenetrationBlunt>0.05</armorPenetrationBlunt>
+                <power>1.1</power>
+                <armorPenetrationBlunt>0.1</armorPenetrationBlunt>
                 <armorPenetrationSharp>0.03</armorPenetrationSharp>
-                <cooldownTime>1.9</cooldownTime>
+                <cooldownTime>1.85</cooldownTime>
                 <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
               </li>
             </tools>
@@ -3249,13 +3276,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="AA_FissionMouseThird"]/statBases/MeleeDodgeChance</xpath>
             <value>
-              <MeleeDodgeChance>1</MeleeDodgeChance>
+              <MeleeDodgeChance>0.85</MeleeDodgeChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="AA_FissionMouseThird"]/statBases</xpath>
             <value>
-              <MeleeDodgeChance>1</MeleeDodgeChance>
+              <MeleeDodgeChance>0.85</MeleeDodgeChance>
             </value>
           </nomatch>
         </li>
@@ -3396,7 +3423,7 @@
                 </capacities>
                 <power>0.05</power>
                 <armorPenetrationBlunt>0</armorPenetrationBlunt>
-                <cooldownTime>1.05</cooldownTime>
+                <cooldownTime>1.1</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                 <chanceFactor>0.2</chanceFactor>
@@ -3406,10 +3433,10 @@
                 <capacities>
                   <li>Bite</li>
                 </capacities>
-                <power>0.8</power>
-                <armorPenetrationBlunt>0.05</armorPenetrationBlunt>
+                <power>1</power>
+                <armorPenetrationBlunt>0.1</armorPenetrationBlunt>
                 <armorPenetrationSharp>0.03</armorPenetrationSharp>
-                <cooldownTime>1.9</cooldownTime>
+                <cooldownTime>1.85</cooldownTime>
                 <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
               </li>
             </tools>

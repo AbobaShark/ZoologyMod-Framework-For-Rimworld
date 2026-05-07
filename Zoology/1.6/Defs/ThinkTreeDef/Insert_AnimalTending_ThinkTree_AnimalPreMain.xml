@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <ThinkTreeDef>
+    <defName>Zoology_AnimalTending_Insert</defName>
+    <insertTag>Animal_PreMain</insertTag>
+    <insertPriority>1</insertPriority>
+    <thinkRoot Class="ThinkNode_Priority">
+		<subNodes>
+			<!-- Non-player animals can lick only surface bleeding wounds -->
+			<li Class="ThinkNode_ConditionalOfPlayerFaction">
+			  <invert>true</invert>
+			  <subNodes>
+				<li Class="ZoologyMod.JobGiver_AnimalLickWounds, ZoologyMod" />
+			  </subNodes>
+			</li>
+		</subNodes>
+    </thinkRoot>
+  </ThinkTreeDef>
+</Defs>

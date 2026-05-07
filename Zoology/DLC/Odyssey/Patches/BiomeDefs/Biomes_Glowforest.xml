@@ -87,6 +87,7 @@
       <AA_AngelMothLarva MayRequire="sarg.alphaanimals">0.102</AA_AngelMothLarva>
       <AA_AnimaColossus MayRequire="sarg.alphaanimals">0.01</AA_AnimaColossus>
       <AA_BedBug MayRequire="sarg.alphaanimals">0.023</AA_BedBug>
+      <AA_Behemoth MayRequire="sarg.alphaanimals">0.003</AA_Behemoth>
       <AA_BloodShrimp MayRequire="sarg.alphaanimals">0.02</AA_BloodShrimp>
       <AA_BoulderMit MayRequire="sarg.alphaanimals">0.011</AA_BoulderMit>
       <AA_Bumbledrone MayRequire="sarg.alphaanimals">0.029</AA_Bumbledrone>
@@ -103,7 +104,7 @@
       <AA_DuskRat MayRequire="sarg.alphaanimals">0.5</AA_DuskRat>
       <AA_EmpressButterfly MayRequire="sarg.alphaanimals">0.024</AA_EmpressButterfly>
       <AA_EmpressButterflyLarva MayRequire="sarg.alphaanimals">0.102</AA_EmpressButterflyLarva>
-      <AA_FissionMouse MayRequire="sarg.alphaanimals">0.318</AA_FissionMouse>
+      <AA_FissionMouse MayRequire="sarg.alphaanimals">0.116</AA_FissionMouse>
       <AA_Groundrunner MayRequire="sarg.alphaanimals">0.017</AA_Groundrunner>
       <AA_Helixien MayRequire="sarg.alphaanimals">0.014</AA_Helixien>
       <AA_Junglelisk MayRequire="sarg.alphaanimals">0.015</AA_Junglelisk>
@@ -122,8 +123,8 @@
       <AA_Terramorph MayRequire="sarg.alphaanimals">0.023</AA_Terramorph>
       <AA_Thunderbeast MayRequire="sarg.alphaanimals">0.016</AA_Thunderbeast>
       <AA_Thunderox MayRequire="sarg.alphaanimals">0.15</AA_Thunderox>
-      <AA_Wildpawn MayRequire="sarg.alphaanimals">0.018</AA_Wildpawn>
-      <AA_Wildpod MayRequire="sarg.alphaanimals">0.012</AA_Wildpod>
+      <AA_Wildpawn MayRequire="sarg.alphaanimals">0.027</AA_Wildpawn>
+      <AA_Wildpod MayRequire="sarg.alphaanimals">0.011</AA_Wildpod>
       <AA_WindBeast MayRequire="sarg.alphaanimals">0.016</AA_WindBeast>
     </value>
   </Operation>
@@ -174,6 +175,15 @@
       <xpath>/Defs/BiomeDef[defName="Glowforest"]/allowedPackAnimals</xpath>
       <value>
         <li MayRequire="VanillaExpanded.VAEWaste">VAEWaste_Megatardi</li>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/BiomeDef[defName="Glowforest"]/allowedPackAnimals/li[text()="AA_Behemoth"]</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/BiomeDef[defName="Glowforest"]/allowedPackAnimals</xpath>
+      <value>
+        <li MayRequire="sarg.alphaanimals">AA_Behemoth</li>
       </value>
     </nomatch>
   </Operation>
