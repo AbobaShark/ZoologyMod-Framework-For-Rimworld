@@ -10,11 +10,12 @@ namespace ZoologyMod
         private sealed class EggClutchOwnershipRecord : IExposable
         {
             public Thing Egg;
+            public int EggThingId = -1;
             public List<Pawn> Mothers = new List<Pawn>(2);
 
             public void ExposeData()
             {
-                Scribe_References.Look(ref Egg, "egg");
+                Scribe_Values.Look(ref EggThingId, "eggThingId", -1);
                 Scribe_Collections.Look(ref Mothers, "mothers", LookMode.Reference);
                 Mothers ??= new List<Pawn>(2);
             }
@@ -396,18 +397,25 @@ namespace ZoologyMod
             for (int i = ownershipRecords.Count - 1; i >= 0; i--)
             {
                 EggClutchOwnershipRecord record = ownershipRecords[i];
+                if ((record?.Egg == null || record.Egg.Destroyed) && record != null && record.EggThingId > 0)
+                {
+                    record.Egg = ResolveThingById(record.EggThingId);
+                }
+
                 if (!IsRecordUsable(record))
                 {
                     ownershipRecords.RemoveAt(i);
                     continue;
                 }
 
-                int eggId = record.Egg.thingIDNumber;
+                int eggId = record.EggThingId > 0 ? record.EggThingId : record.Egg.thingIDNumber;
                 if (eggId <= 0)
                 {
                     ownershipRecords.RemoveAt(i);
                     continue;
                 }
+
+                record.EggThingId = eggId;
 
                 if (recordByEggId.TryGetValue(eggId, out EggClutchOwnershipRecord existing))
                 {
@@ -475,12 +483,13 @@ namespace ZoologyMod
 
             EggClutchOwnershipRecord record = new EggClutchOwnershipRecord
             {
-                Egg = egg
+                Egg = egg,
+                EggThingId = egg?.thingIDNumber ?? -1
             };
             ownershipRecords.Add(record);
-            if (egg != null && egg.thingIDNumber > 0)
+            if (record.EggThingId > 0)
             {
-                recordByEggId[egg.thingIDNumber] = record;
+                recordByEggId[record.EggThingId] = record;
             }
 
             return record;
@@ -539,7 +548,7 @@ namespace ZoologyMod
 
         private static bool IsRecordUsable(EggClutchOwnershipRecord record)
         {
-            return record != null && record.Egg != null && !record.Egg.Destroyed;
+            return record != null && record.Egg != null && !record.Egg.Destroyed && record.EggThingId > 0;
         }
 
         private static void AddMother(EggClutchOwnershipRecord record, Pawn mother)
@@ -549,6 +558,7 @@ namespace ZoologyMod
                 return;
             }
 
+            record.EggThingId = record.Egg?.thingIDNumber ?? record.EggThingId;
             record.Mothers.Add(mother);
         }
 
@@ -617,6 +627,70 @@ namespace ZoologyMod
         private static bool IsValidMother(Pawn mother)
         {
             return mother != null && !mother.Destroyed && !mother.Dead;
+        }
+
+        private static Thing ResolveThingById(int thingId)
+        {
+            if (thingId <= 0)
+            {
+                return null;
+            }
+
+            List<Map> maps = Find.Maps;
+            for (int mapIndex = 0; mapIndex < maps.Count; mapIndex++)
+            {
+                Map map = maps[mapIndex];
+                List<Thing> allThings = map?.listerThings?.AllThings;
+                if (allThings != null)
+                {
+                    for (int thingIndex = 0; thingIndex < allThings.Count; thingIndex++)
+                    {
+                        Thing thing = allThings[thingIndex];
+                        if (thing != null && thing.thingIDNumber == thingId)
+                        {
+                            return thing;
+                        }
+                    }
+                }
+
+                IReadOnlyList<Pawn> pawns = map?.mapPawns?.AllPawnsSpawned;
+                if (pawns == null)
+                {
+                    continue;
+                }
+
+                for (int pawnIndex = 0; pawnIndex < pawns.Count; pawnIndex++)
+                {
+                    Pawn pawn = pawns[pawnIndex];
+                    if (pawn == null)
+                    {
+                        continue;
+                    }
+
+                    Thing carriedThing = pawn.carryTracker?.CarriedThing;
+                    if (carriedThing != null && carriedThing.thingIDNumber == thingId)
+                    {
+                        return carriedThing;
+                    }
+
+                    ThingOwner<Thing> inventory = pawn.inventory?.innerContainer;
+                    if (inventory == null)
+                    {
+                        continue;
+                    }
+
+                    for (int inventoryIndex = 0; inventoryIndex < inventory.Count; inventoryIndex++)
+                    {
+                        Thing item = inventory[inventoryIndex];
+                        if (item != null && item.thingIDNumber == thingId)
+                        {
+                            return item;
+                        }
+                    }
+                }
+            }
+
+            return null;
         }
 
         private void IndexRecordMothers(EggClutchOwnershipRecord record)

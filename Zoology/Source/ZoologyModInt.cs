@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using RimWorld;
 using UnityEngine;
 using Verse;
 using System.Linq; 
@@ -99,6 +100,7 @@ namespace ZoologyMod
             CEPatches_Melee.EnsurePatched();
 
             ApplyDisabledFeatureUnpatches(Settings);
+            EnsureEggFoodHooksMatchSettings(Settings);
             global::ZoologyMod.Patches.DamageReduction_AnimalTypes_PawnTakeDamage.SyncPatchState();
         }
 
@@ -178,6 +180,25 @@ namespace ZoologyMod
                 global::ZoologyMod.Patches.DamageReduction_AnimalTypes_PawnTakeDamage.EnsureUnpatched();
         }
 
+        private static void EnsureEggFoodHooksMatchSettings(ZoologyModSettings settings)
+        {
+            if (settings != null
+                && !settings.DisableAllRuntimePatches
+                && settings.EnableAnimalChildcare
+                && settings.EnableAnimalEggProtection)
+            {
+                return;
+            }
+
+            TryUnpatchSpecificMethod(
+                AccessTools.Method(typeof(FoodUtility), nameof(FoodUtility.FoodOptimality)),
+                AccessTools.Method(typeof(Patch_Childcare_GuardedEggFoodOptimality), nameof(Patch_Childcare_GuardedEggFoodOptimality.Postfix)));
+
+            TryUnpatchSpecificMethod(
+                AccessTools.Method(typeof(FoodUtility), nameof(FoodUtility.WillEat), new[] { typeof(Pawn), typeof(Thing), typeof(Pawn), typeof(bool), typeof(bool) }),
+                AccessTools.Method(typeof(Patch_Childcare_BlockOwnSpeciesEggEating), nameof(Patch_Childcare_BlockOwnSpeciesEggEating.Postfix)));
+        }
+
         private static void TryUnpatchHarmonyId(string id)
         {
             try
@@ -188,6 +209,24 @@ namespace ZoologyMod
             catch (System.Exception exId)
             {
                 Log.Warning($"[Zoology] Failed to unpatch harmony id '{id}': {exId}");
+            }
+        }
+
+        private static void TryUnpatchSpecificMethod(System.Reflection.MethodBase targetMethod, System.Reflection.MethodInfo patchMethod)
+        {
+            if (targetMethod == null || patchMethod == null)
+            {
+                return;
+            }
+
+            try
+            {
+                var unpatcher = new Harmony("com.abobashark.zoology.unpatcher");
+                unpatcher.Unpatch(targetMethod, patchMethod);
+            }
+            catch (System.Exception ex)
+            {
+                Log.Warning($"[Zoology] Failed to unpatch specific method '{patchMethod.Name}' from '{targetMethod.Name}': {ex}");
             }
         }
 
