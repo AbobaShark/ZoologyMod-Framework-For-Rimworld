@@ -1,0 +1,537 @@
+using System;
+using System.Collections.Generic;
+using RimWorld;
+using Verse;
+
+namespace ZoologyMod
+{
+    public class EggClutchDefenseGameComponent : GameComponent
+    {
+        private sealed class EggClutchOwnershipRecord : IExposable
+        {
+            public Thing Egg;
+            public List<Pawn> Mothers = new List<Pawn>(2);
+
+            public void ExposeData()
+            {
+                Scribe_References.Look(ref Egg, "egg");
+                Scribe_Collections.Look(ref Mothers, "mothers", LookMode.Reference);
+                Mothers ??= new List<Pawn>(2);
+            }
+        }
+
+        private static readonly Dictionary<int, long> notificationSuppressedUntil = new Dictionary<int, long>(64);
+        private static readonly List<Pawn> ownerScratch = new List<Pawn>(4);
+
+        private static EggClutchDefenseGameComponent singleton;
+
+        private List<EggClutchOwnershipRecord> ownershipRecords = new List<EggClutchOwnershipRecord>(64);
+        private readonly Dictionary<int, EggClutchOwnershipRecord> recordByEggId = new Dictionary<int, EggClutchOwnershipRecord>(64);
+
+        public static EggClutchDefenseGameComponent Instance
+        {
+            get
+            {
+                if (singleton == null && Current.Game != null)
+                {
+                    singleton = Current.Game.GetComponent<EggClutchDefenseGameComponent>();
+                }
+
+                return singleton;
+            }
+        }
+
+        public EggClutchDefenseGameComponent(Game game)
+        {
+            singleton = this;
+        }
+
+        public EggClutchDefenseGameComponent()
+        {
+        }
+
+        public override void FinalizeInit()
+        {
+            base.FinalizeInit();
+            singleton = this;
+            RebuildRuntimeIndex();
+        }
+
+        public override void StartedNewGame()
+        {
+            base.StartedNewGame();
+            singleton = this;
+            ownershipRecords.Clear();
+            recordByEggId.Clear();
+            notificationSuppressedUntil.Clear();
+        }
+
+        public override void LoadedGame()
+        {
+            base.LoadedGame();
+            singleton = this;
+            RebuildRuntimeIndex();
+        }
+
+        public override void ExposeData()
+        {
+            base.ExposeData();
+            Scribe_Collections.Look(ref ownershipRecords, "Zoology_eggClutchOwnershipRecords", LookMode.Deep);
+            ownershipRecords ??= new List<EggClutchOwnershipRecord>(64);
+
+            if (Scribe.mode == LoadSaveMode.PostLoadInit)
+            {
+                singleton = this;
+                RebuildRuntimeIndex();
+            }
+        }
+
+        public void RegisterOwnership(Pawn mother, Thing egg)
+        {
+            if (!IsValidMother(mother) || egg == null || egg.Destroyed)
+            {
+                return;
+            }
+
+            EggClutchOwnershipRecord record = GetOrCreateRecord(egg);
+            AddMother(record, mother);
+        }
+
+        public void HandleEggSplit(Thing source, Thing piece)
+        {
+            if (source == null || piece == null || ReferenceEquals(source, piece))
+            {
+                return;
+            }
+
+            try
+            {
+                FillOwners(source, ownerScratch);
+                if (ownerScratch.Count == 0)
+                {
+                    return;
+                }
+
+                EggClutchOwnershipRecord record = GetOrCreateRecord(piece);
+                for (int i = 0; i < ownerScratch.Count; i++)
+                {
+                    AddMother(record, ownerScratch[i]);
+                }
+            }
+            finally
+            {
+                ownerScratch.Clear();
+            }
+        }
+
+        public void HandleEggAbsorb(Thing target, Thing source, int countToTake)
+        {
+            if (target == null || source == null || countToTake <= 0)
+            {
+                return;
+            }
+
+            try
+            {
+                FillOwners(target, ownerScratch);
+                FillOwners(source, ownerScratch);
+                if (ownerScratch.Count == 0)
+                {
+                    return;
+                }
+
+                EggClutchOwnershipRecord record = GetOrCreateRecord(target);
+                for (int i = 0; i < ownerScratch.Count; i++)
+                {
+                    AddMother(record, ownerScratch[i]);
+                }
+
+                if (countToTake >= source.stackCount)
+                {
+                    RemoveRecord(source.thingIDNumber);
+                }
+            }
+            finally
+            {
+                ownerScratch.Clear();
+            }
+        }
+
+        public bool TryGetProtectors(Thing egg, List<Pawn> output)
+        {
+            if (output == null)
+            {
+                return false;
+            }
+
+            output.Clear();
+            FillOwners(egg, output);
+            return output.Count > 0;
+        }
+
+        public bool IsAssociatedWithMother(Thing egg, Pawn mother)
+        {
+            if (egg == null || mother == null)
+            {
+                return false;
+            }
+
+            CompHatcher hatcher = egg.TryGetComp<CompHatcher>();
+            if (ReferenceEquals(hatcher?.hatcheeParent, mother))
+            {
+                return true;
+            }
+
+            if (!TryGetRecord(egg, out EggClutchOwnershipRecord record))
+            {
+                return false;
+            }
+
+            return ContainsMother(record, mother);
+        }
+
+        public bool TryGetAnyMother(Thing egg, out Pawn mother)
+        {
+            mother = null;
+            if (egg == null)
+            {
+                return false;
+            }
+
+            CompHatcher hatcher = egg.TryGetComp<CompHatcher>();
+            if (IsValidMother(hatcher?.hatcheeParent))
+            {
+                mother = hatcher.hatcheeParent;
+                return true;
+            }
+
+            if (!TryGetRecord(egg, out EggClutchOwnershipRecord record))
+            {
+                return false;
+            }
+
+            for (int i = 0; i < record.Mothers.Count; i++)
+            {
+                Pawn candidate = record.Mothers[i];
+                if (!IsValidMother(candidate))
+                {
+                    continue;
+                }
+
+                mother = candidate;
+                return true;
+            }
+
+            return false;
+        }
+
+        public bool ShouldBlockOwnFertilizedEggConsumption(Pawn eater, Thing egg)
+        {
+            if (eater == null
+                || egg == null
+                || !eater.IsAnimal
+                || !ChildcareUtility.HasChildcareExtension(eater))
+            {
+                return false;
+            }
+
+            try
+            {
+                FillOwners(egg, ownerScratch);
+                for (int i = 0; i < ownerScratch.Count; i++)
+                {
+                    Pawn mother = ownerScratch[i];
+                    if (!ChildcareUtility.HasChildcareExtension(mother))
+                    {
+                        continue;
+                    }
+
+                    if (SharesSpeciesLineage(mother, eater))
+                    {
+                        return true;
+                    }
+                }
+            }
+            finally
+            {
+                ownerScratch.Clear();
+            }
+
+            return false;
+        }
+
+        public static void MarkProtectionNotificationSentForEgg(int eggThingId)
+        {
+            if (eggThingId <= 0)
+            {
+                return;
+            }
+
+            try
+            {
+                long now = Find.TickManager?.TicksGame ?? 0L;
+                notificationSuppressedUntil[eggThingId] = now + ZoologyTickLimiter.PreyProtection.NotificationSuppressionTicks;
+            }
+            catch
+            {
+            }
+        }
+
+        public static bool IsProtectionNotificationSuppressedForEgg(int eggThingId)
+        {
+            if (eggThingId <= 0)
+            {
+                return false;
+            }
+
+            try
+            {
+                long now = Find.TickManager?.TicksGame ?? 0L;
+                if (notificationSuppressedUntil.TryGetValue(eggThingId, out long until))
+                {
+                    if (until >= now)
+                    {
+                        return true;
+                    }
+
+                    notificationSuppressedUntil.Remove(eggThingId);
+                }
+            }
+            catch
+            {
+            }
+
+            return false;
+        }
+
+        private void RebuildRuntimeIndex()
+        {
+            recordByEggId.Clear();
+            if (ownershipRecords.Count == 0)
+            {
+                return;
+            }
+
+            for (int i = ownershipRecords.Count - 1; i >= 0; i--)
+            {
+                EggClutchOwnershipRecord record = ownershipRecords[i];
+                if (!IsRecordUsable(record))
+                {
+                    ownershipRecords.RemoveAt(i);
+                    continue;
+                }
+
+                int eggId = record.Egg.thingIDNumber;
+                if (eggId <= 0)
+                {
+                    ownershipRecords.RemoveAt(i);
+                    continue;
+                }
+
+                if (recordByEggId.TryGetValue(eggId, out EggClutchOwnershipRecord existing))
+                {
+                    MergeRecordOwners(existing, record);
+                    ownershipRecords.RemoveAt(i);
+                    continue;
+                }
+
+                recordByEggId[eggId] = record;
+                TrimInvalidMothers(record);
+                if (record.Mothers.Count == 0 && !IsValidMother(record.Egg.TryGetComp<CompHatcher>()?.hatcheeParent))
+                {
+                    ownershipRecords.RemoveAt(i);
+                    recordByEggId.Remove(eggId);
+                }
+            }
+        }
+
+        private bool TryGetRecord(Thing egg, out EggClutchOwnershipRecord record)
+        {
+            record = null;
+            if (egg == null)
+            {
+                return false;
+            }
+
+            int eggId = egg.thingIDNumber;
+            if (eggId <= 0)
+            {
+                return false;
+            }
+
+            if (!recordByEggId.TryGetValue(eggId, out record))
+            {
+                return false;
+            }
+
+            if (!IsRecordUsable(record) || !ReferenceEquals(record.Egg, egg))
+            {
+                RemoveRecord(eggId);
+                record = null;
+                return false;
+            }
+
+            TrimInvalidMothers(record);
+            if (record.Mothers.Count == 0 && !IsValidMother(record.Egg.TryGetComp<CompHatcher>()?.hatcheeParent))
+            {
+                RemoveRecord(eggId);
+                record = null;
+                return false;
+            }
+
+            return true;
+        }
+
+        private EggClutchOwnershipRecord GetOrCreateRecord(Thing egg)
+        {
+            if (TryGetRecord(egg, out EggClutchOwnershipRecord existing))
+            {
+                return existing;
+            }
+
+            EggClutchOwnershipRecord record = new EggClutchOwnershipRecord
+            {
+                Egg = egg
+            };
+            ownershipRecords.Add(record);
+            if (egg != null && egg.thingIDNumber > 0)
+            {
+                recordByEggId[egg.thingIDNumber] = record;
+            }
+
+            return record;
+        }
+
+        private void RemoveRecord(int eggId)
+        {
+            if (eggId <= 0 || !recordByEggId.TryGetValue(eggId, out EggClutchOwnershipRecord record))
+            {
+                return;
+            }
+
+            recordByEggId.Remove(eggId);
+            ownershipRecords.Remove(record);
+        }
+
+        private static void FillOwners(Thing egg, List<Pawn> output)
+        {
+            if (egg == null || output == null)
+            {
+                return;
+            }
+
+            CompHatcher hatcher = egg.TryGetComp<CompHatcher>();
+            AppendUniqueMother(output, hatcher?.hatcheeParent);
+
+            EggClutchDefenseGameComponent component = Instance;
+            if (component == null || !component.TryGetRecord(egg, out EggClutchOwnershipRecord record))
+            {
+                return;
+            }
+
+            for (int i = 0; i < record.Mothers.Count; i++)
+            {
+                AppendUniqueMother(output, record.Mothers[i]);
+            }
+        }
+
+        private static void MergeRecordOwners(EggClutchOwnershipRecord target, EggClutchOwnershipRecord source)
+        {
+            if (target == null || source == null || ReferenceEquals(target, source))
+            {
+                return;
+            }
+
+            for (int i = 0; i < source.Mothers.Count; i++)
+            {
+                Pawn mother = source.Mothers[i];
+                if (IsValidMother(mother) && !ContainsMother(target, mother))
+                {
+                    target.Mothers.Add(mother);
+                }
+            }
+        }
+
+        private static bool IsRecordUsable(EggClutchOwnershipRecord record)
+        {
+            return record != null && record.Egg != null && !record.Egg.Destroyed;
+        }
+
+        private static void AddMother(EggClutchOwnershipRecord record, Pawn mother)
+        {
+            if (record == null || !IsValidMother(mother) || ContainsMother(record, mother))
+            {
+                return;
+            }
+
+            record.Mothers.Add(mother);
+        }
+
+        private static bool ContainsMother(EggClutchOwnershipRecord record, Pawn mother)
+        {
+            if (record == null || mother == null)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < record.Mothers.Count; i++)
+            {
+                if (ReferenceEquals(record.Mothers[i], mother))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static void TrimInvalidMothers(EggClutchOwnershipRecord record)
+        {
+            if (record == null)
+            {
+                return;
+            }
+
+            for (int i = record.Mothers.Count - 1; i >= 0; i--)
+            {
+                if (!IsValidMother(record.Mothers[i]))
+                {
+                    record.Mothers.RemoveAt(i);
+                }
+            }
+        }
+
+        private static void AppendUniqueMother(List<Pawn> output, Pawn mother)
+        {
+            if (!IsValidMother(mother))
+            {
+                return;
+            }
+
+            for (int i = 0; i < output.Count; i++)
+            {
+                if (ReferenceEquals(output[i], mother))
+                {
+                    return;
+                }
+            }
+
+            output.Add(mother);
+        }
+
+        private static bool SharesSpeciesLineage(Pawn first, Pawn second)
+        {
+            if (first == null || second == null || first.def == null || second.def == null)
+            {
+                return false;
+            }
+
+            return first.def == second.def || ZoologyCacheUtility.AreCrossbreedRelated(first.def, second.def);
+        }
+
+        private static bool IsValidMother(Pawn mother)
+        {
+            return mother != null && !mother.Destroyed && !mother.Dead;
+        }
+    }
+}

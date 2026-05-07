@@ -12,7 +12,7 @@ namespace ZoologyMod
         private const int StopDistanceSquared = StopDistanceTiles * StopDistanceTiles;
 
         private Pawn TargetPawn => this.job.GetTarget(TargetIndex.A).Thing as Pawn;
-        private Pawn ProtectedPawn => this.job.GetTarget(TargetIndex.B).Thing as Pawn;
+        private Thing ProtectedThing => this.job.GetTarget(TargetIndex.B).Thing;
 
         public override bool TryMakePreToilReservations(bool errorOnFailed)
         {
@@ -23,27 +23,27 @@ namespace ZoologyMod
         {
             Toil attackToil = Toils_Combat.FollowAndMeleeAttack(TargetIndex.A, HitAction)
                 .FailOn(() => !IsValidPawn(TargetPawn))
-                .FailOn(() => !IsValidPawn(ProtectedPawn));
+                .FailOn(() => !IsValidProtectedThing(ProtectedThing));
 
             attackToil.AddPreTickIntervalAction(delegate (int _)
             {
                 try
                 {
                     Pawn target = TargetPawn;
-                    Pawn child = ProtectedPawn;
-                    if (!IsValidPawn(target) || !IsValidPawn(child))
+                    Thing protectedThing = ProtectedThing;
+                    if (!IsValidPawn(target) || !IsValidProtectedThing(protectedThing))
                     {
                         pawn?.jobs?.EndCurrentJob(JobCondition.Succeeded, true, true);
                         return;
                     }
 
-                    if (target.Map != child.Map)
+                    if (target.MapHeld != protectedThing.MapHeld)
                     {
                         pawn?.jobs?.EndCurrentJob(JobCondition.Succeeded, true, true);
                         return;
                     }
 
-                    int distSq = (target.Position - child.Position).LengthHorizontalSquared;
+                    int distSq = (target.PositionHeld - protectedThing.PositionHeld).LengthHorizontalSquared;
                     if (distSq >= StopDistanceSquared)
                     {
                         pawn?.jobs?.EndCurrentJob(JobCondition.Succeeded, true, true);
@@ -80,5 +80,19 @@ namespace ZoologyMod
             return true;
         }
 
+        private bool IsValidProtectedThing(Thing thing)
+        {
+            if (thing == null || thing.Destroyed || !thing.SpawnedOrAnyParentSpawned || thing.MapHeld == null)
+            {
+                return false;
+            }
+
+            if (thing is Pawn pawnThing && pawnThing.Dead)
+            {
+                return false;
+            }
+
+            return true;
+        }
     }
 }

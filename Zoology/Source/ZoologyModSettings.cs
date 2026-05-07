@@ -36,6 +36,9 @@ namespace ZoologyMod
         public bool EnableNoPorcupineQuillPatch = true;
         public static bool EnableMammalLactation = true;
         public bool EnableAnimalChildcare = true;
+        public bool EnableAnimalEggProtection = true;
+        public bool EnableAnimalWoundLicking = true;
+        public bool EnableWildAnimalReproduction = true;
         public bool EnableCannotChewExtension = true;
         public bool EnablePredatorDefendCorpse = true;
         public bool EnablePredatorDefendPreyFromHumansAndMechanoids = true;
@@ -277,11 +280,11 @@ namespace ZoologyMod
                         + (EnablePreyFleeFromPredators ? 150f : 0f)
                         + (EnablePredatorDefendCorpse ? 156f : 0f);
                 case SettingsPage.Physiology:
-                    return 1180f + (!EnableMammalLactation ? 30f : 0f);
+                    return 1380f + (!EnableMammalLactation ? 30f : 0f);
                 case SettingsPage.Combat:
                     return 580f;
                 case SettingsPage.OtherBehavior:
-                    return 1560f
+                    return 1660f
                         + (EnableCustomFleeDanger ? 170f : 0f)
                         + (EnableIgnoreSmallPetsByRaiders ? 200f : 0f)
                         + (AnimalsFreeFromHumans ? 130f : 0f);
@@ -387,6 +390,28 @@ namespace ZoologyMod
                 list.GapLine(6f);
                 DrawRuntimeFeatureConfigureButton(list, "modext_childcare", "Configure childcare extension species");
             }
+
+            list.GapLine(12f);
+            bool prevEggProtectionGuiEnabled = GUI.enabled;
+            if (!EnableAnimalChildcare)
+            {
+                GUI.enabled = false;
+            }
+
+            list.CheckboxLabeled(
+                "Enable fertilized egg protection",
+                ref EnableAnimalEggProtection,
+                "When enabled, species with ModExtensiom_Chlidcare can defend only fertilized eggs when another pawn actually starts interacting with that egg item. Requires animal childcare."
+            );
+
+            GUI.enabled = prevEggProtectionGuiEnabled;
+
+            list.GapLine(12f);
+            list.CheckboxLabeled(
+                "Enable wound licking for non-player animals",
+                ref EnableAnimalWoundLicking,
+                "Non-player animals can self-tend only external bleeding wounds by licking them, with a progress bar and no-medicine, Medicine-0-style tend quality."
+            );
 
             list.GapLine(12f);
             list.CheckboxLabeled(
@@ -516,6 +541,13 @@ namespace ZoologyMod
                     Find.WindowStack.Add(new Dialog_AnimalsFreeFromHumansSelector(this));
                 }
             }
+
+            list.GapLine(12f);
+            list.CheckboxLabeled(
+                "Enable wild animal reproduction",
+                ref EnableWildAnimalReproduction,
+                "Allows wild animals to mate with other wild animals and with compatible tame animals without faction restrictions, while keeping vanilla mating for same-faction tame animals."
+            );
 
             list.GapLine(6f);
             if (list.ButtonText("Configure animal roamers (RoamMtbDays / Trainability)"))
@@ -722,6 +754,9 @@ namespace ZoologyMod
             EnableNoPorcupineQuillPatch = true;
             EnableMammalLactation = true;
             EnableAnimalChildcare = true;
+            EnableAnimalEggProtection = true;
+            EnableAnimalWoundLicking = true;
+            EnableWildAnimalReproduction = true;
             EnableCannotChewExtension = true;
             EnablePredatorDefendCorpse = true;
             EnablePredatorDefendPreyFromHumansAndMechanoids = true;
@@ -796,9 +831,12 @@ namespace ZoologyMod
             Scribe_Values.Look(ref _safePredatorBodySizeThreshold, "SafePredatorBodySizeThreshold", ModConstants.DefaultSafePredatorBodySizeThreshold);
             Scribe_Values.Look(ref _safeNonPredatorBodySizeThreshold, "SafeNonPredatorBodySizeThreshold", ModConstants.DefaultSafeNonPredatorBodySizeThreshold);
             Scribe_Values.Look(ref AnimalsFreeFromHumans, "AnimalsFreeFromHumans", true);
+            Scribe_Values.Look(ref EnableWildAnimalReproduction, "EnableWildAnimalReproduction", true);
             Scribe_Values.Look(ref EnableAgroAtSlaughter, "EnableAgroAtSlaughter", true);
             Scribe_Values.Look(ref EnableMammalLactation, "EnableMammalLactation", true);
             Scribe_Values.Look(ref EnableAnimalChildcare, "EnableAnimalChildcare", true);
+            Scribe_Values.Look(ref EnableAnimalEggProtection, "EnableAnimalEggProtection", true);
+            Scribe_Values.Look(ref EnableAnimalWoundLicking, "EnableAnimalWoundLicking", true);
             Scribe_Values.Look(ref EnablePredatorDefendCorpse, "EnablePredatorDefendCorpse", true);
             Scribe_Values.Look(ref EnablePredatorDefendPreyFromHumansAndMechanoids, "EnablePredatorDefendPreyFromHumansAndMechanoids", true);
             Scribe_Values.Look(ref PredatorSearchRadius, "PredatorSearchRadius", 18);
@@ -870,6 +908,7 @@ namespace ZoologyMod
                 hash = hash * 31 + (EnablePreyFleeFromPredators ? 1 : 0);
                 hash = hash * 31 + (AnimalsFleeFromNonHostlePredators ? 1 : 0);
                 hash = hash * 31 + (AnimalsFreeFromHumans ? 1 : 0);
+                hash = hash * 31 + (EnableWildAnimalReproduction ? 1 : 0);
                 hash = hash * 31 + (EnablePackHunt ? 1 : 0);
                 hash = hash * 31 + (EnableAdvancedPredationLogic ? 1 : 0);
                 hash = hash * 31 + (EnableAgroAtSlaughter ? 1 : 0);
@@ -884,6 +923,8 @@ namespace ZoologyMod
                 hash = hash * 31 + (EnableScavengering ? 1 : 0);
                 hash = hash * 31 + (EnableMammalLactation ? 1 : 0);
                 hash = hash * 31 + (EnableAnimalChildcare ? 1 : 0);
+                hash = hash * 31 + (EnableAnimalEggProtection ? 1 : 0);
+                hash = hash * 31 + (EnableAnimalWoundLicking ? 1 : 0);
                 hash = hash * 31 + (EnableEctothermicPatch ? 1 : 0);
                 hash = hash * 31 + (EnableAgelessPatch ? 1 : 0);
                 hash = hash * 31 + (EnableDrugsImmunePatch ? 1 : 0);
@@ -1869,6 +1910,7 @@ namespace ZoologyMod
                 && (!EnableIgnoreSmallPetsByRaiders || !EnableSmallPetNoMeleeRetaliation)
                 && !EnablePreyFleeFromPredators
                 && !AnimalsFreeFromHumans
+                && !EnableWildAnimalReproduction
                 && !EnablePackHunt
                 && !EnableAdvancedPredationLogic
                 && !EnableHumanBionicOnAnimal
@@ -1888,6 +1930,8 @@ namespace ZoologyMod
                 && !EnableNoPorcupineQuillPatch
                 && !EnableMammalLactation
                 && !EnableAnimalChildcare
+                && !EnableAnimalEggProtection
+                && !EnableAnimalWoundLicking
                 && !EnablePredatorDefendCorpse
                 && !EnableScavengering
                 && !EnableAnimalDamageReduction
