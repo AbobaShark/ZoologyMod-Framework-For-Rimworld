@@ -27,6 +27,7 @@ namespace ZoologyMod
 
         private List<EggClutchOwnershipRecord> ownershipRecords = new List<EggClutchOwnershipRecord>(64);
         private readonly Dictionary<int, EggClutchOwnershipRecord> recordByEggId = new Dictionary<int, EggClutchOwnershipRecord>(64);
+        private readonly Dictionary<int, HashSet<int>> eggIdsByMotherId = new Dictionary<int, HashSet<int>>(64);
 
         public static EggClutchDefenseGameComponent Instance
         {
@@ -63,6 +64,7 @@ namespace ZoologyMod
             singleton = this;
             ownershipRecords.Clear();
             recordByEggId.Clear();
+            eggIdsByMotherId.Clear();
             notificationSuppressedUntil.Clear();
         }
 
@@ -94,7 +96,12 @@ namespace ZoologyMod
             }
 
             EggClutchOwnershipRecord record = GetOrCreateRecord(egg);
+            bool hadMother = ContainsMother(record, mother);
             AddMother(record, mother);
+            if (!hadMother)
+            {
+                IndexRecordMothers(record);
+            }
         }
 
         public void HandleEggSplit(Thing source, Thing piece)
@@ -113,9 +120,22 @@ namespace ZoologyMod
                 }
 
                 EggClutchOwnershipRecord record = GetOrCreateRecord(piece);
+                bool changed = false;
                 for (int i = 0; i < ownerScratch.Count; i++)
                 {
-                    AddMother(record, ownerScratch[i]);
+                    Pawn mother = ownerScratch[i];
+                    if (ContainsMother(record, mother))
+                    {
+                        continue;
+                    }
+
+                    AddMother(record, mother);
+                    changed = true;
+                }
+
+                if (changed)
+                {
+                    IndexRecordMothers(record);
                 }
             }
             finally
@@ -141,9 +161,22 @@ namespace ZoologyMod
                 }
 
                 EggClutchOwnershipRecord record = GetOrCreateRecord(target);
+                bool changed = false;
                 for (int i = 0; i < ownerScratch.Count; i++)
                 {
-                    AddMother(record, ownerScratch[i]);
+                    Pawn mother = ownerScratch[i];
+                    if (ContainsMother(record, mother))
+                    {
+                        continue;
+                    }
+
+                    AddMother(record, mother);
+                    changed = true;
+                }
+
+                if (changed)
+                {
+                    IndexRecordMothers(record);
                 }
 
                 if (countToTake >= source.stackCount)
@@ -260,6 +293,53 @@ namespace ZoologyMod
             return false;
         }
 
+        public Thing TryGetPairedEggForMother(Pawn mother)
+        {
+            if (!IsValidMother(mother) || mother.Map == null)
+            {
+                return null;
+            }
+
+            int motherId = mother.thingIDNumber;
+            if (motherId <= 0 || !eggIdsByMotherId.TryGetValue(motherId, out HashSet<int> eggIds) || eggIds.Count == 0)
+            {
+                return null;
+            }
+
+            Thing bestEgg = null;
+            int bestDistanceSq = int.MaxValue;
+            int protectionRangeSq = PreyProtectionUtility.GetProtectionRangeSquared();
+
+            foreach (int eggId in eggIds)
+            {
+                if (!recordByEggId.TryGetValue(eggId, out EggClutchOwnershipRecord record))
+                {
+                    continue;
+                }
+
+                Thing egg = record.Egg;
+                if (egg == null
+                    || egg.Destroyed
+                    || !egg.Spawned
+                    || egg.Map != mother.Map
+                    || !egg.Position.IsValid)
+                {
+                    continue;
+                }
+
+                int distanceSq = (mother.Position - egg.Position).LengthHorizontalSquared;
+                if (distanceSq > protectionRangeSq || distanceSq >= bestDistanceSq)
+                {
+                    continue;
+                }
+
+                bestEgg = egg;
+                bestDistanceSq = distanceSq;
+            }
+
+            return bestEgg;
+        }
+
         public static void MarkProtectionNotificationSentForEgg(int eggThingId)
         {
             if (eggThingId <= 0)
@@ -307,6 +387,7 @@ namespace ZoologyMod
         private void RebuildRuntimeIndex()
         {
             recordByEggId.Clear();
+            eggIdsByMotherId.Clear();
             if (ownershipRecords.Count == 0)
             {
                 return;
@@ -341,7 +422,10 @@ namespace ZoologyMod
                 {
                     ownershipRecords.RemoveAt(i);
                     recordByEggId.Remove(eggId);
+                    continue;
                 }
+
+                IndexRecordMothers(record);
             }
         }
 
@@ -409,6 +493,7 @@ namespace ZoologyMod
                 return;
             }
 
+            UnindexRecordMothers(record);
             recordByEggId.Remove(eggId);
             ownershipRecords.Remove(record);
         }
@@ -532,6 +617,73 @@ namespace ZoologyMod
         private static bool IsValidMother(Pawn mother)
         {
             return mother != null && !mother.Destroyed && !mother.Dead;
+        }
+
+        private void IndexRecordMothers(EggClutchOwnershipRecord record)
+        {
+            if (record?.Egg == null)
+            {
+                return;
+            }
+
+            int eggId = record.Egg.thingIDNumber;
+            if (eggId <= 0)
+            {
+                return;
+            }
+
+            for (int i = 0; i < record.Mothers.Count; i++)
+            {
+                Pawn mother = record.Mothers[i];
+                if (!IsValidMother(mother))
+                {
+                    continue;
+                }
+
+                int motherId = mother.thingIDNumber;
+                if (motherId <= 0)
+                {
+                    continue;
+                }
+
+                if (!eggIdsByMotherId.TryGetValue(motherId, out HashSet<int> eggIds))
+                {
+                    eggIds = new HashSet<int>();
+                    eggIdsByMotherId[motherId] = eggIds;
+                }
+
+                eggIds.Add(eggId);
+            }
+        }
+
+        private void UnindexRecordMothers(EggClutchOwnershipRecord record)
+        {
+            if (record?.Egg == null)
+            {
+                return;
+            }
+
+            int eggId = record.Egg.thingIDNumber;
+            if (eggId <= 0)
+            {
+                return;
+            }
+
+            for (int i = 0; i < record.Mothers.Count; i++)
+            {
+                Pawn mother = record.Mothers[i];
+                int motherId = mother?.thingIDNumber ?? 0;
+                if (motherId <= 0 || !eggIdsByMotherId.TryGetValue(motherId, out HashSet<int> eggIds))
+                {
+                    continue;
+                }
+
+                eggIds.Remove(eggId);
+                if (eggIds.Count == 0)
+                {
+                    eggIdsByMotherId.Remove(motherId);
+                }
+            }
         }
     }
 }
