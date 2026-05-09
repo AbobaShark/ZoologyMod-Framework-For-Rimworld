@@ -9,6 +9,7 @@ namespace ZoologyMod
     internal static class ChildcareDefenseUtility
     {
         private const int EggProtectionTriggerCooldownTicks = 180;
+        private const int YoungProtectionTriggerCooldownTicks = 180;
         private const float GuardedEggPenalty = -10000f;
         private const int EggFoodDeltaCacheDurationTicks = 10;
         private const int EggFoodDeltaHotCacheSize = 8192;
@@ -49,12 +50,14 @@ namespace ZoologyMod
         }
 
         private static readonly Dictionary<long, int> recentEggProtectionTriggerByPairKey = new Dictionary<long, int>(128);
+        private static readonly Dictionary<long, int> recentYoungProtectionTriggerByPairKey = new Dictionary<long, int>(128);
         private static readonly Dictionary<long, EggFoodStateCacheEntry> eggFoodStateCacheByPairKey = new Dictionary<long, EggFoodStateCacheEntry>(256);
         private static readonly Dictionary<int, int> incubatedEggTouchTickByEggId = new Dictionary<int, int>(64);
         private static readonly Dictionary<int, int> lastIncubationSearchFailureTickByPawnId = new Dictionary<int, int>(64);
         private static readonly List<Pawn> eggProtectorsScratch = new List<Pawn>(8);
         private static readonly List<long> eggTriggerCleanupScratch = new List<long>(64);
         private static readonly List<long> eggFoodStateCleanupScratch = new List<long>(64);
+        private static readonly List<long> youngTriggerCleanupScratch = new List<long>(64);
         private static readonly EggFoodDeltaCacheEntry[] eggFoodDeltaHotCacheSlots = new EggFoodDeltaCacheEntry[EggFoodDeltaHotCacheSize];
         private static readonly ThingDef[] eggDefsByShortHash = new ThingDef[ushort.MaxValue + 1];
         private static readonly byte[] eggStatesByShortHash = new byte[ushort.MaxValue + 1];
@@ -66,6 +69,7 @@ namespace ZoologyMod
         private static int eggRuntimeLastTick = -1;
         private static int eggRuntimeEnsureTick = -1;
         private static int lastEggProtectionCleanupTick = int.MinValue;
+        private static int lastYoungProtectionCleanupTick = int.MinValue;
         private static int lastEggFoodStateCacheCleanupTick = -ZoologyTickLimiter.Childcare.EggFoodStateCacheCleanupIntervalTicks;
         private static int eggFoodStateBudgetTick = -1;
         private static int eggFoodStateBudgetRemaining;
@@ -240,7 +244,13 @@ namespace ZoologyMod
                 return false;
             }
 
-            return TryTakeProtectionJob(protector, aggressor, protectedThing);
+            bool success = TryTakeProtectionJob(protector, aggressor, protectedThing);
+            if (success)
+            {
+                RememberYoungProtectionTrigger(aggressor, protectedThing);
+                TryNotifyPlayerAboutYoungProtection(aggressor, protectedThing, protector, 1);
+            }
+            return success;
         }
 
         public static bool ShouldNullifyEggDeterioration(Thing thing)
@@ -627,6 +637,48 @@ namespace ZoologyMod
             recentEggProtectionTriggerByPairKey[pairKey] = Find.TickManager?.TicksGame ?? 0;
         }
 
+        private static void RememberYoungProtectionTrigger(Pawn aggressor, Thing protectedYoung)
+        {
+            long pairKey = MakePairKey(aggressor, protectedYoung);
+            if (pairKey == 0L)
+            {
+                return;
+            }
+
+            recentYoungProtectionTriggerByPairKey[pairKey] = Find.TickManager?.TicksGame ?? 0;
+        }
+
+        private static void CleanupRecentYoungProtectionTriggers()
+        {
+            int currentTick = Find.TickManager?.TicksGame ?? 0;
+            if (currentTick == lastYoungProtectionCleanupTick || recentYoungProtectionTriggerByPairKey.Count == 0)
+            {
+                return;
+            }
+
+            lastYoungProtectionCleanupTick = currentTick;
+            if (recentYoungProtectionTriggerByPairKey.Count < 64 || currentTick % 120 != 0)
+            {
+                return;
+            }
+
+            youngTriggerCleanupScratch.Clear();
+            foreach (KeyValuePair<long, int> entry in recentYoungProtectionTriggerByPairKey)
+            {
+                if (currentTick - entry.Value >= YoungProtectionTriggerCooldownTicks)
+                {
+                    youngTriggerCleanupScratch.Add(entry.Key);
+                }
+            }
+
+            for (int i = 0; i < youngTriggerCleanupScratch.Count; i++)
+            {
+                recentYoungProtectionTriggerByPairKey.Remove(youngTriggerCleanupScratch[i]);
+            }
+
+            youngTriggerCleanupScratch.Clear();
+        }
+
         private static void CleanupRecentEggProtectionTriggers()
         {
             int currentTick = Find.TickManager?.TicksGame ?? 0;
@@ -718,6 +770,66 @@ namespace ZoologyMod
             catch (Exception ex)
             {
                 Log.Warning($"Zoology: egg protection notification failed: {ex}");
+            }
+        }
+
+        private static void TryNotifyPlayerAboutYoungProtection(Pawn aggressor, Thing protectedYoung, Pawn exemplar, int triggeredCount)
+        {
+            if (aggressor == null
+                || aggressor.Faction != Faction.OfPlayer
+                || exemplar == null
+                || protectedYoung == null)
+            {
+                return;
+            }
+
+            try
+            {
+                bool pack = triggeredCount > 1;
+                string label;
+                string text;
+
+                if (pack)
+                {
+                    label = "LetterLabelMotherProtectingYoungPack".Translate(exemplar.GetKindLabelPlural(), exemplar.Named("PARENT"));
+                    text = "LetterMotherProtectingYoungPack".Translate(exemplar.GetKindLabelPlural(), aggressor.LabelDefinite(), exemplar.Named("PARENT"), aggressor.Named("ATTACKER"));
+                    if (label.NullOrEmpty() || label.Contains("LetterLabelMotherProtectingYoungPack"))
+                    {
+                        label = $"{exemplar.GetKindLabelPlural()} are protecting their young";
+                    }
+
+                    if (text.NullOrEmpty() || text.Contains("LetterMotherProtectingYoungPack"))
+                    {
+                        text = $"{exemplar.GetKindLabelPlural()} are protecting their young and are attacking {aggressor.LabelDefinite()}.";
+                    }
+                }
+                else
+                {
+                    label = "LetterLabelMotherProtectingYoung".Translate(exemplar.LabelShort, aggressor.LabelDefinite(), exemplar.Named("PARENT"), aggressor.Named("ATTACKER"));
+                    text = "LetterMotherProtectingYoung".Translate(exemplar.LabelIndefinite(), aggressor.LabelDefinite(), exemplar.Named("PARENT"), aggressor.Named("ATTACKER"));
+                    if (label.NullOrEmpty() || label.Contains("LetterLabelMotherProtectingYoung"))
+                    {
+                        label = $"{exemplar.LabelShort} is protecting its young";
+                    }
+
+                    if (text.NullOrEmpty() || text.Contains("LetterMotherProtectingYoung"))
+                    {
+                        text = $"{exemplar.LabelShort} is protecting its young and is attacking {aggressor.LabelDefinite()}.";
+                    }
+                }
+
+                if (aggressor.RaceProps?.Humanlike == true)
+                {
+                    Find.LetterStack.ReceiveLetter(label.CapitalizeFirst(), text.CapitalizeFirst(), LetterDefOf.ThreatBig, exemplar, null, null, null, null, 0, true);
+                }
+                else
+                {
+                    Messages.Message(text.CapitalizeFirst(), exemplar, MessageTypeDefOf.ThreatBig, true);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Warning($"Zoology: young protection notification failed: {ex}");
             }
         }
 
@@ -1114,11 +1226,13 @@ namespace ZoologyMod
             if (tickManagerChanged || gameChanged || tickRewound)
             {
                 recentEggProtectionTriggerByPairKey.Clear();
+                recentYoungProtectionTriggerByPairKey.Clear();
                 eggFoodStateCacheByPairKey.Clear();
                 incubatedEggTouchTickByEggId.Clear();
                 lastIncubationSearchFailureTickByPawnId.Clear();
                 Array.Clear(eggFoodDeltaHotCacheSlots, 0, eggFoodDeltaHotCacheSlots.Length);
                 lastEggProtectionCleanupTick = int.MinValue;
+                lastYoungProtectionCleanupTick = int.MinValue;
                 lastEggFoodStateCacheCleanupTick = -ZoologyTickLimiter.Childcare.EggFoodStateCacheCleanupIntervalTicks;
                 eggFoodStateBudgetTick = -1;
                 eggFoodStateBudgetRemaining = 0;

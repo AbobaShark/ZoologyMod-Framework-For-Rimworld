@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 using Verse;
 using RimWorld;
@@ -189,7 +189,7 @@ namespace ZoologyMod
 
             Text.Font = GameFont.Medium;
             Text.Anchor = TextAnchor.MiddleLeft;
-            Widgets.Label(new Rect(inRect.x, inRect.y, inRect.width, 32f), "Zoology Mod Settings");
+            Widgets.Label(new Rect(inRect.x, inRect.y, inRect.width, 32f), "Zoology_SettingsWindowTitle".Translate());
             Text.Font = GameFont.Small;
             Text.Anchor = TextAnchor.UpperLeft;
 
@@ -204,11 +204,11 @@ namespace ZoologyMod
             Rect otherBehaviorTabRect = new Rect(combatTabRect.xMax + tabGap, tabY, tabWidth, tabHeight);
             Rect devTabRect = new Rect(otherBehaviorTabRect.xMax + tabGap, tabY, tabWidth, tabHeight);
 
-            DrawSettingsTabButton(predPreyTabRect, SettingsPage.PredatorPreyInteraction, "Predator-Prey");
-            DrawSettingsTabButton(physiologyTabRect, SettingsPage.Physiology, "Physiology");
-            DrawSettingsTabButton(combatTabRect, SettingsPage.Combat, "Combat");
-            DrawSettingsTabButton(otherBehaviorTabRect, SettingsPage.OtherBehavior, "Other behavior");
-            DrawSettingsTabButton(devTabRect, SettingsPage.Dev, "Dev");
+            DrawSettingsTabButton(predPreyTabRect, SettingsPage.PredatorPreyInteraction, "Zoology_TabPredatorPrey".Translate());
+            DrawSettingsTabButton(physiologyTabRect, SettingsPage.Physiology, "Zoology_TabPhysiology".Translate());
+            DrawSettingsTabButton(combatTabRect, SettingsPage.Combat, "Zoology_TabCombat".Translate());
+            DrawSettingsTabButton(otherBehaviorTabRect, SettingsPage.OtherBehavior, "Zoology_TabOtherBehavior".Translate());
+            DrawSettingsTabButton(devTabRect, SettingsPage.Dev, "Zoology_TabDev".Translate());
 
             float contentTop = tabY + tabHeight + 8f;
             Rect outRect = new Rect(inRect.x, contentTop, inRect.width, inRect.yMax - contentTop);
@@ -240,7 +240,7 @@ namespace ZoologyMod
             }
 
             list.GapLine(24f);
-            if (list.ButtonText("Reset to defaults"))
+            if (list.ButtonText("Zoology_ResetButtonLabel".Translate()))
             {
                 ResetToDefaults();
             }
@@ -297,72 +297,72 @@ namespace ZoologyMod
         private void DrawPredatorPreySettings(Listing_Standard list)
         {
             list.GapLine(8f);
-            list.CheckboxLabeled("Enable prey fleeing from predators", ref EnablePreyFleeFromPredators, "Makes prey animals flee from nearby hunting predators.");
+            list.CheckboxLabeled("Zoology_EnablePreyFleeing_Label".Translate(), ref EnablePreyFleeFromPredators, "Zoology_EnablePreyFleeing_Desc".Translate());
 
             if (EnablePreyFleeFromPredators)
             {
                 list.GapLine(6f);
-                list.Label($"Predator search radius: {PredatorSearchRadius} (min {SearchRadiusMin}, max {SearchRadiusMax})");
+                list.Label(string.Format("Zoology_PredatorSearchRadius_Label".Translate(), PredatorSearchRadius, SearchRadiusMin, SearchRadiusMax));
                 PredatorSearchRadius = (int)list.Slider(PredatorSearchRadius, SearchRadiusMin, SearchRadiusMax);
 
                 list.GapLine(6f);
-                list.Label($"Flee distance from hunting predators: {FleeDistanceTargetPredator} (min {FleeDistanceMin}, max {FleeDistanceMax})");
+                list.Label(string.Format("Zoology_FleeDistanceTargetPredator_Label".Translate(), FleeDistanceTargetPredator, FleeDistanceMin, FleeDistanceMax));
                 FleeDistanceTargetPredator = (int)list.Slider(FleeDistanceTargetPredator, FleeDistanceMin, FleeDistanceMax);
 
                 list.GapLine(8f);
-                list.CheckboxLabeled("Animals flee from non-hostile predators", ref AnimalsFleeFromNonHostlePredators, "When enabled, valid prey animals will also flee from nearby predators that are not currently hunting them.");
+                list.CheckboxLabeled("Zoology_AnimalsFlee_NonHostile_Label".Translate(), ref AnimalsFleeFromNonHostlePredators, "Zoology_AnimalsFlee_NonHostile_Desc".Translate());
 
                 if (AnimalsFleeFromNonHostlePredators)
                 {
                     list.GapLine(6f);
-                    list.Label($"Non-hostile predator search radius: {NonHostilePredatorSearchRadius} (min {SearchRadiusMin}, max {SearchRadiusMax})");
+                    list.Label(string.Format("Zoology_NonHostilePredatorSearchRadius_Label".Translate(), NonHostilePredatorSearchRadius, SearchRadiusMin, SearchRadiusMax));
                     NonHostilePredatorSearchRadius = (int)list.Slider(NonHostilePredatorSearchRadius, SearchRadiusMin, SearchRadiusMax);
 
                     list.GapLine(6f);
-                    list.Label($"Flee distance from non-hostile predators: {FleeDistancePredator} (min {FleeDistanceMin}, max {FleeDistanceMax})");
+                    list.Label(string.Format("Zoology_FleeDistancePredator_Label".Translate(), FleeDistancePredator, FleeDistanceMin, FleeDistanceMax));
                     FleeDistancePredator = (int)list.Slider(FleeDistancePredator, FleeDistanceMin, FleeDistanceMax);
                 }
             }
 
             list.GapLine(12f);
-            list.CheckboxLabeled("Enable pack hunt behavior", ref EnablePackHunt, "Allows nearby herd predators to join an ongoing predator hunt.");
+            list.CheckboxLabeled("Zoology_EnablePackHunt_Label".Translate(), ref EnablePackHunt, "Zoology_EnablePackHunt_Desc".Translate());
 
             list.GapLine(12f);
-            list.CheckboxLabeled("Enable advanced prey selection logic", ref EnableAdvancedPredationLogic, "Enables the full Zoology override for FoodUtility.IsAcceptablePreyFor (mammal baby checks, pursuit block checks, and predator-vs-predator constraints). Disable for vanilla prey selection behavior.");
+            list.CheckboxLabeled("Zoology_EnableAdvancedPredation_Label".Translate(), ref EnableAdvancedPredationLogic, "Zoology_EnableAdvancedPredation_Desc".Translate());
 
             list.GapLine(12f);
-            list.CheckboxLabeled("Enable scavengering (scavenger behaviour)", ref EnableScavengering, "If disabled, all scavenger-related fallbacks are skipped and vanilla food selection/reservation logic is used for scavengers.");
+            list.CheckboxLabeled("Zoology_EnableScavengering_Label".Translate(), ref EnableScavengering, "Zoology_EnableScavengering_Desc".Translate());
 
             if (EnableScavengering)
             {
                 list.GapLine(6f);
-                DrawRuntimeFeatureConfigureButton(list, "modext_scavenger", "Configure scavenger extension species");
+                DrawRuntimeFeatureConfigureButton(list, "modext_scavenger", "Zoology_ConfigureScavenger_Button".Translate());
             }
 
             list.GapLine(12f);
-            list.CheckboxLabeled("Enable predators defending their kills", ref EnablePredatorDefendCorpse, "If disabled, predators will not defend owned corpses / kills — corpses will be treated as unowned for other predators.");
+            list.CheckboxLabeled("Zoology_EnablePredatorDefendCorpse_Label".Translate(), ref EnablePredatorDefendCorpse, "Zoology_EnablePredatorDefendCorpse_Desc".Translate());
 
             if (EnablePredatorDefendCorpse)
             {
                 list.GapLine(6f);
-                list.Label($"Prey protection range: {PreyProtectionRange} tiles (min {PreyProtectionRangeMin}, max {PreyProtectionRangeMax})");
+                list.Label(string.Format("Zoology_PreyProtectionRange_Label".Translate(), PreyProtectionRange, PreyProtectionRangeMin, PreyProtectionRangeMax));
                 PreyProtectionRange = (int)list.Slider(PreyProtectionRange, PreyProtectionRangeMin, PreyProtectionRangeMax);
 
                 list.GapLine(6f);
-                list.Label($"Protection trigger size difference treshold: {CorpseUnownedSizeMultiplier} (min {CorpseUnownedSizeMultiplierMin}, max {CorpseUnownedSizeMultiplierMax})");
+                list.Label(string.Format("Zoology_CorpseUnownedSizeMultiplier_Label".Translate(), CorpseUnownedSizeMultiplier, CorpseUnownedSizeMultiplierMin, CorpseUnownedSizeMultiplierMax));
                 CorpseUnownedSizeMultiplier = (int)list.Slider(CorpseUnownedSizeMultiplier, CorpseUnownedSizeMultiplierMin, CorpseUnownedSizeMultiplierMax);
 
                 list.GapLine(10f);
                 list.CheckboxLabeled(
-                    "Enable predators defending prey from humans and mechanoids",
+                    "Zoology_EnablePredatorDefendFromHumans_Label".Translate(),
                     ref EnablePredatorDefendPreyFromHumansAndMechanoids,
-                    "If disabled, predators will still defend their prey from other animals, but will ignore humanlike and mechanoid interrupters."
+                    "Zoology_EnablePredatorDefendFromHumans_Desc".Translate()
                 );
 
                 if (EnablePredatorDefendPreyFromHumansAndMechanoids)
                 {
                     list.GapLine(6f);
-                    list.Label($"Min CombatPower to defend prey from humans and mechanoids: {MinCombatPowerToDefendPreyFromHumans} (min {MinCombatPowerToDefendPreyFromHumansMin}, max {MinCombatPowerToDefendPreyFromHumansMax})");
+                    list.Label(string.Format("Zoology_MinCombatPowerDefend_Label".Translate(), MinCombatPowerToDefendPreyFromHumans, MinCombatPowerToDefendPreyFromHumansMin, MinCombatPowerToDefendPreyFromHumansMax));
                     MinCombatPowerToDefendPreyFromHumans = (int)list.Slider(MinCombatPowerToDefendPreyFromHumans, MinCombatPowerToDefendPreyFromHumansMin, MinCombatPowerToDefendPreyFromHumansMax);
                 }
             }
@@ -371,24 +371,24 @@ namespace ZoologyMod
         private void DrawPhysiologySettings(Listing_Standard list)
         {
             list.GapLine(8f);
-            list.CheckboxLabeled("Enable mammal lactation", ref EnableMammalLactation, "Enables lactation for female mammals, allowing them to produce milk for their offspring.");
+            list.CheckboxLabeled("Zoology_EnableMammalLactation_Label".Translate(), ref EnableMammalLactation, "Zoology_EnableMammalLactation_Desc".Translate());
             DrawLactationSettings(list);
             if (EnableMammalLactation)
             {
                 list.GapLine(6f);
-                DrawRuntimeFeatureConfigureButton(list, "modext_mammal", "Configure mammal extension species");
+                DrawRuntimeFeatureConfigureButton(list, "modext_mammal", "Zoology_ConfigureMammal_Button".Translate());
             }
 
             list.GapLine(12f);
             list.CheckboxLabeled(
-                "Enable animal childcare (young follow mothers and mothers protect young)",
+                "Zoology_EnableAnimalChildcare_Label".Translate(),
                 ref EnableAnimalChildcare,
-                "When enabled, species with ModExtensiom_Chlidcare will have juveniles follow their mothers and mothers defend their own young."
+                "Zoology_EnableAnimalChildcare_Desc".Translate()
             );
             if (EnableAnimalChildcare)
             {
                 list.GapLine(6f);
-                DrawRuntimeFeatureConfigureButton(list, "modext_childcare", "Configure childcare extension species");
+                DrawRuntimeFeatureConfigureButton(list, "modext_childcare", "Zoology_ConfigureChildcare_Button".Translate());
             }
 
             list.GapLine(12f);
@@ -399,30 +399,30 @@ namespace ZoologyMod
             }
 
             list.CheckboxLabeled(
-                "Enable fertilized egg protection",
+                "Zoology_EnableAnimalEggProtection_Label".Translate(),
                 ref EnableAnimalEggProtection,
-                "When enabled, species with ModExtensiom_Chlidcare can defend only fertilized eggs when another pawn actually starts interacting with that egg item. Requires animal childcare."
+                "Zoology_EnableAnimalEggProtection_Desc".Translate()
             );
 
             GUI.enabled = prevEggProtectionGuiEnabled;
 
             list.GapLine(12f);
             list.CheckboxLabeled(
-                "Enable wound licking for non-player animals",
+                "Zoology_EnableAnimalWoundLicking_Label".Translate(),
                 ref EnableAnimalWoundLicking,
-                "Non-player animals can self-tend only external bleeding wounds by licking them, with a progress bar and no-medicine, Medicine-0-style tend quality."
+                "Zoology_EnableAnimalWoundLicking_Desc".Translate()
             );
 
             list.GapLine(12f);
             list.CheckboxLabeled(
-                "Enable ectothermic temperature patch",
+                "Zoology_EnableEctothermic_Label".Translate(),
                 ref EnableEctothermicPatch,
-                "When disabled, ectothermic animals such as reptiles and crabs will suffer hypothermia in cold weather instead of slowing metabolism, like in vanilla."
+                "Zoology_EnableEctothermic_Desc".Translate()
             );
             if (EnableEctothermicPatch)
             {
                 list.GapLine(6f);
-                DrawRuntimeFeatureConfigureButton(list, "modext_ectothermic", "Configure ectothermic extension species");
+                DrawRuntimeFeatureConfigureButton(list, "modext_ectothermic", "Zoology_ConfigureEctothermic_Button".Translate());
             }
         }
 
@@ -432,23 +432,23 @@ namespace ZoologyMod
             if (_cePresent)
             {
                 list.CheckboxLabeled(
-                    "Override CE Penetration for animal life stages",
+                    "Zoology_OverrideCEPenetration_Label".Translate(),
                     ref EnableOverrideCEPenetration,
-                    "When enabled, Zoology will override Combat Extended's life-stage-based AP modifier with custom factors from LifeStagePenetrationDef or fallback table."
+                    "Zoology_OverrideCEPenetration_Desc".Translate()
                 );
             }
             else
             {
-                list.Label("Disabled: Combat Extended not detected - CE override unavailable.");
+                list.Label("Zoology_CENotDetected".Translate());
                 list.GapLine(6f);
                 EnableOverrideCEPenetration = false;
             }
 
             list.GapLine(12f);
             list.CheckboxLabeled(
-                "Enable animal draft control (Zoology_Beastmastery)",
+                "Zoology_EnableAnimalDraftControl_Label".Translate(),
                 ref EnableAnimalDraftControl,
-                "Enables Zoology beastmastery draft-control behavior for trained animals (including SentienceCatalyst support) and replaces AttackTarget when both trainables are available."
+                "Zoology_EnableAnimalDraftControl_Desc".Translate()
             );
 
             list.GapLine(12f);
@@ -461,16 +461,16 @@ namespace ZoologyMod
             if (_cePresent) GUI.enabled = false;
 
             list.CheckboxLabeled(
-                "Enable animal damage reduction (reduce natural animal/unarmed damage in predator mismatch cases)",
+                "Zoology_EnableAnimalDamageReduction_Label".Translate(),
                 ref EnableAnimalDamageReduction,
-                "When enabled, natural attacks from animals and unarmed humanlikes against animal targets will be reduced in Zoology's predator/prey size-mismatch cases. This also covers blunt and modded natural damage defs, but still excludes hediff/implant-driven attacks such as bionics."
+                "Zoology_EnableAnimalDamageReduction_Desc".Translate()
             );
 
             GUI.enabled = prevGuiEnabled;
 
             if (_cePresent)
             {
-                list.Label("Disabled: Combat Extended detected - this option is not available while CE is installed.");
+                list.Label("Zoology_CENotAvailable".Translate());
                 list.GapLine(6f);
             }
         }
@@ -478,65 +478,65 @@ namespace ZoologyMod
         private void DrawOtherBehaviorSettings(Listing_Standard list)
         {
             list.GapLine(8f);
-            list.CheckboxLabeled("Enable custom animal flee danger logic (override ShouldAnimalFleeDanger)", ref EnableCustomFleeDanger, "Replaces the vanilla logic for when animals flee from danger on player home maps.");
+            list.CheckboxLabeled("Zoology_EnableCustomFleeDanger_Label".Translate(), ref EnableCustomFleeDanger, "Zoology_EnableCustomFleeDanger_Desc".Translate());
 
             if (EnableCustomFleeDanger)
             {
                 list.GapLine(6f);
                 Text.Font = GameFont.Small;
                 Text.Anchor = TextAnchor.MiddleCenter;
-                list.Label("Safe Body Size Thresholds (min: 0, max: 30)");
+                list.Label("Zoology_SafeBodySizeThresholds_Label".Translate());
                 Text.Anchor = TextAnchor.UpperLeft;
                 list.GapLine(12f);
 
                 _safePredatorBodySizeThreshold = list.Slider(_safePredatorBodySizeThreshold, 0f, 30f);
-                list.Label($"Safe Predator Body Size Threshold: {SafePredatorBodySizeThreshold:F2} (predators >= this won't flee on home map)");
+                list.Label(string.Format("Zoology_SafePredatorBodySize_Label".Translate(), SafePredatorBodySizeThreshold));
                 list.GapLine(12f);
 
                 _safeNonPredatorBodySizeThreshold = list.Slider(_safeNonPredatorBodySizeThreshold, 0f, 30f);
-                list.Label($"Safe Non-Predator Body Size Threshold: {SafeNonPredatorBodySizeThreshold:F2} (non-predators > this won't flee on home map)");
+                list.Label(string.Format("Zoology_SafeNonPredatorBodySize_Label".Translate(), SafeNonPredatorBodySizeThreshold));
                 list.GapLine(12f);
             }
 
             list.GapLine(12f);
-            list.CheckboxLabeled("Enable raiders ignoring small pets", ref EnableIgnoreSmallPetsByRaiders, "Makes raiders treat small pets (not following the master) as non-aggressive roamers, reducing targeting.");
+            list.CheckboxLabeled("Zoology_EnableIgnoreSmallPets_Label".Translate(), ref EnableIgnoreSmallPetsByRaiders, "Zoology_EnableIgnoreSmallPets_Desc".Translate());
 
             if (EnableIgnoreSmallPetsByRaiders)
             {
                 list.GapLine(12f);
                 Text.Font = GameFont.Small;
                 Text.Anchor = TextAnchor.MiddleCenter;
-                list.Label("Small Pet Body Size Threshold (min: 0, max: 30)");
+                list.Label("Zoology_SmallPetBodySize_Label".Translate());
                 Text.Anchor = TextAnchor.UpperLeft;
                 list.GapLine(12f);
 
                 _smallPetBodySizeThreshold = list.Slider(_smallPetBodySizeThreshold, 0f, 30f);
-                list.Label($"Small Pet Body Size Threshold: {SmallPetBodySizeThreshold:F2} (pets smaller than this will be affected by raider ignoring)");
+                list.Label(string.Format("Zoology_SmallPetBodySize_Value".Translate(), SmallPetBodySizeThreshold));
                 list.GapLine(12f);
 
                 list.CheckboxLabeled(
-                    "Prevent small pets from melee attacking hostiles",
+                    "Zoology_EnableSmallPetNoMelee_Label".Translate(),
                     ref EnableSmallPetNoMeleeRetaliation,
-                    "Uses the same small-pet conditions as raider ignoring, but suppresses close-range melee retaliation against hostile pawns while still allowing fleeing."
+                    "Zoology_EnableSmallPetNoMelee_Desc".Translate()
                 );
                 list.GapLine(12f);
             }
 
             list.GapLine(12f);
-            list.CheckboxLabeled("Animals flee from humans", ref AnimalsFreeFromHumans, "Wild animals with no faction can flee from nearby humanlikes, unless excluded by species settings or blocked by active aggressive behavior.");
+            list.CheckboxLabeled("Zoology_AnimalsFreeFromHumans_Label".Translate(), ref AnimalsFreeFromHumans, "Zoology_AnimalsFreeFromHumans_Desc".Translate());
 
             if (AnimalsFreeFromHumans)
             {
                 list.GapLine(6f);
-                list.Label($"Human threat search radius: {HumanSearchRadius} (min {SearchRadiusMin}, max {SearchRadiusMax})");
+                list.Label(string.Format("Zoology_HumanSearchRadius_Label".Translate(), HumanSearchRadius, SearchRadiusMin, SearchRadiusMax));
                 HumanSearchRadius = (int)list.Slider(HumanSearchRadius, SearchRadiusMin, SearchRadiusMax);
 
                 list.GapLine(6f);
-                list.Label($"Flee distance from humans: {FleeDistanceHuman} (min {FleeDistanceMin}, max {FleeDistanceMax})");
+                list.Label(string.Format("Zoology_FleeDistanceHuman_Label".Translate(), FleeDistanceHuman, FleeDistanceMin, FleeDistanceMax));
                 FleeDistanceHuman = (int)list.Slider(FleeDistanceHuman, FleeDistanceMin, FleeDistanceMax);
 
                 list.GapLine(6f);
-                if (list.ButtonText("Configure animals fleeing from humans"))
+                if (list.ButtonText("Zoology_ConfigureAnimalsFleeHumans_Button".Translate()))
                 {
                     Find.WindowStack.Add(new Dialog_AnimalsFreeFromHumansSelector(this));
                 }
@@ -544,26 +544,26 @@ namespace ZoologyMod
 
             list.GapLine(12f);
             list.CheckboxLabeled(
-                "Enable wild animal reproduction",
+                "Zoology_EnableWildAnimalReproduction_Label".Translate(),
                 ref EnableWildAnimalReproduction,
-                "Allows wild animals to mate with other wild animals and with compatible tame animals without faction restrictions, while keeping vanilla mating for same-faction tame animals."
+                "Zoology_EnableWildAnimalReproduction_Desc".Translate()
             );
 
             list.GapLine(6f);
-            if (list.ButtonText("Configure animal roamers (RoamMtbDays / Trainability)"))
+            if (list.ButtonText("Zoology_ConfigureAnimalRoamers_Button".Translate()))
             {
                 Find.WindowStack.Add(new Dialog_AnimalRoamersSelector(this));
             }
 
             list.GapLine(12f);
-            list.CheckboxLabeled("Enable human bionic on animals", ref EnableHumanBionicOnAnimal, "Allows installing human bionic parts on animals if they have the matching body part. Requires restart to apply changes.");
+            list.CheckboxLabeled("Zoology_EnableHumanBionicOnAnimal_Label".Translate(), ref EnableHumanBionicOnAnimal, "Zoology_EnableHumanBionicOnAnimal_Desc".Translate());
 
             list.GapLine(12f);
-            list.CheckboxLabeled("Enable agro-on-slaughter", ref EnableAgroAtSlaughter, "When enabled, animals with the AgroAtSlaughter comp will react aggressively to slaughter designations (only if not downed).");
+            list.CheckboxLabeled("Zoology_EnableAgroAtSlaughter_Label".Translate(), ref EnableAgroAtSlaughter, "Zoology_EnableAgroAtSlaughter_Desc".Translate());
             if (EnableAgroAtSlaughter)
             {
                 list.GapLine(6f);
-                DrawRuntimeFeatureConfigureButton(list, "modext_agro_at_slaughter", "Configure agro-at-slaughter extension species");
+                DrawRuntimeFeatureConfigureButton(list, "modext_agro_at_slaughter", "Zoology_ConfigureAgroAtSlaughter_Button".Translate());
             }
         }
 
@@ -572,71 +572,71 @@ namespace ZoologyMod
             list.GapLine(8f);
             var oldColor = GUI.color;
             GUI.color = new Color(1f, 0.82f, 0.28f, 1f);
-            list.Label("Warning: disable these patches only when troubleshooting compatibility problems.");
+            list.Label("Zoology_DevWarning".Translate());
             GUI.color = oldColor;
             list.GapLine(4f);
             Text.Font = GameFont.Tiny;
-            list.Label("Master switch below can disable all runtime patches regardless of individual toggles.");
+            list.Label("Zoology_MasterSwitchNote".Translate());
             Text.Font = GameFont.Small;
 
             list.GapLine(12f);
             bool runtimeDisabled = DisableAllRuntimePatches;
             string runtimeButtonLabel = runtimeDisabled
-                ? "Enable ALL runtime patches now"
-                : "Disable ALL runtime patches now";
+                ? "Zoology_EnableAllPatches_Button".Translate()
+                : "Zoology_DisableAllPatches_Button".Translate();
             if (list.ButtonText(runtimeButtonLabel))
             {
                 DisableAllRuntimePatches = !runtimeDisabled;
                 Write();
             }
 
-            list.Label(runtimeDisabled ? "Runtime patches: DISABLED" : "Runtime patches: ENABLED");
+            list.Label(runtimeDisabled ? "Zoology_PatchesDisabled".Translate() : "Zoology_PatchesEnabled".Translate());
             list.GapLine(6f);
             Text.Font = GameFont.Tiny;
-            list.Label("Note: some changes (think tree injection, def edits) may require a reload to fully revert.");
+            list.Label("Zoology_ReloadWarning".Translate());
             Text.Font = GameFont.Small;
 
             list.GapLine(12f);
-            list.CheckboxLabeled("Enable cannot-be-mutated protection", ref EnableCannotBeMutatedProtection, "When disabled, Zoology will not patch mutation/biomutation target validation and related mutation protection hooks.");
+            list.CheckboxLabeled("Zoology_EnableCannotBeMutated_Label".Translate(), ref EnableCannotBeMutatedProtection, "Zoology_EnableCannotBeMutated_Desc".Translate());
             if (EnableCannotBeMutatedProtection)
             {
                 list.GapLine(6f);
-                DrawRuntimeFeatureConfigureButton(list, "modext_cannot_be_mutated", "Configure cannot-be-mutated extension species");
+                DrawRuntimeFeatureConfigureButton(list, "modext_cannot_be_mutated", "Zoology_ConfigureCannotBeMutated_Button".Translate());
             }
 
             list.GapLine(12f);
-            list.CheckboxLabeled("Enable cannot-be-augmented extension behavior", ref EnableCannotBeAugmentedProtection, "When disabled, Zoology will ignore ModExtension_CannotBeAugmented in runtime checks.");
+            list.CheckboxLabeled("Zoology_EnableCannotBeAugmented_Label".Translate(), ref EnableCannotBeAugmentedProtection, "Zoology_EnableCannotBeAugmented_Desc".Translate());
             if (EnableCannotBeAugmentedProtection)
             {
                 list.GapLine(6f);
-                DrawRuntimeFeatureConfigureButton(list, "modext_cannot_be_augmented", "Configure cannot-be-augmented extension species");
+                DrawRuntimeFeatureConfigureButton(list, "modext_cannot_be_augmented", "Zoology_ConfigureCannotBeAugmented_Button".Translate());
             }
 
             list.GapLine(12f);
-            list.CheckboxLabeled("Enable no-flee extension behavior", ref EnableNoFleeExtension, "When disabled, Zoology will not patch NoFlee extension behavior in flee and panic mental-state logic.");
+            list.CheckboxLabeled("Zoology_EnableNoFlee_Label".Translate(), ref EnableNoFleeExtension, "Zoology_EnableNoFlee_Desc".Translate());
             if (EnableNoFleeExtension)
             {
                 list.GapLine(6f);
-                DrawRuntimeFeatureConfigureButton(list, "modext_no_flee", "Configure no-flee extension species");
+                DrawRuntimeFeatureConfigureButton(list, "modext_no_flee", "Zoology_ConfigureNoFlee_Button".Translate());
             }
 
             list.GapLine(12f);
-            list.CheckboxLabeled("Enable flee-from-carrier behavior", ref EnableFleeFromCarrier, "When disabled, Zoology will not patch carrier-based flee behavior.");
+            list.CheckboxLabeled("Zoology_EnableFleeFromCarrier_Label".Translate(), ref EnableFleeFromCarrier, "Zoology_EnableFleeFromCarrier_Desc".Translate());
             if (EnableFleeFromCarrier)
             {
                 list.GapLine(6f);
-                DrawRuntimeFeatureConfigureButton(list, "modext_flee_from_carrier", "Configure flee-from-carrier extension species");
+                DrawRuntimeFeatureConfigureButton(list, "modext_flee_from_carrier", "Zoology_ConfigureFleeFromCarrier_Button".Translate());
             }
 
             list.GapLine(12f);
-            list.CheckboxLabeled("Enable flying flee start patch", ref EnableFlyingFleeStart, "When disabled, Zoology will not patch Pawn_FlightTracker.Notify_JobStarted for forced flying flee.");
+            list.CheckboxLabeled("Zoology_EnableFlyingFleeStart_Label".Translate(), ref EnableFlyingFleeStart, "Zoology_EnableFlyingFleeStart_Desc".Translate());
 
             list.GapLine(12f);
-            list.CheckboxLabeled("Enable gender-restricted attacks patch", ref EnableGenderRestrictedAttacks, "When disabled, Zoology will not patch Verb.IsStillUsableBy for tool gender restrictions.");
+            list.CheckboxLabeled("Zoology_EnableGenderRestrictedAttacks_Label".Translate(), ref EnableGenderRestrictedAttacks, "Zoology_EnableGenderRestrictedAttacks_Desc".Translate());
 
             list.GapLine(12f);
             bool oldCannotChewEnabled = EnableCannotChewExtension;
-            list.CheckboxLabeled("Enable cannot-chew extension behavior", ref EnableCannotChewExtension, "When disabled, Zoology will ignore ModExtension_CannotChew in all runtime behavior.");
+            list.CheckboxLabeled("Zoology_EnableCannotChew_Label".Translate(), ref EnableCannotChewExtension, "Zoology_EnableCannotChew_Desc".Translate());
             if (oldCannotChewEnabled != EnableCannotChewExtension)
             {
                 CannotChewPresenceCache.RebuildFromCurrentMaps();
@@ -644,42 +644,42 @@ namespace ZoologyMod
             if (EnableCannotChewExtension)
             {
                 list.GapLine(6f);
-                DrawRuntimeFeatureConfigureButton(list, "modext_cannot_chew", "Configure cannot-chew extension species");
+                DrawRuntimeFeatureConfigureButton(list, "modext_cannot_chew", "Zoology_ConfigureCannotChew_Button".Translate());
             }
 
             list.GapLine(12f);
-            list.CheckboxLabeled("Enable ageless hediff patch", ref EnableAgelessPatch, "When disabled, Zoology will unpatch HediffGiver.TryApply interception for CompAgeless.");
+            list.CheckboxLabeled("Zoology_EnableAgeless_Label".Translate(), ref EnableAgelessPatch, "Zoology_EnableAgeless_Desc".Translate());
             if (EnableAgelessPatch)
             {
                 list.GapLine(6f);
-                DrawRuntimeFeatureConfigureButton(list, "comp_ageless", "Configure ageless comp species");
+                DrawRuntimeFeatureConfigureButton(list, "comp_ageless", "Zoology_ConfigureAgeless_Button".Translate());
             }
 
             list.GapLine(12f);
-            list.CheckboxLabeled("Enable drugs-immune ingestion patch", ref EnableDrugsImmunePatch, "When disabled, Zoology will unpatch ingestion outcome interception for CompDrugsImmune.");
+            list.CheckboxLabeled("Zoology_EnableDrugsImmune_Label".Translate(), ref EnableDrugsImmunePatch, "Zoology_EnableDrugsImmune_Desc".Translate());
             if (EnableDrugsImmunePatch)
             {
                 list.GapLine(6f);
-                DrawRuntimeFeatureConfigureButton(list, "comp_drugs_immune", "Configure drugs-immune comp species");
+                DrawRuntimeFeatureConfigureButton(list, "comp_drugs_immune", "Zoology_ConfigureDrugsImmune_Button".Translate());
             }
 
             list.GapLine(12f);
-            list.CheckboxLabeled("Enable animal regeneration comp behavior", ref EnableAnimalRegenerationComp, "When disabled, Comp_AnimalRegeneration tick behavior is skipped.");
+            list.CheckboxLabeled("Zoology_EnableAnimalRegeneration_Label".Translate(), ref EnableAnimalRegenerationComp, "Zoology_EnableAnimalRegeneration_Desc".Translate());
 
             list.GapLine(12f);
-            list.CheckboxLabeled("Enable animal clotting comp behavior", ref EnableAnimalClottingComp, "When disabled, Comp_AnimalClotting tick behavior is skipped.");
+            list.CheckboxLabeled("Zoology_EnableAnimalClotting_Label".Translate(), ref EnableAnimalClottingComp, "Zoology_EnableAnimalClotting_Desc".Translate());
             if (EnableAnimalClottingComp)
             {
                 list.GapLine(6f);
-                DrawRuntimeFeatureConfigureButton(list, "comp_animal_clotting", "Configure animal clotting comp species");
+                DrawRuntimeFeatureConfigureButton(list, "comp_animal_clotting", "Zoology_ConfigureAnimalClotting_Button".Translate());
             }
 
             list.GapLine(12f);
-            list.CheckboxLabeled("Enable no-porcupine-quill patch", ref EnableNoPorcupineQuillPatch, "When disabled, Zoology will unpatch PorcupineQuill prevention/removal hooks.");
+            list.CheckboxLabeled("Zoology_EnableNoPorcupineQuill_Label".Translate(), ref EnableNoPorcupineQuillPatch, "Zoology_EnableNoPorcupineQuill_Desc".Translate());
             if (EnableNoPorcupineQuillPatch)
             {
                 list.GapLine(6f);
-                DrawRuntimeFeatureConfigureButton(list, "modext_no_porcupine_quill", "Configure no-porcupine-quill extension species");
+                DrawRuntimeFeatureConfigureButton(list, "modext_no_porcupine_quill", "Zoology_ConfigureNoPorcupineQuill_Button".Translate());
             }
         }
 
@@ -700,7 +700,7 @@ namespace ZoologyMod
         private void DrawLactationSettings(Listing_Standard list)
         {
             list.GapLine(12f);
-            list.Label("Lactation auto-slaughter:");
+            list.Label("Zoology_LactationAutoSlaughter_Label".Translate());
 
             bool prevGuiEnabledForLact = GUI.enabled;
             if (!EnableMammalLactation)
@@ -710,9 +710,9 @@ namespace ZoologyMod
             }
 
             list.CheckboxLabeled(
-                "Slaughter lactating females",
+                "Zoology_AllowSlaughterLactating_Label".Translate(),
                 ref AllowSlaughterLactating,
-                "If enabled, lactating females are treated as ordinary non-pregnant females. If disabled, lactating females are ignored and do not count toward female totals while lactating."
+                "Zoology_AllowSlaughterLactating_Desc".Translate()
             );
 
             GUI.enabled = prevGuiEnabledForLact;
@@ -720,7 +720,7 @@ namespace ZoologyMod
             if (!EnableMammalLactation)
             {
                 Text.Font = GameFont.Tiny;
-                list.Label("Disabled: mammal lactation is turned off.");
+                list.Label("Zoology_LactationDisabled_Note".Translate());
                 Text.Font = GameFont.Small;
                 list.GapLine(6f);
             }
@@ -791,7 +791,7 @@ namespace ZoologyMod
 
             Write();
             ZoologyMod.SetRuntimePatchesEnabled(true);
-            Messages.Message("Zoology Mod: settings reset to defaults.", MessageTypeDefOf.TaskCompletion, false);
+            Messages.Message("Zoology_ResetMessage".Translate(), MessageTypeDefOf.TaskCompletion, false);
         }
 
         public override void ExposeData()
@@ -1940,3 +1940,5 @@ namespace ZoologyMod
         }
     }
 }
+
+
