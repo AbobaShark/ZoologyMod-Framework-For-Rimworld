@@ -862,12 +862,6 @@ namespace ZoologyMod
             Scribe_Collections.Look(ref AnimalFeatureIntParameterOverrides, "AnimalFeatureIntParameterOverrides", LookMode.Value, LookMode.Value);
             Scribe_Collections.Look(ref AnimalFeatureFloatParameterOverrides, "AnimalFeatureFloatParameterOverrides", LookMode.Value, LookMode.Value);
 
-            EnsureCollectionsInitialized();
-            CleanupAnimalsFreeFromHumansOverrides();
-            CleanupRoamerOverrides();
-            CleanupAnimalFeatureOverrides();
-            CleanupAnimalFeatureParameterOverrides();
-
             if (!EnableMammalLactation)
             {
                 AllowSlaughterLactating = false;
@@ -888,11 +882,22 @@ namespace ZoologyMod
 
             ClampFleeAndThreatSettings();
             _minCombatPowerToDefendPreyFromHumans = Mathf.Clamp(_minCombatPowerToDefendPreyFromHumans, MinCombatPowerToDefendPreyFromHumansMin, MinCombatPowerToDefendPreyFromHumansMax);
-            ApplyRuntimeDefOverrides();
 
             if (Scribe.mode == LoadSaveMode.PostLoadInit)
             {
+                // Cleanup invalid overrides only after all definitions are loaded
+                EnsureCollectionsInitialized();
+                CleanupAnimalsFreeFromHumansOverrides();
+                CleanupRoamerOverrides();
+                CleanupAnimalFeatureOverrides();
+                CleanupAnimalFeatureParameterOverrides();
+                ApplyRuntimeDefOverrides();
                 ZoologyMod.SyncRuntimePatchesWithSettings(forceRebuild: true);
+            }
+            else
+            {
+                // During initial loading, just apply overrides without cleanup to preserve modded animals
+                ApplyRuntimeDefOverrides();
             }
         }
 

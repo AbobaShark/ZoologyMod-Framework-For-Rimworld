@@ -333,14 +333,6 @@
       <li Class="ZoologyMod.ModExtension_Ectothermic, ZoologyMod"/>
     </value>
   </Operation>
-  <Operation Class="PatchOperationAddModExtension">
-    <xpath>/Defs/ThingDef[@Name = "VAEWaste_BaseInsect"]</xpath>
-    <value>
-      <li Class="ZoologyMod.ModExtension_IsScavenger, ZoologyMod">
-        <allowVeryRotten>true</allowVeryRotten>
-      </li>
-    </value>
-  </Operation>
   <!-- VAEWaste_Hydra -->
   <Operation Class="PatchOperationAttributeSet">
     <xpath>/Defs/ThingDef[defName = "VAEWaste_Hydra"]</xpath>
@@ -1457,6 +1449,14 @@
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "VAEWaste_Megatardi"]/tradeTags</xpath>
     </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Megatardi"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_IsScavenger, ZoologyMod">
+        <allowVeryRotten>true</allowVeryRotten>
+      </li>
+    </value>
   </Operation>
   <!-- VAEWaste_Megatardi PawnKindDef -->
   <Operation Class="PatchOperationConditional">
@@ -7980,13 +7980,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="VAEWaste_Hydra"]/statBases/MeleeParryChance</xpath>
             <value>
-              <MeleeParryChance>0.05</MeleeParryChance>
+              <MeleeParryChance>0</MeleeParryChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="VAEWaste_Hydra"]/statBases</xpath>
             <value>
-              <MeleeParryChance>0.05</MeleeParryChance>
+              <MeleeParryChance>0</MeleeParryChance>
             </value>
           </nomatch>
         </li>
@@ -8408,9 +8408,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>21.3</power>
-                <armorPenetrationBlunt>20.95</armorPenetrationBlunt>
-                <cooldownTime>2.65</cooldownTime>
+                <power>10.7</power>
+                <armorPenetrationBlunt>10.5</armorPenetrationBlunt>
+                <cooldownTime>3.6</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                 <chanceFactor>0.2</chanceFactor>

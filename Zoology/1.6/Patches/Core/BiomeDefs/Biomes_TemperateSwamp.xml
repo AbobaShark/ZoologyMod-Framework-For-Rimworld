@@ -122,6 +122,17 @@
       <AA_Thunderbeast MayRequire="sarg.alphaanimals">0.016</AA_Thunderbeast>
       <AA_Wildpawn MayRequire="sarg.alphaanimals">0.027</AA_Wildpawn>
       <AA_WindBeast MayRequire="sarg.alphaanimals">0.016</AA_WindBeast>
+      <TyrannosaurusRex MayRequire="spincrus.dinosauria">0.025</TyrannosaurusRex>
+      <Ankylosaurus MayRequire="spincrus.dinosauria">0.1</Ankylosaurus>
+      <Minmi MayRequire="spincrus.dinosauria">0.15</Minmi>
+      <Dakotaraptor MayRequire="spincrus.dinosauria">0.05</Dakotaraptor>
+      <Gallimimus MayRequire="spincrus.dinosauria">0.15</Gallimimus>
+      <Corythosaurus MayRequire="spincrus.dinosauria">0.125</Corythosaurus>
+      <Pachycephalosaurus MayRequire="spincrus.dinosauria">0.15</Pachycephalosaurus>
+      <Stygimoloch MayRequire="spincrus.dinosauria">0.2</Stygimoloch>
+      <Triceratops MayRequire="spincrus.dinosauria">0.1</Triceratops>
+      <Quetzalcoatlus MayRequire="spincrus.dinosauria">0.05</Quetzalcoatlus>
+      <Pteranodon MayRequire="spincrus.dinosauria">0.275</Pteranodon>
     </value>
   </Operation>
   <Operation Class="PatchOperationAdd">
@@ -236,6 +247,15 @@
       <xpath>/Defs/BiomeDef[defName="TemperateSwamp"]/allowedPackAnimals</xpath>
       <value>
         <li MayRequire="sarg.alphaanimals">AA_Radyak</li>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/BiomeDef[defName="TemperateSwamp"]/allowedPackAnimals/li[text()="Ankylosaurus"]</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/BiomeDef[defName="TemperateSwamp"]/allowedPackAnimals</xpath>
+      <value>
+        <li MayRequire="spincrus.dinosauria">Ankylosaurus</li>
       </value>
     </nomatch>
   </Operation>
