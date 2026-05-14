@@ -42,7 +42,7 @@ namespace ZoologyMod
                 return false;
             }
 
-            return pawn.Faction != Faction.OfPlayer;
+            return true;
         }
 
         public static bool HasLickableWounds(Pawn pawn)

@@ -37,28 +37,23 @@ namespace ZoologyMod
                     || pawn.Downed
                     || !pawn.Spawned
                     || pawn.InMentalState
-                    || pawn.gender != Gender.Female
                     || !ChildcareUtility.HasChildcareExtension(pawn)
-                    || pawn.TryGetComp<CompEggLayer>() == null
+                    || ChildcareUtility.IsAnimalChild(pawn)
+                    || !CanWanderNearEggClutch(pawn)
                     || IsSleepingOrLyingDown(pawn))
                 {
                     return IntVec3.Invalid;
                 }
 
                 EggClutchDefenseGameComponent component = EggClutchDefenseGameComponent.Instance;
-                Thing egg = component?.TryGetPairedEggForMother(pawn);
+                Thing egg = component?.TryGetPairedEggForProtector(pawn);
                 if (egg == null || !egg.Spawned || egg.Map != pawn.Map)
                 {
                     return IntVec3.Invalid;
                 }
 
                 IntVec3 eggPosition = egg.Position;
-                if (!eggPosition.IsValid
-                    || !PreyProtectionUtility.IsPawnWithinProtectionRange(
-                        pawn,
-                        pawn.Map,
-                        eggPosition,
-                        PreyProtectionUtility.GetProtectionRangeSquared()))
+                if (!eggPosition.IsValid)
                 {
                     return IntVec3.Invalid;
                 }
@@ -69,6 +64,21 @@ namespace ZoologyMod
             {
                 return IntVec3.Invalid;
             }
+        }
+
+        private static bool CanWanderNearEggClutch(Pawn pawn)
+        {
+            if (pawn == null)
+            {
+                return false;
+            }
+
+            if (pawn.gender == Gender.Female && pawn.TryGetComp<CompEggLayer>() != null)
+            {
+                return true;
+            }
+
+            return pawn.RaceProps?.herdAnimal == true;
         }
 
         private static bool TryConsumeScanBudget(Map map)

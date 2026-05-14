@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using HarmonyLib;
 using RimWorld;
@@ -9,20 +10,32 @@ namespace ZoologyMod
     [HarmonyPatch]
     public static class Patch_Childcare_DefendYoung
     {
-        static MethodBase TargetMethod()
+        static IEnumerable<MethodBase> TargetMethods()
         {
-            var method = AccessTools.Method(typeof(Pawn), "TakeDamage", new Type[] { typeof(DamageInfo) });
-            if (method != null)
+            MethodBase thingMethod = AccessTools.DeclaredMethod(typeof(Thing), "TakeDamage", new[] { typeof(DamageInfo) });
+            if (thingMethod != null)
             {
-                return method;
+                yield return thingMethod;
             }
 
-            method = AccessTools.Method(typeof(Thing), "TakeDamage", new Type[] { typeof(DamageInfo) });
-            if (method == null)
+            MethodBase pawnMethod = AccessTools.DeclaredMethod(typeof(Pawn), "TakeDamage", new[] { typeof(DamageInfo) });
+            if (pawnMethod != null && !ReferenceEquals(pawnMethod, thingMethod))
             {
-                Log.Error("[Zoology] Childcare: could not find TakeDamage method to patch.");
+                yield return pawnMethod;
             }
-            return method;
+
+            if (thingMethod == null && pawnMethod == null)
+            {
+                MethodBase fallback = AccessTools.Method(typeof(Thing), "TakeDamage", new[] { typeof(DamageInfo) });
+                if (fallback != null)
+                {
+                    yield return fallback;
+                }
+                else
+                {
+                    Log.Error("[Zoology] Childcare: could not find TakeDamage methods to patch.");
+                }
+            }
         }
 
         public static bool Prepare()
@@ -42,7 +55,6 @@ namespace ZoologyMod
                 if (!child.IsAnimal) return;
 
                 if (!ChildcareUtility.IsAnimalChild(child)) return;
-                if (!ChildcareUtility.HasChildcareExtension(child)) return;
 
                 Pawn attacker = dinfo.Instigator as Pawn;
                 if (attacker == null) return;
@@ -50,6 +62,7 @@ namespace ZoologyMod
                 if (!attacker.Spawned || attacker.Dead || attacker.Destroyed) return;
 
                 if (!ChildcareUtility.TryGetBiologicalMother(child, out Pawn mother)) return;
+                if (!ChildcareUtility.HasChildcareExtension(mother)) return;
                 ChildcareDefenseUtility.TryOrderProtection(mother, attacker, child);
             }
             catch (Exception ex)

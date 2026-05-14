@@ -134,6 +134,8 @@ namespace ZoologyMod
                 var postfixFood = typeof(PredationHarmonyPatches).GetMethod(nameof(FoodOptimality_Postfix), BindingFlags.Static | BindingFlags.Public);
                 var targetBestFoodSource = AccessTools.Method(typeof(FoodUtility), nameof(FoodUtility.BestFoodSourceOnMap));
                 var postfixBestFoodSource = typeof(PredationHarmonyPatches).GetMethod(nameof(BestFoodSourceOnMap_Postfix), BindingFlags.Static | BindingFlags.Public);
+                var targetWillEat = AccessTools.Method(typeof(FoodUtility), nameof(FoodUtility.WillEat), new[] { typeof(Pawn), typeof(Thing), typeof(Pawn), typeof(bool), typeof(bool) });
+                var postfixWillEat = typeof(PredationHarmonyPatches).GetMethod(nameof(WillEat_Postfix), BindingFlags.Static | BindingFlags.Public);
                 if (targetFoodOpt != null && postfixFood != null)
                 {
                     harmony.Patch(targetFoodOpt, null, new HarmonyMethod(postfixFood));
@@ -150,6 +152,15 @@ namespace ZoologyMod
                 else
                 {
                     Log.Warning("Zoology: FoodUtility.BestFoodSourceOnMap method or postfix not found; skipping patch.");
+                }
+
+                if (targetWillEat != null && postfixWillEat != null)
+                {
+                    harmony.Patch(targetWillEat, null, new HarmonyMethod(postfixWillEat));
+                }
+                else
+                {
+                    Log.Warning("Zoology: FoodUtility.WillEat method or postfix not found; skipping guarded-corpse patch.");
                 }
 
                 
@@ -405,12 +416,45 @@ namespace ZoologyMod
             }
         }
 
+        public static void WillEat_Postfix(Pawn p, Thing food, Pawn getter, bool careIfNotAcceptableForTitle, bool allowVenerated, ref bool __result)
+        {
+            if (!__result || p == null || food == null)
+            {
+                return;
+            }
+
+            Corpse corpse = TryGetCorpseFromThing(food);
+            if (corpse == null)
+            {
+                return;
+            }
+
+            if (ShouldBlockGuardedCorpseConsumption(p, corpse))
+            {
+                __result = false;
+            }
+        }
+
         public static void BestFoodSourceOnMap_Postfix(Pawn getter, Pawn eater, bool desperate, ref Thing __result, ref ThingDef foodDef)
         {
             try
             {
-                Pawn predator = eater ?? getter;
-                if (predator?.RaceProps?.predator != true || __result == null)
+                Pawn consumer = eater ?? getter;
+                if (consumer == null || __result == null)
+                {
+                    return;
+                }
+
+                Corpse guardedCorpse = TryGetCorpseFromThing(__result);
+                if (guardedCorpse != null && ShouldBlockGuardedCorpseConsumption(consumer, guardedCorpse))
+                {
+                    __result = null;
+                    foodDef = null;
+                    return;
+                }
+
+                Pawn predator = consumer.RaceProps?.predator == true ? consumer : null;
+                if (predator == null)
                 {
                     return;
                 }
@@ -473,6 +517,32 @@ namespace ZoologyMod
             {
                 Log.Warning($"Zoology: BestFoodSourceOnMap_Postfix exception: {ex}");
             }
+        }
+
+        private static bool CanIgnoreGuardedFoodBecauseOfHunger(Pawn eater)
+        {
+            return eater?.needs?.food != null
+                && eater.needs.food.CurLevelPercentage <= 0.10f;
+        }
+
+        private static bool ShouldBlockGuardedCorpseConsumption(Pawn eater, Corpse corpse)
+        {
+            if (eater == null
+                || corpse == null
+                || CanIgnoreGuardedFoodBecauseOfHunger(eater))
+            {
+                return false;
+            }
+
+            PredatorPreyPairGameComponent comp = PredatorPreyPairGameComponent.Instance;
+            if (comp == null)
+            {
+                return false;
+            }
+
+            return TryGetCorpseFoodState(comp, eater, corpse, out CorpseFoodStateCacheEntry state)
+                && !state.IsPaired
+                && !state.IsEffectivelyUnowned;
         }
 
         private static Corpse TryGetCorpseFromThing(Thing thing)

@@ -302,34 +302,109 @@ namespace ZoologyMod
             }
 
             int motherId = mother.thingIDNumber;
-            if (motherId <= 0 || !eggIdsByMotherId.TryGetValue(motherId, out HashSet<int> eggIds) || eggIds.Count == 0)
+            if (motherId > 0 && eggIdsByMotherId.TryGetValue(motherId, out HashSet<int> eggIds) && eggIds.Count > 0)
             {
-                return null;
-            }
+                Thing bestEgg = null;
+                int bestDistanceSq = int.MaxValue;
 
-            Thing bestEgg = null;
-            int bestDistanceSq = int.MaxValue;
-            int protectionRangeSq = PreyProtectionUtility.GetProtectionRangeSquared();
-
-            foreach (int eggId in eggIds)
-            {
-                if (!recordByEggId.TryGetValue(eggId, out EggClutchOwnershipRecord record))
+                foreach (int eggId in eggIds)
                 {
-                    continue;
+                    if (!recordByEggId.TryGetValue(eggId, out EggClutchOwnershipRecord record))
+                    {
+                        continue;
+                    }
+
+                    Thing egg = record.Egg;
+                    if (egg == null
+                        || egg.Destroyed
+                        || !egg.Spawned
+                        || egg.Map != mother.Map
+                        || !egg.Position.IsValid)
+                    {
+                        continue;
+                    }
+
+                    int distanceSq = (mother.Position - egg.Position).LengthHorizontalSquared;
+                    if (distanceSq >= bestDistanceSq)
+                    {
+                        continue;
+                    }
+
+                    bestEgg = egg;
+                    bestDistanceSq = distanceSq;
                 }
 
-                Thing egg = record.Egg;
+                if (bestEgg != null)
+                {
+                    return bestEgg;
+                }
+            }
+
+            Thing fallbackEgg = null;
+            int fallbackDistanceSq = int.MaxValue;
+            for (int i = 0; i < ownershipRecords.Count; i++)
+            {
+                EggClutchOwnershipRecord record = ownershipRecords[i];
+                Thing egg = record?.Egg;
                 if (egg == null
                     || egg.Destroyed
                     || !egg.Spawned
                     || egg.Map != mother.Map
-                    || !egg.Position.IsValid)
+                    || !egg.Position.IsValid
+                    || !RecordContainsMother(record, mother))
                 {
                     continue;
                 }
 
                 int distanceSq = (mother.Position - egg.Position).LengthHorizontalSquared;
-                if (distanceSq > protectionRangeSq || distanceSq >= bestDistanceSq)
+                if (distanceSq >= fallbackDistanceSq)
+                {
+                    continue;
+                }
+
+                fallbackEgg = egg;
+                fallbackDistanceSq = distanceSq;
+            }
+
+            return fallbackEgg;
+        }
+
+        public Thing TryGetPairedEggForProtector(Pawn protector)
+        {
+            if (!IsValidMother(protector) || protector.Map == null || !protector.Spawned)
+            {
+                return null;
+            }
+
+            Thing directEgg = TryGetPairedEggForMother(protector);
+            if (directEgg != null || protector.RaceProps?.herdAnimal != true || !ChildcareUtility.HasChildcareExtension(protector))
+            {
+                return directEgg;
+            }
+
+            Thing bestEgg = null;
+            int bestDistanceSq = int.MaxValue;
+
+            for (int i = 0; i < ownershipRecords.Count; i++)
+            {
+                EggClutchOwnershipRecord record = ownershipRecords[i];
+                Thing egg = record?.Egg;
+                if (egg == null
+                    || egg.Destroyed
+                    || !egg.Spawned
+                    || egg.Map != protector.Map
+                    || !egg.Position.IsValid)
+                {
+                    continue;
+                }
+
+                if (!RecordSharesProtectorLineage(record, protector))
+                {
+                    continue;
+                }
+
+                int distanceSq = (protector.Position - egg.Position).LengthHorizontalSquared;
+                if (distanceSq >= bestDistanceSq)
                 {
                     continue;
                 }
@@ -622,6 +697,45 @@ namespace ZoologyMod
             }
 
             return first.def == second.def || ZoologyCacheUtility.AreCrossbreedRelated(first.def, second.def);
+        }
+
+        private static bool RecordSharesProtectorLineage(EggClutchOwnershipRecord record, Pawn protector)
+        {
+            if (record == null || protector == null)
+            {
+                return false;
+            }
+
+            CompHatcher hatcher = record.Egg?.TryGetComp<CompHatcher>();
+            if (SharesSpeciesLineage(hatcher?.hatcheeParent, protector))
+            {
+                return true;
+            }
+
+            for (int i = 0; i < record.Mothers.Count; i++)
+            {
+                if (SharesSpeciesLineage(record.Mothers[i], protector))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool RecordContainsMother(EggClutchOwnershipRecord record, Pawn mother)
+        {
+            if (record == null || mother == null)
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(record.Egg?.TryGetComp<CompHatcher>()?.hatcheeParent, mother))
+            {
+                return true;
+            }
+
+            return ContainsMother(record, mother);
         }
 
         private static bool IsValidMother(Pawn mother)
