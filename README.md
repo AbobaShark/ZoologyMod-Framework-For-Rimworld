@@ -238,16 +238,24 @@ Mothers receive a lactation hediff that transfers nutrition to their young.
 
 **Controlled by**
 
-* **Enable mammals lactation**
-
-* **Slaughter lactating females**
+* **Enable animal childcare**
+* **Prevent flee from humans while protecting young**
+* **Prevent flee from humans while protecting egg clutches**
 
 ---
 ### Childcare (offspring following)
 
 Animals marked with `ModExtension_Chlidcare` allow their offspring to follow them.
 
+Animals with `ModExtension_Chlidcare` will also defend their offspring and egg clutches from threats. Herd and pack animals can respond collectively, causing nearby group members to join the defense of juveniles or nests.
+
 This enables more natural parent–offspring behavior in the wild and in player-controlled animals.
+
+**Controlled by**
+
+* **Enable mammals lactation**
+
+* **Slaughter lactating females**
 
 ---
 
@@ -260,6 +268,20 @@ Optional system that reduces unrealistic damage from very small animals (or unar
 * **Enable animal damage reduction**
 
 Automatically disabled when **Combat Extended** is installed, since CE handles damage realism through armor and penetration mechanics.
+
+---
+
+### Wound licking (self-tending wildlife)
+
+Wild animals without a faction can lick and tend their own superficial bleeding wounds with very low tending quality.
+
+This only applies to external injuries — animals cannot treat destroyed organs or serious internal injuries by themselves.
+
+Tamed animals still rely on colonists for proper medical care, allowing player-provided treatment to remain significantly more effective.
+
+**Controlled by**
+
+* **Enable animal wound licking**
 
 ---
 
@@ -279,6 +301,7 @@ Most invasive behavior systems can be disabled in mod settings if conflicts occu
 * All Vanilla Animals Expanded series mods (Vanilla Animals Expanded, Vanilla Animals Expanded - Royal Animals, Vanilla Animals Expanded - Endangered, Vanilla Animals Expanded - Waste Animals)
 * Combat Extended
 * Alpha Animals
+* Dinosauria
 
 ---
 
@@ -537,6 +560,14 @@ A marker extension that prohibits the installation of bionics, implants, or any 
   <li Class="ZoologyMod.ModExtension_CannotBeAugmented" />
 </modExtensions>
 ```
+
+#### ModExtension_Chlidcare
+Allows offspring to follow their parents and enables protective parental behavior.
+
+```xml
+<modExtensions>
+  <li Class="ZoologyMod.ModExtension_Chlidcare" />
+</modExtensions>
 
 ## Contributing
 
