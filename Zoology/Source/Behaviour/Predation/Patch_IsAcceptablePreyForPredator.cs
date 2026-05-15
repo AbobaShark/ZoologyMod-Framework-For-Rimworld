@@ -761,7 +761,7 @@ namespace ZoologyMod
 
                 if (!photonozoaPairInTheirFaction)
                 {
-                    if (predator.IsMammal() && prey.IsMammal())
+                    if (ChildcareUtility.HasChildcareExtension(predator) && ChildcareUtility.HasChildcareExtension(prey))
                     {
                         if (predator.def == prey.def || ZoologyCacheUtility.AreCrossbreedRelated(predator.def, prey.def))
                         {
