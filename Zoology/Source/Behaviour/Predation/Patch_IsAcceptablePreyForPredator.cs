@@ -208,19 +208,31 @@ namespace ZoologyMod
                     return;
                 }
 
+                float childcareDelta = ChildcareDefenseUtility.GetYoungPreyScoreDelta(predator, prey);
+
                 if (!LargeMammalPredationUtility.UsesLargeMammalSizing(predator) || prey == null || predator?.kindDef == null || prey.kindDef == null)
                 {
+                    if (!Mathf.Approximately(childcareDelta, 0f))
+                    {
+                        __result += childcareDelta;
+                    }
                     return;
                 }
 
                 if (PredationDecisionCache.TryGetPreyScore(predator, prey, out float cachedScore))
                 {
                     __result = cachedScore;
-                    return;
+                }
+                else
+                {
+                    __result = LargeMammalPredationUtility.GetPreySelectionScore(predator, prey);
+                    PredationDecisionCache.StorePreyScore(predator, prey, __result);
                 }
 
-                __result = LargeMammalPredationUtility.GetPreySelectionScore(predator, prey);
-                PredationDecisionCache.StorePreyScore(predator, prey, __result);
+                if (!Mathf.Approximately(childcareDelta, 0f))
+                {
+                    __result += childcareDelta;
+                }
             }
             catch (Exception ex)
             {
@@ -749,7 +761,7 @@ namespace ZoologyMod
 
                 if (!photonozoaPairInTheirFaction)
                 {
-                    if (predator.IsMammal() && prey.IsMammal())
+                    if (ChildcareUtility.HasChildcareExtension(predator) && ChildcareUtility.HasChildcareExtension(prey))
                     {
                         if (predator.def == prey.def || ZoologyCacheUtility.AreCrossbreedRelated(predator.def, prey.def))
                         {
@@ -761,6 +773,13 @@ namespace ZoologyMod
                 }
 
                 if (!prey.RaceProps.canBePredatorPrey)
+                {
+                    __result = false;
+                    StoreAcceptablePreyResult(predator, prey, false, usePackHuntHotCache, currentTick);
+                    return false;
+                }
+
+                if (ChildcareDefenseUtility.ShouldBlockProtectedYoungPredation(predator, prey))
                 {
                     __result = false;
                     StoreAcceptablePreyResult(predator, prey, false, usePackHuntHotCache, currentTick);

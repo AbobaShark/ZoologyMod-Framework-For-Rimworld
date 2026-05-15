@@ -365,18 +365,16 @@ namespace ZoologyMod
 
         private readonly struct PawnFleeDecisionCacheEntry
         {
-            public PawnFleeDecisionCacheEntry(int tick, int mapId, bool hasJob, Job job)
+            public PawnFleeDecisionCacheEntry(int tick, int mapId, bool hasJob)
             {
                 Tick = tick;
                 MapId = mapId;
                 HasJob = hasJob;
-                Job = job;
             }
 
             public int Tick { get; }
             public int MapId { get; }
             public bool HasJob { get; }
-            public Job Job { get; }
         }
 
         private readonly struct TargetedPredatorEntry
@@ -603,21 +601,21 @@ namespace ZoologyMod
                         AddCarrierThreatInfluence(data, threat, carrierExtension);
                     }
 
+                    if (TryGetThreatTargetPawn(threat, out Pawn targetPawn)
+                        && IsTargetedAnimalThreatSourceForPrey(threat, targetPawn))
+                    {
+                        data.HasActivePredatorThreats = true;
+                        AddActivePredatorThreatInfluence(data, threat, targetPawn);
+                        continue;
+                    }
+
                     if (!IsPotentialPredatorThreatSource(threat))
                     {
                         continue;
                     }
 
-                    if (TryGetThreatTargetPawn(threat, out Pawn targetPawn))
-                    {
-                        data.HasActivePredatorThreats = true;
-                        AddActivePredatorThreatInfluence(data, threat, targetPawn);
-                    }
-                    else
-                    {
-                        data.HasPassivePredatorThreats = true;
-                        AddPassivePredatorThreatInfluence(data, threat);
-                    }
+                    data.HasPassivePredatorThreats = true;
+                    AddPassivePredatorThreatInfluence(data, threat);
                 }
 
                 data.ScanIntervalTicks = CalculateScanIntervalTicks(data.AnimalCount);
@@ -1071,6 +1069,18 @@ namespace ZoologyMod
             return threat?.RaceProps?.predator == true;
         }
 
+        private static bool IsTargetedAnimalThreatSourceForPrey(Pawn threat, Pawn prey)
+        {
+            if (threat == null || prey == null || !threat.IsAnimal)
+            {
+                return false;
+            }
+
+            return threat.RaceProps?.predator == true
+                || threat.InMentalState
+                || IsTargetedPredatorThreatJob(threat, prey);
+        }
+
         private static bool IsPredatorThreatSourceForPrey(Pawn predator, Pawn prey)
         {
             return predator != null
@@ -1146,6 +1156,11 @@ namespace ZoologyMod
                     ClearNoThreatScanCache(pawn);
                     StorePawnFleeDecisionCache(pawn, currentTick, null);
                     return;
+                }
+
+                if (TryCancelHumanlikeFleeBecauseOfProtection(pawn, settings, ref __result))
+                {
+                    ClearNoThreatScanCache(pawn);
                 }
 
                 if (__result != null || pawn.jobs?.curJob?.def == JobDefOf.Flee)
@@ -1521,7 +1536,7 @@ namespace ZoologyMod
                     continue;
                 }
 
-                if (!IsPredatorThreatSourceForPrey(predator, prey))
+                if (!IsTargetedAnimalThreatSourceForPrey(predator, prey))
                 {
                     continue;
                 }
@@ -1617,7 +1632,7 @@ namespace ZoologyMod
             {
                 Pawn predator = pawns[i];
                 if (!ZoologyFleeSafetyUtility.IsValidThreatForFlee(predator, prey)
-                    || !IsPredatorThreatSourceForPrey(predator, prey))
+                    || !IsTargetedAnimalThreatSourceForPrey(predator, prey))
                 {
                     continue;
                 }
@@ -2165,6 +2180,11 @@ namespace ZoologyMod
             }
 
             if (IsPredatorGuardingCorpseAgainstHumans(pawn, settings))
+            {
+                return false;
+            }
+
+            if (IsChildcareGuardingYoungOrEggAgainstHumans(pawn, settings))
             {
                 return false;
             }
@@ -2783,7 +2803,6 @@ namespace ZoologyMod
             }
 
             hasJob = cached.HasJob;
-            job = cached.Job;
             return true;
         }
 
@@ -2794,11 +2813,21 @@ namespace ZoologyMod
                 return;
             }
 
-            pawnFleeDecisionCacheByPawnId[pawn.thingIDNumber] = new PawnFleeDecisionCacheEntry(
+            int pawnId = pawn.thingIDNumber;
+
+            // RimWorld pools Job instances aggressively. Keeping a live Job in a static cache
+            // can hand the same pooled object to a different pawn later in the same tick and
+            // corrupt cachedDriver ownership. Cache only negative decisions here.
+            if (job != null)
+            {
+                pawnFleeDecisionCacheByPawnId.Remove(pawnId);
+                return;
+            }
+
+            pawnFleeDecisionCacheByPawnId[pawnId] = new PawnFleeDecisionCacheEntry(
                 currentTick,
                 pawn.Map.uniqueID,
-                job != null,
-                job);
+                false);
         }
 
         private static bool HasAggressiveJob(Pawn pawn)
@@ -2899,6 +2928,62 @@ namespace ZoologyMod
                 Log.Warning($"[ZoologyMod] Failed to check paired corpse for {pawn?.LabelShort}: {ex}");
                 return false;
             }
+        }
+
+        private static bool IsChildcareGuardingYoungOrEggAgainstHumans(Pawn pawn, ZoologyModSettings settings)
+        {
+            if (pawn == null
+                || (settings != null && !settings.AnimalsFreeFromHumans)
+                || (settings != null && !settings.EnableAnimalChildcare)
+                || !ZoologyModSettings.CanChildcareDefendYoungFromHumansAndMechanoidsNow(pawn))
+            {
+                return false;
+            }
+
+            try
+            {
+                return ChildcareDefenseUtility.HasProtectableChildcareTargetForHumanDefense(pawn);
+            }
+            catch (Exception ex)
+            {
+                Log.Warning($"[ZoologyMod] Failed to check childcare protection target for {pawn?.LabelShort}: {ex}");
+                return false;
+            }
+        }
+
+        private static bool TryCancelHumanlikeFleeBecauseOfProtection(Pawn pawn, ZoologyModSettings settings, ref Job pendingJob)
+        {
+            bool cancelled = false;
+
+            if (pendingJob?.def == JobDefOf.Flee
+                && TryGetJobTargetPawn(pendingJob, out Pawn pendingThreat)
+                && ShouldCancelFleeFromHumanlikeThreatBecauseOfProtection(pawn, pendingThreat, settings))
+            {
+                pendingJob = null;
+                cancelled = true;
+            }
+
+            Job currentJob = pawn?.jobs?.curJob;
+            if (currentJob?.def == JobDefOf.Flee
+                && TryGetJobTargetPawn(currentJob, out Pawn currentThreat)
+                && ShouldCancelFleeFromHumanlikeThreatBecauseOfProtection(pawn, currentThreat, settings))
+            {
+                pawn.jobs.EndCurrentJob(JobCondition.InterruptForced);
+                cancelled = true;
+            }
+
+            return cancelled;
+        }
+
+        private static bool ShouldCancelFleeFromHumanlikeThreatBecauseOfProtection(Pawn pawn, Pawn threat, ZoologyModSettings settings)
+        {
+            if (pawn == null || threat == null || !PawnThreatUtility.IsHumanlikeOrMechanoid(threat))
+            {
+                return false;
+            }
+
+            return IsPredatorGuardingCorpseAgainstHumans(pawn, settings)
+                || IsChildcareGuardingYoungOrEggAgainstHumans(pawn, settings);
         }
 
         private static bool HasFreshFleeJob(Pawn pawn, int currentTick)
@@ -3379,7 +3464,12 @@ namespace ZoologyMod
                 return false;
             }
 
-            return HasLineOfSightAndReach(human, animal);
+            if (!HasLineOfSightAndReach(human, animal))
+            {
+                return false;
+            }
+
+            return !ChildcareDefenseUtility.ShouldIgnoreHumanlikeThreatForChildcareProtection(animal, human);
         }
 
         private static bool IsSmallPetRaiderThreatCandidate(Pawn threat, Pawn pawn)
@@ -3878,8 +3968,8 @@ namespace ZoologyMod
                 && !predator.Destroyed
                 && !predator.Downed
                 && predator.Map == prey.Map
-                && IsPredatorThreatSourceForPrey(predator, prey)
                 && TryGetThreatTargetPawn(predator, out Pawn targetedPawn)
+                && IsTargetedAnimalThreatSourceForPrey(predator, targetedPawn)
                 && distanceSquared <= radiusSquared
                 && (ReferenceEquals(targetedPawn, prey)
                     ? HasReachability(predator, prey)

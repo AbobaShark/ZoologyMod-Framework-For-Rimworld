@@ -1,45 +1,53 @@
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using HarmonyLib;
 using RimWorld;
 using Verse;
-using Verse.AI;
 
 namespace ZoologyMod
 {
     [HarmonyPatch]
     public static class Patch_Childcare_DefendYoung
     {
-        private static JobDef protectYoungJobDef;
-
-        static MethodBase TargetMethod()
+        static IEnumerable<MethodBase> TargetMethods()
         {
-            var method = AccessTools.Method(typeof(Pawn), "TakeDamage", new Type[] { typeof(DamageInfo) });
-            if (method != null)
+            MethodBase thingMethod = AccessTools.DeclaredMethod(typeof(Thing), "TakeDamage", new[] { typeof(DamageInfo) });
+            if (thingMethod != null)
             {
-                return method;
+                yield return thingMethod;
             }
 
-            method = AccessTools.Method(typeof(Thing), "TakeDamage", new Type[] { typeof(DamageInfo) });
-            if (method == null)
+            MethodBase pawnMethod = AccessTools.DeclaredMethod(typeof(Pawn), "TakeDamage", new[] { typeof(DamageInfo) });
+            if (pawnMethod != null && !ReferenceEquals(pawnMethod, thingMethod))
             {
-                Log.Error("[Zoology] Childcare: could not find TakeDamage method to patch.");
+                yield return pawnMethod;
             }
-            return method;
+
+            if (thingMethod == null && pawnMethod == null)
+            {
+                MethodBase fallback = AccessTools.Method(typeof(Thing), "TakeDamage", new[] { typeof(DamageInfo) });
+                if (fallback != null)
+                {
+                    yield return fallback;
+                }
+                else
+                {
+                    Log.Error("[Zoology] Childcare: could not find TakeDamage methods to patch.");
+                }
+            }
         }
 
         public static bool Prepare()
         {
-            var s = ZoologyModSettings.Instance;
-            return s == null || (!s.DisableAllRuntimePatches && s.EnableAnimalChildcare);
+            return ChildcareDefenseUtility.IsYoungProtectionEnabled;
         }
 
         public static void Postfix(Thing __instance, DamageInfo dinfo)
         {
             try
             {
-                var settings = ZoologyModSettings.Instance;
-                if (settings != null && (settings.DisableAllRuntimePatches || !settings.EnableAnimalChildcare)) return;
+                if (!ChildcareDefenseUtility.IsYoungProtectionEnabled) return;
 
                 Pawn child = __instance as Pawn;
                 if (child == null) return;
@@ -47,7 +55,6 @@ namespace ZoologyMod
                 if (!child.IsAnimal) return;
 
                 if (!ChildcareUtility.IsAnimalChild(child)) return;
-                if (!ChildcareUtility.HasChildcareExtension(child)) return;
 
                 Pawn attacker = dinfo.Instigator as Pawn;
                 if (attacker == null) return;
@@ -55,111 +62,12 @@ namespace ZoologyMod
                 if (!attacker.Spawned || attacker.Dead || attacker.Destroyed) return;
 
                 if (!ChildcareUtility.TryGetBiologicalMother(child, out Pawn mother)) return;
-                if (!IsMotherEligibleForDefense(mother, child)) return;
-                if (attacker == mother) return;
-
-                if (IsSameFactionBlocked(mother, attacker)) return;
-                if (IsAttackerTooStrong(attacker, mother)) return;
-                if (IsMotherAcceptablePrey(attacker, mother)) return;
-
-                if (!CanMotherEngage(mother, attacker)) return;
-
-                TryOrderMotherDefense(mother, attacker, child);
+                if (!ChildcareUtility.HasChildcareExtension(mother)) return;
+                ChildcareDefenseUtility.TryOrderProtection(mother, attacker, child);
             }
             catch (Exception ex)
             {
                 Log.Warning($"Zoology: Patch_Childcare_DefendYoung Postfix exception: {ex}");
-            }
-        }
-
-        private static bool IsMotherEligibleForDefense(Pawn mother, Pawn child)
-        {
-            if (mother == null || child == null) return false;
-            if (mother.Dead || mother.Destroyed || !mother.Spawned) return false;
-            if (mother.Downed) return false;
-            if (mother.InMentalState) return false;
-            if (!PreyProtectionUtility.IsPawnAwakeForProtection(mother)) return false;
-            if (mother.Map == null || child.Map == null || mother.Map != child.Map) return false;
-            return true;
-        }
-
-        private static bool IsSameFactionBlocked(Pawn mother, Pawn attacker)
-        {
-            if (mother?.Faction == null || attacker?.Faction == null) return false;
-            if (!ReferenceEquals(mother.Faction, attacker.Faction)) return false;
-
-            var def = mother.Faction.def;
-            if (def != null && def.defName != null
-                && def.defName.Equals("Photonozoa", StringComparison.OrdinalIgnoreCase))
-            {
-                return false;
-            }
-
-            return true;
-        }
-
-        private static bool IsAttackerTooStrong(Pawn attacker, Pawn mother)
-        {
-            float attackerCp = AnimalCombatPowerUtility.GetAdjustedCombatPower(attacker);
-            float motherCp = AnimalCombatPowerUtility.GetAdjustedCombatPower(mother);
-
-            if (attackerCp <= 0f || motherCp <= 0f) return false;
-            return attackerCp >= motherCp * ModConstants.CombatPowerDominanceFactor;
-        }
-
-        private static bool IsMotherAcceptablePrey(Pawn attacker, Pawn mother)
-        {
-            try
-            {
-                if (attacker == null || mother == null) return false;
-                if (attacker.RaceProps?.predator != true) return false;
-                return FoodUtility.IsAcceptablePreyFor(attacker, mother);
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        private static bool CanMotherEngage(Pawn mother, Pawn attacker)
-        {
-            if (mother == null || attacker == null) return false;
-
-            var curJob = mother.CurJob;
-            if (curJob != null)
-            {
-                if (curJob.playerForced) return false;
-                if (curJob.def == JobDefOf.AttackMelee) return false;
-                if (ProtectPreyState.IsProtectPreyJob(mother)) return false;
-                if (ProtectYoungUtility.IsProtectYoungJob(mother)) return false;
-            }
-
-            try
-            {
-                if (!mother.CanReach(attacker, PathEndMode.Touch, Danger.Deadly)) return false;
-            }
-            catch
-            {
-            }
-
-            return true;
-        }
-
-        private static void TryOrderMotherDefense(Pawn mother, Pawn attacker, Pawn child)
-        {
-            try
-            {
-                if (mother == null || attacker == null) return;
-                var def = protectYoungJobDef ?? (protectYoungJobDef = DefDatabase<JobDef>.GetNamedSilentFail(ProtectYoungUtility.ProtectYoungDefName));
-                Job job = def != null
-                    ? JobMaker.MakeJob(def, attacker, child)
-                    : JobMaker.MakeJob(JobDefOf.AttackMelee, attacker);
-
-                mother.jobs?.TryTakeOrderedJob(job);
-            }
-            catch (Exception ex)
-            {
-                Log.Warning($"Zoology: TryOrderMotherDefense failed: {ex}");
             }
         }
     }

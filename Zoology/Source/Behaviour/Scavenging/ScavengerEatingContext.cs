@@ -12,9 +12,12 @@ namespace ZoologyMod
         [ThreadStatic] private static Dictionary<int, Pawn> corpseToPawn;
         [ThreadStatic] private static Dictionary<int, HandFeedEntry> handFedByCorpseId;
         [ThreadStatic] private static List<int> handCleanupBuffer;
+        [ThreadStatic] private static HashSet<int> recoveredMapIds;
         [ThreadStatic] private static Pawn forcePawn;
         [ThreadStatic] private static int forceCorpseId;
         [ThreadStatic] private static int forceTick;
+        private static Game runtimeGame;
+        private static int runtimeLastTick = -1;
         private static int changeVersion = 1;
 
         private struct HandFeedEntry
@@ -27,6 +30,7 @@ namespace ZoologyMod
         private static Dictionary<int, Pawn> CorpseMap => corpseToPawn ?? (corpseToPawn = new Dictionary<int, Pawn>(64));
         private static Dictionary<int, HandFeedEntry> HandMap => handFedByCorpseId ?? (handFedByCorpseId = new Dictionary<int, HandFeedEntry>(32));
         private static List<int> HandCleanup => handCleanupBuffer ?? (handCleanupBuffer = new List<int>(8));
+        private static HashSet<int> RecoveredMaps => recoveredMapIds ?? (recoveredMapIds = new HashSet<int>());
         public static int ChangeVersion => changeVersion;
 
         private static void MarkChanged()
@@ -41,10 +45,145 @@ namespace ZoologyMod
             }
         }
 
+        private static void ResetRuntimeState(Game currentGame, int currentTick)
+        {
+            pawnToTarget?.Clear();
+            corpseToPawn?.Clear();
+            handFedByCorpseId?.Clear();
+            handCleanupBuffer?.Clear();
+            recoveredMapIds?.Clear();
+            forcePawn = null;
+            forceCorpseId = 0;
+            forceTick = 0;
+            runtimeGame = currentGame;
+            runtimeLastTick = currentTick;
+            MarkChanged();
+        }
+
+        private static void EnsureRuntimeState()
+        {
+            Game currentGame = Current.Game;
+            int currentTick = Find.TickManager?.TicksGame ?? 0;
+            bool gameChanged = !ReferenceEquals(runtimeGame, currentGame);
+            bool tickRewound = currentTick > 0 && runtimeLastTick > 0 && currentTick < runtimeLastTick;
+            if (gameChanged || tickRewound)
+            {
+                ResetRuntimeState(currentGame, currentTick);
+                return;
+            }
+
+            if (currentTick > 0)
+            {
+                runtimeLastTick = currentTick;
+            }
+        }
+
+        private static Corpse TryGetCorpseTarget(Job job)
+        {
+            if (job == null)
+            {
+                return null;
+            }
+
+            if (job.targetA.Thing is Corpse corpseA)
+            {
+                return corpseA;
+            }
+
+            if (job.targetB.Thing is Corpse corpseB)
+            {
+                return corpseB;
+            }
+
+            if (job.targetC.Thing is Corpse corpseC)
+            {
+                return corpseC;
+            }
+
+            return null;
+        }
+
+        public static void EnsureMapRecovered(Map map)
+        {
+            try
+            {
+                EnsureRuntimeState();
+                if (map == null)
+                {
+                    return;
+                }
+
+                HashSet<int> recovered = RecoveredMaps;
+                if (recovered.Contains(map.uniqueID))
+                {
+                    return;
+                }
+
+                IReadOnlyList<Pawn> pawns = map.mapPawns?.AllPawnsSpawned;
+                if (pawns == null || pawns.Count == 0)
+                {
+                    return;
+                }
+
+                bool anyRecovered = false;
+                var selfMap = SelfMap;
+                var reverseMap = CorpseMap;
+                for (int i = 0; i < pawns.Count; i++)
+                {
+                    Pawn pawn = pawns[i];
+                    if (pawn == null || pawn.Dead || pawn.Destroyed)
+                    {
+                        continue;
+                    }
+
+                    if (!DefModExtensionCache<ModExtension_IsScavenger>.TryGet(pawn, out _))
+                    {
+                        continue;
+                    }
+
+                    Job job = pawn.CurJob;
+                    if (job == null || job.def != JobDefOf.Ingest)
+                    {
+                        continue;
+                    }
+
+                    Corpse corpse = TryGetCorpseTarget(job);
+                    if (corpse == null || corpse.Destroyed || corpse.Bugged)
+                    {
+                        continue;
+                    }
+
+                    if (selfMap.TryGetValue(pawn, out Thing oldTarget) && oldTarget is Corpse oldCorpse)
+                    {
+                        if (reverseMap.TryGetValue(oldCorpse.thingIDNumber, out Pawn oldPawn) && ReferenceEquals(oldPawn, pawn))
+                        {
+                            reverseMap.Remove(oldCorpse.thingIDNumber);
+                        }
+                    }
+
+                    selfMap[pawn] = corpse;
+                    reverseMap[corpse.thingIDNumber] = pawn;
+                    anyRecovered = true;
+                }
+
+                if (anyRecovered)
+                {
+                    MarkChanged();
+                }
+
+                recovered.Add(map.uniqueID);
+            }
+            catch (Exception e)
+            {
+                Log.Error("[Zoology] Error in ScavengerEatingContext.EnsureMapRecovered: " + e);
+            }
+        }
+
         public static bool HasAnyActiveEatingContext()
         {
             try
             {
+                EnsureRuntimeState();
                 int now = Find.TickManager?.TicksGame ?? 0;
                 if (forcePawn != null && !forcePawn.Dead && !forcePawn.Destroyed && now - forceTick <= 1)
                 {
@@ -73,6 +212,7 @@ namespace ZoologyMod
         {
             try
             {
+                EnsureRuntimeState();
                 if (pawn == null) return;
                 if (!DefModExtensionCache<ModExtension_IsScavenger>.TryGet(pawn, out _)) return;
 
@@ -104,6 +244,7 @@ namespace ZoologyMod
         {
             try
             {
+                EnsureRuntimeState();
                 if (pawn == null) return;
                 if (!DefModExtensionCache<ModExtension_IsScavenger>.TryGet(pawn, out _)) return;
 
@@ -124,6 +265,7 @@ namespace ZoologyMod
         {
             try
             {
+                EnsureRuntimeState();
                 if (pawn == null) return;
                 if (!DefModExtensionCache<ModExtension_IsScavenger>.TryGet(pawn, out _)) return;
 
@@ -146,6 +288,7 @@ namespace ZoologyMod
             pawn = null;
             try
             {
+                EnsureRuntimeState();
                 if (corpse == null) return false;
                 int now = Find.TickManager?.TicksGame ?? 0;
                 if (forcePawn == null || forceCorpseId != corpse.thingIDNumber) return false;
@@ -167,6 +310,7 @@ namespace ZoologyMod
         {
             try
             {
+                EnsureRuntimeState();
                 if (pawn == null) return;
                 var map = pawnToTarget;
                 if (map == null) return;
@@ -196,6 +340,7 @@ namespace ZoologyMod
         {
             try
             {
+                EnsureRuntimeState();
                 if (pawn == null) return;
                 var map = handFedByCorpseId;
                 if (map == null || map.Count == 0) return;
@@ -232,6 +377,7 @@ namespace ZoologyMod
         {
             try
             {
+                EnsureRuntimeState();
                 if (pawn == null) return;
                 if (ReferenceEquals(forcePawn, pawn))
                 {
@@ -251,6 +397,7 @@ namespace ZoologyMod
         {
             try
             {
+                EnsureRuntimeState();
                 if (corpse == null) return null;
 
                 int corpseId = corpse.thingIDNumber;

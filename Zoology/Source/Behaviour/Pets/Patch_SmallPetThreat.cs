@@ -462,6 +462,11 @@ namespace ZoologyMod
                 return true;
             }
 
+            if (HasAggressiveTargetingOverride(otherPawn, smallPet))
+            {
+                return false;
+            }
+
             bool hostileThreat = true;
             if (otherPawn.RaceProps?.Humanlike != true)
             {
@@ -485,9 +490,47 @@ namespace ZoologyMod
             return !ZoologyFleeSafetyUtility.IsThreatMeleeAttackingPawn(otherPawn, smallPet);
         }
 
+        private static bool CouldBeCurrentSmallPetCandidateFast(Pawn pawn, int currentTick)
+        {
+            if (pawn == null)
+            {
+                return false;
+            }
+
+            ResetCachesForCurrentGameIfNeeded();
+            Faction playerFaction = GetPlayerFactionCached();
+            if (playerFaction == null || !ReferenceEquals(pawn.Faction, playerFaction))
+            {
+                return false;
+            }
+
+            RaceProperties raceProps = pawn.RaceProps;
+            if (raceProps?.Animal != true || pawn.Roamer || pawn.Destroyed || pawn.Dead)
+            {
+                return false;
+            }
+
+            EnsureSettingsSnapshot(currentTick);
+            return cachedIgnoreSmallPetsEnabled
+                && cachedSmallPetThreshold >= 0f
+                && raceProps.baseBodySize < cachedSmallPetThreshold;
+        }
+
         private static bool ShouldDisableThreatForSmallPet(Pawn targetPawn, IAttackTargetSearcher disabledFor, int currentTick)
         {
-            if (targetPawn == null || !EnsureSmallPetCandidateSetCached(currentTick))
+            if (targetPawn == null)
+            {
+                return false;
+            }
+
+            Pawn searcherPawn = disabledFor?.Thing as Pawn;
+            if (!CouldBeCurrentSmallPetCandidateFast(targetPawn, currentTick)
+                && !CouldBeCurrentSmallPetCandidateFast(searcherPawn, currentTick))
+            {
+                return false;
+            }
+
+            if (!EnsureSmallPetCandidateSetCached(currentTick))
             {
                 return false;
             }
@@ -497,8 +540,6 @@ namespace ZoologyMod
             {
                 return false;
             }
-
-            Pawn searcherPawn = disabledFor?.Thing as Pawn;
 
             if (IsCurrentSmallPetCandidate(targetPawn, currentTick)
                 && IsCandidateSourceEligible(targetPawn, currentTick))
@@ -520,6 +561,59 @@ namespace ZoologyMod
         {
             ZoologyModSettings settings = ZoologyModSettings.Instance;
             return settings == null || (!settings.DisableAllRuntimePatches && settings.EnableIgnoreSmallPetsByRaiders);
+        }
+
+        private static bool HasAggressiveTargetingOverride(Pawn threat, Pawn target)
+        {
+            if (threat == null || target == null)
+            {
+                return false;
+            }
+
+            if (threat.kindDef?.hostileToAll == true || target.kindDef?.hostileToAll == true)
+            {
+                return true;
+            }
+
+            MentalState threatMentalState = threat.MentalState;
+            if (threatMentalState != null && threatMentalState.ForceHostileTo(target))
+            {
+                return true;
+            }
+
+            MentalState targetMentalState = target.MentalState;
+            if (targetMentalState != null && targetMentalState.ForceHostileTo(threat))
+            {
+                return true;
+            }
+
+            if (threat.IsPrisoner
+                && ReferenceEquals(threat.HostFaction, target.Faction)
+                && PrisonBreakUtility.IsPrisonBreaking(threat))
+            {
+                return true;
+            }
+
+            if (threat.IsSlave
+                && ReferenceEquals(threat.Faction, target.Faction)
+                && SlaveRebellionUtility.IsRebelling(threat))
+            {
+                return true;
+            }
+
+            if (threat.InAggroMentalState || target.InAggroMentalState)
+            {
+                return true;
+            }
+
+            if (ZoologyFleeSafetyUtility.IsThreatMeleeAttackingPawn(threat, target))
+            {
+                return true;
+            }
+
+            Lord lord = threat.GetLord();
+            return lord?.CurLordToil != null
+                && lord.CurLordToil.AllowAggressiveTargetingOfRoamers;
         }
 
         public static bool Prepare()
@@ -556,7 +650,10 @@ namespace ZoologyMod
                 return false;
             }
 
-            if (smallPet == null || threat == null || !EnsureSmallPetCandidateSetCached(currentTick))
+            if (smallPet == null
+                || threat == null
+                || !CouldBeCurrentSmallPetCandidateFast(smallPet, currentTick)
+                || !EnsureSmallPetCandidateSetCached(currentTick))
             {
                 return false;
             }
@@ -657,13 +754,13 @@ namespace ZoologyMod
                     return;
                 }
 
-                ResetCachesForCurrentGameIfNeeded();
-                if (cachedGame == null)
+                int currentTick = Find.TickManager?.TicksGame ?? 0;
+                if (!CouldBeCurrentSmallPetCandidateFast(pawnA, currentTick)
+                    && !CouldBeCurrentSmallPetCandidateFast(pawnB, currentTick))
                 {
                     return;
                 }
 
-                int currentTick = Find.TickManager?.TicksGame ?? 0;
                 if (ShouldSuppressMutualHostility(pawnA, pawnB, currentTick))
                 {
                     __result = false;
@@ -683,14 +780,9 @@ namespace ZoologyMod
                     return;
                 }
 
-                ResetCachesForCurrentGameIfNeeded();
-                if (cachedGame == null)
-                {
-                    return;
-                }
-
                 int currentTick = Find.TickManager?.TicksGame ?? 0;
-                if (!EnsureSmallPetCandidateSetCached(currentTick))
+                if (!CouldBeCurrentSmallPetCandidateFast(pawn, currentTick)
+                    || !EnsureSmallPetCandidateSetCached(currentTick))
                 {
                     return;
                 }

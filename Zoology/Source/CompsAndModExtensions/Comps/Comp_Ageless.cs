@@ -622,6 +622,7 @@ namespace ZoologyMod
                 PatchAddHediffMethods(harmony);
                 PatchHediffSetAddMethods(harmony);
                 PatchAgeTrackerMethods(harmony);
+                PatchDeathRattleMethods(harmony);
             }
             catch (Exception e)
             {
@@ -760,6 +761,65 @@ namespace ZoologyMod
         private static void PatchAgeTrackerMethods(Harmony harmony)
         {
             return;
+        }
+
+        private static void PatchDeathRattleMethods(Harmony harmony)
+        {
+            try
+            {
+                // Optional compat: Death Rattle is not required and should be ignored silently when absent.
+                MethodInfo shouldAffectPawn = AccessTools.Method("DeathRattle.HediffHelpers:ShouldAffectPawn");
+                if (shouldAffectPawn != null)
+                {
+                    var prefix = new HarmonyMethod(typeof(AgelessHarmonyInit).GetMethod(nameof(DeathRattleShouldAffectPawn_Prefix), BindingFlags.Static | BindingFlags.NonPublic));
+                    harmony.Patch(shouldAffectPawn, prefix: prefix);
+                }
+
+                MethodInfo brainDamageTick = AccessTools.Method("DeathRattle.HediffGiver_BrainDamage:OnIntervalPassed");
+                if (brainDamageTick != null)
+                {
+                    var prefix = new HarmonyMethod(typeof(AgelessHarmonyInit).GetMethod(nameof(DeathRattleBrainDamage_OnIntervalPassed_Prefix), BindingFlags.Static | BindingFlags.NonPublic));
+                    harmony.Patch(brainDamageTick, prefix: prefix);
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Warning($"[Zoology] AgelessHarmonyInit failed to patch Death Rattle compat: {e}");
+            }
+        }
+
+        private static bool ShouldSuppressDeathRattleForPawn(Pawn pawn)
+        {
+            try
+            {
+                var settings = ZoologyModSettings.Instance;
+                if (settings != null && (settings.DisableAllRuntimePatches || !settings.EnableAgelessPatch))
+                {
+                    return false;
+                }
+
+                return pawn?.TryGetComp<CompAgeless>() != null;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private static bool DeathRattleShouldAffectPawn_Prefix(Pawn pawn, ref bool __result)
+        {
+            if (!ShouldSuppressDeathRattleForPawn(pawn))
+            {
+                return true;
+            }
+
+            __result = false;
+            return false;
+        }
+
+        private static bool DeathRattleBrainDamage_OnIntervalPassed_Prefix(Pawn pawn)
+        {
+            return !ShouldSuppressDeathRattleForPawn(pawn);
         }
 
         private static bool AddHediffDef_Prefix(Pawn_HealthTracker __instance, HediffDef def)

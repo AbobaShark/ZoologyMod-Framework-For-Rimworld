@@ -19,6 +19,9 @@ namespace ZoologyMod
         }
 
         private static readonly Dictionary<int, HerdCandidateCache> herdCandidatesByMapId = new Dictionary<int, HerdCandidateCache>(8);
+        private static readonly Dictionary<long, int> lastPackHuntNotifyTickByPairKey = new Dictionary<long, int>(128);
+        private static readonly List<Pawn> notifiedPackScratch = new List<Pawn>(16);
+        private const int PackHuntNotificationCooldownTicks = 300;
 
         public static bool Prepare()
         {
@@ -62,6 +65,13 @@ namespace ZoologyMod
                 if (candidates == null || candidates.Count == 0)
                 {
                     return;
+                }
+
+                bool shouldNotifyPackHunt = preyPawn.Faction == Faction.OfPlayer;
+                if (shouldNotifyPackHunt)
+                {
+                    notifiedPackScratch.Clear();
+                    notifiedPackScratch.Add(pawn);
                 }
 
                 for (int i = 0; i < candidates.Count; i++)
@@ -135,6 +145,10 @@ namespace ZoologyMod
                         if (given)
                         {
                             try { candidate.Map.attackTargetsCache.UpdateTarget(candidate); } catch { }
+                            if (shouldNotifyPackHunt)
+                            {
+                                notifiedPackScratch.Add(candidate);
+                            }
                         }
                     }
                     catch (Exception inner)
@@ -142,10 +156,19 @@ namespace ZoologyMod
                         Log.Warning($"[Zoology] HerdPredatorHuntPatch: error giving job to candidate {candidate}: {inner}");
                     }
                 }
+
+                if (shouldNotifyPackHunt)
+                {
+                    TryNotifyPackHunt(pawn, preyPawn, currentTick);
+                }
             }
             catch (Exception ex)
             {
                 Log.Warning($"[Zoology] HerdPredatorHuntPatch.Postfix error: {ex}");
+            }
+            finally
+            {
+                notifiedPackScratch.Clear();
             }
         }
 
@@ -180,6 +203,7 @@ namespace ZoologyMod
                 if (!candidate.Spawned || candidate.Dead || candidate.Destroyed) continue;
                 if (!candidate.RaceProps.herdAnimal) continue;
                 if (candidate.RaceProps.predator != true) continue;
+                if (MammalBabyCache.ShouldUseBabyFoodRules(candidate)) continue;
                 if (candidate.Faction != null) continue;
                 candidates.Add(candidate);
             }
@@ -280,6 +304,77 @@ namespace ZoologyMod
             }
 
             return false;
+        }
+
+        private static void TryNotifyPackHunt(Pawn leader, Pawn prey, int currentTick)
+        {
+            if (leader == null
+                || prey == null
+                || notifiedPackScratch.Count <= 1)
+            {
+                return;
+            }
+
+            long pairKey = PairKey(leader, prey);
+            if (pairKey == 0L)
+            {
+                return;
+            }
+
+            if (lastPackHuntNotifyTickByPairKey.TryGetValue(pairKey, out int lastTick)
+                && currentTick - lastTick < PackHuntNotificationCooldownTicks)
+            {
+                return;
+            }
+
+            lastPackHuntNotifyTickByPairKey[pairKey] = currentTick;
+            MarkPackMembersAsAlreadyNotified(currentTick);
+
+            try
+            {
+                string packLabel = ZoologyNotificationUtility.GetCollectiveAnimalLabel(leader, notifiedPackScratch.Count);
+                string preyLabel = prey.LabelDefinite();
+                string label = $"{packLabel.CapitalizeFirst()} are hunting";
+                string text = $"{packLabel.CapitalizeFirst()} have started a pack hunt on {preyLabel}.";
+                LookTargets lookTargets = ZoologyNotificationUtility.CreateLookTargets(notifiedPackScratch, prey);
+
+                if (PawnThreatUtility.IsHumanlikeOrMechanoid(prey))
+                {
+                    Find.LetterStack.ReceiveLetter(label, text.CapitalizeFirst(), LetterDefOf.ThreatBig, lookTargets);
+                }
+                else
+                {
+                    Messages.Message(text.CapitalizeFirst(), lookTargets, MessageTypeDefOf.ThreatBig, true);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Warning($"[Zoology] HerdPredatorHuntPatch: pack hunt notification failed: {ex}");
+            }
+        }
+
+        private static void MarkPackMembersAsAlreadyNotified(int currentTick)
+        {
+            for (int i = 0; i < notifiedPackScratch.Count; i++)
+            {
+                Pawn hunter = notifiedPackScratch[i];
+                if (hunter?.mindState == null)
+                {
+                    continue;
+                }
+
+                hunter.mindState.lastPredatorHuntingPlayerNotificationTick = currentTick;
+            }
+        }
+
+        private static long PairKey(Pawn predator, Pawn prey)
+        {
+            if (predator == null || prey == null)
+            {
+                return 0L;
+            }
+
+            return ((long)(uint)predator.thingIDNumber << 32) | (uint)prey.thingIDNumber;
         }
     }
 }

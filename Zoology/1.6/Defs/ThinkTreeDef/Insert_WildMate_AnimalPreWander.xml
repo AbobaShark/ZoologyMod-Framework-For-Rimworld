@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <ThinkTreeDef>
+    <defName>Zoology_WildMate_Insert</defName>
+    <insertTag>Animal_PreWander</insertTag>
+    <insertPriority>5</insertPriority>
+    <thinkRoot Class="ThinkNode_Priority">
+      <subNodes>
+        <li Class="ThinkNode_ChancePerHour_Mate">
+          <subNodes>
+            <li Class="ThinkNode_Tagger">
+              <tagToGive>SatisfyingNeeds</tagToGive>
+              <subNodes>
+                <li Class="ZoologyMod.JobGiver_WildCompatibleMate, ZoologyMod" />
+              </subNodes>
+            </li>
+          </subNodes>
+        </li>
+      </subNodes>
+    </thinkRoot>
+  </ThinkTreeDef>
+</Defs>

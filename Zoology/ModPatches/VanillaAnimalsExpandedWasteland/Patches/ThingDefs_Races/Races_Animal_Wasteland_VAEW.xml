@@ -333,14 +333,6 @@
       <li Class="ZoologyMod.ModExtension_Ectothermic, ZoologyMod"/>
     </value>
   </Operation>
-  <Operation Class="PatchOperationAddModExtension">
-    <xpath>/Defs/ThingDef[@Name = "VAEWaste_BaseInsect"]</xpath>
-    <value>
-      <li Class="ZoologyMod.ModExtension_IsScavenger, ZoologyMod">
-        <allowVeryRotten>true</allowVeryRotten>
-      </li>
-    </value>
-  </Operation>
   <!-- VAEWaste_Hydra -->
   <Operation Class="PatchOperationAttributeSet">
     <xpath>/Defs/ThingDef[defName = "VAEWaste_Hydra"]</xpath>
@@ -847,9 +839,29 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "VAEWaste_Hydra"]/race/lifeStageAges/li[def = 'AnimalJuvenile']</xpath>
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Hydra"]/race/lifeStageAges/li[2]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "VAEWaste_Hydra"]/race/lifeStageAges/li[def = 'AnimalJuvenile']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Hydra"]/race/lifeStageAges/li[2]/def</xpath>
+      <value>
+        <def>AnimalJuvenile</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Hydra"]/race/lifeStageAges/li[3]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Hydra"]/race/lifeStageAges/li[3]/def</xpath>
+      <value>
+        <def>AnimalAdult</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Hydra"]/race/lifeStageAges/li[2]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Hydra"]/race/lifeStageAges/li[2]/minAge</xpath>
       <value>
         <minAge>0.4</minAge>
       </value>
@@ -857,9 +869,9 @@
     <nomatch/>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "VAEWaste_Hydra"]/race/lifeStageAges/li[def = 'AnimalAdult']</xpath>
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Hydra"]/race/lifeStageAges/li[3]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "VAEWaste_Hydra"]/race/lifeStageAges/li[def = 'AnimalAdult']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Hydra"]/race/lifeStageAges/li[3]/minAge</xpath>
       <value>
         <minAge>0.8</minAge>
       </value>
@@ -1437,6 +1449,14 @@
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "VAEWaste_Megatardi"]/tradeTags</xpath>
     </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Megatardi"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_IsScavenger, ZoologyMod">
+        <allowVeryRotten>true</allowVeryRotten>
+      </li>
+    </value>
   </Operation>
   <!-- VAEWaste_Megatardi PawnKindDef -->
   <Operation Class="PatchOperationConditional">
@@ -2029,9 +2049,29 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "VAEWaste_Pestigator"]/race/lifeStageAges/li[def = 'AnimalJuvenile']</xpath>
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Pestigator"]/race/lifeStageAges/li[2]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "VAEWaste_Pestigator"]/race/lifeStageAges/li[def = 'AnimalJuvenile']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Pestigator"]/race/lifeStageAges/li[2]/def</xpath>
+      <value>
+        <def>AnimalJuvenile</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Pestigator"]/race/lifeStageAges/li[3]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Pestigator"]/race/lifeStageAges/li[3]/def</xpath>
+      <value>
+        <def>AnimalAdult</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Pestigator"]/race/lifeStageAges/li[2]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Pestigator"]/race/lifeStageAges/li[2]/minAge</xpath>
       <value>
         <minAge>1.2</minAge>
       </value>
@@ -2039,9 +2079,9 @@
     <nomatch/>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "VAEWaste_Pestigator"]/race/lifeStageAges/li[def = 'AnimalAdult']</xpath>
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Pestigator"]/race/lifeStageAges/li[3]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "VAEWaste_Pestigator"]/race/lifeStageAges/li[def = 'AnimalAdult']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Pestigator"]/race/lifeStageAges/li[3]/minAge</xpath>
       <value>
         <minAge>2.4</minAge>
       </value>
@@ -2700,9 +2740,29 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxafox"]/race/lifeStageAges/li[def = 'AnimalJuvenile']</xpath>
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxafox"]/race/lifeStageAges/li[2]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxafox"]/race/lifeStageAges/li[def = 'AnimalJuvenile']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxafox"]/race/lifeStageAges/li[2]/def</xpath>
+      <value>
+        <def>AnimalJuvenile</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxafox"]/race/lifeStageAges/li[3]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxafox"]/race/lifeStageAges/li[3]/def</xpath>
+      <value>
+        <def>AnimalAdult</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxafox"]/race/lifeStageAges/li[2]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxafox"]/race/lifeStageAges/li[2]/minAge</xpath>
       <value>
         <minAge>0.15</minAge>
       </value>
@@ -2710,9 +2770,9 @@
     <nomatch/>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxafox"]/race/lifeStageAges/li[def = 'AnimalAdult']</xpath>
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxafox"]/race/lifeStageAges/li[3]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxafox"]/race/lifeStageAges/li[def = 'AnimalAdult']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxafox"]/race/lifeStageAges/li[3]/minAge</xpath>
       <value>
         <minAge>0.3</minAge>
       </value>
@@ -3060,7 +3120,7 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>39</power>
+          <power>38</power>
           <cooldownTime>3</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
           <surpriseAttack>
@@ -3428,9 +3488,29 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxbear"]/race/lifeStageAges/li[def = 'AnimalJuvenile']</xpath>
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxbear"]/race/lifeStageAges/li[2]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxbear"]/race/lifeStageAges/li[def = 'AnimalJuvenile']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxbear"]/race/lifeStageAges/li[2]/def</xpath>
+      <value>
+        <def>AnimalJuvenile</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxbear"]/race/lifeStageAges/li[3]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxbear"]/race/lifeStageAges/li[3]/def</xpath>
+      <value>
+        <def>AnimalAdult</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxbear"]/race/lifeStageAges/li[2]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxbear"]/race/lifeStageAges/li[2]/minAge</xpath>
       <value>
         <minAge>0.4</minAge>
       </value>
@@ -3438,9 +3518,9 @@
     <nomatch/>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxbear"]/race/lifeStageAges/li[def = 'AnimalAdult']</xpath>
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxbear"]/race/lifeStageAges/li[3]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxbear"]/race/lifeStageAges/li[def = 'AnimalAdult']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxbear"]/race/lifeStageAges/li[3]/minAge</xpath>
       <value>
         <minAge>0.8</minAge>
       </value>
@@ -4121,9 +4201,29 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxiguana"]/race/lifeStageAges/li[def = 'AnimalJuvenile']</xpath>
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxiguana"]/race/lifeStageAges/li[2]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxiguana"]/race/lifeStageAges/li[def = 'AnimalJuvenile']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxiguana"]/race/lifeStageAges/li[2]/def</xpath>
+      <value>
+        <def>AnimalJuvenile</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxiguana"]/race/lifeStageAges/li[3]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxiguana"]/race/lifeStageAges/li[3]/def</xpath>
+      <value>
+        <def>AnimalAdult</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxiguana"]/race/lifeStageAges/li[2]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxiguana"]/race/lifeStageAges/li[2]/minAge</xpath>
       <value>
         <minAge>0.4</minAge>
       </value>
@@ -4131,9 +4231,9 @@
     <nomatch/>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxiguana"]/race/lifeStageAges/li[def = 'AnimalAdult']</xpath>
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxiguana"]/race/lifeStageAges/li[3]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxiguana"]/race/lifeStageAges/li[def = 'AnimalAdult']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxiguana"]/race/lifeStageAges/li[3]/minAge</xpath>
       <value>
         <minAge>0.8</minAge>
       </value>
@@ -4784,9 +4884,29 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxlion"]/race/lifeStageAges/li[def = 'AnimalJuvenile']</xpath>
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxlion"]/race/lifeStageAges/li[2]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxlion"]/race/lifeStageAges/li[def = 'AnimalJuvenile']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxlion"]/race/lifeStageAges/li[2]/def</xpath>
+      <value>
+        <def>AnimalJuvenile</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxlion"]/race/lifeStageAges/li[3]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxlion"]/race/lifeStageAges/li[3]/def</xpath>
+      <value>
+        <def>AnimalAdult</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxlion"]/race/lifeStageAges/li[2]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxlion"]/race/lifeStageAges/li[2]/minAge</xpath>
       <value>
         <minAge>0.2</minAge>
       </value>
@@ -4794,9 +4914,9 @@
     <nomatch/>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxlion"]/race/lifeStageAges/li[def = 'AnimalAdult']</xpath>
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxlion"]/race/lifeStageAges/li[3]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxlion"]/race/lifeStageAges/li[def = 'AnimalAdult']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxlion"]/race/lifeStageAges/li[3]/minAge</xpath>
       <value>
         <minAge>0.4</minAge>
       </value>
@@ -4989,13 +5109,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxscorpion"]/statBases/MarketValue</xpath>
       <value>
-        <MarketValue>1175</MarketValue>
+        <MarketValue>950</MarketValue>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxscorpion"]/statBases</xpath>
       <value>
-        <MarketValue>1175</MarketValue>
+        <MarketValue>950</MarketValue>
       </value>
     </nomatch>
   </Operation>
@@ -5322,13 +5442,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxscorpion"]/race/manhunterOnTameFailChance</xpath>
       <value>
-        <manhunterOnTameFailChance>1</manhunterOnTameFailChance>
+        <manhunterOnTameFailChance>0.1</manhunterOnTameFailChance>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxscorpion"]/race</xpath>
       <value>
-        <manhunterOnTameFailChance>1</manhunterOnTameFailChance>
+        <manhunterOnTameFailChance>0.1</manhunterOnTameFailChance>
       </value>
     </nomatch>
   </Operation>
@@ -5370,13 +5490,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxscorpion"]/race/trainability</xpath>
       <value>
-        <trainability>Advanced</trainability>
+        <trainability>Intermediate</trainability>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxscorpion"]/race</xpath>
       <value>
-        <trainability>Advanced</trainability>
+        <trainability>Intermediate</trainability>
       </value>
     </nomatch>
   </Operation>
@@ -5495,9 +5615,29 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxscorpion"]/race/lifeStageAges/li[def = 'AnimalJuvenile']</xpath>
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxscorpion"]/race/lifeStageAges/li[2]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxscorpion"]/race/lifeStageAges/li[def = 'AnimalJuvenile']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxscorpion"]/race/lifeStageAges/li[2]/def</xpath>
+      <value>
+        <def>AnimalJuvenile</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxscorpion"]/race/lifeStageAges/li[3]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxscorpion"]/race/lifeStageAges/li[3]/def</xpath>
+      <value>
+        <def>AnimalAdult</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxscorpion"]/race/lifeStageAges/li[2]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxscorpion"]/race/lifeStageAges/li[2]/minAge</xpath>
       <value>
         <minAge>0.2</minAge>
       </value>
@@ -5505,9 +5645,9 @@
     <nomatch/>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxscorpion"]/race/lifeStageAges/li[def = 'AnimalAdult']</xpath>
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxscorpion"]/race/lifeStageAges/li[3]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxscorpion"]/race/lifeStageAges/li[def = 'AnimalAdult']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxscorpion"]/race/lifeStageAges/li[3]/minAge</xpath>
       <value>
         <minAge>0.4</minAge>
       </value>
@@ -5526,14 +5666,12 @@
       <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxscorpion"]/race/specialTrainables</xpath>
       <value>
         <li MayRequire="Ludeon.RimWorld.Odyssey">AttackTarget</li>
-        <li MayRequire="Ludeon.RimWorld.Odyssey">AttackTarget</li>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxscorpion"]/race</xpath>
       <value>
         <specialTrainables>
-          <li MayRequire="Ludeon.RimWorld.Odyssey">AttackTarget</li>
           <li MayRequire="Ludeon.RimWorld.Odyssey">AttackTarget</li>
         </specialTrainables>
       </value>
@@ -5769,7 +5907,7 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>19.5</power>
+          <power>19</power>
           <cooldownTime>2.15</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
         </li>
@@ -6120,9 +6258,29 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "VAEWaste_Wasteboar"]/race/lifeStageAges/li[def = 'AnimalJuvenile']</xpath>
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Wasteboar"]/race/lifeStageAges/li[2]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "VAEWaste_Wasteboar"]/race/lifeStageAges/li[def = 'AnimalJuvenile']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Wasteboar"]/race/lifeStageAges/li[2]/def</xpath>
+      <value>
+        <def>AnimalJuvenile</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Wasteboar"]/race/lifeStageAges/li[3]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Wasteboar"]/race/lifeStageAges/li[3]/def</xpath>
+      <value>
+        <def>AnimalAdult</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Wasteboar"]/race/lifeStageAges/li[2]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Wasteboar"]/race/lifeStageAges/li[2]/minAge</xpath>
       <value>
         <minAge>0.15</minAge>
       </value>
@@ -6130,9 +6288,9 @@
     <nomatch/>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "VAEWaste_Wasteboar"]/race/lifeStageAges/li[def = 'AnimalAdult']</xpath>
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Wasteboar"]/race/lifeStageAges/li[3]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "VAEWaste_Wasteboar"]/race/lifeStageAges/li[def = 'AnimalAdult']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Wasteboar"]/race/lifeStageAges/li[3]/minAge</xpath>
       <value>
         <minAge>0.3</minAge>
       </value>
@@ -6244,13 +6402,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "VAEWaste_Wasteboar"]/combatPower</xpath>
       <value>
-        <combatPower>140</combatPower>
+        <combatPower>135</combatPower>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "VAEWaste_Wasteboar"]</xpath>
       <value>
-        <combatPower>140</combatPower>
+        <combatPower>135</combatPower>
       </value>
     </nomatch>
   </Operation>
@@ -6833,9 +6991,29 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "VAEWaste_Wastedeer"]/race/lifeStageAges/li[def = 'AnimalJuvenile']</xpath>
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Wastedeer"]/race/lifeStageAges/li[2]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "VAEWaste_Wastedeer"]/race/lifeStageAges/li[def = 'AnimalJuvenile']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Wastedeer"]/race/lifeStageAges/li[2]/def</xpath>
+      <value>
+        <def>AnimalJuvenile</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Wastedeer"]/race/lifeStageAges/li[3]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Wastedeer"]/race/lifeStageAges/li[3]/def</xpath>
+      <value>
+        <def>AnimalAdult</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Wastedeer"]/race/lifeStageAges/li[2]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Wastedeer"]/race/lifeStageAges/li[2]/minAge</xpath>
       <value>
         <minAge>0.15</minAge>
       </value>
@@ -6843,9 +7021,9 @@
     <nomatch/>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "VAEWaste_Wastedeer"]/race/lifeStageAges/li[def = 'AnimalAdult']</xpath>
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Wastedeer"]/race/lifeStageAges/li[3]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "VAEWaste_Wastedeer"]/race/lifeStageAges/li[def = 'AnimalAdult']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Wastedeer"]/race/lifeStageAges/li[3]/minAge</xpath>
       <value>
         <minAge>0.3</minAge>
       </value>
@@ -7493,9 +7671,29 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "VAEWaste_Wasteffalo"]/race/lifeStageAges/li[def = 'AnimalJuvenile']</xpath>
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Wasteffalo"]/race/lifeStageAges/li[2]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "VAEWaste_Wasteffalo"]/race/lifeStageAges/li[def = 'AnimalJuvenile']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Wasteffalo"]/race/lifeStageAges/li[2]/def</xpath>
+      <value>
+        <def>AnimalJuvenile</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Wasteffalo"]/race/lifeStageAges/li[3]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Wasteffalo"]/race/lifeStageAges/li[3]/def</xpath>
+      <value>
+        <def>AnimalAdult</def>
+      </value>
+    </match>
+    <nomatch/>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Wasteffalo"]/race/lifeStageAges/li[2]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Wasteffalo"]/race/lifeStageAges/li[2]/minAge</xpath>
       <value>
         <minAge>0.2</minAge>
       </value>
@@ -7503,9 +7701,9 @@
     <nomatch/>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "VAEWaste_Wasteffalo"]/race/lifeStageAges/li[def = 'AnimalAdult']</xpath>
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Wasteffalo"]/race/lifeStageAges/li[3]</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "VAEWaste_Wasteffalo"]/race/lifeStageAges/li[def = 'AnimalAdult']/minAge</xpath>
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Wasteffalo"]/race/lifeStageAges/li[3]/minAge</xpath>
       <value>
         <minAge>0.4</minAge>
       </value>
@@ -7782,13 +7980,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="VAEWaste_Hydra"]/statBases/MeleeParryChance</xpath>
             <value>
-              <MeleeParryChance>0.05</MeleeParryChance>
+              <MeleeParryChance>0</MeleeParryChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="VAEWaste_Hydra"]/statBases</xpath>
             <value>
-              <MeleeParryChance>0.05</MeleeParryChance>
+              <MeleeParryChance>0</MeleeParryChance>
             </value>
           </nomatch>
         </li>
@@ -8210,9 +8408,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>21.3</power>
-                <armorPenetrationBlunt>20.95</armorPenetrationBlunt>
-                <cooldownTime>2.65</cooldownTime>
+                <power>10.7</power>
+                <armorPenetrationBlunt>10.5</armorPenetrationBlunt>
+                <cooldownTime>3.6</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                 <chanceFactor>0.2</chanceFactor>
@@ -8408,9 +8606,9 @@
                 <capacities>
                   <li>Bite</li>
                 </capacities>
-                <power>6.3</power>
-                <armorPenetrationBlunt>1.05</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.15</armorPenetrationSharp>
+                <power>6.7</power>
+                <armorPenetrationBlunt>1.1</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.16</armorPenetrationSharp>
                 <cooldownTime>2.1</cooldownTime>
                 <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
                 <surpriseAttack>
@@ -8634,10 +8832,10 @@
                 <capacities>
                   <li>Bite</li>
                 </capacities>
-                <power>45.3</power>
-                <armorPenetrationBlunt>34.3</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.53</armorPenetrationSharp>
-                <cooldownTime>2.55</cooldownTime>
+                <power>43.7</power>
+                <armorPenetrationBlunt>32.6</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.51</armorPenetrationSharp>
+                <cooldownTime>2.5</cooldownTime>
                 <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
                 <surpriseAttack>
                   <extraMeleeDamages>
@@ -9239,7 +9437,7 @@
                 </capacities>
                 <power>41.2</power>
                 <armorPenetrationBlunt>29.3</armorPenetrationBlunt>
-                <armorPenetrationSharp>1.6</armorPenetrationSharp>
+                <armorPenetrationSharp>15.9</armorPenetrationSharp>
                 <cooldownTime>5.1</cooldownTime>
                 <linkedBodyPartsGroup>Sting</linkedBodyPartsGroup>
                 <surpriseAttack>
@@ -9442,9 +9640,9 @@
                 <capacities>
                   <li>Scratch</li>
                 </capacities>
-                <power>25.4</power>
-                <armorPenetrationBlunt>9.15</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.56</armorPenetrationSharp>
+                <power>25</power>
+                <armorPenetrationBlunt>8.9</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.54</armorPenetrationSharp>
                 <cooldownTime>3.3</cooldownTime>
                 <linkedBodyPartsGroup>TuskAttackTool</linkedBodyPartsGroup>
                 <restrictedGender>Male</restrictedGender>
@@ -9454,9 +9652,9 @@
                 <capacities>
                   <li>Bite</li>
                 </capacities>
-                <power>23.3</power>
-                <armorPenetrationBlunt>7.65</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.34</armorPenetrationSharp>
+                <power>23</power>
+                <armorPenetrationBlunt>7.4</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.33</armorPenetrationSharp>
                 <cooldownTime>2.85</cooldownTime>
                 <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
               </li>

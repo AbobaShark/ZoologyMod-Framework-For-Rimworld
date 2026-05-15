@@ -6,16 +6,21 @@ using RimWorld;
 using UnityEngine;
 using Verse;
 using Verse.AI;
+using Verse.AI.Group;
 
 namespace ZoologyMod
 {
     internal static class AnimalDraftControlUtility
     {
-        internal const string DraftControlTrainableDefName = "Zoology_DraftControl";
+        internal const string DraftControlTrainableDefName = "Zoology_Beastmastery";
+        internal const string LegacyDraftControlTrainableDefName = "Zoology_DraftControl";
+        internal const string VefDraftControlTrainableDefName = "VEF_Beastmastery";
         private static readonly string DraftToggleDescText = "CommandToggleDraftDesc".Translate().ToString();
         private static readonly string AnimalAttackTargetLabelText = "AnimalAttackTarget".Translate().ToString();
         private static readonly string CancelAttackLabelText = "CancelAttack".Translate().ToString();
         private static TrainableDef cachedDraftControlTrainable;
+        private static TrainableDef cachedLegacyDraftControlTrainable;
+        private static TrainableDef cachedVefDraftControlTrainable;
         private static HediffDef cachedSentienceCatalystHediff;
         private static readonly HashSet<Pawn> masterRingCache = new HashSet<Pawn>();
         private static int masterRingCacheFrame = -1;
@@ -33,6 +38,12 @@ namespace ZoologyMod
 
         internal static TrainableDef DraftControlTrainable =>
             cachedDraftControlTrainable ??= DefDatabase<TrainableDef>.GetNamedSilentFail(DraftControlTrainableDefName);
+
+        internal static TrainableDef LegacyDraftControlTrainable =>
+            cachedLegacyDraftControlTrainable ??= DefDatabase<TrainableDef>.GetNamedSilentFail(LegacyDraftControlTrainableDefName);
+
+        internal static TrainableDef VefDraftControlTrainable =>
+            cachedVefDraftControlTrainable ??= DefDatabase<TrainableDef>.GetNamedSilentFail(VefDraftControlTrainableDefName);
 
         internal static HediffDef SentienceCatalystHediff =>
             cachedSentienceCatalystHediff ??= DefDatabase<HediffDef>.GetNamedSilentFail("SentienceCatalyst");
@@ -68,16 +79,22 @@ namespace ZoologyMod
         {
             if (pawn == null || draftControl == null)
             {
-                return raceDef?.race?.specialTrainables?.Contains(draftControl) == true;
+                return HasAnyDraftControlTrainable(raceDef?.race?.specialTrainables);
             }
 
             List<TrainableDef> specialTrainables = pawn.def?.race?.specialTrainables ?? raceDef?.race?.specialTrainables;
-            if (specialTrainables != null && specialTrainables.Contains(draftControl))
+            if (HasAnyDraftControlTrainable(specialTrainables))
             {
                 return true;
             }
 
             return HasSentienceCatalyst(pawn);
+        }
+
+        internal static bool IsDormant(Pawn pawn)
+        {
+            CompCanBeDormant compDorm = pawn?.TryGetComp<CompCanBeDormant>();
+            return compDorm != null && !compDorm.Awake;
         }
 
         internal static bool IsDraftControlCandidate(Pawn pawn)
@@ -121,7 +138,7 @@ namespace ZoologyMod
 
         internal static bool ShouldHideAttackTargetCommands(Pawn pawn)
         {
-            return IsFeatureEnabledNow() && ShouldLinkTrainables(pawn);
+            return false;
         }
 
         internal static bool IsAttackTargetCommandGizmo(Gizmo gizmo)
@@ -152,14 +169,34 @@ namespace ZoologyMod
             return attackTarget != null && draftControl != null;
         }
 
+        internal static bool TryGetLinkedTrainables(
+            out TrainableDef attackTarget,
+            out TrainableDef draftControl,
+            out TrainableDef legacyDraftControl,
+            out TrainableDef vefDraftControl)
+        {
+            attackTarget = TrainableDefOf.AttackTarget;
+            draftControl = DraftControlTrainable;
+            legacyDraftControl = LegacyDraftControlTrainable;
+            vefDraftControl = VefDraftControlTrainable;
+            return attackTarget != null && draftControl != null;
+        }
+
         internal static bool IsLinkedTrainable(TrainableDef td)
         {
-            if (!TryGetLinkedTrainables(out TrainableDef attackTarget, out TrainableDef draftControl))
+            if (!TryGetLinkedTrainables(
+                out TrainableDef attackTarget,
+                out TrainableDef draftControl,
+                out TrainableDef legacyDraftControl,
+                out TrainableDef vefDraftControl))
             {
                 return false;
             }
 
-            return td == attackTarget || td == draftControl;
+            return td == attackTarget
+                || td == draftControl
+                || td == legacyDraftControl
+                || td == vefDraftControl;
         }
 
         internal static bool ShouldLinkTrainables(Pawn pawn)
@@ -180,7 +217,11 @@ namespace ZoologyMod
                 return;
             }
 
-            if (!TryGetLinkedTrainables(out TrainableDef attackTarget, out TrainableDef draftControl))
+            if (!TryGetLinkedTrainables(
+                out TrainableDef attackTarget,
+                out TrainableDef draftControl,
+                out TrainableDef legacyDraftControl,
+                out TrainableDef vefDraftControl))
             {
                 return;
             }
@@ -197,7 +238,9 @@ namespace ZoologyMod
             {
                 int attackSteps = steps[attackTarget];
                 int draftSteps = steps[draftControl];
-                int sharedSteps = Math.Max(attackSteps, draftSteps);
+                int legacySteps = legacyDraftControl != null ? steps[legacyDraftControl] : 0;
+                int vefSteps = vefDraftControl != null ? steps[vefDraftControl] : 0;
+                int sharedSteps = Math.Max(Math.Max(attackSteps, draftSteps), Math.Max(legacySteps, vefSteps));
                 if (attackSteps != sharedSteps)
                 {
                     steps[attackTarget] = sharedSteps;
@@ -208,7 +251,20 @@ namespace ZoologyMod
                     steps[draftControl] = sharedSteps;
                 }
 
-                bool sharedWanted = wanted[attackTarget] || wanted[draftControl];
+                if (legacyDraftControl != null && steps[legacyDraftControl] != sharedSteps)
+                {
+                    steps[legacyDraftControl] = sharedSteps;
+                }
+
+                if (vefDraftControl != null && steps[vefDraftControl] != sharedSteps)
+                {
+                    steps[vefDraftControl] = sharedSteps;
+                }
+
+                bool sharedWanted = wanted[attackTarget]
+                    || wanted[draftControl]
+                    || (legacyDraftControl != null && wanted[legacyDraftControl])
+                    || (vefDraftControl != null && wanted[vefDraftControl]);
                 if (wanted[attackTarget] != sharedWanted)
                 {
                     wanted[attackTarget] = sharedWanted;
@@ -219,8 +275,22 @@ namespace ZoologyMod
                     wanted[draftControl] = sharedWanted;
                 }
 
-                bool attackLearned = learned[attackTarget] || learned[draftControl] || sharedSteps >= attackTarget.steps;
-                bool draftLearned = learned[draftControl] || learned[attackTarget] || sharedSteps >= draftControl.steps;
+                if (legacyDraftControl != null && wanted[legacyDraftControl] != sharedWanted)
+                {
+                    wanted[legacyDraftControl] = sharedWanted;
+                }
+
+                if (vefDraftControl != null && wanted[vefDraftControl] != sharedWanted)
+                {
+                    wanted[vefDraftControl] = sharedWanted;
+                }
+
+                bool anyLearned = learned[attackTarget]
+                    || learned[draftControl]
+                    || (legacyDraftControl != null && learned[legacyDraftControl])
+                    || (vefDraftControl != null && learned[vefDraftControl]);
+                bool attackLearned = anyLearned || sharedSteps >= attackTarget.steps;
+                bool draftLearned = anyLearned || sharedSteps >= draftControl.steps;
                 if (learned[attackTarget] != attackLearned)
                 {
                     learned[attackTarget] = attackLearned;
@@ -229,6 +299,24 @@ namespace ZoologyMod
                 if (learned[draftControl] != draftLearned)
                 {
                     learned[draftControl] = draftLearned;
+                }
+
+                if (legacyDraftControl != null)
+                {
+                    bool legacyLearned = anyLearned || sharedSteps >= legacyDraftControl.steps;
+                    if (learned[legacyDraftControl] != legacyLearned)
+                    {
+                        learned[legacyDraftControl] = legacyLearned;
+                    }
+                }
+
+                if (vefDraftControl != null)
+                {
+                    bool vefLearned = anyLearned || sharedSteps >= vefDraftControl.steps;
+                    if (learned[vefDraftControl] != vefLearned)
+                    {
+                        learned[vefDraftControl] = vefLearned;
+                    }
                 }
             }
             catch (Exception ex)
@@ -280,6 +368,11 @@ namespace ZoologyMod
                 return false;
             }
 
+            if (pawn.GetLord()?.LordJob is LordJob_Ritual && pawn.drafter?.Drafted != true)
+            {
+                return "ZoologyCannotDraftDuringRitual".Translate();
+            }
+
             if (pawn.Downed)
             {
                 return "IsIncapped".Translate(pawn.LabelShort, pawn);
@@ -293,6 +386,11 @@ namespace ZoologyMod
             if (pawn.InMentalState)
             {
                 return "InMentalState".Translate(pawn.Named("PAWN"), pawn.MentalStateDef.Named("MENTALSTATE"));
+            }
+
+            if (IsDormant(pawn))
+            {
+                return "ZoologyCannotDraftDormant".Translate();
             }
 
             if (pawn.playerSettings?.Master == null)
@@ -375,6 +473,11 @@ namespace ZoologyMod
                 return false;
             }
 
+            if (IsDormant(pawn))
+            {
+                return true;
+            }
+
             Pawn master = pawn.playerSettings.Master;
             return master == null || master.Dead || master.Downed;
         }
@@ -402,9 +505,53 @@ namespace ZoologyMod
             }
         }
 
+        internal static void UndraftMasteredAnimalsLeftOnMap(Pawn master, Map previousMap)
+        {
+            if (master == null
+                || previousMap == null
+                || master.Faction == null
+                || master.RaceProps == null
+                || !master.RaceProps.Humanlike)
+            {
+                return;
+            }
+
+            List<Pawn> pawns = previousMap.mapPawns?.SpawnedPawnsInFaction(master.Faction);
+            if (pawns == null || pawns.Count == 0)
+            {
+                return;
+            }
+
+            for (int i = 0; i < pawns.Count; i++)
+            {
+                Pawn pawn = pawns[i];
+                if (pawn.playerSettings?.Master != master)
+                {
+                    continue;
+                }
+
+                if (pawn.MapHeld != previousMap)
+                {
+                    continue;
+                }
+
+                if (pawn.drafter == null || !pawn.drafter.Drafted)
+                {
+                    continue;
+                }
+
+                pawn.drafter.Drafted = false;
+            }
+        }
+
         internal static void ApplyDraftCommandRestrictions(Command_Toggle command, Pawn pawn, AcceptanceReport report)
         {
             if (command == null || pawn == null || command.Disabled)
+            {
+                return;
+            }
+
+            if (pawn.Drafted)
             {
                 return;
             }
@@ -601,6 +748,29 @@ namespace ZoologyMod
                     && InMasterCommandRange(pawn, c));
         }
 
+        private static bool HasAnyDraftControlTrainable(List<TrainableDef> specialTrainables)
+        {
+            if (specialTrainables == null || specialTrainables.Count == 0)
+            {
+                return false;
+            }
+
+            TrainableDef draftControl = DraftControlTrainable;
+            TrainableDef legacyDraftControl = LegacyDraftControlTrainable;
+            TrainableDef vefDraftControl = VefDraftControlTrainable;
+
+            for (int i = 0; i < specialTrainables.Count; i++)
+            {
+                TrainableDef trainable = specialTrainables[i];
+                if (trainable == draftControl || trainable == legacyDraftControl || trainable == vefDraftControl)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
     }
 
     [HarmonyPatch]
@@ -676,6 +846,8 @@ namespace ZoologyMod
         private static void Postfix(TrainableDef td, ThingDef pawnDef, Pawn pawn, ref bool visible, ref AcceptanceReport __result)
         {
             TrainableDef draftControl = AnimalDraftControlUtility.DraftControlTrainable;
+            TrainableDef legacyDraftControl = AnimalDraftControlUtility.LegacyDraftControlTrainable;
+            TrainableDef vefDraftControl = AnimalDraftControlUtility.VefDraftControlTrainable;
             if (td == null)
             {
                 return;
@@ -703,18 +875,25 @@ namespace ZoologyMod
                     return;
                 }
 
-                if (__result.Accepted || pawn == null)
+                if (__result.Accepted)
                 {
                     return;
                 }
 
-                if (!AnimalDraftControlUtility.HasSentienceCatalyst(pawn))
+                if (!hasDraftControlAccess)
                 {
                     return;
                 }
 
                 visible = true;
                 __result = true;
+                return;
+            }
+
+            if ((td == legacyDraftControl || td == vefDraftControl) && featureEnabled && hasDraftControlAccess)
+            {
+                visible = false;
+                __result = false;
                 return;
             }
 
@@ -900,12 +1079,35 @@ namespace ZoologyMod
         }
     }
 
+    [HarmonyPatch(typeof(Pawn), nameof(Pawn.TickRare))]
+    public static class Patch_Pawn_TickRare_AnimalDraftControl
+    {
+        private static void Postfix(Pawn __instance)
+        {
+            AnimalDraftControlUtility.UndraftIfMasterUnavailable(__instance);
+        }
+    }
+
     [HarmonyPatch(typeof(Pawn), nameof(Pawn.Notify_Downed))]
     public static class Patch_Pawn_NotifyDowned_AnimalDraftControl
     {
         private static void Postfix(Pawn __instance)
         {
             AnimalDraftControlUtility.UndraftMasteredAnimalsIfMasterDowned(__instance);
+        }
+    }
+
+    [HarmonyPatch(typeof(Pawn), nameof(Pawn.DeSpawn))]
+    public static class Patch_Pawn_DeSpawn_AnimalDraftControl
+    {
+        private static void Prefix(Pawn __instance, ref Map __state)
+        {
+            __state = __instance.Map;
+        }
+
+        private static void Postfix(Pawn __instance, Map __state)
+        {
+            AnimalDraftControlUtility.UndraftMasteredAnimalsLeftOnMap(__instance, __state);
         }
     }
 

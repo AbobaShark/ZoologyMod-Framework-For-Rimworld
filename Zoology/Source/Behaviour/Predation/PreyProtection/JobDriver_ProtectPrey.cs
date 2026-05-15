@@ -86,6 +86,7 @@ namespace ZoologyMod
                 try
                 {
                     ProtectPreyState.NotifyProtectPreyJobEnded(actorPawn, this.job);
+                    ZoologyNotificationUtility.TryNotifyProtectionEnded(actorPawn, this.TargetPawn, this.PreyCorpse ?? (Thing)this.ProtectedPawn);
                     if (actorPawn != null && actorPawn.Map != null)
                         actorPawn.Map.attackTargetsCache.UpdateTarget(actorPawn);
                 }

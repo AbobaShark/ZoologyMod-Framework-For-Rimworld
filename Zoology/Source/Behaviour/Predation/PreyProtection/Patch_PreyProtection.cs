@@ -14,7 +14,8 @@ namespace ZoologyMod
         public static bool Prepare()
         {
             var s = ZoologyModSettings.Instance;
-            return s == null || s.EnablePredatorDefendCorpse;
+            return s == null
+                || (!s.DisableAllRuntimePatches && (s.EnablePredatorDefendCorpse || (s.EnableAnimalChildcare && s.EnableAnimalEggProtection)));
         }
 
         
@@ -57,6 +58,11 @@ namespace ZoologyMod
                                             {
                                                 comp.TryTriggerDefendFor(corp, actor);
                                             }
+                                        }
+
+                                        if (ChildcareDefenseUtility.IsEggProtectionEnabled)
+                                        {
+                                            ChildcareDefenseUtility.TryTriggerEggProtection(actor, t);
                                         }
                                     }
                                 }

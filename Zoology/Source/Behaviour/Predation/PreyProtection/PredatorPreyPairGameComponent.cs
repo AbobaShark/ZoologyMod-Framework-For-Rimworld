@@ -1707,32 +1707,63 @@ namespace ZoologyMod
 
                 
                 
-                bool needAggregateNotification = defendCandidateBuffer.Count > 1 && interrupter != null && interrupter.Faction == Faction.OfPlayer;
+                bool shouldNotifyPlayer = defendCandidateBuffer.Count > 0 && interrupter != null && interrupter.Faction == Faction.OfPlayer;
 
-                if (needAggregateNotification)
+                if (shouldNotifyPlayer)
                 {
                     try
                     {
                         Pawn exemplar = defendCandidateBuffer[0].Predator;
-                        string label = "LetterLabelPredatorProtectingPreyPack".Translate(exemplar.GetKindLabelPlural(), exemplar.Named("PREDATOR"));
-                        string text = "LetterPredatorProtectingPreyPack".Translate(exemplar.GetKindLabelPlural(), interrupter.LabelDefinite(), exemplar.Named("PREDATOR"), interrupter.Named("PREY"));
-
-                        
-                        if (label.NullOrEmpty() || label.Contains("LetterLabelPredatorProtectingPreyPack"))
-                            label = $"{exemplar.GetKindLabelPlural()} is protecting its prey";
-                        if (text.NullOrEmpty() || text.Contains("LetterPredatorProtectingPreyPack"))
-                            text = $"{exemplar.GetKindLabelPlural()} are protecting their prey and are attacking {interrupter.LabelDefinite()}.";
-
-                        if (interrupter.RaceProps.Humanlike)
+                        bool pack = defendCandidateBuffer.Count > 1;
+                        string collectiveLabel = ZoologyNotificationUtility.GetCollectiveAnimalLabel(exemplar, defendCandidateBuffer.Count);
+                        string label = pack
+                            ? "LetterLabelPredatorProtectingPreyPack".Translate(collectiveLabel)
+                            : "LetterLabelPredatorProtectingPrey".Translate(exemplar.LabelShort, interrupter.LabelDefinite(), exemplar.Named("PREDATOR"), interrupter.Named("PREY"));
+                        string text = pack
+                            ? "LetterPredatorProtectingPreyPack".Translate(collectiveLabel, interrupter.LabelDefinite())
+                            : "LetterPredatorProtectingPrey".Translate(exemplar.LabelIndefinite(), interrupter.LabelDefinite(), exemplar.Named("PREDATOR"), interrupter.Named("PREY"));
+                        List<Pawn> protectors = new List<Pawn>(defendCandidateBuffer.Count);
+                        for (int protectorIndex = 0; protectorIndex < defendCandidateBuffer.Count; protectorIndex++)
                         {
-                            Find.LetterStack.ReceiveLetter(label.CapitalizeFirst(), text.CapitalizeFirst(), LetterDefOf.ThreatBig, exemplar, null, null, null, null, 0, true);
+                            Pawn protector = defendCandidateBuffer[protectorIndex].Predator;
+                            if (protector != null)
+                            {
+                                protectors.Add(protector);
+                            }
+                        }
+                        LookTargets lookTargets = ZoologyNotificationUtility.CreateLookTargets(protectors, corpse);
+
+                        if (label.NullOrEmpty() || label.Contains(pack ? "LetterLabelPredatorProtectingPreyPack" : "LetterLabelPredatorProtectingPrey"))
+                        {
+                            label = pack
+                                ? $"{collectiveLabel} are protecting their prey"
+                                : $"{exemplar.LabelShort} is protecting its prey";
+                        }
+
+                        if (text.NullOrEmpty() || text.Contains(pack ? "LetterPredatorProtectingPreyPack" : "LetterPredatorProtectingPrey"))
+                        {
+                            text = pack
+                                ? $"{collectiveLabel} are protecting their prey and are attacking {interrupter.LabelDefinite()}."
+                                : $"{exemplar.LabelShort} is protecting its prey and is attacking {interrupter.LabelDefinite()}.";
+                        }
+
+                        if (PawnThreatUtility.IsHumanlikeOrMechanoid(interrupter))
+                        {
+                            Find.LetterStack.ReceiveLetter(
+                                label.CapitalizeFirst(),
+                                text.CapitalizeFirst(),
+                                pack ? LetterDefOf.ThreatBig : LetterDefOf.ThreatSmall,
+                                lookTargets);
                         }
                         else
                         {
-                            Messages.Message(text.CapitalizeFirst(), exemplar, MessageTypeDefOf.ThreatBig, true);
+                            Messages.Message(
+                                text.CapitalizeFirst(),
+                                lookTargets,
+                                pack ? MessageTypeDefOf.ThreatBig : MessageTypeDefOf.ThreatSmall,
+                                true);
                         }
 
-                        
                         MarkProtectionNotificationSentForCorpse(cid);
                     }
                     catch (Exception exNotify)
