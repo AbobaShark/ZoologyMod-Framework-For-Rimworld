@@ -11435,13 +11435,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Gallimimus"]/race/herdAnimal</xpath>
       <value>
-        <herdAnimal>false</herdAnimal>
+        <herdAnimal>true</herdAnimal>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Gallimimus"]/race</xpath>
       <value>
-        <herdAnimal>false</herdAnimal>
+        <herdAnimal>true</herdAnimal>
       </value>
     </nomatch>
   </Operation>
@@ -11814,9 +11814,18 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/PawnKindDef[defName = "Gallimimus"]/wildGroupSize</xpath>
-    <match Class="PatchOperationRemove">
+    <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "Gallimimus"]/wildGroupSize</xpath>
+      <value>
+        <wildGroupSize>3~10</wildGroupSize>
+      </value>
     </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/PawnKindDef[defName = "Gallimimus"]</xpath>
+      <value>
+        <wildGroupSize>3~10</wildGroupSize>
+      </value>
+    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/PawnKindDef[defName = "Gallimimus"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
@@ -20280,10 +20289,223 @@
         </li>
         <!-- Spinosaurus CE patches -->
         <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="Spinosaurus"]/statBases/MeleeDodgeChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="Spinosaurus"]/statBases/MeleeDodgeChance</xpath>
+            <value>
+              <MeleeDodgeChance>0.15</MeleeDodgeChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="Spinosaurus"]/statBases</xpath>
+            <value>
+              <MeleeDodgeChance>0.15</MeleeDodgeChance>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="Spinosaurus"]/statBases/MeleeCritChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="Spinosaurus"]/statBases/MeleeCritChance</xpath>
+            <value>
+              <MeleeCritChance>0.8</MeleeCritChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="Spinosaurus"]/statBases</xpath>
+            <value>
+              <MeleeCritChance>0.8</MeleeCritChance>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="Spinosaurus"]/statBases/MeleeParryChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="Spinosaurus"]/statBases/MeleeParryChance</xpath>
+            <value>
+              <MeleeParryChance>0.1</MeleeParryChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="Spinosaurus"]/statBases</xpath>
+            <value>
+              <MeleeParryChance>0.1</MeleeParryChance>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="Spinosaurus"]/statBases/ArmorRating_Sharp</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="Spinosaurus"]/statBases/ArmorRating_Sharp</xpath>
+            <value>
+              <ArmorRating_Sharp>0.23</ArmorRating_Sharp>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="Spinosaurus"]/statBases</xpath>
+            <value>
+              <ArmorRating_Sharp>0.23</ArmorRating_Sharp>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="Spinosaurus"]/statBases/ArmorRating_Blunt</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="Spinosaurus"]/statBases/ArmorRating_Blunt</xpath>
+            <value>
+              <ArmorRating_Blunt>0.45</ArmorRating_Blunt>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="Spinosaurus"]/statBases</xpath>
+            <value>
+              <ArmorRating_Blunt>0.45</ArmorRating_Blunt>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="Spinosaurus"]/comps</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="Spinosaurus"]</xpath>
+            <value>
+              <comps/>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="Spinosaurus"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="Spinosaurus"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]/Durability</xpath>
+            <value>
+              <Durability>2750</Durability>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="Spinosaurus"]/comps</xpath>
+            <value>
+              <li Class="CombatExtended.CompProperties_ArmorDurability">
+                <Durability>2750</Durability>
+                <Regenerates>true</Regenerates>
+                <RegenInterval>600</RegenInterval>
+                <RegenValue>5</RegenValue>
+                <MinArmorPct>0.5</MinArmorPct>
+              </li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="Spinosaurus"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="Spinosaurus"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
+                <match Class="PatchOperationReplace">
+                  <xpath>Defs/ThingDef[defName="Spinosaurus"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
+                  <value>
+                    <bodyShape>Birdlike</bodyShape>
+                  </value>
+                </match>
+                <nomatch Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[defName="Spinosaurus"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
+                  <value>
+                    <bodyShape>Birdlike</bodyShape>
+                  </value>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+          <nomatch Class="PatchOperationAddModExtension">
+            <xpath>Defs/ThingDef[defName="Spinosaurus"]</xpath>
+            <value>
+              <li Class="CombatExtended.RacePropertiesExtensionCE">
+                <bodyShape>Birdlike</bodyShape>
+              </li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName="Spinosaurus"]/tools</xpath>
           <match Class="PatchOperationRemove">
             <xpath>/Defs/ThingDef[defName="Spinosaurus"]/tools</xpath>
           </match>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="Spinosaurus"]</xpath>
+          <value>
+            <tools>
+              <li Class="CombatExtended.ToolCE">
+                <label>head</label>
+                <capacities>
+                  <li>Blunt</li>
+                </capacities>
+                <power>82.5</power>
+                <armorPenetrationBlunt>90.05</armorPenetrationBlunt>
+                <cooldownTime>3.5</cooldownTime>
+                <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
+                <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
+                <chanceFactor>0.2</chanceFactor>
+              </li>
+              <li Class="CombatExtended.ToolCE">
+                <label>left claw</label>
+                <labelNoLocation>claw</labelNoLocation>
+                <capacities>
+                  <li>Scratch</li>
+                </capacities>
+                <power>72.7</power>
+                <armorPenetrationBlunt>91.15</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.97</armorPenetrationSharp>
+                <cooldownTime>2.35</cooldownTime>
+                <linkedBodyPartsGroup>FrontLeftClaws</linkedBodyPartsGroup>
+                <surpriseAttack>
+                  <extraMeleeDamages>
+                    <li>
+                      <def>Stun</def>
+                      <amount>40</amount>
+                    </li>
+                  </extraMeleeDamages>
+                </surpriseAttack>
+              </li>
+              <li Class="CombatExtended.ToolCE">
+                <label>right claw</label>
+                <labelNoLocation>claw</labelNoLocation>
+                <capacities>
+                  <li>Scratch</li>
+                </capacities>
+                <power>72.7</power>
+                <armorPenetrationBlunt>91.15</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.97</armorPenetrationSharp>
+                <cooldownTime>2.35</cooldownTime>
+                <linkedBodyPartsGroup>FrontRightClaws</linkedBodyPartsGroup>
+                <surpriseAttack>
+                  <extraMeleeDamages>
+                    <li>
+                      <def>Stun</def>
+                      <amount>40</amount>
+                    </li>
+                  </extraMeleeDamages>
+                </surpriseAttack>
+              </li>
+              <li Class="CombatExtended.ToolCE">
+                <label>teeth</label>
+                <capacities>
+                  <li>Bite</li>
+                </capacities>
+                <power>31.1</power>
+                <armorPenetrationBlunt>14.55</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.16</armorPenetrationSharp>
+                <cooldownTime>2.65</cooldownTime>
+                <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
+                <surpriseAttack>
+                  <extraMeleeDamages>
+                    <li>
+                      <def>Stun</def>
+                      <amount>40</amount>
+                    </li>
+                  </extraMeleeDamages>
+                </surpriseAttack>
+              </li>
+            </tools>
+          </value>
         </li>
         <li Class="PatchOperationConditional">
           <xpath>Defs/ThingDef[defName="Spinosaurus"]/statBases/ArmorRating_Heat</xpath>
@@ -20293,10 +20515,223 @@
         </li>
         <!-- Baryonyx CE patches -->
         <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="Baryonyx"]/statBases/MeleeDodgeChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="Baryonyx"]/statBases/MeleeDodgeChance</xpath>
+            <value>
+              <MeleeDodgeChance>0.2</MeleeDodgeChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="Baryonyx"]/statBases</xpath>
+            <value>
+              <MeleeDodgeChance>0.2</MeleeDodgeChance>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="Baryonyx"]/statBases/MeleeCritChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="Baryonyx"]/statBases/MeleeCritChance</xpath>
+            <value>
+              <MeleeCritChance>0.7</MeleeCritChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="Baryonyx"]/statBases</xpath>
+            <value>
+              <MeleeCritChance>0.7</MeleeCritChance>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="Baryonyx"]/statBases/MeleeParryChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="Baryonyx"]/statBases/MeleeParryChance</xpath>
+            <value>
+              <MeleeParryChance>0.1</MeleeParryChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="Baryonyx"]/statBases</xpath>
+            <value>
+              <MeleeParryChance>0.1</MeleeParryChance>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="Baryonyx"]/statBases/ArmorRating_Sharp</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="Baryonyx"]/statBases/ArmorRating_Sharp</xpath>
+            <value>
+              <ArmorRating_Sharp>0.18</ArmorRating_Sharp>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="Baryonyx"]/statBases</xpath>
+            <value>
+              <ArmorRating_Sharp>0.18</ArmorRating_Sharp>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="Baryonyx"]/statBases/ArmorRating_Blunt</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="Baryonyx"]/statBases/ArmorRating_Blunt</xpath>
+            <value>
+              <ArmorRating_Blunt>0.35</ArmorRating_Blunt>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="Baryonyx"]/statBases</xpath>
+            <value>
+              <ArmorRating_Blunt>0.35</ArmorRating_Blunt>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="Baryonyx"]/comps</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="Baryonyx"]</xpath>
+            <value>
+              <comps/>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="Baryonyx"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="Baryonyx"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]/Durability</xpath>
+            <value>
+              <Durability>2075</Durability>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="Baryonyx"]/comps</xpath>
+            <value>
+              <li Class="CombatExtended.CompProperties_ArmorDurability">
+                <Durability>2075</Durability>
+                <Regenerates>true</Regenerates>
+                <RegenInterval>600</RegenInterval>
+                <RegenValue>5</RegenValue>
+                <MinArmorPct>0.5</MinArmorPct>
+              </li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="Baryonyx"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="Baryonyx"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
+                <match Class="PatchOperationReplace">
+                  <xpath>Defs/ThingDef[defName="Baryonyx"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
+                  <value>
+                    <bodyShape>Birdlike</bodyShape>
+                  </value>
+                </match>
+                <nomatch Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[defName="Baryonyx"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
+                  <value>
+                    <bodyShape>Birdlike</bodyShape>
+                  </value>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+          <nomatch Class="PatchOperationAddModExtension">
+            <xpath>Defs/ThingDef[defName="Baryonyx"]</xpath>
+            <value>
+              <li Class="CombatExtended.RacePropertiesExtensionCE">
+                <bodyShape>Birdlike</bodyShape>
+              </li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName="Baryonyx"]/tools</xpath>
           <match Class="PatchOperationRemove">
             <xpath>/Defs/ThingDef[defName="Baryonyx"]/tools</xpath>
           </match>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="Baryonyx"]</xpath>
+          <value>
+            <tools>
+              <li Class="CombatExtended.ToolCE">
+                <label>head</label>
+                <capacities>
+                  <li>Blunt</li>
+                </capacities>
+                <power>40</power>
+                <armorPenetrationBlunt>41.25</armorPenetrationBlunt>
+                <cooldownTime>3</cooldownTime>
+                <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
+                <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
+                <chanceFactor>0.2</chanceFactor>
+              </li>
+              <li Class="CombatExtended.ToolCE">
+                <label>left claw</label>
+                <labelNoLocation>claw</labelNoLocation>
+                <capacities>
+                  <li>Scratch</li>
+                </capacities>
+                <power>52.7</power>
+                <armorPenetrationBlunt>43.85</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.67</armorPenetrationSharp>
+                <cooldownTime>2.2</cooldownTime>
+                <linkedBodyPartsGroup>FrontLeftClaws</linkedBodyPartsGroup>
+                <surpriseAttack>
+                  <extraMeleeDamages>
+                    <li>
+                      <def>Stun</def>
+                      <amount>35</amount>
+                    </li>
+                  </extraMeleeDamages>
+                </surpriseAttack>
+              </li>
+              <li Class="CombatExtended.ToolCE">
+                <label>right claw</label>
+                <labelNoLocation>claw</labelNoLocation>
+                <capacities>
+                  <li>Scratch</li>
+                </capacities>
+                <power>52.7</power>
+                <armorPenetrationBlunt>43.85</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.67</armorPenetrationSharp>
+                <cooldownTime>2.2</cooldownTime>
+                <linkedBodyPartsGroup>FrontRightClaws</linkedBodyPartsGroup>
+                <surpriseAttack>
+                  <extraMeleeDamages>
+                    <li>
+                      <def>Stun</def>
+                      <amount>35</amount>
+                    </li>
+                  </extraMeleeDamages>
+                </surpriseAttack>
+              </li>
+              <li Class="CombatExtended.ToolCE">
+                <label>teeth</label>
+                <capacities>
+                  <li>Bite</li>
+                </capacities>
+                <power>15.8</power>
+                <armorPenetrationBlunt>5.15</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.09</armorPenetrationSharp>
+                <cooldownTime>2.75</cooldownTime>
+                <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
+                <surpriseAttack>
+                  <extraMeleeDamages>
+                    <li>
+                      <def>Stun</def>
+                      <amount>35</amount>
+                    </li>
+                  </extraMeleeDamages>
+                </surpriseAttack>
+              </li>
+            </tools>
+          </value>
         </li>
         <li Class="PatchOperationConditional">
           <xpath>Defs/ThingDef[defName="Baryonyx"]/statBases/ArmorRating_Heat</xpath>
