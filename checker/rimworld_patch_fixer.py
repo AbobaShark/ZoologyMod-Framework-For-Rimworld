@@ -175,6 +175,13 @@ def generate_litter_curve(mean_litter):
 
 # ---------------- Patch Generation Logic ----------------
 class PatchGenerator:
+    DENDROVORE_WILL_NEVER_EAT = [
+        ('Plant_TreeAnima', 'Ludeon.RimWorld.Royalty'),
+        ('Plant_TreeGauranlen', 'Ludeon.RimWorld.Ideology'),
+        ('Plant_TreePolux', 'Ludeon.RimWorld.Biotech'),
+        ('Plant_TreeHarbinger', 'Ludeon.RimWorld.Anomaly'),
+        ('Plant_TreeArchean', 'Ludeon.RimWorld.Odyssey'),
+    ]
     ODYSSEY_BIOMES = {'Grasslands', 'Glowforest', 'LavaField', 'GlacialPlain', 'Scarlands'}
     ODYSSEY_MAYREQUIRE = 'Ludeon.RimWorld.Odyssey'
 
@@ -439,6 +446,12 @@ class PatchGenerator:
         if v is None:
             return False
         return str(v).strip().lower() in ('true', '1', 'yes', 'y', 't')
+
+    def _food_type_has_dendrovore(self, value):
+        if value is None:
+            return False
+        parts = [part.strip().lower() for part in re.split(r'[,;\n]+', str(value)) if part.strip()]
+        return 'dendrovoreanimal' in parts
 
     def _extract_def_name_from_xml_name(self, xml_name_raw):
         if xml_name_raw is None:
@@ -1839,6 +1852,12 @@ class PatchGenerator:
                     val = 'true' if s.lower() in ('true', '1', 'yes', 'y', 't') else 'false'
                     ops.append(self.create_safe_replace(abstract, 'race', 'canFishForFood', val, is_abstract=True))
                     continue
+
+                if xml_tag == 'foodType':
+                    ops.append(self.create_safe_replace(abstract, 'race', 'foodType', s, is_abstract=True))
+                    if self._food_type_has_dendrovore(s):
+                        ops.extend(self.create_dendrovore_will_never_eat_patch(abstract, is_abstract=True))
+                    continue
                 else:
                     ops.append(self.create_safe_replace(abstract, 'race', xml_tag, s, is_abstract=True))
             elif col in differing_cols:
@@ -2265,6 +2284,12 @@ class PatchGenerator:
                 ops.append(self.create_safe_replace(def_name, 'race', 'packAnimal', val))
                 continue
 
+            if xml_tag == 'foodType':
+                ops.append(self.create_safe_replace(def_name, 'race', 'foodType', s))
+                if self._food_type_has_dendrovore(s):
+                    ops.extend(self.create_dendrovore_will_never_eat_patch(def_name))
+                continue
+
             # probability-like fields (normalize)
             if xml_tag in ('manhunterOnTameFailChance', 'manhunterOnDamageChance'):
                 formatted = format_prob_value(s)
@@ -2676,6 +2701,34 @@ class PatchGenerator:
         match = LET.SubElement(op, "match", Class="PatchOperationRemove")
         LET.SubElement(match, "xpath").text = full_path
         return op
+
+    def create_dendrovore_will_never_eat_patch(self, def_name, is_abstract=False):
+        attr = '@Name' if is_abstract else 'defName'
+        race_xpath = f"/Defs/ThingDef[{attr} = \"{def_name}\"]/race"
+        container_xpath = f"{race_xpath}/willNeverEat"
+        ops = []
+
+        ensure_container = LET.Element("Operation", Class="PatchOperationConditional")
+        LET.SubElement(ensure_container, "xpath").text = container_xpath
+        nomatch = LET.SubElement(ensure_container, "nomatch", Class="PatchOperationAdd")
+        LET.SubElement(nomatch, "xpath").text = race_xpath
+        nomatch_value = LET.SubElement(nomatch, "value")
+        LET.SubElement(nomatch_value, "willNeverEat")
+        ops.append(ensure_container)
+
+        for plant_def, may_require in self.DENDROVORE_WILL_NEVER_EAT:
+            item_xpath = f"{container_xpath}/li[text() = \"{plant_def}\"]"
+            op = LET.Element("Operation", Class="PatchOperationConditional")
+            LET.SubElement(op, "xpath").text = item_xpath
+            nomatch = LET.SubElement(op, "nomatch", Class="PatchOperationAdd")
+            LET.SubElement(nomatch, "xpath").text = container_xpath
+            nomatch_value = LET.SubElement(nomatch, "value")
+            li = LET.SubElement(nomatch_value, "li")
+            li.set('MayRequire', may_require)
+            li.text = plant_def
+            ops.append(op)
+
+        return ops
         
     def extract_sounds(self, original_root, def_name, is_abstract=False):
         """

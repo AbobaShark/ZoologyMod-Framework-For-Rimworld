@@ -251,13 +251,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Hippo"]/race/herdMigrationAllowed</xpath>
       <value>
-        <herdMigrationAllowed>true</herdMigrationAllowed>
+        <herdMigrationAllowed>false</herdMigrationAllowed>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Hippo"]/race</xpath>
       <value>
-        <herdMigrationAllowed>true</herdMigrationAllowed>
+        <herdMigrationAllowed>false</herdMigrationAllowed>
       </value>
     </nomatch>
   </Operation>
@@ -1670,6 +1670,60 @@
       <xpath>/Defs/ThingDef[defName = "AlphaThrumbo"]/race</xpath>
       <value>
         <foodType>VegetarianRoughAnimal, DendrovoreAnimal</foodType>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AlphaThrumbo"]/race/willNeverEat</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "AlphaThrumbo"]/race</xpath>
+      <value>
+        <willNeverEat/>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AlphaThrumbo"]/race/willNeverEat/li[text() = "Plant_TreeAnima"]</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "AlphaThrumbo"]/race/willNeverEat</xpath>
+      <value>
+        <li MayRequire="Ludeon.RimWorld.Royalty">Plant_TreeAnima</li>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AlphaThrumbo"]/race/willNeverEat/li[text() = "Plant_TreeGauranlen"]</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "AlphaThrumbo"]/race/willNeverEat</xpath>
+      <value>
+        <li MayRequire="Ludeon.RimWorld.Ideology">Plant_TreeGauranlen</li>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AlphaThrumbo"]/race/willNeverEat/li[text() = "Plant_TreePolux"]</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "AlphaThrumbo"]/race/willNeverEat</xpath>
+      <value>
+        <li MayRequire="Ludeon.RimWorld.Biotech">Plant_TreePolux</li>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AlphaThrumbo"]/race/willNeverEat/li[text() = "Plant_TreeHarbinger"]</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "AlphaThrumbo"]/race/willNeverEat</xpath>
+      <value>
+        <li MayRequire="Ludeon.RimWorld.Anomaly">Plant_TreeHarbinger</li>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AlphaThrumbo"]/race/willNeverEat/li[text() = "Plant_TreeArchean"]</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "AlphaThrumbo"]/race/willNeverEat</xpath>
+      <value>
+        <li MayRequire="Ludeon.RimWorld.Odyssey">Plant_TreeArchean</li>
       </value>
     </nomatch>
   </Operation>
