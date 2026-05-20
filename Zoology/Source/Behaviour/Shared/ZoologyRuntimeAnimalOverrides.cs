@@ -25,18 +25,21 @@ namespace ZoologyMod
             Func<ZoologyModSettings, bool> isToggleEnabled)
         {
             Id = id;
-            Label = label;
-            EnabledColumnLabel = enabledColumnLabel;
-            DisabledColumnLabel = disabledColumnLabel;
+            LabelKey = label;
+            EnabledColumnLabelKey = enabledColumnLabel;
+            DisabledColumnLabelKey = disabledColumnLabel;
             Kind = kind;
             EntryType = entryType;
             IsToggleEnabled = isToggleEnabled;
         }
 
         public string Id { get; }
-        public string Label { get; }
-        public string EnabledColumnLabel { get; }
-        public string DisabledColumnLabel { get; }
+        public string LabelKey { get; }
+        public string EnabledColumnLabelKey { get; }
+        public string DisabledColumnLabelKey { get; }
+        public string Label => LabelKey.Translate();
+        public string EnabledColumnLabel => EnabledColumnLabelKey.Translate();
+        public string DisabledColumnLabel => DisabledColumnLabelKey.Translate();
         public RuntimeAnimalFeatureKind Kind { get; }
         public Type EntryType { get; }
         public Func<ZoologyModSettings, bool> IsToggleEnabled { get; }
@@ -65,113 +68,113 @@ namespace ZoologyMod
         {
             new RuntimeAnimalFeatureDefinition(
                 "modext_childcare",
-                "Childcare extension",
-                "With childcare extension",
-                "Without childcare extension",
+                "Zoology_RuntimeFeature_Childcare_Label",
+                "Zoology_RuntimeFeature_Childcare_Enabled",
+                "Zoology_RuntimeFeature_Childcare_Disabled",
                 RuntimeAnimalFeatureKind.ModExtension,
                 typeof(ModExtensiom_Chlidcare),
                 s => s != null && s.EnableAnimalChildcare),
             new RuntimeAnimalFeatureDefinition(
                 "modext_ectothermic",
-                "Ectothermic extension",
-                "With ectothermic extension",
-                "Without ectothermic extension",
+                "Zoology_RuntimeFeature_Ectothermic_Label",
+                "Zoology_RuntimeFeature_Ectothermic_Enabled",
+                "Zoology_RuntimeFeature_Ectothermic_Disabled",
                 RuntimeAnimalFeatureKind.ModExtension,
                 typeof(ModExtension_Ectothermic),
                 s => s != null && s.EnableEctothermicPatch),
             new RuntimeAnimalFeatureDefinition(
                 "modext_mammal",
-                "Mammal extension",
-                "With mammal extension",
-                "Without mammal extension",
+                "Zoology_RuntimeFeature_Mammal_Label",
+                "Zoology_RuntimeFeature_Mammal_Enabled",
+                "Zoology_RuntimeFeature_Mammal_Disabled",
                 RuntimeAnimalFeatureKind.ModExtension,
                 typeof(ModExtension_IsMammal),
                 s => ZoologyModSettings.EnableMammalLactation),
             new RuntimeAnimalFeatureDefinition(
                 "modext_scavenger",
-                "Scavenger extension",
-                "With scavenger extension",
-                "Without scavenger extension",
+                "Zoology_RuntimeFeature_Scavenger_Label",
+                "Zoology_RuntimeFeature_Scavenger_Enabled",
+                "Zoology_RuntimeFeature_Scavenger_Disabled",
                 RuntimeAnimalFeatureKind.ModExtension,
                 typeof(ModExtension_IsScavenger),
                 s => s != null && s.EnableScavengering),
             new RuntimeAnimalFeatureDefinition(
                 "modext_agro_at_slaughter",
-                "Agro-at-slaughter extension",
-                "With agro-at-slaughter extension",
-                "Without agro-at-slaughter extension",
+                "Zoology_RuntimeFeature_AgroAtSlaughter_Label",
+                "Zoology_RuntimeFeature_AgroAtSlaughter_Enabled",
+                "Zoology_RuntimeFeature_AgroAtSlaughter_Disabled",
                 RuntimeAnimalFeatureKind.ModExtension,
                 typeof(ModExtension_AgroAtSlaughter),
                 s => s != null && s.EnableAgroAtSlaughter),
             new RuntimeAnimalFeatureDefinition(
                 "modext_cannot_be_mutated",
-                "Cannot-be-mutated extension",
-                "With cannot-be-mutated extension",
-                "Without cannot-be-mutated extension",
+                "Zoology_RuntimeFeature_CannotBeMutated_Label",
+                "Zoology_RuntimeFeature_CannotBeMutated_Enabled",
+                "Zoology_RuntimeFeature_CannotBeMutated_Disabled",
                 RuntimeAnimalFeatureKind.ModExtension,
                 typeof(ModExtension_CannotBeMutated),
                 s => s != null && s.EnableCannotBeMutatedProtection),
             new RuntimeAnimalFeatureDefinition(
                 "modext_cannot_be_augmented",
-                "Cannot-be-augmented extension",
-                "With cannot-be-augmented extension",
-                "Without cannot-be-augmented extension",
+                "Zoology_RuntimeFeature_CannotBeAugmented_Label",
+                "Zoology_RuntimeFeature_CannotBeAugmented_Enabled",
+                "Zoology_RuntimeFeature_CannotBeAugmented_Disabled",
                 RuntimeAnimalFeatureKind.ModExtension,
                 typeof(ModExtension_CannotBeAugmented),
                 s => s != null && s.EnableCannotBeAugmentedProtection),
             new RuntimeAnimalFeatureDefinition(
                 "modext_no_flee",
-                "No-flee extension",
-                "With no-flee extension",
-                "Without no-flee extension",
+                "Zoology_RuntimeFeature_NoFlee_Label",
+                "Zoology_RuntimeFeature_NoFlee_Enabled",
+                "Zoology_RuntimeFeature_NoFlee_Disabled",
                 RuntimeAnimalFeatureKind.ModExtension,
                 typeof(ModExtension_NoFlee),
                 s => s != null && s.EnableNoFleeExtension),
             new RuntimeAnimalFeatureDefinition(
                 "modext_flee_from_carrier",
-                "Flee-from-carrier extension",
-                "With flee-from-carrier extension",
-                "Without flee-from-carrier extension",
+                "Zoology_RuntimeFeature_FleeFromCarrier_Label",
+                "Zoology_RuntimeFeature_FleeFromCarrier_Enabled",
+                "Zoology_RuntimeFeature_FleeFromCarrier_Disabled",
                 RuntimeAnimalFeatureKind.ModExtension,
                 typeof(ModExtension_FleeFromCarrier),
                 s => s != null && s.EnableFleeFromCarrier),
             new RuntimeAnimalFeatureDefinition(
                 "modext_no_porcupine_quill",
-                "No-porcupine-quill extension",
-                "With no-porcupine-quill extension",
-                "Without no-porcupine-quill extension",
+                "Zoology_RuntimeFeature_NoPorcupineQuill_Label",
+                "Zoology_RuntimeFeature_NoPorcupineQuill_Enabled",
+                "Zoology_RuntimeFeature_NoPorcupineQuill_Disabled",
                 RuntimeAnimalFeatureKind.ModExtension,
                 typeof(ModExtension_NoPorcupineQuill),
                 s => s != null && s.EnableNoPorcupineQuillPatch),
             new RuntimeAnimalFeatureDefinition(
                 "modext_cannot_chew",
-                "Cannot-chew extension",
-                "With cannot-chew extension",
-                "Without cannot-chew extension",
+                "Zoology_RuntimeFeature_CannotChew_Label",
+                "Zoology_RuntimeFeature_CannotChew_Enabled",
+                "Zoology_RuntimeFeature_CannotChew_Disabled",
                 RuntimeAnimalFeatureKind.ModExtension,
                 typeof(ModExtension_CannotChew),
                 s => s != null && s.EnableCannotChewExtension),
             new RuntimeAnimalFeatureDefinition(
                 "comp_ageless",
-                "Ageless comp",
-                "With ageless comp",
-                "Without ageless comp",
+                "Zoology_RuntimeFeature_Ageless_Label",
+                "Zoology_RuntimeFeature_Ageless_Enabled",
+                "Zoology_RuntimeFeature_Ageless_Disabled",
                 RuntimeAnimalFeatureKind.Comp,
                 typeof(CompProperties_Ageless),
                 s => s != null && s.EnableAgelessPatch),
             new RuntimeAnimalFeatureDefinition(
                 "comp_drugs_immune",
-                "Drugs-immune comp",
-                "With drugs-immune comp",
-                "Without drugs-immune comp",
+                "Zoology_RuntimeFeature_DrugsImmune_Label",
+                "Zoology_RuntimeFeature_DrugsImmune_Enabled",
+                "Zoology_RuntimeFeature_DrugsImmune_Disabled",
                 RuntimeAnimalFeatureKind.Comp,
                 typeof(CompProperties_DrugsImmune),
                 s => s != null && s.EnableDrugsImmunePatch),
             new RuntimeAnimalFeatureDefinition(
                 "comp_animal_clotting",
-                "Animal clotting comp",
-                "With animal clotting comp",
-                "Without animal clotting comp",
+                "Zoology_RuntimeFeature_AnimalClotting_Label",
+                "Zoology_RuntimeFeature_AnimalClotting_Enabled",
+                "Zoology_RuntimeFeature_AnimalClotting_Disabled",
                 RuntimeAnimalFeatureKind.Comp,
                 typeof(CompProperties_AnimalClotting),
                 s => s != null && s.EnableAnimalClottingComp)

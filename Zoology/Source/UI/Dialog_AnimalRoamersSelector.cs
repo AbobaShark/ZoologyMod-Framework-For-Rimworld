@@ -49,13 +49,13 @@ namespace ZoologyMod
             BuildAnimalLists();
 
             Rect headerRect = new Rect(inRect.x, inRect.y, inRect.width, HeaderHeight);
-            Widgets.Label(new Rect(headerRect.x, headerRect.y, headerRect.width - 170f, 26f), "Animal roamers and trainability");
+            Widgets.Label(new Rect(headerRect.x, headerRect.y, headerRect.width - 170f, 26f), "Zoology_Dialog_Roamers_Title".Translate());
             Text.Font = GameFont.Tiny;
-            Widgets.Label(new Rect(headerRect.x, headerRect.y + 24f, headerRect.width - 170f, 26f), "Click an animal to move it to the opposite list. Roamers use RoamMtbDays and force Trainability=None.");
+            Widgets.Label(new Rect(headerRect.x, headerRect.y + 24f, headerRect.width - 170f, 26f), "Zoology_Dialog_Roamers_Instruction".Translate());
             Text.Font = GameFont.Small;
 
             Rect resetRect = new Rect(headerRect.xMax - 160f, headerRect.y, 160f, 32f);
-            if (Widgets.ButtonText(resetRect, "Reset defaults"))
+            if (Widgets.ButtonText(resetRect, "Zoology_Dialog_ResetDefaults".Translate()))
             {
                 settings.ResetRoamerTrainabilityOverrides();
                 roamerScrollPosition = Vector2.zero;
@@ -68,11 +68,11 @@ namespace ZoologyMod
             Rect leftRect = new Rect(inRect.x, columnsTop, columnWidth, columnsHeight);
             Rect rightRect = new Rect(leftRect.xMax + ColumnGap, columnsTop, columnWidth, columnsHeight);
 
-            DrawColumn(leftRect, "Non-roamers", nonRoamerAnimals, ref nonRoamerSearch, ref nonRoamerScrollPosition, true);
-            DrawColumn(rightRect, "Roamers", roamerAnimals, ref roamerSearch, ref roamerScrollPosition, false);
+            DrawColumn(leftRect, "Zoology_Dialog_Roamers_NonRoamers".Translate(), nonRoamerAnimals, ref nonRoamerSearch, ref nonRoamerScrollPosition, true);
+            DrawColumn(rightRect, "Zoology_Dialog_Roamers_Roamers".Translate(), roamerAnimals, ref roamerSearch, ref roamerScrollPosition, false);
 
             Text.Font = GameFont.Tiny;
-            Widgets.Label(new Rect(inRect.x, inRect.yMax - FooterHeight, inRect.width, FooterHeight), $"Animals: non-roamers {nonRoamerAnimals.Count}, roamers {roamerAnimals.Count}");
+            Widgets.Label(new Rect(inRect.x, inRect.yMax - FooterHeight, inRect.width, FooterHeight), "Zoology_Dialog_Roamers_Footer".Translate(nonRoamerAnimals.Count, roamerAnimals.Count));
             Text.Font = GameFont.Small;
         }
 
@@ -101,7 +101,7 @@ namespace ZoologyMod
             Widgets.DrawMenuSection(rect);
 
             Rect innerRect = rect.ContractedBy(8f);
-            Widgets.Label(new Rect(innerRect.x, innerRect.y, innerRect.width, 24f), $"{title} ({animals.Count})");
+            Widgets.Label(new Rect(innerRect.x, innerRect.y, innerRect.width, 24f), "Zoology_Dialog_ColumnWithCount".Translate(title, animals.Count));
 
             Rect searchRect = new Rect(innerRect.x, innerRect.y + 28f, innerRect.width, SearchHeight);
             searchText = Widgets.TextField(searchRect, searchText ?? string.Empty);
@@ -134,7 +134,7 @@ namespace ZoologyMod
             if (visibleIndex == 0)
             {
                 Text.Anchor = TextAnchor.MiddleCenter;
-                Widgets.Label(new Rect(0f, 0f, viewRect.width, rowHeight), "No animals matched the search.");
+                Widgets.Label(new Rect(0f, 0f, viewRect.width, rowHeight), "Zoology_Dialog_NoAnimalsMatchedSearch".Translate());
                 Text.Anchor = TextAnchor.UpperLeft;
             }
 
@@ -191,7 +191,8 @@ namespace ZoologyMod
             if (moveToRoamers)
             {
                 TrainabilityDef trainability = settings.GetNonRoamerTrainabilityFor(def);
-                string buttonText = "Trainability: " + (trainability?.LabelCap ?? "None");
+                string trainabilityLabel = trainability?.LabelCap ?? ZoologyRuntimeAnimalOverrides.GetTrainabilityNone()?.LabelCap ?? TrainabilityDefOf.None.LabelCap;
+                string buttonText = "Zoology_Dialog_Roamers_Trainability".Translate(trainabilityLabel);
                 Rect trainabilityButtonRect = new Rect(controlsRect.x, controlsRect.y + 14f, controlsRect.width, 24f);
                 if (Widgets.ButtonText(trainabilityButtonRect, buttonText))
                 {
@@ -202,7 +203,7 @@ namespace ZoologyMod
             {
                 float currentValue = settings.GetRoamMtbDaysFor(def);
                 Rect roamLabelRect = new Rect(controlsRect.x, controlsRect.y, controlsRect.width, 20f);
-                Widgets.Label(roamLabelRect, $"RoamMtbDays: {currentValue:F1}");
+                Widgets.Label(roamLabelRect, "Zoology_Dialog_Roamers_RoamMtbDays".Translate(currentValue.ToString("F1")));
 
                 Rect sliderRect = new Rect(controlsRect.x, controlsRect.y + 22f, controlsRect.width, 20f);
                 float newValue = Widgets.HorizontalSlider(sliderRect, currentValue, 1f, 60f, false, null, "1", "60", 0.1f);
@@ -288,7 +289,7 @@ namespace ZoologyMod
         {
             if (def == null)
             {
-                return "Unknown";
+                return "Zoology_Dialog_Unknown".Translate();
             }
 
             return def.label.NullOrEmpty() ? def.defName : def.LabelCap.RawText;

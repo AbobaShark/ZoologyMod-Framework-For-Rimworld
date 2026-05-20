@@ -801,7 +801,7 @@ namespace ZoologyMod
                 return;
             }
 
-            string label = string.IsNullOrEmpty(buttonLabel) ? $"Configure {feature.Label} species" : buttonLabel;
+            string label = string.IsNullOrEmpty(buttonLabel) ? "Zoology_Dialog_RuntimeFeature_Configure".Translate(feature.Label) : buttonLabel;
             if (list.ButtonText(label))
             {
                 Find.WindowStack.Add(new Dialog_AnimalRuntimeFeatureSelector(this, feature));

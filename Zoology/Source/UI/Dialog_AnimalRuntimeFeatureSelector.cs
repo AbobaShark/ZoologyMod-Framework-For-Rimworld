@@ -54,13 +54,13 @@ namespace ZoologyMod
             BuildAnimalLists();
 
             Rect headerRect = new Rect(inRect.x, inRect.y, inRect.width, HeaderHeight);
-            Widgets.Label(new Rect(headerRect.x, headerRect.y, headerRect.width - 170f, 26f), $"{feature.Label} species");
+            Widgets.Label(new Rect(headerRect.x, headerRect.y, headerRect.width - 170f, 26f), "Zoology_Dialog_RuntimeFeature_Title".Translate(feature.Label));
             Text.Font = GameFont.Tiny;
-            Widgets.Label(new Rect(headerRect.x, headerRect.y + 24f, headerRect.width - 170f, 26f), "Click an animal to move it to the opposite list.");
+            Widgets.Label(new Rect(headerRect.x, headerRect.y + 24f, headerRect.width - 170f, 26f), "Zoology_Dialog_MoveAnimalToOppositeList".Translate());
             Text.Font = GameFont.Small;
 
             Rect resetRect = new Rect(headerRect.xMax - 160f, headerRect.y, 160f, 32f);
-            if (Widgets.ButtonText(resetRect, "Reset defaults"))
+            if (Widgets.ButtonText(resetRect, "Zoology_Dialog_ResetDefaults".Translate()))
             {
                 settings.ResetAnimalFeatureOverrides(feature.Id);
                 enabledScrollPosition = Vector2.zero;
@@ -77,7 +77,7 @@ namespace ZoologyMod
             DrawColumn(rightRect, feature.DisabledColumnLabel, disabledAnimals, ref disabledSearch, ref disabledScrollPosition, true);
 
             Text.Font = GameFont.Tiny;
-            Widgets.Label(new Rect(inRect.x, inRect.yMax - FooterHeight, inRect.width, FooterHeight), $"Animals: enabled {enabledAnimals.Count}, disabled {disabledAnimals.Count}");
+            Widgets.Label(new Rect(inRect.x, inRect.yMax - FooterHeight, inRect.width, FooterHeight), "Zoology_Dialog_RuntimeFeature_Footer".Translate(enabledAnimals.Count, disabledAnimals.Count));
             Text.Font = GameFont.Small;
         }
 
@@ -106,7 +106,7 @@ namespace ZoologyMod
             Widgets.DrawMenuSection(rect);
 
             Rect innerRect = rect.ContractedBy(8f);
-            Widgets.Label(new Rect(innerRect.x, innerRect.y, innerRect.width, 24f), $"{title} ({animals.Count})");
+            Widgets.Label(new Rect(innerRect.x, innerRect.y, innerRect.width, 24f), "Zoology_Dialog_ColumnWithCount".Translate(title, animals.Count));
 
             Rect searchRect = new Rect(innerRect.x, innerRect.y + 28f, innerRect.width, SearchHeight);
             searchText = Widgets.TextField(searchRect, searchText ?? string.Empty);
@@ -139,7 +139,7 @@ namespace ZoologyMod
             if (visibleIndex == 0)
             {
                 Text.Anchor = TextAnchor.MiddleCenter;
-                Widgets.Label(new Rect(0f, 0f, viewRect.width, rowHeight), "No animals matched the search.");
+                Widgets.Label(new Rect(0f, 0f, viewRect.width, rowHeight), "Zoology_Dialog_NoAnimalsMatchedSearch".Translate());
                 Text.Anchor = TextAnchor.UpperLeft;
             }
 
@@ -261,7 +261,7 @@ namespace ZoologyMod
                 bool originalAllowVeryRotten = settings.GetScavengerAllowVeryRottenFor(def);
                 bool allowVeryRotten = originalAllowVeryRotten;
                 Rect checkboxRect = new Rect(controlsRect.x, y, controlsRect.width, 24f);
-                Widgets.CheckboxLabeled(checkboxRect, "Allow very rotten", ref allowVeryRotten);
+                Widgets.CheckboxLabeled(checkboxRect, "Zoology_RuntimeFeature_AllowVeryRotten".Translate(), ref allowVeryRotten);
                 if (allowVeryRotten != originalAllowVeryRotten)
                 {
                     settings.SetScavengerAllowVeryRottenFor(def, allowVeryRotten);
@@ -276,7 +276,7 @@ namespace ZoologyMod
                 float newRadius = DrawLabeledSlider(
                     controlsRect,
                     ref y,
-                    "Radius",
+                    "Zoology_RuntimeFeature_Radius".Translate(),
                     radius,
                     1f,
                     60f,
@@ -293,7 +293,7 @@ namespace ZoologyMod
                 float newBodySizeLimit = DrawLabeledSlider(
                     controlsRect,
                     ref y,
-                    "Body size limit",
+                    "Zoology_RuntimeFeature_BodySizeLimit".Translate(),
                     bodySizeLimit,
                     0f,
                     20f,
@@ -310,7 +310,7 @@ namespace ZoologyMod
                 int newDistance = DrawLabeledIntSlider(
                     controlsRect,
                     ref y,
-                    "Distance",
+                    "Zoology_RuntimeFeature_Distance".Translate(),
                     fleeDistance,
                     1,
                     80,
@@ -327,14 +327,14 @@ namespace ZoologyMod
             if (string.Equals(feature.Id, "comp_ageless", StringComparison.Ordinal))
             {
                 int interval = settings.GetAgelessCleanupIntervalTicksFor(def);
-                DrawSingleIntervalSlider(controlsRect, ref y, "Cleanup interval", interval, 60, 120000, settings.SetAgelessCleanupIntervalTicksFor, def);
+                DrawSingleIntervalSlider(controlsRect, ref y, "Zoology_RuntimeFeature_CleanupInterval".Translate(), interval, 60, 120000, settings.SetAgelessCleanupIntervalTicksFor, def);
                 return;
             }
 
             if (string.Equals(feature.Id, "comp_drugs_immune", StringComparison.Ordinal))
             {
                 int interval = settings.GetDrugsImmuneCleanupIntervalTicksFor(def);
-                DrawSingleIntervalSlider(controlsRect, ref y, "Cleanup interval", interval, 60, 120000, settings.SetDrugsImmuneCleanupIntervalTicksFor, def);
+                DrawSingleIntervalSlider(controlsRect, ref y, "Zoology_RuntimeFeature_CleanupInterval".Translate(), interval, 60, 120000, settings.SetDrugsImmuneCleanupIntervalTicksFor, def);
                 return;
             }
 
@@ -344,7 +344,7 @@ namespace ZoologyMod
                 int newCheckInterval = DrawLabeledIntSlider(
                     controlsRect,
                     ref y,
-                    "Check interval",
+                    "Zoology_RuntimeFeature_CheckInterval".Translate(),
                     checkInterval,
                     60,
                     120000,
@@ -359,7 +359,7 @@ namespace ZoologyMod
                 float newMinQuality = DrawLabeledSlider(
                     controlsRect,
                     ref y,
-                    "Tend min",
+                    "Zoology_RuntimeFeature_TendMin".Translate(),
                     minQuality,
                     0f,
                     2f,
@@ -376,7 +376,7 @@ namespace ZoologyMod
                 float newMaxQuality = DrawLabeledSlider(
                     controlsRect,
                     ref y,
-                    "Tend max",
+                    "Zoology_RuntimeFeature_TendMax".Translate(),
                     maxQuality,
                     0f,
                     2f,
@@ -541,7 +541,7 @@ namespace ZoologyMod
         {
             if (def == null)
             {
-                return "Unknown";
+                return "Zoology_Dialog_Unknown".Translate();
             }
 
             return def.label.NullOrEmpty() ? def.defName : def.LabelCap.RawText;

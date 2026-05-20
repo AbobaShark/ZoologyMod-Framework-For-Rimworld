@@ -50,13 +50,13 @@ namespace ZoologyMod
             BuildAnimalLists();
 
             Rect headerRect = new Rect(inRect.x, inRect.y, inRect.width, HeaderHeight);
-            Widgets.Label(new Rect(headerRect.x, headerRect.y, headerRect.width - 170f, 26f), "Animals fleeing from humans");
+            Widgets.Label(new Rect(headerRect.x, headerRect.y, headerRect.width - 170f, 26f), "Zoology_Dialog_FleeHumans_Title".Translate());
             Text.Font = GameFont.Tiny;
-            Widgets.Label(new Rect(headerRect.x, headerRect.y + 24f, headerRect.width - 170f, 26f), "Click an animal to move it to the opposite list. By default, insectoids, photonozoa, thrumbo-like, no-flee, and carrier-flee animals stay on the right.");
+            Widgets.Label(new Rect(headerRect.x, headerRect.y + 24f, headerRect.width - 170f, 26f), "Zoology_Dialog_FleeHumans_Instruction".Translate());
             Text.Font = GameFont.Small;
 
             Rect resetRect = new Rect(headerRect.xMax - 160f, headerRect.y, 160f, 32f);
-            if (Widgets.ButtonText(resetRect, "Reset defaults"))
+            if (Widgets.ButtonText(resetRect, "Zoology_Dialog_ResetDefaults".Translate()))
             {
                 settings.ResetAnimalsFreeFromHumansOverrides();
                 fleeScrollPosition = Vector2.zero;
@@ -69,11 +69,11 @@ namespace ZoologyMod
             Rect leftRect = new Rect(inRect.x, columnsTop, columnWidth, columnsHeight);
             Rect rightRect = new Rect(leftRect.xMax + ColumnGap, columnsTop, columnWidth, columnsHeight);
 
-            DrawColumn(leftRect, "Will flee", fleeAnimals, ref fleeSearch, ref fleeScrollPosition, false);
-            DrawColumn(rightRect, "Will not flee", noFleeAnimals, ref noFleeSearch, ref noFleeScrollPosition, true);
+            DrawColumn(leftRect, "Zoology_Dialog_FleeHumans_WillFlee".Translate(), fleeAnimals, ref fleeSearch, ref fleeScrollPosition, false);
+            DrawColumn(rightRect, "Zoology_Dialog_FleeHumans_WillNotFlee".Translate(), noFleeAnimals, ref noFleeSearch, ref noFleeScrollPosition, true);
 
             Text.Font = GameFont.Tiny;
-            Widgets.Label(new Rect(inRect.x, inRect.yMax - FooterHeight, inRect.width, FooterHeight), $"Animals: flee {fleeAnimals.Count}, do not flee {noFleeAnimals.Count}");
+            Widgets.Label(new Rect(inRect.x, inRect.yMax - FooterHeight, inRect.width, FooterHeight), "Zoology_Dialog_FleeHumans_Footer".Translate(fleeAnimals.Count, noFleeAnimals.Count));
             Text.Font = GameFont.Small;
         }
 
@@ -102,7 +102,7 @@ namespace ZoologyMod
             Widgets.DrawMenuSection(rect);
 
             Rect innerRect = rect.ContractedBy(8f);
-            Widgets.Label(new Rect(innerRect.x, innerRect.y, innerRect.width, 24f), $"{title} ({animals.Count})");
+            Widgets.Label(new Rect(innerRect.x, innerRect.y, innerRect.width, 24f), "Zoology_Dialog_ColumnWithCount".Translate(title, animals.Count));
 
             Rect searchRect = new Rect(innerRect.x, innerRect.y + 28f, innerRect.width, SearchHeight);
             searchText = Widgets.TextField(searchRect, searchText ?? string.Empty);
@@ -134,7 +134,7 @@ namespace ZoologyMod
             if (visibleIndex == 0)
             {
                 Text.Anchor = TextAnchor.MiddleCenter;
-                Widgets.Label(new Rect(0f, 0f, viewRect.width, RowHeight), "No animals matched the search.");
+                Widgets.Label(new Rect(0f, 0f, viewRect.width, RowHeight), "Zoology_Dialog_NoAnimalsMatchedSearch".Translate());
                 Text.Anchor = TextAnchor.UpperLeft;
             }
 
@@ -230,7 +230,7 @@ namespace ZoologyMod
         {
             if (def == null)
             {
-                return "Unknown";
+                return "Zoology_Dialog_Unknown".Translate();
             }
 
             return def.label.NullOrEmpty() ? def.defName : def.LabelCap.RawText;
