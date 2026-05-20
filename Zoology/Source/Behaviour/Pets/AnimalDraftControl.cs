@@ -1263,12 +1263,6 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(FloatMenuOptionProvider_DraftedAttack), nameof(FloatMenuOptionProvider_DraftedAttack.GetOptionsFor))]
     public static class Patch_DraftedAttack_GetOptionsFor_SkipNullMultiselectOption
     {
-        private static readonly MethodInfo CanTargetMethod =
-            AccessTools.Method(typeof(FloatMenuOptionProvider_DraftedAttack), "CanTarget");
-
-        private static readonly MethodInfo GetMultiselectAttackOptionMethod =
-            AccessTools.Method(typeof(FloatMenuOptionProvider_DraftedAttack), "GetMultiselectAttackOption");
-
         private static bool Prefix(FloatMenuOptionProvider_DraftedAttack __instance, Thing clickedThing, FloatMenuContext context, ref IEnumerable<FloatMenuOption> __result)
         {
             if (context == null || !context.IsMultiselect)
@@ -1276,36 +1270,165 @@ namespace ZoologyMod
                 return true;
             }
 
-            bool hasDraftControlPawn = false;
+            if (!CanDraftedAttackTarget(clickedThing))
+            {
+                __result = EmptyOptions();
+                return false;
+            }
+
+            List<Action> attackActions = null;
+            string optionLabel = null;
+            bool usesRangedAttack = false;
+            bool hasAnyAction = false;
             foreach (Pawn pawn in context.ValidSelectedPawns)
             {
-                if (AnimalDraftControlUtility.IsDraftControlActivePawn(pawn))
+                if (!TryGetMultiselectAttackAction(pawn, clickedThing, out Action action, out string label, out bool useRanged))
                 {
-                    hasDraftControlPawn = true;
-                    break;
+                    continue;
+                }
+
+                if (attackActions == null)
+                {
+                    attackActions = new List<Action>(4);
+                }
+
+                attackActions.Add(action);
+                optionLabel = label ?? optionLabel;
+                if (!hasAnyAction)
+                {
+                    usesRangedAttack = useRanged;
+                    hasAnyAction = true;
                 }
             }
 
-            if (!hasDraftControlPawn)
+            if (attackActions == null || attackActions.Count == 0)
+            {
+                __result = EmptyOptions();
+                return false;
+            }
+
+            __result = SingleOption(CreateMultiselectAttackOption(clickedThing, optionLabel, attackActions, usesRangedAttack));
+            return false;
+        }
+
+        private static bool CanDraftedAttackTarget(Thing clickedThing)
+        {
+            if (clickedThing?.def == null)
+            {
+                return false;
+            }
+
+            bool hostileToPlayer = IsHostileToPlayer(clickedThing);
+            if (clickedThing.def.noRightClickDraftAttack && hostileToPlayer)
+            {
+                return false;
+            }
+
+            if (clickedThing.def.IsNonDeconstructibleAttackableBuilding)
             {
                 return true;
             }
 
-            if (clickedThing == null || CanTargetMethod == null || GetMultiselectAttackOptionMethod == null)
+            BuildingProperties building = clickedThing.def.building;
+            if (building != null && building.quickTargetable)
             {
-                __result = EmptyOptions();
+                return true;
+            }
+
+            if (!clickedThing.def.destroyable)
+            {
                 return false;
             }
 
-            if (!(bool)CanTargetMethod.Invoke(null, new object[] { clickedThing }))
+            if (hostileToPlayer)
             {
-                __result = EmptyOptions();
+                return true;
+            }
+
+            Pawn targetPawn = clickedThing as Pawn;
+            return targetPawn != null && targetPawn.NonHumanlikeOrWildMan();
+        }
+
+        private static bool TryGetMultiselectAttackAction(Pawn pawn, Thing clickedThing, out Action action, out string label, out bool usesRangedAttack)
+        {
+            action = null;
+            label = null;
+            usesRangedAttack = false;
+
+            if (pawn == null || clickedThing == null)
+            {
                 return false;
             }
 
-            FloatMenuOption option = GetMultiselectAttackOptionMethod.Invoke(__instance, new object[] { clickedThing, context }) as FloatMenuOption;
-            __result = option == null ? EmptyOptions() : SingleOption(option);
-            return false;
+            try
+            {
+                usesRangedAttack = pawn.equipment?.Primary != null
+                    && pawn.equipment.PrimaryEq?.PrimaryVerb?.verbProps?.IsMeleeAttack == false;
+
+                string failStr;
+                if (usesRangedAttack)
+                {
+                    label = "FireAt".Translate(clickedThing.Label, clickedThing);
+                    action = FloatMenuUtility.GetRangedAttackAction(pawn, clickedThing, out failStr);
+                }
+                else
+                {
+                    Pawn targetPawn = clickedThing as Pawn;
+                    label = targetPawn != null && targetPawn.Downed
+                        ? "MeleeAttackToDeath".Translate(clickedThing.Label, clickedThing)
+                        : "MeleeAttack".Translate(clickedThing.Label, clickedThing);
+                    action = FloatMenuUtility.GetMeleeAttackAction(pawn, clickedThing, out failStr);
+                }
+
+                return action != null;
+            }
+            catch (Exception ex)
+            {
+                if (Prefs.DevMode)
+                {
+                    int clickedThingId = clickedThing.thingIDNumber;
+                    int errorKey = Gen.HashCombineInt(91584317, Gen.HashCombineInt(pawn.thingIDNumber, clickedThingId));
+                    Log.ErrorOnce(
+                        $"[Zoology] Suppressed drafted multiselect attack exception for {pawn.LabelShortCap} targeting {clickedThing.LabelCap}: {ex}",
+                        errorKey);
+                }
+
+                return false;
+            }
+        }
+
+        private static FloatMenuOption CreateMultiselectAttackOption(Thing clickedThing, string optionLabel, List<Action> attackActions, bool usesRangedAttack)
+        {
+            bool hostileToPlayer = IsHostileToPlayer(clickedThing);
+            FleckDef fleck = usesRangedAttack ? FleckDefOf.FeedbackShoot : FleckDefOf.FeedbackMelee;
+            return new FloatMenuOption(
+                optionLabel ?? "Attack".Translate(clickedThing.Label, clickedThing),
+                delegate
+                {
+                    FleckMaker.Static(clickedThing.DrawPos, clickedThing.Map, fleck);
+                    for (int i = 0; i < attackActions.Count; i++)
+                    {
+                        attackActions[i]?.Invoke();
+                    }
+                },
+                MenuOptionPriority.AttackEnemy)
+            {
+                Priority = hostileToPlayer ? MenuOptionPriority.AttackEnemy : MenuOptionPriority.VeryLow,
+                autoTakeable = hostileToPlayer || (clickedThing.def.building?.quickTargetable ?? false),
+                autoTakeablePriority = 40f
+            };
+        }
+
+        private static bool IsHostileToPlayer(Thing clickedThing)
+        {
+            try
+            {
+                return clickedThing != null && clickedThing.HostileTo(Faction.OfPlayer);
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         private static IEnumerable<FloatMenuOption> EmptyOptions()

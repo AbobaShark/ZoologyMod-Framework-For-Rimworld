@@ -67,7 +67,6 @@ namespace ZoologyMod
             HediffGiverSetDef organicStandard = DefDatabase<HediffGiverSetDef>.GetNamedSilentFail(OrganicStandardDefName);
             if (organicStandard == null)
             {
-                Log.Warning("[Zoology.Ectothermic] OrganicStandard hediff giver set was not found.");
                 return;
             }
 
