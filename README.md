@@ -470,9 +470,9 @@ The distributed mod contains dedicated patch folders or runtime integration for:
 * **Dinosauria**
 * **Megafauna**
 
-The current metadata also defines load ordering relative to the official DLCs and several supported animal frameworks.
+Zoology also defines load ordering for the official DLCs and several supported animal frameworks.
 
-Other animal mods may work through Zoology's generic runtime systems, but they should not be described as explicitly patched unless a dedicated compatibility path exists in the current build.
+Other animal mods can still use Zoology's generic runtime systems even when they do not have dedicated patches.
 
 ### Combat Extended integration
 
@@ -488,12 +488,7 @@ The optional **Override Combat Extended penetration** setting changes life-stage
 
 ### Known incompatibility: Animals Are Fun Continued
 
-The current `About.xml` explicitly marks the following package IDs as incompatible:
-
-* `ColossalFossil.AnimalsAreFunContinued`
-* `ColossalFossil.AnimalsAreFunContinued_copy`
-
-Do not describe Animals Are Fun Continued as an explicitly compatible mod for this build.
+**Animals Are Fun Continued** (`ColossalFossil.AnimalsAreFunContinued`) overlaps with animal interaction and recreation functionality already implemented by Zoology. Running both mods is therefore unsupported because the duplicated systems can conflict or produce redundant behavior.
 
 ---
 
