@@ -62,7 +62,7 @@ namespace ZoologyMod
         {
             if (pawn?.health?.hediffSet == null) return;
 
-            HashSet<HediffDef> forb = AgelessUtils.GetAgeRelatedHediffDefsForPawnView(pawn);
+            HashSet<HediffDef> forbiddenAgeHediffs = AgelessUtils.GetAgeRelatedHediffDefsForPawnView(pawn);
 
             List<Hediff> hs = pawn.health.hediffSet.hediffs;
             if (hs == null || hs.Count == 0) return;
@@ -72,7 +72,7 @@ namespace ZoologyMod
             {
                 Hediff h = hs[i];
                 if (h == null || h.def == null) continue;
-                if ((forb != null && forb.Contains(h.def)) || AgelessUtils.IsDiseaseHediff(h.def))
+                if (AgelessUtils.IsHediffForbiddenForPawn(pawn, h.def, forbiddenAgeHediffs))
                 {
                     hediffRemovalBuffer.Add(h);
                 }
@@ -274,13 +274,23 @@ namespace ZoologyMod
         
         public static bool IsHediffForbiddenForPawn(Pawn pawn, HediffDef hediff)
         {
+            return IsHediffForbiddenForPawn(pawn, hediff, GetAgeRelatedHediffDefsForPawnCached(pawn));
+        }
+
+        internal static bool IsHediffForbiddenForPawn(Pawn pawn, HediffDef hediff, HashSet<HediffDef> forbiddenAgeHediffs)
+        {
             if (pawn == null || hediff == null) return false;
+            if (hediff.organicAddedBodypart)
+            {
+                return true;
+            }
+
             if (IsDiseaseHediff(hediff))
             {
                 return true;
             }
-            var forb = GetAgeRelatedHediffDefsForPawnCached(pawn);
-            return forb != null && forb.Contains(hediff);
+
+            return forbiddenAgeHediffs != null && forbiddenAgeHediffs.Contains(hediff);
         }
 
         public static bool IsDiseaseHediff(HediffDef hediff)

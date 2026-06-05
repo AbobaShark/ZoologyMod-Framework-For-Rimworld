@@ -2149,13 +2149,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AEXP_Moa"]/statBases/MoveSpeed</xpath>
       <value>
-        <MoveSpeed>8</MoveSpeed>
+        <MoveSpeed>6.5</MoveSpeed>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AEXP_Moa"]/statBases</xpath>
       <value>
-        <MoveSpeed>8</MoveSpeed>
+        <MoveSpeed>6.5</MoveSpeed>
       </value>
     </nomatch>
   </Operation>
@@ -2655,13 +2655,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "AEXP_Moa"]/combatPower</xpath>
       <value>
-        <combatPower>110</combatPower>
+        <combatPower>105</combatPower>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "AEXP_Moa"]</xpath>
       <value>
-        <combatPower>110</combatPower>
+        <combatPower>105</combatPower>
       </value>
     </nomatch>
   </Operation>
@@ -3510,21 +3510,6 @@
       <xpath>/Defs/ThingDef[defName = "AEXP_RockhopperPenguin"]/statBases/ToxicEnvironmentResistance</xpath>
     </match>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_RockhopperPenguin"]/statBases/LeatherAmount</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_RockhopperPenguin"]/statBases/LeatherAmount</xpath>
-      <value>
-        <LeatherAmount>0</LeatherAmount>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_RockhopperPenguin"]/statBases</xpath>
-      <value>
-        <LeatherAmount>0</LeatherAmount>
-      </value>
-    </nomatch>
-  </Operation>
   <!-- AEXP_RockhopperPenguin tools -->
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AEXP_RockhopperPenguin"]/tools</xpath>
@@ -3688,9 +3673,18 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AEXP_RockhopperPenguin"]/race/leatherDef</xpath>
-    <match Class="PatchOperationRemove">
+    <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AEXP_RockhopperPenguin"]/race/leatherDef</xpath>
+      <value>
+        <leatherDef>Leather_Bird</leatherDef>
+      </value>
     </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "AEXP_RockhopperPenguin"]/race</xpath>
+      <value>
+        <leatherDef>Leather_Bird</leatherDef>
+      </value>
+    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AEXP_RockhopperPenguin"]/race/useLeatherFrom</xpath>
