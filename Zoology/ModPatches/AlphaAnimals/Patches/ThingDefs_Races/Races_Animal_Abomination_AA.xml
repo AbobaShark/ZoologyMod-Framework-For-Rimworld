@@ -773,21 +773,6 @@
       <xpath>/Defs/ThingDef[defName = "AA_Eyeling"]/statBases/ToxicEnvironmentResistance</xpath>
     </match>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_Eyeling"]/statBases/LeatherAmount</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_Eyeling"]/statBases/LeatherAmount</xpath>
-      <value>
-        <LeatherAmount>0</LeatherAmount>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_Eyeling"]/statBases</xpath>
-      <value>
-        <LeatherAmount>0</LeatherAmount>
-      </value>
-    </nomatch>
-  </Operation>
   <!-- AA_Eyeling tools -->
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_Eyeling"]/tools</xpath>
@@ -942,9 +927,18 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_Eyeling"]/race/leatherDef</xpath>
-    <match Class="PatchOperationRemove">
+    <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_Eyeling"]/race/leatherDef</xpath>
+      <value>
+        <leatherDef>Leather_Chitin</leatherDef>
+      </value>
     </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "AA_Eyeling"]/race</xpath>
+      <value>
+        <leatherDef>Leather_Chitin</leatherDef>
+      </value>
+    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_Eyeling"]/race/useLeatherFrom</xpath>
@@ -4023,21 +4017,6 @@
       <xpath>/Defs/ThingDef[defName = "AA_UnblinkingEye"]/statBases/ToxicEnvironmentResistance</xpath>
     </match>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_UnblinkingEye"]/statBases/LeatherAmount</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_UnblinkingEye"]/statBases/LeatherAmount</xpath>
-      <value>
-        <LeatherAmount>0</LeatherAmount>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_UnblinkingEye"]/statBases</xpath>
-      <value>
-        <LeatherAmount>0</LeatherAmount>
-      </value>
-    </nomatch>
-  </Operation>
   <!-- AA_UnblinkingEye tools -->
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_UnblinkingEye"]/tools</xpath>
@@ -4192,9 +4171,18 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_UnblinkingEye"]/race/leatherDef</xpath>
-    <match Class="PatchOperationRemove">
+    <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_UnblinkingEye"]/race/leatherDef</xpath>
+      <value>
+        <leatherDef>Leather_Chitin</leatherDef>
+      </value>
     </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "AA_UnblinkingEye"]/race</xpath>
+      <value>
+        <leatherDef>Leather_Chitin</leatherDef>
+      </value>
+    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_UnblinkingEye"]/race/useLeatherFrom</xpath>
@@ -4772,13 +4760,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="AA_Eyeling"]/statBases/ArmorRating_Sharp</xpath>
             <value>
-              <ArmorRating_Sharp>0</ArmorRating_Sharp>
+              <ArmorRating_Sharp>0.19</ArmorRating_Sharp>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="AA_Eyeling"]/statBases</xpath>
             <value>
-              <ArmorRating_Sharp>0</ArmorRating_Sharp>
+              <ArmorRating_Sharp>0.19</ArmorRating_Sharp>
             </value>
           </nomatch>
         </li>
@@ -5772,13 +5760,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="AA_UnblinkingEye"]/statBases/ArmorRating_Sharp</xpath>
             <value>
-              <ArmorRating_Sharp>0.01</ArmorRating_Sharp>
+              <ArmorRating_Sharp>1.3</ArmorRating_Sharp>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="AA_UnblinkingEye"]/statBases</xpath>
             <value>
-              <ArmorRating_Sharp>0.01</ArmorRating_Sharp>
+              <ArmorRating_Sharp>1.3</ArmorRating_Sharp>
             </value>
           </nomatch>
         </li>
@@ -5787,13 +5775,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="AA_UnblinkingEye"]/statBases/ArmorRating_Blunt</xpath>
             <value>
-              <ArmorRating_Blunt>0.05</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0.15</ArmorRating_Blunt>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="AA_UnblinkingEye"]/statBases</xpath>
             <value>
-              <ArmorRating_Blunt>0.05</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0.15</ArmorRating_Blunt>
             </value>
           </nomatch>
         </li>

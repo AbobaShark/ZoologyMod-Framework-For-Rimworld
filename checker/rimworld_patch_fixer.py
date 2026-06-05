@@ -278,6 +278,56 @@ class PatchGenerator:
                     patched_abstracts.add(name)
         return patched_defnames, patched_abstracts
 
+    def _extract_def_name_from_row(self, row):
+        if row is None:
+            return ''
+        xml_name = row.get('XML name', '').strip() if 'XML name' in row.index else (row.iloc[0].strip() if len(row.index) > 0 else '')
+        return self._extract_def_name_from_xml_name(xml_name)
+
+    def _get_parent_abstract_from_row(self, row):
+        if row is None:
+            return ''
+        if 'Parrent abstract' in row.index:
+            parent = row.get('Parrent abstract', '')
+        elif 'Parent abstract' in row.index:
+            parent = row.get('Parent abstract', '')
+        else:
+            parent = ''
+        if parent is None:
+            return ''
+        parent = str(parent).strip()
+        return '' if parent == 'None' else parent
+
+    def _get_pawn_parent_from_row(self, row):
+        if row is None:
+            return ''
+        if 'Parrent Pawn kind abstract' in row.index:
+            pawn_parent = row.get('Parrent Pawn kind abstract', '')
+        elif 'Parent Pawn kind abstract' in row.index:
+            pawn_parent = row.get('Parent Pawn kind abstract', '')
+        elif 'Parrent Pawn kind' in row.index:
+            pawn_parent = row.get('Parrent Pawn kind', '')
+        else:
+            pawn_parent = ''
+        if pawn_parent is None:
+            return ''
+        pawn_parent = str(pawn_parent).strip()
+        return '' if pawn_parent == 'None' else pawn_parent
+
+    def _derive_abstracts_from_defs(self, def_names):
+        selected = {str(name).strip() for name in (def_names or []) if str(name).strip()}
+        if not selected or self.vanilla_df is None:
+            return set()
+        patched_abstracts = set()
+        for _, row in self.vanilla_df.iterrows():
+            def_name = self._extract_def_name_from_row(row)
+            if def_name not in selected:
+                continue
+            parent = self._get_parent_abstract_from_row(row)
+            if parent:
+                patched_abstracts.add(parent)
+        return patched_abstracts
+
     # =========================
     # Build tools from tables (TSV or Excel sheets)
     # =========================
@@ -1327,6 +1377,237 @@ class PatchGenerator:
 
         return op
 
+    def _build_patch_root(self, original_root, patched_defnames, patched_abstracts):
+        original_root = original_root if original_root is not None else LET.Element("Patch")
+        patched_defnames = {str(name).strip() for name in (patched_defnames or []) if str(name).strip()}
+        patched_abstracts = {str(name).strip() for name in (patched_abstracts or []) if str(name).strip()}
+
+        all_abstract_groups = defaultdict(list)
+        def_row_all = {}
+        present_abstract_groups = defaultdict(list)
+        def_to_row = {}
+        def_mod_conflicts = {}
+
+        if self.vanilla_df is None:
+            raise RuntimeError("Vanilla table not provided")
+
+        for _, row in self.vanilla_df.iterrows():
+            def_name = self._extract_def_name_from_row(row)
+            if not def_name:
+                continue
+            parent = self._get_parent_abstract_from_row(row)
+
+            def_row_all[def_name] = row
+            mods_for_def = self._split_mod_list(get_row_value(row, 'ModConflict'))
+            if mods_for_def:
+                existing_mods = def_mod_conflicts.setdefault(def_name, [])
+                for mod_name in mods_for_def:
+                    if mod_name not in existing_mods:
+                        existing_mods.append(mod_name)
+            if parent:
+                all_abstract_groups[parent].append(def_name)
+
+        for def_name, row in def_row_all.items():
+            if def_name not in patched_defnames:
+                continue
+            def_to_row[def_name] = row
+            parent = self._get_parent_abstract_from_row(row)
+            if parent:
+                present_abstract_groups[parent].append(def_name)
+
+        parent_common_map = {}
+        for abstract, children in all_abstract_groups.items():
+            common_values, differing_cols, tool_signature = self.compute_abstract_common(children, def_row_all)
+            parent_common_map[abstract] = {
+                'common_values': common_values,
+                'differing_cols': differing_cols,
+                'tool_signature': tool_signature,
+            }
+
+        first_child_of_abstract = {}
+        for abstract, children in all_abstract_groups.items():
+            if children:
+                first_child_of_abstract[abstract] = children[0]
+
+        pawn_parent_groups_all = defaultdict(list)
+        for def_name, row in def_row_all.items():
+            pawn_parent = self._get_pawn_parent_from_row(row)
+            if pawn_parent:
+                pawn_parent_groups_all[pawn_parent].append(def_name)
+
+        pawn_parent_common_map = {}
+        pawn_fields = ['Combat power', 'ecoSystemWeight', 'Wild group size', 'CanArriveManhunter', 'moveSpeedFactorByTerrainTag']
+        for pawn_parent, children in pawn_parent_groups_all.items():
+            common_values = {}
+            differing_cols = []
+            first_row = None
+            for c in children:
+                if c in def_row_all:
+                    first_row = def_row_all[c]
+                    break
+            if first_row is None:
+                pawn_parent_common_map[pawn_parent] = {'common_values': common_values, 'differing_cols': differing_cols, 'children': children}
+                continue
+
+            for col in pawn_fields:
+                vals = []
+                for c in children:
+                    r = def_row_all.get(c)
+                    if r is None:
+                        vals.append('')
+                    else:
+                        vals.append(norm(get_row_value(r, col)))
+                vals_non_empty = [v for v in vals if v != '']
+                if len(vals_non_empty) == 0:
+                    continue
+                if all(v == vals_non_empty[0] for v in vals_non_empty):
+                    common_values[col] = get_row_value(first_row, col)
+                else:
+                    differing_cols.append(col)
+
+            pawn_parent_common_map[pawn_parent] = {'common_values': common_values, 'differing_cols': differing_cols, 'children': children}
+
+        first_child_of_pawn_parent = {}
+        for pawn_parent, children in pawn_parent_groups_all.items():
+            if children:
+                first_child_of_pawn_parent[pawn_parent] = children[0]
+
+        new_operations = []
+
+        for abstract in patched_abstracts:
+            first_child = first_child_of_abstract.get(abstract)
+            if not first_child:
+                continue
+            if first_child not in def_to_row:
+                continue
+            children_present = present_abstract_groups.get(abstract, [])
+            new_operations.extend(self.generate_abstract_patches(abstract, children_present, def_to_row, original_root, parent_common_map=parent_common_map))
+
+        for pawn_parent, info in pawn_parent_common_map.items():
+            first_child = first_child_of_pawn_parent.get(pawn_parent)
+            if not first_child:
+                continue
+            if first_child not in def_to_row:
+                continue
+
+            common_values = info.get('common_values', {})
+            differing_cols = info.get('differing_cols', [])
+            new_operations.append(LET.Comment(""))
+            new_operations.append(LET.Comment(f" PawnKind parent {pawn_parent} "))
+            if 'Combat power' in common_values:
+                val = common_values['Combat power']
+                if val is not None and str(val).strip() != '':
+                    if str(val).lower() == 'no':
+                        new_operations.append(self.create_safe_remove(pawn_parent, '', 'combatPower', is_pawn=True, is_abstract=True))
+                    else:
+                        new_operations.append(self.create_safe_replace(pawn_parent, '', 'combatPower', val, is_pawn=True, is_abstract=True))
+            elif 'Combat power' in differing_cols:
+                new_operations.append(self.create_safe_remove(pawn_parent, '', 'combatPower', is_pawn=True, is_abstract=True))
+
+            if 'ecoSystemWeight' in common_values:
+                val = common_values['ecoSystemWeight']
+                if val is not None and str(val).strip() != '':
+                    if str(val).lower() == 'no':
+                        new_operations.append(self.create_safe_remove(pawn_parent, '', 'ecoSystemWeight', is_pawn=True, is_abstract=True))
+                    else:
+                        new_operations.append(self.create_safe_replace(pawn_parent, '', 'ecoSystemWeight', val, is_pawn=True, is_abstract=True))
+            elif 'ecoSystemWeight' in differing_cols:
+                new_operations.append(self.create_safe_remove(pawn_parent, '', 'ecoSystemWeight', is_pawn=True, is_abstract=True))
+
+            if 'Wild group size' in common_values:
+                val = common_values['Wild group size']
+                s = str(val).strip()
+                if s.lower() in ('no', ''):
+                    new_operations.append(self.create_safe_remove(pawn_parent, '', 'wildGroupSize', is_pawn=True, is_abstract=True))
+                else:
+                    el = LET.Element('wildGroupSize')
+                    el.text = s
+                    new_operations.append(self.create_safe_replace(pawn_parent, '', 'wildGroupSize', el, is_pawn=True, is_abstract=True))
+            elif 'Wild group size' in differing_cols:
+                new_operations.append(self.create_safe_remove(pawn_parent, '', 'wildGroupSize', is_pawn=True, is_abstract=True))
+
+            if 'CanArriveManhunter' in common_values:
+                val = common_values['CanArriveManhunter']
+                if val is not None and str(val).strip() != '':
+                    if str(val).lower() in ('no', 'false', '0'):
+                        new_operations.append(self.create_safe_remove(pawn_parent, '', 'canArriveManhunter', is_pawn=True, is_abstract=True))
+                    else:
+                        new_operations.append(self.create_safe_replace(pawn_parent, '', 'canArriveManhunter', val, is_pawn=True, is_abstract=True))
+            elif 'CanArriveManhunter' in differing_cols:
+                new_operations.append(self.create_safe_remove(pawn_parent, '', 'canArriveManhunter', is_pawn=True, is_abstract=True))
+
+            if 'moveSpeedFactorByTerrainTag' in common_values:
+                val = common_values['moveSpeedFactorByTerrainTag']
+                s = '' if val is None else str(val).strip()
+                if s.lower() in ('', 'no', 'none'):
+                    new_operations.append(self.create_safe_remove(pawn_parent, 'moveSpeedFactorByTerrainTag', "li[key = 'Water']", is_pawn=True, is_abstract=True))
+                else:
+                    new_operations.append(self.create_ensure_container(pawn_parent, 'moveSpeedFactorByTerrainTag', is_pawn=True, is_abstract=True))
+                    new_operations.append(self.create_moveSpeedFactorByTerrainTag_patch(pawn_parent, s, is_pawn=True, is_abstract=True))
+            elif 'moveSpeedFactorByTerrainTag' in differing_cols:
+                new_operations.append(self.create_safe_remove(pawn_parent, '', 'moveSpeedFactorByTerrainTag', is_pawn=True, is_abstract=True))
+
+        for def_name, row in def_to_row.items():
+            parent = self._get_parent_abstract_from_row(row)
+            def_ops = self.generate_def_patches(
+                def_name,
+                row,
+                original_root,
+                parent or None,
+                parent_common_map,
+                pawn_parent_common_map
+            )
+            wrapped_def_ops = self._wrap_ops_in_mod_conflict(def_ops, def_mod_conflicts.get(def_name), as_li=False)
+            new_operations.extend(wrapped_def_ops)
+
+        new_operations.append(LET.Comment(""))
+        new_operations.append(LET.Comment(" Combat Extended specific patches "))
+        new_operations.append(self.generate_ce_block(def_to_row, original_root, def_mod_conflicts=def_mod_conflicts))
+
+        seen = set()
+        unique_ops = []
+        for op in new_operations:
+            try:
+                serialized = LET.tostring(op)
+            except Exception:
+                serialized = str(op)
+            if serialized in seen:
+                continue
+            seen.add(serialized)
+            unique_ops.append(op)
+
+        new_root = LET.Element("Patch")
+        for op in unique_ops:
+            new_root.append(op)
+        return new_root
+
+    def _write_patch_root(self, new_root, output_path):
+        ensure_dir(output_path)
+        with open(output_path, 'wb') as f:
+            f.write(LET.tostring(new_root, pretty_print=True, encoding='utf-8', xml_declaration=True))
+        self.validate_xml(output_path)
+        return True
+
+    def generate_patch_from_definitions(self, output_path, def_names, patched_abstracts=None, template_path=None):
+        try:
+            patched_defnames = {str(name).strip() for name in (def_names or []) if str(name).strip()}
+            if not patched_defnames:
+                raise RuntimeError("No animal defs selected for patch generation.")
+
+            if patched_abstracts is None:
+                patched_abstracts = self._derive_abstracts_from_defs(patched_defnames)
+
+            original_root = LET.Element("Patch")
+            if template_path and os.path.exists(template_path):
+                parser = LET.XMLParser(remove_comments=False, recover=True)
+                original_root = LET.parse(template_path, parser).getroot()
+
+            new_root = self._build_patch_root(original_root, patched_defnames, patched_abstracts)
+            return self._write_patch_root(new_root, output_path)
+        except Exception:
+            traceback.print_exc()
+            return False
+
     def generate_fixed_xml(self, xml_path, output_path):
         try:
             if not os.path.exists(xml_path):
@@ -1336,274 +1617,9 @@ class PatchGenerator:
             tree = LET.parse(xml_path, parser)
             original_root = tree.getroot()
             patched_defnames, patched_abstracts = self.get_patched_names(original_root)
-
-            # --- We'll maintain two parallel data sets:
-            # def_row_all / all_abstract_groups  -> all TSV rows (used for computing parent_common_map)
-            # def_to_row / present_abstract_groups -> only TSV rows that correspond to defs actually present in this XML (used to emit child ops)
-            all_abstract_groups = defaultdict(list)
-            def_row_all = {}
-            present_abstract_groups = defaultdict(list)
-            def_to_row = {}
-            def_mod_conflicts = {}
-
-            if self.vanilla_df is None:
-                raise RuntimeError("Vanilla table not provided")
-
-            # First pass: collect ALL TSV rows into def_row_all and all_abstract_groups
-            for _, row in self.vanilla_df.iterrows():
-                xml_name = row.get('XML name', '').strip() if 'XML name' in row.index else (row.iloc[0].strip() if len(row.index) > 0 else '')
-                m = re.search(r'<li>(.*?)</li>', xml_name)
-                def_name = m.group(1) if m else xml_name
-                parent = row.get('Parrent abstract', '') if 'Parrent abstract' in row.index else row.get('Parent abstract', '') if 'Parent abstract' in row.index else ''
-                if parent is None:
-                    parent = ''
-                parent = str(parent).strip()
-
-                # store in global TSV map
-                def_row_all[def_name] = row
-                mods_for_def = self._split_mod_list(get_row_value(row, 'ModConflict'))
-                if mods_for_def:
-                    existing_mods = def_mod_conflicts.setdefault(def_name, [])
-                    for mod_name in mods_for_def:
-                        if mod_name not in existing_mods:
-                            existing_mods.append(mod_name)
-                if parent and parent != 'None':
-                    all_abstract_groups[parent].append(def_name)
-
-            # Second pass: but only mark as "present" those defs that actually are referenced in this XML
-            # patched_defnames is provided by get_patched_names(original_root)
-            for def_name, row in def_row_all.items():
-                if def_name in patched_defnames:
-                    def_to_row[def_name] = row
-                    # determine parent (again, but only for rows that are present)
-                    parent = row.get('Parrent abstract', '') if 'Parrent abstract' in row.index else row.get('Parent abstract', '') if 'Parent abstract' in row.index else ''
-                    if parent is None:
-                        parent = ''
-                    parent = str(parent).strip()
-                    if parent and parent != 'None':
-                        present_abstract_groups[parent].append(def_name)
-
-            # --- compute common maps for abstracts using ALL children from TSV (def_row_all) ---
-            parent_common_map = {}  # abstract -> dict with keys: common_values, differing_cols, tool_signature
-            for abstract, children in all_abstract_groups.items():
-                # compute_abstract_common expects a list of child names and a mapping def->row
-                common_values, differing_cols, tool_signature = self.compute_abstract_common(children, def_row_all)
-                parent_common_map[abstract] = {
-                    'common_values': common_values,
-                    'differing_cols': differing_cols,
-                    'tool_signature': tool_signature,
-                }
-
-            # ---------- determine FIRST child for each abstract (important change) ----------
-            # We'll use TSV order (all_abstract_groups built in TSV order), and pick the first listed child.
-            # Parent-level (abstract) patches will be emitted only in the XML where this first child is present.
-            first_child_of_abstract = {}
-            for abstract, children in all_abstract_groups.items():
-                if children:
-                    first_child_of_abstract[abstract] = children[0]
-
-            # ---------- PAWN KIND parent grouping (from ALL TSV rows) ----------
-            pawn_parent_groups_all = defaultdict(list)
-            for def_name, row in def_row_all.items():
-                pawn_parent = ''
-                if 'Parrent Pawn kind abstract' in row.index:
-                    pawn_parent = str(row.get('Parrent Pawn kind abstract', '')).strip()
-                elif 'Parent Pawn kind abstract' in row.index:
-                    pawn_parent = str(row.get('Parent Pawn kind abstract', '')).strip()
-                elif 'Parrent Pawn kind' in row.index:
-                    pawn_parent = str(row.get('Parrent Pawn kind', '')).strip()
-                if pawn_parent and pawn_parent != 'None':
-                    pawn_parent_groups_all[pawn_parent].append(def_name)
-
-            # compute pawn parent common values (for PawnKindDef fields) using ALL children
-            pawn_parent_common_map = {}  # pawn_parent -> {'common_values':..., 'differing_cols':...}
-            pawn_fields = ['Combat power', 'ecoSystemWeight', 'Wild group size', 'CanArriveManhunter', 'moveSpeedFactorByTerrainTag']
-            for pawn_parent, children in pawn_parent_groups_all.items():
-                common_values = {}
-                differing_cols = []
-                # pick first child's row
-                first_row = None
-                for c in children:
-                    if c in def_row_all:
-                        first_row = def_row_all[c]
-                        break
-                if first_row is None:
-                    pawn_parent_common_map[pawn_parent] = {'common_values': common_values, 'differing_cols': differing_cols, 'children': children}
-                    continue
-
-                for col in pawn_fields:
-                    vals = []
-                    for c in children:
-                        r = def_row_all.get(c)
-                        if r is None:
-                            vals.append('')
-                        else:
-                            v = get_row_value(r, col)
-                            vals.append(norm(v))
-                    vals_non_empty = [v for v in vals if v != '']
-                    if len(vals_non_empty) == 0:
-                        continue
-                    if all(v == vals_non_empty[0] for v in vals_non_empty):
-                        # store original (non-normalized) from first_row
-                        common_values[col] = get_row_value(first_row, col)
-                    else:
-                        differing_cols.append(col)
-
-                pawn_parent_common_map[pawn_parent] = {'common_values': common_values, 'differing_cols': differing_cols, 'children': children}
-
-            # ---------- determine FIRST child for each pawn_parent (same policy as for abstracts) ----------
-            first_child_of_pawn_parent = {}
-            for pawn_parent, children in pawn_parent_groups_all.items():
-                if children:
-                    first_child_of_pawn_parent[pawn_parent] = children[0]
-
-            new_operations = []
-
-            # Абстрактные классы (сначала)
-            # KEY CHANGE: generate abstract patches only in the XML that contains the FIRST child (by TSV order)
-            # For each abstract in patched_abstracts: check if its first TSV child is present in def_to_row (present in this XML).
-            for abstract in patched_abstracts:
-                first_child = first_child_of_abstract.get(abstract)
-                if not first_child:
-                    # no children known in TSV -> nothing to generate
-                    continue
-                # only generate the parent abstract patch in the file that contains the first child
-                if first_child not in def_to_row:
-                    # skip: this XML doesn't contain the first child for this abstract
-                    continue
-                # gather present children (for passing to generate_abstract_patches)
-                children_present = present_abstract_groups.get(abstract, [])
-                # PASS parent_common_map so generate_abstract_patches can decide commonness using ALL TSV rows
-                new_operations.extend(self.generate_abstract_patches(abstract, children_present, def_to_row, original_root, parent_common_map=parent_common_map))
-
-            # ---------- PawnKind parent patches (based on pawn_parent_common_map computed from ALL TSV rows) ----------
-            # KEY CHANGE: create pawn-parent ops only in the XML that contains the FIRST child of that pawn_parent
-            for pawn_parent, info in pawn_parent_common_map.items():
-                first_child = first_child_of_pawn_parent.get(pawn_parent)
-                if not first_child:
-                    continue
-                # only create pawn_parent operations in the XML that contains the first child
-                if first_child not in def_to_row:
-                    continue
-
-                common_values = info.get('common_values', {})
-                differing_cols = info.get('differing_cols', [])
-                new_operations.append(LET.Comment(""))
-                new_operations.append(LET.Comment(f" PawnKind parent {pawn_parent} "))
-                # Combat power
-                if 'Combat power' in common_values:
-                    val = common_values['Combat power']
-                    if val is not None and str(val).strip() != '':
-                        if str(val).lower() == 'no':
-                            new_operations.append(self.create_safe_remove(pawn_parent, '', 'combatPower', is_pawn=True, is_abstract=True))
-                        else:
-                            new_operations.append(self.create_safe_replace(pawn_parent, '', 'combatPower', val, is_pawn=True, is_abstract=True))
-                elif 'Combat power' in differing_cols:
-                    new_operations.append(self.create_safe_remove(pawn_parent, '', 'combatPower', is_pawn=True, is_abstract=True))
-
-                # ecoSystemWeight
-                if 'ecoSystemWeight' in common_values:
-                    val = common_values['ecoSystemWeight']
-                    if val is not None and str(val).strip() != '':
-                        if str(val).lower() == 'no':
-                            new_operations.append(self.create_safe_remove(pawn_parent, '', 'ecoSystemWeight', is_pawn=True, is_abstract=True))
-                        else:
-                            new_operations.append(self.create_safe_replace(pawn_parent, '', 'ecoSystemWeight', val, is_pawn=True, is_abstract=True))
-                elif 'ecoSystemWeight' in differing_cols:
-                    new_operations.append(self.create_safe_remove(pawn_parent, '', 'ecoSystemWeight', is_pawn=True, is_abstract=True))
-
-                # Wild group size -> wildGroupSize (special element)
-                if 'Wild group size' in common_values:
-                    val = common_values['Wild group size']
-                    s = str(val).strip()
-                    if s.lower() in ('no', ''):
-                        new_operations.append(self.create_safe_remove(pawn_parent, '', 'wildGroupSize', is_pawn=True, is_abstract=True))
-                    else:
-                        el = LET.Element('wildGroupSize')
-                        el.text = s
-                        new_operations.append(self.create_safe_replace(pawn_parent, '', 'wildGroupSize', el, is_pawn=True, is_abstract=True))
-                elif 'Wild group size' in differing_cols:
-                    new_operations.append(self.create_safe_remove(pawn_parent, '', 'wildGroupSize', is_pawn=True, is_abstract=True))
-
-                # CanArriveManhunter
-                if 'CanArriveManhunter' in common_values:
-                    val = common_values['CanArriveManhunter']
-                    if val is not None and str(val).strip() != '':
-                        if str(val).lower() in ('no', 'false', '0'):
-                            new_operations.append(self.create_safe_remove(pawn_parent, '', 'canArriveManhunter', is_pawn=True, is_abstract=True))
-                        else:
-                            new_operations.append(self.create_safe_replace(pawn_parent, '', 'canArriveManhunter', val, is_pawn=True, is_abstract=True))
-                elif 'CanArriveManhunter' in differing_cols:
-                    new_operations.append(self.create_safe_remove(pawn_parent, '', 'canArriveManhunter', is_pawn=True, is_abstract=True))
-                    
-                # moveSpeedFactorByTerrainTag (special handling: ensure container, then set li[key='Water'])
-                if 'moveSpeedFactorByTerrainTag' in common_values:
-                    val = common_values['moveSpeedFactorByTerrainTag']
-                    s = '' if val is None else str(val).strip()
-                    # if explicit 'no' or empty -> remove water entry
-                    if s.lower() in ('', 'no', 'none'):
-                        # remove specific Water li under pawn parent (abstract)
-                        new_operations.append(self.create_safe_remove(pawn_parent, 'moveSpeedFactorByTerrainTag', "li[key = 'Water']", is_pawn=True, is_abstract=True))
-                    else:
-                        # ensure container exists on pawn parent (abstract)
-                        new_operations.append(self.create_ensure_container(pawn_parent, 'moveSpeedFactorByTerrainTag', is_pawn=True, is_abstract=True))
-                        # then replace/add the Water li
-                        new_operations.append(self.create_moveSpeedFactorByTerrainTag_patch(pawn_parent, s, is_pawn=True, is_abstract=True))
-                elif 'moveSpeedFactorByTerrainTag' in differing_cols:
-                    # differing -> remove parent's container so children can override individually
-                    new_operations.append(self.create_safe_remove(pawn_parent, '', 'moveSpeedFactorByTerrainTag', is_pawn=True, is_abstract=True))
-
-            # Конкретные животные — только те, которые присутствуют в XML (def_to_row)
-            for def_name, row in def_to_row.items():
-                parent = row.get('Parrent abstract', 'None') if 'Parrent abstract' in row.index else row.get('Parent abstract', 'None') if 'Parent abstract' in row.index else 'None'
-                if parent is None:
-                    parent = 'None'
-                parent = parent.strip()
-                def_ops = self.generate_def_patches(
-                    def_name,
-                    row,
-                    original_root,
-                    parent if parent != 'None' else None,
-                    parent_common_map,
-                    pawn_parent_common_map
-                )
-                wrapped_def_ops = self._wrap_ops_in_mod_conflict(def_ops, def_mod_conflicts.get(def_name), as_li=False)
-                new_operations.extend(wrapped_def_ops)
-
-            # Вставляем комментарий перед CE-блоком (пустая строка + комментарий)
-            new_operations.append(LET.Comment(""))
-            new_operations.append(LET.Comment(" Combat Extended specific patches "))
-
-            # CE блок — pass def_to_row (only present defs) so CE block will only be generated for present defs
-            new_operations.append(self.generate_ce_block(def_to_row, original_root, def_mod_conflicts=def_mod_conflicts))
-
-            # --- deduplicate identical operations (by exact XML text) to avoid double removes ---
-            seen = set()
-            unique_ops = []
-            for op in new_operations:
-                try:
-                    s = LET.tostring(op)
-                except Exception:
-                    # fallback to str() to avoid crashing on weird nodes
-                    s = str(op)
-                if s in seen:
-                    # skip exact duplicate
-                    continue
-                seen.add(s)
-                unique_ops.append(op)
-
-            # build final root from unique ops only
-            new_root = LET.Element("Patch")
-            for op in unique_ops:
-                new_root.append(op)
-
-            ensure_dir(output_path)
-            with open(output_path, 'wb') as f:
-                f.write(LET.tostring(new_root, pretty_print=True, encoding='utf-8', xml_declaration=True))
-
-            self.validate_xml(output_path)
-            return True
-        except Exception as e:
+            new_root = self._build_patch_root(original_root, patched_defnames, patched_abstracts)
+            return self._write_patch_root(new_root, output_path)
+        except Exception:
             traceback.print_exc()
             return False
 
@@ -3821,8 +3837,12 @@ class GeneratorApp(tk.Tk):
             if dropped:
                 print(f"Warning: removed {len(dropped)} missing XML path(s) from config.")
         self.replace_in_place = tk.BooleanVar(value=bool(self.cfg.get('replace_in_place', False)))
+        self.table_groups = self._normalize_table_groups(self.cfg.get('table_groups', []))
+        self._table_animals_cache = None
+        self._table_animals_cache_key = None
         self._build_ui()
         self.report_dir = self._ensure_report_dir()
+        self._refresh_table_groups_summary()
         self.status.set(f"Output folder: {self.report_dir}")
 
     def _normalize_xml_paths(self, paths):
@@ -3868,6 +3888,81 @@ class GeneratorApp(tk.Tk):
             dropped.append(p)
         return normalized, changed, dropped
 
+    def _normalize_group_output_value(self, output):
+        value = '' if output is None else str(output).strip()
+        if not value:
+            return ''
+        if not os.path.splitext(value)[1]:
+            value += '.xml'
+        if os.path.isabs(value):
+            return os.path.normpath(value)
+        parts = [part for part in re.split(r'[\\/]+', value) if part]
+        if parts and parts[0].lower() == REPORT_DIRNAME.lower():
+            parts = parts[1:]
+        return '/'.join(parts)
+
+    def _table_group_output_key(self, output):
+        value = self._normalize_group_output_value(output)
+        return value.lower() if value else ''
+
+    def _normalize_table_groups(self, groups):
+        normalized = []
+        if not isinstance(groups, list):
+            return normalized
+        for group in groups:
+            if not isinstance(group, dict):
+                continue
+            output = self._normalize_group_output_value(group.get('output', ''))
+            defs = []
+            seen_defs = set()
+            for def_name in group.get('defs', []):
+                name = str(def_name).strip()
+                if not name or name in seen_defs:
+                    continue
+                seen_defs.add(name)
+                defs.append(name)
+            if output and defs:
+                normalized.append({'output': output, 'defs': defs})
+        return normalized
+
+    def _save_table_groups(self):
+        self.table_groups = self._normalize_table_groups(self.table_groups)
+        self.cfg['table_groups'] = self.table_groups
+        save_config(self.cfg)
+        self._refresh_table_groups_summary()
+
+    def _refresh_table_groups_summary(self):
+        if not hasattr(self, 'table_groups_summary'):
+            return
+        group_count = len(self.table_groups)
+        animal_count = sum(len(group.get('defs', [])) for group in self.table_groups)
+        self.table_groups_summary.set(f"{group_count} group(s), {animal_count} animal assignment(s)")
+
+    def _resolve_group_output_path(self, output):
+        value = self._normalize_group_output_value(output)
+        if not value:
+            return ''
+        if os.path.isabs(value):
+            return os.path.normpath(value)
+        parts = [part for part in re.split(r'[\\/]+', value) if part]
+        return os.path.normpath(os.path.join(self.report_dir, *parts))
+
+    def _path_to_group_output_value(self, path):
+        p_norm = os.path.normpath(path)
+        try:
+            rel = os.path.relpath(p_norm, self.report_dir)
+            if not rel.startswith('..'):
+                return rel.replace('\\', '/')
+        except Exception:
+            pass
+        return p_norm
+
+    def _summarize_table_group(self, group):
+        output = group.get('output', '')
+        count = len(group.get('defs', []))
+        suffix = 'animal' if count == 1 else 'animals'
+        return f"{output} ({count} {suffix})"
+
     def _ensure_report_dir(self):
         script_dir = os.path.dirname(os.path.abspath(sys.argv[0])) or os.getcwd()
         r = os.path.join(script_dir, REPORT_DIRNAME)
@@ -3911,6 +4006,13 @@ class GeneratorApp(tk.Tk):
         ttk.Button(ctrl, text="Generate/Fix Patches", command=self.run_generation).pack(fill='x', pady=6)
         ttk.Button(ctrl, text="Generate Biome Patches", command=self.run_biome_generation).pack(fill='x', pady=2)
         ttk.Button(ctrl, text="Open Output Folder", command=self.open_output).pack(fill='x', pady=2)
+        groups_frame = ttk.Frame(main)
+        groups_frame.pack(fill='x', pady=(8, 0))
+        ttk.Label(groups_frame, text="Table-driven groups:").pack(side='left')
+        self.table_groups_summary = tk.StringVar(value='')
+        ttk.Label(groups_frame, textvariable=self.table_groups_summary).pack(side='left', padx=6)
+        ttk.Button(groups_frame, text="Edit Groups", command=self.open_table_groups_manager).pack(side='right')
+        ttk.Button(groups_frame, text="Generate From Groups", command=self.run_group_generation).pack(side='right', padx=(0, 6))
         self.status = tk.StringVar(value='')
         ttk.Label(main, textvariable=self.status).pack(fill='x', pady=(8,0))
 
@@ -3922,6 +4024,8 @@ class GeneratorApp(tk.Tk):
         if p:
             self.vanilla_tsv.set(p)
             self.cfg['vanilla_tsv'] = p
+            self._table_animals_cache = None
+            self._table_animals_cache_key = None
             save_config(self.cfg)
 
     def pick_ce_tsv(self):
@@ -4003,6 +4107,311 @@ class GeneratorApp(tk.Tk):
         except Exception as e:
             messagebox.showerror("Error", str(e))
 
+    def _load_table_animals_for_ui(self):
+        v_source = self.vanilla_tsv.get()
+        if not v_source or not os.path.exists(v_source):
+            raise RuntimeError("Vanilla table missing or not found (TSV/XLSX).")
+        try:
+            cache_key = (os.path.normcase(os.path.abspath(v_source)), os.path.getmtime(v_source))
+        except Exception:
+            cache_key = (os.path.normcase(os.path.abspath(v_source)), None)
+        if self._table_animals_cache_key == cache_key and self._table_animals_cache is not None:
+            return self._table_animals_cache
+
+        loader = PatchGenerator.__new__(PatchGenerator)
+        sheet_name = 'Animals' if is_excel_source(v_source) else None
+        vanilla_df = loader._load_table(v_source, sheet_name=sheet_name, required=True)
+        animals = []
+        seen = set()
+        for _, row in vanilla_df.iterrows():
+            def_name = loader._extract_def_name_from_row(row)
+            if not def_name or def_name in seen:
+                continue
+            seen.add(def_name)
+            animals.append({
+                'def_name': def_name,
+                'parent': loader._get_parent_abstract_from_row(row),
+            })
+
+        self._table_animals_cache = animals
+        self._table_animals_cache_key = cache_key
+        return animals
+
+    def _select_animals_from_table(self, initial_defs=None, parent=None):
+        animals = self._load_table_animals_for_ui()
+        parent = parent or self
+        all_order = [item['def_name'] for item in animals]
+        selected_defs = {name for name in (initial_defs or []) if name in all_order}
+        filtered_animals = []
+        result = {'defs': None}
+
+        dlg = tk.Toplevel(parent)
+        dlg.title("Choose Animals From Table")
+        dlg.geometry("900x560")
+        dlg.transient(parent)
+        dlg.grab_set()
+
+        search_var = tk.StringVar(value='')
+
+        main = ttk.Frame(dlg)
+        main.pack(fill='both', expand=True, padx=10, pady=10)
+
+        lists = ttk.Frame(main)
+        lists.pack(fill='both', expand=True)
+
+        left = ttk.Frame(lists)
+        left.pack(side='left', fill='both', expand=True)
+        ttk.Label(left, text="Available animals").pack(anchor='w')
+        ttk.Entry(left, textvariable=search_var).pack(fill='x', pady=(4, 6))
+        available_list = tk.Listbox(left, selectmode=tk.EXTENDED)
+        available_list.pack(fill='both', expand=True)
+
+        middle = ttk.Frame(lists)
+        middle.pack(side='left', fill='y', padx=8)
+
+        right = ttk.Frame(lists)
+        right.pack(side='left', fill='both', expand=True)
+        ttk.Label(right, text="Selected animals").pack(anchor='w')
+        selected_list = tk.Listbox(right, selectmode=tk.EXTENDED)
+        selected_list.pack(fill='both', expand=True, pady=(28, 0))
+
+        def ordered_selected_defs():
+            return [def_name for def_name in all_order if def_name in selected_defs]
+
+        def refresh_selected_list():
+            selected_list.delete(0, tk.END)
+            for def_name in ordered_selected_defs():
+                selected_list.insert(tk.END, def_name)
+
+        def refresh_available_list(*_):
+            query = search_var.get().strip().lower()
+            filtered_animals.clear()
+            available_list.delete(0, tk.END)
+            for item in animals:
+                haystack = f"{item['def_name']} {item['parent']}".lower()
+                if query and query not in haystack:
+                    continue
+                filtered_animals.append(item)
+                label = item['def_name'] if not item['parent'] else f"{item['def_name']}  [{item['parent']}]"
+                available_list.insert(tk.END, label)
+
+        def add_selected(*_):
+            for idx in available_list.curselection():
+                if 0 <= idx < len(filtered_animals):
+                    selected_defs.add(filtered_animals[idx]['def_name'])
+            refresh_selected_list()
+
+        def remove_selected(*_):
+            to_remove = [selected_list.get(idx) for idx in selected_list.curselection()]
+            for def_name in to_remove:
+                selected_defs.discard(def_name)
+            refresh_selected_list()
+
+        def save_selection():
+            result['defs'] = ordered_selected_defs()
+            dlg.destroy()
+
+        ttk.Button(middle, text="Add ->", command=add_selected).pack(fill='x', pady=(120, 4))
+        ttk.Button(middle, text="<- Remove", command=remove_selected).pack(fill='x')
+
+        buttons = ttk.Frame(main)
+        buttons.pack(fill='x', pady=(10, 0))
+        ttk.Button(buttons, text="Save", command=save_selection).pack(side='right')
+        ttk.Button(buttons, text="Cancel", command=dlg.destroy).pack(side='right', padx=(0, 6))
+
+        search_var.trace_add('write', refresh_available_list)
+        available_list.bind('<Double-Button-1>', add_selected)
+        selected_list.bind('<Double-Button-1>', remove_selected)
+
+        refresh_available_list()
+        refresh_selected_list()
+        dlg.wait_window()
+        return result['defs']
+
+    def _open_table_group_editor(self, group=None, parent=None):
+        parent = parent or self
+        group = group or {}
+        result = {'group': None}
+        output_var = tk.StringVar(value=group.get('output', ''))
+        selected_defs = list(group.get('defs', []))
+
+        dlg = tk.Toplevel(parent)
+        dlg.title("Table Group")
+        dlg.geometry("700x520")
+        dlg.transient(parent)
+        dlg.grab_set()
+
+        main = ttk.Frame(dlg)
+        main.pack(fill='both', expand=True, padx=10, pady=10)
+
+        ttk.Label(main, text="Output XML (relative paths go under generated_patches):").pack(anchor='w')
+        output_row = ttk.Frame(main)
+        output_row.pack(fill='x', pady=(4, 10))
+        ttk.Entry(output_row, textvariable=output_var).pack(side='left', fill='x', expand=True)
+
+        def browse_output():
+            path = filedialog.asksaveasfilename(
+                parent=dlg,
+                title="Choose output XML file",
+                initialdir=self.report_dir,
+                defaultextension=".xml",
+                filetypes=[("XML", "*.xml"), ("All", "*.*")]
+            )
+            if path:
+                output_var.set(self._path_to_group_output_value(path))
+
+        ttk.Button(output_row, text="Browse", command=browse_output).pack(side='left', padx=(6, 0))
+
+        ttk.Label(main, text="Animals in this file:").pack(anchor='w')
+        selected_list = tk.Listbox(main, selectmode=tk.EXTENDED)
+        selected_list.pack(fill='both', expand=True, pady=(4, 8))
+
+        def refresh_selected_defs():
+            selected_list.delete(0, tk.END)
+            for def_name in selected_defs:
+                selected_list.insert(tk.END, def_name)
+
+        def choose_animals():
+            try:
+                defs = self._select_animals_from_table(selected_defs, parent=dlg)
+            except Exception as e:
+                messagebox.showerror("Error", str(e), parent=dlg)
+                return
+            if defs is not None:
+                selected_defs[:] = defs
+                refresh_selected_defs()
+
+        def remove_selected_defs():
+            to_remove = [selected_list.get(idx) for idx in selected_list.curselection()]
+            if not to_remove:
+                return
+            selected_defs[:] = [def_name for def_name in selected_defs if def_name not in to_remove]
+            refresh_selected_defs()
+
+        def clear_selected_defs():
+            selected_defs.clear()
+            refresh_selected_defs()
+
+        def save_group():
+            output = self._normalize_group_output_value(output_var.get())
+            defs = []
+            seen_defs = set()
+            for def_name in selected_defs:
+                name = str(def_name).strip()
+                if not name or name in seen_defs:
+                    continue
+                seen_defs.add(name)
+                defs.append(name)
+            if not output:
+                messagebox.showerror("Error", "Output XML path is required.", parent=dlg)
+                return
+            if not defs:
+                messagebox.showerror("Error", "Choose at least one animal.", parent=dlg)
+                return
+            result['group'] = {'output': output, 'defs': defs}
+            dlg.destroy()
+
+        actions = ttk.Frame(main)
+        actions.pack(fill='x')
+        ttk.Button(actions, text="Choose From Table", command=choose_animals).pack(side='left')
+        ttk.Button(actions, text="Remove Selected", command=remove_selected_defs).pack(side='left', padx=(6, 0))
+        ttk.Button(actions, text="Clear", command=clear_selected_defs).pack(side='left', padx=(6, 0))
+
+        buttons = ttk.Frame(main)
+        buttons.pack(fill='x', pady=(10, 0))
+        ttk.Button(buttons, text="Save", command=save_group).pack(side='right')
+        ttk.Button(buttons, text="Cancel", command=dlg.destroy).pack(side='right', padx=(0, 6))
+
+        refresh_selected_defs()
+        dlg.wait_window()
+        return result['group']
+
+    def open_table_groups_manager(self):
+        win = tk.Toplevel(self)
+        win.title("Table-Driven Patch Groups")
+        win.geometry("760x420")
+        win.transient(self)
+        win.grab_set()
+
+        main = ttk.Frame(win)
+        main.pack(fill='both', expand=True, padx=10, pady=10)
+
+        ttk.Label(main, text="Each group defines one output XML file and the animals that should be generated into it.").pack(anchor='w')
+        groups_list = tk.Listbox(main)
+        groups_list.pack(fill='both', expand=True, pady=(8, 8))
+
+        def refresh_groups():
+            groups_list.delete(0, tk.END)
+            for group in self.table_groups:
+                groups_list.insert(tk.END, self._summarize_table_group(group))
+            self._refresh_table_groups_summary()
+
+        def has_unique_output(output, exclude_idx=None):
+            candidate_key = self._table_group_output_key(output)
+            for idx, item in enumerate(self.table_groups):
+                if exclude_idx is not None and idx == exclude_idx:
+                    continue
+                if self._table_group_output_key(item.get('output', '')) == candidate_key:
+                    messagebox.showerror("Error", "Another group already uses this output XML path.", parent=win)
+                    return False
+            return True
+
+        def add_group():
+            group = self._open_table_group_editor(parent=win)
+            if not group:
+                return
+            if not has_unique_output(group.get('output', '')):
+                return
+            self.table_groups.append(group)
+            self._save_table_groups()
+            refresh_groups()
+            groups_list.selection_clear(0, tk.END)
+            groups_list.selection_set(tk.END)
+
+        def edit_group():
+            sel = groups_list.curselection()
+            if not sel:
+                return
+            idx = sel[0]
+            group = self._open_table_group_editor(self.table_groups[idx], parent=win)
+            if not group:
+                return
+            if not has_unique_output(group.get('output', ''), exclude_idx=idx):
+                return
+            self.table_groups[idx] = group
+            self._save_table_groups()
+            refresh_groups()
+            groups_list.selection_set(idx)
+
+        def remove_group():
+            sel = groups_list.curselection()
+            if not sel:
+                return
+            idx = sel[0]
+            del self.table_groups[idx]
+            self._save_table_groups()
+            refresh_groups()
+
+        def clear_groups():
+            if not self.table_groups:
+                return
+            if not messagebox.askyesno("Confirm", "Remove all table-driven groups?", parent=win):
+                return
+            self.table_groups.clear()
+            self._save_table_groups()
+            refresh_groups()
+
+        controls = ttk.Frame(main)
+        controls.pack(fill='x')
+        ttk.Button(controls, text="Add Group", command=add_group).pack(side='left')
+        ttk.Button(controls, text="Edit Group", command=edit_group).pack(side='left', padx=(6, 0))
+        ttk.Button(controls, text="Remove Group", command=remove_group).pack(side='left', padx=(6, 0))
+        ttk.Button(controls, text="Clear", command=clear_groups).pack(side='left', padx=(6, 0))
+        ttk.Button(controls, text="Close", command=win.destroy).pack(side='right')
+
+        groups_list.bind('<Double-Button-1>', lambda _event: edit_group())
+        refresh_groups()
+
     def run_generation(self):
         v_source = self.vanilla_tsv.get()
         c_source = self.ce_tsv.get() or None
@@ -4036,6 +4445,83 @@ class GeneratorApp(tk.Tk):
                 msg = "\n".join([f"{os.path.basename(x)} → {os.path.basename(o)} ({'OK' if s else 'FAILED'})" for x, o, s in results])
                 messagebox.showinfo("Done", f"Generated patches:\n{msg}\n\nFolder: {self.report_dir}")
                 self.status.set(f"Processed {len(results)} file(s).")
+        except Exception as e:
+            traceback.print_exc()
+            messagebox.showerror("Error", str(e))
+
+    def run_group_generation(self):
+        v_source = self.vanilla_tsv.get()
+        c_source = self.ce_tsv.get() or None
+        if not v_source or not os.path.exists(v_source):
+            messagebox.showerror("Error", "Vanilla table missing or not found (TSV/XLSX).")
+            return
+
+        groups = self._normalize_table_groups(self.table_groups)
+        if not groups:
+            messagebox.showerror("Error", "No table-driven groups configured.")
+            return
+
+        seen_outputs = {}
+        for idx, group in enumerate(groups):
+            key = self._table_group_output_key(group.get('output', ''))
+            if not key:
+                messagebox.showerror("Error", f"Group #{idx + 1} has an empty output path.")
+                return
+            if key in seen_outputs:
+                messagebox.showerror(
+                    "Error",
+                    f"Duplicate output path in table-driven groups:\n{group.get('output', '')}\n\n"
+                    f"Conflicts with group #{seen_outputs[key] + 1}."
+                )
+                return
+            seen_outputs[key] = idx
+
+        existing_outputs = [self._resolve_group_output_path(group['output']) for group in groups if os.path.exists(self._resolve_group_output_path(group['output']))]
+        if existing_outputs:
+            preview = "\n".join(existing_outputs[:10])
+            more = "" if len(existing_outputs) <= 10 else f"\n... and {len(existing_outputs) - 10} more"
+            proceed = messagebox.askyesno(
+                "Confirm Overwrite",
+                f"{len(existing_outputs)} output file(s) already exist and will be overwritten:\n\n{preview}{more}\n\nContinue?"
+            )
+            if not proceed:
+                return
+
+        try:
+            generator = PatchGenerator(v_source, c_source, [])
+            known_defs = set()
+            if generator.vanilla_df is not None:
+                for _, row in generator.vanilla_df.iterrows():
+                    def_name = generator._extract_def_name_from_row(row)
+                    if def_name:
+                        known_defs.add(def_name)
+
+            unknown_defs = []
+            for group in groups:
+                for def_name in group.get('defs', []):
+                    if def_name not in known_defs:
+                        unknown_defs.append((group.get('output', ''), def_name))
+            if unknown_defs:
+                preview = "\n".join([f"{output}: {def_name}" for output, def_name in unknown_defs[:20]])
+                more = "" if len(unknown_defs) <= 20 else f"\n... and {len(unknown_defs) - 20} more"
+                messagebox.showerror("Error", f"Some configured animals are missing from the table:\n\n{preview}{more}")
+                return
+
+            self.table_groups = groups
+            self._save_table_groups()
+
+            results = []
+            for group in groups:
+                out_xml = self._resolve_group_output_path(group['output'])
+                success = generator.generate_patch_from_definitions(out_xml, group['defs'])
+                results.append((group, out_xml, success))
+
+            msg = "\n".join([
+                f"{group['output']} ({len(group.get('defs', []))} defs) {'OK' if success else 'FAILED'}"
+                for group, _out_xml, success in results
+            ])
+            messagebox.showinfo("Done", f"Generated table-driven patches:\n{msg}\n\nFolder: {self.report_dir}")
+            self.status.set(f"Generated {len(results)} table-driven patch file(s).")
         except Exception as e:
             traceback.print_exc()
             messagebox.showerror("Error", str(e))

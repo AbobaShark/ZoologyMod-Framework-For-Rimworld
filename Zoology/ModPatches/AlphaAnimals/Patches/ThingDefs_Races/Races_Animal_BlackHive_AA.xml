@@ -103,9 +103,18 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[@Name = "BaseInsect2"]/race/herdAnimal</xpath>
-    <match Class="PatchOperationRemove">
+    <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[@Name = "BaseInsect2"]/race/herdAnimal</xpath>
+      <value>
+        <herdAnimal>false</herdAnimal>
+      </value>
     </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[@Name = "BaseInsect2"]/race</xpath>
+      <value>
+        <herdAnimal>false</herdAnimal>
+      </value>
+    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[@Name = "BaseInsect2"]/race/herdMigrationAllowed</xpath>
@@ -581,18 +590,9 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_BlackScarab"]/race/herdAnimal</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "AA_BlackScarab"]/race/herdAnimal</xpath>
-      <value>
-        <herdAnimal>false</herdAnimal>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_BlackScarab"]/race</xpath>
-      <value>
-        <herdAnimal>false</herdAnimal>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_BlackScarab"]/race/herdMigrationAllowed</xpath>
@@ -1231,18 +1231,9 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_BlackSpelopede"]/race/herdAnimal</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "AA_BlackSpelopede"]/race/herdAnimal</xpath>
-      <value>
-        <herdAnimal>false</herdAnimal>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_BlackSpelopede"]/race</xpath>
-      <value>
-        <herdAnimal>false</herdAnimal>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_BlackSpelopede"]/race/herdMigrationAllowed</xpath>
@@ -1883,18 +1874,9 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_BlackSpider"]/race/herdAnimal</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "AA_BlackSpider"]/race/herdAnimal</xpath>
-      <value>
-        <herdAnimal>false</herdAnimal>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_BlackSpider"]/race</xpath>
-      <value>
-        <herdAnimal>false</herdAnimal>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_BlackSpider"]/race/herdMigrationAllowed</xpath>
@@ -2274,13 +2256,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_MammothWorm"]/statBases/MarketValue</xpath>
       <value>
-        <MarketValue>1825</MarketValue>
+        <MarketValue>2125</MarketValue>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AA_MammothWorm"]/statBases</xpath>
       <value>
-        <MarketValue>1825</MarketValue>
+        <MarketValue>2125</MarketValue>
       </value>
     </nomatch>
   </Operation>
@@ -2352,15 +2334,33 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_MammothWorm"]/statBases/ArmorRating_Blunt</xpath>
-    <match Class="PatchOperationRemove">
+    <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_MammothWorm"]/statBases/ArmorRating_Blunt</xpath>
+      <value>
+        <ArmorRating_Blunt>0.9</ArmorRating_Blunt>
+      </value>
     </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "AA_MammothWorm"]/statBases</xpath>
+      <value>
+        <ArmorRating_Blunt>0.9</ArmorRating_Blunt>
+      </value>
+    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_MammothWorm"]/statBases/ArmorRating_Sharp</xpath>
-    <match Class="PatchOperationRemove">
+    <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_MammothWorm"]/statBases/ArmorRating_Sharp</xpath>
+      <value>
+        <ArmorRating_Sharp>1</ArmorRating_Sharp>
+      </value>
     </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "AA_MammothWorm"]/statBases</xpath>
+      <value>
+        <ArmorRating_Sharp>1</ArmorRating_Sharp>
+      </value>
+    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_MammothWorm"]/statBases/ToxicEnvironmentResistance</xpath>
@@ -2395,8 +2395,8 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>92.5</power>
-          <cooldownTime>4.7</cooldownTime>
+          <power>89</power>
+          <cooldownTime>5.1</cooldownTime>
           <linkedBodyPartsGroup>Mouth</linkedBodyPartsGroup>
         </li>
       </tools>
@@ -2480,18 +2480,9 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_MammothWorm"]/race/herdAnimal</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "AA_MammothWorm"]/race/herdAnimal</xpath>
-      <value>
-        <herdAnimal>true</herdAnimal>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_MammothWorm"]/race</xpath>
-      <value>
-        <herdAnimal>true</herdAnimal>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_MammothWorm"]/race/herdMigrationAllowed</xpath>
@@ -2651,13 +2642,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_MammothWorm"]/race/body</xpath>
       <value>
-        <body>Snake</body>
+        <body>Larva</body>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AA_MammothWorm"]/race</xpath>
       <value>
-        <body>Snake</body>
+        <body>Larva</body>
       </value>
     </nomatch>
   </Operation>
@@ -2766,13 +2757,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "AA_MammothWorm"]/combatPower</xpath>
       <value>
-        <combatPower>620</combatPower>
+        <combatPower>740</combatPower>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "AA_MammothWorm"]</xpath>
       <value>
-        <combatPower>620</combatPower>
+        <combatPower>740</combatPower>
       </value>
     </nomatch>
   </Operation>
@@ -2808,18 +2799,9 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/PawnKindDef[defName = "AA_MammothWorm"]/wildGroupSize</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/PawnKindDef[defName = "AA_MammothWorm"]/wildGroupSize</xpath>
-      <value>
-        <wildGroupSize>2~6</wildGroupSize>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/PawnKindDef[defName = "AA_MammothWorm"]</xpath>
-      <value>
-        <wildGroupSize>2~6</wildGroupSize>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/PawnKindDef[defName = "AA_MammothWorm"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
@@ -2853,13 +2835,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_MegaLouse"]/statBases/MarketValue</xpath>
       <value>
-        <MarketValue>250</MarketValue>
+        <MarketValue>375</MarketValue>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AA_MegaLouse"]/statBases</xpath>
       <value>
-        <MarketValue>250</MarketValue>
+        <MarketValue>375</MarketValue>
       </value>
     </nomatch>
   </Operation>
@@ -2931,15 +2913,33 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_MegaLouse"]/statBases/ArmorRating_Blunt</xpath>
-    <match Class="PatchOperationRemove">
+    <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_MegaLouse"]/statBases/ArmorRating_Blunt</xpath>
+      <value>
+        <ArmorRating_Blunt>0.8</ArmorRating_Blunt>
+      </value>
     </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "AA_MegaLouse"]/statBases</xpath>
+      <value>
+        <ArmorRating_Blunt>0.8</ArmorRating_Blunt>
+      </value>
+    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_MegaLouse"]/statBases/ArmorRating_Sharp</xpath>
-    <match Class="PatchOperationRemove">
+    <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_MegaLouse"]/statBases/ArmorRating_Sharp</xpath>
+      <value>
+        <ArmorRating_Sharp>0.8</ArmorRating_Sharp>
+      </value>
     </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "AA_MegaLouse"]/statBases</xpath>
+      <value>
+        <ArmorRating_Sharp>0.8</ArmorRating_Sharp>
+      </value>
+    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_MegaLouse"]/statBases/ToxicEnvironmentResistance</xpath>
@@ -2984,8 +2984,16 @@
             <li>Bite</li>
           </capacities>
           <power>18</power>
-          <cooldownTime>2.3</cooldownTime>
+          <cooldownTime>2.5</cooldownTime>
           <linkedBodyPartsGroup>Mouth</linkedBodyPartsGroup>
+          <surpriseAttack>
+            <extraMeleeDamages>
+              <li>
+                <def>Stun</def>
+                <amount>20</amount>
+              </li>
+            </extraMeleeDamages>
+          </surpriseAttack>
         </li>
       </tools>
     </value>
@@ -3077,18 +3085,9 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_MegaLouse"]/race/herdAnimal</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "AA_MegaLouse"]/race/herdAnimal</xpath>
-      <value>
-        <herdAnimal>false</herdAnimal>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_MegaLouse"]/race</xpath>
-      <value>
-        <herdAnimal>false</herdAnimal>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_MegaLouse"]/race/herdMigrationAllowed</xpath>
@@ -3212,21 +3211,30 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_MegaLouse"]/race/predator</xpath>
       <value>
-        <predator>false</predator>
+        <predator>true</predator>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AA_MegaLouse"]/race</xpath>
       <value>
-        <predator>false</predator>
+        <predator>true</predator>
       </value>
     </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_MegaLouse"]/race/maxPreyBodySize</xpath>
-    <match Class="PatchOperationRemove">
+    <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_MegaLouse"]/race/maxPreyBodySize</xpath>
+      <value>
+        <maxPreyBodySize>1</maxPreyBodySize>
+      </value>
     </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "AA_MegaLouse"]/race</xpath>
+      <value>
+        <maxPreyBodySize>1</maxPreyBodySize>
+      </value>
+    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_MegaLouse"]/race/nameOnTameChance</xpath>
@@ -3248,13 +3256,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_MegaLouse"]/race/body</xpath>
       <value>
-        <body>Snake</body>
+        <body>Larva</body>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AA_MegaLouse"]/race</xpath>
       <value>
-        <body>Snake</body>
+        <body>Larva</body>
       </value>
     </nomatch>
   </Operation>
@@ -3386,13 +3394,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "AA_MegaLouse"]/combatPower</xpath>
       <value>
-        <combatPower>85</combatPower>
+        <combatPower>145</combatPower>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "AA_MegaLouse"]</xpath>
       <value>
-        <combatPower>85</combatPower>
+        <combatPower>145</combatPower>
       </value>
     </nomatch>
   </Operation>
@@ -3723,18 +3731,9 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_Ravager"]/race/herdAnimal</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "AA_Ravager"]/race/herdAnimal</xpath>
-      <value>
-        <herdAnimal>false</herdAnimal>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_Ravager"]/race</xpath>
-      <value>
-        <herdAnimal>false</herdAnimal>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_Ravager"]/race/herdMigrationAllowed</xpath>
@@ -4373,18 +4372,9 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_Thermadon"]/race/herdAnimal</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "AA_Thermadon"]/race/herdAnimal</xpath>
-      <value>
-        <herdAnimal>false</herdAnimal>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_Thermadon"]/race</xpath>
-      <value>
-        <herdAnimal>false</herdAnimal>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_Thermadon"]/race/herdMigrationAllowed</xpath>
@@ -5521,7 +5511,7 @@
                 <power>96.6</power>
                 <armorPenetrationBlunt>192.65</armorPenetrationBlunt>
                 <armorPenetrationSharp>2.23</armorPenetrationSharp>
-                <cooldownTime>3.05</cooldownTime>
+                <cooldownTime>3.25</cooldownTime>
                 <linkedBodyPartsGroup>Mouth</linkedBodyPartsGroup>
               </li>
             </tools>
@@ -5699,8 +5689,16 @@
                 <power>19</power>
                 <armorPenetrationBlunt>6.25</armorPenetrationBlunt>
                 <armorPenetrationSharp>0.42</armorPenetrationSharp>
-                <cooldownTime>2.05</cooldownTime>
+                <cooldownTime>2.15</cooldownTime>
                 <linkedBodyPartsGroup>Mouth</linkedBodyPartsGroup>
+                <surpriseAttack>
+                  <extraMeleeDamages>
+                    <li>
+                      <def>Stun</def>
+                      <amount>20</amount>
+                    </li>
+                  </extraMeleeDamages>
+                </surpriseAttack>
               </li>
             </tools>
           </value>
