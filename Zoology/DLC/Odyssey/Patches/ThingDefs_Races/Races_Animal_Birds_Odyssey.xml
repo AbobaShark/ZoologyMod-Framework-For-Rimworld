@@ -1921,21 +1921,6 @@
       <xpath>/Defs/ThingDef[defName = "Penguin"]/statBases/ToxicEnvironmentResistance</xpath>
     </match>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Penguin"]/statBases/LeatherAmount</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Penguin"]/statBases/LeatherAmount</xpath>
-      <value>
-        <LeatherAmount>0</LeatherAmount>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Penguin"]/statBases</xpath>
-      <value>
-        <LeatherAmount>0</LeatherAmount>
-      </value>
-    </nomatch>
-  </Operation>
   <!-- Penguin tools -->
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Penguin"]/tools</xpath>
@@ -2099,9 +2084,18 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Penguin"]/race/leatherDef</xpath>
-    <match Class="PatchOperationRemove">
+    <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Penguin"]/race/leatherDef</xpath>
+      <value>
+        <leatherDef>Leather_Bird</leatherDef>
+      </value>
     </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "Penguin"]/race</xpath>
+      <value>
+        <leatherDef>Leather_Bird</leatherDef>
+      </value>
+    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Penguin"]/race/useLeatherFrom</xpath>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+
+	<Operation Class="PatchOperationFindMod">
+		<mods>
+			<li>Odyssey</li>
+		</mods>
+
+		<!-- Run only if Odyssey is NOT loaded -->
+		<nomatch Class="PatchOperationSequence">
+			<operations>
+
+				<!-- Remove muskox from tundra pack animals -->
+				<li Class="PatchOperationConditional">
+					<xpath>/Defs/BiomeDef[defName="Tundra"]/allowedPackAnimals/li[text()="AEXP_Muskox"]</xpath>
+					<match Class="PatchOperationRemove">
+						<xpath>/Defs/BiomeDef[defName="Tundra"]/allowedPackAnimals/li[text()="AEXP_Muskox"]</xpath>
+					</match>
+				</li>
+
+				<!-- Remove muskox from outlander trader carriers -->
+				<li Class="PatchOperationConditional">
+					<xpath>/Defs/FactionDef[@Name="OutlanderFactionBase"]/pawnGroupMakers/li[kindDef="Trader"]/carriers/AEXP_Muskox</xpath>
+					<match Class="PatchOperationRemove">
+						<xpath>/Defs/FactionDef[@Name="OutlanderFactionBase"]/pawnGroupMakers/li[kindDef="Trader"]/carriers/AEXP_Muskox</xpath>
+					</match>
+				</li>
+
+				<!-- Remove muskox from tribal trader carriers -->
+				<li Class="PatchOperationConditional">
+					<xpath>/Defs/FactionDef[@Name="TribeBase"]/pawnGroupMakers/li[kindDef="Trader"]/carriers/AEXP_Muskox</xpath>
+					<match Class="PatchOperationRemove">
+						<xpath>/Defs/FactionDef[@Name="TribeBase"]/pawnGroupMakers/li[kindDef="Trader"]/carriers/AEXP_Muskox</xpath>
+					</match>
+				</li>
+
+			</operations>
+		</nomatch>
+	</Operation>
+
+</Patch>
