@@ -3,7 +3,7 @@ using Verse;
 
 namespace ZoologyMod
 {
-    internal static class AnimalCombatPowerUtility
+    public static class AnimalCombatPowerUtility
     {
         public static float GetAdjustedCombatPower(Pawn pawn)
         {
@@ -12,8 +12,27 @@ namespace ZoologyMod
                 return 0f;
             }
 
-            float basePower = pawn.kindDef.combatPower;
-            float factor = GetLifeStageCombatPowerFactor(pawn);
+            return GetAdjustedCombatPower(pawn.kindDef, pawn.ageTracker?.CurLifeStage);
+        }
+
+        public static float GetAdjustedCombatPower(PawnKindDef kindDef, LifeStageDef lifeStage)
+        {
+            if (kindDef == null)
+            {
+                return 0f;
+            }
+
+            return GetAdjustedCombatPower(kindDef.combatPower, lifeStage);
+        }
+
+        public static float GetAdjustedCombatPower(float basePower, LifeStageDef lifeStage)
+        {
+            if (basePower <= 0f)
+            {
+                return 0f;
+            }
+
+            float factor = GetLifeStageCombatPowerFactor(lifeStage);
             if (factor <= 0f)
             {
                 return 0f;
@@ -31,16 +50,15 @@ namespace ZoologyMod
                 return 1f;
             }
 
-            var stages = pawn.RaceProps?.lifeStageAges;
-            if (stages == null || stages.Count <= 1)
-            {
-                return 1f;
-            }
+            return GetLifeStageCombatPowerFactor(pawn.ageTracker?.CurLifeStage);
+        }
 
-            LifeStageDef stage = pawn.ageTracker?.CurLifeStage;
-            if (stage == null)
+        public static float GetLifeStageCombatPowerFactor(LifeStageDef stage)
+        {
+            LifeStageCombatPowerExtension extension = stage?.GetModExtension<LifeStageCombatPowerExtension>();
+            if (extension != null)
             {
-                return 1f;
+                return extension.combatPowerFactor;
             }
 
             if (AnimalLifeStageUtility.IsAnimalInfantLifeStage(stage))

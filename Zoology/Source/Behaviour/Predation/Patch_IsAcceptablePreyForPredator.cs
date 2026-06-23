@@ -67,7 +67,7 @@ namespace ZoologyMod
         {
             float predatorBodySize = predator?.BodySize ?? 0f;
             float preyBodySize = prey?.BodySize ?? 0f;
-            float predatorCombatPower = Math.Max(predator?.kindDef?.combatPower ?? 0f, 0.01f);
+            float predatorCombatPower = Math.Max(AnimalCombatPowerUtility.GetAdjustedCombatPower(predator), 0.01f);
             float preyCombatPower = PreyCombatPowerUtility.GetAdjustedCombatPower(prey);
             if (predatorBodySize <= 0f || preyBodySize <= 0f || prey == null)
             {
@@ -462,7 +462,7 @@ namespace ZoologyMod
             float preyCombatPowerAdjusted,
             bool photonozoaPairInTheirFaction)
         {
-            float predatorCombatPower = predator.kindDef.combatPower;
+            float predatorCombatPower = AnimalCombatPowerUtility.GetAdjustedCombatPower(predator);
             bool useLargeMammalSizing = !prey.Downed && LargeMammalPredationUtility.UsesLargeMammalSizing(predator);
             bool packSupport = false;
             bool packSupportChecked = false;
@@ -589,7 +589,7 @@ namespace ZoologyMod
                 }
 
                 float preyCombatPowerAdjusted = PreyCombatPowerUtility.GetAdjustedCombatPower(prey);
-                float predatorCombatPower = predator.kindDef.combatPower;
+                float predatorCombatPower = AnimalCombatPowerUtility.GetAdjustedCombatPower(predator);
                 bool useLargeMammalSizing = LargeMammalPredationUtility.UsesLargeMammalSizing(predator);
                 bool packSupport = false;
                 bool packSupportChecked = false;
@@ -808,7 +808,7 @@ namespace ZoologyMod
                 }
 
                 float preyCombatPowerAdjusted = PreyCombatPowerUtility.GetAdjustedCombatPower(prey);
-                float predatorCombatPower = predator.kindDef.combatPower;
+                float predatorCombatPower = AnimalCombatPowerUtility.GetAdjustedCombatPower(predator);
                 bool useLargeMammalSizing = !prey.Downed && LargeMammalPredationUtility.UsesLargeMammalSizing(predator);
                 bool packSupport = false;
                 bool packSupportChecked = false;

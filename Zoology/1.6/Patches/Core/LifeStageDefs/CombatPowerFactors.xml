@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/LifeStageDef[
+      defName="AnimalBaby" or
+      defName="AnimalBabyTiny" or
+      defName="EusocialInsectLarva"
+    ]/modExtensions</xpath>
+    <match Class="PatchOperationAdd">
+      <xpath>/Defs/LifeStageDef[
+        defName="AnimalBaby" or
+        defName="AnimalBabyTiny" or
+        defName="EusocialInsectLarva"
+      ]/modExtensions</xpath>
+      <value>
+        <li Class="ZoologyMod.LifeStageCombatPowerExtension, ZoologyMod">
+          <combatPowerFactor>0.2</combatPowerFactor>
+        </li>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/LifeStageDef[
+        defName="AnimalBaby" or
+        defName="AnimalBabyTiny" or
+        defName="EusocialInsectLarva"
+      ]</xpath>
+      <value>
+        <modExtensions>
+          <li Class="ZoologyMod.LifeStageCombatPowerExtension, ZoologyMod">
+            <combatPowerFactor>0.2</combatPowerFactor>
+          </li>
+        </modExtensions>
+      </value>
+    </nomatch>
+  </Operation>
+
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/LifeStageDef[
+      defName="AnimalJuvenile" or
+      defName="EusocialInsectJuvenile"
+    ]/modExtensions</xpath>
+    <match Class="PatchOperationAdd">
+      <xpath>/Defs/LifeStageDef[
+        defName="AnimalJuvenile" or
+        defName="EusocialInsectJuvenile"
+      ]/modExtensions</xpath>
+      <value>
+        <li Class="ZoologyMod.LifeStageCombatPowerExtension, ZoologyMod">
+          <combatPowerFactor>0.5</combatPowerFactor>
+        </li>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/LifeStageDef[
+        defName="AnimalJuvenile" or
+        defName="EusocialInsectJuvenile"
+      ]</xpath>
+      <value>
+        <modExtensions>
+          <li Class="ZoologyMod.LifeStageCombatPowerExtension, ZoologyMod">
+            <combatPowerFactor>0.5</combatPowerFactor>
+          </li>
+        </modExtensions>
+      </value>
+    </nomatch>
+  </Operation>
+
+</Patch>

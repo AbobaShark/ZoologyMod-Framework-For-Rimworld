@@ -168,7 +168,7 @@ namespace ZoologyMod
                 return false;
             }
 
-            return (predator.kindDef?.combatPower ?? 0f) >= MinCombatPowerToDefendPreyFromHumans;
+            return AnimalCombatPowerUtility.GetAdjustedCombatPower(predator) >= MinCombatPowerToDefendPreyFromHumans;
         }
 
         public static bool CanPredatorDefendPreyFromHumansAndMechanoidsNow(Pawn predator)
@@ -177,7 +177,7 @@ namespace ZoologyMod
             if (settings == null)
             {
                 return predator?.RaceProps?.predator == true
-                    && (predator.kindDef?.combatPower ?? 0f) >= ModConstants.DefaultMinCombatPowerToDefendPreyFromHumans;
+                    && AnimalCombatPowerUtility.GetAdjustedCombatPower(predator) >= ModConstants.DefaultMinCombatPowerToDefendPreyFromHumans;
             }
 
             return settings.CanPredatorDefendPreyFromHumansAndMechanoids(predator);

@@ -136,6 +136,38 @@ namespace ZoologyMod
                 && CanDoDraftControl(pawn).Accepted;
         }
 
+        internal static bool IsDraftControlDraftedPawn(Pawn pawn)
+        {
+            return pawn != null
+                && pawn.Drafted
+                && IsDraftControlCandidate(pawn);
+        }
+
+        internal static bool ShouldReplaceDraftedAutonomousWander(Pawn pawn, Job job)
+        {
+            if (!IsDraftControlDraftedPawn(pawn) || job == null || job.playerForced)
+            {
+                return false;
+            }
+
+            JobDef def = job.def;
+            if (def == null)
+            {
+                return false;
+            }
+
+            return def == JobDefOf.GotoWander
+                || def == JobDefOf.Wait_Wander
+                || (!def.defName.NullOrEmpty() && def.defName.IndexOf("Wander", StringComparison.OrdinalIgnoreCase) >= 0);
+        }
+
+        internal static Job MakeDraftedIdleJob()
+        {
+            Job job = JobMaker.MakeJob(JobDefOf.Wait_MaintainPosture, 60);
+            job.expiryInterval = 60;
+            return job;
+        }
+
         internal static bool ShouldHideAttackTargetCommands(Pawn pawn)
         {
             return false;
@@ -1010,6 +1042,20 @@ namespace ZoologyMod
             }
 
             __result = __instance.Drafted && AnimalDraftControlUtility.CanDoDraftControl(__instance).Accepted;
+        }
+    }
+
+    [HarmonyPatch(typeof(ThinkNode_JobGiver), nameof(ThinkNode_JobGiver.TryIssueJobPackage))]
+    public static class Patch_ThinkNodeJobGiver_TryIssueJobPackage_AnimalDraftControl
+    {
+        private static void Postfix(ThinkNode_JobGiver __instance, Pawn pawn, ref ThinkResult __result)
+        {
+            if (!AnimalDraftControlUtility.ShouldReplaceDraftedAutonomousWander(pawn, __result.Job))
+            {
+                return;
+            }
+
+            __result = new ThinkResult(AnimalDraftControlUtility.MakeDraftedIdleJob(), __instance, null, false);
         }
     }
 
