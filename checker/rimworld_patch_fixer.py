@@ -14,10 +14,14 @@ import importlib.util
 import traceback
 import copy
 from collections import OrderedDict
+from rimworld_original_xml import OriginalXmlIndex
+from rimworld_patch_optimizer import PatchOptimizer
 
 # ---------------- Config ----------------
 CONFIG_FILE = "rimworld_patch_generator_config.json"
 REPORT_DIRNAME = "generated_patches"
+ORIGINAL_XML_DIRNAME = "OriginalXML"
+ORIGINAL_PATCHES_DIRNAME = "OriginalPatches"
 
 # ---------------- Utilities ----------------
 def norm(s):
@@ -29,6 +33,24 @@ def ensure_dir(p):
     d = os.path.dirname(p)
     if d:
         os.makedirs(d, exist_ok=True)
+
+def get_script_dir():
+    try:
+        return os.path.dirname(os.path.abspath(__file__)) or os.getcwd()
+    except Exception:
+        return os.path.dirname(os.path.abspath(sys.argv[0])) or os.getcwd()
+
+def default_original_xml_dir():
+    env_path = os.environ.get("RIMWORLD_ORIGINAL_XML_DIR", "").strip()
+    if env_path:
+        return env_path
+    return os.path.join(get_script_dir(), ORIGINAL_XML_DIRNAME)
+
+def default_original_patches_dir():
+    env_path = os.environ.get("RIMWORLD_ORIGINAL_PATCHES_DIR", "").strip()
+    if env_path:
+        return env_path
+    return os.path.join(get_script_dir(), ORIGINAL_PATCHES_DIRNAME)
 
 def load_config():
     if os.path.exists(CONFIG_FILE):
@@ -185,7 +207,7 @@ class PatchGenerator:
     ODYSSEY_BIOMES = {'Grasslands', 'Glowforest', 'LavaField', 'GlacialPlain', 'Scarlands'}
     ODYSSEY_MAYREQUIRE = 'Ludeon.RimWorld.Odyssey'
 
-    def __init__(self, vanilla_source, ce_source, xml_paths):
+    def __init__(self, vanilla_source, ce_source, xml_paths, original_xml_dir=None, original_patches_dir=None):
         self.vanilla_df = self._load_table(vanilla_source, sheet_name='Animals', required=True) if vanilla_source else None
         if ce_source:
             ce_sheet = 'Animals CE' if is_excel_source(ce_source) else None
@@ -196,6 +218,60 @@ class PatchGenerator:
         else:
             self.ce_df = None
         self.xml_paths = xml_paths
+        self.original_xml_dir = original_xml_dir or default_original_xml_dir()
+        self.original_patches_dir = original_patches_dir or default_original_patches_dir()
+        try:
+            os.makedirs(self.original_xml_dir, exist_ok=True)
+            os.makedirs(self.original_patches_dir, exist_ok=True)
+        except Exception:
+            pass
+        self._original_xml_index = None
+
+    def _get_original_xml_index(self):
+        if self._original_xml_index is None:
+            self._original_xml_index = OriginalXmlIndex(
+                self.original_xml_dir,
+                patches_dir=self.original_patches_dir,
+            ).load()
+            if self._original_xml_index.enabled:
+                print(
+                    "OriginalXML optimization enabled: "
+                    f"{self._original_xml_index.files_loaded} XML file(s), "
+                    f"{len(self._original_xml_index.sources)} indexed def(s)."
+                )
+                if self._original_xml_index.patches_enabled:
+                    print(
+                        "OriginalPatches refs applied: "
+                        f"{self._original_xml_index.patch_files_loaded} XML patch file(s), "
+                        f"{dict(sorted(self._original_xml_index.patch_apply_stats.items()))}."
+                    )
+                    if self._original_xml_index.patch_errors:
+                        print(
+                            "OriginalPatches warning: "
+                            f"{len(self._original_xml_index.patch_errors)} xpath/apply error(s); "
+                            "first error: "
+                            f"{self._original_xml_index.patch_errors[0]}"
+                        )
+                if self._original_xml_index.duplicates:
+                    print(
+                        "OriginalXML warning: "
+                        f"{len(self._original_xml_index.duplicates)} duplicate def key(s); first occurrence is used."
+                    )
+            else:
+                print(f"OriginalXML optimization disabled: no XML refs found in {self.original_xml_dir}")
+                if os.path.isdir(self.original_patches_dir):
+                    print(f"OriginalPatches ignored until OriginalXML refs are available: {self.original_patches_dir}")
+        return self._original_xml_index
+
+    def _optimize_patch_with_original_xml(self, patch_root):
+        index = self._get_original_xml_index()
+        if not index.enabled:
+            return patch_root
+        optimizer = PatchOptimizer(index)
+        optimized_root = optimizer.optimize(patch_root)
+        if optimizer.stats:
+            print("OriginalXML optimizer:", dict(sorted(optimizer.stats.items())))
+        return optimized_root
 
     def _load_table(self, source_path, sheet_name=None, required=True):
         def _normalize_df(df):
@@ -1579,6 +1655,7 @@ class PatchGenerator:
         new_root = LET.Element("Patch")
         for op in unique_ops:
             new_root.append(op)
+        new_root = self._optimize_patch_with_original_xml(new_root)
         return new_root
 
     def _write_patch_root(self, new_root, output_path):
@@ -3823,8 +3900,15 @@ class GeneratorApp(tk.Tk):
         self.title("RimWorld Patch Generator/Fixer")
         self.geometry("950x600")
         self.cfg = load_config()
-        script_dir = os.path.dirname(os.path.abspath(sys.argv[0])) or os.getcwd()
+        script_dir = get_script_dir()
         default_stats_path = os.path.join(script_dir, "AnimalStats.xlsx")
+        self.original_xml_dir = default_original_xml_dir()
+        self.original_patches_dir = default_original_patches_dir()
+        try:
+            os.makedirs(self.original_xml_dir, exist_ok=True)
+            os.makedirs(self.original_patches_dir, exist_ok=True)
+        except Exception:
+            pass
         default_vanilla_source = self.cfg.get('vanilla_tsv', '')
         if not default_vanilla_source and os.path.exists(default_stats_path):
             default_vanilla_source = default_stats_path
@@ -3843,10 +3927,14 @@ class GeneratorApp(tk.Tk):
         self._build_ui()
         self.report_dir = self._ensure_report_dir()
         self._refresh_table_groups_summary()
-        self.status.set(f"Output folder: {self.report_dir}")
+        self.status.set(
+            f"Output folder: {self.report_dir} | "
+            f"OriginalXML refs: {self.original_xml_dir} | "
+            f"OriginalPatches refs: {self.original_patches_dir}"
+        )
 
     def _normalize_xml_paths(self, paths):
-        script_dir = os.path.dirname(os.path.abspath(sys.argv[0])) or os.getcwd()
+        script_dir = get_script_dir()
         normalized = []
         changed = False
         dropped = []
@@ -3964,7 +4052,7 @@ class GeneratorApp(tk.Tk):
         return f"{output} ({count} {suffix})"
 
     def _ensure_report_dir(self):
-        script_dir = os.path.dirname(os.path.abspath(sys.argv[0])) or os.getcwd()
+        script_dir = get_script_dir()
         r = os.path.join(script_dir, REPORT_DIRNAME)
         os.makedirs(r, exist_ok=True)
         return r

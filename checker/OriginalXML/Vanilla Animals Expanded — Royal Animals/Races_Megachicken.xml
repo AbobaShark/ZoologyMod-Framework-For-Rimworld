@@ -1,0 +1,261 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+
+	<ThingDef ParentName="AnimalThingBase">
+		<defName>VAERoy_Megachicken</defName>
+		<label>megachicken</label>
+
+		<description>The unusual royal farm bird, the megachicken is raised by spoiled royalty as a pet project. This bird simply never stops growing, and if taken care of, it can reach gargantuan sizes. Royalty is known to compare their megacocks, and usually the one with the biggest specimen wins. Those that lose often argue that it’s not about the size, it’s about what you do with it.\n\n&lt;color=#E5E54C&gt;Gameplay effect:&lt;/color&gt; Megachicken have five growth stages, at 0, 3, 8, 12 and 18 years of age. Their abilities get increasingly powerful as they age.</description>
+		<statBases>
+			<MoveSpeed>5</MoveSpeed>
+			<MarketValue>650</MarketValue>
+			<ComfyTemperatureMin>-10</ComfyTemperatureMin>
+			<FilthRate>4</FilthRate>
+			<Wildness>0</Wildness>
+		</statBases>
+		<comps>
+			<li Class="CompProperties_EggLayer">
+
+				<eggFertilizedDef>VAERoy_EggMegaChickenFertilized</eggFertilizedDef>
+				<eggUnfertilizedDef>VAERoy_EggMegaChickenUnfertilized</eggUnfertilizedDef>
+				<eggFertilizationCountMax>1</eggFertilizationCountMax>
+				<eggProgressUnfertilizedMax>0.5</eggProgressUnfertilizedMax>
+				<eggLayIntervalDays>30</eggLayIntervalDays>
+				<eggCountRange>1</eggCountRange>
+			</li>
+		</comps>
+		<race>
+			<body>Bird</body>
+			<baseHungerRate>0.14</baseHungerRate>
+			<baseBodySize>0.3</baseBodySize>
+			<baseHealthScale>0.35</baseHealthScale>
+			<foodType>VegetarianRoughAnimal</foodType>
+			<leatherDef>Leather_Bird</leatherDef>
+			<useMeatFrom>Chicken</useMeatFrom>
+			<trainability>Advanced</trainability>
+			<soundEating>Bird_Eat</soundEating>
+			<mateMtbHours>8</mateMtbHours>
+			<lifeExpectancy>20</lifeExpectancy>
+			<lifeStageAges>
+				<li>
+					<def>VAERoy_AnimalBaby</def>
+					<minAge>0</minAge>
+					<soundWounded>Pawn_Chick_Call</soundWounded>
+					<soundDeath>Pawn_Chick_Call</soundDeath>
+					<soundCall>Pawn_Chick_Call</soundCall>
+					<soundAngry>Pawn_Chick_Call</soundAngry>
+				</li>
+				<li>
+					<def>VAERoy_AnimalJuvenile</def>
+					<minAge>3</minAge>
+					<soundWounded>Pawn_Chicken_Wounded</soundWounded>
+					<soundDeath>Pawn_Chicken_Death</soundDeath>
+					<soundCall>Pawn_Chicken_Call</soundCall>
+					<soundAngry>Pawn_Chicken_Angry</soundAngry>
+				</li>
+				<li>
+					<def>VAERoy_AnimalAdult</def>
+					<minAge>8</minAge>
+					<soundWounded>Pawn_Chicken_Wounded</soundWounded>
+					<soundDeath>Pawn_Chicken_Death</soundDeath>
+					<soundCall>Pawn_Chicken_Call</soundCall>
+					<soundAngry>Pawn_Chicken_Angry</soundAngry>
+				</li>
+				<li>
+					<def>VAERoy_AnimalAdultIntermediate</def>
+					<minAge>12</minAge>
+					<soundWounded>Pawn_Chicken_Wounded</soundWounded>
+					<soundDeath>Pawn_Chicken_Death</soundDeath>
+					<soundCall>Pawn_Chicken_Call</soundCall>
+					<soundAngry>Pawn_Chicken_Angry</soundAngry>
+				</li>
+				<li>
+					<def>VAERoy_AnimalAdultMax</def>
+					<minAge>18</minAge>
+					<soundWounded>Pawn_Chicken_Wounded</soundWounded>
+					<soundDeath>Pawn_Chicken_Death</soundDeath>
+					<soundCall>Pawn_Chicken_Call</soundCall>
+					<soundAngry>Pawn_Chicken_Angry</soundAngry>
+				</li>
+			</lifeStageAges>
+			<soundMeleeHitPawn>Pawn_Melee_SmallScratch_HitPawn</soundMeleeHitPawn>
+			<soundMeleeHitBuilding>Pawn_Melee_SmallScratch_HitBuilding</soundMeleeHitBuilding>
+			<soundMeleeMiss>Pawn_Melee_SmallScratch_Miss</soundMeleeMiss>
+		</race>
+		<tradeTags>
+			<li>AnimalExotic</li>
+			<li>AnimalImperial</li>
+		</tradeTags>
+		<tools>
+			<li>
+				<label>claws</label>
+				<capacities>
+					<li>Scratch</li>
+				</capacities>
+				<power>2</power>
+				<cooldownTime>1.5</cooldownTime>
+				<linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
+			</li>
+			<li>
+				<label>beak</label>
+				<capacities>
+					<li>Bite</li>
+				</capacities>
+				<power>3</power>
+				<cooldownTime>2</cooldownTime>
+				<linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>
+			</li>
+			<li>
+				<label>head</label>
+				<capacities>
+					<li>Blunt</li>
+				</capacities>
+				<power>1</power>
+				<cooldownTime>1.5</cooldownTime>
+				<linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
+				<ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
+				<chanceFactor>0.2</chanceFactor>
+			</li>
+		</tools>
+		<modExtensions>
+			<li Class="VEF.AnimalBehaviours.AnimalStatExtension">
+
+				<statToAdd>
+					<li>VAERoy_PrimaryRole</li>
+					<li>VAERoy_SecondaryRole</li>
+
+				</statToAdd>
+				<statValues>
+					<li>VAERoy_Combat</li>
+					<li>VAERoy_EggLayer</li>
+
+				</statValues>
+				<statDescriptions>
+					<li>VAERoy_CombatDescInc</li>
+					<li>VAERoy_EggLayerDesc</li>
+
+				</statDescriptions>
+
+			</li>
+		</modExtensions>
+	</ThingDef>
+
+	<PawnKindDef ParentName="AnimalKindBase">
+		<defName>VAERoy_Megachicken</defName>
+		<label>megachicken</label>
+		<labelMale>megacock</labelMale>
+		<labelFemale>megahen</labelFemale>
+		<race>VAERoy_Megachicken</race>
+		<combatPower>30</combatPower>
+		<ecoSystemWeight>0.30</ecoSystemWeight>
+		<canArriveManhunter>false</canArriveManhunter>
+		<lifeStages>
+			<li>
+				<label>megachick</label>
+				<bodyGraphicData>
+					<texPath>Things/Pawn/Animal/Megachicken/MegachickenYoung</texPath>
+					<drawSize>0.8</drawSize>
+					<color>(223,219,108)</color>
+				</bodyGraphicData>
+				<dessicatedBodyGraphicData>
+					<texPath>Things/Pawn/Animal/Megachicken/Dessicated_MegachickenYoung</texPath>
+					<drawSize>0.8</drawSize>
+				</dessicatedBodyGraphicData>
+			</li>
+			<li>
+				<labelMale>megacockerel</labelMale>
+				<bodyGraphicData>
+					<texPath>Things/Pawn/Animal/Megachicken/MegachickenTeen</texPath>
+					<drawSize>2</drawSize>
+					<color>(200,150,85)</color>
+				</bodyGraphicData>
+				<femaleGraphicData>
+					<texPath>Things/Pawn/Animal/Megachicken/MegachickenTeen</texPath>
+					<drawSize>2</drawSize>
+				</femaleGraphicData>
+				<dessicatedBodyGraphicData>
+					<texPath>Things/Pawn/Animal/Megachicken/Dessicated_MegachickenTeen</texPath>
+					<drawSize>2</drawSize>
+				</dessicatedBodyGraphicData>
+				<femaleDessicatedBodyGraphicData>
+					<texPath>Things/Pawn/Animal/Megachicken/Dessicated_MegachickenTeen</texPath>
+					<drawSize>2</drawSize>
+				</femaleDessicatedBodyGraphicData>
+			</li>
+			<li>
+				<bodyGraphicData>
+					<texPath>Things/Pawn/Animal/Megachicken/MegachickenAdult</texPath>
+					<drawSize>4.8</drawSize>
+					<color>(200,150,85)</color>
+					<shadowData>
+						<volume>(1, 0.8, 0.5)</volume>
+						<offset>(0,0,-0.5)</offset>
+					</shadowData>
+				</bodyGraphicData>
+				<femaleGraphicData>
+					<texPath>Things/Pawn/Animal/Megachicken/MegachickenAdult</texPath>
+					<drawSize>4.8</drawSize>
+				</femaleGraphicData>
+				<dessicatedBodyGraphicData>
+					<texPath>Things/Pawn/Animal/Megachicken/Dessicated_MegachickenAdult</texPath>
+					<drawSize>4.8</drawSize>
+				</dessicatedBodyGraphicData>
+				<femaleDessicatedBodyGraphicData>
+					<texPath>Things/Pawn/Animal/Megachicken/Dessicated_MegachickenAdult</texPath>
+					<drawSize>4.8</drawSize>
+				</femaleDessicatedBodyGraphicData>
+			</li>
+			<li>
+				<bodyGraphicData>
+					<texPath>Things/Pawn/Animal/Megachicken/MegachickenAdult</texPath>
+					<drawSize>6</drawSize>
+					<color>(200,150,85)</color>
+					<shadowData>
+						<volume>(1, 0.8, 0.5)</volume>
+						<offset>(0,0,-0.5)</offset>
+					</shadowData>
+				</bodyGraphicData>
+				<femaleGraphicData>
+					<texPath>Things/Pawn/Animal/Megachicken/MegachickenAdult</texPath>
+					<drawSize>6</drawSize>
+				</femaleGraphicData>
+				<dessicatedBodyGraphicData>
+					<texPath>Things/Pawn/Animal/Megachicken/Dessicated_MegachickenAdult</texPath>
+					<drawSize>6</drawSize>
+				</dessicatedBodyGraphicData>
+				<femaleDessicatedBodyGraphicData>
+					<texPath>Things/Pawn/Animal/Megachicken/Dessicated_MegachickenAdult</texPath>
+					<drawSize>6</drawSize>
+				</femaleDessicatedBodyGraphicData>
+			</li>
+			<li>
+				<bodyGraphicData>
+					<texPath>Things/Pawn/Animal/Megachicken/MegachickenAdult</texPath>
+					<drawSize>8</drawSize>
+					<color>(200,150,85)</color>
+					<shadowData>
+						<volume>(1, 0.8, 0.5)</volume>
+						<offset>(0,0,-0.5)</offset>
+					</shadowData>
+				</bodyGraphicData>
+				<femaleGraphicData>
+					<texPath>Things/Pawn/Animal/Megachicken/MegachickenAdult</texPath>
+					<drawSize>8</drawSize>
+				</femaleGraphicData>
+				<dessicatedBodyGraphicData>
+					<texPath>Things/Pawn/Animal/Megachicken/Dessicated_MegachickenAdult</texPath>
+					<drawSize>8</drawSize>
+				</dessicatedBodyGraphicData>
+				<femaleDessicatedBodyGraphicData>
+					<texPath>Things/Pawn/Animal/Megachicken/Dessicated_MegachickenAdult</texPath>
+					<drawSize>8</drawSize>
+				</femaleDessicatedBodyGraphicData>
+			</li>
+		</lifeStages>
+	</PawnKindDef>
+
+
+
+
+</Defs>
