@@ -1,0 +1,159 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+	<ThingDef ParentName="AnimalThingBase">
+		<defName>VAEWaste_Wasteboar</defName>
+		<label>wasteboar</label>
+		<description>The Wasteboar is a massive and powerful creature, mutated by the polluted environment it inhabits. With four eyes and two sets of formidable tusks, it is well equipped to defend itself against predators. Despite its intimidating appearance, the Wasteboar is not aggressive. Instead, it spends its time ramming its head into trees in an effort to break them down. While this behavior may seem harmless, it can have devastating consequences for the environment, making the Wasteboar an unwanted and destructive presence. The destruction of resources and the unsightly impact on the surroundings make this creature a problem that should not be taken lightly.</description>
+		<statBases>
+			<MoveSpeed>4.6</MoveSpeed>
+			<MarketValue>200</MarketValue>
+			<ComfyTemperatureMin>-23</ComfyTemperatureMin>
+			<FilthRate>16</FilthRate>
+			<ToxicEnvironmentResistance>1</ToxicEnvironmentResistance>
+			<Wildness>0.50</Wildness>
+		</statBases>
+		<uiIconScale>2.25</uiIconScale>
+		<tools>
+			<li>
+				<label>tusk</label>
+				<capacities>
+					<li>Scratch</li>
+					<li>Stab</li>
+				</capacities>
+				<power>13</power>
+				<cooldownTime>2</cooldownTime>
+				<linkedBodyPartsGroup>TuskAttackTool</linkedBodyPartsGroup>
+				<surpriseAttack>
+					<extraMeleeDamages>
+						<li>
+							<def>Stun</def>
+							<amount>20</amount>
+						</li>
+					</extraMeleeDamages>
+				</surpriseAttack>
+			</li>
+			<li>
+				<capacities>
+					<li>Bite</li>
+				</capacities>
+				<power>8.5</power>
+				<cooldownTime>2</cooldownTime>
+				<linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
+				<chanceFactor>0.6</chanceFactor>
+			</li>
+			<li>
+				<label>head</label>
+				<capacities>
+					<li>Blunt</li>
+				</capacities>
+				<power>5</power>
+				<cooldownTime>2</cooldownTime>
+				<linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
+				<ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
+				<chanceFactor>0.2</chanceFactor>
+			</li>
+		</tools>
+		<race>
+			<body>VAEWaste_Wasteboar</body>
+			<herdAnimal>true</herdAnimal>
+			<baseBodySize>1.3</baseBodySize>
+			<baseHealthScale>1</baseHealthScale>
+			<baseHungerRate>0.30</baseHungerRate>
+			<foodType>OmnivoreRoughAnimal</foodType>
+			<trainability>Intermediate</trainability>
+			<specificMeatDef>VAEWaste_ToxicMeat</specificMeatDef>
+			<leatherDef>VAEWaste_ToxicLeather</leatherDef>
+			<gestationPeriodDays>5.661</gestationPeriodDays>
+			<litterSizeCurve>
+				<points>
+					<li>(0.5, 0)</li>
+					<li>(1, 1)</li>
+					<li>(1.5, 1)</li>
+					<li>(2.0, 0)</li>
+				</points>
+			</litterSizeCurve>
+			<lifeExpectancy>12</lifeExpectancy>
+			<lifeStageAges>
+				<li>
+					<def>AnimalBaby</def>
+					<minAge>0</minAge>
+				</li>
+				<li>
+					<def>AnimalJuvenile</def>
+					<minAge>0.1</minAge>
+				</li>
+				<li>
+					<def>AnimalAdult</def>
+					<minAge>0.3333</minAge>
+					<soundWounded>Pawn_Wildboar_Wounded</soundWounded>
+					<soundDeath>Pawn_Wildboar_Death</soundDeath>
+					<soundCall>Pawn_Wildboar_Call</soundCall>
+					<soundAngry>Pawn_Wildboar_Angry</soundAngry>
+				</li>
+			</lifeStageAges>
+			<soundMeleeHitPawn>Pawn_Melee_SmallScratch_HitPawn</soundMeleeHitPawn>
+			<soundMeleeHitBuilding>Pawn_Melee_SmallScratch_HitBuilding</soundMeleeHitBuilding>
+			<soundMeleeMiss>Pawn_Melee_SmallScratch_Miss</soundMeleeMiss>
+			<headPosPerRotation>
+				<li>(0.0, 0, 0.4)</li>
+				<li>(0.27, 0, 0.18)</li>
+				<li>(0.0, 0, 0.1)</li>
+				<li>(-0.27, 0, 0.18)</li>
+			</headPosPerRotation>
+		</race>
+		<tradeTags>
+			<li>AnimalUncommon</li>
+		</tradeTags>
+	</ThingDef>
+	<PawnKindDef ParentName="AnimalKindBase">
+		<defName>VAEWaste_Wasteboar</defName>
+		<label>wasteboar</label>
+		<race>VAEWaste_Wasteboar</race>
+		<combatPower>75</combatPower>
+		<ecoSystemWeight>0.5</ecoSystemWeight>
+		<wildGroupSize>5~10</wildGroupSize>
+		<canArriveManhunter>false</canArriveManhunter>
+		<lifeStages>
+			<li>
+				<bodyGraphicData>
+					<texPath>Things/Pawn/Animal/Wasteboar/Wasteboar</texPath>
+					<drawSize>1.2</drawSize>
+					<shadowData>
+						<volume>(0.30, 0.25, 0.20)</volume>
+					</shadowData>
+				</bodyGraphicData>
+				<dessicatedBodyGraphicData>
+					<texPath>Things/Pawn/Animal/Wasteboar/Wasteboar_Dessicated</texPath>
+					<drawSize>1.2</drawSize>
+				</dessicatedBodyGraphicData>
+			</li>
+			<li>
+				<bodyGraphicData>
+					<texPath>Things/Pawn/Animal/Wasteboar/Wasteboar</texPath>
+					<drawSize>1.7</drawSize>
+					<shadowData>
+						<volume>(0.375, 0.375, 0.375)</volume>
+					</shadowData>
+				</bodyGraphicData>
+				<dessicatedBodyGraphicData>
+					<texPath>Things/Pawn/Animal/Wasteboar/Wasteboar_Dessicated</texPath>
+					<drawSize>1.7</drawSize>
+				</dessicatedBodyGraphicData>
+			</li>
+			<li>
+				<bodyGraphicData>
+					<texPath>Things/Pawn/Animal/Wasteboar/Wasteboar</texPath>
+					<drawSize>2</drawSize>
+					<shadowData>
+						<volume>(0.5, 0.5, 0.4)</volume>
+						<offset>(0,0,-0.05)</offset>
+					</shadowData>
+				</bodyGraphicData>
+				<dessicatedBodyGraphicData>
+					<texPath>Things/Pawn/Animal/Wasteboar/Wasteboar_Dessicated</texPath>
+					<drawSize>2</drawSize>
+				</dessicatedBodyGraphicData>
+			</li>
+		</lifeStages>
+	</PawnKindDef>
+</Defs>

@@ -1,0 +1,275 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Patch>
+  <!---->
+  <!-- Armadillo -->
+  <!-- Armadillo StatBases -->
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Armadillo"]/statBases/MarketValue</xpath>
+    <value>
+      <MarketValue>125</MarketValue>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Armadillo"]/statBases/MoveSpeed</xpath>
+    <value>
+      <MoveSpeed>3</MoveSpeed>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Armadillo"]/statBases/Wildness</xpath>
+    <value>
+      <Wildness>0.55</Wildness>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Armadillo"]/statBases/ComfyTemperatureMin</xpath>
+    <value>
+      <ComfyTemperatureMin>-15</ComfyTemperatureMin>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Armadillo"]/statBases/ComfyTemperatureMax</xpath>
+    <value>
+      <ComfyTemperatureMax>50</ComfyTemperatureMax>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Armadillo"]/statBases/ArmorRating_Blunt</xpath>
+    <value>
+      <ArmorRating_Blunt>0.25</ArmorRating_Blunt>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Armadillo"]/statBases/ArmorRating_Sharp</xpath>
+    <value>
+      <ArmorRating_Sharp>0.3</ArmorRating_Sharp>
+    </value>
+  </Operation>
+  <!-- Armadillo tools -->
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Armadillo"]/tools</xpath>
+    <value>
+      <tools>
+        <li>
+          <label>head</label>
+          <capacities>
+            <li>Blunt</li>
+          </capacities>
+          <power>2.5</power>
+          <cooldownTime>1.3</cooldownTime>
+          <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
+          <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
+          <chanceFactor>0.2</chanceFactor>
+        </li>
+        <li>
+          <label>teeth</label>
+          <capacities>
+            <li>Bite</li>
+          </capacities>
+          <power>4.5</power>
+          <cooldownTime>1.1</cooldownTime>
+          <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
+        </li>
+      </tools>
+    </value>
+  </Operation>
+  <!-- Armadillo RaceProperties -->
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Armadillo"]/race/baseBodySize</xpath>
+    <value>
+      <baseBodySize>0.3</baseBodySize>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Armadillo"]/race/baseHealthScale</xpath>
+    <value>
+      <baseHealthScale>0.3</baseHealthScale>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Armadillo"]/race/baseHungerRate</xpath>
+    <value>
+      <baseHungerRate>0.3</baseHungerRate>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Armadillo"]/race/lifeExpectancy</xpath>
+    <value>
+      <lifeExpectancy>12</lifeExpectancy>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Armadillo"]/race/gestationPeriodDays</xpath>
+    <value>
+      <gestationPeriodDays>6.5</gestationPeriodDays>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Armadillo"]/race</xpath>
+    <value>
+      <herdMigrationAllowed>false</herdMigrationAllowed>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Armadillo"]/race/foodType</xpath>
+    <value>
+      <foodType>OmnivoreAnimal, OvivoreAnimal</foodType>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Armadillo"]/race/body</xpath>
+    <value>
+      <body>QuadrupedAnimalWithPawsAndTail</body>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Armadillo"]/race/lifeStageAges</xpath>
+    <value>
+      <lifeStageAges>
+        <li>
+          <def>AnimalBaby</def>
+          <minAge>0</minAge>
+        </li>
+        <li>
+          <def>AnimalJuvenile</def>
+          <minAge>0.15</minAge>
+        </li>
+        <li>
+          <def>AnimalAdult</def>
+          <minAge>0.3</minAge>
+          <soundWounded>Pawn_Rodent_Wounded</soundWounded>
+          <soundDeath>Pawn_Rodent_Death</soundDeath>
+          <soundCall>Pawn_Rodent_Call</soundCall>
+          <soundAngry>Pawn_Rodent_Angry</soundAngry>
+        </li>
+      </lifeStageAges>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Armadillo"]/race/litterSizeCurve</xpath>
+    <value>
+      <litterSizeCurve>
+        <points>
+          <li>(0.4000, 0)</li>
+          <li>(0.8000, 0.2)</li>
+          <li>(1.6000, 1)</li>
+          <li>(2.4000, 1)</li>
+          <li>(3.2000, 0.2)</li>
+          <li>(3.6000, 0)</li>
+        </points>
+      </litterSizeCurve>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Armadillo"]/race</xpath>
+    <value>
+      <specialTrainables>
+        <li MayRequire="Ludeon.RimWorld.Odyssey">Forage</li>
+      </specialTrainables>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "Armadillo"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_IsMammal, ZoologyMod"/>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "Armadillo"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod"/>
+    </value>
+  </Operation>
+  <!-- Armadillo PawnKindDef -->
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/PawnKindDef[defName = "Armadillo"]/ecoSystemWeight</xpath>
+    <value>
+      <ecoSystemWeight>0.3</ecoSystemWeight>
+    </value>
+  </Operation>
+  <!-- Combat Extended specific patches -->
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>Combat Extended</li>
+    </mods>
+    <match Class="PatchOperationSequence">
+      <operations>
+        <!-- Armadillo CE patches -->
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="Armadillo"]/statBases</xpath>
+          <value>
+            <MeleeDodgeChance>0.4</MeleeDodgeChance>
+          </value>
+        </li>
+        <li Class="PatchOperationReplace">
+          <xpath>Defs/ThingDef[defName="Armadillo"]/statBases/ArmorRating_Sharp</xpath>
+          <value>
+            <ArmorRating_Sharp>0.45</ArmorRating_Sharp>
+          </value>
+        </li>
+        <li Class="PatchOperationReplace">
+          <xpath>Defs/ThingDef[defName="Armadillo"]/statBases/ArmorRating_Blunt</xpath>
+          <value>
+            <ArmorRating_Blunt>0.35</ArmorRating_Blunt>
+          </value>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="Armadillo"]</xpath>
+          <value>
+            <comps/>
+          </value>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="Armadillo"]/comps</xpath>
+          <value>
+            <li Class="CombatExtended.CompProperties_ArmorDurability">
+              <Durability>150</Durability>
+              <Regenerates>true</Regenerates>
+              <RegenInterval>600</RegenInterval>
+              <RegenValue>5</RegenValue>
+              <MinArmorPct>0.5</MinArmorPct>
+            </li>
+          </value>
+        </li>
+        <li Class="PatchOperationAddModExtension">
+          <xpath>Defs/ThingDef[defName="Armadillo"]</xpath>
+          <value>
+            <li Class="CombatExtended.RacePropertiesExtensionCE">
+              <bodyShape>Quadruped</bodyShape>
+            </li>
+          </value>
+        </li>
+        <li Class="PatchOperationReplace">
+          <xpath>/Defs/ThingDef[defName="Armadillo"]/tools</xpath>
+          <value>
+            <tools>
+              <li Class="CombatExtended.ToolCE">
+                <label>head</label>
+                <capacities>
+                  <li>Blunt</li>
+                </capacities>
+                <power>0.2</power>
+                <armorPenetrationBlunt>0.2</armorPenetrationBlunt>
+                <cooldownTime>1.45</cooldownTime>
+                <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
+                <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
+                <chanceFactor>0.2</chanceFactor>
+              </li>
+              <li Class="CombatExtended.ToolCE">
+                <label>teeth</label>
+                <capacities>
+                  <li>Bite</li>
+                </capacities>
+                <power>3.7</power>
+                <armorPenetrationBlunt>0.4</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.07</armorPenetrationSharp>
+                <cooldownTime>1.85</cooldownTime>
+                <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
+              </li>
+            </tools>
+          </value>
+        </li>
+      </operations>
+    </match>
+  </Operation>
+</Patch>

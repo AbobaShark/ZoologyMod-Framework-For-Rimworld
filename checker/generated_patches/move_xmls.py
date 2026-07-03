@@ -27,6 +27,7 @@ MAPPINGS = {
     "VanillaAnimalsExpandedWasteland": Path("Zoology") / "ModPatches" / "VanillaAnimalsExpandedWasteland" / "Patches" / "ThingDefs_Races",
     "AlphaAnimals": Path("Zoology") / "ModPatches" / "AlphaAnimals" / "Patches" / "ThingDefs_Races",
     "Dinosauria": Path("Zoology") / "ModPatches" / "Dinosauria" / "Patches" / "ThingDefs_Races",
+    "Megafauna": Path("Zoology") / "ModPatches" / "Megafauna" / "Patches" / "ThingDefs_Races",
 }
 
 def get_base_dir():

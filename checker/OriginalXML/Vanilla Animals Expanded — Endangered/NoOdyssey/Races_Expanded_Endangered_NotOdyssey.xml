@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+	<!-- ======================= Panda =============================== -->
+	<ThingDef ParentName="AnimalThingBase">
+		<defName>AEXP_Panda</defName>
+		<label>giant panda</label>
+		<description>The panda, with its distinctive and luxuriant black and white fur, is a herviborous bear adapted to life in bamboo forests. The average giant panda eats as much as 9 to 14 kg of bamboo shoots a day to compensate for the limited energy content of its diet. Pandas are generally less agressive than other bear species.\n\n&lt;color=#33d733&gt;Real World Conservation Status:&lt;/color&gt; Vulnerable. Recently upgraded from endangered status (as of 2020), wild panda numbers are finally rebounding after years of decline. Habitat loss is their main threat.</description>
+		<statBases>
+			<MoveSpeed>3</MoveSpeed>
+			<ComfyTemperatureMin>-40</ComfyTemperatureMin>
+			<MarketValue>700</MarketValue>
+			<FilthRate>4</FilthRate>
+			<Wildness>0.80</Wildness>
+		</statBases>
+		<tools>
+			<li>
+				<label>left claw</label>
+				<capacities>
+					<li>Scratch</li>
+				</capacities>
+				<power>14</power>
+				<cooldownTime>2</cooldownTime>
+				<linkedBodyPartsGroup>FrontLeftPaw</linkedBodyPartsGroup>
+				<surpriseAttack>
+					<extraMeleeDamages>
+						<li>
+							<def>Stun</def>
+							<amount>14</amount>
+						</li>
+					</extraMeleeDamages>
+				</surpriseAttack>
+			</li>
+			<li>
+				<label>right claw</label>
+				<capacities>
+					<li>Scratch</li>
+				</capacities>
+				<power>14</power>
+				<cooldownTime>2</cooldownTime>
+				<linkedBodyPartsGroup>FrontRightPaw</linkedBodyPartsGroup>
+				<surpriseAttack>
+					<extraMeleeDamages>
+						<li>
+							<def>Stun</def>
+							<amount>14</amount>
+						</li>
+					</extraMeleeDamages>
+				</surpriseAttack>
+			</li>
+			<li>
+				<capacities>
+					<li>Bite</li>
+				</capacities>
+				<power>18</power>
+				<cooldownTime>2.6</cooldownTime>
+				<linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
+				<chanceFactor>0.5</chanceFactor>
+				<surpriseAttack>
+					<extraMeleeDamages>
+						<li>
+							<def>Stun</def>
+							<amount>14</amount>
+						</li>
+					</extraMeleeDamages>
+				</surpriseAttack>
+			</li>
+			<li>
+				<label>head</label>
+				<capacities>
+					<li>Blunt</li>
+				</capacities>
+				<power>9</power>
+				<cooldownTime>2</cooldownTime>
+				<linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
+				<ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
+				<chanceFactor>0.2</chanceFactor>
+			</li>
+		</tools>
+		<race>
+			<herdAnimal>false</herdAnimal>
+			<body>QuadrupedAnimalWithPaws</body>
+			<baseHungerRate>0.35</baseHungerRate>
+			<baseBodySize>2.15</baseBodySize>
+			<baseHealthScale>2.5</baseHealthScale>
+			<foodType>VegetarianRoughAnimal</foodType>
+			<leatherDef>Leather_Bear</leatherDef>
+			<gestationPeriodDays>15</gestationPeriodDays>
+			<useMeatFrom>Bear_Grizzly</useMeatFrom>
+			<lifeExpectancy>20</lifeExpectancy>
+			<trainability>Advanced</trainability>
+			<manhunterOnTameFailChance>0</manhunterOnTameFailChance>
+			<manhunterOnDamageChance>0.05</manhunterOnDamageChance>
+			<lifeStageAges>
+				<li>
+					<def>AnimalBaby</def>
+					<minAge>0</minAge>
+				</li>
+				<li>
+					<def>AnimalJuvenile</def>
+					<minAge>0.2</minAge>
+				</li>
+				<li>
+					<def>AnimalAdult</def>
+					<minAge>0.5</minAge>
+					<soundWounded>Pawn_Bear_Injured</soundWounded>
+					<soundDeath>Pawn_Bear_Death</soundDeath>
+					<soundCall>Pawn_Bear_Call</soundCall>
+					<soundAngry>Pawn_Bear_Angry</soundAngry>
+				</li>
+			</lifeStageAges>
+			<soundMeleeHitPawn>Pawn_Melee_BigBash_HitPawn</soundMeleeHitPawn>
+			<soundMeleeHitBuilding>Pawn_Melee_BigBash_HitBuilding</soundMeleeHitBuilding>
+			<soundMeleeMiss>Pawn_Melee_BigBash_Miss</soundMeleeMiss>
+		</race>
+		<tradeTags>
+			<li>AnimalEndangered</li>
+			<li>AnimalAlpha</li>
+		</tradeTags>
+	</ThingDef>
+	<PawnKindDef ParentName="AnimalKindBase">
+		<defName>AEXP_Panda</defName>
+		<label>giant panda</label>
+		<race>AEXP_Panda</race>
+		<combatPower>180</combatPower>
+		<ecoSystemWeight>0.5</ecoSystemWeight>
+		<canArriveManhunter>false</canArriveManhunter>
+		<lifeStages>
+			<li>
+				<bodyGraphicData>
+					<texPath>Things/Pawn/Animal/VAE_Panda/VAE_Panda</texPath>
+					<drawSize>1.2</drawSize>
+					<shadowData>
+						<volume>(0.4, 0.3, 0.3)</volume>
+						<offset>(0,0,-0.2)</offset>
+					</shadowData>
+				</bodyGraphicData>
+				<dessicatedBodyGraphicData>
+					<texPath>Things/Pawn/Animal/VAE_Panda/VAE_Dessicated_Panda</texPath>
+					<drawSize>1.2</drawSize>
+				</dessicatedBodyGraphicData>
+			</li>
+			<li>
+				<bodyGraphicData>
+					<texPath>Things/Pawn/Animal/VAE_Panda/VAE_Panda</texPath>
+					<drawSize>1.8</drawSize>
+					<shadowData>
+						<volume>(0.6, 0.45, 0.45)</volume>
+						<offset>(0,0,-0.25)</offset>
+					</shadowData>
+				</bodyGraphicData>
+				<dessicatedBodyGraphicData>
+					<texPath>Things/Pawn/Animal/VAE_Panda/VAE_Dessicated_Panda</texPath>
+					<drawSize>1.8</drawSize>
+				</dessicatedBodyGraphicData>
+			</li>
+			<li>
+				<bodyGraphicData>
+					<texPath>Things/Pawn/Animal/VAE_Panda/VAE_Panda</texPath>
+					<drawSize>2.2</drawSize>
+					<shadowData>
+						<volume>(0.8, 0.6, 0.6)</volume>
+						<offset>(0,0,-0.3)</offset>
+					</shadowData>
+				</bodyGraphicData>
+				<dessicatedBodyGraphicData>
+					<texPath>Things/Pawn/Animal/VAE_Panda/VAE_Dessicated_Panda</texPath>
+					<drawSize>2.2</drawSize>
+				</dessicatedBodyGraphicData>
+			</li>
+		</lifeStages>
+	</PawnKindDef>
+	
+</Defs>

@@ -1,0 +1,174 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+	<!-- ============================================================ -->
+	<ThingDef ParentName="AnimalThingBase">
+		<defName>VAEWaste_Toxiguana</defName>
+		<label>toxiguana</label>
+		<description>The Toxiguana is a small, two-legged lizard that is well adapted to highly polluted environments. Standing about the size of a dog, this creature is not to be underestimated. It has a formidable defense mechanism, capable of spitting corrosive acid at any predator that threatens it. When it dies, a chemical reaction causes its body to rapidly decompose, releasing a toxic cloud of gas that can be dangerous to any living thing that comes into contact with it. The Toxiguana is a remarkable example of the resilience of life in even the harshest of environments.</description>
+		<statBases>
+			<MoveSpeed>3.0</MoveSpeed>
+			<MarketValue>150</MarketValue>
+			<ComfyTemperatureMin>0</ComfyTemperatureMin>
+			<ComfyTemperatureMax>60</ComfyTemperatureMax>
+			<ToxicEnvironmentResistance>1</ToxicEnvironmentResistance>
+			<Wildness>0.5</Wildness>
+		</statBases>
+		<tools>
+			<li>
+				<label>left claw</label>
+				<capacities>
+					<li>Scratch</li>
+				</capacities>
+				<power>8</power>
+				<cooldownTime>2</cooldownTime>
+				<linkedBodyPartsGroup>FrontLeftClaws</linkedBodyPartsGroup>
+			</li>
+			<li>
+				<label>right claw</label>
+				<capacities>
+					<li>Scratch</li>
+				</capacities>
+				<power>8</power>
+				<cooldownTime>2</cooldownTime>
+				<linkedBodyPartsGroup>FrontRightClaws</linkedBodyPartsGroup>
+			</li>
+			<li>
+				<capacities>
+					<li>Bite</li>
+				</capacities>
+				<power>10</power>
+				<cooldownTime>2.6</cooldownTime>
+				<linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
+				<chanceFactor>0.7</chanceFactor>
+			</li>
+			<li>
+				<label>head</label>
+				<capacities>
+					<li>Blunt</li>
+				</capacities>
+				<power>5</power>
+				<cooldownTime>2</cooldownTime>
+				<linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
+				<ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
+				<chanceFactor>0.2</chanceFactor>
+			</li>
+		</tools>
+		<comps>
+			<li Class="CompProperties_EggLayer">
+				<eggFertilizedDef>VAEWaste_EggToxiguanaFertilized</eggFertilizedDef>
+				<eggUnfertilizedDef>VAEWaste_EggToxiguanaUnfertilized</eggUnfertilizedDef>
+				<eggFertilizationCountMax>1</eggFertilizationCountMax>
+				<eggLayIntervalDays>5.661</eggLayIntervalDays>
+				<eggProgressUnfertilizedMax>0.5</eggProgressUnfertilizedMax>
+				<eggCountRange>1~2</eggCountRange>
+			</li>
+		</comps>
+		<verbs>
+			<li>
+				<verbClass>Verb_Shoot</verbClass>
+				<accuracyTouch>1</accuracyTouch>
+				<accuracyShort>1</accuracyShort>
+				<accuracyMedium>1</accuracyMedium>
+				<accuracyLong>1</accuracyLong>
+				<hasStandardCommand>true</hasStandardCommand>
+				<defaultProjectile>VAEWaste_AcidBolt</defaultProjectile>
+				<warmupTime>2</warmupTime>
+				<burstShotCount>1</burstShotCount>
+				<minRange>2</minRange>
+				<range>20</range>
+				<soundCast>VAEWaste_PoisonBolt</soundCast>
+				<muzzleFlashScale>0</muzzleFlashScale>
+				<label>acid spit</label>
+				<commonality>.8</commonality>
+			</li>
+		</verbs>
+		<race>
+			<deathAction>
+				<workerClass>VanillaAnimalsExpandedWaste.DeathActionWorker_ToxCloudAndRots</workerClass>
+			</deathAction>
+			<body>VAEWaste_BipedalLizard</body>
+			<baseBodySize>1.4</baseBodySize>
+			<baseHealthScale>1</baseHealthScale>
+			<baseHungerRate>0.2</baseHungerRate>
+			<foodType>OmnivoreRoughAnimal</foodType>
+			<leatherDef>Leather_Lizard</leatherDef>
+			<specificMeatDef>VAEWaste_ToxicMeat</specificMeatDef>
+			<trainability>None</trainability>
+			<lifeExpectancy>12</lifeExpectancy>
+			<lifeStageAges>
+				<li>
+					<def>AnimalBaby</def>
+					<minAge>0</minAge>
+				</li>
+				<li>
+					<def>AnimalJuvenile</def>
+					<minAge>0.1</minAge>
+				</li>
+				<li>
+					<def>AnimalAdult</def>
+					<minAge>0.2222</minAge>
+					<soundWounded>Pawn_Iguana_Wounded</soundWounded>
+					<soundDeath>Pawn_Iguana_Death</soundDeath>
+					<soundCall>Pawn_Iguana_Call</soundCall>
+					<soundAngry>Pawn_Iguana_Angry</soundAngry>
+				</li>
+			</lifeStageAges>
+			<soundMeleeHitPawn>Pawn_Melee_SmallScratch_HitPawn</soundMeleeHitPawn>
+			<soundMeleeHitBuilding>Pawn_Melee_SmallScratch_HitBuilding</soundMeleeHitBuilding>
+			<soundMeleeMiss>Pawn_Melee_SmallScratch_Miss</soundMeleeMiss>
+			<headPosPerRotation>
+				<li>(-0.01, 0, 0.3)</li>
+				<li>(0.35, 0, 0.05)</li>
+				<li>(0.0, 0, -0.24)</li>
+				<li>(-0.35, 0, 0.05)</li>
+			</headPosPerRotation>
+		</race>
+		<tradeTags>
+			<li>AnimalUncommon</li>
+		</tradeTags>
+	</ThingDef>
+	<PawnKindDef ParentName="AnimalKindBase">
+		<defName>VAEWaste_Toxiguana</defName>
+		<label>toxiguana</label>
+		<race>VAEWaste_Toxiguana</race>
+		<combatPower>65</combatPower>
+		<ecoSystemWeight>0.30</ecoSystemWeight>
+		<canArriveManhunter>false</canArriveManhunter>
+		<lifeStages>
+			<li>
+				<bodyGraphicData>
+					<texPath>Things/Pawn/Animal/Toxiguana/Toxiguana</texPath>
+					<drawSize>1</drawSize>
+				</bodyGraphicData>
+				<dessicatedBodyGraphicData>
+					<texPath>Things/Pawn/Animal/Toxiguana/Dessicated_Toxiguana</texPath>
+					<drawSize>1</drawSize>
+				</dessicatedBodyGraphicData>
+			</li>
+			<li>
+				<bodyGraphicData>
+					<texPath>Things/Pawn/Animal/Toxiguana/Toxiguana</texPath>
+					<drawSize>1.25</drawSize>
+				</bodyGraphicData>
+				<dessicatedBodyGraphicData>
+					<texPath>Things/Pawn/Animal/Toxiguana/Dessicated_Toxiguana</texPath>
+					<drawSize>1.25</drawSize>
+				</dessicatedBodyGraphicData>
+			</li>
+			<li>
+				<bodyGraphicData>
+					<texPath>Things/Pawn/Animal/Toxiguana/Toxiguana</texPath>
+					<drawSize>1.5</drawSize>
+					<shadowData>
+						<volume>(0.25, 0.3, 0.25)</volume>
+						<offset>(0,0,0)</offset>
+					</shadowData>
+				</bodyGraphicData>
+				<dessicatedBodyGraphicData>
+					<texPath>Things/Pawn/Animal/Toxiguana/Dessicated_Toxiguana</texPath>
+					<drawSize>1.5</drawSize>
+				</dessicatedBodyGraphicData>
+			</li>
+		</lifeStages>
+	</PawnKindDef>
+</Defs>

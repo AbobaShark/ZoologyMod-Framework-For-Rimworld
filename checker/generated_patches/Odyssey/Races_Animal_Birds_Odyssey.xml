@@ -1,0 +1,1444 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Patch>
+  <!---->
+  <!-- Swan -->
+  <Operation Class="PatchOperationAttributeSet">
+    <xpath>/Defs/ThingDef[defName = "Swan"]</xpath>
+    <attribute>ParentName</attribute>
+    <value>BigBirdThingBase</value>
+  </Operation>
+  <!-- Swan StatBases -->
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Swan"]/statBases/MarketValue</xpath>
+    <value>
+      <MarketValue>175</MarketValue>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Swan"]/statBases</xpath>
+    <value>
+      <MoveSpeed>1.5</MoveSpeed>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Swan"]/statBases</xpath>
+    <value>
+      <Wildness>0.6</Wildness>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Swan"]/statBases</xpath>
+    <value>
+      <FilthRate>5</FilthRate>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Swan"]/statBases</xpath>
+    <value>
+      <ComfyTemperatureMin>-35</ComfyTemperatureMin>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Swan"]/statBases</xpath>
+    <value>
+      <ComfyTemperatureMax>35</ComfyTemperatureMax>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Swan"]/statBases</xpath>
+    <value>
+      <LeatherAmount>0</LeatherAmount>
+    </value>
+  </Operation>
+  <!-- Swan tools -->
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Swan"]</xpath>
+    <value>
+      <tools>
+        <li>
+          <label>head</label>
+          <capacities>
+            <li>Blunt</li>
+          </capacities>
+          <power>3.5</power>
+          <cooldownTime>1.45</cooldownTime>
+          <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
+          <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
+          <chanceFactor>0.2</chanceFactor>
+        </li>
+        <li>
+          <label>beak</label>
+          <capacities>
+            <li>Blunt</li>
+          </capacities>
+          <power>3.5</power>
+          <cooldownTime>1.15</cooldownTime>
+          <linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>
+        </li>
+      </tools>
+    </value>
+  </Operation>
+  <!-- Swan RaceProperties -->
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Swan"]/race</xpath>
+    <value>
+      <baseBodySize>0.4</baseBodySize>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Swan"]/race</xpath>
+    <value>
+      <baseHealthScale>0.4</baseHealthScale>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Swan"]/race</xpath>
+    <value>
+      <baseHungerRate>0.4</baseHungerRate>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Swan"]/race</xpath>
+    <value>
+      <lifeExpectancy>25</lifeExpectancy>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Swan"]/race</xpath>
+    <value>
+      <foodType>VegetarianRoughAnimal</foodType>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Swan"]/race</xpath>
+    <value>
+      <roamMtbDays>4</roamMtbDays>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Swan"]/race/manhunterOnTameFailChance</xpath>
+    <value>
+      <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Swan"]/race/manhunterOnDamageChance</xpath>
+    <value>
+      <manhunterOnDamageChance>0</manhunterOnDamageChance>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Swan"]/race</xpath>
+    <value>
+      <waterCellCost>1</waterCellCost>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Swan"]/race</xpath>
+    <value>
+      <waterSeeker>true</waterSeeker>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Swan"]/race</xpath>
+    <value>
+      <useMeatFrom>Cassowary</useMeatFrom>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Swan"]/race/lifeStageAges</xpath>
+    <value>
+      <lifeStageAges Inherit="False">
+        <li>
+          <def>AnimalBabyTiny</def>
+          <minAge>0</minAge>
+        </li>
+        <li>
+          <def>AnimalJuvenile</def>
+          <minAge>0.2</minAge>
+        </li>
+        <li>
+          <def>AnimalAdult</def>
+          <minAge>0.4</minAge>
+          <soundWounded>Pawn_Swan_Wounded</soundWounded>
+          <soundDeath>Pawn_Swan_Death</soundDeath>
+          <soundCall>Pawn_Swan_Call</soundCall>
+          <soundAngry>Pawn_Swan_Angry</soundAngry>
+        </li>
+      </lifeStageAges>
+    </value>
+  </Operation>
+  <!-- Swan PawnKindDef -->
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/PawnKindDef[defName = "Swan"]/combatPower</xpath>
+    <value>
+      <combatPower>35</combatPower>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/PawnKindDef[defName = "Swan"]</xpath>
+    <value>
+      <ecoSystemWeight>0.4</ecoSystemWeight>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/PawnKindDef[defName = "Swan"]</xpath>
+    <value>
+      <canArriveManhunter>false</canArriveManhunter>
+    </value>
+  </Operation>
+  <!-- Heron -->
+  <Operation Class="PatchOperationAttributeSet">
+    <xpath>/Defs/ThingDef[defName = "Heron"]</xpath>
+    <attribute>ParentName</attribute>
+    <value>BigBirdThingBase</value>
+  </Operation>
+  <!-- Heron StatBases -->
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Heron"]</xpath>
+    <value>
+      <statBases/>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Heron"]/statBases</xpath>
+    <value>
+      <MarketValue>150</MarketValue>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Heron"]/statBases</xpath>
+    <value>
+      <MoveSpeed>1.5</MoveSpeed>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Heron"]/statBases</xpath>
+    <value>
+      <Wildness>0.55</Wildness>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Heron"]/statBases</xpath>
+    <value>
+      <FilthRate>3</FilthRate>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Heron"]/statBases</xpath>
+    <value>
+      <ComfyTemperatureMin>-35</ComfyTemperatureMin>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Heron"]/statBases</xpath>
+    <value>
+      <LeatherAmount>0</LeatherAmount>
+    </value>
+  </Operation>
+  <!-- Heron tools -->
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Heron"]</xpath>
+    <value>
+      <tools>
+        <li>
+          <label>head</label>
+          <capacities>
+            <li>Blunt</li>
+          </capacities>
+          <power>2</power>
+          <cooldownTime>1.05</cooldownTime>
+          <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
+          <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
+          <chanceFactor>0.2</chanceFactor>
+        </li>
+        <li>
+          <label>beak</label>
+          <capacities>
+            <li>Blunt</li>
+          </capacities>
+          <power>2</power>
+          <cooldownTime>0.85</cooldownTime>
+          <linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>
+        </li>
+      </tools>
+    </value>
+  </Operation>
+  <!-- Heron RaceProperties -->
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Heron"]/race</xpath>
+    <value>
+      <baseBodySize>0.2</baseBodySize>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Heron"]/race</xpath>
+    <value>
+      <baseHealthScale>0.2</baseHealthScale>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Heron"]/race</xpath>
+    <value>
+      <baseHungerRate>0.3</baseHungerRate>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Heron"]/race</xpath>
+    <value>
+      <lifeExpectancy>20</lifeExpectancy>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Heron"]/race/foodType</xpath>
+    <value>
+      <foodType>CarnivoreAnimal, OvivoreAnimal</foodType>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Heron"]/race</xpath>
+    <value>
+      <roamMtbDays>4</roamMtbDays>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Heron"]/race</xpath>
+    <value>
+      <waterCellCost>1</waterCellCost>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Heron"]/race</xpath>
+    <value>
+      <waterSeeker>true</waterSeeker>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Heron"]/race</xpath>
+    <value>
+      <useMeatFrom>Cassowary</useMeatFrom>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Heron"]/race/lifeStageAges</xpath>
+    <value>
+      <lifeStageAges Inherit="False">
+        <li>
+          <def>AnimalBabyTiny</def>
+          <minAge>0</minAge>
+        </li>
+        <li>
+          <def>AnimalJuvenile</def>
+          <minAge>0.2</minAge>
+        </li>
+        <li>
+          <def>AnimalAdult</def>
+          <minAge>0.4</minAge>
+          <soundWounded>Pawn_Heron_Wounded</soundWounded>
+          <soundDeath>Pawn_Heron_Death</soundDeath>
+          <soundCall>Pawn_Heron_Call</soundCall>
+          <soundAngry>Pawn_Heron_Angry</soundAngry>
+        </li>
+      </lifeStageAges>
+    </value>
+  </Operation>
+  <!-- Heron PawnKindDef -->
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/PawnKindDef[defName = "Heron"]/combatPower</xpath>
+    <value>
+      <combatPower>25</combatPower>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/PawnKindDef[defName = "Heron"]</xpath>
+    <value>
+      <ecoSystemWeight>0.3</ecoSystemWeight>
+    </value>
+  </Operation>
+  <!-- Flamingo -->
+  <Operation Class="PatchOperationAttributeSet">
+    <xpath>/Defs/ThingDef[defName = "Flamingo"]</xpath>
+    <attribute>ParentName</attribute>
+    <value>BigBirdThingBase</value>
+  </Operation>
+  <!-- Flamingo StatBases -->
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Flamingo"]</xpath>
+    <value>
+      <statBases/>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Flamingo"]/statBases</xpath>
+    <value>
+      <MarketValue>150</MarketValue>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Flamingo"]/statBases</xpath>
+    <value>
+      <MoveSpeed>1.5</MoveSpeed>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Flamingo"]/statBases</xpath>
+    <value>
+      <Wildness>0.55</Wildness>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Flamingo"]/statBases</xpath>
+    <value>
+      <FilthRate>3</FilthRate>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Flamingo"]/statBases</xpath>
+    <value>
+      <ComfyTemperatureMin>5</ComfyTemperatureMin>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Flamingo"]/statBases</xpath>
+    <value>
+      <LeatherAmount>0</LeatherAmount>
+    </value>
+  </Operation>
+  <!-- Flamingo tools -->
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Flamingo"]</xpath>
+    <value>
+      <tools>
+        <li>
+          <label>head</label>
+          <capacities>
+            <li>Blunt</li>
+          </capacities>
+          <power>2.5</power>
+          <cooldownTime>1.2</cooldownTime>
+          <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
+          <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
+          <chanceFactor>0.2</chanceFactor>
+        </li>
+        <li>
+          <label>beak</label>
+          <capacities>
+            <li>Blunt</li>
+          </capacities>
+          <power>2.5</power>
+          <cooldownTime>0.95</cooldownTime>
+          <linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>
+        </li>
+      </tools>
+    </value>
+  </Operation>
+  <!-- Flamingo RaceProperties -->
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Flamingo"]/race</xpath>
+    <value>
+      <baseBodySize>0.25</baseBodySize>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Flamingo"]/race</xpath>
+    <value>
+      <baseHealthScale>0.25</baseHealthScale>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Flamingo"]/race</xpath>
+    <value>
+      <baseHungerRate>0.35</baseHungerRate>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Flamingo"]/race</xpath>
+    <value>
+      <lifeExpectancy>35</lifeExpectancy>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Flamingo"]/race/foodType</xpath>
+    <value>
+      <foodType>OmnivoreAnimal, OvivoreAnimal</foodType>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Flamingo"]/race</xpath>
+    <value>
+      <roamMtbDays>4</roamMtbDays>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Flamingo"]/race</xpath>
+    <value>
+      <waterCellCost>1</waterCellCost>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Flamingo"]/race</xpath>
+    <value>
+      <waterSeeker>true</waterSeeker>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Flamingo"]/race</xpath>
+    <value>
+      <useMeatFrom>Cassowary</useMeatFrom>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Flamingo"]/race/lifeStageAges</xpath>
+    <value>
+      <lifeStageAges Inherit="False">
+        <li>
+          <def>AnimalBabyTiny</def>
+          <minAge>0</minAge>
+        </li>
+        <li>
+          <def>AnimalJuvenile</def>
+          <minAge>0.4</minAge>
+        </li>
+        <li>
+          <def>AnimalAdult</def>
+          <minAge>0.8</minAge>
+          <soundWounded>Pawn_Flamingo_Wounded</soundWounded>
+          <soundDeath>Pawn_Flamingo_Death</soundDeath>
+          <soundCall>Pawn_Flamingo_Call</soundCall>
+          <soundAngry>Pawn_Flamingo_Angry</soundAngry>
+        </li>
+      </lifeStageAges>
+    </value>
+  </Operation>
+  <!-- Flamingo PawnKindDef -->
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/PawnKindDef[defName = "Flamingo"]/combatPower</xpath>
+    <value>
+      <combatPower>30</combatPower>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/PawnKindDef[defName = "Flamingo"]</xpath>
+    <value>
+      <ecoSystemWeight>0.35</ecoSystemWeight>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/PawnKindDef[defName = "Flamingo"]/wildGroupSize</xpath>
+    <value>
+      <wildGroupSize>5~15</wildGroupSize>
+    </value>
+  </Operation>
+  <!-- Penguin -->
+  <!-- Penguin StatBases -->
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Penguin"]/statBases/MarketValue</xpath>
+    <value>
+      <MarketValue>225</MarketValue>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Penguin"]/statBases/MoveSpeed</xpath>
+    <value>
+      <MoveSpeed>1.5</MoveSpeed>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Penguin"]/statBases/Wildness</xpath>
+    <value>
+      <Wildness>0.7</Wildness>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Penguin"]/statBases/FilthRate</xpath>
+    <value>
+      <FilthRate>8</FilthRate>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Penguin"]/statBases/ComfyTemperatureMin</xpath>
+    <value>
+      <ComfyTemperatureMin>-60</ComfyTemperatureMin>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Penguin"]/statBases/ComfyTemperatureMax</xpath>
+    <value>
+      <ComfyTemperatureMax>10</ComfyTemperatureMax>
+    </value>
+  </Operation>
+  <!-- Penguin tools -->
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Penguin"]/tools</xpath>
+    <value>
+      <tools>
+        <li>
+          <label>head</label>
+          <capacities>
+            <li>Blunt</li>
+          </capacities>
+          <power>5.5</power>
+          <cooldownTime>1.75</cooldownTime>
+          <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
+          <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
+          <chanceFactor>0.2</chanceFactor>
+        </li>
+        <li>
+          <label>beak</label>
+          <capacities>
+            <li>Blunt</li>
+          </capacities>
+          <power>5.5</power>
+          <cooldownTime>1.4</cooldownTime>
+          <linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>
+        </li>
+      </tools>
+    </value>
+  </Operation>
+  <!-- Penguin RaceProperties -->
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Penguin"]/race/baseBodySize</xpath>
+    <value>
+      <baseBodySize>0.7</baseBodySize>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Penguin"]/race/baseHealthScale</xpath>
+    <value>
+      <baseHealthScale>0.7</baseHealthScale>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Penguin"]/race/baseHungerRate</xpath>
+    <value>
+      <baseHungerRate>0.55</baseHungerRate>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Penguin"]/race/lifeExpectancy</xpath>
+    <value>
+      <lifeExpectancy>25</lifeExpectancy>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Penguin"]/race/foodType</xpath>
+    <value>
+      <foodType>CarnivoreAnimal, OvivoreAnimal</foodType>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Penguin"]/race</xpath>
+    <value>
+      <roamMtbDays>2</roamMtbDays>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationRemove">
+    <xpath>/Defs/ThingDef[defName = "Penguin"]/race/trainability</xpath>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Penguin"]/race</xpath>
+    <value>
+      <waterSeeker>true</waterSeeker>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Penguin"]/race/lifeStageAges</xpath>
+    <value>
+      <lifeStageAges>
+        <li>
+          <def>AnimalBabyTiny</def>
+          <minAge>0</minAge>
+        </li>
+        <li>
+          <def>AnimalJuvenile</def>
+          <minAge>0.4</minAge>
+        </li>
+        <li>
+          <def>AnimalAdult</def>
+          <minAge>0.8</minAge>
+          <soundWounded>Pawn_Penguin_Wounded</soundWounded>
+          <soundDeath>Pawn_Penguin_Death</soundDeath>
+          <soundCall>Pawn_Penguin_Call</soundCall>
+          <soundAngry>Pawn_Penguin_Angry</soundAngry>
+        </li>
+      </lifeStageAges>
+    </value>
+  </Operation>
+  <!-- Penguin PawnKindDef -->
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/PawnKindDef[defName = "Penguin"]/combatPower</xpath>
+    <value>
+      <combatPower>45</combatPower>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/PawnKindDef[defName = "Penguin"]</xpath>
+    <value>
+      <ecoSystemWeight>0.6</ecoSystemWeight>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/PawnKindDef[defName = "Penguin"]/wildGroupSize</xpath>
+    <value>
+      <wildGroupSize>5~15</wildGroupSize>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/PawnKindDef[defName = "Penguin"]</xpath>
+    <value>
+      <moveSpeedFactorByTerrainTag/>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/PawnKindDef[defName = "Penguin"]/moveSpeedFactorByTerrainTag</xpath>
+    <value>
+      <li>
+        <key>Water</key>
+        <value>2</value>
+      </li>
+    </value>
+  </Operation>
+  <!-- Peacock -->
+  <Operation Class="PatchOperationAttributeSet">
+    <xpath>/Defs/ThingDef[defName = "Peacock"]</xpath>
+    <attribute>ParentName</attribute>
+    <value>BigBirdThingBase</value>
+  </Operation>
+  <!-- Peacock StatBases -->
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Peacock"]/statBases/MarketValue</xpath>
+    <value>
+      <MarketValue>125</MarketValue>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Peacock"]/statBases</xpath>
+    <value>
+      <MoveSpeed>2</MoveSpeed>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Peacock"]/statBases</xpath>
+    <value>
+      <Wildness>0.55</Wildness>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Peacock"]/statBases</xpath>
+    <value>
+      <FilthRate>4</FilthRate>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Peacock"]/statBases</xpath>
+    <value>
+      <ComfyTemperatureMin>5</ComfyTemperatureMin>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Peacock"]/statBases</xpath>
+    <value>
+      <LeatherAmount>0</LeatherAmount>
+    </value>
+  </Operation>
+  <!-- Peacock tools -->
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Peacock"]</xpath>
+    <value>
+      <tools>
+        <li>
+          <label>head</label>
+          <capacities>
+            <li>Blunt</li>
+          </capacities>
+          <power>2.5</power>
+          <cooldownTime>1.25</cooldownTime>
+          <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
+          <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
+          <chanceFactor>0.2</chanceFactor>
+        </li>
+        <li>
+          <label>rear left claw</label>
+          <labelNoLocation>claw</labelNoLocation>
+          <capacities>
+            <li>Scratch</li>
+          </capacities>
+          <power>4</power>
+          <cooldownTime>1.25</cooldownTime>
+          <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
+        </li>
+        <li>
+          <label>rear  right claw</label>
+          <labelNoLocation>claw</labelNoLocation>
+          <capacities>
+            <li>Scratch</li>
+          </capacities>
+          <power>4</power>
+          <cooldownTime>1.25</cooldownTime>
+          <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
+        </li>
+        <li>
+          <label>beak</label>
+          <capacities>
+            <li>Blunt</li>
+          </capacities>
+          <power>2.5</power>
+          <cooldownTime>1.25</cooldownTime>
+          <linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>
+        </li>
+      </tools>
+    </value>
+  </Operation>
+  <!-- Peacock RaceProperties -->
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Peacock"]/race</xpath>
+    <value>
+      <baseBodySize>0.3</baseBodySize>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Peacock"]/race</xpath>
+    <value>
+      <baseHealthScale>0.3</baseHealthScale>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Peacock"]/race</xpath>
+    <value>
+      <baseHungerRate>0.35</baseHungerRate>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Peacock"]/race</xpath>
+    <value>
+      <lifeExpectancy>12</lifeExpectancy>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Peacock"]/race</xpath>
+    <value>
+      <herdAnimal>true</herdAnimal>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Peacock"]/race</xpath>
+    <value>
+      <foodType>VegetarianRoughAnimal</foodType>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Peacock"]/race/roamMtbDays</xpath>
+    <value>
+      <roamMtbDays>4</roamMtbDays>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Peacock"]/race</xpath>
+    <value>
+      <useMeatFrom>Cassowary</useMeatFrom>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Peacock"]/race/lifeStageAges</xpath>
+    <value>
+      <lifeStageAges Inherit="False">
+        <li>
+          <def>AnimalBabyTiny</def>
+          <minAge>0</minAge>
+        </li>
+        <li>
+          <def>AnimalJuvenile</def>
+          <minAge>0.2</minAge>
+        </li>
+        <li>
+          <def>AnimalAdult</def>
+          <minAge>0.4</minAge>
+          <soundWounded>Pawn_Peacock_Wounded</soundWounded>
+          <soundDeath>Pawn_Peacock_Death</soundDeath>
+          <soundCall>Pawn_Peacock_Call</soundCall>
+          <soundAngry>Pawn_Peacock_Angry</soundAngry>
+        </li>
+      </lifeStageAges>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationRemove">
+    <xpath>/Defs/ThingDef[defName = "Peacock"]/tradeTags/li[text()='AnimalUncommon']</xpath>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Peacock"]/tradeTags</xpath>
+    <value>
+      <li>AnimalCommon</li>
+    </value>
+  </Operation>
+  <!-- Peacock PawnKindDef -->
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/PawnKindDef[defName = "Peacock"]/combatPower</xpath>
+    <value>
+      <combatPower>30</combatPower>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/PawnKindDef[defName = "Peacock"]</xpath>
+    <value>
+      <ecoSystemWeight>0.35</ecoSystemWeight>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/PawnKindDef[defName = "Peacock"]</xpath>
+    <value>
+      <canArriveManhunter>false</canArriveManhunter>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/PawnKindDef[defName = "Peacock"]</xpath>
+    <value>
+      <wildGroupSize>2~6</wildGroupSize>
+    </value>
+  </Operation>
+  <!-- Vulture -->
+  <Operation Class="PatchOperationAttributeSet">
+    <xpath>/Defs/ThingDef[defName = "Vulture"]</xpath>
+    <attribute>ParentName</attribute>
+    <value>BigBirdThingBase</value>
+  </Operation>
+  <!-- Vulture StatBases -->
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Vulture"]/statBases</xpath>
+    <value>
+      <MarketValue>175</MarketValue>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Vulture"]/statBases/MoveSpeed</xpath>
+    <value>
+      <MoveSpeed>2</MoveSpeed>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Vulture"]/statBases</xpath>
+    <value>
+      <Wildness>0.55</Wildness>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Vulture"]/statBases</xpath>
+    <value>
+      <FilthRate>4</FilthRate>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Vulture"]/statBases</xpath>
+    <value>
+      <ComfyTemperatureMin>-15</ComfyTemperatureMin>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Vulture"]/statBases</xpath>
+    <value>
+      <ComfyTemperatureMax>50</ComfyTemperatureMax>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationRemove">
+    <xpath>/Defs/ThingDef[defName = "Vulture"]/statBases/ToxicEnvironmentResistance</xpath>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Vulture"]/statBases</xpath>
+    <value>
+      <LeatherAmount>0</LeatherAmount>
+    </value>
+  </Operation>
+  <!-- Vulture tools -->
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Vulture"]</xpath>
+    <value>
+      <tools>
+        <li>
+          <label>head</label>
+          <capacities>
+            <li>Blunt</li>
+          </capacities>
+          <power>2.5</power>
+          <cooldownTime>1.3</cooldownTime>
+          <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
+          <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
+          <chanceFactor>0.2</chanceFactor>
+        </li>
+        <li>
+          <label>rear left claw</label>
+          <labelNoLocation>claw</labelNoLocation>
+          <capacities>
+            <li>Scratch</li>
+          </capacities>
+          <power>4.5</power>
+          <cooldownTime>1.3</cooldownTime>
+          <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
+        </li>
+        <li>
+          <label>rear  right claw</label>
+          <labelNoLocation>claw</labelNoLocation>
+          <capacities>
+            <li>Scratch</li>
+          </capacities>
+          <power>4.5</power>
+          <cooldownTime>1.3</cooldownTime>
+          <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
+        </li>
+        <li>
+          <label>beak</label>
+          <capacities>
+            <li>Blunt</li>
+          </capacities>
+          <power>2.5</power>
+          <cooldownTime>1.3</cooldownTime>
+          <linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>
+        </li>
+      </tools>
+    </value>
+  </Operation>
+  <!-- Vulture RaceProperties -->
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Vulture"]/race</xpath>
+    <value>
+      <baseBodySize>0.3</baseBodySize>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Vulture"]/race</xpath>
+    <value>
+      <baseHealthScale>0.3</baseHealthScale>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Vulture"]/race</xpath>
+    <value>
+      <baseHungerRate>0.35</baseHungerRate>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Vulture"]/race</xpath>
+    <value>
+      <lifeExpectancy>12</lifeExpectancy>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Vulture"]/race/foodType</xpath>
+    <value>
+      <foodType>CarnivoreAnimal, OvivoreAnimal</foodType>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationRemove">
+    <xpath>/Defs/ThingDef[defName = "Vulture"]/race/trainability</xpath>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Vulture"]/race</xpath>
+    <value>
+      <useMeatFrom>Cassowary</useMeatFrom>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Vulture"]/race/lifeStageAges</xpath>
+    <value>
+      <lifeStageAges Inherit="False">
+        <li>
+          <def>AnimalBabyTiny</def>
+          <minAge>0</minAge>
+        </li>
+        <li>
+          <def>AnimalJuvenile</def>
+          <minAge>0.5</minAge>
+        </li>
+        <li>
+          <def>AnimalAdult</def>
+          <minAge>1</minAge>
+          <soundWounded>Pawn_Vulture_Wounded</soundWounded>
+          <soundDeath>Pawn_Vulture_Death</soundDeath>
+          <soundCall>Pawn_Vulture_Call</soundCall>
+          <soundAngry>Pawn_Vulture_Angry</soundAngry>
+        </li>
+      </lifeStageAges>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "Vulture"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_IsScavenger, ZoologyMod"/>
+    </value>
+  </Operation>
+  <!-- Vulture PawnKindDef -->
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/PawnKindDef[defName = "Vulture"]/combatPower</xpath>
+    <value>
+      <combatPower>30</combatPower>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/PawnKindDef[defName = "Vulture"]</xpath>
+    <value>
+      <ecoSystemWeight>0.35</ecoSystemWeight>
+    </value>
+  </Operation>
+  <!-- Combat Extended specific patches -->
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>Combat Extended</li>
+    </mods>
+    <match Class="PatchOperationSequence">
+      <operations>
+        <!-- Swan CE patches -->
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="Swan"]/statBases</xpath>
+          <value>
+            <MeleeDodgeChance>0.7</MeleeDodgeChance>
+          </value>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="Swan"]/comps</xpath>
+          <value>
+            <li Class="CombatExtended.CompProperties_ArmorDurability">
+              <Durability>200</Durability>
+              <Regenerates>true</Regenerates>
+              <RegenInterval>600</RegenInterval>
+              <RegenValue>5</RegenValue>
+              <MinArmorPct>0.5</MinArmorPct>
+            </li>
+          </value>
+        </li>
+        <li Class="PatchOperationReplace">
+          <xpath>/Defs/ThingDef[defName="Swan"]/tools</xpath>
+          <value>
+            <tools>
+              <li Class="CombatExtended.ToolCE">
+                <label>head</label>
+                <capacities>
+                  <li>Blunt</li>
+                </capacities>
+                <power>0.4</power>
+                <armorPenetrationBlunt>0.3</armorPenetrationBlunt>
+                <cooldownTime>1.45</cooldownTime>
+                <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
+                <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
+                <chanceFactor>0.2</chanceFactor>
+              </li>
+              <li Class="CombatExtended.ToolCE">
+                <label>beak</label>
+                <capacities>
+                  <li>Blunt</li>
+                </capacities>
+                <power>2.1</power>
+                <armorPenetrationBlunt>0.1</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.02</armorPenetrationSharp>
+                <cooldownTime>1.8</cooldownTime>
+                <linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>
+              </li>
+            </tools>
+          </value>
+        </li>
+        <!-- Heron CE patches -->
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="Heron"]/statBases</xpath>
+          <value>
+            <MeleeDodgeChance>0.95</MeleeDodgeChance>
+          </value>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="Heron"]/comps</xpath>
+          <value>
+            <li Class="CombatExtended.CompProperties_ArmorDurability">
+              <Durability>100</Durability>
+              <Regenerates>true</Regenerates>
+              <RegenInterval>600</RegenInterval>
+              <RegenValue>5</RegenValue>
+              <MinArmorPct>0.5</MinArmorPct>
+            </li>
+          </value>
+        </li>
+        <li Class="PatchOperationReplace">
+          <xpath>/Defs/ThingDef[defName="Heron"]/tools</xpath>
+          <value>
+            <tools>
+              <li Class="CombatExtended.ToolCE">
+                <label>head</label>
+                <capacities>
+                  <li>Blunt</li>
+                </capacities>
+                <power>0.1</power>
+                <armorPenetrationBlunt>0.05</armorPenetrationBlunt>
+                <cooldownTime>1.25</cooldownTime>
+                <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
+                <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
+                <chanceFactor>0.2</chanceFactor>
+              </li>
+              <li Class="CombatExtended.ToolCE">
+                <label>beak</label>
+                <capacities>
+                  <li>Blunt</li>
+                </capacities>
+                <power>1.3</power>
+                <armorPenetrationBlunt>0.05</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.02</armorPenetrationSharp>
+                <cooldownTime>1.7</cooldownTime>
+                <linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>
+              </li>
+            </tools>
+          </value>
+        </li>
+        <!-- Flamingo CE patches -->
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="Flamingo"]/statBases</xpath>
+          <value>
+            <MeleeDodgeChance>0.8</MeleeDodgeChance>
+          </value>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="Flamingo"]/comps</xpath>
+          <value>
+            <li Class="CombatExtended.CompProperties_ArmorDurability">
+              <Durability>125</Durability>
+              <Regenerates>true</Regenerates>
+              <RegenInterval>600</RegenInterval>
+              <RegenValue>5</RegenValue>
+              <MinArmorPct>0.5</MinArmorPct>
+            </li>
+          </value>
+        </li>
+        <li Class="PatchOperationReplace">
+          <xpath>/Defs/ThingDef[defName="Flamingo"]/tools</xpath>
+          <value>
+            <tools>
+              <li Class="CombatExtended.ToolCE">
+                <label>head</label>
+                <capacities>
+                  <li>Blunt</li>
+                </capacities>
+                <power>0.2</power>
+                <armorPenetrationBlunt>0.1</armorPenetrationBlunt>
+                <cooldownTime>1.35</cooldownTime>
+                <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
+                <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
+                <chanceFactor>0.2</chanceFactor>
+              </li>
+              <li Class="CombatExtended.ToolCE">
+                <label>beak</label>
+                <capacities>
+                  <li>Blunt</li>
+                </capacities>
+                <power>1.7</power>
+                <armorPenetrationBlunt>0.1</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.02</armorPenetrationSharp>
+                <cooldownTime>1.85</cooldownTime>
+                <linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>
+              </li>
+            </tools>
+          </value>
+        </li>
+        <!-- Penguin CE patches -->
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="Penguin"]/statBases</xpath>
+          <value>
+            <MeleeDodgeChance>0.55</MeleeDodgeChance>
+          </value>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="Penguin"]/comps</xpath>
+          <value>
+            <li Class="CombatExtended.CompProperties_ArmorDurability">
+              <Durability>350</Durability>
+              <Regenerates>true</Regenerates>
+              <RegenInterval>600</RegenInterval>
+              <RegenValue>5</RegenValue>
+              <MinArmorPct>0.5</MinArmorPct>
+            </li>
+          </value>
+        </li>
+        <li Class="PatchOperationReplace">
+          <xpath>/Defs/ThingDef[defName="Penguin"]/tools</xpath>
+          <value>
+            <tools>
+              <li Class="CombatExtended.ToolCE">
+                <label>head</label>
+                <capacities>
+                  <li>Blunt</li>
+                </capacities>
+                <power>1.1</power>
+                <armorPenetrationBlunt>0.85</armorPenetrationBlunt>
+                <cooldownTime>1.75</cooldownTime>
+                <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
+                <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
+                <chanceFactor>0.2</chanceFactor>
+              </li>
+              <li Class="CombatExtended.ToolCE">
+                <label>beak</label>
+                <capacities>
+                  <li>Blunt</li>
+                </capacities>
+                <power>3.2</power>
+                <armorPenetrationBlunt>0.2</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.02</armorPenetrationSharp>
+                <cooldownTime>2.1</cooldownTime>
+                <linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>
+              </li>
+            </tools>
+          </value>
+        </li>
+        <!-- Peacock CE patches -->
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="Peacock"]/statBases</xpath>
+          <value>
+            <MeleeDodgeChance>0.8</MeleeDodgeChance>
+          </value>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="Peacock"]/comps</xpath>
+          <value>
+            <li Class="CombatExtended.CompProperties_ArmorDurability">
+              <Durability>150</Durability>
+              <Regenerates>true</Regenerates>
+              <RegenInterval>600</RegenInterval>
+              <RegenValue>5</RegenValue>
+              <MinArmorPct>0.5</MinArmorPct>
+            </li>
+          </value>
+        </li>
+        <li Class="PatchOperationReplace">
+          <xpath>/Defs/ThingDef[defName="Peacock"]/tools</xpath>
+          <value>
+            <tools>
+              <li Class="CombatExtended.ToolCE">
+                <label>head</label>
+                <capacities>
+                  <li>Blunt</li>
+                </capacities>
+                <power>0.2</power>
+                <armorPenetrationBlunt>0.15</armorPenetrationBlunt>
+                <cooldownTime>1.3</cooldownTime>
+                <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
+                <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
+                <chanceFactor>0.2</chanceFactor>
+              </li>
+              <li Class="CombatExtended.ToolCE">
+                <label>rear left claw</label>
+                <labelNoLocation>claw</labelNoLocation>
+                <capacities>
+                  <li>Scratch</li>
+                </capacities>
+                <power>3.3</power>
+                <armorPenetrationBlunt>0.25</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.05</armorPenetrationSharp>
+                <cooldownTime>2.15</cooldownTime>
+                <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
+              </li>
+              <li Class="CombatExtended.ToolCE">
+                <label>rear  right claw</label>
+                <labelNoLocation>claw</labelNoLocation>
+                <capacities>
+                  <li>Scratch</li>
+                </capacities>
+                <power>3.3</power>
+                <armorPenetrationBlunt>0.25</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.05</armorPenetrationSharp>
+                <cooldownTime>2.15</cooldownTime>
+                <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
+              </li>
+              <li Class="CombatExtended.ToolCE">
+                <label>beak</label>
+                <capacities>
+                  <li>Blunt</li>
+                </capacities>
+                <power>1.1</power>
+                <armorPenetrationBlunt>0.1</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.02</armorPenetrationSharp>
+                <cooldownTime>2.25</cooldownTime>
+                <linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>
+              </li>
+            </tools>
+          </value>
+        </li>
+        <!-- Vulture CE patches -->
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="Vulture"]/statBases</xpath>
+          <value>
+            <MeleeDodgeChance>0.75</MeleeDodgeChance>
+          </value>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="Vulture"]/statBases</xpath>
+          <value>
+            <MeleeCritChance>0.15</MeleeCritChance>
+          </value>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="Vulture"]/statBases</xpath>
+          <value>
+            <MeleeParryChance>0.05</MeleeParryChance>
+          </value>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="Vulture"]/comps</xpath>
+          <value>
+            <li Class="CombatExtended.CompProperties_ArmorDurability">
+              <Durability>150</Durability>
+              <Regenerates>true</Regenerates>
+              <RegenInterval>600</RegenInterval>
+              <RegenValue>5</RegenValue>
+              <MinArmorPct>0.5</MinArmorPct>
+            </li>
+          </value>
+        </li>
+        <li Class="PatchOperationReplace">
+          <xpath>/Defs/ThingDef[defName="Vulture"]/tools</xpath>
+          <value>
+            <tools>
+              <li Class="CombatExtended.ToolCE">
+                <label>head</label>
+                <capacities>
+                  <li>Blunt</li>
+                </capacities>
+                <power>0.3</power>
+                <armorPenetrationBlunt>0.2</armorPenetrationBlunt>
+                <cooldownTime>1.45</cooldownTime>
+                <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
+                <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
+                <chanceFactor>0.2</chanceFactor>
+              </li>
+              <li Class="CombatExtended.ToolCE">
+                <label>rear left claw</label>
+                <labelNoLocation>claw</labelNoLocation>
+                <capacities>
+                  <li>Scratch</li>
+                </capacities>
+                <power>3.7</power>
+                <armorPenetrationBlunt>0.3</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.06</armorPenetrationSharp>
+                <cooldownTime>2.25</cooldownTime>
+                <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
+              </li>
+              <li Class="CombatExtended.ToolCE">
+                <label>rear  right claw</label>
+                <labelNoLocation>claw</labelNoLocation>
+                <capacities>
+                  <li>Scratch</li>
+                </capacities>
+                <power>3.7</power>
+                <armorPenetrationBlunt>0.3</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.06</armorPenetrationSharp>
+                <cooldownTime>2.25</cooldownTime>
+                <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
+              </li>
+              <li Class="CombatExtended.ToolCE">
+                <label>beak</label>
+                <capacities>
+                  <li>Blunt</li>
+                </capacities>
+                <power>1.6</power>
+                <armorPenetrationBlunt>0.1</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.02</armorPenetrationSharp>
+                <cooldownTime>2.35</cooldownTime>
+                <linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>
+              </li>
+            </tools>
+          </value>
+        </li>
+      </operations>
+    </match>
+  </Operation>
+</Patch>

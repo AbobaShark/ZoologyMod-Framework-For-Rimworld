@@ -3,142 +3,47 @@
   <!---->
   <!-- AEXP_Megascorpion -->
   <Operation Class="PatchOperationAttributeSet">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]</xpath>
-    <attribute>ParentName</attribute>
-    <value>BaseInsect</value>
-  </Operation>
-  <Operation Class="PatchOperationAttributeSet">
     <xpath>/Defs/PawnKindDef[defName = "AEXP_Megascorpion"]</xpath>
     <attribute>ParentName</attribute>
     <value>InsectKindBase</value>
   </Operation>
   <!-- AEXP_Megascorpion StatBases -->
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/statBases</xpath>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]</xpath>
-      <value>
-        <statBases/>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/statBases/MarketValue</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/statBases/MarketValue</xpath>
-      <value>
-        <MarketValue>150</MarketValue>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/statBases</xpath>
-      <value>
-        <MarketValue>150</MarketValue>
-      </value>
-    </nomatch>
+    <value>
+      <MarketValue>150</MarketValue>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/statBases/MoveSpeed</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/statBases/MoveSpeed</xpath>
-      <value>
-        <MoveSpeed>3</MoveSpeed>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/statBases</xpath>
-      <value>
-        <MoveSpeed>3</MoveSpeed>
-      </value>
-    </nomatch>
+    <value>
+      <MoveSpeed>3</MoveSpeed>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/statBases/Wildness</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/statBases/Wildness</xpath>
-      <value>
-        <Wildness>0.5</Wildness>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/statBases</xpath>
-      <value>
-        <Wildness>0.5</Wildness>
-      </value>
-    </nomatch>
+    <value>
+      <Wildness>0.5</Wildness>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/statBases/FilthRate</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/statBases/FilthRate</xpath>
-      <value>
-        <FilthRate>1</FilthRate>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/statBases</xpath>
-      <value>
-        <FilthRate>1</FilthRate>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationRemove">
     <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/statBases/ComfyTemperatureMin</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/statBases/ComfyTemperatureMin</xpath>
-    </match>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/statBases/ComfyTemperatureMax</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/statBases/ComfyTemperatureMax</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/statBases/ArmorRating_Blunt</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/statBases/ArmorRating_Blunt</xpath>
-      <value>
-        <ArmorRating_Blunt>0.1</ArmorRating_Blunt>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/statBases</xpath>
-      <value>
-        <ArmorRating_Blunt>0.1</ArmorRating_Blunt>
-      </value>
-    </nomatch>
+    <value>
+      <ArmorRating_Blunt>0.1</ArmorRating_Blunt>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/statBases/ArmorRating_Sharp</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/statBases/ArmorRating_Sharp</xpath>
-      <value>
-        <ArmorRating_Sharp>0.3</ArmorRating_Sharp>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/statBases</xpath>
-      <value>
-        <ArmorRating_Sharp>0.3</ArmorRating_Sharp>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/statBases/ToxicEnvironmentResistance</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/statBases/ToxicEnvironmentResistance</xpath>
-    </match>
+    <value>
+      <ArmorRating_Sharp>0.3</ArmorRating_Sharp>
+    </value>
   </Operation>
   <!-- AEXP_Megascorpion tools -->
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/tools</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/tools</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]</xpath>
     <value>
       <tools>
         <li>
@@ -226,385 +131,95 @@
     </value>
   </Operation>
   <!-- AEXP_Megascorpion RaceProperties -->
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race</xpath>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]</xpath>
-      <value>
-        <race/>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/baseBodySize</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/baseBodySize</xpath>
-      <value>
-        <baseBodySize>0.4</baseBodySize>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race</xpath>
-      <value>
-        <baseBodySize>0.4</baseBodySize>
-      </value>
-    </nomatch>
+    <value>
+      <baseBodySize>0.4</baseBodySize>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/baseHealthScale</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/baseHealthScale</xpath>
-      <value>
-        <baseHealthScale>0.4</baseHealthScale>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race</xpath>
-      <value>
-        <baseHealthScale>0.4</baseHealthScale>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/baseHungerRate</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/baseHungerRate</xpath>
-      <value>
-        <baseHungerRate>0.05</baseHungerRate>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race</xpath>
-      <value>
-        <baseHungerRate>0.05</baseHungerRate>
-      </value>
-    </nomatch>
+    <value>
+      <baseHungerRate>0.05</baseHungerRate>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/lifeExpectancy</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/lifeExpectancy</xpath>
-      <value>
-        <lifeExpectancy>6</lifeExpectancy>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race</xpath>
-      <value>
-        <lifeExpectancy>6</lifeExpectancy>
-      </value>
-    </nomatch>
+    <value>
+      <lifeExpectancy>6</lifeExpectancy>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/gestationPeriodDays</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/gestationPeriodDays</xpath>
-    </match>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race</xpath>
+    <value>
+      <foodType>CarnivoreAnimal, OvivoreAnimal</foodType>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/herdAnimal</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/herdAnimal</xpath>
-    </match>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race</xpath>
+    <value>
+      <manhunterOnDamageChance>0</manhunterOnDamageChance>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/herdMigrationAllowed</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/herdMigrationAllowed</xpath>
-    </match>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race</xpath>
+    <value>
+      <trainability>Intermediate</trainability>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/foodType</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/foodType</xpath>
-      <value>
-        <foodType>CarnivoreAnimal, OvivoreAnimal</foodType>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race</xpath>
-      <value>
-        <foodType>CarnivoreAnimal, OvivoreAnimal</foodType>
-      </value>
-    </nomatch>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race</xpath>
+    <value>
+      <maxPreyBodySize>0.2</maxPreyBodySize>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/roamMtbDays</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/roamMtbDays</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/leatherDef</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/leatherDef</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/useLeatherFrom</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/useLeatherFrom</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/manhunterOnTameFailChance</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/manhunterOnTameFailChance</xpath>
-      <value>
-        <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race</xpath>
-      <value>
-        <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/manhunterOnDamageChance</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/manhunterOnDamageChance</xpath>
-      <value>
-        <manhunterOnDamageChance>0</manhunterOnDamageChance>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race</xpath>
-      <value>
-        <manhunterOnDamageChance>0</manhunterOnDamageChance>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/petness</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/petness</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/nuzzleMtbHours</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/nuzzleMtbHours</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/mateMtbHours</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/mateMtbHours</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/trainability</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/trainability</xpath>
-      <value>
-        <trainability>Intermediate</trainability>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race</xpath>
-      <value>
-        <trainability>Intermediate</trainability>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/packAnimal</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/packAnimal</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/predator</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/predator</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/maxPreyBodySize</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/maxPreyBodySize</xpath>
-      <value>
-        <maxPreyBodySize>0.2</maxPreyBodySize>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race</xpath>
-      <value>
-        <maxPreyBodySize>0.2</maxPreyBodySize>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/nameOnTameChance</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/nameOnTameChance</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/body</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/body</xpath>
-      <value>
-        <body>ScorpionLike</body>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race</xpath>
-      <value>
-        <body>ScorpionLike</body>
-      </value>
-    </nomatch>
+    <value>
+      <body>ScorpionLike</body>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/waterCellCost</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/waterCellCost</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/waterSeeker</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/waterSeeker</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/canFishForFood</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/canFishForFood</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/useMeatFrom</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/useMeatFrom</xpath>
-      <value>
-        <useMeatFrom>Megaspider</useMeatFrom>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race</xpath>
-      <value>
-        <useMeatFrom>Megaspider</useMeatFrom>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationRemove">
     <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/wildBiomes</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/wildBiomes</xpath>
-    </match>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/lifeStageAges/li[2]</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/lifeStageAges/li[2]/def</xpath>
-      <value>
-        <def>EusocialInsectJuvenile</def>
-      </value>
-    </match>
-    <nomatch/>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/lifeStageAges</xpath>
+    <value>
+      <lifeStageAges>
+        <li>
+          <def>EusocialInsectLarva</def>
+          <minAge>0</minAge>
+        </li>
+        <li>
+          <def>EusocialInsectJuvenile</def>
+          <minAge>0.15</minAge>
+        </li>
+        <li>
+          <def>EusocialInsectAdult</def>
+          <minAge>0.3</minAge>
+          <soundWounded>Pawn_Megascarab_Wounded</soundWounded>
+          <soundDeath>Pawn_Megascarab_Death</soundDeath>
+          <soundCall>Pawn_Megascarab_Call</soundCall>
+          <soundAngry>Pawn_Megascarab_Angry</soundAngry>
+        </li>
+      </lifeStageAges>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/lifeStageAges/li[3]</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/lifeStageAges/li[3]/def</xpath>
-      <value>
-        <def>EusocialInsectAdult</def>
-      </value>
-    </match>
-    <nomatch/>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/lifeStageAges/li[2]</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/lifeStageAges/li[2]/minAge</xpath>
-      <value>
-        <minAge>0.15</minAge>
-      </value>
-    </match>
-    <nomatch/>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/lifeStageAges/li[3]</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/lifeStageAges/li[3]/minAge</xpath>
-      <value>
-        <minAge>0.3</minAge>
-      </value>
-    </match>
-    <nomatch/>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/specialTrainables</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/race/specialTrainables</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationRemove">
     <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/tradeTags</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Megascorpion"]/tradeTags</xpath>
-    </match>
   </Operation>
   <!-- AEXP_Megascorpion PawnKindDef -->
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/PawnKindDef[defName = "AEXP_Megascorpion"]/combatPower</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/PawnKindDef[defName = "AEXP_Megascorpion"]/combatPower</xpath>
-      <value>
-        <combatPower>55</combatPower>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/PawnKindDef[defName = "AEXP_Megascorpion"]</xpath>
-      <value>
-        <combatPower>55</combatPower>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "AEXP_Megascorpion"]/ecoSystemWeight</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/PawnKindDef[defName = "AEXP_Megascorpion"]/ecoSystemWeight</xpath>
-      <value>
-        <ecoSystemWeight>0.1</ecoSystemWeight>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/PawnKindDef[defName = "AEXP_Megascorpion"]</xpath>
-      <value>
-        <ecoSystemWeight>0.1</ecoSystemWeight>
-      </value>
-    </nomatch>
+    <value>
+      <ecoSystemWeight>0.1</ecoSystemWeight>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "AEXP_Megascorpion"]/canArriveManhunter</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/PawnKindDef[defName = "AEXP_Megascorpion"]/canArriveManhunter</xpath>
-      <value>
-        <canArriveManhunter>true</canArriveManhunter>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/PawnKindDef[defName = "AEXP_Megascorpion"]</xpath>
-      <value>
-        <canArriveManhunter>true</canArriveManhunter>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/PawnKindDef[defName = "AEXP_Megascorpion"]/wildGroupSize</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/PawnKindDef[defName = "AEXP_Megascorpion"]/wildGroupSize</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/PawnKindDef[defName = "AEXP_Megascorpion"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/PawnKindDef[defName = "AEXP_Megascorpion"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
-    </match>
+    <value>
+      <canArriveManhunter>true</canArriveManhunter>
+    </value>
   </Operation>
   <!-- Combat Extended specific patches -->
   <Operation Class="PatchOperationFindMod">
@@ -614,149 +229,64 @@
     <match Class="PatchOperationSequence">
       <operations>
         <!-- AEXP_Megascorpion CE patches -->
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="AEXP_Megascorpion"]/statBases/MeleeDodgeChance</xpath>
-          <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="AEXP_Megascorpion"]/statBases/MeleeDodgeChance</xpath>
-            <value>
-              <MeleeDodgeChance>0.15</MeleeDodgeChance>
-            </value>
-          </match>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="AEXP_Megascorpion"]/statBases</xpath>
-            <value>
-              <MeleeDodgeChance>0.15</MeleeDodgeChance>
-            </value>
-          </nomatch>
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="AEXP_Megascorpion"]/statBases</xpath>
+          <value>
+            <MeleeDodgeChance>0.15</MeleeDodgeChance>
+          </value>
         </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="AEXP_Megascorpion"]/statBases/MeleeCritChance</xpath>
-          <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="AEXP_Megascorpion"]/statBases/MeleeCritChance</xpath>
-            <value>
-              <MeleeCritChance>0.15</MeleeCritChance>
-            </value>
-          </match>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="AEXP_Megascorpion"]/statBases</xpath>
-            <value>
-              <MeleeCritChance>0.15</MeleeCritChance>
-            </value>
-          </nomatch>
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="AEXP_Megascorpion"]/statBases</xpath>
+          <value>
+            <MeleeCritChance>0.15</MeleeCritChance>
+          </value>
         </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="AEXP_Megascorpion"]/statBases/MeleeParryChance</xpath>
-          <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="AEXP_Megascorpion"]/statBases/MeleeParryChance</xpath>
-            <value>
-              <MeleeParryChance>0.05</MeleeParryChance>
-            </value>
-          </match>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="AEXP_Megascorpion"]/statBases</xpath>
-            <value>
-              <MeleeParryChance>0.05</MeleeParryChance>
-            </value>
-          </nomatch>
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="AEXP_Megascorpion"]/statBases</xpath>
+          <value>
+            <MeleeParryChance>0.05</MeleeParryChance>
+          </value>
         </li>
-        <li Class="PatchOperationConditional">
+        <li Class="PatchOperationReplace">
           <xpath>Defs/ThingDef[defName="AEXP_Megascorpion"]/statBases/ArmorRating_Sharp</xpath>
-          <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="AEXP_Megascorpion"]/statBases/ArmorRating_Sharp</xpath>
-            <value>
-              <ArmorRating_Sharp>0.51</ArmorRating_Sharp>
-            </value>
-          </match>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="AEXP_Megascorpion"]/statBases</xpath>
-            <value>
-              <ArmorRating_Sharp>0.51</ArmorRating_Sharp>
-            </value>
-          </nomatch>
+          <value>
+            <ArmorRating_Sharp>0.51</ArmorRating_Sharp>
+          </value>
         </li>
-        <li Class="PatchOperationConditional">
+        <li Class="PatchOperationReplace">
           <xpath>Defs/ThingDef[defName="AEXP_Megascorpion"]/statBases/ArmorRating_Blunt</xpath>
-          <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="AEXP_Megascorpion"]/statBases/ArmorRating_Blunt</xpath>
-            <value>
-              <ArmorRating_Blunt>0.05</ArmorRating_Blunt>
-            </value>
-          </match>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="AEXP_Megascorpion"]/statBases</xpath>
-            <value>
-              <ArmorRating_Blunt>0.05</ArmorRating_Blunt>
-            </value>
-          </nomatch>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="AEXP_Megascorpion"]/comps</xpath>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="AEXP_Megascorpion"]</xpath>
-            <value>
-              <comps/>
-            </value>
-          </nomatch>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="AEXP_Megascorpion"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]</xpath>
-          <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="AEXP_Megascorpion"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]/Durability</xpath>
-            <value>
-              <Durability>200</Durability>
-            </value>
-          </match>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="AEXP_Megascorpion"]/comps</xpath>
-            <value>
-              <li Class="CombatExtended.CompProperties_ArmorDurability">
-                <Durability>200</Durability>
-                <Regenerates>true</Regenerates>
-                <RegenInterval>600</RegenInterval>
-                <RegenValue>5</RegenValue>
-                <MinArmorPct>0.5</MinArmorPct>
-              </li>
-            </value>
-          </nomatch>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="AEXP_Megascorpion"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
-          <match Class="PatchOperationSequence">
-            <operations>
-              <li Class="PatchOperationConditional">
-                <xpath>Defs/ThingDef[defName="AEXP_Megascorpion"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
-                <match Class="PatchOperationReplace">
-                  <xpath>Defs/ThingDef[defName="AEXP_Megascorpion"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
-                  <value>
-                    <bodyShape>QuadrupedLow</bodyShape>
-                  </value>
-                </match>
-                <nomatch Class="PatchOperationAdd">
-                  <xpath>Defs/ThingDef[defName="AEXP_Megascorpion"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
-                  <value>
-                    <bodyShape>QuadrupedLow</bodyShape>
-                  </value>
-                </nomatch>
-              </li>
-            </operations>
-          </match>
-          <nomatch Class="PatchOperationAddModExtension">
-            <xpath>Defs/ThingDef[defName="AEXP_Megascorpion"]</xpath>
-            <value>
-              <li Class="CombatExtended.RacePropertiesExtensionCE">
-                <bodyShape>QuadrupedLow</bodyShape>
-              </li>
-            </value>
-          </nomatch>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>/Defs/ThingDef[defName="AEXP_Megascorpion"]/tools</xpath>
-          <match Class="PatchOperationRemove">
-            <xpath>/Defs/ThingDef[defName="AEXP_Megascorpion"]/tools</xpath>
-          </match>
+          <value>
+            <ArmorRating_Blunt>0.05</ArmorRating_Blunt>
+          </value>
         </li>
         <li Class="PatchOperationAdd">
           <xpath>Defs/ThingDef[defName="AEXP_Megascorpion"]</xpath>
+          <value>
+            <comps/>
+          </value>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="AEXP_Megascorpion"]/comps</xpath>
+          <value>
+            <li Class="CombatExtended.CompProperties_ArmorDurability">
+              <Durability>200</Durability>
+              <Regenerates>true</Regenerates>
+              <RegenInterval>600</RegenInterval>
+              <RegenValue>5</RegenValue>
+              <MinArmorPct>0.5</MinArmorPct>
+            </li>
+          </value>
+        </li>
+        <li Class="PatchOperationAddModExtension">
+          <xpath>Defs/ThingDef[defName="AEXP_Megascorpion"]</xpath>
+          <value>
+            <li Class="CombatExtended.RacePropertiesExtensionCE">
+              <bodyShape>QuadrupedLow</bodyShape>
+            </li>
+          </value>
+        </li>
+        <li Class="PatchOperationReplace">
+          <xpath>/Defs/ThingDef[defName="AEXP_Megascorpion"]/tools</xpath>
           <value>
             <tools>
               <li Class="CombatExtended.ToolCE">
@@ -851,12 +381,6 @@
               </li>
             </tools>
           </value>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="AEXP_Megascorpion"]/statBases/ArmorRating_Heat</xpath>
-          <match Class="PatchOperationRemove">
-            <xpath>Defs/ThingDef[defName="AEXP_Megascorpion"]/statBases/ArmorRating_Heat</xpath>
-          </match>
         </li>
       </operations>
     </match>
