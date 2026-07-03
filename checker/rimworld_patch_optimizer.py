@@ -280,6 +280,8 @@ class PatchOptimizer:
         kind = target[0]
         if value_child.tag in SCALAR_CONTAINER_TAGS:
             return False
+        if kind == "ThingDef" and parent_parts == ["race"] and value_child.tag == "foodType":
+            return False
         if parent_parts:
             if parent_parts[-1] not in SCALAR_CONTAINER_TAGS:
                 return False
