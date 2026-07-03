@@ -606,7 +606,6 @@ namespace ZoologyMod
         private static void BuildAnimalDefCache()
         {
             cachedAnimalDefs.Clear();
-            raceDefaultsByDef.Clear();
 
             List<ThingDef> allDefs = DefDatabase<ThingDef>.AllDefsListForReading;
             if (allDefs != null)
@@ -620,12 +619,15 @@ namespace ZoologyMod
                     }
 
                     cachedAnimalDefs.Add(def);
-                    raceDefaultsByDef[def] = new RaceDefaults
+                    if (!raceDefaultsByDef.ContainsKey(def))
                     {
-                        Roamer = def.race.roamMtbDays.HasValue,
-                        RoamMtbDays = def.race.roamMtbDays,
-                        Trainability = def.race.trainability
-                    };
+                        raceDefaultsByDef[def] = new RaceDefaults
+                        {
+                            Roamer = def.race.roamMtbDays.HasValue,
+                            RoamMtbDays = def.race.roamMtbDays,
+                            Trainability = def.race.trainability
+                        };
+                    }
                 }
             }
 
@@ -635,25 +637,37 @@ namespace ZoologyMod
         private static void BuildFeatureMetadata()
         {
             featureById.Clear();
-            featureDefaultPresenceById.Clear();
-            featureDefaultEntryById.Clear();
-            featureFallbackEntryById.Clear();
 
             for (int i = 0; i < allFeatures.Count; i++)
             {
                 RuntimeAnimalFeatureDefinition feature = allFeatures[i];
                 featureById[feature.Id] = feature;
-                if (TryCreateFallbackFeatureEntry(feature, out object fallbackEntry))
+                if (!featureFallbackEntryById.ContainsKey(feature.Id)
+                    && TryCreateFallbackFeatureEntry(feature, out object fallbackEntry))
                 {
                     featureFallbackEntryById[feature.Id] = fallbackEntry;
                 }
 
-                Dictionary<ThingDef, bool> presenceByDef = new Dictionary<ThingDef, bool>(cachedAnimalDefs.Count);
-                Dictionary<ThingDef, object> defaultEntryByDef = new Dictionary<ThingDef, object>(64);
+                if (!featureDefaultPresenceById.TryGetValue(feature.Id, out Dictionary<ThingDef, bool> presenceByDef))
+                {
+                    presenceByDef = new Dictionary<ThingDef, bool>(cachedAnimalDefs.Count);
+                    featureDefaultPresenceById[feature.Id] = presenceByDef;
+                }
+
+                if (!featureDefaultEntryById.TryGetValue(feature.Id, out Dictionary<ThingDef, object> defaultEntryByDef))
+                {
+                    defaultEntryByDef = new Dictionary<ThingDef, object>(64);
+                    featureDefaultEntryById[feature.Id] = defaultEntryByDef;
+                }
 
                 for (int j = 0; j < cachedAnimalDefs.Count; j++)
                 {
                     ThingDef def = cachedAnimalDefs[j];
+                    if (presenceByDef.ContainsKey(def))
+                    {
+                        continue;
+                    }
+
                     bool present = TryGetFeatureEntryObject(def, feature, out object entry);
                     presenceByDef[def] = present;
                     if (present && entry != null)
@@ -665,9 +679,6 @@ namespace ZoologyMod
                         }
                     }
                 }
-
-                featureDefaultPresenceById[feature.Id] = presenceByDef;
-                featureDefaultEntryById[feature.Id] = defaultEntryByDef;
             }
         }
 

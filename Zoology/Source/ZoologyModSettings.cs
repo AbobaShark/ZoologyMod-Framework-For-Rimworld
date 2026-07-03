@@ -256,7 +256,6 @@ namespace ZoologyMod
             EnableAnimalDamageReduction = !_cePresent;
 
             EnsureCollectionsInitialized();
-            ZoologyRuntimeAnimalOverrides.EnsureInitialized();
         }
 
         public void DoWindowContents(Rect inRect)
@@ -1005,19 +1004,9 @@ namespace ZoologyMod
 
             if (Scribe.mode == LoadSaveMode.PostLoadInit)
             {
-                // Cleanup invalid overrides only after all definitions are loaded
+                // Definitions may still be unavailable while ModSettings are being loaded.
+                // Invalid per-animal keys are cleaned after long events finish.
                 EnsureCollectionsInitialized();
-                CleanupAnimalsFreeFromHumansOverrides();
-                CleanupRoamerOverrides();
-                CleanupAnimalFeatureOverrides();
-                CleanupAnimalFeatureParameterOverrides();
-                ApplyRuntimeDefOverrides();
-                ZoologyMod.SyncRuntimePatchesWithSettings(forceRebuild: true);
-            }
-            else
-            {
-                // During initial loading, just apply overrides without cleanup to preserve modded animals
-                ApplyRuntimeDefOverrides();
             }
         }
 
@@ -1499,6 +1488,15 @@ namespace ZoologyMod
             ClampFleeAndThreatSettings();
             ZoologyRuntimeAnimalOverrides.ApplyAll(this);
             Patch_SmallPetThreatDisabled.NotifySettingsChanged();
+        }
+
+        internal void CleanupInvalidAnimalOverrides()
+        {
+            EnsureCollectionsInitialized();
+            CleanupAnimalsFreeFromHumansOverrides();
+            CleanupRoamerOverrides();
+            CleanupAnimalFeatureOverrides();
+            CleanupAnimalFeatureParameterOverrides();
         }
 
         private void EnsureCollectionsInitialized()

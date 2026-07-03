@@ -7,24 +7,25 @@ namespace ZoologyMod
 {
     public class JobDriver_AnimalLickWounds : JobDriver
     {
-        private Pawn Patient => job.GetTarget(TargetIndex.A).Pawn;
+        private Pawn Patient => job == null ? null : job.GetTarget(TargetIndex.A).Pawn;
+
+        private bool HasValidPatient => pawn != null && Patient == pawn;
 
         public override bool TryMakePreToilReservations(bool errorOnFailed)
         {
-            return pawn.Reserve(Patient, job, 1, -1, null, errorOnFailed);
+            return HasValidPatient;
         }
 
         protected override IEnumerable<Toil> MakeNewToils()
         {
-            this.FailOnDespawnedNullOrForbidden(TargetIndex.A);
-            this.FailOn(() => Patient != pawn || !AnimalWoundLickingUtility.CanUseWoundLicking(pawn));
-            AddEndCondition(() => AnimalWoundLickingUtility.HasLickableWounds(pawn) ? JobCondition.Ongoing : JobCondition.Succeeded);
+            this.FailOn(() => !HasValidPatient || !AnimalWoundLickingUtility.CanUseWoundLicking(pawn));
+            AddEndCondition(() => !HasValidPatient || !AnimalWoundLickingUtility.HasLickableWounds(pawn) ? JobCondition.Succeeded : JobCondition.Ongoing);
 
             Toil wait = Toils_General.Wait(AnimalWoundLickingUtility.GetLickDurationTicks());
             wait.WithProgressBarToilDelay(TargetIndex.A).PlaySustainerOrSound(SoundDefOf.Interact_Tend);
             wait.tickIntervalAction = delegate (int delta)
             {
-                if (pawn.IsHashIntervalTick(100, delta) && !pawn.Position.Fogged(pawn.Map))
+                if (pawn?.Map != null && pawn.IsHashIntervalTick(100, delta) && !pawn.Position.Fogged(pawn.Map))
                 {
                     FleckMaker.ThrowMetaIcon(pawn.Position, pawn.Map, FleckDefOf.HealingCross);
                 }
@@ -33,7 +34,10 @@ namespace ZoologyMod
 
             yield return Toils_General.Do(delegate
             {
-                AnimalWoundLickingUtility.TryApplyWoundLicking(pawn);
+                if (HasValidPatient)
+                {
+                    AnimalWoundLickingUtility.TryApplyWoundLicking(pawn);
+                }
             });
         }
     }

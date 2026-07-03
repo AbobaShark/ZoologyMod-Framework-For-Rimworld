@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using RimWorld;
 using UnityEngine;
@@ -63,13 +64,21 @@ namespace ZoologyMod
                 return false;
             }
 
-            TendUtility.SortByTendPriority(tmpCandidateHediffs);
             tmpHediffsToTend.Clear();
-            TendUtility.GetOptimalHediffsToTendWithSingleTreatment(
-                pawn,
-                usingMedicine: false,
-                tmpHediffsToTend,
-                tmpCandidateHediffs);
+            try
+            {
+                TendUtility.SortByTendPriority(tmpCandidateHediffs);
+                TendUtility.GetOptimalHediffsToTendWithSingleTreatment(
+                    pawn,
+                    usingMedicine: false,
+                    tmpHediffsToTend,
+                    tmpCandidateHediffs);
+            }
+            catch (Exception ex)
+            {
+                Log.WarningOnce($"[Zoology] Failed to select wound-licking hediffs for {pawn?.LabelShort ?? "unknown pawn"}; falling back to highest-priority wound. Exception: {ex}", 92481731);
+                AddFallbackHediffToTend(tmpCandidateHediffs, tmpHediffsToTend);
+            }
 
             if (tmpHediffsToTend.Count == 0)
             {
@@ -77,14 +86,33 @@ namespace ZoologyMod
             }
 
             float quality = CalculateNoSkillHumanSelfTendQuality();
+            bool tendedAny = false;
             for (int i = 0; i < tmpHediffsToTend.Count; i++)
             {
-                tmpHediffsToTend[i].Tended(quality, TendUtility.NoMedicineQualityMax, i);
+                Hediff hediff = tmpHediffsToTend[i];
+                if (!CanLickTendHediff(hediff))
+                {
+                    continue;
+                }
+
+                try
+                {
+                    hediff.Tended(quality, TendUtility.NoMedicineQualityMax, i);
+                    tendedAny = true;
+                }
+                catch (Exception ex)
+                {
+                    Log.WarningOnce($"[Zoology] Failed to apply wound licking to hediff '{hediff?.def?.defName ?? "unknown"}' on {pawn?.LabelShort ?? "unknown pawn"}. Exception: {ex}", Gen.HashCombine(92481732, hediff?.def?.shortHash ?? 0));
+                }
             }
 
-            pawn.records?.Increment(RecordDefOf.TimesTendedTo);
-            pawn.mindState?.Notify_SelfTended();
-            return true;
+            if (tendedAny)
+            {
+                pawn.records?.Increment(RecordDefOf.TimesTendedTo);
+                pawn.mindState?.Notify_SelfTended();
+            }
+
+            return tendedAny;
         }
 
         private static int TryCollectLickableHediffs(Pawn pawn, List<Hediff> output)
@@ -115,12 +143,60 @@ namespace ZoologyMod
 
         private static bool CanLickTendHediff(Hediff hediff)
         {
-            if (hediff == null || !hediff.Bleeding || !hediff.TendableNow())
+            if (hediff == null)
             {
                 return false;
             }
 
-            return IsSurfaceBodyPart(hediff.Part);
+            try
+            {
+                if (!hediff.Bleeding || !hediff.TendableNow())
+                {
+                    return false;
+                }
+
+                return IsSurfaceBodyPart(hediff.Part);
+            }
+            catch (Exception ex)
+            {
+                Log.WarningOnce($"[Zoology] Failed to inspect lickable hediff '{hediff.def?.defName ?? "unknown"}'. Exception: {ex}", Gen.HashCombine(92481733, hediff.def?.shortHash ?? 0));
+                return false;
+            }
+        }
+
+        private static void AddFallbackHediffToTend(List<Hediff> candidates, List<Hediff> output)
+        {
+            Hediff best = null;
+            float bestPriority = float.MinValue;
+            for (int i = 0; i < candidates.Count; i++)
+            {
+                Hediff candidate = candidates[i];
+                if (!CanLickTendHediff(candidate))
+                {
+                    continue;
+                }
+
+                float priority;
+                try
+                {
+                    priority = candidate.TendPriority;
+                }
+                catch
+                {
+                    priority = 0f;
+                }
+
+                if (best == null || priority > bestPriority)
+                {
+                    best = candidate;
+                    bestPriority = priority;
+                }
+            }
+
+            if (best != null)
+            {
+                output.Add(best);
+            }
         }
 
         private static bool IsSurfaceBodyPart(BodyPartRecord part)
