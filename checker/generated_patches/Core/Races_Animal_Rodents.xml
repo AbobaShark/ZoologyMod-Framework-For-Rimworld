@@ -138,9 +138,26 @@
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "Rat"]/race/lifeStageAges/li[3]/minAge</xpath>
+    <xpath>/Defs/ThingDef[defName = "Rat"]/race/lifeStageAges</xpath>
     <value>
-      <minAge>0.2</minAge>
+      <lifeStageAges>
+        <li>
+          <def>AnimalBaby</def>
+          <minAge>0</minAge>
+        </li>
+        <li>
+          <def>AnimalJuvenile</def>
+          <minAge>0.1</minAge>
+        </li>
+        <li>
+          <def>AnimalAdult</def>
+          <minAge>0.2</minAge>
+          <soundWounded>Pawn_Boomrat_Wounded</soundWounded>
+          <soundDeath>Pawn_Boomrat_Death</soundDeath>
+          <soundCall>Pawn_Boomrat_Call</soundCall>
+          <soundAngry>Pawn_Boomrat_Angry</soundAngry>
+        </li>
+      </lifeStageAges>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -165,15 +182,6 @@
         <li MayRequire="Ludeon.RimWorld.Odyssey">Forage</li>
         <li MayRequire="Ludeon.RimWorld.Odyssey">Comfort</li>
       </specialTrainables>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[defName = "Rat"]/tradeTags/li[text()="AnimalCommon" or text()="AnimalUncommon" or text()="AnimalExotic" or text()="AnimalFighter" or text()="AnimalInsect" or text()="AnimalPet" or text()="AnimalFarm"]</xpath>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/ThingDef[defName = "Rat"]/tradeTags</xpath>
-    <value>
-      <li>AnimalCommon</li>
     </value>
   </Operation>
   <Operation Class="PatchOperationAddModExtension">
@@ -331,15 +339,26 @@
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "Squirrel"]/race/lifeStageAges/li[2]/minAge</xpath>
+    <xpath>/Defs/ThingDef[defName = "Squirrel"]/race/lifeStageAges</xpath>
     <value>
-      <minAge>0.15</minAge>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "Squirrel"]/race/lifeStageAges/li[3]/minAge</xpath>
-    <value>
-      <minAge>0.3</minAge>
+      <lifeStageAges>
+        <li>
+          <def>AnimalBaby</def>
+          <minAge>0</minAge>
+        </li>
+        <li>
+          <def>AnimalJuvenile</def>
+          <minAge>0.15</minAge>
+        </li>
+        <li>
+          <def>AnimalAdult</def>
+          <minAge>0.3</minAge>
+          <soundWounded>Pawn_Rodent_Wounded</soundWounded>
+          <soundDeath>Pawn_Rodent_Death</soundDeath>
+          <soundCall>Pawn_Rodent_Call</soundCall>
+          <soundAngry>Pawn_Rodent_Angry</soundAngry>
+        </li>
+      </lifeStageAges>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -363,15 +382,6 @@
       <specialTrainables>
         <li MayRequire="Ludeon.RimWorld.Odyssey">Comfort</li>
       </specialTrainables>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[defName = "Squirrel"]/tradeTags/li[text()="AnimalCommon" or text()="AnimalUncommon" or text()="AnimalExotic" or text()="AnimalFighter" or text()="AnimalInsect" or text()="AnimalPet" or text()="AnimalFarm"]</xpath>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/ThingDef[defName = "Squirrel"]/tradeTags</xpath>
-    <value>
-      <li>AnimalCommon</li>
     </value>
   </Operation>
   <Operation Class="PatchOperationAddModExtension">
@@ -533,9 +543,26 @@
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "GuineaPig"]/race/lifeStageAges/li[2]/minAge</xpath>
+    <xpath>/Defs/ThingDef[defName = "GuineaPig"]/race/lifeStageAges</xpath>
     <value>
-      <minAge>0.1</minAge>
+      <lifeStageAges>
+        <li>
+          <def>AnimalBaby</def>
+          <minAge>0</minAge>
+        </li>
+        <li>
+          <def>AnimalJuvenile</def>
+          <minAge>0.1</minAge>
+        </li>
+        <li>
+          <def>AnimalAdult</def>
+          <minAge>0.2</minAge>
+          <soundWounded>Pawn_GuineaPig_Wounded</soundWounded>
+          <soundDeath>Pawn_GuineaPig_Death</soundDeath>
+          <soundCall>Pawn_GuineaPig_Call</soundCall>
+          <soundAngry>Pawn_GuineaPig_Angry</soundAngry>
+        </li>
+      </lifeStageAges>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -562,7 +589,10 @@
     </value>
   </Operation>
   <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[defName = "GuineaPig"]/tradeTags/li[text()="AnimalCommon" or text()="AnimalUncommon" or text()="AnimalExotic" or text()="AnimalFighter" or text()="AnimalInsect" or text()="AnimalPet" or text()="AnimalFarm"]</xpath>
+    <xpath>/Defs/ThingDef[defName = "GuineaPig"]/tradeTags/li[text()='AnimalPet']</xpath>
+  </Operation>
+  <Operation Class="PatchOperationRemove">
+    <xpath>/Defs/ThingDef[defName = "GuineaPig"]/tradeTags/li[text()='AnimalUncommon']</xpath>
   </Operation>
   <Operation Class="PatchOperationAdd">
     <xpath>/Defs/ThingDef[defName = "GuineaPig"]/tradeTags</xpath>
@@ -723,15 +753,26 @@
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "Chinchilla"]/race/lifeStageAges/li[2]/minAge</xpath>
+    <xpath>/Defs/ThingDef[defName = "Chinchilla"]/race/lifeStageAges</xpath>
     <value>
-      <minAge>0.15</minAge>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "Chinchilla"]/race/lifeStageAges/li[3]/minAge</xpath>
-    <value>
-      <minAge>0.3</minAge>
+      <lifeStageAges>
+        <li>
+          <def>AnimalBaby</def>
+          <minAge>0</minAge>
+        </li>
+        <li>
+          <def>AnimalJuvenile</def>
+          <minAge>0.15</minAge>
+        </li>
+        <li>
+          <def>AnimalAdult</def>
+          <minAge>0.3</minAge>
+          <soundWounded>Pawn_Rodent_Wounded</soundWounded>
+          <soundDeath>Pawn_Rodent_Death</soundDeath>
+          <soundCall>Pawn_Rodent_Call</soundCall>
+          <soundAngry>Pawn_Rodent_Angry</soundAngry>
+        </li>
+      </lifeStageAges>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -758,7 +799,7 @@
     </value>
   </Operation>
   <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[defName = "Chinchilla"]/tradeTags/li[text()="AnimalCommon" or text()="AnimalUncommon" or text()="AnimalExotic" or text()="AnimalFighter" or text()="AnimalInsect" or text()="AnimalPet" or text()="AnimalFarm"]</xpath>
+    <xpath>/Defs/ThingDef[defName = "Chinchilla"]/tradeTags/li[text()='AnimalUncommon']</xpath>
   </Operation>
   <Operation Class="PatchOperationAdd">
     <xpath>/Defs/ThingDef[defName = "Chinchilla"]/tradeTags</xpath>
@@ -919,15 +960,26 @@
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "Capybara"]/race/lifeStageAges/li[2]/minAge</xpath>
+    <xpath>/Defs/ThingDef[defName = "Capybara"]/race/lifeStageAges</xpath>
     <value>
-      <minAge>0.15</minAge>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "Capybara"]/race/lifeStageAges/li[3]/minAge</xpath>
-    <value>
-      <minAge>0.3</minAge>
+      <lifeStageAges>
+        <li>
+          <def>AnimalBaby</def>
+          <minAge>0</minAge>
+        </li>
+        <li>
+          <def>AnimalJuvenile</def>
+          <minAge>0.15</minAge>
+        </li>
+        <li>
+          <def>AnimalAdult</def>
+          <minAge>0.3</minAge>
+          <soundWounded>Pawn_Alphabeaver_Wounded</soundWounded>
+          <soundDeath>Pawn_Alphabeaver_Death</soundDeath>
+          <soundCall>Pawn_Alphabeaver_Call</soundCall>
+          <soundAngry>Pawn_Alphabeaver_Angry</soundAngry>
+        </li>
+      </lifeStageAges>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -943,15 +995,6 @@
           <li>(8.6400, 0)</li>
         </points>
       </litterSizeCurve>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[defName = "Capybara"]/tradeTags/li[text()="AnimalCommon" or text()="AnimalUncommon" or text()="AnimalExotic" or text()="AnimalFighter" or text()="AnimalInsect" or text()="AnimalPet" or text()="AnimalFarm"]</xpath>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/ThingDef[defName = "Capybara"]/tradeTags</xpath>
-    <value>
-      <li>AnimalUncommon</li>
     </value>
   </Operation>
   <Operation Class="PatchOperationAddModExtension">
@@ -1170,15 +1213,26 @@
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "Alphabeaver"]/race/lifeStageAges/li[2]/minAge</xpath>
+    <xpath>/Defs/ThingDef[defName = "Alphabeaver"]/race/lifeStageAges</xpath>
     <value>
-      <minAge>0.15</minAge>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "Alphabeaver"]/race/lifeStageAges/li[3]/minAge</xpath>
-    <value>
-      <minAge>0.3</minAge>
+      <lifeStageAges>
+        <li>
+          <def>AnimalBaby</def>
+          <minAge>0</minAge>
+        </li>
+        <li>
+          <def>AnimalJuvenile</def>
+          <minAge>0.15</minAge>
+        </li>
+        <li>
+          <def>AnimalAdult</def>
+          <minAge>0.3</minAge>
+          <soundWounded>Pawn_Alphabeaver_Wounded</soundWounded>
+          <soundDeath>Pawn_Alphabeaver_Death</soundDeath>
+          <soundCall>Pawn_Alphabeaver_Call</soundCall>
+          <soundAngry>Pawn_Alphabeaver_Angry</soundAngry>
+        </li>
+      </lifeStageAges>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -1197,7 +1251,7 @@
     </value>
   </Operation>
   <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[defName = "Alphabeaver"]/tradeTags/li[text()="AnimalCommon" or text()="AnimalUncommon" or text()="AnimalExotic" or text()="AnimalFighter" or text()="AnimalInsect" or text()="AnimalPet" or text()="AnimalFarm"]</xpath>
+    <xpath>/Defs/ThingDef[defName = "Alphabeaver"]/tradeTags/li[text()='AnimalUncommon']</xpath>
   </Operation>
   <Operation Class="PatchOperationAdd">
     <xpath>/Defs/ThingDef[defName = "Alphabeaver"]/tradeTags</xpath>
@@ -1400,15 +1454,26 @@
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "Boomrat"]/race/lifeStageAges/li[2]/minAge</xpath>
+    <xpath>/Defs/ThingDef[defName = "Boomrat"]/race/lifeStageAges</xpath>
     <value>
-      <minAge>0.15</minAge>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "Boomrat"]/race/lifeStageAges/li[3]/minAge</xpath>
-    <value>
-      <minAge>0.3</minAge>
+      <lifeStageAges>
+        <li>
+          <def>AnimalBaby</def>
+          <minAge>0</minAge>
+        </li>
+        <li>
+          <def>AnimalJuvenile</def>
+          <minAge>0.15</minAge>
+        </li>
+        <li>
+          <def>AnimalAdult</def>
+          <minAge>0.3</minAge>
+          <soundWounded>Pawn_Boomrat_Wounded</soundWounded>
+          <soundDeath>Pawn_Boomrat_Death</soundDeath>
+          <soundCall>Pawn_Boomrat_Call</soundCall>
+          <soundAngry>Pawn_Boomrat_Angry</soundAngry>
+        </li>
+      </lifeStageAges>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -1436,13 +1501,12 @@
     </value>
   </Operation>
   <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[defName = "Boomrat"]/tradeTags/li[text()="AnimalCommon" or text()="AnimalUncommon" or text()="AnimalExotic" or text()="AnimalFighter" or text()="AnimalInsect" or text()="AnimalPet" or text()="AnimalFarm"]</xpath>
+    <xpath>/Defs/ThingDef[defName = "Boomrat"]/tradeTags/li[text()='AnimalUncommon']</xpath>
   </Operation>
   <Operation Class="PatchOperationAdd">
     <xpath>/Defs/ThingDef[defName = "Boomrat"]/tradeTags</xpath>
     <value>
       <li>AnimalCommon</li>
-      <li>AnimalFighter</li>
     </value>
   </Operation>
   <Operation Class="PatchOperationAddModExtension">

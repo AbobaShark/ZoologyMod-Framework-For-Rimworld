@@ -54,9 +54,10 @@ def rel_path_from_target(xpath):
 
 
 class OriginalXmlIndex:
-    def __init__(self, root_dir, patches_dir=None):
+    def __init__(self, root_dir, patches_dir=None, extra_xml_paths=None):
         self.root_dir = root_dir
         self.patches_dir = patches_dir
+        self.extra_xml_paths = list(extra_xml_paths or [])
         self.root = LET.Element("Defs")
         self.base_root = LET.Element("Defs")
         self.sources = {}
@@ -72,15 +73,22 @@ class OriginalXmlIndex:
         if self.loaded:
             return self
         self.loaded = True
-        if not self.root_dir or not os.path.isdir(self.root_dir):
+        has_root_dir = bool(self.root_dir and os.path.isdir(self.root_dir))
+        has_extra_paths = any(path and os.path.isfile(path) for path in self.extra_xml_paths)
+        if not has_root_dir and not has_extra_paths:
             return self
 
         parser = LET.XMLParser(remove_comments=False, recover=True)
         paths = []
-        for root, _, files in os.walk(self.root_dir):
-            for filename in files:
-                if filename.lower().endswith(".xml"):
-                    paths.append(os.path.join(root, filename))
+        if has_root_dir:
+            for root, _, files in os.walk(self.root_dir):
+                for filename in files:
+                    if filename.lower().endswith(".xml"):
+                        paths.append(os.path.join(root, filename))
+        for path in self.extra_xml_paths:
+            if path and os.path.isfile(path) and path.lower().endswith(".xml"):
+                paths.append(path)
+        paths = list({os.path.normcase(os.path.abspath(path)): path for path in paths}.values())
         paths.sort(key=lambda p: os.path.normcase(os.path.abspath(p)))
 
         for path in paths:

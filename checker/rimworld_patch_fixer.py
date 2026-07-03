@@ -207,7 +207,7 @@ class PatchGenerator:
     ODYSSEY_BIOMES = {'Grasslands', 'Glowforest', 'LavaField', 'GlacialPlain', 'Scarlands'}
     ODYSSEY_MAYREQUIRE = 'Ludeon.RimWorld.Odyssey'
 
-    def __init__(self, vanilla_source, ce_source, xml_paths, original_xml_dir=None, original_patches_dir=None):
+    def __init__(self, vanilla_source, ce_source, xml_paths, original_xml_dir=None, original_patches_dir=None, extra_original_xml_paths=None):
         self.vanilla_df = self._load_table(vanilla_source, sheet_name='Animals', required=True) if vanilla_source else None
         if ce_source:
             ce_sheet = 'Animals CE' if is_excel_source(ce_source) else None
@@ -220,6 +220,7 @@ class PatchGenerator:
         self.xml_paths = xml_paths
         self.original_xml_dir = original_xml_dir or default_original_xml_dir()
         self.original_patches_dir = original_patches_dir or default_original_patches_dir()
+        self.extra_original_xml_paths = list(extra_original_xml_paths or [])
         try:
             os.makedirs(self.original_xml_dir, exist_ok=True)
             os.makedirs(self.original_patches_dir, exist_ok=True)
@@ -232,6 +233,7 @@ class PatchGenerator:
             self._original_xml_index = OriginalXmlIndex(
                 self.original_xml_dir,
                 patches_dir=self.original_patches_dir,
+                extra_xml_paths=self.extra_original_xml_paths,
             ).load()
             if self._original_xml_index.enabled:
                 print(
@@ -403,6 +405,57 @@ class PatchGenerator:
             if parent:
                 patched_abstracts.add(parent)
         return patched_abstracts
+
+    def _table_def_order(self):
+        if self.vanilla_df is None:
+            return []
+        ordered = []
+        seen = set()
+        for _, row in self.vanilla_df.iterrows():
+            def_name = self._extract_def_name_from_row(row)
+            if not def_name or def_name in seen:
+                continue
+            seen.add(def_name)
+            ordered.append(def_name)
+        return ordered
+
+    def extract_patchable_defs_from_original_xml(self, xml_path):
+        if not xml_path or not os.path.exists(xml_path):
+            raise RuntimeError(f"Original XML not found: {xml_path}")
+        table_order = self._table_def_order()
+        table_defs = set(table_order)
+        if not table_defs:
+            raise RuntimeError("No animal defs found in the vanilla table.")
+
+        parser = LET.XMLParser(remove_comments=False, recover=True)
+        root = LET.parse(xml_path, parser).getroot()
+        found = []
+        seen = set()
+        for thing_def in root.xpath(".//ThingDef[defName]"):
+            def_el = thing_def.find("defName")
+            if def_el is None or def_el.text is None:
+                continue
+            def_name = def_el.text.strip()
+            if not def_name or def_name not in table_defs or def_name in seen:
+                continue
+            seen.add(def_name)
+            found.append(def_name)
+
+        order_index = {name: idx for idx, name in enumerate(table_order)}
+        found.sort(key=lambda name: order_index.get(name, len(order_index)))
+        return found
+
+    def generate_patch_from_original_xml(self, original_xml_path, output_path):
+        try:
+            def_names = self.extract_patchable_defs_from_original_xml(original_xml_path)
+            if not def_names:
+                raise RuntimeError(
+                    f"No supported animal defs from the table were found in: {original_xml_path}"
+                )
+            return self.generate_patch_from_definitions(output_path, def_names)
+        except Exception:
+            traceback.print_exc()
+            return False
 
     # =========================
     # Build tools from tables (TSV or Excel sheets)
@@ -1367,8 +1420,158 @@ class PatchGenerator:
         if s == '' or s.lower() == 'no':
             return None
         return v
+
+    def _lifestage_columns_differ(self, differing_cols):
+        if not differing_cols:
+            return False
+        differing = {str(col).strip().lower() for col in differing_cols}
+        return (
+            'juv age (years)' in differing
+            or 'adult age (years)' in differing
+            or 'adult age' in differing
+        )
+
+    def _parent_lifestages_are_removed(self, parent_common_map, parent):
+        if not parent or not parent_common_map or parent not in parent_common_map:
+            return False
+        return self._lifestage_columns_differ(parent_common_map[parent].get('differing_cols', []))
+
+    def _thing_def_key(self, thing_def):
+        if thing_def is None or thing_def.tag != 'ThingDef':
+            return None
+        name = thing_def.get('Name')
+        if name and str(name).strip():
+            return str(name).strip()
+        def_el = thing_def.find('defName')
+        if def_el is not None and def_el.text and def_el.text.strip():
+            return def_el.text.strip()
+        return None
+
+    def _find_thing_def(self, root, def_name, is_abstract=False):
+        if root is None:
+            return None
+        wanted = str(def_name).strip()
+        if not wanted:
+            return None
+        for thing_def in root.findall('.//ThingDef'):
+            name = thing_def.get('Name')
+            if is_abstract and name == wanted:
+                return thing_def
+            if name == wanted:
+                return thing_def
+            def_el = thing_def.find('defName')
+            if def_el is not None and def_el.text and def_el.text.strip() == wanted:
+                return thing_def
+        return None
+
+    def _original_lookup_roots(self, original_root):
+        seen = set()
+        roots = []
+        for root in (original_root,):
+            if root is not None and id(root) not in seen:
+                seen.add(id(root))
+                roots.append(root)
+
+        try:
+            index = self._get_original_xml_index()
+        except Exception:
+            index = None
+
+        if index is not None and index.enabled:
+            for root in (getattr(index, 'root', None), getattr(index, 'base_root', None)):
+                if root is not None and id(root) not in seen:
+                    seen.add(id(root))
+                    roots.append(root)
+        return roots
+
+    def extract_lifestage_min_ages(self, original_root, def_name, is_abstract=False):
+        """
+        Возвращает minAge по стадиям из прямого ThingDef или ближайшего ParentName.
+        Используется как fallback, когда родительский lifeStageAges удаляется,
+        а ребёнку нужен собственный полный блок.
+        """
+        for root in self._original_lookup_roots(original_root):
+            current = self._find_thing_def(root, def_name, is_abstract=is_abstract)
+            seen = set()
+            while current is not None:
+                key = self._thing_def_key(current)
+                if key in seen:
+                    break
+                if key:
+                    seen.add(key)
+
+                lsa = current.find('race/lifeStageAges')
+                if lsa is not None:
+                    ages = {}
+                    for idx, li in enumerate(lsa.findall('li'), start=1):
+                        min_age = li.find('minAge')
+                        if min_age is None or min_age.text is None or not min_age.text.strip():
+                            continue
+                        stage_def = li.find('def')
+                        if stage_def is not None and stage_def.text and stage_def.text.strip():
+                            ages[stage_def.text.strip()] = min_age.text.strip()
+                        if idx == 2:
+                            ages.setdefault('AnimalJuvenile', min_age.text.strip())
+                        elif idx == 3:
+                            ages.setdefault('AnimalAdult', min_age.text.strip())
+                    if ages:
+                        return ages
+
+                parent_name = current.get('ParentName')
+                if not parent_name:
+                    break
+                current = self._find_thing_def(root, parent_name, is_abstract=True)
+        return {}
+
+    def extract_lifestage_template(self, original_root, def_name, is_abstract=False):
+        for root in self._original_lookup_roots(original_root):
+            current = self._find_thing_def(root, def_name, is_abstract=is_abstract)
+            seen = set()
+            while current is not None:
+                key = self._thing_def_key(current)
+                if key in seen:
+                    break
+                if key:
+                    seen.add(key)
+
+                lsa = current.find('race/lifeStageAges')
+                if lsa is not None:
+                    template = []
+                    for li in lsa.findall('li'):
+                        stage_def = (li.findtext('def') or '').strip()
+                        min_age = (li.findtext('minAge') or '').strip()
+                        sounds = {}
+                        for tag in ('soundWounded', 'soundDeath', 'soundCall', 'soundAngry'):
+                            text = (li.findtext(tag) or '').strip()
+                            if text:
+                                sounds[tag] = text
+                        template.append({
+                            'def': stage_def,
+                            'minAge': min_age,
+                            'sounds': sounds,
+                        })
+                    if template:
+                        return template
+
+                parent_name = current.get('ParentName')
+                if not parent_name:
+                    break
+                current = self._find_thing_def(root, parent_name, is_abstract=True)
+        return []
+
+    def extract_pawn_lifestage_count(self, original_root, def_name):
+        wanted = str(def_name).strip()
+        if not wanted:
+            return 0
+        for root in self._original_lookup_roots(original_root):
+            for pawn_kind in root.findall('.//PawnKindDef'):
+                def_el = pawn_kind.find('defName')
+                if def_el is None or def_el.text is None or def_el.text.strip() != wanted:
+                    continue
+                return len(pawn_kind.findall('lifeStages/li'))
+        return 0
         
-    def create_life_stage_full_replace_or_add(self, def_name, juv_text, adult_text, sounds=None, is_abstract=False, parent='', inherit_false=False):
+    def create_life_stage_full_replace_or_add(self, def_name, juv_text, adult_text, sounds=None, is_abstract=False, parent='', inherit_false=False, stage_template=None):
         """
         То же, что было, но теперь учитываем parent: если parent == "BaseInsect",
         используем EusocialInsectLarva / EusocialInsectJuvenile / EusocialInsectAdult.
@@ -1384,30 +1587,53 @@ class PatchGenerator:
             # задаём точно строку "False", как в оригинале
             lsa.set('Inherit', 'False')
 
-        # Baby
-        li_baby = LET.SubElement(lsa, 'li')
-        d1 = LET.SubElement(li_baby, 'def')
-        d1.text = self._map_lifestage_def('AnimalBaby', parent)
-        m1 = LET.SubElement(li_baby, 'minAge'); m1.text = '0'
-
-        # Juvenile
-        li_juv = LET.SubElement(lsa, 'li')
-        d2 = LET.SubElement(li_juv, 'def')
-        d2.text = self._map_lifestage_def('AnimalJuvenile', parent)
-        m2 = LET.SubElement(li_juv, 'minAge'); m2.text = str(juv_text)
-
-        # Adult
-        li_adult = LET.SubElement(lsa, 'li')
-        d3 = LET.SubElement(li_adult, 'def')
-        d3.text = self._map_lifestage_def('AnimalAdult', parent)
-        m3 = LET.SubElement(li_adult, 'minAge'); m3.text = str(adult_text)
-        # звуковые теги (если переданы)
-        if sounds:
+        if stage_template and len(stage_template) == 1:
+            tpl = stage_template[0]
+            li = LET.SubElement(lsa, 'li')
+            d = LET.SubElement(li, 'def')
+            d.text = tpl.get('def') or self._map_lifestage_def('AnimalAdult', parent)
+            min_age = str(tpl.get('minAge') or '').strip()
+            if min_age:
+                LET.SubElement(li, 'minAge').text = min_age
+            stage_sounds = sounds or tpl.get('sounds') or {}
             for key in ('soundWounded', 'soundDeath', 'soundCall', 'soundAngry'):
-                v = sounds.get(key)
+                v = stage_sounds.get(key)
                 if v is not None and str(v).strip() != '':
-                    el = LET.SubElement(li_adult, key)
+                    el = LET.SubElement(li, key)
                     el.text = str(v)
+        else:
+            template = list(stage_template or [])
+            baby_def = ((template[0].get('def') if len(template) > 0 else '') or
+                        self._map_lifestage_def('AnimalBaby', parent))
+            juv_def = ((template[1].get('def') if len(template) > 1 else '') or
+                       self._map_lifestage_def('AnimalJuvenile', parent))
+            adult_def = ((template[2].get('def') if len(template) > 2 else '') or
+                         self._map_lifestage_def('AnimalAdult', parent))
+
+            # Baby
+            li_baby = LET.SubElement(lsa, 'li')
+            d1 = LET.SubElement(li_baby, 'def')
+            d1.text = baby_def
+            m1 = LET.SubElement(li_baby, 'minAge'); m1.text = '0'
+
+            # Juvenile
+            li_juv = LET.SubElement(lsa, 'li')
+            d2 = LET.SubElement(li_juv, 'def')
+            d2.text = juv_def
+            m2 = LET.SubElement(li_juv, 'minAge'); m2.text = str(juv_text)
+
+            # Adult
+            li_adult = LET.SubElement(lsa, 'li')
+            d3 = LET.SubElement(li_adult, 'def')
+            d3.text = adult_def
+            m3 = LET.SubElement(li_adult, 'minAge'); m3.text = str(adult_text)
+            # звуковые теги (если переданы)
+            if sounds:
+                for key in ('soundWounded', 'soundDeath', 'soundCall', 'soundAngry'):
+                    v = sounds.get(key)
+                    if v is not None and str(v).strip() != '':
+                        el = LET.SubElement(li_adult, key)
+                        el.text = str(v)
 
         # Составляем операцию
         op = LET.Element("Operation", Class="PatchOperationConditional")
@@ -1990,7 +2216,8 @@ class PatchGenerator:
                     # defaults if one of the ages missing
                     juv_text = str(juv_val).strip() if juv_val is not None and str(juv_val).strip() != '' else "0.2"
                     adult_text = str(adult_val).strip() if adult_val is not None and str(adult_val).strip() != '' else "0.5"
-                    ops.append(self.create_life_stage_full_replace_or_add(abstract, juv_text, adult_text, sounds=sounds, is_abstract=True, inherit_false=inherit))
+                    stage_template = self.extract_lifestage_template(original_root, abstract, is_abstract=True)
+                    ops.append(self.create_life_stage_full_replace_or_add(abstract, juv_text, adult_text, sounds=sounds, is_abstract=True, inherit_false=inherit, stage_template=stage_template))
                 else:
                     # no sounds on abstract — fall back to individual minAge replaces (as before)
                     if juv_present:
@@ -2412,6 +2639,7 @@ class PatchGenerator:
 
         # Determine whether parent *owns* both life-stage ages (so child must remove the whole lifeStageAges block).
         parent_overrode_both_lifestages = False
+        parent_removed_lifestages = self._parent_lifestages_are_removed(parent_common_map, parent)
         if parent and parent_common_map and parent in parent_common_map:
             p_common = parent_common_map[parent].get('common_values', {})
             # parent_common may store column names as in TSV: check variations
@@ -2426,7 +2654,7 @@ class PatchGenerator:
                 parent_overrode_both_lifestages = True
 
         # We want to run lifeStage logic either if child provides ages OR parent_overrode_both_lifestages
-        if parent_overrode_both_lifestages or (juv_age is not None and str(juv_age).strip() != '') or (adult_age is not None and str(adult_age).strip() != ''):
+        if parent_removed_lifestages or parent_overrode_both_lifestages or (juv_age is not None and str(juv_age).strip() != '') or (adult_age is not None and str(adult_age).strip() != ''):
             # If parent overrode both ages (either by replacing whole block or by replacing both minAges),
             # then child should NOT create separate li/minAge replacements — instead we create a single safe-remove
             # for the entire lifeStageAges node (so the parent node will be authoritative).
@@ -2440,17 +2668,29 @@ class PatchGenerator:
                     sounds, inherit = self.extract_sounds(original_root, parent, is_abstract=True)
 
                 # defaults for creation
-                juv_text = str(juv_age).strip() if juv_age is not None and str(juv_age).strip() != '' else "0.2"
-                adult_text = str(adult_age).strip() if adult_age is not None and str(adult_age).strip() != '' else "0.5"
+                inherited_ages = self.extract_lifestage_min_ages(original_root, def_name)
+                if not inherited_ages and parent:
+                    inherited_ages = self.extract_lifestage_min_ages(original_root, parent, is_abstract=True)
+                juv_def = self._map_lifestage_def('AnimalJuvenile', parent)
+                adult_def = self._map_lifestage_def('AnimalAdult', parent)
+                juv_fallback = inherited_ages.get(juv_def) or inherited_ages.get('AnimalJuvenile') or "0.2"
+                adult_fallback = inherited_ages.get(adult_def) or inherited_ages.get('AnimalAdult') or "0.5"
+                juv_text = str(juv_age).strip() if juv_age is not None and str(juv_age).strip() != '' else juv_fallback
+                adult_text = str(adult_age).strip() if adult_age is not None and str(adult_age).strip() != '' else adult_fallback
 
-                if sounds:
+                if parent_removed_lifestages or sounds:
                     # передаём parent — чтобы create_life_stage_full_replace_or_add могла маппить дефы для BaseInsect
-                    ops.append(self.create_life_stage_full_replace_or_add(def_name, juv_text, adult_text, sounds=sounds, parent=parent, inherit_false=inherit))
+                    stage_template = self.extract_lifestage_template(original_root, def_name)
+                    pawn_stage_count = self.extract_pawn_lifestage_count(original_root, def_name)
+                    if parent and stage_template and len(stage_template) == 1 and pawn_stage_count > 1:
+                        parent_template = self.extract_lifestage_template(original_root, parent, is_abstract=True)
+                        if parent_template:
+                            stage_template = parent_template + stage_template
+                    if not stage_template and parent:
+                        stage_template = self.extract_lifestage_template(original_root, parent, is_abstract=True)
+                    ops.append(self.create_life_stage_full_replace_or_add(def_name, juv_text, adult_text, sounds=sounds, parent=parent, inherit_false=inherit, stage_template=stage_template))
                     # не добавляем отдельные minAge replace операции — они избыточны
                 else:
-                    juv_def = self._map_lifestage_def('AnimalJuvenile', parent)
-                    adult_def = self._map_lifestage_def('AnimalAdult', parent)
-
                     juv_age_text = str(juv_age).strip() if juv_age is not None else ''
                     adult_age_text = str(adult_age).strip() if adult_age is not None else ''
 
@@ -2828,93 +3068,84 @@ class PatchGenerator:
         Возвращает (sounds_dict, inherit_false_flag).
         sounds_dict содержит ключи soundWounded, soundDeath, soundCall, soundAngry (если есть)
         для <ThingDef[defName|@Name=def_name]/race/lifeStageAges/li[def="AnimalAdult"]>.
-        Ищем сначала реальные ThingDef, потом — операции (match/nomatch -> value -> lifeStageAges).
+        Ищем сначала реальные ThingDef, потом — операции (match/nomatch -> value -> lifeStageAges),
+        затем подключенный OriginalXML.
         """
-        sounds = {}
-        inherit_false = False
+        def _is_inherit_false(node):
+            return str(node.get('Inherit', '')).strip().lower() == 'false'
 
-        # 1) Попробуем найти реальные ThingDef элементы (обычный случай)
-        try:
-            if is_abstract:
-                candidates = original_root.xpath(f"//ThingDef[@Name='{def_name}']")
-            else:
-                candidates = original_root.xpath(f"//ThingDef[@defName='{def_name}']")
-                if not candidates:
-                    candidates = original_root.xpath(f"//ThingDef[@Name='{def_name}']")
-        except Exception:
-            candidates = []
-
-        # Проверяем реальные ThingDef
-        for td in candidates:
-            race = td.find('race')
-            if race is None:
-                continue
-            lsa = race.find('lifeStageAges')
+        def _adult_sounds_from_lifestages(lsa):
+            found = {}
             if lsa is None:
-                continue
-            # запомним флаг Inherit, если он явно False
-            if lsa.get('Inherit') == 'False':
-                inherit_false = True
-            for li in lsa.findall('li'):
+                return found
+            for idx, li in enumerate(lsa.findall('li'), start=1):
                 d = li.find('def')
-                if d is None or d.text is None:
+                stage_def = d.text.strip() if d is not None and d.text else ''
+                if stage_def not in ('AnimalAdult', 'EusocialInsectAdult') and idx != 3:
                     continue
-                if d.text.strip() == 'AnimalAdult':
-                    for tag in ('soundWounded', 'soundDeath', 'soundCall', 'soundAngry'):
-                        el = li.find(tag)
-                        if el is not None and el.text and el.text.strip():
-                            sounds[tag] = el.text.strip()
-                    if sounds:
-                        return sounds, inherit_false
+                for tag in ('soundWounded', 'soundDeath', 'soundCall', 'soundAngry'):
+                    el = li.find(tag)
+                    if el is not None and el.text and el.text.strip():
+                        found[tag] = el.text.strip()
+                if found:
+                    return found
+            return found
 
-        # 2) Если не найдено — пробуем искать внутри Operation (match/nomatch -> value -> lifeStageAges)
-        for op in original_root.findall(".//Operation"):
-            # проверяем все xpath внутрях Operation — может быть несколько xpath элементов
-            found_relevant = False
-            for xp in op.findall("xpath"):
+        def _sounds_from_def(root):
+            current = self._find_thing_def(root, def_name, is_abstract=is_abstract)
+            seen = set()
+            while current is not None:
+                key = self._thing_def_key(current)
+                if key in seen:
+                    break
+                if key:
+                    seen.add(key)
+
+                lsa = current.find('race/lifeStageAges')
+                if lsa is not None:
+                    found = _adult_sounds_from_lifestages(lsa)
+                    if found:
+                        return found, _is_inherit_false(lsa)
+                    return {}, _is_inherit_false(lsa)
+
+                parent_name = current.get('ParentName')
+                if not parent_name:
+                    break
+                current = self._find_thing_def(root, parent_name, is_abstract=True)
+            return {}, False
+
+        def _operation_mentions_def(op):
+            for xp in op.findall('.//xpath'):
                 txt = (xp.text or '').strip()
-                if not txt:
+                if not txt or def_name not in txt or 'ThingDef' not in txt:
                     continue
-                # найти ThingDef[...] с defName или @Name внутри текста xpath
-                m = re.search(r'ThingDef\s*\[\s*(?:defName|@Name)\s*=\s*"([^"]+)"\s*\]', txt)
-                if not m:
-                    m = re.search(r'ThingDef\s*\[\s*(?:defName|@Name)\s*=\s*"([^"]+)"\s*\]', txt.replace(" ", " "))
-                if not m:
-                    continue
-                name_in_xpath = m.group(1)
-                if name_in_xpath != def_name:
-                    continue
-                found_relevant = True
-                break
-            if not found_relevant:
-                continue
+                return True
+            return False
 
-            # найден Operation, относящаяся к нашему ThingDef:
-            # проверяем match и nomatch блоки — ищем value -> lifeStageAges
-            for blk_name in ('match', 'nomatch'):
-                blk = op.find(blk_name)
-                if blk is None:
+        def _sounds_from_operations(root):
+            for op in root.findall('.//Operation'):
+                if not _operation_mentions_def(op):
                     continue
-                # value может быть прямо элементом внутри blk (или глубже), ищем все value узлы
-                for val in blk.findall(".//value"):
-                    lsa = val.find('lifeStageAges')
-                    if lsa is None:
-                        continue
-                    # запомним Inherit если стоит явно False
-                    if lsa.get('Inherit') == 'False':
-                        inherit_false = True
-                    for li in lsa.findall('li'):
-                        d = li.find('def')
-                        if d is None or d.text is None:
-                            continue
-                        if d.text.strip() == 'AnimalAdult':
-                            for tag in ('soundWounded', 'soundDeath', 'soundCall', 'soundAngry'):
-                                el = li.find(tag)
-                                if el is not None and el.text and el.text.strip():
-                                    sounds[tag] = el.text.strip()
-                            if sounds:
-                                return sounds, inherit_false
-        return sounds, inherit_false
+                for val in op.findall('.//value'):
+                    for lsa in val.findall('.//lifeStageAges'):
+                        found = _adult_sounds_from_lifestages(lsa)
+                        if found:
+                            return found, _is_inherit_false(lsa)
+            return {}, False
+
+        inherit_false = False
+        for root in self._original_lookup_roots(original_root):
+            sounds, inherit = _sounds_from_def(root)
+            inherit_false = inherit_false or inherit
+            if sounds:
+                return sounds, inherit_false
+
+            sounds, inherit = _sounds_from_operations(root)
+            inherit_false = inherit_false or inherit
+            if sounds:
+                return sounds, inherit_false
+
+        return {}, inherit_false
         
     def extract_trade_tags_inherit(self, original_root, def_name, is_abstract=False):
         """
@@ -4092,6 +4323,7 @@ class GeneratorApp(tk.Tk):
         ).pack(fill='x', pady=2)
         ttk.Separator(ctrl, orient='horizontal').pack(fill='x', pady=6)
         ttk.Button(ctrl, text="Generate/Fix Patches", command=self.run_generation).pack(fill='x', pady=6)
+        ttk.Button(ctrl, text="Generate From Original XML", command=self.run_original_xml_generation).pack(fill='x', pady=2)
         ttk.Button(ctrl, text="Generate Biome Patches", command=self.run_biome_generation).pack(fill='x', pady=2)
         ttk.Button(ctrl, text="Open Output Folder", command=self.open_output).pack(fill='x', pady=2)
         groups_frame = ttk.Frame(main)
@@ -4533,6 +4765,67 @@ class GeneratorApp(tk.Tk):
                 msg = "\n".join([f"{os.path.basename(x)} → {os.path.basename(o)} ({'OK' if s else 'FAILED'})" for x, o, s in results])
                 messagebox.showinfo("Done", f"Generated patches:\n{msg}\n\nFolder: {self.report_dir}")
                 self.status.set(f"Processed {len(results)} file(s).")
+        except Exception as e:
+            traceback.print_exc()
+            messagebox.showerror("Error", str(e))
+
+    def run_original_xml_generation(self):
+        v_source = self.vanilla_tsv.get()
+        c_source = self.ce_tsv.get() or None
+        if not v_source or not os.path.exists(v_source):
+            messagebox.showerror("Error", "Vanilla table missing or not found (TSV/XLSX).")
+            return
+
+        original_xmls = filedialog.askopenfilenames(
+            title="Select original ThingDef XML reference(s)",
+            filetypes=[("XML", "*.xml"), ("All", "*.*")]
+        )
+        original_xmls = [p for p in original_xmls if p and os.path.exists(p)]
+        if not original_xmls:
+            return
+
+        out_dir = os.path.join(self.report_dir, "FromOriginalXML")
+        os.makedirs(out_dir, exist_ok=True)
+
+        try:
+            generator = PatchGenerator(
+                v_source,
+                c_source,
+                [],
+                extra_original_xml_paths=original_xmls,
+            )
+            results = []
+            used_names = {}
+            for xml in original_xmls:
+                base = os.path.splitext(os.path.basename(xml))[0]
+                n = used_names.get(base, 0) + 1
+                used_names[base] = n
+                out_name = f"{base}.xml" if n == 1 else f"{base}_{n}.xml"
+                out_xml = os.path.join(out_dir, out_name)
+                try:
+                    def_names = generator.extract_patchable_defs_from_original_xml(xml)
+                    if def_names:
+                        success = generator.generate_patch_from_definitions(out_xml, def_names)
+                    else:
+                        success = False
+                except Exception:
+                    traceback.print_exc()
+                    def_names = []
+                    success = False
+                results.append((xml, out_xml, len(def_names), success))
+
+            ok_count = sum(1 for _xml, _out, _count, success in results if success)
+            preview = "\n".join([
+                f"{os.path.basename(xml)} -> {os.path.basename(out)} ({count} defs) {'OK' if success else 'FAILED'}"
+                for xml, out, count, success in results[:20]
+            ])
+            more = "" if len(results) <= 20 else f"\n... and {len(results) - 20} more"
+            messagebox.showinfo(
+                "Done",
+                f"Generated from original XML: {ok_count}/{len(results)}\n\n"
+                f"{preview}{more}\n\nFolder: {out_dir}"
+            )
+            self.status.set(f"Generated {ok_count}/{len(results)} original-XML patch file(s).")
         except Exception as e:
             traceback.print_exc()
             messagebox.showerror("Error", str(e))

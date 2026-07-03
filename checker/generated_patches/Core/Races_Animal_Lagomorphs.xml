@@ -99,15 +99,26 @@
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[@Name = "BaseHare"]/race/lifeStageAges/li[def = 'AnimalJuvenile']/minAge</xpath>
+    <xpath>/Defs/ThingDef[@Name = "BaseHare"]/race/lifeStageAges</xpath>
     <value>
-      <minAge>0.15</minAge>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[@Name = "BaseHare"]/race/lifeStageAges/li[def = 'AnimalAdult']/minAge</xpath>
-    <value>
-      <minAge>0.3</minAge>
+      <lifeStageAges>
+        <li>
+          <def>AnimalBaby</def>
+          <minAge>0</minAge>
+        </li>
+        <li>
+          <def>AnimalJuvenile</def>
+          <minAge>0.15</minAge>
+        </li>
+        <li>
+          <def>AnimalAdult</def>
+          <minAge>0.3</minAge>
+          <soundWounded>Pawn_Hare_Wounded</soundWounded>
+          <soundDeath>Pawn_Hare_Death</soundDeath>
+          <soundCall>Pawn_Hare_Call</soundCall>
+          <soundAngry>Pawn_Hare_Angry</soundAngry>
+        </li>
+      </lifeStageAges>
     </value>
   </Operation>
   <Operation Class="PatchOperationAdd">
@@ -116,15 +127,6 @@
       <specialTrainables>
         <li MayRequire="Ludeon.RimWorld.Odyssey">Comfort</li>
       </specialTrainables>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[@Name = "BaseHare"]/tradeTags/li[text()="AnimalCommon" or text()="AnimalUncommon" or text()="AnimalExotic" or text()="AnimalFighter" or text()="AnimalInsect" or text()="AnimalPet" or text()="AnimalFarm"]</xpath>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/ThingDef[@Name = "BaseHare"]/tradeTags</xpath>
-    <value>
-      <li>AnimalCommon</li>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">

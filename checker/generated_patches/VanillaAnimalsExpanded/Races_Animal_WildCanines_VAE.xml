@@ -2,134 +2,46 @@
 <Patch>
   <!---->
   <!-- AEXP_Coyote -->
-  <Operation Class="PatchOperationAttributeSet">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]</xpath>
-    <attribute>ParentName</attribute>
-    <value>AnimalThingBase</value>
-  </Operation>
-  <Operation Class="PatchOperationAttributeSet">
-    <xpath>/Defs/PawnKindDef[defName = "AEXP_Coyote"]</xpath>
-    <attribute>ParentName</attribute>
-    <value>AnimalKindBase</value>
-  </Operation>
   <!-- AEXP_Coyote StatBases -->
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/statBases/MarketValue</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/statBases/MarketValue</xpath>
-      <value>
-        <MarketValue>200</MarketValue>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/statBases</xpath>
-      <value>
-        <MarketValue>200</MarketValue>
-      </value>
-    </nomatch>
+    <value>
+      <MarketValue>200</MarketValue>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/statBases/MoveSpeed</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/statBases/MoveSpeed</xpath>
-      <value>
-        <MoveSpeed>8.5</MoveSpeed>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/statBases</xpath>
-      <value>
-        <MoveSpeed>8.5</MoveSpeed>
-      </value>
-    </nomatch>
+    <value>
+      <MoveSpeed>8.5</MoveSpeed>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/statBases/Wildness</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/statBases/Wildness</xpath>
-      <value>
-        <Wildness>0.65</Wildness>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/statBases</xpath>
-      <value>
-        <Wildness>0.65</Wildness>
-      </value>
-    </nomatch>
+    <value>
+      <Wildness>0.65</Wildness>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/statBases/FilthRate</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/statBases/FilthRate</xpath>
-      <value>
-        <FilthRate>1</FilthRate>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/statBases</xpath>
-      <value>
-        <FilthRate>1</FilthRate>
-      </value>
-    </nomatch>
+    <value>
+      <FilthRate>1</FilthRate>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/statBases/ComfyTemperatureMin</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/statBases/ComfyTemperatureMin</xpath>
-      <value>
-        <ComfyTemperatureMin>-45</ComfyTemperatureMin>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/statBases</xpath>
-      <value>
-        <ComfyTemperatureMin>-45</ComfyTemperatureMin>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/statBases/ComfyTemperatureMax</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/statBases/ComfyTemperatureMax</xpath>
-      <value>
-        <ComfyTemperatureMax>50</ComfyTemperatureMax>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/statBases</xpath>
-      <value>
-        <ComfyTemperatureMax>50</ComfyTemperatureMax>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/statBases/ArmorRating_Blunt</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/statBases/ArmorRating_Blunt</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/statBases/ArmorRating_Sharp</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/statBases/ArmorRating_Sharp</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/statBases/ToxicEnvironmentResistance</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/statBases/ToxicEnvironmentResistance</xpath>
-    </match>
-  </Operation>
-  <!-- AEXP_Coyote tools -->
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/tools</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/tools</xpath>
-    </match>
+    <value>
+      <ComfyTemperatureMin>-45</ComfyTemperatureMin>
+    </value>
   </Operation>
   <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]</xpath>
+    <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/statBases</xpath>
+    <value>
+      <ComfyTemperatureMax>50</ComfyTemperatureMax>
+    </value>
+  </Operation>
+  <!-- AEXP_Coyote tools -->
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/tools</xpath>
     <value>
       <tools>
         <li>
@@ -164,478 +76,115 @@
     </value>
   </Operation>
   <!-- AEXP_Coyote RaceProperties -->
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/baseBodySize</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/baseBodySize</xpath>
-      <value>
-        <baseBodySize>0.5</baseBodySize>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race</xpath>
-      <value>
-        <baseBodySize>0.5</baseBodySize>
-      </value>
-    </nomatch>
+    <value>
+      <baseBodySize>0.5</baseBodySize>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/baseHealthScale</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/baseHealthScale</xpath>
-      <value>
-        <baseHealthScale>0.6</baseHealthScale>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race</xpath>
-      <value>
-        <baseHealthScale>0.6</baseHealthScale>
-      </value>
-    </nomatch>
+    <value>
+      <baseHealthScale>0.6</baseHealthScale>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/baseHungerRate</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/baseHungerRate</xpath>
-      <value>
-        <baseHungerRate>0.4</baseHungerRate>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race</xpath>
-      <value>
-        <baseHungerRate>0.4</baseHungerRate>
-      </value>
-    </nomatch>
+    <value>
+      <baseHungerRate>0.4</baseHungerRate>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/lifeExpectancy</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/lifeExpectancy</xpath>
-      <value>
-        <lifeExpectancy>12</lifeExpectancy>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race</xpath>
-      <value>
-        <lifeExpectancy>12</lifeExpectancy>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/gestationPeriodDays</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/gestationPeriodDays</xpath>
-      <value>
-        <gestationPeriodDays>6.5</gestationPeriodDays>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race</xpath>
-      <value>
-        <gestationPeriodDays>6.5</gestationPeriodDays>
-      </value>
-    </nomatch>
+    <value>
+      <gestationPeriodDays>6.5</gestationPeriodDays>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/herdAnimal</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/herdAnimal</xpath>
-      <value>
-        <herdAnimal>true</herdAnimal>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race</xpath>
-      <value>
-        <herdAnimal>true</herdAnimal>
-      </value>
-    </nomatch>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race</xpath>
+    <value>
+      <herdAnimal>true</herdAnimal>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/herdMigrationAllowed</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/herdMigrationAllowed</xpath>
-      <value>
-        <herdMigrationAllowed>false</herdMigrationAllowed>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race</xpath>
-      <value>
-        <herdMigrationAllowed>false</herdMigrationAllowed>
-      </value>
-    </nomatch>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race</xpath>
+    <value>
+      <herdMigrationAllowed>false</herdMigrationAllowed>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/foodType</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/foodType</xpath>
-      <value>
-        <foodType>CarnivoreAnimal, OvivoreAnimal</foodType>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race</xpath>
-      <value>
-        <foodType>CarnivoreAnimal, OvivoreAnimal</foodType>
-      </value>
-    </nomatch>
+    <value>
+      <foodType>CarnivoreAnimal, OvivoreAnimal</foodType>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/roamMtbDays</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/roamMtbDays</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/leatherDef</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/leatherDef</xpath>
-      <value>
-        <leatherDef>Leather_Wolf</leatherDef>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race</xpath>
-      <value>
-        <leatherDef>Leather_Wolf</leatherDef>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/useLeatherFrom</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/useLeatherFrom</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/manhunterOnTameFailChance</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/manhunterOnTameFailChance</xpath>
-      <value>
-        <manhunterOnTameFailChance>0.1</manhunterOnTameFailChance>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race</xpath>
-      <value>
-        <manhunterOnTameFailChance>0.1</manhunterOnTameFailChance>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/manhunterOnDamageChance</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/manhunterOnDamageChance</xpath>
-      <value>
-        <manhunterOnDamageChance>0.3</manhunterOnDamageChance>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race</xpath>
-      <value>
-        <manhunterOnDamageChance>0.3</manhunterOnDamageChance>
-      </value>
-    </nomatch>
+    <value>
+      <manhunterOnDamageChance>0.3</manhunterOnDamageChance>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationRemove">
     <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/petness</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/petness</xpath>
-    </match>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/nuzzleMtbHours</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/nuzzleMtbHours</xpath>
-      <value>
-        <nuzzleMtbHours>48</nuzzleMtbHours>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race</xpath>
-      <value>
-        <nuzzleMtbHours>48</nuzzleMtbHours>
-      </value>
-    </nomatch>
+    <value>
+      <nuzzleMtbHours>48</nuzzleMtbHours>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/mateMtbHours</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/mateMtbHours</xpath>
-      <value>
-        <mateMtbHours>12</mateMtbHours>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race</xpath>
-      <value>
-        <mateMtbHours>12</mateMtbHours>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/trainability</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/trainability</xpath>
-      <value>
-        <trainability>Advanced</trainability>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race</xpath>
-      <value>
-        <trainability>Advanced</trainability>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/packAnimal</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/packAnimal</xpath>
-      <value>
-        <packAnimal>false</packAnimal>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race</xpath>
-      <value>
-        <packAnimal>false</packAnimal>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/predator</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/predator</xpath>
-      <value>
-        <predator>true</predator>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race</xpath>
-      <value>
-        <predator>true</predator>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/maxPreyBodySize</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/maxPreyBodySize</xpath>
-      <value>
-        <maxPreyBodySize>0.5</maxPreyBodySize>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race</xpath>
-      <value>
-        <maxPreyBodySize>0.5</maxPreyBodySize>
-      </value>
-    </nomatch>
+    <value>
+      <maxPreyBodySize>0.5</maxPreyBodySize>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/nameOnTameChance</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/nameOnTameChance</xpath>
-      <value>
-        <nameOnTameChance>1</nameOnTameChance>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race</xpath>
-      <value>
-        <nameOnTameChance>1</nameOnTameChance>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/body</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/body</xpath>
-      <value>
-        <body>QuadrupedAnimalWithPawsAndTail</body>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race</xpath>
-      <value>
-        <body>QuadrupedAnimalWithPawsAndTail</body>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/waterCellCost</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/waterCellCost</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/waterSeeker</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/waterSeeker</xpath>
-      <value>
-        <waterSeeker>false</waterSeeker>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race</xpath>
-      <value>
-        <waterSeeker>false</waterSeeker>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/canFishForFood</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/canFishForFood</xpath>
-      <value>
-        <canFishForFood>false</canFishForFood>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race</xpath>
-      <value>
-        <canFishForFood>false</canFishForFood>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/useMeatFrom</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/useMeatFrom</xpath>
-      <value>
-        <useMeatFrom>Wolf_Timber</useMeatFrom>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race</xpath>
-      <value>
-        <useMeatFrom>Wolf_Timber</useMeatFrom>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationRemove">
     <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/wildBiomes</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/wildBiomes</xpath>
-    </match>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/lifeStageAges</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/lifeStageAges</xpath>
-      <value>
-        <lifeStageAges>
-          <li>
-            <def>AnimalBaby</def>
-            <minAge>0</minAge>
-          </li>
-          <li>
-            <def>AnimalJuvenile</def>
-            <minAge>0.15</minAge>
-          </li>
-          <li>
-            <def>AnimalAdult</def>
-            <minAge>0.3</minAge>
-            <soundWounded>Pawn_Warg_Wounded</soundWounded>
-            <soundDeath>Pawn_Warg_Death</soundDeath>
-            <soundCall>Pawn_Warg_Call</soundCall>
-            <soundAngry>Pawn_Warg_Angry</soundAngry>
-          </li>
-        </lifeStageAges>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race</xpath>
-      <value>
-        <lifeStageAges>
-          <li>
-            <def>AnimalBaby</def>
-            <minAge>0</minAge>
-          </li>
-          <li>
-            <def>AnimalJuvenile</def>
-            <minAge>0.15</minAge>
-          </li>
-          <li>
-            <def>AnimalAdult</def>
-            <minAge>0.3</minAge>
-            <soundWounded>Pawn_Warg_Wounded</soundWounded>
-            <soundDeath>Pawn_Warg_Death</soundDeath>
-            <soundCall>Pawn_Warg_Call</soundCall>
-            <soundAngry>Pawn_Warg_Angry</soundAngry>
-          </li>
-        </lifeStageAges>
-      </value>
-    </nomatch>
+    <value>
+      <lifeStageAges>
+        <li>
+          <def>AnimalBaby</def>
+          <minAge>0</minAge>
+        </li>
+        <li>
+          <def>AnimalJuvenile</def>
+          <minAge>0.15</minAge>
+        </li>
+        <li>
+          <def>AnimalAdult</def>
+          <minAge>0.3</minAge>
+          <soundWounded>Pawn_Warg_Wounded</soundWounded>
+          <soundDeath>Pawn_Warg_Death</soundDeath>
+          <soundCall>Pawn_Warg_Call</soundCall>
+          <soundAngry>Pawn_Warg_Angry</soundAngry>
+        </li>
+      </lifeStageAges>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/litterSizeCurve</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/litterSizeCurve</xpath>
-      <value>
-        <litterSizeCurve>
-          <points>
-            <li>(1.2000, 0)</li>
-            <li>(2.4000, 0.2)</li>
-            <li>(4.8000, 1)</li>
-            <li>(7.2000, 1)</li>
-            <li>(9.6000, 0.2)</li>
-            <li>(10.8000, 0)</li>
-          </points>
-        </litterSizeCurve>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race</xpath>
-      <value>
-        <litterSizeCurve>
-          <points>
-            <li>(1.2000, 0)</li>
-            <li>(2.4000, 0.2)</li>
-            <li>(4.8000, 1)</li>
-            <li>(7.2000, 1)</li>
-            <li>(9.6000, 0.2)</li>
-            <li>(10.8000, 0)</li>
-          </points>
-        </litterSizeCurve>
-      </value>
-    </nomatch>
+    <value>
+      <litterSizeCurve>
+        <points>
+          <li>(1.2000, 0)</li>
+          <li>(2.4000, 0.2)</li>
+          <li>(4.8000, 1)</li>
+          <li>(7.2000, 1)</li>
+          <li>(9.6000, 0.2)</li>
+          <li>(10.8000, 0)</li>
+        </points>
+      </litterSizeCurve>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/specialTrainables</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/specialTrainables</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/tradeTags/li[text()="AnimalCommon" or text()="AnimalUncommon" or text()="AnimalExotic" or text()="AnimalFighter" or text()="AnimalInsect" or text()="AnimalPet" or text()="AnimalFarm"]</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/tradeTags/li[text()="AnimalCommon" or text()="AnimalUncommon" or text()="AnimalExotic" or text()="AnimalFighter" or text()="AnimalInsect" or text()="AnimalPet" or text()="AnimalFarm"]</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationAdd">
     <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/tradeTags</xpath>
-    <match Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/tradeTags</xpath>
-      <value>
-        <li>AnimalCommon</li>
-        <li>AnimalFighter</li>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]</xpath>
-      <value>
-        <tradeTags>
-          <li>AnimalCommon</li>
-          <li>AnimalFighter</li>
-        </tradeTags>
-      </value>
-    </nomatch>
+    <value>
+      <li>AnimalFighter</li>
+    </value>
   </Operation>
   <Operation Class="PatchOperationAddModExtension">
     <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]</xpath>
@@ -650,201 +199,65 @@
     </value>
   </Operation>
   <!-- AEXP_Coyote PawnKindDef -->
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "AEXP_Coyote"]/combatPower</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/PawnKindDef[defName = "AEXP_Coyote"]/combatPower</xpath>
-      <value>
-        <combatPower>70</combatPower>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/PawnKindDef[defName = "AEXP_Coyote"]</xpath>
-      <value>
-        <combatPower>70</combatPower>
-      </value>
-    </nomatch>
+    <value>
+      <combatPower>70</combatPower>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "AEXP_Coyote"]/ecoSystemWeight</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/PawnKindDef[defName = "AEXP_Coyote"]/ecoSystemWeight</xpath>
-      <value>
-        <ecoSystemWeight>0.4</ecoSystemWeight>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/PawnKindDef[defName = "AEXP_Coyote"]</xpath>
-      <value>
-        <ecoSystemWeight>0.4</ecoSystemWeight>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/PawnKindDef[defName = "AEXP_Coyote"]/canArriveManhunter</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/PawnKindDef[defName = "AEXP_Coyote"]/canArriveManhunter</xpath>
-      <value>
-        <canArriveManhunter>true</canArriveManhunter>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/PawnKindDef[defName = "AEXP_Coyote"]</xpath>
-      <value>
-        <canArriveManhunter>true</canArriveManhunter>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/PawnKindDef[defName = "AEXP_Coyote"]/wildGroupSize</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/PawnKindDef[defName = "AEXP_Coyote"]/wildGroupSize</xpath>
-      <value>
-        <wildGroupSize>2~6</wildGroupSize>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/PawnKindDef[defName = "AEXP_Coyote"]</xpath>
-      <value>
-        <wildGroupSize>2~6</wildGroupSize>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/PawnKindDef[defName = "AEXP_Coyote"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/PawnKindDef[defName = "AEXP_Coyote"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
-    </match>
-  </Operation>
-  <!-- AEXP_ArcticCoyote -->
-  <Operation Class="PatchOperationAttributeSet">
-    <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]</xpath>
-    <attribute>ParentName</attribute>
-    <value>AnimalThingBase</value>
-  </Operation>
-  <Operation Class="PatchOperationAttributeSet">
-    <xpath>/Defs/PawnKindDef[defName = "AEXP_ArcticCoyote"]</xpath>
-    <attribute>ParentName</attribute>
-    <value>AnimalKindBase</value>
-  </Operation>
-  <!-- AEXP_ArcticCoyote StatBases -->
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/statBases/MarketValue</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/statBases/MarketValue</xpath>
-      <value>
-        <MarketValue>200</MarketValue>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/statBases</xpath>
-      <value>
-        <MarketValue>200</MarketValue>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/statBases/MoveSpeed</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/statBases/MoveSpeed</xpath>
-      <value>
-        <MoveSpeed>8.5</MoveSpeed>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/statBases</xpath>
-      <value>
-        <MoveSpeed>8.5</MoveSpeed>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/statBases/Wildness</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/statBases/Wildness</xpath>
-      <value>
-        <Wildness>0.65</Wildness>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/statBases</xpath>
-      <value>
-        <Wildness>0.65</Wildness>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/statBases/FilthRate</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/statBases/FilthRate</xpath>
-      <value>
-        <FilthRate>1</FilthRate>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/statBases</xpath>
-      <value>
-        <FilthRate>1</FilthRate>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/statBases/ComfyTemperatureMin</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/statBases/ComfyTemperatureMin</xpath>
-      <value>
-        <ComfyTemperatureMin>-45</ComfyTemperatureMin>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/statBases</xpath>
-      <value>
-        <ComfyTemperatureMin>-45</ComfyTemperatureMin>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/statBases/ComfyTemperatureMax</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/statBases/ComfyTemperatureMax</xpath>
-      <value>
-        <ComfyTemperatureMax>35</ComfyTemperatureMax>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/statBases</xpath>
-      <value>
-        <ComfyTemperatureMax>35</ComfyTemperatureMax>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/statBases/ArmorRating_Blunt</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/statBases/ArmorRating_Blunt</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/statBases/ArmorRating_Sharp</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/statBases/ArmorRating_Sharp</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/statBases/ToxicEnvironmentResistance</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/statBases/ToxicEnvironmentResistance</xpath>
-    </match>
-  </Operation>
-  <!-- AEXP_ArcticCoyote tools -->
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/tools</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/tools</xpath>
-    </match>
+    <value>
+      <ecoSystemWeight>0.4</ecoSystemWeight>
+    </value>
   </Operation>
   <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]</xpath>
+    <xpath>/Defs/PawnKindDef[defName = "AEXP_Coyote"]</xpath>
+    <value>
+      <wildGroupSize>2~6</wildGroupSize>
+    </value>
+  </Operation>
+  <!-- AEXP_ArcticCoyote -->
+  <!-- AEXP_ArcticCoyote StatBases -->
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/statBases/MarketValue</xpath>
+    <value>
+      <MarketValue>200</MarketValue>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/statBases/MoveSpeed</xpath>
+    <value>
+      <MoveSpeed>8.5</MoveSpeed>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/statBases/Wildness</xpath>
+    <value>
+      <Wildness>0.65</Wildness>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/statBases/FilthRate</xpath>
+    <value>
+      <FilthRate>1</FilthRate>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/statBases/ComfyTemperatureMin</xpath>
+    <value>
+      <ComfyTemperatureMin>-45</ComfyTemperatureMin>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/statBases</xpath>
+    <value>
+      <ComfyTemperatureMax>35</ComfyTemperatureMax>
+    </value>
+  </Operation>
+  <!-- AEXP_ArcticCoyote tools -->
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/tools</xpath>
     <value>
       <tools>
         <li>
@@ -879,478 +292,115 @@
     </value>
   </Operation>
   <!-- AEXP_ArcticCoyote RaceProperties -->
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/baseBodySize</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/baseBodySize</xpath>
-      <value>
-        <baseBodySize>0.5</baseBodySize>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race</xpath>
-      <value>
-        <baseBodySize>0.5</baseBodySize>
-      </value>
-    </nomatch>
+    <value>
+      <baseBodySize>0.5</baseBodySize>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/baseHealthScale</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/baseHealthScale</xpath>
-      <value>
-        <baseHealthScale>0.6</baseHealthScale>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race</xpath>
-      <value>
-        <baseHealthScale>0.6</baseHealthScale>
-      </value>
-    </nomatch>
+    <value>
+      <baseHealthScale>0.6</baseHealthScale>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/baseHungerRate</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/baseHungerRate</xpath>
-      <value>
-        <baseHungerRate>0.4</baseHungerRate>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race</xpath>
-      <value>
-        <baseHungerRate>0.4</baseHungerRate>
-      </value>
-    </nomatch>
+    <value>
+      <baseHungerRate>0.4</baseHungerRate>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/lifeExpectancy</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/lifeExpectancy</xpath>
-      <value>
-        <lifeExpectancy>12</lifeExpectancy>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race</xpath>
-      <value>
-        <lifeExpectancy>12</lifeExpectancy>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/gestationPeriodDays</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/gestationPeriodDays</xpath>
-      <value>
-        <gestationPeriodDays>6.5</gestationPeriodDays>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race</xpath>
-      <value>
-        <gestationPeriodDays>6.5</gestationPeriodDays>
-      </value>
-    </nomatch>
+    <value>
+      <gestationPeriodDays>6.5</gestationPeriodDays>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/herdAnimal</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/herdAnimal</xpath>
-      <value>
-        <herdAnimal>true</herdAnimal>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race</xpath>
-      <value>
-        <herdAnimal>true</herdAnimal>
-      </value>
-    </nomatch>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race</xpath>
+    <value>
+      <herdAnimal>true</herdAnimal>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/herdMigrationAllowed</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/herdMigrationAllowed</xpath>
-      <value>
-        <herdMigrationAllowed>false</herdMigrationAllowed>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race</xpath>
-      <value>
-        <herdMigrationAllowed>false</herdMigrationAllowed>
-      </value>
-    </nomatch>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race</xpath>
+    <value>
+      <herdMigrationAllowed>false</herdMigrationAllowed>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/foodType</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/foodType</xpath>
-      <value>
-        <foodType>CarnivoreAnimal, OvivoreAnimal</foodType>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race</xpath>
-      <value>
-        <foodType>CarnivoreAnimal, OvivoreAnimal</foodType>
-      </value>
-    </nomatch>
+    <value>
+      <foodType>CarnivoreAnimal, OvivoreAnimal</foodType>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/roamMtbDays</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/roamMtbDays</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/leatherDef</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/leatherDef</xpath>
-      <value>
-        <leatherDef>Leather_Wolf</leatherDef>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race</xpath>
-      <value>
-        <leatherDef>Leather_Wolf</leatherDef>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/useLeatherFrom</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/useLeatherFrom</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/manhunterOnTameFailChance</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/manhunterOnTameFailChance</xpath>
-      <value>
-        <manhunterOnTameFailChance>0.1</manhunterOnTameFailChance>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race</xpath>
-      <value>
-        <manhunterOnTameFailChance>0.1</manhunterOnTameFailChance>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/manhunterOnDamageChance</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/manhunterOnDamageChance</xpath>
-      <value>
-        <manhunterOnDamageChance>0.3</manhunterOnDamageChance>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race</xpath>
-      <value>
-        <manhunterOnDamageChance>0.3</manhunterOnDamageChance>
-      </value>
-    </nomatch>
+    <value>
+      <manhunterOnDamageChance>0.3</manhunterOnDamageChance>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationRemove">
     <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/petness</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/petness</xpath>
-    </match>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/nuzzleMtbHours</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/nuzzleMtbHours</xpath>
-      <value>
-        <nuzzleMtbHours>48</nuzzleMtbHours>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race</xpath>
-      <value>
-        <nuzzleMtbHours>48</nuzzleMtbHours>
-      </value>
-    </nomatch>
+    <value>
+      <nuzzleMtbHours>48</nuzzleMtbHours>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/mateMtbHours</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/mateMtbHours</xpath>
-      <value>
-        <mateMtbHours>12</mateMtbHours>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race</xpath>
-      <value>
-        <mateMtbHours>12</mateMtbHours>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/trainability</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/trainability</xpath>
-      <value>
-        <trainability>Advanced</trainability>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race</xpath>
-      <value>
-        <trainability>Advanced</trainability>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/packAnimal</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/packAnimal</xpath>
-      <value>
-        <packAnimal>false</packAnimal>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race</xpath>
-      <value>
-        <packAnimal>false</packAnimal>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/predator</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/predator</xpath>
-      <value>
-        <predator>true</predator>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race</xpath>
-      <value>
-        <predator>true</predator>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/maxPreyBodySize</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/maxPreyBodySize</xpath>
-      <value>
-        <maxPreyBodySize>0.5</maxPreyBodySize>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race</xpath>
-      <value>
-        <maxPreyBodySize>0.5</maxPreyBodySize>
-      </value>
-    </nomatch>
+    <value>
+      <maxPreyBodySize>0.5</maxPreyBodySize>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/nameOnTameChance</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/nameOnTameChance</xpath>
-      <value>
-        <nameOnTameChance>1</nameOnTameChance>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race</xpath>
-      <value>
-        <nameOnTameChance>1</nameOnTameChance>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/body</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/body</xpath>
-      <value>
-        <body>QuadrupedAnimalWithPawsAndTail</body>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race</xpath>
-      <value>
-        <body>QuadrupedAnimalWithPawsAndTail</body>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/waterCellCost</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/waterCellCost</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/waterSeeker</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/waterSeeker</xpath>
-      <value>
-        <waterSeeker>false</waterSeeker>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race</xpath>
-      <value>
-        <waterSeeker>false</waterSeeker>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/canFishForFood</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/canFishForFood</xpath>
-      <value>
-        <canFishForFood>false</canFishForFood>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race</xpath>
-      <value>
-        <canFishForFood>false</canFishForFood>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/useMeatFrom</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/useMeatFrom</xpath>
-      <value>
-        <useMeatFrom>Wolf_Timber</useMeatFrom>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race</xpath>
-      <value>
-        <useMeatFrom>Wolf_Timber</useMeatFrom>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationRemove">
     <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/wildBiomes</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/wildBiomes</xpath>
-    </match>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/lifeStageAges</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/lifeStageAges</xpath>
-      <value>
-        <lifeStageAges>
-          <li>
-            <def>AnimalBaby</def>
-            <minAge>0</minAge>
-          </li>
-          <li>
-            <def>AnimalJuvenile</def>
-            <minAge>0.15</minAge>
-          </li>
-          <li>
-            <def>AnimalAdult</def>
-            <minAge>0.3</minAge>
-            <soundWounded>Pawn_Warg_Wounded</soundWounded>
-            <soundDeath>Pawn_Warg_Death</soundDeath>
-            <soundCall>Pawn_Warg_Call</soundCall>
-            <soundAngry>Pawn_Warg_Angry</soundAngry>
-          </li>
-        </lifeStageAges>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race</xpath>
-      <value>
-        <lifeStageAges>
-          <li>
-            <def>AnimalBaby</def>
-            <minAge>0</minAge>
-          </li>
-          <li>
-            <def>AnimalJuvenile</def>
-            <minAge>0.15</minAge>
-          </li>
-          <li>
-            <def>AnimalAdult</def>
-            <minAge>0.3</minAge>
-            <soundWounded>Pawn_Warg_Wounded</soundWounded>
-            <soundDeath>Pawn_Warg_Death</soundDeath>
-            <soundCall>Pawn_Warg_Call</soundCall>
-            <soundAngry>Pawn_Warg_Angry</soundAngry>
-          </li>
-        </lifeStageAges>
-      </value>
-    </nomatch>
+    <value>
+      <lifeStageAges>
+        <li>
+          <def>AnimalBaby</def>
+          <minAge>0</minAge>
+        </li>
+        <li>
+          <def>AnimalJuvenile</def>
+          <minAge>0.15</minAge>
+        </li>
+        <li>
+          <def>AnimalAdult</def>
+          <minAge>0.3</minAge>
+          <soundWounded>Pawn_Warg_Wounded</soundWounded>
+          <soundDeath>Pawn_Warg_Death</soundDeath>
+          <soundCall>Pawn_Warg_Call</soundCall>
+          <soundAngry>Pawn_Warg_Angry</soundAngry>
+        </li>
+      </lifeStageAges>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/litterSizeCurve</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/litterSizeCurve</xpath>
-      <value>
-        <litterSizeCurve>
-          <points>
-            <li>(1.2000, 0)</li>
-            <li>(2.4000, 0.2)</li>
-            <li>(4.8000, 1)</li>
-            <li>(7.2000, 1)</li>
-            <li>(9.6000, 0.2)</li>
-            <li>(10.8000, 0)</li>
-          </points>
-        </litterSizeCurve>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race</xpath>
-      <value>
-        <litterSizeCurve>
-          <points>
-            <li>(1.2000, 0)</li>
-            <li>(2.4000, 0.2)</li>
-            <li>(4.8000, 1)</li>
-            <li>(7.2000, 1)</li>
-            <li>(9.6000, 0.2)</li>
-            <li>(10.8000, 0)</li>
-          </points>
-        </litterSizeCurve>
-      </value>
-    </nomatch>
+    <value>
+      <litterSizeCurve>
+        <points>
+          <li>(1.2000, 0)</li>
+          <li>(2.4000, 0.2)</li>
+          <li>(4.8000, 1)</li>
+          <li>(7.2000, 1)</li>
+          <li>(9.6000, 0.2)</li>
+          <li>(10.8000, 0)</li>
+        </points>
+      </litterSizeCurve>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/specialTrainables</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/specialTrainables</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/tradeTags/li[text()="AnimalCommon" or text()="AnimalUncommon" or text()="AnimalExotic" or text()="AnimalFighter" or text()="AnimalInsect" or text()="AnimalPet" or text()="AnimalFarm"]</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/tradeTags/li[text()="AnimalCommon" or text()="AnimalUncommon" or text()="AnimalExotic" or text()="AnimalFighter" or text()="AnimalInsect" or text()="AnimalPet" or text()="AnimalFarm"]</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationAdd">
     <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/tradeTags</xpath>
-    <match Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/tradeTags</xpath>
-      <value>
-        <li>AnimalCommon</li>
-        <li>AnimalFighter</li>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]</xpath>
-      <value>
-        <tradeTags>
-          <li>AnimalCommon</li>
-          <li>AnimalFighter</li>
-        </tradeTags>
-      </value>
-    </nomatch>
+    <value>
+      <li>AnimalFighter</li>
+    </value>
   </Operation>
   <Operation Class="PatchOperationAddModExtension">
     <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]</xpath>
@@ -1365,201 +415,65 @@
     </value>
   </Operation>
   <!-- AEXP_ArcticCoyote PawnKindDef -->
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "AEXP_ArcticCoyote"]/combatPower</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/PawnKindDef[defName = "AEXP_ArcticCoyote"]/combatPower</xpath>
-      <value>
-        <combatPower>70</combatPower>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/PawnKindDef[defName = "AEXP_ArcticCoyote"]</xpath>
-      <value>
-        <combatPower>70</combatPower>
-      </value>
-    </nomatch>
+    <value>
+      <combatPower>70</combatPower>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "AEXP_ArcticCoyote"]/ecoSystemWeight</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/PawnKindDef[defName = "AEXP_ArcticCoyote"]/ecoSystemWeight</xpath>
-      <value>
-        <ecoSystemWeight>0.4</ecoSystemWeight>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/PawnKindDef[defName = "AEXP_ArcticCoyote"]</xpath>
-      <value>
-        <ecoSystemWeight>0.4</ecoSystemWeight>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/PawnKindDef[defName = "AEXP_ArcticCoyote"]/canArriveManhunter</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/PawnKindDef[defName = "AEXP_ArcticCoyote"]/canArriveManhunter</xpath>
-      <value>
-        <canArriveManhunter>true</canArriveManhunter>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/PawnKindDef[defName = "AEXP_ArcticCoyote"]</xpath>
-      <value>
-        <canArriveManhunter>true</canArriveManhunter>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/PawnKindDef[defName = "AEXP_ArcticCoyote"]/wildGroupSize</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/PawnKindDef[defName = "AEXP_ArcticCoyote"]/wildGroupSize</xpath>
-      <value>
-        <wildGroupSize>2~6</wildGroupSize>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/PawnKindDef[defName = "AEXP_ArcticCoyote"]</xpath>
-      <value>
-        <wildGroupSize>2~6</wildGroupSize>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/PawnKindDef[defName = "AEXP_ArcticCoyote"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/PawnKindDef[defName = "AEXP_ArcticCoyote"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
-    </match>
-  </Operation>
-  <!-- AEXP_Hyena -->
-  <Operation Class="PatchOperationAttributeSet">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]</xpath>
-    <attribute>ParentName</attribute>
-    <value>AnimalThingBase</value>
-  </Operation>
-  <Operation Class="PatchOperationAttributeSet">
-    <xpath>/Defs/PawnKindDef[defName = "AEXP_Hyena"]</xpath>
-    <attribute>ParentName</attribute>
-    <value>AnimalKindBase</value>
-  </Operation>
-  <!-- AEXP_Hyena StatBases -->
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/statBases/MarketValue</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/statBases/MarketValue</xpath>
-      <value>
-        <MarketValue>550</MarketValue>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/statBases</xpath>
-      <value>
-        <MarketValue>550</MarketValue>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/statBases/MoveSpeed</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/statBases/MoveSpeed</xpath>
-      <value>
-        <MoveSpeed>8.5</MoveSpeed>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/statBases</xpath>
-      <value>
-        <MoveSpeed>8.5</MoveSpeed>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/statBases/Wildness</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/statBases/Wildness</xpath>
-      <value>
-        <Wildness>0.75</Wildness>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/statBases</xpath>
-      <value>
-        <Wildness>0.75</Wildness>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/statBases/FilthRate</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/statBases/FilthRate</xpath>
-      <value>
-        <FilthRate>1</FilthRate>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/statBases</xpath>
-      <value>
-        <FilthRate>1</FilthRate>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/statBases/ComfyTemperatureMin</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/statBases/ComfyTemperatureMin</xpath>
-      <value>
-        <ComfyTemperatureMin>-25</ComfyTemperatureMin>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/statBases</xpath>
-      <value>
-        <ComfyTemperatureMin>-25</ComfyTemperatureMin>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/statBases/ComfyTemperatureMax</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/statBases/ComfyTemperatureMax</xpath>
-      <value>
-        <ComfyTemperatureMax>50</ComfyTemperatureMax>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/statBases</xpath>
-      <value>
-        <ComfyTemperatureMax>50</ComfyTemperatureMax>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/statBases/ArmorRating_Blunt</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/statBases/ArmorRating_Blunt</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/statBases/ArmorRating_Sharp</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/statBases/ArmorRating_Sharp</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/statBases/ToxicEnvironmentResistance</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/statBases/ToxicEnvironmentResistance</xpath>
-    </match>
-  </Operation>
-  <!-- AEXP_Hyena tools -->
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/tools</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/tools</xpath>
-    </match>
+    <value>
+      <ecoSystemWeight>0.4</ecoSystemWeight>
+    </value>
   </Operation>
   <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]</xpath>
+    <xpath>/Defs/PawnKindDef[defName = "AEXP_ArcticCoyote"]</xpath>
+    <value>
+      <wildGroupSize>2~6</wildGroupSize>
+    </value>
+  </Operation>
+  <!-- AEXP_Hyena -->
+  <!-- AEXP_Hyena StatBases -->
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/statBases/MarketValue</xpath>
+    <value>
+      <MarketValue>550</MarketValue>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/statBases/MoveSpeed</xpath>
+    <value>
+      <MoveSpeed>8.5</MoveSpeed>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/statBases/Wildness</xpath>
+    <value>
+      <Wildness>0.75</Wildness>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/statBases/FilthRate</xpath>
+    <value>
+      <FilthRate>1</FilthRate>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/statBases/ComfyTemperatureMin</xpath>
+    <value>
+      <ComfyTemperatureMin>-25</ComfyTemperatureMin>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/statBases</xpath>
+    <value>
+      <ComfyTemperatureMax>50</ComfyTemperatureMax>
+    </value>
+  </Operation>
+  <!-- AEXP_Hyena tools -->
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/tools</xpath>
     <value>
       <tools>
         <li>
@@ -1594,468 +508,138 @@
     </value>
   </Operation>
   <!-- AEXP_Hyena RaceProperties -->
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/baseBodySize</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/baseBodySize</xpath>
-      <value>
-        <baseBodySize>0.95</baseBodySize>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race</xpath>
-      <value>
-        <baseBodySize>0.95</baseBodySize>
-      </value>
-    </nomatch>
+    <value>
+      <baseBodySize>0.95</baseBodySize>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/baseHealthScale</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/baseHealthScale</xpath>
-      <value>
-        <baseHealthScale>1.15</baseHealthScale>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race</xpath>
-      <value>
-        <baseHealthScale>1.15</baseHealthScale>
-      </value>
-    </nomatch>
+    <value>
+      <baseHealthScale>1.15</baseHealthScale>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/baseHungerRate</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/baseHungerRate</xpath>
-      <value>
-        <baseHungerRate>0.55</baseHungerRate>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race</xpath>
-      <value>
-        <baseHungerRate>0.55</baseHungerRate>
-      </value>
-    </nomatch>
+    <value>
+      <baseHungerRate>0.55</baseHungerRate>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/lifeExpectancy</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/lifeExpectancy</xpath>
-      <value>
-        <lifeExpectancy>25</lifeExpectancy>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race</xpath>
-      <value>
-        <lifeExpectancy>25</lifeExpectancy>
-      </value>
-    </nomatch>
+    <value>
+      <lifeExpectancy>25</lifeExpectancy>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/gestationPeriodDays</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/gestationPeriodDays</xpath>
-      <value>
-        <gestationPeriodDays>7.5</gestationPeriodDays>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race</xpath>
-      <value>
-        <gestationPeriodDays>7.5</gestationPeriodDays>
-      </value>
-    </nomatch>
+    <value>
+      <gestationPeriodDays>7.5</gestationPeriodDays>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/herdAnimal</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/herdAnimal</xpath>
-      <value>
-        <herdAnimal>true</herdAnimal>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race</xpath>
-      <value>
-        <herdAnimal>true</herdAnimal>
-      </value>
-    </nomatch>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race</xpath>
+    <value>
+      <herdAnimal>true</herdAnimal>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/herdMigrationAllowed</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/herdMigrationAllowed</xpath>
-      <value>
-        <herdMigrationAllowed>false</herdMigrationAllowed>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race</xpath>
-      <value>
-        <herdMigrationAllowed>false</herdMigrationAllowed>
-      </value>
-    </nomatch>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race</xpath>
+    <value>
+      <herdMigrationAllowed>false</herdMigrationAllowed>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/foodType</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/foodType</xpath>
-      <value>
-        <foodType>CarnivoreAnimal, OvivoreAnimal</foodType>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race</xpath>
-      <value>
-        <foodType>CarnivoreAnimal, OvivoreAnimal</foodType>
-      </value>
-    </nomatch>
+    <value>
+      <foodType>CarnivoreAnimal, OvivoreAnimal</foodType>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/roamMtbDays</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/roamMtbDays</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/leatherDef</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/leatherDef</xpath>
-      <value>
-        <leatherDef>Leather_Dog</leatherDef>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race</xpath>
-      <value>
-        <leatherDef>Leather_Dog</leatherDef>
-      </value>
-    </nomatch>
+    <value>
+      <leatherDef>Leather_Dog</leatherDef>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/useLeatherFrom</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/useLeatherFrom</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/manhunterOnTameFailChance</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/manhunterOnTameFailChance</xpath>
-      <value>
-        <manhunterOnTameFailChance>0.1</manhunterOnTameFailChance>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race</xpath>
-      <value>
-        <manhunterOnTameFailChance>0.1</manhunterOnTameFailChance>
-      </value>
-    </nomatch>
+    <value>
+      <manhunterOnTameFailChance>0.1</manhunterOnTameFailChance>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/manhunterOnDamageChance</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/manhunterOnDamageChance</xpath>
-      <value>
-        <manhunterOnDamageChance>0.3</manhunterOnDamageChance>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race</xpath>
-      <value>
-        <manhunterOnDamageChance>0.3</manhunterOnDamageChance>
-      </value>
-    </nomatch>
+    <value>
+      <manhunterOnDamageChance>0.3</manhunterOnDamageChance>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationRemove">
     <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/petness</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/petness</xpath>
-    </match>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationRemove">
     <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/nuzzleMtbHours</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/nuzzleMtbHours</xpath>
-    </match>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/mateMtbHours</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/mateMtbHours</xpath>
-      <value>
-        <mateMtbHours>12</mateMtbHours>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race</xpath>
-      <value>
-        <mateMtbHours>12</mateMtbHours>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/trainability</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/trainability</xpath>
-      <value>
-        <trainability>Advanced</trainability>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race</xpath>
-      <value>
-        <trainability>Advanced</trainability>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/packAnimal</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/packAnimal</xpath>
-      <value>
-        <packAnimal>false</packAnimal>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race</xpath>
-      <value>
-        <packAnimal>false</packAnimal>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/predator</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/predator</xpath>
-      <value>
-        <predator>true</predator>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race</xpath>
-      <value>
-        <predator>true</predator>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/maxPreyBodySize</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/maxPreyBodySize</xpath>
-      <value>
-        <maxPreyBodySize>2.5</maxPreyBodySize>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race</xpath>
-      <value>
-        <maxPreyBodySize>2.5</maxPreyBodySize>
-      </value>
-    </nomatch>
+    <value>
+      <maxPreyBodySize>2.5</maxPreyBodySize>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/nameOnTameChance</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/nameOnTameChance</xpath>
-      <value>
-        <nameOnTameChance>1</nameOnTameChance>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race</xpath>
-      <value>
-        <nameOnTameChance>1</nameOnTameChance>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/body</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/body</xpath>
-      <value>
-        <body>QuadrupedAnimalWithPawsAndTail</body>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race</xpath>
-      <value>
-        <body>QuadrupedAnimalWithPawsAndTail</body>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/waterCellCost</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/waterCellCost</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/waterSeeker</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/waterSeeker</xpath>
-      <value>
-        <waterSeeker>false</waterSeeker>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race</xpath>
-      <value>
-        <waterSeeker>false</waterSeeker>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/canFishForFood</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/canFishForFood</xpath>
-      <value>
-        <canFishForFood>false</canFishForFood>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race</xpath>
-      <value>
-        <canFishForFood>false</canFishForFood>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/useMeatFrom</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/useMeatFrom</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationRemove">
     <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/wildBiomes</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/wildBiomes</xpath>
-    </match>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/lifeStageAges/li[2]</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/lifeStageAges/li[2]/def</xpath>
-      <value>
-        <def>AnimalJuvenile</def>
-      </value>
-    </match>
-    <nomatch/>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/lifeStageAges</xpath>
+    <value>
+      <lifeStageAges>
+        <li>
+          <def>AnimalBaby</def>
+          <minAge>0</minAge>
+        </li>
+        <li>
+          <def>AnimalJuvenile</def>
+          <minAge>0.2</minAge>
+        </li>
+        <li>
+          <def>AnimalAdult</def>
+          <minAge>0.4</minAge>
+          <soundWounded>AEXP_Pawn_Hyena_Wounded</soundWounded>
+          <soundDeath>AEXP_Pawn_Hyena_Death</soundDeath>
+          <soundCall>AEXP_Pawn_Hyena_Call</soundCall>
+          <soundAngry>AEXP_Pawn_Hyena_Angry</soundAngry>
+        </li>
+      </lifeStageAges>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/lifeStageAges/li[3]</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/lifeStageAges/li[3]/def</xpath>
-      <value>
-        <def>AnimalAdult</def>
-      </value>
-    </match>
-    <nomatch/>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/lifeStageAges/li[2]</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/lifeStageAges/li[2]/minAge</xpath>
-      <value>
-        <minAge>0.2</minAge>
-      </value>
-    </match>
-    <nomatch/>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/lifeStageAges/li[3]</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/lifeStageAges/li[3]/minAge</xpath>
-      <value>
-        <minAge>0.4</minAge>
-      </value>
-    </match>
-    <nomatch/>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/litterSizeCurve</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/litterSizeCurve</xpath>
-      <value>
-        <litterSizeCurve>
-          <points>
-            <li>(0.4000, 0)</li>
-            <li>(0.8000, 0.2)</li>
-            <li>(1.6000, 1)</li>
-            <li>(2.4000, 1)</li>
-            <li>(3.2000, 0.2)</li>
-            <li>(3.6000, 0)</li>
-          </points>
-        </litterSizeCurve>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race</xpath>
-      <value>
-        <litterSizeCurve>
-          <points>
-            <li>(0.4000, 0)</li>
-            <li>(0.8000, 0.2)</li>
-            <li>(1.6000, 1)</li>
-            <li>(2.4000, 1)</li>
-            <li>(3.2000, 0.2)</li>
-            <li>(3.6000, 0)</li>
-          </points>
-        </litterSizeCurve>
-      </value>
-    </nomatch>
+    <value>
+      <litterSizeCurve>
+        <points>
+          <li>(0.4000, 0)</li>
+          <li>(0.8000, 0.2)</li>
+          <li>(1.6000, 1)</li>
+          <li>(2.4000, 1)</li>
+          <li>(3.2000, 0.2)</li>
+          <li>(3.6000, 0)</li>
+        </points>
+      </litterSizeCurve>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/specialTrainables/li[text()="SludgeSpew" or text()="EggSpew" or text()="TerrorRoar" or text()="WarTrumpet" or text()="Forage" or text()="Comfort" or text()="AttackTarget" or text()="Dig"]</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/specialTrainables/li[text()="SludgeSpew" or text()="EggSpew" or text()="TerrorRoar" or text()="WarTrumpet" or text()="Forage" or text()="Comfort" or text()="AttackTarget" or text()="Dig"]</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/specialTrainables</xpath>
-    <match Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/specialTrainables</xpath>
-      <value>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race</xpath>
+    <value>
+      <specialTrainables>
         <li MayRequire="Ludeon.RimWorld.Odyssey">AttackTarget</li>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race</xpath>
-      <value>
-        <specialTrainables>
-          <li MayRequire="Ludeon.RimWorld.Odyssey">AttackTarget</li>
-        </specialTrainables>
-      </value>
-    </nomatch>
+      </specialTrainables>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/tradeTags/li[text()="AnimalCommon" or text()="AnimalUncommon" or text()="AnimalExotic" or text()="AnimalFighter" or text()="AnimalInsect" or text()="AnimalPet" or text()="AnimalFarm"]</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/tradeTags/li[text()="AnimalCommon" or text()="AnimalUncommon" or text()="AnimalExotic" or text()="AnimalFighter" or text()="AnimalInsect" or text()="AnimalPet" or text()="AnimalFarm"]</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationAdd">
     <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/tradeTags</xpath>
-    <match Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/tradeTags</xpath>
-      <value>
-        <li>AnimalCommon</li>
-        <li>AnimalFighter</li>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]</xpath>
-      <value>
-        <tradeTags>
-          <li>AnimalCommon</li>
-          <li>AnimalFighter</li>
-        </tradeTags>
-      </value>
-    </nomatch>
+    <value>
+      <li>AnimalFighter</li>
+    </value>
   </Operation>
   <Operation Class="PatchOperationAddModExtension">
     <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]</xpath>
@@ -2078,71 +662,23 @@
     </value>
   </Operation>
   <!-- AEXP_Hyena PawnKindDef -->
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "AEXP_Hyena"]/combatPower</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/PawnKindDef[defName = "AEXP_Hyena"]/combatPower</xpath>
-      <value>
-        <combatPower>115</combatPower>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/PawnKindDef[defName = "AEXP_Hyena"]</xpath>
-      <value>
-        <combatPower>115</combatPower>
-      </value>
-    </nomatch>
+    <value>
+      <combatPower>115</combatPower>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "AEXP_Hyena"]/ecoSystemWeight</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/PawnKindDef[defName = "AEXP_Hyena"]/ecoSystemWeight</xpath>
-      <value>
-        <ecoSystemWeight>0.65</ecoSystemWeight>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/PawnKindDef[defName = "AEXP_Hyena"]</xpath>
-      <value>
-        <ecoSystemWeight>0.65</ecoSystemWeight>
-      </value>
-    </nomatch>
+    <value>
+      <ecoSystemWeight>0.65</ecoSystemWeight>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/PawnKindDef[defName = "AEXP_Hyena"]/canArriveManhunter</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/PawnKindDef[defName = "AEXP_Hyena"]/canArriveManhunter</xpath>
-      <value>
-        <canArriveManhunter>true</canArriveManhunter>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/PawnKindDef[defName = "AEXP_Hyena"]</xpath>
-      <value>
-        <canArriveManhunter>true</canArriveManhunter>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "AEXP_Hyena"]/wildGroupSize</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/PawnKindDef[defName = "AEXP_Hyena"]/wildGroupSize</xpath>
-      <value>
-        <wildGroupSize>2~6</wildGroupSize>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/PawnKindDef[defName = "AEXP_Hyena"]</xpath>
-      <value>
-        <wildGroupSize>2~6</wildGroupSize>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/PawnKindDef[defName = "AEXP_Hyena"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/PawnKindDef[defName = "AEXP_Hyena"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
-    </match>
+    <value>
+      <wildGroupSize>2~6</wildGroupSize>
+    </value>
   </Operation>
   <!-- Combat Extended specific patches -->
   <Operation Class="PatchOperationFindMod">
@@ -2152,335 +688,64 @@
     <match Class="PatchOperationSequence">
       <operations>
         <!-- AEXP_Coyote CE patches -->
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="AEXP_Coyote"]/statBases/MeleeDodgeChance</xpath>
-          <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="AEXP_Coyote"]/statBases/MeleeDodgeChance</xpath>
-            <value>
-              <MeleeDodgeChance>0.65</MeleeDodgeChance>
-            </value>
-          </match>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="AEXP_Coyote"]/statBases</xpath>
-            <value>
-              <MeleeDodgeChance>0.65</MeleeDodgeChance>
-            </value>
-          </nomatch>
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="AEXP_Coyote"]/statBases</xpath>
+          <value>
+            <MeleeDodgeChance>0.65</MeleeDodgeChance>
+          </value>
         </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="AEXP_Coyote"]/statBases/MeleeCritChance</xpath>
-          <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="AEXP_Coyote"]/statBases/MeleeCritChance</xpath>
-            <value>
-              <MeleeCritChance>0.3</MeleeCritChance>
-            </value>
-          </match>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="AEXP_Coyote"]/statBases</xpath>
-            <value>
-              <MeleeCritChance>0.3</MeleeCritChance>
-            </value>
-          </nomatch>
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="AEXP_Coyote"]/statBases</xpath>
+          <value>
+            <MeleeCritChance>0.3</MeleeCritChance>
+          </value>
         </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="AEXP_Coyote"]/statBases/MeleeParryChance</xpath>
-          <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="AEXP_Coyote"]/statBases/MeleeParryChance</xpath>
-            <value>
-              <MeleeParryChance>0.05</MeleeParryChance>
-            </value>
-          </match>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="AEXP_Coyote"]/statBases</xpath>
-            <value>
-              <MeleeParryChance>0.05</MeleeParryChance>
-            </value>
-          </nomatch>
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="AEXP_Coyote"]/statBases</xpath>
+          <value>
+            <MeleeParryChance>0.05</MeleeParryChance>
+          </value>
         </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="AEXP_Coyote"]/statBases/ArmorRating_Sharp</xpath>
-          <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="AEXP_Coyote"]/statBases/ArmorRating_Sharp</xpath>
-            <value>
-              <ArmorRating_Sharp>0.05</ArmorRating_Sharp>
-            </value>
-          </match>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="AEXP_Coyote"]/statBases</xpath>
-            <value>
-              <ArmorRating_Sharp>0.05</ArmorRating_Sharp>
-            </value>
-          </nomatch>
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="AEXP_Coyote"]/statBases</xpath>
+          <value>
+            <ArmorRating_Sharp>0.05</ArmorRating_Sharp>
+          </value>
         </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="AEXP_Coyote"]/statBases/ArmorRating_Blunt</xpath>
-          <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="AEXP_Coyote"]/statBases/ArmorRating_Blunt</xpath>
-            <value>
-              <ArmorRating_Blunt>0.2</ArmorRating_Blunt>
-            </value>
-          </match>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="AEXP_Coyote"]/statBases</xpath>
-            <value>
-              <ArmorRating_Blunt>0.2</ArmorRating_Blunt>
-            </value>
-          </nomatch>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="AEXP_Coyote"]/comps</xpath>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="AEXP_Coyote"]</xpath>
-            <value>
-              <comps/>
-            </value>
-          </nomatch>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="AEXP_Coyote"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]</xpath>
-          <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="AEXP_Coyote"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]/Durability</xpath>
-            <value>
-              <Durability>275</Durability>
-            </value>
-          </match>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="AEXP_Coyote"]/comps</xpath>
-            <value>
-              <li Class="CombatExtended.CompProperties_ArmorDurability">
-                <Durability>275</Durability>
-                <Regenerates>true</Regenerates>
-                <RegenInterval>600</RegenInterval>
-                <RegenValue>5</RegenValue>
-                <MinArmorPct>0.5</MinArmorPct>
-              </li>
-            </value>
-          </nomatch>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="AEXP_Coyote"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
-          <match Class="PatchOperationSequence">
-            <operations>
-              <li Class="PatchOperationConditional">
-                <xpath>Defs/ThingDef[defName="AEXP_Coyote"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
-                <match Class="PatchOperationReplace">
-                  <xpath>Defs/ThingDef[defName="AEXP_Coyote"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
-                  <value>
-                    <bodyShape>Quadruped</bodyShape>
-                  </value>
-                </match>
-                <nomatch Class="PatchOperationAdd">
-                  <xpath>Defs/ThingDef[defName="AEXP_Coyote"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
-                  <value>
-                    <bodyShape>Quadruped</bodyShape>
-                  </value>
-                </nomatch>
-              </li>
-            </operations>
-          </match>
-          <nomatch Class="PatchOperationAddModExtension">
-            <xpath>Defs/ThingDef[defName="AEXP_Coyote"]</xpath>
-            <value>
-              <li Class="CombatExtended.RacePropertiesExtensionCE">
-                <bodyShape>Quadruped</bodyShape>
-              </li>
-            </value>
-          </nomatch>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>/Defs/ThingDef[defName="AEXP_Coyote"]/tools</xpath>
-          <match Class="PatchOperationRemove">
-            <xpath>/Defs/ThingDef[defName="AEXP_Coyote"]/tools</xpath>
-          </match>
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="AEXP_Coyote"]/statBases</xpath>
+          <value>
+            <ArmorRating_Blunt>0.2</ArmorRating_Blunt>
+          </value>
         </li>
         <li Class="PatchOperationAdd">
           <xpath>Defs/ThingDef[defName="AEXP_Coyote"]</xpath>
           <value>
-            <tools>
-              <li Class="CombatExtended.ToolCE">
-                <label>head</label>
-                <capacities>
-                  <li>Blunt</li>
-                </capacities>
-                <power>0.6</power>
-                <armorPenetrationBlunt>0.4</armorPenetrationBlunt>
-                <cooldownTime>1.55</cooldownTime>
-                <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
-                <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
-                <chanceFactor>0.2</chanceFactor>
-              </li>
-              <li Class="CombatExtended.ToolCE">
-                <label>canines</label>
-                <capacities>
-                  <li>Bite</li>
-                </capacities>
-                <power>7</power>
-                <armorPenetrationBlunt>1.15</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.14</armorPenetrationSharp>
-                <cooldownTime>1.9</cooldownTime>
-                <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
-                <surpriseAttack>
-                  <extraMeleeDamages>
-                    <li>
-                      <def>Stun</def>
-                      <amount>20</amount>
-                    </li>
-                  </extraMeleeDamages>
-                </surpriseAttack>
-              </li>
-            </tools>
+            <comps/>
           </value>
         </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="AEXP_Coyote"]/statBases/ArmorRating_Heat</xpath>
-          <match Class="PatchOperationRemove">
-            <xpath>Defs/ThingDef[defName="AEXP_Coyote"]/statBases/ArmorRating_Heat</xpath>
-          </match>
-        </li>
-        <!-- AEXP_ArcticCoyote CE patches -->
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="AEXP_ArcticCoyote"]/statBases/MeleeDodgeChance</xpath>
-          <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="AEXP_ArcticCoyote"]/statBases/MeleeDodgeChance</xpath>
-            <value>
-              <MeleeDodgeChance>0.65</MeleeDodgeChance>
-            </value>
-          </match>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="AEXP_ArcticCoyote"]/statBases</xpath>
-            <value>
-              <MeleeDodgeChance>0.65</MeleeDodgeChance>
-            </value>
-          </nomatch>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="AEXP_ArcticCoyote"]/statBases/MeleeCritChance</xpath>
-          <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="AEXP_ArcticCoyote"]/statBases/MeleeCritChance</xpath>
-            <value>
-              <MeleeCritChance>0.3</MeleeCritChance>
-            </value>
-          </match>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="AEXP_ArcticCoyote"]/statBases</xpath>
-            <value>
-              <MeleeCritChance>0.3</MeleeCritChance>
-            </value>
-          </nomatch>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="AEXP_ArcticCoyote"]/statBases/MeleeParryChance</xpath>
-          <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="AEXP_ArcticCoyote"]/statBases/MeleeParryChance</xpath>
-            <value>
-              <MeleeParryChance>0.05</MeleeParryChance>
-            </value>
-          </match>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="AEXP_ArcticCoyote"]/statBases</xpath>
-            <value>
-              <MeleeParryChance>0.05</MeleeParryChance>
-            </value>
-          </nomatch>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="AEXP_ArcticCoyote"]/statBases/ArmorRating_Sharp</xpath>
-          <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="AEXP_ArcticCoyote"]/statBases/ArmorRating_Sharp</xpath>
-            <value>
-              <ArmorRating_Sharp>0.05</ArmorRating_Sharp>
-            </value>
-          </match>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="AEXP_ArcticCoyote"]/statBases</xpath>
-            <value>
-              <ArmorRating_Sharp>0.05</ArmorRating_Sharp>
-            </value>
-          </nomatch>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="AEXP_ArcticCoyote"]/statBases/ArmorRating_Blunt</xpath>
-          <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="AEXP_ArcticCoyote"]/statBases/ArmorRating_Blunt</xpath>
-            <value>
-              <ArmorRating_Blunt>0.2</ArmorRating_Blunt>
-            </value>
-          </match>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="AEXP_ArcticCoyote"]/statBases</xpath>
-            <value>
-              <ArmorRating_Blunt>0.2</ArmorRating_Blunt>
-            </value>
-          </nomatch>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="AEXP_ArcticCoyote"]/comps</xpath>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="AEXP_ArcticCoyote"]</xpath>
-            <value>
-              <comps/>
-            </value>
-          </nomatch>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="AEXP_ArcticCoyote"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]</xpath>
-          <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="AEXP_ArcticCoyote"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]/Durability</xpath>
-            <value>
-              <Durability>275</Durability>
-            </value>
-          </match>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="AEXP_ArcticCoyote"]/comps</xpath>
-            <value>
-              <li Class="CombatExtended.CompProperties_ArmorDurability">
-                <Durability>275</Durability>
-                <Regenerates>true</Regenerates>
-                <RegenInterval>600</RegenInterval>
-                <RegenValue>5</RegenValue>
-                <MinArmorPct>0.5</MinArmorPct>
-              </li>
-            </value>
-          </nomatch>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="AEXP_ArcticCoyote"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
-          <match Class="PatchOperationSequence">
-            <operations>
-              <li Class="PatchOperationConditional">
-                <xpath>Defs/ThingDef[defName="AEXP_ArcticCoyote"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
-                <match Class="PatchOperationReplace">
-                  <xpath>Defs/ThingDef[defName="AEXP_ArcticCoyote"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
-                  <value>
-                    <bodyShape>Quadruped</bodyShape>
-                  </value>
-                </match>
-                <nomatch Class="PatchOperationAdd">
-                  <xpath>Defs/ThingDef[defName="AEXP_ArcticCoyote"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
-                  <value>
-                    <bodyShape>Quadruped</bodyShape>
-                  </value>
-                </nomatch>
-              </li>
-            </operations>
-          </match>
-          <nomatch Class="PatchOperationAddModExtension">
-            <xpath>Defs/ThingDef[defName="AEXP_ArcticCoyote"]</xpath>
-            <value>
-              <li Class="CombatExtended.RacePropertiesExtensionCE">
-                <bodyShape>Quadruped</bodyShape>
-              </li>
-            </value>
-          </nomatch>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>/Defs/ThingDef[defName="AEXP_ArcticCoyote"]/tools</xpath>
-          <match Class="PatchOperationRemove">
-            <xpath>/Defs/ThingDef[defName="AEXP_ArcticCoyote"]/tools</xpath>
-          </match>
-        </li>
         <li Class="PatchOperationAdd">
-          <xpath>Defs/ThingDef[defName="AEXP_ArcticCoyote"]</xpath>
+          <xpath>Defs/ThingDef[defName="AEXP_Coyote"]/comps</xpath>
+          <value>
+            <li Class="CombatExtended.CompProperties_ArmorDurability">
+              <Durability>275</Durability>
+              <Regenerates>true</Regenerates>
+              <RegenInterval>600</RegenInterval>
+              <RegenValue>5</RegenValue>
+              <MinArmorPct>0.5</MinArmorPct>
+            </li>
+          </value>
+        </li>
+        <li Class="PatchOperationAddModExtension">
+          <xpath>Defs/ThingDef[defName="AEXP_Coyote"]</xpath>
+          <value>
+            <li Class="CombatExtended.RacePropertiesExtensionCE">
+              <bodyShape>Quadruped</bodyShape>
+            </li>
+          </value>
+        </li>
+        <li Class="PatchOperationReplace">
+          <xpath>/Defs/ThingDef[defName="AEXP_Coyote"]/tools</xpath>
           <value>
             <tools>
               <li Class="CombatExtended.ToolCE">
@@ -2517,156 +782,160 @@
             </tools>
           </value>
         </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="AEXP_ArcticCoyote"]/statBases/ArmorRating_Heat</xpath>
-          <match Class="PatchOperationRemove">
-            <xpath>Defs/ThingDef[defName="AEXP_ArcticCoyote"]/statBases/ArmorRating_Heat</xpath>
-          </match>
+        <!-- AEXP_ArcticCoyote CE patches -->
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="AEXP_ArcticCoyote"]/statBases</xpath>
+          <value>
+            <MeleeDodgeChance>0.65</MeleeDodgeChance>
+          </value>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="AEXP_ArcticCoyote"]/statBases</xpath>
+          <value>
+            <MeleeCritChance>0.3</MeleeCritChance>
+          </value>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="AEXP_ArcticCoyote"]/statBases</xpath>
+          <value>
+            <MeleeParryChance>0.05</MeleeParryChance>
+          </value>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="AEXP_ArcticCoyote"]/statBases</xpath>
+          <value>
+            <ArmorRating_Sharp>0.05</ArmorRating_Sharp>
+          </value>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="AEXP_ArcticCoyote"]/statBases</xpath>
+          <value>
+            <ArmorRating_Blunt>0.2</ArmorRating_Blunt>
+          </value>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="AEXP_ArcticCoyote"]</xpath>
+          <value>
+            <comps/>
+          </value>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="AEXP_ArcticCoyote"]/comps</xpath>
+          <value>
+            <li Class="CombatExtended.CompProperties_ArmorDurability">
+              <Durability>275</Durability>
+              <Regenerates>true</Regenerates>
+              <RegenInterval>600</RegenInterval>
+              <RegenValue>5</RegenValue>
+              <MinArmorPct>0.5</MinArmorPct>
+            </li>
+          </value>
+        </li>
+        <li Class="PatchOperationAddModExtension">
+          <xpath>Defs/ThingDef[defName="AEXP_ArcticCoyote"]</xpath>
+          <value>
+            <li Class="CombatExtended.RacePropertiesExtensionCE">
+              <bodyShape>Quadruped</bodyShape>
+            </li>
+          </value>
+        </li>
+        <li Class="PatchOperationReplace">
+          <xpath>/Defs/ThingDef[defName="AEXP_ArcticCoyote"]/tools</xpath>
+          <value>
+            <tools>
+              <li Class="CombatExtended.ToolCE">
+                <label>head</label>
+                <capacities>
+                  <li>Blunt</li>
+                </capacities>
+                <power>0.6</power>
+                <armorPenetrationBlunt>0.4</armorPenetrationBlunt>
+                <cooldownTime>1.55</cooldownTime>
+                <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
+                <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
+                <chanceFactor>0.2</chanceFactor>
+              </li>
+              <li Class="CombatExtended.ToolCE">
+                <label>canines</label>
+                <capacities>
+                  <li>Bite</li>
+                </capacities>
+                <power>7</power>
+                <armorPenetrationBlunt>1.15</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.14</armorPenetrationSharp>
+                <cooldownTime>1.9</cooldownTime>
+                <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
+                <surpriseAttack>
+                  <extraMeleeDamages>
+                    <li>
+                      <def>Stun</def>
+                      <amount>20</amount>
+                    </li>
+                  </extraMeleeDamages>
+                </surpriseAttack>
+              </li>
+            </tools>
+          </value>
         </li>
         <!-- AEXP_Hyena CE patches -->
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="AEXP_Hyena"]/statBases/MeleeDodgeChance</xpath>
-          <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="AEXP_Hyena"]/statBases/MeleeDodgeChance</xpath>
-            <value>
-              <MeleeDodgeChance>0.5</MeleeDodgeChance>
-            </value>
-          </match>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="AEXP_Hyena"]/statBases</xpath>
-            <value>
-              <MeleeDodgeChance>0.5</MeleeDodgeChance>
-            </value>
-          </nomatch>
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="AEXP_Hyena"]/statBases</xpath>
+          <value>
+            <MeleeDodgeChance>0.5</MeleeDodgeChance>
+          </value>
         </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="AEXP_Hyena"]/statBases/MeleeCritChance</xpath>
-          <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="AEXP_Hyena"]/statBases/MeleeCritChance</xpath>
-            <value>
-              <MeleeCritChance>0.4</MeleeCritChance>
-            </value>
-          </match>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="AEXP_Hyena"]/statBases</xpath>
-            <value>
-              <MeleeCritChance>0.4</MeleeCritChance>
-            </value>
-          </nomatch>
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="AEXP_Hyena"]/statBases</xpath>
+          <value>
+            <MeleeCritChance>0.4</MeleeCritChance>
+          </value>
         </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="AEXP_Hyena"]/statBases/MeleeParryChance</xpath>
-          <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="AEXP_Hyena"]/statBases/MeleeParryChance</xpath>
-            <value>
-              <MeleeParryChance>0.05</MeleeParryChance>
-            </value>
-          </match>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="AEXP_Hyena"]/statBases</xpath>
-            <value>
-              <MeleeParryChance>0.05</MeleeParryChance>
-            </value>
-          </nomatch>
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="AEXP_Hyena"]/statBases</xpath>
+          <value>
+            <MeleeParryChance>0.05</MeleeParryChance>
+          </value>
         </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="AEXP_Hyena"]/statBases/ArmorRating_Sharp</xpath>
-          <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="AEXP_Hyena"]/statBases/ArmorRating_Sharp</xpath>
-            <value>
-              <ArmorRating_Sharp>0.09</ArmorRating_Sharp>
-            </value>
-          </match>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="AEXP_Hyena"]/statBases</xpath>
-            <value>
-              <ArmorRating_Sharp>0.09</ArmorRating_Sharp>
-            </value>
-          </nomatch>
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="AEXP_Hyena"]/statBases</xpath>
+          <value>
+            <ArmorRating_Sharp>0.09</ArmorRating_Sharp>
+          </value>
         </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="AEXP_Hyena"]/statBases/ArmorRating_Blunt</xpath>
-          <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="AEXP_Hyena"]/statBases/ArmorRating_Blunt</xpath>
-            <value>
-              <ArmorRating_Blunt>0.4</ArmorRating_Blunt>
-            </value>
-          </match>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="AEXP_Hyena"]/statBases</xpath>
-            <value>
-              <ArmorRating_Blunt>0.4</ArmorRating_Blunt>
-            </value>
-          </nomatch>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="AEXP_Hyena"]/comps</xpath>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="AEXP_Hyena"]</xpath>
-            <value>
-              <comps/>
-            </value>
-          </nomatch>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="AEXP_Hyena"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]</xpath>
-          <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="AEXP_Hyena"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]/Durability</xpath>
-            <value>
-              <Durability>525</Durability>
-            </value>
-          </match>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="AEXP_Hyena"]/comps</xpath>
-            <value>
-              <li Class="CombatExtended.CompProperties_ArmorDurability">
-                <Durability>525</Durability>
-                <Regenerates>true</Regenerates>
-                <RegenInterval>600</RegenInterval>
-                <RegenValue>5</RegenValue>
-                <MinArmorPct>0.5</MinArmorPct>
-              </li>
-            </value>
-          </nomatch>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="AEXP_Hyena"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
-          <match Class="PatchOperationSequence">
-            <operations>
-              <li Class="PatchOperationConditional">
-                <xpath>Defs/ThingDef[defName="AEXP_Hyena"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
-                <match Class="PatchOperationReplace">
-                  <xpath>Defs/ThingDef[defName="AEXP_Hyena"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
-                  <value>
-                    <bodyShape>Quadruped</bodyShape>
-                  </value>
-                </match>
-                <nomatch Class="PatchOperationAdd">
-                  <xpath>Defs/ThingDef[defName="AEXP_Hyena"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
-                  <value>
-                    <bodyShape>Quadruped</bodyShape>
-                  </value>
-                </nomatch>
-              </li>
-            </operations>
-          </match>
-          <nomatch Class="PatchOperationAddModExtension">
-            <xpath>Defs/ThingDef[defName="AEXP_Hyena"]</xpath>
-            <value>
-              <li Class="CombatExtended.RacePropertiesExtensionCE">
-                <bodyShape>Quadruped</bodyShape>
-              </li>
-            </value>
-          </nomatch>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>/Defs/ThingDef[defName="AEXP_Hyena"]/tools</xpath>
-          <match Class="PatchOperationRemove">
-            <xpath>/Defs/ThingDef[defName="AEXP_Hyena"]/tools</xpath>
-          </match>
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="AEXP_Hyena"]/statBases</xpath>
+          <value>
+            <ArmorRating_Blunt>0.4</ArmorRating_Blunt>
+          </value>
         </li>
         <li Class="PatchOperationAdd">
           <xpath>Defs/ThingDef[defName="AEXP_Hyena"]</xpath>
+          <value>
+            <comps/>
+          </value>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="AEXP_Hyena"]/comps</xpath>
+          <value>
+            <li Class="CombatExtended.CompProperties_ArmorDurability">
+              <Durability>525</Durability>
+              <Regenerates>true</Regenerates>
+              <RegenInterval>600</RegenInterval>
+              <RegenValue>5</RegenValue>
+              <MinArmorPct>0.5</MinArmorPct>
+            </li>
+          </value>
+        </li>
+        <li Class="PatchOperationAddModExtension">
+          <xpath>Defs/ThingDef[defName="AEXP_Hyena"]</xpath>
+          <value>
+            <li Class="CombatExtended.RacePropertiesExtensionCE">
+              <bodyShape>Quadruped</bodyShape>
+            </li>
+          </value>
+        </li>
+        <li Class="PatchOperationReplace">
+          <xpath>/Defs/ThingDef[defName="AEXP_Hyena"]/tools</xpath>
           <value>
             <tools>
               <li Class="CombatExtended.ToolCE">
@@ -2702,12 +971,6 @@
               </li>
             </tools>
           </value>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="AEXP_Hyena"]/statBases/ArmorRating_Heat</xpath>
-          <match Class="PatchOperationRemove">
-            <xpath>Defs/ThingDef[defName="AEXP_Hyena"]/statBases/ArmorRating_Heat</xpath>
-          </match>
         </li>
       </operations>
     </match>

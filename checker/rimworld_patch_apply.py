@@ -21,12 +21,13 @@ def normalize_patch_xpath(xpath):
 
 
 class PatchApplier:
-    def __init__(self, stats=None, errors=None, apply_find_mod_match=True, record_missing=True):
+    def __init__(self, stats=None, errors=None, apply_find_mod_match=True, record_missing=True, active_mods=None):
         self.stats = stats if stats is not None else Counter()
         self.errors = errors if errors is not None else []
         self.missing_targets = []
         self.apply_find_mod_match = apply_find_mod_match
         self.record_missing = record_missing
+        self.active_mods = self._normalize_mod_set(active_mods) if active_mods is not None else None
 
     def apply_patch_root(self, patch_root, sim_root, source_path=None):
         if patch_root is None:
@@ -102,10 +103,29 @@ class PatchApplier:
         self._apply_branch(branch, sim_root, source_path)
 
     def _apply_find_mod(self, node, sim_root, source_path):
-        branch_name = "match" if self.apply_find_mod_match else "nomatch"
+        branch_name = "match" if self._find_mod_matches(node) else "nomatch"
         branch = node.find(branch_name)
         self.stats[f"find_mod_{branch_name}_selected"] += 1
         self._apply_branch(branch, sim_root, source_path)
+
+    def _find_mod_matches(self, node):
+        if self.active_mods is None:
+            return bool(self.apply_find_mod_match)
+        mods = node.find("mods")
+        if mods is None:
+            return False
+        wanted = {
+            self._normalize_mod_name(li.text)
+            for li in mods.findall("li")
+            if li.text and li.text.strip()
+        }
+        return bool(wanted & self.active_mods)
+
+    def _normalize_mod_set(self, values):
+        return {self._normalize_mod_name(value) for value in values if str(value).strip()}
+
+    def _normalize_mod_name(self, value):
+        return " ".join(str(value).strip().lower().split())
 
     def _apply_branch(self, branch, sim_root, source_path):
         if branch is None or not isinstance(getattr(branch, "tag", None), str):

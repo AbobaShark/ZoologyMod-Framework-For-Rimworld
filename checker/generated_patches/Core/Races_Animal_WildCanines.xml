@@ -1,118 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <Patch>
   <!---->
-  <!-- ThingBaseFox -->
-  <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/statBases/MarketValue</xpath>
-  </Operation>
-  <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/statBases/MoveSpeed</xpath>
-  </Operation>
-  <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/statBases/Wildness</xpath>
-  </Operation>
-  <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/statBases/ComfyTemperatureMin</xpath>
-  </Operation>
-  <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/tools</xpath>
-  </Operation>
-  <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/race/baseBodySize</xpath>
-  </Operation>
-  <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/race/baseHealthScale</xpath>
-  </Operation>
-  <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/race/baseHungerRate</xpath>
-  </Operation>
-  <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/race/lifeExpectancy</xpath>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/race/gestationPeriodDays</xpath>
-    <value>
-      <gestationPeriodDays>6</gestationPeriodDays>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/race</xpath>
-    <value>
-      <herdMigrationAllowed>false</herdMigrationAllowed>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/race/foodType</xpath>
-    <value>
-      <foodType>CarnivoreAnimal, OvivoreAnimal</foodType>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/race/petness</xpath>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/race</xpath>
-    <value>
-      <nuzzleMtbHours>36</nuzzleMtbHours>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/race/trainability</xpath>
-    <value>
-      <trainability>Advanced</trainability>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/race/maxPreyBodySize</xpath>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/race/lifeStageAges</xpath>
-    <value>
-      <lifeStageAges>
-        <li>
-          <def>AnimalBaby</def>
-          <minAge>0</minAge>
-        </li>
-        <li>
-          <def>AnimalJuvenile</def>
-          <minAge>0.15</minAge>
-        </li>
-        <li>
-          <def>AnimalAdult</def>
-          <minAge>0.3</minAge>
-          <soundWounded>Pawn_Fox_Wounded</soundWounded>
-          <soundDeath>Pawn_Fox_Death</soundDeath>
-          <soundCall>Pawn_Fox_Call</soundCall>
-        </li>
-      </lifeStageAges>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/race</xpath>
-    <value>
-      <specialTrainables>
-        <li MayRequire="Ludeon.RimWorld.Odyssey">Comfort</li>
-      </specialTrainables>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/tradeTags</xpath>
-  </Operation>
-  <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/race/litterSizeCurve</xpath>
-  </Operation>
-  <Operation Class="PatchOperationAddModExtension">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]</xpath>
-    <value>
-      <li Class="ZoologyMod.ModExtension_IsMammal, ZoologyMod"/>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationAddModExtension">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]</xpath>
-    <value>
-      <li Class="ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod"/>
-    </value>
-  </Operation>
   <!-- ThingBaseWolf -->
   <Operation Class="PatchOperationRemove">
     <xpath>/Defs/ThingDef[@Name = "ThingBaseWolf"]/statBases/MarketValue</xpath>
@@ -213,31 +101,21 @@
         <li>
           <def>AnimalAdult</def>
           <minAge>0.4</minAge>
-          <soundWounded>Pawn_Warg_Wounded</soundWounded>
-          <soundDeath>Pawn_Warg_Death</soundDeath>
-          <soundCall>Pawn_Warg_Call</soundCall>
-          <soundAngry>Pawn_Warg_Angry</soundAngry>
+          <soundWounded>Pawn_Dog_Injured</soundWounded>
+          <soundDeath>Pawn_Dog_Death</soundDeath>
+          <soundCall>Pawn_Dog_Call</soundCall>
+          <soundAngry>Pawn_Dog_Angry</soundAngry>
         </li>
       </lifeStageAges>
     </value>
   </Operation>
   <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseWolf"]/race/specialTrainables/li[text()="SludgeSpew" or text()="EggSpew" or text()="TerrorRoar" or text()="WarTrumpet" or text()="Forage" or text()="Comfort" or text()="AttackTarget" or text()="Dig"]</xpath>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseWolf"]/race/specialTrainables</xpath>
-    <value>
-      <li MayRequire="Ludeon.RimWorld.Odyssey">AttackTarget</li>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseWolf"]/tradeTags/li[text()="AnimalCommon" or text()="AnimalUncommon" or text()="AnimalExotic" or text()="AnimalFighter" or text()="AnimalInsect" or text()="AnimalPet" or text()="AnimalFarm"]</xpath>
+    <xpath>/Defs/ThingDef[@Name = "ThingBaseWolf"]/tradeTags/li[text()='AnimalUncommon']</xpath>
   </Operation>
   <Operation Class="PatchOperationAdd">
     <xpath>/Defs/ThingDef[@Name = "ThingBaseWolf"]/tradeTags</xpath>
     <value>
       <li>AnimalCommon</li>
-      <li>AnimalFighter</li>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -263,6 +141,108 @@
   </Operation>
   <Operation Class="PatchOperationAddModExtension">
     <xpath>/Defs/ThingDef[@Name = "ThingBaseWolf"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod"/>
+    </value>
+  </Operation>
+  <!-- ThingBaseFox -->
+  <Operation Class="PatchOperationRemove">
+    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/statBases/MarketValue</xpath>
+  </Operation>
+  <Operation Class="PatchOperationRemove">
+    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/statBases/MoveSpeed</xpath>
+  </Operation>
+  <Operation Class="PatchOperationRemove">
+    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/statBases/Wildness</xpath>
+  </Operation>
+  <Operation Class="PatchOperationRemove">
+    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/statBases/ComfyTemperatureMin</xpath>
+  </Operation>
+  <Operation Class="PatchOperationRemove">
+    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/tools</xpath>
+  </Operation>
+  <Operation Class="PatchOperationRemove">
+    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/race/baseBodySize</xpath>
+  </Operation>
+  <Operation Class="PatchOperationRemove">
+    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/race/baseHealthScale</xpath>
+  </Operation>
+  <Operation Class="PatchOperationRemove">
+    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/race/baseHungerRate</xpath>
+  </Operation>
+  <Operation Class="PatchOperationRemove">
+    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/race/lifeExpectancy</xpath>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/race/gestationPeriodDays</xpath>
+    <value>
+      <gestationPeriodDays>6</gestationPeriodDays>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/race</xpath>
+    <value>
+      <herdMigrationAllowed>false</herdMigrationAllowed>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/race/foodType</xpath>
+    <value>
+      <foodType>CarnivoreAnimal, OvivoreAnimal</foodType>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationRemove">
+    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/race/petness</xpath>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/race</xpath>
+    <value>
+      <nuzzleMtbHours>36</nuzzleMtbHours>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/race/trainability</xpath>
+    <value>
+      <trainability>Advanced</trainability>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationRemove">
+    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/race/maxPreyBodySize</xpath>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/race/lifeStageAges/li[def = 'AnimalJuvenile']/minAge</xpath>
+    <value>
+      <minAge>0.15</minAge>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/race/lifeStageAges/li[def = 'AnimalAdult']/minAge</xpath>
+    <value>
+      <minAge>0.3</minAge>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/race</xpath>
+    <value>
+      <specialTrainables>
+        <li MayRequire="Ludeon.RimWorld.Odyssey">Comfort</li>
+      </specialTrainables>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationRemove">
+    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/tradeTags</xpath>
+  </Operation>
+  <Operation Class="PatchOperationRemove">
+    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/race/litterSizeCurve</xpath>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_IsMammal, ZoologyMod"/>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]</xpath>
     <value>
       <li Class="ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod"/>
     </value>
@@ -444,9 +424,26 @@
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "Warg"]/race/lifeStageAges/li[3]/minAge</xpath>
+    <xpath>/Defs/ThingDef[defName = "Warg"]/race/lifeStageAges</xpath>
     <value>
-      <minAge>0.4</minAge>
+      <lifeStageAges>
+        <li>
+          <def>AnimalBaby</def>
+          <minAge>0</minAge>
+        </li>
+        <li>
+          <def>AnimalJuvenile</def>
+          <minAge>0.2</minAge>
+        </li>
+        <li>
+          <def>AnimalAdult</def>
+          <minAge>0.4</minAge>
+          <soundWounded>Pawn_Warg_Wounded</soundWounded>
+          <soundDeath>Pawn_Warg_Death</soundDeath>
+          <soundCall>Pawn_Warg_Call</soundCall>
+          <soundAngry>Pawn_Warg_Angry</soundAngry>
+        </li>
+      </lifeStageAges>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -465,22 +462,12 @@
     </value>
   </Operation>
   <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[defName = "Warg"]/race/specialTrainables/li[text()="SludgeSpew" or text()="EggSpew" or text()="TerrorRoar" or text()="WarTrumpet" or text()="Forage" or text()="Comfort" or text()="AttackTarget" or text()="Dig"]</xpath>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/ThingDef[defName = "Warg"]/race/specialTrainables</xpath>
-    <value>
-      <li MayRequire="Ludeon.RimWorld.Odyssey">AttackTarget</li>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[defName = "Warg"]/tradeTags/li[text()="AnimalCommon" or text()="AnimalUncommon" or text()="AnimalExotic" or text()="AnimalFighter" or text()="AnimalInsect" or text()="AnimalPet" or text()="AnimalFarm"]</xpath>
+    <xpath>/Defs/ThingDef[defName = "Warg"]/tradeTags/li[text()='AnimalUncommon']</xpath>
   </Operation>
   <Operation Class="PatchOperationAdd">
     <xpath>/Defs/ThingDef[defName = "Warg"]/tradeTags</xpath>
     <value>
       <li>AnimalCommon</li>
-      <li>AnimalFighter</li>
     </value>
   </Operation>
   <Operation Class="PatchOperationAddModExtension">

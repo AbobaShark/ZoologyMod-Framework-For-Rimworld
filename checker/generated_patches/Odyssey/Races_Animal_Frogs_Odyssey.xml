@@ -2,149 +2,40 @@
 <Patch>
   <!---->
   <!-- Bullfrog -->
-  <Operation Class="PatchOperationAttributeSet">
-    <xpath>/Defs/ThingDef[defName = "Bullfrog"]</xpath>
-    <attribute>ParentName</attribute>
-    <value>AnimalThingBase</value>
-  </Operation>
-  <Operation Class="PatchOperationAttributeSet">
-    <xpath>/Defs/PawnKindDef[defName = "Bullfrog"]</xpath>
-    <attribute>ParentName</attribute>
-    <value>AnimalKindBase</value>
-  </Operation>
   <!-- Bullfrog StatBases -->
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Bullfrog"]/statBases/MarketValue</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/statBases/MarketValue</xpath>
-      <value>
-        <MarketValue>100</MarketValue>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/statBases</xpath>
-      <value>
-        <MarketValue>100</MarketValue>
-      </value>
-    </nomatch>
+    <value>
+      <MarketValue>100</MarketValue>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Bullfrog"]/statBases/MoveSpeed</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/statBases/MoveSpeed</xpath>
-      <value>
-        <MoveSpeed>1.5</MoveSpeed>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/statBases</xpath>
-      <value>
-        <MoveSpeed>1.5</MoveSpeed>
-      </value>
-    </nomatch>
+    <value>
+      <MoveSpeed>1.5</MoveSpeed>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Bullfrog"]/statBases/Wildness</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/statBases/Wildness</xpath>
-      <value>
-        <Wildness>0.4</Wildness>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/statBases</xpath>
-      <value>
-        <Wildness>0.4</Wildness>
-      </value>
-    </nomatch>
+    <value>
+      <Wildness>0.4</Wildness>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Bullfrog"]/statBases/FilthRate</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/statBases/FilthRate</xpath>
-      <value>
-        <FilthRate>1</FilthRate>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/statBases</xpath>
-      <value>
-        <FilthRate>1</FilthRate>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Bullfrog"]/statBases/ComfyTemperatureMin</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/statBases/ComfyTemperatureMin</xpath>
-      <value>
-        <ComfyTemperatureMin>-5</ComfyTemperatureMin>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/statBases</xpath>
-      <value>
-        <ComfyTemperatureMin>-5</ComfyTemperatureMin>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Bullfrog"]/statBases/ComfyTemperatureMax</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/statBases/ComfyTemperatureMax</xpath>
-      <value>
-        <ComfyTemperatureMax>40</ComfyTemperatureMax>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/statBases</xpath>
-      <value>
-        <ComfyTemperatureMax>40</ComfyTemperatureMax>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Bullfrog"]/statBases/ArmorRating_Blunt</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/statBases/ArmorRating_Blunt</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Bullfrog"]/statBases/ArmorRating_Sharp</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/statBases/ArmorRating_Sharp</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Bullfrog"]/statBases/ToxicEnvironmentResistance</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/statBases/ToxicEnvironmentResistance</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Bullfrog"]/statBases/LeatherAmount</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/statBases/LeatherAmount</xpath>
-      <value>
-        <LeatherAmount>0</LeatherAmount>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/statBases</xpath>
-      <value>
-        <LeatherAmount>0</LeatherAmount>
-      </value>
-    </nomatch>
-  </Operation>
-  <!-- Bullfrog tools -->
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Bullfrog"]/tools</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/tools</xpath>
-    </match>
+    <value>
+      <ComfyTemperatureMin>-5</ComfyTemperatureMin>
+    </value>
   </Operation>
   <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/ThingDef[defName = "Bullfrog"]</xpath>
+    <xpath>/Defs/ThingDef[defName = "Bullfrog"]/statBases</xpath>
+    <value>
+      <LeatherAmount>0</LeatherAmount>
+    </value>
+  </Operation>
+  <!-- Bullfrog tools -->
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Bullfrog"]/tools</xpath>
     <value>
       <tools>
         <li>
@@ -179,467 +70,130 @@
     </value>
   </Operation>
   <!-- Bullfrog RaceProperties -->
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/baseBodySize</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/baseBodySize</xpath>
-      <value>
-        <baseBodySize>0.1</baseBodySize>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race</xpath>
-      <value>
-        <baseBodySize>0.1</baseBodySize>
-      </value>
-    </nomatch>
+    <value>
+      <baseBodySize>0.1</baseBodySize>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/baseHealthScale</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/baseHealthScale</xpath>
-      <value>
-        <baseHealthScale>0.1</baseHealthScale>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race</xpath>
-      <value>
-        <baseHealthScale>0.1</baseHealthScale>
-      </value>
-    </nomatch>
+    <value>
+      <baseHealthScale>0.1</baseHealthScale>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/baseHungerRate</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/baseHungerRate</xpath>
-      <value>
-        <baseHungerRate>0.05</baseHungerRate>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race</xpath>
-      <value>
-        <baseHungerRate>0.05</baseHungerRate>
-      </value>
-    </nomatch>
+    <value>
+      <baseHungerRate>0.05</baseHungerRate>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/lifeExpectancy</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/lifeExpectancy</xpath>
-      <value>
-        <lifeExpectancy>9</lifeExpectancy>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race</xpath>
-      <value>
-        <lifeExpectancy>9</lifeExpectancy>
-      </value>
-    </nomatch>
+    <value>
+      <lifeExpectancy>9</lifeExpectancy>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/gestationPeriodDays</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/gestationPeriodDays</xpath>
-      <value>
-        <gestationPeriodDays>6</gestationPeriodDays>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race</xpath>
-      <value>
-        <gestationPeriodDays>6</gestationPeriodDays>
-      </value>
-    </nomatch>
+    <value>
+      <gestationPeriodDays>6</gestationPeriodDays>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/herdAnimal</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/herdAnimal</xpath>
-      <value>
-        <herdAnimal>false</herdAnimal>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race</xpath>
-      <value>
-        <herdAnimal>false</herdAnimal>
-      </value>
-    </nomatch>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race</xpath>
+    <value>
+      <herdMigrationAllowed>false</herdMigrationAllowed>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/herdMigrationAllowed</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/herdMigrationAllowed</xpath>
-      <value>
-        <herdMigrationAllowed>false</herdMigrationAllowed>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race</xpath>
-      <value>
-        <herdMigrationAllowed>false</herdMigrationAllowed>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/foodType</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/foodType</xpath>
-      <value>
-        <foodType>CarnivoreAnimal, OvivoreAnimal</foodType>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race</xpath>
-      <value>
-        <foodType>CarnivoreAnimal, OvivoreAnimal</foodType>
-      </value>
-    </nomatch>
+    <value>
+      <foodType>CarnivoreAnimal, OvivoreAnimal</foodType>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/roamMtbDays</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/roamMtbDays</xpath>
-      <value>
-        <roamMtbDays>8</roamMtbDays>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race</xpath>
-      <value>
-        <roamMtbDays>8</roamMtbDays>
-      </value>
-    </nomatch>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race</xpath>
+    <value>
+      <roamMtbDays>8</roamMtbDays>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationRemove">
     <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/leatherDef</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/leatherDef</xpath>
-    </match>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/useLeatherFrom</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/useLeatherFrom</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/manhunterOnTameFailChance</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/manhunterOnTameFailChance</xpath>
-      <value>
-        <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race</xpath>
-      <value>
-        <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/manhunterOnDamageChance</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/manhunterOnDamageChance</xpath>
-      <value>
-        <manhunterOnDamageChance>0</manhunterOnDamageChance>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race</xpath>
-      <value>
-        <manhunterOnDamageChance>0</manhunterOnDamageChance>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationRemove">
     <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/petness</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/petness</xpath>
-    </match>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/nuzzleMtbHours</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/nuzzleMtbHours</xpath>
-    </match>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race</xpath>
+    <value>
+      <predator>true</predator>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/mateMtbHours</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/mateMtbHours</xpath>
-      <value>
-        <mateMtbHours>12</mateMtbHours>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race</xpath>
-      <value>
-        <mateMtbHours>12</mateMtbHours>
-      </value>
-    </nomatch>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race</xpath>
+    <value>
+      <maxPreyBodySize>0.1</maxPreyBodySize>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/trainability</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/trainability</xpath>
-      <value>
-        <trainability>None</trainability>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race</xpath>
-      <value>
-        <trainability>None</trainability>
-      </value>
-    </nomatch>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race</xpath>
+    <value>
+      <canFishForFood>true</canFishForFood>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/packAnimal</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/packAnimal</xpath>
-      <value>
-        <packAnimal>false</packAnimal>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race</xpath>
-      <value>
-        <packAnimal>false</packAnimal>
-      </value>
-    </nomatch>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race</xpath>
+    <value>
+      <useMeatFrom>ColossusToad</useMeatFrom>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/predator</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/predator</xpath>
-      <value>
-        <predator>true</predator>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race</xpath>
-      <value>
-        <predator>true</predator>
-      </value>
-    </nomatch>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/lifeStageAges</xpath>
+    <value>
+      <lifeStageAges>
+        <li>
+          <def>AnimalBaby</def>
+          <minAge>0</minAge>
+        </li>
+        <li>
+          <def>AnimalJuvenile</def>
+          <minAge>0.3</minAge>
+        </li>
+        <li>
+          <def>AnimalAdult</def>
+          <minAge>0.6</minAge>
+          <soundWounded>Pawn_Frog_Wounded</soundWounded>
+          <soundDeath>Pawn_Frog_Death</soundDeath>
+          <soundCall>Pawn_Frog_Call</soundCall>
+          <soundAngry>Pawn_Frog_Angry</soundAngry>
+        </li>
+      </lifeStageAges>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/maxPreyBodySize</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/maxPreyBodySize</xpath>
-      <value>
-        <maxPreyBodySize>0.1</maxPreyBodySize>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race</xpath>
-      <value>
-        <maxPreyBodySize>0.1</maxPreyBodySize>
-      </value>
-    </nomatch>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race</xpath>
+    <value>
+      <litterSizeCurve>
+        <points>
+          <li>(1.8000, 0)</li>
+          <li>(3.6000, 0.2)</li>
+          <li>(7.2000, 1)</li>
+          <li>(10.8000, 1)</li>
+          <li>(14.4000, 0.2)</li>
+          <li>(16.2000, 0)</li>
+        </points>
+      </litterSizeCurve>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/nameOnTameChance</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/nameOnTameChance</xpath>
-      <value>
-        <nameOnTameChance>0</nameOnTameChance>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race</xpath>
-      <value>
-        <nameOnTameChance>0</nameOnTameChance>
-      </value>
-    </nomatch>
+  <Operation Class="PatchOperationRemove">
+    <xpath>/Defs/ThingDef[defName = "Bullfrog"]/tradeTags/li[text()='AnimalUncommon']</xpath>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/body</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/body</xpath>
-      <value>
-        <body>QuadrupedAnimalWithPaws</body>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race</xpath>
-      <value>
-        <body>QuadrupedAnimalWithPaws</body>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/waterCellCost</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/waterCellCost</xpath>
-      <value>
-        <waterCellCost>1</waterCellCost>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race</xpath>
-      <value>
-        <waterCellCost>1</waterCellCost>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/waterSeeker</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/waterSeeker</xpath>
-      <value>
-        <waterSeeker>true</waterSeeker>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race</xpath>
-      <value>
-        <waterSeeker>true</waterSeeker>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/canFishForFood</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/canFishForFood</xpath>
-      <value>
-        <canFishForFood>true</canFishForFood>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race</xpath>
-      <value>
-        <canFishForFood>true</canFishForFood>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/useMeatFrom</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/useMeatFrom</xpath>
-      <value>
-        <useMeatFrom>ColossusToad</useMeatFrom>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race</xpath>
-      <value>
-        <useMeatFrom>ColossusToad</useMeatFrom>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/wildBiomes</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/wildBiomes</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/lifeStageAges/li[2]</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/lifeStageAges/li[2]/def</xpath>
-      <value>
-        <def>AnimalJuvenile</def>
-      </value>
-    </match>
-    <nomatch/>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/lifeStageAges/li[3]</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/lifeStageAges/li[3]/def</xpath>
-      <value>
-        <def>AnimalAdult</def>
-      </value>
-    </match>
-    <nomatch/>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/lifeStageAges/li[2]</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/lifeStageAges/li[2]/minAge</xpath>
-      <value>
-        <minAge>0.3</minAge>
-      </value>
-    </match>
-    <nomatch/>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/lifeStageAges/li[3]</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/lifeStageAges/li[3]/minAge</xpath>
-      <value>
-        <minAge>0.6</minAge>
-      </value>
-    </match>
-    <nomatch/>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/litterSizeCurve</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/litterSizeCurve</xpath>
-      <value>
-        <litterSizeCurve>
-          <points>
-            <li>(1.8000, 0)</li>
-            <li>(3.6000, 0.2)</li>
-            <li>(7.2000, 1)</li>
-            <li>(10.8000, 1)</li>
-            <li>(14.4000, 0.2)</li>
-            <li>(16.2000, 0)</li>
-          </points>
-        </litterSizeCurve>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race</xpath>
-      <value>
-        <litterSizeCurve>
-          <points>
-            <li>(1.8000, 0)</li>
-            <li>(3.6000, 0.2)</li>
-            <li>(7.2000, 1)</li>
-            <li>(10.8000, 1)</li>
-            <li>(14.4000, 0.2)</li>
-            <li>(16.2000, 0)</li>
-          </points>
-        </litterSizeCurve>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/specialTrainables</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/race/specialTrainables</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Bullfrog"]/tradeTags/li[text()="AnimalCommon" or text()="AnimalUncommon" or text()="AnimalExotic" or text()="AnimalFighter" or text()="AnimalInsect" or text()="AnimalPet" or text()="AnimalFarm"]</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/tradeTags/li[text()="AnimalCommon" or text()="AnimalUncommon" or text()="AnimalExotic" or text()="AnimalFighter" or text()="AnimalInsect" or text()="AnimalPet" or text()="AnimalFarm"]</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationAdd">
     <xpath>/Defs/ThingDef[defName = "Bullfrog"]/tradeTags</xpath>
-    <match Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/tradeTags</xpath>
-      <value>
-        <li>AnimalCommon</li>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Bullfrog"]</xpath>
-      <value>
-        <tradeTags>
-          <li>AnimalCommon</li>
-        </tradeTags>
-      </value>
-    </nomatch>
+    <value>
+      <li>AnimalCommon</li>
+    </value>
   </Operation>
   <Operation Class="PatchOperationAddModExtension">
     <xpath>/Defs/ThingDef[defName = "Bullfrog"]</xpath>
@@ -654,207 +208,59 @@
     </value>
   </Operation>
   <!-- Bullfrog PawnKindDef -->
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "Bullfrog"]/combatPower</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/PawnKindDef[defName = "Bullfrog"]/combatPower</xpath>
-      <value>
-        <combatPower>20</combatPower>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/PawnKindDef[defName = "Bullfrog"]</xpath>
-      <value>
-        <combatPower>20</combatPower>
-      </value>
-    </nomatch>
+    <value>
+      <combatPower>20</combatPower>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "Bullfrog"]/ecoSystemWeight</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/PawnKindDef[defName = "Bullfrog"]/ecoSystemWeight</xpath>
-      <value>
-        <ecoSystemWeight>0.05</ecoSystemWeight>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/PawnKindDef[defName = "Bullfrog"]</xpath>
-      <value>
-        <ecoSystemWeight>0.05</ecoSystemWeight>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/PawnKindDef[defName = "Bullfrog"]/canArriveManhunter</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/PawnKindDef[defName = "Bullfrog"]/canArriveManhunter</xpath>
-      <value>
-        <canArriveManhunter>true</canArriveManhunter>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/PawnKindDef[defName = "Bullfrog"]</xpath>
-      <value>
-        <canArriveManhunter>true</canArriveManhunter>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/PawnKindDef[defName = "Bullfrog"]/wildGroupSize</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/PawnKindDef[defName = "Bullfrog"]/wildGroupSize</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/PawnKindDef[defName = "Bullfrog"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/PawnKindDef[defName = "Bullfrog"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
-    </match>
+    <value>
+      <ecoSystemWeight>0.05</ecoSystemWeight>
+    </value>
   </Operation>
   <!-- ColossusToad -->
-  <Operation Class="PatchOperationAttributeSet">
-    <xpath>/Defs/ThingDef[defName = "ColossusToad"]</xpath>
-    <attribute>ParentName</attribute>
-    <value>AnimalThingBase</value>
-  </Operation>
-  <Operation Class="PatchOperationAttributeSet">
-    <xpath>/Defs/PawnKindDef[defName = "ColossusToad"]</xpath>
-    <attribute>ParentName</attribute>
-    <value>AnimalKindBase</value>
-  </Operation>
   <!-- ColossusToad StatBases -->
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "ColossusToad"]/statBases/MarketValue</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/statBases/MarketValue</xpath>
-      <value>
-        <MarketValue>175</MarketValue>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/statBases</xpath>
-      <value>
-        <MarketValue>175</MarketValue>
-      </value>
-    </nomatch>
+    <value>
+      <MarketValue>175</MarketValue>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "ColossusToad"]/statBases/MoveSpeed</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/statBases/MoveSpeed</xpath>
-      <value>
-        <MoveSpeed>2.5</MoveSpeed>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/statBases</xpath>
-      <value>
-        <MoveSpeed>2.5</MoveSpeed>
-      </value>
-    </nomatch>
+    <value>
+      <MoveSpeed>2.5</MoveSpeed>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "ColossusToad"]/statBases/Wildness</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/statBases/Wildness</xpath>
-      <value>
-        <Wildness>0.3</Wildness>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/statBases</xpath>
-      <value>
-        <Wildness>0.3</Wildness>
-      </value>
-    </nomatch>
+    <value>
+      <Wildness>0.3</Wildness>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "ColossusToad"]/statBases/FilthRate</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/statBases/FilthRate</xpath>
-      <value>
-        <FilthRate>1</FilthRate>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/statBases</xpath>
-      <value>
-        <FilthRate>1</FilthRate>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "ColossusToad"]/statBases/ComfyTemperatureMin</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/statBases/ComfyTemperatureMin</xpath>
-      <value>
-        <ComfyTemperatureMin>15</ComfyTemperatureMin>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/statBases</xpath>
-      <value>
-        <ComfyTemperatureMin>15</ComfyTemperatureMin>
-      </value>
-    </nomatch>
+    <value>
+      <ComfyTemperatureMin>15</ComfyTemperatureMin>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "ColossusToad"]/statBases/ComfyTemperatureMax</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/statBases/ComfyTemperatureMax</xpath>
-      <value>
-        <ComfyTemperatureMax>40</ComfyTemperatureMax>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/statBases</xpath>
-      <value>
-        <ComfyTemperatureMax>40</ComfyTemperatureMax>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "ColossusToad"]/statBases/ArmorRating_Blunt</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/statBases/ArmorRating_Blunt</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "ColossusToad"]/statBases/ArmorRating_Sharp</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/statBases/ArmorRating_Sharp</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "ColossusToad"]/statBases/ToxicEnvironmentResistance</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/statBases/ToxicEnvironmentResistance</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "ColossusToad"]/statBases/LeatherAmount</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/statBases/LeatherAmount</xpath>
-      <value>
-        <LeatherAmount>0</LeatherAmount>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/statBases</xpath>
-      <value>
-        <LeatherAmount>0</LeatherAmount>
-      </value>
-    </nomatch>
-  </Operation>
-  <!-- ColossusToad tools -->
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "ColossusToad"]/tools</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/tools</xpath>
-    </match>
+    <value>
+      <ComfyTemperatureMax>40</ComfyTemperatureMax>
+    </value>
   </Operation>
   <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/ThingDef[defName = "ColossusToad"]</xpath>
+    <xpath>/Defs/ThingDef[defName = "ColossusToad"]/statBases</xpath>
+    <value>
+      <LeatherAmount>0</LeatherAmount>
+    </value>
+  </Operation>
+  <!-- ColossusToad tools -->
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "ColossusToad"]/tools</xpath>
     <value>
       <tools>
         <li>
@@ -889,460 +295,128 @@
     </value>
   </Operation>
   <!-- ColossusToad RaceProperties -->
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/baseBodySize</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/baseBodySize</xpath>
-      <value>
-        <baseBodySize>0.9</baseBodySize>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race</xpath>
-      <value>
-        <baseBodySize>0.9</baseBodySize>
-      </value>
-    </nomatch>
+    <value>
+      <baseBodySize>0.9</baseBodySize>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/baseHealthScale</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/baseHealthScale</xpath>
-      <value>
-        <baseHealthScale>0.9</baseHealthScale>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race</xpath>
-      <value>
-        <baseHealthScale>0.9</baseHealthScale>
-      </value>
-    </nomatch>
+    <value>
+      <baseHealthScale>0.9</baseHealthScale>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/baseHungerRate</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/baseHungerRate</xpath>
-      <value>
-        <baseHungerRate>0.15</baseHungerRate>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race</xpath>
-      <value>
-        <baseHungerRate>0.15</baseHungerRate>
-      </value>
-    </nomatch>
+    <value>
+      <baseHungerRate>0.15</baseHungerRate>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/lifeExpectancy</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/lifeExpectancy</xpath>
-      <value>
-        <lifeExpectancy>15</lifeExpectancy>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race</xpath>
-      <value>
-        <lifeExpectancy>15</lifeExpectancy>
-      </value>
-    </nomatch>
+    <value>
+      <lifeExpectancy>15</lifeExpectancy>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/gestationPeriodDays</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/gestationPeriodDays</xpath>
-      <value>
-        <gestationPeriodDays>7.5</gestationPeriodDays>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race</xpath>
-      <value>
-        <gestationPeriodDays>7.5</gestationPeriodDays>
-      </value>
-    </nomatch>
+    <value>
+      <gestationPeriodDays>7.5</gestationPeriodDays>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/herdAnimal</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/herdAnimal</xpath>
-      <value>
-        <herdAnimal>false</herdAnimal>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race</xpath>
-      <value>
-        <herdAnimal>false</herdAnimal>
-      </value>
-    </nomatch>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race</xpath>
+    <value>
+      <herdMigrationAllowed>false</herdMigrationAllowed>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/herdMigrationAllowed</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/herdMigrationAllowed</xpath>
-      <value>
-        <herdMigrationAllowed>false</herdMigrationAllowed>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race</xpath>
-      <value>
-        <herdMigrationAllowed>false</herdMigrationAllowed>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/foodType</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/foodType</xpath>
-      <value>
-        <foodType>CarnivoreAnimal, OvivoreAnimal</foodType>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race</xpath>
-      <value>
-        <foodType>CarnivoreAnimal, OvivoreAnimal</foodType>
-      </value>
-    </nomatch>
+    <value>
+      <foodType>CarnivoreAnimal, OvivoreAnimal</foodType>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/roamMtbDays</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/roamMtbDays</xpath>
-      <value>
-        <roamMtbDays>8</roamMtbDays>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race</xpath>
-      <value>
-        <roamMtbDays>8</roamMtbDays>
-      </value>
-    </nomatch>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race</xpath>
+    <value>
+      <roamMtbDays>8</roamMtbDays>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationRemove">
     <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/leatherDef</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/leatherDef</xpath>
-    </match>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/useLeatherFrom</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/useLeatherFrom</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/manhunterOnTameFailChance</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/manhunterOnTameFailChance</xpath>
-      <value>
-        <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race</xpath>
-      <value>
-        <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/manhunterOnDamageChance</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/manhunterOnDamageChance</xpath>
-      <value>
-        <manhunterOnDamageChance>0</manhunterOnDamageChance>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race</xpath>
-      <value>
-        <manhunterOnDamageChance>0</manhunterOnDamageChance>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/petness</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/petness</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/nuzzleMtbHours</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/nuzzleMtbHours</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/mateMtbHours</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/mateMtbHours</xpath>
-      <value>
-        <mateMtbHours>12</mateMtbHours>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race</xpath>
-      <value>
-        <mateMtbHours>12</mateMtbHours>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/trainability</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/trainability</xpath>
-      <value>
-        <trainability>None</trainability>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race</xpath>
-      <value>
-        <trainability>None</trainability>
-      </value>
-    </nomatch>
+    <value>
+      <trainability>None</trainability>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/packAnimal</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/packAnimal</xpath>
-      <value>
-        <packAnimal>false</packAnimal>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race</xpath>
-      <value>
-        <packAnimal>false</packAnimal>
-      </value>
-    </nomatch>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race</xpath>
+    <value>
+      <predator>true</predator>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/predator</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/predator</xpath>
-      <value>
-        <predator>true</predator>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race</xpath>
-      <value>
-        <predator>true</predator>
-      </value>
-    </nomatch>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race</xpath>
+    <value>
+      <maxPreyBodySize>1</maxPreyBodySize>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/maxPreyBodySize</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/maxPreyBodySize</xpath>
-      <value>
-        <maxPreyBodySize>1</maxPreyBodySize>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race</xpath>
-      <value>
-        <maxPreyBodySize>1</maxPreyBodySize>
-      </value>
-    </nomatch>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race</xpath>
+    <value>
+      <canFishForFood>true</canFishForFood>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/nameOnTameChance</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/nameOnTameChance</xpath>
-      <value>
-        <nameOnTameChance>0</nameOnTameChance>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race</xpath>
-      <value>
-        <nameOnTameChance>0</nameOnTameChance>
-      </value>
-    </nomatch>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/lifeStageAges</xpath>
+    <value>
+      <lifeStageAges>
+        <li>
+          <def>AnimalBaby</def>
+          <minAge>0</minAge>
+        </li>
+        <li>
+          <def>AnimalJuvenile</def>
+          <minAge>0.4</minAge>
+        </li>
+        <li>
+          <def>AnimalAdult</def>
+          <minAge>0.8</minAge>
+          <soundWounded>Pawn_Frog_Wounded</soundWounded>
+          <soundDeath>Pawn_Frog_Death</soundDeath>
+          <soundCall>Pawn_Frog_Call</soundCall>
+          <soundAngry>Pawn_Frog_Angry</soundAngry>
+        </li>
+      </lifeStageAges>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/body</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/body</xpath>
-      <value>
-        <body>QuadrupedAnimalWithPaws</body>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race</xpath>
-      <value>
-        <body>QuadrupedAnimalWithPaws</body>
-      </value>
-    </nomatch>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race</xpath>
+    <value>
+      <litterSizeCurve>
+        <points>
+          <li>(2.0000, 0)</li>
+          <li>(4.0000, 0.2)</li>
+          <li>(8.0000, 1)</li>
+          <li>(12.0000, 1)</li>
+          <li>(16.0000, 0.2)</li>
+          <li>(18.0000, 0)</li>
+        </points>
+      </litterSizeCurve>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/waterCellCost</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/waterCellCost</xpath>
-      <value>
-        <waterCellCost>1</waterCellCost>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race</xpath>
-      <value>
-        <waterCellCost>1</waterCellCost>
-      </value>
-    </nomatch>
+  <Operation Class="PatchOperationRemove">
+    <xpath>/Defs/ThingDef[defName = "ColossusToad"]/tradeTags/li[text()='AnimalUncommon']</xpath>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/waterSeeker</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/waterSeeker</xpath>
-      <value>
-        <waterSeeker>true</waterSeeker>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race</xpath>
-      <value>
-        <waterSeeker>true</waterSeeker>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/canFishForFood</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/canFishForFood</xpath>
-      <value>
-        <canFishForFood>true</canFishForFood>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race</xpath>
-      <value>
-        <canFishForFood>true</canFishForFood>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/useMeatFrom</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/useMeatFrom</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/wildBiomes</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/wildBiomes</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/lifeStageAges/li[2]</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/lifeStageAges/li[2]/def</xpath>
-      <value>
-        <def>AnimalJuvenile</def>
-      </value>
-    </match>
-    <nomatch/>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/lifeStageAges/li[3]</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/lifeStageAges/li[3]/def</xpath>
-      <value>
-        <def>AnimalAdult</def>
-      </value>
-    </match>
-    <nomatch/>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/lifeStageAges/li[2]</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/lifeStageAges/li[2]/minAge</xpath>
-      <value>
-        <minAge>0.4</minAge>
-      </value>
-    </match>
-    <nomatch/>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/lifeStageAges/li[3]</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/lifeStageAges/li[3]/minAge</xpath>
-      <value>
-        <minAge>0.8</minAge>
-      </value>
-    </match>
-    <nomatch/>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/litterSizeCurve</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/litterSizeCurve</xpath>
-      <value>
-        <litterSizeCurve>
-          <points>
-            <li>(2.0000, 0)</li>
-            <li>(4.0000, 0.2)</li>
-            <li>(8.0000, 1)</li>
-            <li>(12.0000, 1)</li>
-            <li>(16.0000, 0.2)</li>
-            <li>(18.0000, 0)</li>
-          </points>
-        </litterSizeCurve>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race</xpath>
-      <value>
-        <litterSizeCurve>
-          <points>
-            <li>(2.0000, 0)</li>
-            <li>(4.0000, 0.2)</li>
-            <li>(8.0000, 1)</li>
-            <li>(12.0000, 1)</li>
-            <li>(16.0000, 0.2)</li>
-            <li>(18.0000, 0)</li>
-          </points>
-        </litterSizeCurve>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/specialTrainables</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/specialTrainables</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "ColossusToad"]/tradeTags/li[text()="AnimalCommon" or text()="AnimalUncommon" or text()="AnimalExotic" or text()="AnimalFighter" or text()="AnimalInsect" or text()="AnimalPet" or text()="AnimalFarm"]</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/tradeTags/li[text()="AnimalCommon" or text()="AnimalUncommon" or text()="AnimalExotic" or text()="AnimalFighter" or text()="AnimalInsect" or text()="AnimalPet" or text()="AnimalFarm"]</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationAdd">
     <xpath>/Defs/ThingDef[defName = "ColossusToad"]/tradeTags</xpath>
-    <match Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/tradeTags</xpath>
-      <value>
-        <li>AnimalCommon</li>
-        <li>AnimalFarm</li>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]</xpath>
-      <value>
-        <tradeTags>
-          <li>AnimalCommon</li>
-          <li>AnimalFarm</li>
-        </tradeTags>
-      </value>
-    </nomatch>
+    <value>
+      <li>AnimalCommon</li>
+      <li>AnimalFarm</li>
+    </value>
   </Operation>
   <Operation Class="PatchOperationAddModExtension">
     <xpath>/Defs/ThingDef[defName = "ColossusToad"]</xpath>
@@ -1357,62 +431,11 @@
     </value>
   </Operation>
   <!-- ColossusToad PawnKindDef -->
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "ColossusToad"]/combatPower</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/PawnKindDef[defName = "ColossusToad"]/combatPower</xpath>
-      <value>
-        <combatPower>55</combatPower>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/PawnKindDef[defName = "ColossusToad"]</xpath>
-      <value>
-        <combatPower>55</combatPower>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/PawnKindDef[defName = "ColossusToad"]/ecoSystemWeight</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/PawnKindDef[defName = "ColossusToad"]/ecoSystemWeight</xpath>
-      <value>
-        <ecoSystemWeight>0.3</ecoSystemWeight>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/PawnKindDef[defName = "ColossusToad"]</xpath>
-      <value>
-        <ecoSystemWeight>0.3</ecoSystemWeight>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/PawnKindDef[defName = "ColossusToad"]/canArriveManhunter</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/PawnKindDef[defName = "ColossusToad"]/canArriveManhunter</xpath>
-      <value>
-        <canArriveManhunter>true</canArriveManhunter>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/PawnKindDef[defName = "ColossusToad"]</xpath>
-      <value>
-        <canArriveManhunter>true</canArriveManhunter>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/PawnKindDef[defName = "ColossusToad"]/wildGroupSize</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/PawnKindDef[defName = "ColossusToad"]/wildGroupSize</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/PawnKindDef[defName = "ColossusToad"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/PawnKindDef[defName = "ColossusToad"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
-    </match>
+    <value>
+      <combatPower>55</combatPower>
+    </value>
   </Operation>
   <!-- Combat Extended specific patches -->
   <Operation Class="PatchOperationFindMod">
@@ -1422,149 +445,52 @@
     <match Class="PatchOperationSequence">
       <operations>
         <!-- Bullfrog CE patches -->
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="Bullfrog"]/statBases/MeleeDodgeChance</xpath>
-          <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="Bullfrog"]/statBases/MeleeDodgeChance</xpath>
-            <value>
-              <MeleeDodgeChance>0.55</MeleeDodgeChance>
-            </value>
-          </match>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="Bullfrog"]/statBases</xpath>
-            <value>
-              <MeleeDodgeChance>0.55</MeleeDodgeChance>
-            </value>
-          </nomatch>
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="Bullfrog"]/statBases</xpath>
+          <value>
+            <MeleeDodgeChance>0.55</MeleeDodgeChance>
+          </value>
         </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="Bullfrog"]/statBases/MeleeCritChance</xpath>
-          <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="Bullfrog"]/statBases/MeleeCritChance</xpath>
-            <value>
-              <MeleeCritChance>0</MeleeCritChance>
-            </value>
-          </match>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="Bullfrog"]/statBases</xpath>
-            <value>
-              <MeleeCritChance>0</MeleeCritChance>
-            </value>
-          </nomatch>
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="Bullfrog"]/statBases</xpath>
+          <value>
+            <ArmorRating_Sharp>0.01</ArmorRating_Sharp>
+          </value>
         </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="Bullfrog"]/statBases/MeleeParryChance</xpath>
-          <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="Bullfrog"]/statBases/MeleeParryChance</xpath>
-            <value>
-              <MeleeParryChance>0</MeleeParryChance>
-            </value>
-          </match>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="Bullfrog"]/statBases</xpath>
-            <value>
-              <MeleeParryChance>0</MeleeParryChance>
-            </value>
-          </nomatch>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="Bullfrog"]/statBases/ArmorRating_Sharp</xpath>
-          <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="Bullfrog"]/statBases/ArmorRating_Sharp</xpath>
-            <value>
-              <ArmorRating_Sharp>0.01</ArmorRating_Sharp>
-            </value>
-          </match>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="Bullfrog"]/statBases</xpath>
-            <value>
-              <ArmorRating_Sharp>0.01</ArmorRating_Sharp>
-            </value>
-          </nomatch>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="Bullfrog"]/statBases/ArmorRating_Blunt</xpath>
-          <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="Bullfrog"]/statBases/ArmorRating_Blunt</xpath>
-            <value>
-              <ArmorRating_Blunt>0.05</ArmorRating_Blunt>
-            </value>
-          </match>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="Bullfrog"]/statBases</xpath>
-            <value>
-              <ArmorRating_Blunt>0.05</ArmorRating_Blunt>
-            </value>
-          </nomatch>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="Bullfrog"]/comps</xpath>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="Bullfrog"]</xpath>
-            <value>
-              <comps/>
-            </value>
-          </nomatch>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="Bullfrog"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]</xpath>
-          <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="Bullfrog"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]/Durability</xpath>
-            <value>
-              <Durability>50</Durability>
-            </value>
-          </match>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="Bullfrog"]/comps</xpath>
-            <value>
-              <li Class="CombatExtended.CompProperties_ArmorDurability">
-                <Durability>50</Durability>
-                <Regenerates>true</Regenerates>
-                <RegenInterval>600</RegenInterval>
-                <RegenValue>5</RegenValue>
-                <MinArmorPct>0.5</MinArmorPct>
-              </li>
-            </value>
-          </nomatch>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="Bullfrog"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
-          <match Class="PatchOperationSequence">
-            <operations>
-              <li Class="PatchOperationConditional">
-                <xpath>Defs/ThingDef[defName="Bullfrog"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
-                <match Class="PatchOperationReplace">
-                  <xpath>Defs/ThingDef[defName="Bullfrog"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
-                  <value>
-                    <bodyShape>QuadrupedLow</bodyShape>
-                  </value>
-                </match>
-                <nomatch Class="PatchOperationAdd">
-                  <xpath>Defs/ThingDef[defName="Bullfrog"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
-                  <value>
-                    <bodyShape>QuadrupedLow</bodyShape>
-                  </value>
-                </nomatch>
-              </li>
-            </operations>
-          </match>
-          <nomatch Class="PatchOperationAddModExtension">
-            <xpath>Defs/ThingDef[defName="Bullfrog"]</xpath>
-            <value>
-              <li Class="CombatExtended.RacePropertiesExtensionCE">
-                <bodyShape>QuadrupedLow</bodyShape>
-              </li>
-            </value>
-          </nomatch>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>/Defs/ThingDef[defName="Bullfrog"]/tools</xpath>
-          <match Class="PatchOperationRemove">
-            <xpath>/Defs/ThingDef[defName="Bullfrog"]/tools</xpath>
-          </match>
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="Bullfrog"]/statBases</xpath>
+          <value>
+            <ArmorRating_Blunt>0.05</ArmorRating_Blunt>
+          </value>
         </li>
         <li Class="PatchOperationAdd">
           <xpath>Defs/ThingDef[defName="Bullfrog"]</xpath>
+          <value>
+            <comps/>
+          </value>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="Bullfrog"]/comps</xpath>
+          <value>
+            <li Class="CombatExtended.CompProperties_ArmorDurability">
+              <Durability>50</Durability>
+              <Regenerates>true</Regenerates>
+              <RegenInterval>600</RegenInterval>
+              <RegenValue>5</RegenValue>
+              <MinArmorPct>0.5</MinArmorPct>
+            </li>
+          </value>
+        </li>
+        <li Class="PatchOperationAddModExtension">
+          <xpath>Defs/ThingDef[defName="Bullfrog"]</xpath>
+          <value>
+            <li Class="CombatExtended.RacePropertiesExtensionCE">
+              <bodyShape>QuadrupedLow</bodyShape>
+            </li>
+          </value>
+        </li>
+        <li Class="PatchOperationReplace">
+          <xpath>/Defs/ThingDef[defName="Bullfrog"]/tools</xpath>
           <value>
             <tools>
               <li Class="CombatExtended.ToolCE">
@@ -1601,156 +527,53 @@
             </tools>
           </value>
         </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="Bullfrog"]/statBases/ArmorRating_Heat</xpath>
-          <match Class="PatchOperationRemove">
-            <xpath>Defs/ThingDef[defName="Bullfrog"]/statBases/ArmorRating_Heat</xpath>
-          </match>
-        </li>
         <!-- ColossusToad CE patches -->
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="ColossusToad"]/statBases/MeleeDodgeChance</xpath>
-          <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="ColossusToad"]/statBases/MeleeDodgeChance</xpath>
-            <value>
-              <MeleeDodgeChance>0.25</MeleeDodgeChance>
-            </value>
-          </match>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="ColossusToad"]/statBases</xpath>
-            <value>
-              <MeleeDodgeChance>0.25</MeleeDodgeChance>
-            </value>
-          </nomatch>
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="ColossusToad"]/statBases</xpath>
+          <value>
+            <MeleeDodgeChance>0.25</MeleeDodgeChance>
+          </value>
         </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="ColossusToad"]/statBases/MeleeCritChance</xpath>
-          <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="ColossusToad"]/statBases/MeleeCritChance</xpath>
-            <value>
-              <MeleeCritChance>0</MeleeCritChance>
-            </value>
-          </match>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="ColossusToad"]/statBases</xpath>
-            <value>
-              <MeleeCritChance>0</MeleeCritChance>
-            </value>
-          </nomatch>
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="ColossusToad"]/statBases</xpath>
+          <value>
+            <ArmorRating_Sharp>0.04</ArmorRating_Sharp>
+          </value>
         </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="ColossusToad"]/statBases/MeleeParryChance</xpath>
-          <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="ColossusToad"]/statBases/MeleeParryChance</xpath>
-            <value>
-              <MeleeParryChance>0</MeleeParryChance>
-            </value>
-          </match>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="ColossusToad"]/statBases</xpath>
-            <value>
-              <MeleeParryChance>0</MeleeParryChance>
-            </value>
-          </nomatch>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="ColossusToad"]/statBases/ArmorRating_Sharp</xpath>
-          <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="ColossusToad"]/statBases/ArmorRating_Sharp</xpath>
-            <value>
-              <ArmorRating_Sharp>0.04</ArmorRating_Sharp>
-            </value>
-          </match>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="ColossusToad"]/statBases</xpath>
-            <value>
-              <ArmorRating_Sharp>0.04</ArmorRating_Sharp>
-            </value>
-          </nomatch>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="ColossusToad"]/statBases/ArmorRating_Blunt</xpath>
-          <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="ColossusToad"]/statBases/ArmorRating_Blunt</xpath>
-            <value>
-              <ArmorRating_Blunt>0.15</ArmorRating_Blunt>
-            </value>
-          </match>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="ColossusToad"]/statBases</xpath>
-            <value>
-              <ArmorRating_Blunt>0.15</ArmorRating_Blunt>
-            </value>
-          </nomatch>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="ColossusToad"]/comps</xpath>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="ColossusToad"]</xpath>
-            <value>
-              <comps/>
-            </value>
-          </nomatch>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="ColossusToad"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]</xpath>
-          <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="ColossusToad"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]/Durability</xpath>
-            <value>
-              <Durability>450</Durability>
-            </value>
-          </match>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>Defs/ThingDef[defName="ColossusToad"]/comps</xpath>
-            <value>
-              <li Class="CombatExtended.CompProperties_ArmorDurability">
-                <Durability>450</Durability>
-                <Regenerates>true</Regenerates>
-                <RegenInterval>600</RegenInterval>
-                <RegenValue>5</RegenValue>
-                <MinArmorPct>0.5</MinArmorPct>
-              </li>
-            </value>
-          </nomatch>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="ColossusToad"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
-          <match Class="PatchOperationSequence">
-            <operations>
-              <li Class="PatchOperationConditional">
-                <xpath>Defs/ThingDef[defName="ColossusToad"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
-                <match Class="PatchOperationReplace">
-                  <xpath>Defs/ThingDef[defName="ColossusToad"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
-                  <value>
-                    <bodyShape>QuadrupedLow</bodyShape>
-                  </value>
-                </match>
-                <nomatch Class="PatchOperationAdd">
-                  <xpath>Defs/ThingDef[defName="ColossusToad"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
-                  <value>
-                    <bodyShape>QuadrupedLow</bodyShape>
-                  </value>
-                </nomatch>
-              </li>
-            </operations>
-          </match>
-          <nomatch Class="PatchOperationAddModExtension">
-            <xpath>Defs/ThingDef[defName="ColossusToad"]</xpath>
-            <value>
-              <li Class="CombatExtended.RacePropertiesExtensionCE">
-                <bodyShape>QuadrupedLow</bodyShape>
-              </li>
-            </value>
-          </nomatch>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>/Defs/ThingDef[defName="ColossusToad"]/tools</xpath>
-          <match Class="PatchOperationRemove">
-            <xpath>/Defs/ThingDef[defName="ColossusToad"]/tools</xpath>
-          </match>
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="ColossusToad"]/statBases</xpath>
+          <value>
+            <ArmorRating_Blunt>0.15</ArmorRating_Blunt>
+          </value>
         </li>
         <li Class="PatchOperationAdd">
           <xpath>Defs/ThingDef[defName="ColossusToad"]</xpath>
+          <value>
+            <comps/>
+          </value>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="ColossusToad"]/comps</xpath>
+          <value>
+            <li Class="CombatExtended.CompProperties_ArmorDurability">
+              <Durability>450</Durability>
+              <Regenerates>true</Regenerates>
+              <RegenInterval>600</RegenInterval>
+              <RegenValue>5</RegenValue>
+              <MinArmorPct>0.5</MinArmorPct>
+            </li>
+          </value>
+        </li>
+        <li Class="PatchOperationAddModExtension">
+          <xpath>Defs/ThingDef[defName="ColossusToad"]</xpath>
+          <value>
+            <li Class="CombatExtended.RacePropertiesExtensionCE">
+              <bodyShape>QuadrupedLow</bodyShape>
+            </li>
+          </value>
+        </li>
+        <li Class="PatchOperationReplace">
+          <xpath>/Defs/ThingDef[defName="ColossusToad"]/tools</xpath>
           <value>
             <tools>
               <li Class="CombatExtended.ToolCE">
@@ -1786,12 +609,6 @@
               </li>
             </tools>
           </value>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="ColossusToad"]/statBases/ArmorRating_Heat</xpath>
-          <match Class="PatchOperationRemove">
-            <xpath>Defs/ThingDef[defName="ColossusToad"]/statBases/ArmorRating_Heat</xpath>
-          </match>
         </li>
       </operations>
     </match>

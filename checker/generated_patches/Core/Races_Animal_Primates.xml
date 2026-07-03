@@ -143,35 +143,33 @@
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "Monkey"]/race/lifeStageAges/li[2]/minAge</xpath>
+    <xpath>/Defs/ThingDef[defName = "Monkey"]/race/lifeStageAges</xpath>
     <value>
-      <minAge>0.3</minAge>
+      <lifeStageAges>
+        <li>
+          <def>AnimalBaby</def>
+          <minAge>0</minAge>
+        </li>
+        <li>
+          <def>AnimalJuvenile</def>
+          <minAge>0.3</minAge>
+        </li>
+        <li>
+          <def>AnimalAdult</def>
+          <minAge>0.6</minAge>
+          <soundWounded>Pawn_Monkey_Wounded</soundWounded>
+          <soundDeath>Pawn_Monkey_Death</soundDeath>
+          <soundCall>Pawn_Monkey_Call</soundCall>
+          <soundAngry>Pawn_Monkey_Angry</soundAngry>
+        </li>
+      </lifeStageAges>
     </value>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "Monkey"]/race/lifeStageAges/li[3]/minAge</xpath>
-    <value>
-      <minAge>0.6</minAge>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[defName = "Monkey"]/race/specialTrainables/li[text()="SludgeSpew" or text()="EggSpew" or text()="TerrorRoar" or text()="WarTrumpet" or text()="Forage" or text()="Comfort" or text()="AttackTarget" or text()="Dig"]</xpath>
   </Operation>
   <Operation Class="PatchOperationAdd">
     <xpath>/Defs/ThingDef[defName = "Monkey"]/race/specialTrainables</xpath>
     <value>
       <li MayRequire="Ludeon.RimWorld.Odyssey">Forage</li>
-      <li MayRequire="Ludeon.RimWorld.Odyssey">Comfort</li>
       <li MayRequire="Ludeon.RimWorld.Odyssey">AttackTarget</li>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[defName = "Monkey"]/tradeTags/li[text()="AnimalCommon" or text()="AnimalUncommon" or text()="AnimalExotic" or text()="AnimalFighter" or text()="AnimalInsect" or text()="AnimalPet" or text()="AnimalFarm"]</xpath>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/ThingDef[defName = "Monkey"]/tradeTags</xpath>
-    <value>
-      <li>AnimalUncommon</li>
     </value>
   </Operation>
   <Operation Class="PatchOperationAddModExtension">

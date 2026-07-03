@@ -1,10 +1,11 @@
 import copy
+import re
 from collections import Counter
 
 from lxml import etree as LET
 
 from rimworld_patch_apply import PatchApplier
-from rimworld_original_xml import normalize_xpath, parse_target, rel_path_from_target
+from rimworld_original_xml import normalize_xpath, parse_target, rel_path_from_target, xpath_literal
 from rimworld_patch_defaults import PAWN_KIND_FIELD_DEFAULTS, scalar_values_equal
 
 
@@ -20,6 +21,8 @@ SCALAR_CONTAINER_TAGS = {"race", "statBases"}
 
 
 class PatchOptimizer:
+    _TEXT_PREDICATE_RE = re.compile(r"(?:text\(\)|\.)\s*=\s*(['\"])(.*?)\1")
+
     def __init__(self, original_index):
         self.index = original_index
         self.stats = Counter()
@@ -43,14 +46,34 @@ class PatchOptimizer:
 
     def _optimize_nodes(self, nodes, sim_root, patched_sim_root=None):
         out = []
-        for node in nodes:
+        idx = 0
+        while idx < len(nodes):
+            if idx + 1 < len(nodes):
+                list_ops = self._try_optimize_list_cleanup_pair(
+                    nodes[idx],
+                    nodes[idx + 1],
+                    sim_root,
+                    patched_sim_root,
+                )
+                if list_ops is not None:
+                    for op in list_ops:
+                        out.append(op)
+                        self._apply_operation_to_sim(op, sim_root)
+                        if patched_sim_root is not None:
+                            self._apply_operation_to_sim(op, patched_sim_root)
+                    idx += 2
+                    continue
+
+            node = nodes[idx]
             optimized = self._optimize_node(node, sim_root, patched_sim_root)
             if optimized is None:
+                idx += 1
                 continue
             if isinstance(optimized, list):
                 out.extend(optimized)
             else:
                 out.append(optimized)
+            idx += 1
         return out
 
     def _optimize_node(self, node, sim_root, patched_sim_root=None):
@@ -80,6 +103,10 @@ class PatchOptimizer:
             and self.index.target_known_from_xpath(xpath, root=patched_sim_root)
         )
         if not base_known and not patched_known:
+            wrapped = self._wrap_unknown_target_operation(node, xpath)
+            if wrapped is not None:
+                self.stats["unknown_target_ops_wrapped"] += 1
+                return wrapped
             return copy.deepcopy(node)
 
         matched = bool(self.index.direct_nodes(xpath, root=sim_root)) if base_known else False
@@ -134,6 +161,13 @@ class PatchOptimizer:
     def _optimize_direct_operation(self, node, sim_root, patched_sim_root=None):
         cls = node.get("Class")
         xpath = self._child_text(node, "xpath")
+        if xpath and self._target_missing_in_all_known_states(xpath, sim_root, patched_sim_root):
+            wrapped = self._wrap_unknown_target_operation(node, xpath)
+            if wrapped is not None:
+                self.stats["unknown_target_ops_wrapped"] += 1
+                self._apply_kept_operation_to_sim(wrapped, sim_root)
+                self._apply_kept_operation_to_sim(wrapped, patched_sim_root)
+                return wrapped
 
         if cls == "PatchOperationAttributeSet":
             optimized = self._optimize_attribute_set(node, sim_root, xpath)
@@ -238,6 +272,11 @@ class PatchOptimizer:
         target = parse_target(add_xpath)
         if not target:
             return False
+        if value_child.attrib or any(
+            isinstance(getattr(child, "tag", None), str)
+            for child in value_child
+        ):
+            return False
         kind = target[0]
         if value_child.tag in SCALAR_CONTAINER_TAGS:
             return False
@@ -293,6 +332,47 @@ class PatchOptimizer:
             return
         self._kept_conditional_applier.apply_operation(copy.deepcopy(node), sim_root)
 
+    def _target_missing_in_all_known_states(self, xpath, sim_root, patched_sim_root=None):
+        target = parse_target(xpath)
+        if not target:
+            return False
+        if self.index.has_def(*target, root=sim_root):
+            return False
+        if patched_sim_root is not None and self.index.has_def(*target, root=patched_sim_root):
+            return False
+        return True
+
+    def _wrap_unknown_target_operation(self, node, xpath):
+        target = parse_target(xpath)
+        if not target:
+            return None
+        root_xpath = self._root_xpath_for_target(target)
+        wrapper = LET.Element(node.tag, Class="PatchOperationConditional")
+        LET.SubElement(wrapper, "xpath").text = root_xpath
+        match = LET.SubElement(wrapper, "match", Class="PatchOperationSequence")
+        operations = LET.SubElement(match, "operations")
+        operations.append(self._as_sequence_item(node))
+        return wrapper
+
+    def _root_xpath_for_target(self, target):
+        kind, attr, name = target
+        if attr == "@Name":
+            return f"/Defs/{kind}[@Name={xpath_literal(name)}]"
+        return f"/Defs/{kind}[defName={xpath_literal(name)}]"
+
+    def _as_sequence_item(self, node):
+        copied = copy.deepcopy(node)
+        if copied.tag == "li":
+            return copied
+        item = LET.Element("li")
+        for key, value in copied.attrib.items():
+            item.set(key, value)
+        item.text = copied.text
+        item.tail = copied.tail
+        for child in copied:
+            item.append(copy.deepcopy(child))
+        return item
+
     def _combine_remove_add_replaces(self, nodes):
         combined = []
         idx = 0
@@ -342,6 +422,176 @@ class PatchOptimizer:
         value = LET.SubElement(repl, "value")
         value.append(copy.deepcopy(value_children[0]))
         return repl
+
+    def _try_optimize_list_cleanup_pair(self, remove_node, add_node, sim_root, patched_sim_root=None):
+        base_ops = self._list_cleanup_ops_for_state(remove_node, add_node, sim_root)
+        if base_ops is None:
+            return None
+
+        if patched_sim_root is not None:
+            patched_ops = self._list_cleanup_ops_for_state(remove_node, add_node, patched_sim_root)
+            if patched_ops is None:
+                return None
+            if self._ops_signature(base_ops) != self._ops_signature(patched_ops):
+                return None
+
+        self.stats["list_cleanup_pairs_optimized"] += 1
+        if not base_ops:
+            self.stats["list_cleanup_pairs_removed_noop"] += 1
+        return base_ops
+
+    def _list_cleanup_ops_for_state(self, remove_node, add_node, sim_root):
+        cleanup = self._extract_list_cleanup_remove(remove_node)
+        if cleanup is None:
+            return None
+        parent_xpath, removable_texts = cleanup
+        add_info = self._extract_list_cleanup_add(add_node, parent_xpath)
+        if add_info is None:
+            return None
+        desired_items = add_info
+        if len({self._li_key(item) for item in desired_items}) != len(desired_items):
+            return None
+
+        containers = self.index.direct_nodes(parent_xpath, root=sim_root)
+        if len(containers) != 1:
+            return None
+
+        container = containers[0]
+        existing_items = [
+            child for child in container
+            if isinstance(getattr(child, "tag", None), str)
+            and child.tag == "li"
+            and self._li_key(child) in removable_texts
+        ]
+        if len({self._li_key(item) for item in existing_items}) != len(existing_items):
+            return None
+
+        desired_by_key = {self._li_key(item): item for item in desired_items}
+        existing_by_key = {self._li_key(item): item for item in existing_items}
+        ops = []
+
+        for key, existing in existing_by_key.items():
+            desired = desired_by_key.get(key)
+            item_xpath = self._list_item_xpath(parent_xpath, key)
+            if desired is None:
+                ops.append(self._make_remove_op(remove_node.tag, item_xpath))
+            elif not self._elements_equal_scalar_or_xml(existing, desired):
+                ops.append(self._make_replace_op(remove_node.tag, item_xpath, desired))
+
+        missing_items = [
+            desired for key, desired in desired_by_key.items()
+            if key not in existing_by_key
+        ]
+        if missing_items:
+            ops.append(self._make_add_op(add_node.tag, parent_xpath, missing_items))
+
+        return ops
+
+    def _extract_list_cleanup_remove(self, node):
+        if not isinstance(getattr(node, "tag", None), str):
+            return None
+        cls = node.get("Class")
+        xpath = None
+        if cls == "PatchOperationRemove":
+            xpath = self._child_text(node, "xpath")
+        elif cls == "PatchOperationConditional":
+            match = node.find("match")
+            if match is None or match.get("Class") != "PatchOperationRemove":
+                return None
+            xpath = self._child_text(match, "xpath") or self._child_text(node, "xpath")
+        else:
+            return None
+
+        parent_xpath, predicate = self._split_list_item_xpath(xpath)
+        if parent_xpath is None:
+            return None
+        if not (
+            parent_xpath.endswith("/race/specialTrainables")
+            or parent_xpath.endswith("/tradeTags")
+        ):
+            return None
+        values = self._predicate_text_values(predicate)
+        if not values:
+            return None
+        return parent_xpath, set(values)
+
+    def _extract_list_cleanup_add(self, node, expected_parent_xpath):
+        if not isinstance(getattr(node, "tag", None), str):
+            return None
+        cls = node.get("Class")
+        if cls == "PatchOperationAdd":
+            xpath = normalize_xpath(self._child_text(node, "xpath")).rstrip("/")
+            if xpath != expected_parent_xpath:
+                return None
+            return self._list_value_items(node)
+
+        if cls != "PatchOperationConditional":
+            return None
+        match = node.find("match")
+        if match is None or match.get("Class") != "PatchOperationAdd":
+            return None
+        xpath = normalize_xpath(self._child_text(match, "xpath")).rstrip("/")
+        if xpath != expected_parent_xpath:
+            return None
+        return self._list_value_items(match)
+
+    def _split_list_item_xpath(self, xpath):
+        text = normalize_xpath(xpath).strip().rstrip("/")
+        marker = "/li["
+        if marker not in text or not text.endswith("]"):
+            return None, None
+        parent, predicate = text.rsplit(marker, 1)
+        return parent, predicate[:-1]
+
+    def _predicate_text_values(self, predicate):
+        values = []
+        idx = 0
+        text = predicate or ""
+        while idx < len(text):
+            match = self._TEXT_PREDICATE_RE.search(text, idx)
+            if not match:
+                break
+            values.append(match.group(2))
+            idx = match.end()
+        return values
+
+    def _list_value_items(self, node):
+        items = self._value_children(node)
+        if not items or any(item.tag != "li" for item in items):
+            return None
+        return [copy.deepcopy(item) for item in items]
+
+    def _li_key(self, item):
+        return (item.text or "").strip()
+
+    def _list_item_xpath(self, parent_xpath, text):
+        return f"{parent_xpath}/li[text()={xpath_literal(text)}]"
+
+    def _make_remove_op(self, tag, xpath):
+        op = LET.Element(tag, Class="PatchOperationRemove")
+        LET.SubElement(op, "xpath").text = xpath
+        return op
+
+    def _make_add_op(self, tag, xpath, items):
+        op = LET.Element(tag, Class="PatchOperationAdd")
+        LET.SubElement(op, "xpath").text = xpath
+        value = LET.SubElement(op, "value")
+        for item in items:
+            value.append(copy.deepcopy(item))
+        return op
+
+    def _make_replace_op(self, tag, xpath, item):
+        op = LET.Element(tag, Class="PatchOperationReplace")
+        LET.SubElement(op, "xpath").text = xpath
+        value = LET.SubElement(op, "value")
+        value.append(copy.deepcopy(item))
+        return op
+
+    def _ops_signature(self, ops):
+        return [
+            LET.tostring(op, encoding="utf-8")
+            for op in ops
+        ]
 
     def _apply_operation_to_sim(self, node, sim_root):
         cls = node.get("Class")

@@ -68,25 +68,6 @@
   <Operation Class="PatchOperationRemove">
     <xpath>/Defs/ThingDef[@Name = "BigCatThingBase"]/race/lifeStageAges</xpath>
   </Operation>
-  <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[@Name = "BigCatThingBase"]/race/specialTrainables/li[text()="SludgeSpew" or text()="EggSpew" or text()="TerrorRoar" or text()="WarTrumpet" or text()="Forage" or text()="Comfort" or text()="AttackTarget" or text()="Dig"]</xpath>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/ThingDef[@Name = "BigCatThingBase"]/race/specialTrainables</xpath>
-    <value>
-      <li MayRequire="Ludeon.RimWorld.Odyssey">AttackTarget</li>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[@Name = "BigCatThingBase"]/tradeTags/li[text()="AnimalCommon" or text()="AnimalUncommon" or text()="AnimalExotic" or text()="AnimalFighter" or text()="AnimalInsect" or text()="AnimalPet" or text()="AnimalFarm"]</xpath>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/ThingDef[@Name = "BigCatThingBase"]/tradeTags</xpath>
-    <value>
-      <li>AnimalUncommon</li>
-      <li>AnimalFighter</li>
-    </value>
-  </Operation>
   <Operation Class="PatchOperationAddModExtension">
     <xpath>/Defs/ThingDef[@Name = "BigCatThingBase"]</xpath>
     <value>
@@ -268,10 +249,9 @@
         <li>
           <def>AnimalAdult</def>
           <minAge>0.4</minAge>
-          <soundWounded>Pawn_Puma_Wounded</soundWounded>
-          <soundDeath>Pawn_Puma_Death</soundDeath>
-          <soundCall>Pawn_Puma_Call</soundCall>
-          <soundAngry>Pawn_Puma_Angry</soundAngry>
+          <soundWounded>Pawn_Cougar_Injured</soundWounded>
+          <soundDeath>Pawn_Cougar_Death</soundDeath>
+          <soundAngry>Pawn_Cougar_Angry</soundAngry>
         </li>
       </lifeStageAges>
     </value>
@@ -472,10 +452,9 @@
         <li>
           <def>AnimalAdult</def>
           <minAge>0.4</minAge>
-          <soundWounded>Pawn_Leopard_Wounded</soundWounded>
-          <soundDeath>Pawn_Leopard_Death</soundDeath>
-          <soundCall>Pawn_Leopard_Call</soundCall>
-          <soundAngry>Pawn_Leopard_Angry</soundAngry>
+          <soundWounded>Pawn_Cougar_Injured</soundWounded>
+          <soundDeath>Pawn_Cougar_Death</soundDeath>
+          <soundAngry>Pawn_Cougar_Angry</soundAngry>
         </li>
       </lifeStageAges>
     </value>
@@ -662,15 +641,25 @@
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "Lynx"]/race/lifeStageAges/li[2]/minAge</xpath>
+    <xpath>/Defs/ThingDef[defName = "Lynx"]/race/lifeStageAges</xpath>
     <value>
-      <minAge>0.15</minAge>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "Lynx"]/race/lifeStageAges/li[3]/minAge</xpath>
-    <value>
-      <minAge>0.3</minAge>
+      <lifeStageAges>
+        <li>
+          <def>AnimalBaby</def>
+          <minAge>0</minAge>
+        </li>
+        <li>
+          <def>AnimalJuvenile</def>
+          <minAge>0.15</minAge>
+        </li>
+        <li>
+          <def>AnimalAdult</def>
+          <minAge>0.3</minAge>
+          <soundWounded>Pawn_Cougar_Injured</soundWounded>
+          <soundDeath>Pawn_Cougar_Death</soundDeath>
+          <soundAngry>Pawn_Cougar_Angry</soundAngry>
+        </li>
+      </lifeStageAges>
     </value>
   </Operation>
   <Operation Class="PatchOperationAdd">
@@ -694,16 +683,6 @@
       <specialTrainables>
         <li MayRequire="Ludeon.RimWorld.Odyssey">AttackTarget</li>
       </specialTrainables>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[defName = "Lynx"]/tradeTags/li[text()="AnimalCommon" or text()="AnimalUncommon" or text()="AnimalExotic" or text()="AnimalFighter" or text()="AnimalInsect" or text()="AnimalPet" or text()="AnimalFarm"]</xpath>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/ThingDef[defName = "Lynx"]/tradeTags</xpath>
-    <value>
-      <li>AnimalUncommon</li>
-      <li>AnimalFighter</li>
     </value>
   </Operation>
   <Operation Class="PatchOperationAddModExtension">
@@ -861,9 +840,26 @@
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "Cat"]/race/lifeStageAges/li[3]/minAge</xpath>
+    <xpath>/Defs/ThingDef[defName = "Cat"]/race/lifeStageAges</xpath>
     <value>
-      <minAge>0.3</minAge>
+      <lifeStageAges>
+        <li>
+          <def>AnimalBaby</def>
+          <minAge>0</minAge>
+        </li>
+        <li>
+          <def>AnimalJuvenile</def>
+          <minAge>0.15</minAge>
+        </li>
+        <li>
+          <def>AnimalAdult</def>
+          <minAge>0.3</minAge>
+          <soundWounded>Pawn_Cat_Injured</soundWounded>
+          <soundDeath>Pawn_Cat_Death</soundDeath>
+          <soundCall>Pawn_Cat_Call</soundCall>
+          <soundAngry>Pawn_Cat_Angry</soundAngry>
+        </li>
+      </lifeStageAges>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -879,25 +875,6 @@
           <li>(7.2000, 0)</li>
         </points>
       </litterSizeCurve>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[defName = "Cat"]/race/specialTrainables/li[text()="SludgeSpew" or text()="EggSpew" or text()="TerrorRoar" or text()="WarTrumpet" or text()="Forage" or text()="Comfort" or text()="AttackTarget" or text()="Dig"]</xpath>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/ThingDef[defName = "Cat"]/race/specialTrainables</xpath>
-    <value>
-      <li MayRequire="Ludeon.RimWorld.Odyssey">Comfort</li>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[defName = "Cat"]/tradeTags/li[text()="AnimalCommon" or text()="AnimalUncommon" or text()="AnimalExotic" or text()="AnimalFighter" or text()="AnimalInsect" or text()="AnimalPet" or text()="AnimalFarm"]</xpath>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/ThingDef[defName = "Cat"]/tradeTags</xpath>
-    <value>
-      <li>AnimalCommon</li>
-      <li>AnimalPet</li>
     </value>
   </Operation>
   <Operation Class="PatchOperationAddModExtension">
