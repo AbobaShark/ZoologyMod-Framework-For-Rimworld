@@ -33,6 +33,8 @@ namespace ZoologyMod
         public const bool DefaultPreventFleeFromHumansWhileProtectingEggClutches = true;
         public const bool DefaultEnableAnimalWoundLicking = true;
         public const bool DefaultEnableWildAnimalReproduction = true;
+        public const bool DefaultLimitWildAnimalReproductionByEcosystem = true;
+        public const bool DefaultForceWildAnimalsToLeaveOnEcosystemOverload = true;
         public const bool DefaultEnableCannotChewExtension = true;
         public const bool DefaultEnablePredatorDefendCorpse = true;
         public const bool DefaultEnablePredatorDefendPreyFromHumansAndMechanoids = true;
@@ -53,6 +55,9 @@ namespace ZoologyMod
         public const float DefaultSmallPetBodySizeThreshold = 0.45f;
         public const float DefaultSafePredatorBodySizeThreshold = 0.7f;
         public const float DefaultSafeNonPredatorBodySizeThreshold = 3f;
+        public const float DefaultWildAnimalReproductionEcosystemLimitFactor = 1.2f;
+        public const float MinWildAnimalReproductionEcosystemLimitFactor = 1f;
+        public const float MaxWildAnimalReproductionEcosystemLimitFactor = 3f;
         public const int DefaultMinCombatPowerToDefendPreyFromHumans = 70;
         public const int DefaultChildcareProtectionRange = 10;
         public const int DefaultMinCombatPowerToDefendYoungFromHumans = 70;

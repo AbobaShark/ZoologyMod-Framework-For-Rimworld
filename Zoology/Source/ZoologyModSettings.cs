@@ -41,6 +41,8 @@ namespace ZoologyMod
         public bool PreventFleeFromHumansWhileProtectingEggClutches = ModConstants.DefaultPreventFleeFromHumansWhileProtectingEggClutches;
         public bool EnableAnimalWoundLicking = ModConstants.DefaultEnableAnimalWoundLicking;
         public bool EnableWildAnimalReproduction = ModConstants.DefaultEnableWildAnimalReproduction;
+        public bool LimitWildAnimalReproductionByEcosystem = ModConstants.DefaultLimitWildAnimalReproductionByEcosystem;
+        public bool ForceWildAnimalsToLeaveOnEcosystemOverload = ModConstants.DefaultForceWildAnimalsToLeaveOnEcosystemOverload;
         public bool EnableCannotChewExtension = ModConstants.DefaultEnableCannotChewExtension;
         public bool EnablePredatorDefendCorpse = ModConstants.DefaultEnablePredatorDefendCorpse;
         public bool EnablePredatorDefendPreyFromHumansAndMechanoids = ModConstants.DefaultEnablePredatorDefendPreyFromHumansAndMechanoids;
@@ -109,6 +111,7 @@ namespace ZoologyMod
         private float _smallPetBodySizeThreshold = ModConstants.DefaultSmallPetBodySizeThreshold;
         private float _safePredatorBodySizeThreshold = ModConstants.DefaultSafePredatorBodySizeThreshold;
         private float _safeNonPredatorBodySizeThreshold = ModConstants.DefaultSafeNonPredatorBodySizeThreshold;
+        private float _wildAnimalReproductionEcosystemLimitFactor = ModConstants.DefaultWildAnimalReproductionEcosystemLimitFactor;
         private int _minCombatPowerToDefendPreyFromHumans = ModConstants.DefaultMinCombatPowerToDefendPreyFromHumans;
         private int _minCombatPowerToDefendYoungFromHumansAndMechanoids = ModConstants.DefaultMinCombatPowerToDefendYoungFromHumans;
 
@@ -143,6 +146,17 @@ namespace ZoologyMod
             get => _safeNonPredatorBodySizeThreshold;
             set => _safeNonPredatorBodySizeThreshold = Mathf.Clamp(value, 0f, 10f);
         }
+
+        public float WildAnimalReproductionEcosystemLimitFactor
+        {
+            get => _wildAnimalReproductionEcosystemLimitFactor;
+            set => _wildAnimalReproductionEcosystemLimitFactor = Mathf.Clamp(
+                value,
+                ModConstants.MinWildAnimalReproductionEcosystemLimitFactor,
+                ModConstants.MaxWildAnimalReproductionEcosystemLimitFactor);
+        }
+
+        private bool UsesWildAnimalEcosystemLimit => LimitWildAnimalReproductionByEcosystem || ForceWildAnimalsToLeaveOnEcosystemOverload;
 
         public int MinCombatPowerToDefendPreyFromHumans
         {
@@ -363,10 +377,12 @@ namespace ZoologyMod
                 case SettingsPage.Combat:
                     return 580f;
                 case SettingsPage.OtherBehavior:
-                    return 1660f
+                    return 1740f
                         + (EnableCustomFleeDanger ? 170f : 0f)
                         + (EnableIgnoreSmallPetsByRaiders ? 200f : 0f)
-                        + (AnimalsFreeFromHumans ? 130f : 0f);
+                        + (AnimalsFreeFromHumans ? 130f : 0f)
+                        + (EnableWildAnimalReproduction ? 120f : 0f)
+                        + (EnableWildAnimalReproduction && UsesWildAnimalEcosystemLimit ? 70f : 0f);
                 case SettingsPage.Dev:
                 default:
                     return 2060f;
@@ -659,6 +675,37 @@ namespace ZoologyMod
                 "Zoology_EnableWildAnimalReproduction_Desc".Translate()
             );
 
+            if (EnableWildAnimalReproduction)
+            {
+                list.GapLine(6f);
+                list.CheckboxLabeled(
+                    "Zoology_LimitWildAnimalReproductionByEcosystem_Label".Translate(),
+                    ref LimitWildAnimalReproductionByEcosystem,
+                    "Zoology_LimitWildAnimalReproductionByEcosystem_Desc".Translate()
+                );
+
+                list.GapLine(6f);
+                list.CheckboxLabeled(
+                    "Zoology_ForceWildAnimalsToLeaveOnEcosystemOverload_Label".Translate(),
+                    ref ForceWildAnimalsToLeaveOnEcosystemOverload,
+                    "Zoology_ForceWildAnimalsToLeaveOnEcosystemOverload_Desc".Translate()
+                );
+
+                if (UsesWildAnimalEcosystemLimit)
+                {
+                    list.GapLine(6f);
+                    list.Label(string.Format(
+                        "Zoology_WildAnimalReproductionEcosystemLimit_Label".Translate(),
+                        WildAnimalReproductionEcosystemLimitFactor,
+                        ModConstants.MinWildAnimalReproductionEcosystemLimitFactor,
+                        ModConstants.MaxWildAnimalReproductionEcosystemLimitFactor));
+                    WildAnimalReproductionEcosystemLimitFactor = list.Slider(
+                        WildAnimalReproductionEcosystemLimitFactor,
+                        ModConstants.MinWildAnimalReproductionEcosystemLimitFactor,
+                        ModConstants.MaxWildAnimalReproductionEcosystemLimitFactor);
+                }
+            }
+
             list.GapLine(6f);
             if (list.ButtonText("Zoology_ConfigureAnimalRoamers_Button".Translate()))
             {
@@ -869,6 +916,9 @@ namespace ZoologyMod
             PreventFleeFromHumansWhileProtectingEggClutches = ModConstants.DefaultPreventFleeFromHumansWhileProtectingEggClutches;
             EnableAnimalWoundLicking = ModConstants.DefaultEnableAnimalWoundLicking;
             EnableWildAnimalReproduction = ModConstants.DefaultEnableWildAnimalReproduction;
+            LimitWildAnimalReproductionByEcosystem = ModConstants.DefaultLimitWildAnimalReproductionByEcosystem;
+            ForceWildAnimalsToLeaveOnEcosystemOverload = ModConstants.DefaultForceWildAnimalsToLeaveOnEcosystemOverload;
+            _wildAnimalReproductionEcosystemLimitFactor = ModConstants.DefaultWildAnimalReproductionEcosystemLimitFactor;
             EnableCannotChewExtension = ModConstants.DefaultEnableCannotChewExtension;
             EnablePredatorDefendCorpse = ModConstants.DefaultEnablePredatorDefendCorpse;
             EnablePredatorDefendPreyFromHumansAndMechanoids = ModConstants.DefaultEnablePredatorDefendPreyFromHumansAndMechanoids;
@@ -946,6 +996,9 @@ namespace ZoologyMod
             Scribe_Values.Look(ref _safeNonPredatorBodySizeThreshold, "SafeNonPredatorBodySizeThreshold", ModConstants.DefaultSafeNonPredatorBodySizeThreshold);
             Scribe_Values.Look(ref AnimalsFreeFromHumans, "AnimalsFreeFromHumans", ModConstants.DefaultAnimalsFreeFromHumans);
             Scribe_Values.Look(ref EnableWildAnimalReproduction, "EnableWildAnimalReproduction", ModConstants.DefaultEnableWildAnimalReproduction);
+            Scribe_Values.Look(ref LimitWildAnimalReproductionByEcosystem, "LimitWildAnimalReproductionByEcosystem", ModConstants.DefaultLimitWildAnimalReproductionByEcosystem);
+            Scribe_Values.Look(ref ForceWildAnimalsToLeaveOnEcosystemOverload, "ForceWildAnimalsToLeaveOnEcosystemOverload", ModConstants.DefaultForceWildAnimalsToLeaveOnEcosystemOverload);
+            Scribe_Values.Look(ref _wildAnimalReproductionEcosystemLimitFactor, "WildAnimalReproductionEcosystemLimitFactor", ModConstants.DefaultWildAnimalReproductionEcosystemLimitFactor);
             Scribe_Values.Look(ref EnableAgroAtSlaughter, "EnableAgroAtSlaughter", ModConstants.DefaultEnableAgroAtSlaughter);
             Scribe_Values.Look(ref EnableMammalLactation, "EnableMammalLactation", ModConstants.DefaultEnableMammalLactation);
             Scribe_Values.Look(ref EnableAnimalChildcare, "EnableAnimalChildcare", ModConstants.DefaultEnableAnimalChildcare);
@@ -999,6 +1052,7 @@ namespace ZoologyMod
             }
 
             ClampFleeAndThreatSettings();
+            WildAnimalReproductionEcosystemLimitFactor = _wildAnimalReproductionEcosystemLimitFactor;
             _minCombatPowerToDefendPreyFromHumans = Mathf.Clamp(_minCombatPowerToDefendPreyFromHumans, MinCombatPowerToDefendPreyFromHumansMin, MinCombatPowerToDefendPreyFromHumansMax);
             _minCombatPowerToDefendYoungFromHumansAndMechanoids = Mathf.Clamp(_minCombatPowerToDefendYoungFromHumansAndMechanoids, MinCombatPowerToDefendYoungFromHumansMin, MinCombatPowerToDefendYoungFromHumansMax);
 
