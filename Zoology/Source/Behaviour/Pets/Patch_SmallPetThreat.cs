@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Reflection.Emit;
 using HarmonyLib;
 using RimWorld;
 using Verse;
@@ -19,6 +20,7 @@ namespace ZoologyMod
         private static Faction cachedPlayerFaction;
         private static float cachedSmallPetThreshold = -1f;
         private static bool cachedIgnoreSmallPetsEnabled = true;
+        private static bool cachedNoMeleeRetaliationEnabled = true;
         private static bool settingsSnapshotInitialized;
         private static bool settingsSnapshotDirty = true;
         private static int settingsSnapshotLastRefreshTick = int.MinValue;
@@ -47,6 +49,7 @@ namespace ZoologyMod
             cachedPlayerFaction = null;
             cachedSmallPetThreshold = -1f;
             cachedIgnoreSmallPetsEnabled = true;
+            cachedNoMeleeRetaliationEnabled = true;
             settingsSnapshotInitialized = false;
             settingsSnapshotDirty = true;
             settingsSnapshotLastRefreshTick = int.MinValue;
@@ -69,6 +72,7 @@ namespace ZoologyMod
         internal static void NotifySettingsChanged()
         {
             cachedSmallPetThreshold = -1f;
+            cachedNoMeleeRetaliationEnabled = true;
             settingsSnapshotInitialized = false;
             settingsSnapshotDirty = true;
             settingsSnapshotLastRefreshTick = int.MinValue;
@@ -292,15 +296,20 @@ namespace ZoologyMod
             }
 
             ZoologyModSettings settings = ZoologyModSettings.Instance;
+            bool runtimePatchesEnabled = settings == null || !settings.DisableAllRuntimePatches;
             bool ignoreSmallPets = settings == null || settings.EnableIgnoreSmallPetsByRaiders;
+            bool smallPetThreatEnabled = runtimePatchesEnabled && ignoreSmallPets;
+            bool noMeleeRetaliationEnabled = settings == null
+                || (smallPetThreatEnabled && settings.EnableSmallPetNoMeleeRetaliation);
             float threshold = settings?.SmallPetBodySizeThreshold ?? DefaultSmallPetThreshold;
             bool changed = !settingsSnapshotInitialized
-                || ignoreSmallPets != cachedIgnoreSmallPetsEnabled
+                || smallPetThreatEnabled != cachedIgnoreSmallPetsEnabled
                 || cachedSmallPetThreshold < 0f
                 || threshold < cachedSmallPetThreshold - 0.0001f
                 || threshold > cachedSmallPetThreshold + 0.0001f;
 
-            cachedIgnoreSmallPetsEnabled = ignoreSmallPets;
+            cachedIgnoreSmallPetsEnabled = smallPetThreatEnabled;
+            cachedNoMeleeRetaliationEnabled = noMeleeRetaliationEnabled;
             cachedSmallPetThreshold = threshold;
             settingsSnapshotInitialized = true;
             settingsSnapshotDirty = false;
@@ -563,6 +572,15 @@ namespace ZoologyMod
             return settings == null || (!settings.DisableAllRuntimePatches && settings.EnableIgnoreSmallPetsByRaiders);
         }
 
+        private static bool IsNoMeleeFeatureEnabledNow()
+        {
+            ZoologyModSettings settings = ZoologyModSettings.Instance;
+            return settings == null
+                || (!settings.DisableAllRuntimePatches
+                    && settings.EnableIgnoreSmallPetsByRaiders
+                    && settings.EnableSmallPetNoMeleeRetaliation);
+        }
+
         private static bool HasAggressiveTargetingOverride(Pawn threat, Pawn target)
         {
             if (threat == null || target == null)
@@ -643,13 +661,16 @@ namespace ZoologyMod
 
         internal static bool ShouldPreventSmallPetMeleeRetaliation(Pawn smallPet, Pawn threat, int currentTick)
         {
-            ZoologyModSettings settings = ZoologyModSettings.Instance;
-            if (settings != null
-                && (!settings.EnableIgnoreSmallPetsByRaiders || !settings.EnableSmallPetNoMeleeRetaliation))
+            if (!IsNoMeleeRetaliationEnabled(currentTick))
             {
                 return false;
             }
 
+            return ShouldPreventSmallPetMeleeRetaliationCore(smallPet, threat, currentTick);
+        }
+
+        private static bool ShouldPreventSmallPetMeleeRetaliationCore(Pawn smallPet, Pawn threat, int currentTick)
+        {
             if (smallPet == null
                 || threat == null
                 || !CouldBeCurrentSmallPetCandidateFast(smallPet, currentTick)
@@ -669,30 +690,87 @@ namespace ZoologyMod
             return CanIgnoreThreatForSmallPet(smallPet, threat, playerFaction);
         }
 
-        private static bool IsNoMeleeRetaliationEnabled()
+        private static bool ShouldPreventSmallPetMeleeEngagement(Pawn firstPawn, Pawn secondPawn, int currentTick)
         {
-            ZoologyModSettings settings = ZoologyModSettings.Instance;
-            return settings == null
-                || (!settings.DisableAllRuntimePatches
-                    && settings.EnableIgnoreSmallPetsByRaiders
-                    && settings.EnableSmallPetNoMeleeRetaliation);
+            return IsNoMeleeRetaliationEnabled(currentTick)
+                && ShouldSuppressMutualHostilityCore(firstPawn, secondPawn, currentTick);
         }
 
         private static bool ShouldSuppressMutualHostility(Pawn firstPawn, Pawn secondPawn, int currentTick)
         {
-            if (!IsNoMeleeRetaliationEnabled() || firstPawn == null || secondPawn == null)
+            return IsNoMeleeRetaliationEnabled(currentTick)
+                && ShouldSuppressMutualHostilityCore(firstPawn, secondPawn, currentTick);
+        }
+
+        private static bool ShouldSuppressMutualHostilityCore(Pawn firstPawn, Pawn secondPawn, int currentTick)
+        {
+            return ShouldPreventSmallPetMeleeRetaliationCore(firstPawn, secondPawn, currentTick)
+                || ShouldPreventSmallPetMeleeRetaliationCore(secondPawn, firstPawn, currentTick);
+        }
+
+        private static bool FilterThingThingHostilityResult(bool result, Thing a, Thing b)
+        {
+            if (!result || a is not Pawn pawnA || b is not Pawn pawnB)
             {
-                return false;
+                return result;
             }
 
-            return ShouldDisableThreatForSmallPet(firstPawn, secondPawn, currentTick)
-                || ShouldDisableThreatForSmallPet(secondPawn, firstPawn, currentTick);
+            int currentTick = Find.TickManager?.TicksGame ?? 0;
+            if (!IsNoMeleeRetaliationEnabled(currentTick))
+            {
+                return result;
+            }
+
+            if (!CouldBeCurrentSmallPetCandidateFast(pawnA, currentTick)
+                && !CouldBeCurrentSmallPetCandidateFast(pawnB, currentTick))
+            {
+                return result;
+            }
+
+            return ShouldSuppressMutualHostilityCore(pawnA, pawnB, currentTick) ? false : result;
+        }
+
+        private static void ClearSmallPetMeleeEngagementState(Pawn firstPawn, Pawn secondPawn)
+        {
+            Pawn_MindState firstMindState = firstPawn?.mindState;
+            if (firstMindState != null)
+            {
+                if (ReferenceEquals(firstMindState.enemyTarget, secondPawn))
+                {
+                    firstMindState.enemyTarget = null;
+                }
+
+                if (ReferenceEquals(firstMindState.meleeThreat, secondPawn))
+                {
+                    firstMindState.meleeThreat = null;
+                }
+            }
+
+            Pawn_MindState secondMindState = secondPawn?.mindState;
+            if (secondMindState != null)
+            {
+                if (ReferenceEquals(secondMindState.enemyTarget, firstPawn))
+                {
+                    secondMindState.enemyTarget = null;
+                }
+
+                if (ReferenceEquals(secondMindState.meleeThreat, firstPawn))
+                {
+                    secondMindState.meleeThreat = null;
+                }
+            }
+        }
+
+        private static bool IsNoMeleeRetaliationEnabled(int currentTick)
+        {
+            EnsureSettingsSnapshot(currentTick);
+            return cachedNoMeleeRetaliationEnabled;
         }
 
         [HarmonyPatch(typeof(Pawn_MindState), "get_MeleeThreatStillThreat")]
         private static class Patch_Pawn_MindState_MeleeThreatStillThreat_SmallPetIgnore
         {
-            private static bool Prepare() => IsFeatureEnabledNow();
+            private static bool Prepare() => IsNoMeleeFeatureEnabledNow();
 
             private static void Postfix(Pawn_MindState __instance, ref bool __result)
             {
@@ -704,12 +782,12 @@ namespace ZoologyMod
                 int currentTick = Find.TickManager?.TicksGame ?? 0;
                 Pawn smallPet = __instance.pawn;
                 Pawn threat = __instance.meleeThreat;
-                if (!ShouldPreventSmallPetMeleeRetaliation(smallPet, threat, currentTick))
+                if (!ShouldPreventSmallPetMeleeEngagement(smallPet, threat, currentTick))
                 {
                     return;
                 }
 
-                __instance.meleeThreat = null;
+                ClearSmallPetMeleeEngagementState(smallPet, threat);
                 __result = false;
             }
         }
@@ -717,7 +795,7 @@ namespace ZoologyMod
         [HarmonyPatch(typeof(JobGiver_AIFightEnemy), "TryGiveJob")]
         private static class Patch_JobGiver_AIFightEnemy_TryGiveJob_SmallPetIgnore
         {
-            private static bool Prepare() => IsFeatureEnabledNow();
+            private static bool Prepare() => IsNoMeleeFeatureEnabledNow();
 
             private static void Postfix(Pawn pawn, ref Job __result)
             {
@@ -728,16 +806,36 @@ namespace ZoologyMod
 
                 Pawn threat = __result.targetA.Thing as Pawn;
                 int currentTick = Find.TickManager?.TicksGame ?? 0;
-                if (!ShouldPreventSmallPetMeleeRetaliation(pawn, threat, currentTick))
+                if (!ShouldPreventSmallPetMeleeEngagement(pawn, threat, currentTick))
                 {
                     return;
                 }
 
-                if (pawn?.mindState != null && ReferenceEquals(pawn.mindState.enemyTarget, threat))
+                ClearSmallPetMeleeEngagementState(pawn, threat);
+                __result = null;
+            }
+        }
+
+        [HarmonyPatch(typeof(JobGiver_ReactToCloseMeleeThreat), "TryGiveJob")]
+        private static class Patch_JobGiver_ReactToCloseMeleeThreat_TryGiveJob_SmallPetIgnore
+        {
+            private static bool Prepare() => IsNoMeleeFeatureEnabledNow();
+
+            private static void Postfix(Pawn pawn, ref Job __result)
+            {
+                if (__result?.def != JobDefOf.AttackMelee)
                 {
-                    pawn.mindState.enemyTarget = null;
+                    return;
                 }
 
+                Pawn threat = __result.targetA.Thing as Pawn;
+                int currentTick = Find.TickManager?.TicksGame ?? 0;
+                if (!ShouldPreventSmallPetMeleeEngagement(pawn, threat, currentTick))
+                {
+                    return;
+                }
+
+                ClearSmallPetMeleeEngagementState(pawn, threat);
                 __result = null;
             }
         }
@@ -745,25 +843,27 @@ namespace ZoologyMod
         [HarmonyPatch(typeof(GenHostility), nameof(GenHostility.HostileTo), new[] { typeof(Thing), typeof(Thing) })]
         private static class Patch_GenHostility_HostileTo_ThingThing_SmallPetIgnore
         {
-            private static bool Prepare() => IsFeatureEnabledNow();
+            private static bool Prepare() => IsNoMeleeFeatureEnabledNow();
 
-            private static void Postfix(Thing a, Thing b, ref bool __result)
+            private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
             {
-                if (!IsNoMeleeRetaliationEnabled() || !__result || a is not Pawn pawnA || b is not Pawn pawnB)
-                {
-                    return;
-                }
+                CodeInstruction previous = null;
+                var filterMethod = AccessTools.Method(typeof(Patch_SmallPetThreatDisabled), nameof(FilterThingThingHostilityResult));
 
-                int currentTick = Find.TickManager?.TicksGame ?? 0;
-                if (!CouldBeCurrentSmallPetCandidateFast(pawnA, currentTick)
-                    && !CouldBeCurrentSmallPetCandidateFast(pawnB, currentTick))
+                foreach (CodeInstruction instruction in instructions)
                 {
-                    return;
-                }
+                    if (instruction.opcode == OpCodes.Ret && previous != null && previous.opcode != OpCodes.Ldc_I4_0)
+                    {
+                        List<Label> labels = instruction.labels;
+                        instruction.labels = new List<Label>();
 
-                if (ShouldSuppressMutualHostility(pawnA, pawnB, currentTick))
-                {
-                    __result = false;
+                        yield return new CodeInstruction(OpCodes.Ldarg_0) { labels = labels };
+                        yield return new CodeInstruction(OpCodes.Ldarg_1);
+                        yield return new CodeInstruction(OpCodes.Call, filterMethod);
+                    }
+
+                    yield return instruction;
+                    previous = instruction;
                 }
             }
         }
@@ -771,16 +871,21 @@ namespace ZoologyMod
         [HarmonyPatch(typeof(GenHostility), nameof(GenHostility.HostileTo), new[] { typeof(Thing), typeof(Faction) })]
         private static class Patch_GenHostility_HostileTo_ThingFaction_SmallPetIgnore
         {
-            private static bool Prepare() => IsFeatureEnabledNow();
+            private static bool Prepare() => IsNoMeleeFeatureEnabledNow();
 
             private static void Postfix(Thing t, Faction fac, ref bool __result)
             {
-                if (!IsNoMeleeRetaliationEnabled() || !__result || t is not Pawn pawn)
+                if (!__result || t is not Pawn pawn)
                 {
                     return;
                 }
 
                 int currentTick = Find.TickManager?.TicksGame ?? 0;
+                if (!IsNoMeleeRetaliationEnabled(currentTick))
+                {
+                    return;
+                }
+
                 if (!CouldBeCurrentSmallPetCandidateFast(pawn, currentTick)
                     || !EnsureSmallPetCandidateSetCached(currentTick))
                 {

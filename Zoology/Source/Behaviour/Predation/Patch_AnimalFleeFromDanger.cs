@@ -59,32 +59,6 @@ namespace ZoologyMod
         }
     }
 
-    [HarmonyPatch(typeof(JobGiver_ReactToCloseMeleeThreat), "TryGiveJob")]
-    internal static class Patch_ReactToCloseMeleeThreat_Fallback
-    {
-        private static bool Prepare() => Patch_AnimalFleeFromPredators.Prepare();
-
-        private static void Postfix(Pawn pawn, ref Job __result)
-        {
-            if (__result?.def != JobDefOf.AttackMelee)
-            {
-                return;
-            }
-
-            Pawn threat = __result.targetA.Thing as Pawn;
-            int currentTick = Find.TickManager?.TicksGame ?? 0;
-            if (Patch_SmallPetThreatDisabled.ShouldPreventSmallPetMeleeRetaliation(pawn, threat, currentTick))
-            {
-                if (pawn?.mindState != null)
-                {
-                    pawn.mindState.meleeThreat = null;
-                }
-
-                __result = null;
-            }
-        }
-    }
-
     internal sealed class JobGiver_AnimalFlee_Zoology : JobGiver_AnimalFlee
     {
         protected override Job TryGiveJob(Pawn pawn)
