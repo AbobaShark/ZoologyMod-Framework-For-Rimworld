@@ -44,11 +44,11 @@ class PatchOptimizer:
             optimized.append(child)
         return optimized
 
-    def _optimize_nodes(self, nodes, sim_root, patched_sim_root=None):
+    def _optimize_nodes(self, nodes, sim_root, patched_sim_root=None, preserve_conditionals=False):
         out = []
         idx = 0
         while idx < len(nodes):
-            if idx + 1 < len(nodes):
+            if not preserve_conditionals and idx + 1 < len(nodes):
                 list_ops = self._try_optimize_list_cleanup_pair(
                     nodes[idx],
                     nodes[idx + 1],
@@ -65,7 +65,7 @@ class PatchOptimizer:
                     continue
 
             node = nodes[idx]
-            optimized = self._optimize_node(node, sim_root, patched_sim_root)
+            optimized = self._optimize_node(node, sim_root, patched_sim_root, preserve_conditionals=preserve_conditionals)
             if optimized is None:
                 idx += 1
                 continue
@@ -76,15 +76,20 @@ class PatchOptimizer:
             idx += 1
         return out
 
-    def _optimize_node(self, node, sim_root, patched_sim_root=None):
+    def _optimize_node(self, node, sim_root, patched_sim_root=None, preserve_conditionals=False):
         if not isinstance(getattr(node, "tag", None), str):
             return copy.deepcopy(node)
 
         cls = node.get("Class")
         if cls == "PatchOperationConditional":
+            if preserve_conditionals:
+                self.stats["conditionals_kept_preserved_context"] += 1
+                self._apply_kept_operation_to_sim(node, sim_root)
+                self._apply_kept_operation_to_sim(node, patched_sim_root)
+                return copy.deepcopy(node)
             return self._resolve_conditional(node, sim_root, patched_sim_root)
         if cls == "PatchOperationSequence":
-            return self._optimize_sequence(node, sim_root, patched_sim_root)
+            return self._optimize_sequence(node, sim_root, patched_sim_root, preserve_conditionals=preserve_conditionals)
         if cls == "PatchOperationFindMod":
             return self._optimize_find_mod(node, sim_root, patched_sim_root)
         if cls in DIRECT_PATCH_CLASSES:
@@ -95,6 +100,12 @@ class PatchOptimizer:
     def _resolve_conditional(self, node, sim_root, patched_sim_root=None):
         xpath = self._child_text(node, "xpath")
         if not xpath:
+            return copy.deepcopy(node)
+
+        if self._should_preserve_conditional_for_volatile_path(xpath):
+            self.stats["conditionals_kept_volatile_path"] += 1
+            self._apply_kept_operation_to_sim(node, sim_root)
+            self._apply_kept_operation_to_sim(node, patched_sim_root)
             return copy.deepcopy(node)
 
         base_known = self.index.target_known_from_xpath(xpath, root=sim_root)
@@ -129,13 +140,19 @@ class PatchOptimizer:
         direct = self._branch_to_operation(branch, node.tag)
         return self._optimize_node(direct, sim_root, patched_sim_root)
 
-    def _optimize_sequence(self, node, sim_root, patched_sim_root=None):
+    def _optimize_sequence(self, node, sim_root, patched_sim_root=None, preserve_conditionals=False):
         copied = self._shallow_copy(node)
         for child in node:
             if child.tag == "operations":
                 ops_node = LET.SubElement(copied, "operations")
-                optimized_children = self._optimize_nodes(list(child), sim_root, patched_sim_root)
-                optimized_children = self._combine_remove_add_replaces(optimized_children)
+                optimized_children = self._optimize_nodes(
+                    list(child),
+                    sim_root,
+                    patched_sim_root,
+                    preserve_conditionals=preserve_conditionals,
+                )
+                if not preserve_conditionals:
+                    optimized_children = self._combine_remove_add_replaces(optimized_children)
                 for optimized in optimized_children:
                     ops_node.append(optimized)
             else:
@@ -150,7 +167,7 @@ class PatchOptimizer:
                     branch_sim = copy.deepcopy(patched_sim_root)
                 else:
                     branch_sim = copy.deepcopy(sim_root)
-                copied.append(self._optimize_sequence(child, branch_sim))
+                copied.append(self._optimize_sequence(child, branch_sim, preserve_conditionals=True))
             else:
                 copied.append(copy.deepcopy(child))
         if patched_sim_root is not None:
@@ -333,6 +350,21 @@ class PatchOptimizer:
         if sim_root is None:
             return
         self._kept_conditional_applier.apply_operation(copy.deepcopy(node), sim_root)
+
+    def _should_preserve_conditional_for_volatile_path(self, xpath):
+        target = parse_target(xpath)
+        rel_path = rel_path_from_target(xpath)
+        if not target or rel_path is None:
+            return False
+
+        kind = target[0]
+        if kind != "ThingDef":
+            return False
+
+        rel_parts = [part for part in rel_path.split("/") if part]
+        if rel_parts == ["tools"]:
+            return True
+        return len(rel_parts) == 2 and rel_parts[0] == "statBases" and rel_parts[1].startswith("ArmorRating_")
 
     def _target_missing_in_all_known_states(self, xpath, sim_root, patched_sim_root=None):
         target = parse_target(xpath)

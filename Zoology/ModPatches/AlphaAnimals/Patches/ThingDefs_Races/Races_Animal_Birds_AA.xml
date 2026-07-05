@@ -33,21 +33,45 @@
       <ComfyTemperatureMax>535</ComfyTemperatureMax>
     </value>
   </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/ThingDef[defName = "AA_AuroraSylph"]/statBases</xpath>
-    <value>
-      <ArmorRating_Blunt>0.1</ArmorRating_Blunt>
-    </value>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_AuroraSylph"]/statBases/ArmorRating_Blunt</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "AA_AuroraSylph"]/statBases/ArmorRating_Blunt</xpath>
+      <value>
+        <ArmorRating_Blunt>0.1</ArmorRating_Blunt>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "AA_AuroraSylph"]/statBases</xpath>
+      <value>
+        <ArmorRating_Blunt>0.1</ArmorRating_Blunt>
+      </value>
+    </nomatch>
   </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/ThingDef[defName = "AA_AuroraSylph"]/statBases</xpath>
-    <value>
-      <ArmorRating_Sharp>0.55</ArmorRating_Sharp>
-    </value>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_AuroraSylph"]/statBases/ArmorRating_Sharp</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "AA_AuroraSylph"]/statBases/ArmorRating_Sharp</xpath>
+      <value>
+        <ArmorRating_Sharp>0.55</ArmorRating_Sharp>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "AA_AuroraSylph"]/statBases</xpath>
+      <value>
+        <ArmorRating_Sharp>0.55</ArmorRating_Sharp>
+      </value>
+    </nomatch>
   </Operation>
   <!-- AA_AuroraSylph tools -->
-  <Operation Class="PatchOperationReplace">
+  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_AuroraSylph"]/tools</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_AuroraSylph"]/tools</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "AA_AuroraSylph"]</xpath>
     <value>
       <tools>
         <li>
@@ -197,9 +221,27 @@
       <ComfyTemperatureMax>50</ComfyTemperatureMax>
     </value>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_DesertAve"]/statBases/ArmorRating_Blunt</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_DesertAve"]/statBases/ArmorRating_Blunt</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_DesertAve"]/statBases/ArmorRating_Sharp</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_DesertAve"]/statBases/ArmorRating_Sharp</xpath>
+    </match>
+  </Operation>
   <!-- AA_DesertAve tools -->
-  <Operation Class="PatchOperationReplace">
+  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_DesertAve"]/tools</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_DesertAve"]/tools</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "AA_DesertAve"]</xpath>
     <value>
       <tools>
         <li>
@@ -395,6 +437,18 @@
       <ComfyTemperatureMin>5</ComfyTemperatureMin>
     </value>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_FlamingoPhoenix"]/statBases/ArmorRating_Blunt</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_FlamingoPhoenix"]/statBases/ArmorRating_Blunt</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_FlamingoPhoenix"]/statBases/ArmorRating_Sharp</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_FlamingoPhoenix"]/statBases/ArmorRating_Sharp</xpath>
+    </match>
+  </Operation>
   <Operation Class="PatchOperationAdd">
     <xpath>/Defs/ThingDef[defName = "AA_FlamingoPhoenix"]/statBases</xpath>
     <value>
@@ -402,8 +456,14 @@
     </value>
   </Operation>
   <!-- AA_FlamingoPhoenix tools -->
-  <Operation Class="PatchOperationReplace">
+  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_FlamingoPhoenix"]/tools</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_FlamingoPhoenix"]/tools</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "AA_FlamingoPhoenix"]</xpath>
     <value>
       <tools>
         <li>
@@ -584,9 +644,27 @@
       <ComfyTemperatureMax>30</ComfyTemperatureMax>
     </value>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_FrostAve"]/statBases/ArmorRating_Blunt</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_FrostAve"]/statBases/ArmorRating_Blunt</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_FrostAve"]/statBases/ArmorRating_Sharp</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_FrostAve"]/statBases/ArmorRating_Sharp</xpath>
+    </match>
+  </Operation>
   <!-- AA_FrostAve tools -->
-  <Operation Class="PatchOperationReplace">
+  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_FrostAve"]/tools</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_FrostAve"]/tools</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "AA_FrostAve"]</xpath>
     <value>
       <tools>
         <li>
@@ -797,9 +875,27 @@
       <ComfyTemperatureMax>45</ComfyTemperatureMax>
     </value>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_GiantCrownedSilkie"]/statBases/ArmorRating_Blunt</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_GiantCrownedSilkie"]/statBases/ArmorRating_Blunt</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_GiantCrownedSilkie"]/statBases/ArmorRating_Sharp</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_GiantCrownedSilkie"]/statBases/ArmorRating_Sharp</xpath>
+    </match>
+  </Operation>
   <!-- AA_GiantCrownedSilkie tools -->
-  <Operation Class="PatchOperationReplace">
+  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_GiantCrownedSilkie"]/tools</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_GiantCrownedSilkie"]/tools</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "AA_GiantCrownedSilkie"]</xpath>
     <value>
       <tools>
         <li>
@@ -995,9 +1091,27 @@
       <ComfyTemperatureMax>45</ComfyTemperatureMax>
     </value>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_MeadowAve"]/statBases/ArmorRating_Blunt</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_MeadowAve"]/statBases/ArmorRating_Blunt</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_MeadowAve"]/statBases/ArmorRating_Sharp</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_MeadowAve"]/statBases/ArmorRating_Sharp</xpath>
+    </match>
+  </Operation>
   <!-- AA_MeadowAve tools -->
-  <Operation Class="PatchOperationReplace">
+  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_MeadowAve"]/tools</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_MeadowAve"]/tools</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "AA_MeadowAve"]</xpath>
     <value>
       <tools>
         <li>
@@ -1199,9 +1313,27 @@
       <ComfyTemperatureMin>-15</ComfyTemperatureMin>
     </value>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_NightAve"]/statBases/ArmorRating_Blunt</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_NightAve"]/statBases/ArmorRating_Blunt</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_NightAve"]/statBases/ArmorRating_Sharp</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_NightAve"]/statBases/ArmorRating_Sharp</xpath>
+    </match>
+  </Operation>
   <!-- AA_NightAve tools -->
-  <Operation Class="PatchOperationReplace">
+  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_NightAve"]/tools</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_NightAve"]/tools</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "AA_NightAve"]</xpath>
     <value>
       <tools>
         <li>
@@ -1418,9 +1550,27 @@
       <ComfyTemperatureMax>35</ComfyTemperatureMax>
     </value>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_PedigreedRaptor"]/statBases/ArmorRating_Blunt</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_PedigreedRaptor"]/statBases/ArmorRating_Blunt</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_PedigreedRaptor"]/statBases/ArmorRating_Sharp</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_PedigreedRaptor"]/statBases/ArmorRating_Sharp</xpath>
+    </match>
+  </Operation>
   <!-- AA_PedigreedRaptor tools -->
-  <Operation Class="PatchOperationReplace">
+  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_PedigreedRaptor"]/tools</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_PedigreedRaptor"]/tools</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "AA_PedigreedRaptor"]</xpath>
     <value>
       <tools>
         <li>
@@ -1682,9 +1832,27 @@
       <ComfyTemperatureMax>35</ComfyTemperatureMax>
     </value>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_RoyalAve"]/statBases/ArmorRating_Blunt</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_RoyalAve"]/statBases/ArmorRating_Blunt</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_RoyalAve"]/statBases/ArmorRating_Sharp</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_RoyalAve"]/statBases/ArmorRating_Sharp</xpath>
+    </match>
+  </Operation>
   <!-- AA_RoyalAve tools -->
-  <Operation Class="PatchOperationReplace">
+  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_RoyalAve"]/tools</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_RoyalAve"]/tools</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "AA_RoyalAve"]</xpath>
     <value>
       <tools>
         <li>
@@ -1856,52 +2024,149 @@
     <match Class="PatchOperationSequence">
       <operations>
         <!-- AA_AuroraSylph CE patches -->
-        <li Class="PatchOperationAdd">
-          <xpath>Defs/ThingDef[defName="AA_AuroraSylph"]/statBases</xpath>
-          <value>
-            <MeleeDodgeChance>0.1</MeleeDodgeChance>
-          </value>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_AuroraSylph"]/statBases/MeleeDodgeChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_AuroraSylph"]/statBases/MeleeDodgeChance</xpath>
+            <value>
+              <MeleeDodgeChance>0.1</MeleeDodgeChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_AuroraSylph"]/statBases</xpath>
+            <value>
+              <MeleeDodgeChance>0.1</MeleeDodgeChance>
+            </value>
+          </nomatch>
         </li>
-        <li Class="PatchOperationAdd">
-          <xpath>Defs/ThingDef[defName="AA_AuroraSylph"]/statBases</xpath>
-          <value>
-            <MeleeCritChance>0.2</MeleeCritChance>
-          </value>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_AuroraSylph"]/statBases/MeleeCritChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_AuroraSylph"]/statBases/MeleeCritChance</xpath>
+            <value>
+              <MeleeCritChance>0.2</MeleeCritChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_AuroraSylph"]/statBases</xpath>
+            <value>
+              <MeleeCritChance>0.2</MeleeCritChance>
+            </value>
+          </nomatch>
         </li>
-        <li Class="PatchOperationAdd">
-          <xpath>Defs/ThingDef[defName="AA_AuroraSylph"]/statBases</xpath>
-          <value>
-            <MeleeParryChance>0.05</MeleeParryChance>
-          </value>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_AuroraSylph"]/statBases/MeleeParryChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_AuroraSylph"]/statBases/MeleeParryChance</xpath>
+            <value>
+              <MeleeParryChance>0.05</MeleeParryChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_AuroraSylph"]/statBases</xpath>
+            <value>
+              <MeleeParryChance>0.05</MeleeParryChance>
+            </value>
+          </nomatch>
         </li>
-        <li Class="PatchOperationReplace">
+        <li Class="PatchOperationConditional">
           <xpath>Defs/ThingDef[defName="AA_AuroraSylph"]/statBases/ArmorRating_Sharp</xpath>
-          <value>
-            <ArmorRating_Sharp>1</ArmorRating_Sharp>
-          </value>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_AuroraSylph"]/statBases/ArmorRating_Sharp</xpath>
+            <value>
+              <ArmorRating_Sharp>1</ArmorRating_Sharp>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_AuroraSylph"]/statBases</xpath>
+            <value>
+              <ArmorRating_Sharp>1</ArmorRating_Sharp>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_AuroraSylph"]/statBases/ArmorRating_Blunt</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_AuroraSylph"]/statBases/ArmorRating_Blunt</xpath>
+            <value>
+              <ArmorRating_Blunt>0.1</ArmorRating_Blunt>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_AuroraSylph"]/statBases</xpath>
+            <value>
+              <ArmorRating_Blunt>0.1</ArmorRating_Blunt>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_AuroraSylph"]/comps</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_AuroraSylph"]</xpath>
+            <value>
+              <comps/>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_AuroraSylph"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_AuroraSylph"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]/Durability</xpath>
+            <value>
+              <Durability>500</Durability>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_AuroraSylph"]/comps</xpath>
+            <value>
+              <li Class="CombatExtended.CompProperties_ArmorDurability">
+                <Durability>500</Durability>
+                <Regenerates>true</Regenerates>
+                <RegenInterval>600</RegenInterval>
+                <RegenValue>5</RegenValue>
+                <MinArmorPct>0.5</MinArmorPct>
+              </li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_AuroraSylph"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="AA_AuroraSylph"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
+                <match Class="PatchOperationReplace">
+                  <xpath>Defs/ThingDef[defName="AA_AuroraSylph"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
+                  <value>
+                    <bodyShape>Birdlike</bodyShape>
+                  </value>
+                </match>
+                <nomatch Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[defName="AA_AuroraSylph"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
+                  <value>
+                    <bodyShape>Birdlike</bodyShape>
+                  </value>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+          <nomatch Class="PatchOperationAddModExtension">
+            <xpath>Defs/ThingDef[defName="AA_AuroraSylph"]</xpath>
+            <value>
+              <li Class="CombatExtended.RacePropertiesExtensionCE">
+                <bodyShape>Birdlike</bodyShape>
+              </li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName="AA_AuroraSylph"]/tools</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName="AA_AuroraSylph"]/tools</xpath>
+          </match>
         </li>
         <li Class="PatchOperationAdd">
-          <xpath>Defs/ThingDef[defName="AA_AuroraSylph"]/comps</xpath>
-          <value>
-            <li Class="CombatExtended.CompProperties_ArmorDurability">
-              <Durability>500</Durability>
-              <Regenerates>true</Regenerates>
-              <RegenInterval>600</RegenInterval>
-              <RegenValue>5</RegenValue>
-              <MinArmorPct>0.5</MinArmorPct>
-            </li>
-          </value>
-        </li>
-        <li Class="PatchOperationAddModExtension">
           <xpath>Defs/ThingDef[defName="AA_AuroraSylph"]</xpath>
-          <value>
-            <li Class="CombatExtended.RacePropertiesExtensionCE">
-              <bodyShape>Birdlike</bodyShape>
-            </li>
-          </value>
-        </li>
-        <li Class="PatchOperationReplace">
-          <xpath>/Defs/ThingDef[defName="AA_AuroraSylph"]/tools</xpath>
           <value>
             <tools>
               <li Class="CombatExtended.ToolCE">
@@ -1919,47 +2184,156 @@
             </tools>
           </value>
         </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_AuroraSylph"]/statBases/ArmorRating_Heat</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>Defs/ThingDef[defName="AA_AuroraSylph"]/statBases/ArmorRating_Heat</xpath>
+          </match>
+        </li>
         <!-- AA_DesertAve CE patches -->
-        <li Class="PatchOperationAdd">
-          <xpath>Defs/ThingDef[defName="AA_DesertAve"]/statBases</xpath>
-          <value>
-            <MeleeDodgeChance>0.45</MeleeDodgeChance>
-          </value>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_DesertAve"]/statBases/MeleeDodgeChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_DesertAve"]/statBases/MeleeDodgeChance</xpath>
+            <value>
+              <MeleeDodgeChance>0.45</MeleeDodgeChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_DesertAve"]/statBases</xpath>
+            <value>
+              <MeleeDodgeChance>0.45</MeleeDodgeChance>
+            </value>
+          </nomatch>
         </li>
-        <li Class="PatchOperationAdd">
-          <xpath>Defs/ThingDef[defName="AA_DesertAve"]/statBases</xpath>
-          <value>
-            <MeleeCritChance>0.25</MeleeCritChance>
-          </value>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_DesertAve"]/statBases/MeleeCritChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_DesertAve"]/statBases/MeleeCritChance</xpath>
+            <value>
+              <MeleeCritChance>0.25</MeleeCritChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_DesertAve"]/statBases</xpath>
+            <value>
+              <MeleeCritChance>0.25</MeleeCritChance>
+            </value>
+          </nomatch>
         </li>
-        <li Class="PatchOperationAdd">
-          <xpath>Defs/ThingDef[defName="AA_DesertAve"]/statBases</xpath>
-          <value>
-            <MeleeParryChance>0.05</MeleeParryChance>
-          </value>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_DesertAve"]/statBases/MeleeParryChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_DesertAve"]/statBases/MeleeParryChance</xpath>
+            <value>
+              <MeleeParryChance>0.05</MeleeParryChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_DesertAve"]/statBases</xpath>
+            <value>
+              <MeleeParryChance>0.05</MeleeParryChance>
+            </value>
+          </nomatch>
         </li>
-        <li Class="PatchOperationAdd">
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_DesertAve"]/statBases/ArmorRating_Sharp</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_DesertAve"]/statBases/ArmorRating_Sharp</xpath>
+            <value>
+              <ArmorRating_Sharp>0</ArmorRating_Sharp>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_DesertAve"]/statBases</xpath>
+            <value>
+              <ArmorRating_Sharp>0</ArmorRating_Sharp>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_DesertAve"]/statBases/ArmorRating_Blunt</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_DesertAve"]/statBases/ArmorRating_Blunt</xpath>
+            <value>
+              <ArmorRating_Blunt>0</ArmorRating_Blunt>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_DesertAve"]/statBases</xpath>
+            <value>
+              <ArmorRating_Blunt>0</ArmorRating_Blunt>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>Defs/ThingDef[defName="AA_DesertAve"]/comps</xpath>
-          <value>
-            <li Class="CombatExtended.CompProperties_ArmorDurability">
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_DesertAve"]</xpath>
+            <value>
+              <comps/>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_DesertAve"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_DesertAve"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]/Durability</xpath>
+            <value>
               <Durability>850</Durability>
-              <Regenerates>true</Regenerates>
-              <RegenInterval>600</RegenInterval>
-              <RegenValue>5</RegenValue>
-              <MinArmorPct>0.5</MinArmorPct>
-            </li>
-          </value>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_DesertAve"]/comps</xpath>
+            <value>
+              <li Class="CombatExtended.CompProperties_ArmorDurability">
+                <Durability>850</Durability>
+                <Regenerates>true</Regenerates>
+                <RegenInterval>600</RegenInterval>
+                <RegenValue>5</RegenValue>
+                <MinArmorPct>0.5</MinArmorPct>
+              </li>
+            </value>
+          </nomatch>
         </li>
-        <li Class="PatchOperationAddModExtension">
-          <xpath>Defs/ThingDef[defName="AA_DesertAve"]</xpath>
-          <value>
-            <li Class="CombatExtended.RacePropertiesExtensionCE">
-              <bodyShape>Birdlike</bodyShape>
-            </li>
-          </value>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_DesertAve"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="AA_DesertAve"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
+                <match Class="PatchOperationReplace">
+                  <xpath>Defs/ThingDef[defName="AA_DesertAve"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
+                  <value>
+                    <bodyShape>Birdlike</bodyShape>
+                  </value>
+                </match>
+                <nomatch Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[defName="AA_DesertAve"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
+                  <value>
+                    <bodyShape>Birdlike</bodyShape>
+                  </value>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+          <nomatch Class="PatchOperationAddModExtension">
+            <xpath>Defs/ThingDef[defName="AA_DesertAve"]</xpath>
+            <value>
+              <li Class="CombatExtended.RacePropertiesExtensionCE">
+                <bodyShape>Birdlike</bodyShape>
+              </li>
+            </value>
+          </nomatch>
         </li>
-        <li Class="PatchOperationReplace">
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName="AA_DesertAve"]/tools</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName="AA_DesertAve"]/tools</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="AA_DesertAve"]</xpath>
           <value>
             <tools>
               <li Class="CombatExtended.ToolCE">
@@ -2012,41 +2386,156 @@
             </tools>
           </value>
         </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_DesertAve"]/statBases/ArmorRating_Heat</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>Defs/ThingDef[defName="AA_DesertAve"]/statBases/ArmorRating_Heat</xpath>
+          </match>
+        </li>
         <!-- AA_FlamingoPhoenix CE patches -->
-        <li Class="PatchOperationAdd">
-          <xpath>Defs/ThingDef[defName="AA_FlamingoPhoenix"]/statBases</xpath>
-          <value>
-            <MeleeDodgeChance>0.8</MeleeDodgeChance>
-          </value>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_FlamingoPhoenix"]/statBases/MeleeDodgeChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_FlamingoPhoenix"]/statBases/MeleeDodgeChance</xpath>
+            <value>
+              <MeleeDodgeChance>0.8</MeleeDodgeChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_FlamingoPhoenix"]/statBases</xpath>
+            <value>
+              <MeleeDodgeChance>0.8</MeleeDodgeChance>
+            </value>
+          </nomatch>
         </li>
-        <li Class="PatchOperationAdd">
-          <xpath>Defs/ThingDef[defName="AA_FlamingoPhoenix"]</xpath>
-          <value>
-            <comps/>
-          </value>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_FlamingoPhoenix"]/statBases/MeleeCritChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_FlamingoPhoenix"]/statBases/MeleeCritChance</xpath>
+            <value>
+              <MeleeCritChance>0</MeleeCritChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_FlamingoPhoenix"]/statBases</xpath>
+            <value>
+              <MeleeCritChance>0</MeleeCritChance>
+            </value>
+          </nomatch>
         </li>
-        <li Class="PatchOperationAdd">
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_FlamingoPhoenix"]/statBases/MeleeParryChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_FlamingoPhoenix"]/statBases/MeleeParryChance</xpath>
+            <value>
+              <MeleeParryChance>0</MeleeParryChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_FlamingoPhoenix"]/statBases</xpath>
+            <value>
+              <MeleeParryChance>0</MeleeParryChance>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_FlamingoPhoenix"]/statBases/ArmorRating_Sharp</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_FlamingoPhoenix"]/statBases/ArmorRating_Sharp</xpath>
+            <value>
+              <ArmorRating_Sharp>0</ArmorRating_Sharp>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_FlamingoPhoenix"]/statBases</xpath>
+            <value>
+              <ArmorRating_Sharp>0</ArmorRating_Sharp>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_FlamingoPhoenix"]/statBases/ArmorRating_Blunt</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_FlamingoPhoenix"]/statBases/ArmorRating_Blunt</xpath>
+            <value>
+              <ArmorRating_Blunt>0</ArmorRating_Blunt>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_FlamingoPhoenix"]/statBases</xpath>
+            <value>
+              <ArmorRating_Blunt>0</ArmorRating_Blunt>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>Defs/ThingDef[defName="AA_FlamingoPhoenix"]/comps</xpath>
-          <value>
-            <li Class="CombatExtended.CompProperties_ArmorDurability">
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_FlamingoPhoenix"]</xpath>
+            <value>
+              <comps/>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_FlamingoPhoenix"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_FlamingoPhoenix"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]/Durability</xpath>
+            <value>
               <Durability>125</Durability>
-              <Regenerates>true</Regenerates>
-              <RegenInterval>600</RegenInterval>
-              <RegenValue>5</RegenValue>
-              <MinArmorPct>0.5</MinArmorPct>
-            </li>
-          </value>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_FlamingoPhoenix"]/comps</xpath>
+            <value>
+              <li Class="CombatExtended.CompProperties_ArmorDurability">
+                <Durability>125</Durability>
+                <Regenerates>true</Regenerates>
+                <RegenInterval>600</RegenInterval>
+                <RegenValue>5</RegenValue>
+                <MinArmorPct>0.5</MinArmorPct>
+              </li>
+            </value>
+          </nomatch>
         </li>
-        <li Class="PatchOperationAddModExtension">
-          <xpath>Defs/ThingDef[defName="AA_FlamingoPhoenix"]</xpath>
-          <value>
-            <li Class="CombatExtended.RacePropertiesExtensionCE">
-              <bodyShape>Birdlike</bodyShape>
-            </li>
-          </value>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_FlamingoPhoenix"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="AA_FlamingoPhoenix"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
+                <match Class="PatchOperationReplace">
+                  <xpath>Defs/ThingDef[defName="AA_FlamingoPhoenix"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
+                  <value>
+                    <bodyShape>Birdlike</bodyShape>
+                  </value>
+                </match>
+                <nomatch Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[defName="AA_FlamingoPhoenix"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
+                  <value>
+                    <bodyShape>Birdlike</bodyShape>
+                  </value>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+          <nomatch Class="PatchOperationAddModExtension">
+            <xpath>Defs/ThingDef[defName="AA_FlamingoPhoenix"]</xpath>
+            <value>
+              <li Class="CombatExtended.RacePropertiesExtensionCE">
+                <bodyShape>Birdlike</bodyShape>
+              </li>
+            </value>
+          </nomatch>
         </li>
-        <li Class="PatchOperationReplace">
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName="AA_FlamingoPhoenix"]/tools</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName="AA_FlamingoPhoenix"]/tools</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="AA_FlamingoPhoenix"]</xpath>
           <value>
             <tools>
               <li Class="CombatExtended.ToolCE">
@@ -2075,47 +2564,156 @@
             </tools>
           </value>
         </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_FlamingoPhoenix"]/statBases/ArmorRating_Heat</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>Defs/ThingDef[defName="AA_FlamingoPhoenix"]/statBases/ArmorRating_Heat</xpath>
+          </match>
+        </li>
         <!-- AA_FrostAve CE patches -->
-        <li Class="PatchOperationAdd">
-          <xpath>Defs/ThingDef[defName="AA_FrostAve"]/statBases</xpath>
-          <value>
-            <MeleeDodgeChance>0.4</MeleeDodgeChance>
-          </value>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_FrostAve"]/statBases/MeleeDodgeChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_FrostAve"]/statBases/MeleeDodgeChance</xpath>
+            <value>
+              <MeleeDodgeChance>0.4</MeleeDodgeChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_FrostAve"]/statBases</xpath>
+            <value>
+              <MeleeDodgeChance>0.4</MeleeDodgeChance>
+            </value>
+          </nomatch>
         </li>
-        <li Class="PatchOperationAdd">
-          <xpath>Defs/ThingDef[defName="AA_FrostAve"]/statBases</xpath>
-          <value>
-            <MeleeCritChance>0.25</MeleeCritChance>
-          </value>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_FrostAve"]/statBases/MeleeCritChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_FrostAve"]/statBases/MeleeCritChance</xpath>
+            <value>
+              <MeleeCritChance>0.25</MeleeCritChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_FrostAve"]/statBases</xpath>
+            <value>
+              <MeleeCritChance>0.25</MeleeCritChance>
+            </value>
+          </nomatch>
         </li>
-        <li Class="PatchOperationAdd">
-          <xpath>Defs/ThingDef[defName="AA_FrostAve"]/statBases</xpath>
-          <value>
-            <MeleeParryChance>0.05</MeleeParryChance>
-          </value>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_FrostAve"]/statBases/MeleeParryChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_FrostAve"]/statBases/MeleeParryChance</xpath>
+            <value>
+              <MeleeParryChance>0.05</MeleeParryChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_FrostAve"]/statBases</xpath>
+            <value>
+              <MeleeParryChance>0.05</MeleeParryChance>
+            </value>
+          </nomatch>
         </li>
-        <li Class="PatchOperationAdd">
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_FrostAve"]/statBases/ArmorRating_Sharp</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_FrostAve"]/statBases/ArmorRating_Sharp</xpath>
+            <value>
+              <ArmorRating_Sharp>0</ArmorRating_Sharp>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_FrostAve"]/statBases</xpath>
+            <value>
+              <ArmorRating_Sharp>0</ArmorRating_Sharp>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_FrostAve"]/statBases/ArmorRating_Blunt</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_FrostAve"]/statBases/ArmorRating_Blunt</xpath>
+            <value>
+              <ArmorRating_Blunt>0</ArmorRating_Blunt>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_FrostAve"]/statBases</xpath>
+            <value>
+              <ArmorRating_Blunt>0</ArmorRating_Blunt>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>Defs/ThingDef[defName="AA_FrostAve"]/comps</xpath>
-          <value>
-            <li Class="CombatExtended.CompProperties_ArmorDurability">
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_FrostAve"]</xpath>
+            <value>
+              <comps/>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_FrostAve"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_FrostAve"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]/Durability</xpath>
+            <value>
               <Durability>900</Durability>
-              <Regenerates>true</Regenerates>
-              <RegenInterval>600</RegenInterval>
-              <RegenValue>5</RegenValue>
-              <MinArmorPct>0.5</MinArmorPct>
-            </li>
-          </value>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_FrostAve"]/comps</xpath>
+            <value>
+              <li Class="CombatExtended.CompProperties_ArmorDurability">
+                <Durability>900</Durability>
+                <Regenerates>true</Regenerates>
+                <RegenInterval>600</RegenInterval>
+                <RegenValue>5</RegenValue>
+                <MinArmorPct>0.5</MinArmorPct>
+              </li>
+            </value>
+          </nomatch>
         </li>
-        <li Class="PatchOperationAddModExtension">
-          <xpath>Defs/ThingDef[defName="AA_FrostAve"]</xpath>
-          <value>
-            <li Class="CombatExtended.RacePropertiesExtensionCE">
-              <bodyShape>Birdlike</bodyShape>
-            </li>
-          </value>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_FrostAve"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="AA_FrostAve"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
+                <match Class="PatchOperationReplace">
+                  <xpath>Defs/ThingDef[defName="AA_FrostAve"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
+                  <value>
+                    <bodyShape>Birdlike</bodyShape>
+                  </value>
+                </match>
+                <nomatch Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[defName="AA_FrostAve"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
+                  <value>
+                    <bodyShape>Birdlike</bodyShape>
+                  </value>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+          <nomatch Class="PatchOperationAddModExtension">
+            <xpath>Defs/ThingDef[defName="AA_FrostAve"]</xpath>
+            <value>
+              <li Class="CombatExtended.RacePropertiesExtensionCE">
+                <bodyShape>Birdlike</bodyShape>
+              </li>
+            </value>
+          </nomatch>
         </li>
-        <li Class="PatchOperationReplace">
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName="AA_FrostAve"]/tools</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName="AA_FrostAve"]/tools</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="AA_FrostAve"]</xpath>
           <value>
             <tools>
               <li Class="CombatExtended.ToolCE">
@@ -2168,35 +2766,156 @@
             </tools>
           </value>
         </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_FrostAve"]/statBases/ArmorRating_Heat</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>Defs/ThingDef[defName="AA_FrostAve"]/statBases/ArmorRating_Heat</xpath>
+          </match>
+        </li>
         <!-- AA_GiantCrownedSilkie CE patches -->
-        <li Class="PatchOperationAdd">
-          <xpath>Defs/ThingDef[defName="AA_GiantCrownedSilkie"]/statBases</xpath>
-          <value>
-            <MeleeDodgeChance>0.4</MeleeDodgeChance>
-          </value>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_GiantCrownedSilkie"]/statBases/MeleeDodgeChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_GiantCrownedSilkie"]/statBases/MeleeDodgeChance</xpath>
+            <value>
+              <MeleeDodgeChance>0.4</MeleeDodgeChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_GiantCrownedSilkie"]/statBases</xpath>
+            <value>
+              <MeleeDodgeChance>0.4</MeleeDodgeChance>
+            </value>
+          </nomatch>
         </li>
-        <li Class="PatchOperationAdd">
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_GiantCrownedSilkie"]/statBases/MeleeCritChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_GiantCrownedSilkie"]/statBases/MeleeCritChance</xpath>
+            <value>
+              <MeleeCritChance>0</MeleeCritChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_GiantCrownedSilkie"]/statBases</xpath>
+            <value>
+              <MeleeCritChance>0</MeleeCritChance>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_GiantCrownedSilkie"]/statBases/MeleeParryChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_GiantCrownedSilkie"]/statBases/MeleeParryChance</xpath>
+            <value>
+              <MeleeParryChance>0</MeleeParryChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_GiantCrownedSilkie"]/statBases</xpath>
+            <value>
+              <MeleeParryChance>0</MeleeParryChance>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_GiantCrownedSilkie"]/statBases/ArmorRating_Sharp</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_GiantCrownedSilkie"]/statBases/ArmorRating_Sharp</xpath>
+            <value>
+              <ArmorRating_Sharp>0</ArmorRating_Sharp>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_GiantCrownedSilkie"]/statBases</xpath>
+            <value>
+              <ArmorRating_Sharp>0</ArmorRating_Sharp>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_GiantCrownedSilkie"]/statBases/ArmorRating_Blunt</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_GiantCrownedSilkie"]/statBases/ArmorRating_Blunt</xpath>
+            <value>
+              <ArmorRating_Blunt>0</ArmorRating_Blunt>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_GiantCrownedSilkie"]/statBases</xpath>
+            <value>
+              <ArmorRating_Blunt>0</ArmorRating_Blunt>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>Defs/ThingDef[defName="AA_GiantCrownedSilkie"]/comps</xpath>
-          <value>
-            <li Class="CombatExtended.CompProperties_ArmorDurability">
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_GiantCrownedSilkie"]</xpath>
+            <value>
+              <comps/>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_GiantCrownedSilkie"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_GiantCrownedSilkie"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]/Durability</xpath>
+            <value>
               <Durability>1050</Durability>
-              <Regenerates>true</Regenerates>
-              <RegenInterval>600</RegenInterval>
-              <RegenValue>5</RegenValue>
-              <MinArmorPct>0.5</MinArmorPct>
-            </li>
-          </value>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_GiantCrownedSilkie"]/comps</xpath>
+            <value>
+              <li Class="CombatExtended.CompProperties_ArmorDurability">
+                <Durability>1050</Durability>
+                <Regenerates>true</Regenerates>
+                <RegenInterval>600</RegenInterval>
+                <RegenValue>5</RegenValue>
+                <MinArmorPct>0.5</MinArmorPct>
+              </li>
+            </value>
+          </nomatch>
         </li>
-        <li Class="PatchOperationAddModExtension">
-          <xpath>Defs/ThingDef[defName="AA_GiantCrownedSilkie"]</xpath>
-          <value>
-            <li Class="CombatExtended.RacePropertiesExtensionCE">
-              <bodyShape>Birdlike</bodyShape>
-            </li>
-          </value>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_GiantCrownedSilkie"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="AA_GiantCrownedSilkie"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
+                <match Class="PatchOperationReplace">
+                  <xpath>Defs/ThingDef[defName="AA_GiantCrownedSilkie"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
+                  <value>
+                    <bodyShape>Birdlike</bodyShape>
+                  </value>
+                </match>
+                <nomatch Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[defName="AA_GiantCrownedSilkie"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
+                  <value>
+                    <bodyShape>Birdlike</bodyShape>
+                  </value>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+          <nomatch Class="PatchOperationAddModExtension">
+            <xpath>Defs/ThingDef[defName="AA_GiantCrownedSilkie"]</xpath>
+            <value>
+              <li Class="CombatExtended.RacePropertiesExtensionCE">
+                <bodyShape>Birdlike</bodyShape>
+              </li>
+            </value>
+          </nomatch>
         </li>
-        <li Class="PatchOperationReplace">
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName="AA_GiantCrownedSilkie"]/tools</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName="AA_GiantCrownedSilkie"]/tools</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="AA_GiantCrownedSilkie"]</xpath>
           <value>
             <tools>
               <li Class="CombatExtended.ToolCE">
@@ -2249,48 +2968,157 @@
             </tools>
           </value>
         </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_GiantCrownedSilkie"]/statBases/ArmorRating_Heat</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>Defs/ThingDef[defName="AA_GiantCrownedSilkie"]/statBases/ArmorRating_Heat</xpath>
+          </match>
+        </li>
         <!-- AA_MeadowAve CE patches -->
-        <li Class="PatchOperationAdd">
-          <xpath>Defs/ThingDef[defName="AA_MeadowAve"]/statBases</xpath>
-          <value>
-            <MeleeDodgeChance>0.4</MeleeDodgeChance>
-          </value>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_MeadowAve"]/statBases/MeleeDodgeChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_MeadowAve"]/statBases/MeleeDodgeChance</xpath>
+            <value>
+              <MeleeDodgeChance>0.4</MeleeDodgeChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_MeadowAve"]/statBases</xpath>
+            <value>
+              <MeleeDodgeChance>0.4</MeleeDodgeChance>
+            </value>
+          </nomatch>
         </li>
-        <li Class="PatchOperationAdd">
-          <xpath>Defs/ThingDef[defName="AA_MeadowAve"]/statBases</xpath>
-          <value>
-            <MeleeCritChance>0.25</MeleeCritChance>
-          </value>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_MeadowAve"]/statBases/MeleeCritChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_MeadowAve"]/statBases/MeleeCritChance</xpath>
+            <value>
+              <MeleeCritChance>0.25</MeleeCritChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_MeadowAve"]/statBases</xpath>
+            <value>
+              <MeleeCritChance>0.25</MeleeCritChance>
+            </value>
+          </nomatch>
         </li>
-        <li Class="PatchOperationAdd">
-          <xpath>Defs/ThingDef[defName="AA_MeadowAve"]/statBases</xpath>
-          <value>
-            <MeleeParryChance>0.05</MeleeParryChance>
-          </value>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_MeadowAve"]/statBases/MeleeParryChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_MeadowAve"]/statBases/MeleeParryChance</xpath>
+            <value>
+              <MeleeParryChance>0.05</MeleeParryChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_MeadowAve"]/statBases</xpath>
+            <value>
+              <MeleeParryChance>0.05</MeleeParryChance>
+            </value>
+          </nomatch>
         </li>
-        <li Class="PatchOperationAdd">
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_MeadowAve"]/statBases/ArmorRating_Sharp</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_MeadowAve"]/statBases/ArmorRating_Sharp</xpath>
+            <value>
+              <ArmorRating_Sharp>0</ArmorRating_Sharp>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_MeadowAve"]/statBases</xpath>
+            <value>
+              <ArmorRating_Sharp>0</ArmorRating_Sharp>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_MeadowAve"]/statBases/ArmorRating_Blunt</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_MeadowAve"]/statBases/ArmorRating_Blunt</xpath>
+            <value>
+              <ArmorRating_Blunt>0</ArmorRating_Blunt>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_MeadowAve"]/statBases</xpath>
+            <value>
+              <ArmorRating_Blunt>0</ArmorRating_Blunt>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>Defs/ThingDef[defName="AA_MeadowAve"]/comps</xpath>
-          <value>
-            <li Class="CombatExtended.CompProperties_ArmorDurability">
-              <Durability>900</Durability>
-              <Regenerates>true</Regenerates>
-              <RegenInterval>600</RegenInterval>
-              <RegenValue>5</RegenValue>
-              <MinArmorPct>0.5</MinArmorPct>
-            </li>
-          </value>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_MeadowAve"]</xpath>
+            <value>
+              <comps/>
+            </value>
+          </nomatch>
         </li>
-        <li Class="PatchOperationAddModExtension">
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_MeadowAve"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_MeadowAve"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]/Durability</xpath>
+            <value>
+              <Durability>900</Durability>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_MeadowAve"]/comps</xpath>
+            <value>
+              <li Class="CombatExtended.CompProperties_ArmorDurability">
+                <Durability>900</Durability>
+                <Regenerates>true</Regenerates>
+                <RegenInterval>600</RegenInterval>
+                <RegenValue>5</RegenValue>
+                <MinArmorPct>0.5</MinArmorPct>
+              </li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_MeadowAve"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="AA_MeadowAve"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
+                <match Class="PatchOperationReplace">
+                  <xpath>Defs/ThingDef[defName="AA_MeadowAve"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
+                  <value>
+                    <bodyShape>Birdlike</bodyShape>
+                  </value>
+                </match>
+                <nomatch Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[defName="AA_MeadowAve"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
+                  <value>
+                    <bodyShape>Birdlike</bodyShape>
+                  </value>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+          <nomatch Class="PatchOperationAddModExtension">
+            <xpath>Defs/ThingDef[defName="AA_MeadowAve"]</xpath>
+            <value>
+              <li Class="CombatExtended.RacePropertiesExtensionCE">
+                <bodyShape>Birdlike</bodyShape>
+              </li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName="AA_MeadowAve"]/tools</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName="AA_MeadowAve"]/tools</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationAdd">
           <xpath>Defs/ThingDef[defName="AA_MeadowAve"]</xpath>
           <value>
-            <li Class="CombatExtended.RacePropertiesExtensionCE">
-              <bodyShape>Birdlike</bodyShape>
-            </li>
-          </value>
-        </li>
-        <li Class="PatchOperationReplace">
-          <xpath>/Defs/ThingDef[defName="AA_MeadowAve"]/tools</xpath>
-          <value>
             <tools>
               <li Class="CombatExtended.ToolCE">
                 <label>head</label>
@@ -2341,48 +3169,157 @@
               </li>
             </tools>
           </value>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_MeadowAve"]/statBases/ArmorRating_Heat</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>Defs/ThingDef[defName="AA_MeadowAve"]/statBases/ArmorRating_Heat</xpath>
+          </match>
         </li>
         <!-- AA_NightAve CE patches -->
-        <li Class="PatchOperationAdd">
-          <xpath>Defs/ThingDef[defName="AA_NightAve"]/statBases</xpath>
-          <value>
-            <MeleeDodgeChance>0.4</MeleeDodgeChance>
-          </value>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_NightAve"]/statBases/MeleeDodgeChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_NightAve"]/statBases/MeleeDodgeChance</xpath>
+            <value>
+              <MeleeDodgeChance>0.4</MeleeDodgeChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_NightAve"]/statBases</xpath>
+            <value>
+              <MeleeDodgeChance>0.4</MeleeDodgeChance>
+            </value>
+          </nomatch>
         </li>
-        <li Class="PatchOperationAdd">
-          <xpath>Defs/ThingDef[defName="AA_NightAve"]/statBases</xpath>
-          <value>
-            <MeleeCritChance>0.25</MeleeCritChance>
-          </value>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_NightAve"]/statBases/MeleeCritChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_NightAve"]/statBases/MeleeCritChance</xpath>
+            <value>
+              <MeleeCritChance>0.25</MeleeCritChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_NightAve"]/statBases</xpath>
+            <value>
+              <MeleeCritChance>0.25</MeleeCritChance>
+            </value>
+          </nomatch>
         </li>
-        <li Class="PatchOperationAdd">
-          <xpath>Defs/ThingDef[defName="AA_NightAve"]/statBases</xpath>
-          <value>
-            <MeleeParryChance>0.05</MeleeParryChance>
-          </value>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_NightAve"]/statBases/MeleeParryChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_NightAve"]/statBases/MeleeParryChance</xpath>
+            <value>
+              <MeleeParryChance>0.05</MeleeParryChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_NightAve"]/statBases</xpath>
+            <value>
+              <MeleeParryChance>0.05</MeleeParryChance>
+            </value>
+          </nomatch>
         </li>
-        <li Class="PatchOperationAdd">
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_NightAve"]/statBases/ArmorRating_Sharp</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_NightAve"]/statBases/ArmorRating_Sharp</xpath>
+            <value>
+              <ArmorRating_Sharp>0</ArmorRating_Sharp>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_NightAve"]/statBases</xpath>
+            <value>
+              <ArmorRating_Sharp>0</ArmorRating_Sharp>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_NightAve"]/statBases/ArmorRating_Blunt</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_NightAve"]/statBases/ArmorRating_Blunt</xpath>
+            <value>
+              <ArmorRating_Blunt>0</ArmorRating_Blunt>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_NightAve"]/statBases</xpath>
+            <value>
+              <ArmorRating_Blunt>0</ArmorRating_Blunt>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>Defs/ThingDef[defName="AA_NightAve"]/comps</xpath>
-          <value>
-            <li Class="CombatExtended.CompProperties_ArmorDurability">
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_NightAve"]</xpath>
+            <value>
+              <comps/>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_NightAve"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_NightAve"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]/Durability</xpath>
+            <value>
               <Durability>900</Durability>
-              <Regenerates>true</Regenerates>
-              <RegenInterval>600</RegenInterval>
-              <RegenValue>5</RegenValue>
-              <MinArmorPct>0.5</MinArmorPct>
-            </li>
-          </value>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_NightAve"]/comps</xpath>
+            <value>
+              <li Class="CombatExtended.CompProperties_ArmorDurability">
+                <Durability>900</Durability>
+                <Regenerates>true</Regenerates>
+                <RegenInterval>600</RegenInterval>
+                <RegenValue>5</RegenValue>
+                <MinArmorPct>0.5</MinArmorPct>
+              </li>
+            </value>
+          </nomatch>
         </li>
-        <li Class="PatchOperationAddModExtension">
-          <xpath>Defs/ThingDef[defName="AA_NightAve"]</xpath>
-          <value>
-            <li Class="CombatExtended.RacePropertiesExtensionCE">
-              <bodyShape>Birdlike</bodyShape>
-            </li>
-          </value>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_NightAve"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="AA_NightAve"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
+                <match Class="PatchOperationReplace">
+                  <xpath>Defs/ThingDef[defName="AA_NightAve"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
+                  <value>
+                    <bodyShape>Birdlike</bodyShape>
+                  </value>
+                </match>
+                <nomatch Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[defName="AA_NightAve"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
+                  <value>
+                    <bodyShape>Birdlike</bodyShape>
+                  </value>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+          <nomatch Class="PatchOperationAddModExtension">
+            <xpath>Defs/ThingDef[defName="AA_NightAve"]</xpath>
+            <value>
+              <li Class="CombatExtended.RacePropertiesExtensionCE">
+                <bodyShape>Birdlike</bodyShape>
+              </li>
+            </value>
+          </nomatch>
         </li>
-        <li Class="PatchOperationReplace">
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName="AA_NightAve"]/tools</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName="AA_NightAve"]/tools</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="AA_NightAve"]</xpath>
           <value>
             <tools>
               <li Class="CombatExtended.ToolCE">
@@ -2435,59 +3372,156 @@
             </tools>
           </value>
         </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_NightAve"]/statBases/ArmorRating_Heat</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>Defs/ThingDef[defName="AA_NightAve"]/statBases/ArmorRating_Heat</xpath>
+          </match>
+        </li>
         <!-- AA_PedigreedRaptor CE patches -->
-        <li Class="PatchOperationAdd">
-          <xpath>Defs/ThingDef[defName="AA_PedigreedRaptor"]/statBases</xpath>
-          <value>
-            <MeleeDodgeChance>0.45</MeleeDodgeChance>
-          </value>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_PedigreedRaptor"]/statBases/MeleeDodgeChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_PedigreedRaptor"]/statBases/MeleeDodgeChance</xpath>
+            <value>
+              <MeleeDodgeChance>0.45</MeleeDodgeChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_PedigreedRaptor"]/statBases</xpath>
+            <value>
+              <MeleeDodgeChance>0.45</MeleeDodgeChance>
+            </value>
+          </nomatch>
         </li>
-        <li Class="PatchOperationAdd">
-          <xpath>Defs/ThingDef[defName="AA_PedigreedRaptor"]/statBases</xpath>
-          <value>
-            <MeleeCritChance>0.35</MeleeCritChance>
-          </value>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_PedigreedRaptor"]/statBases/MeleeCritChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_PedigreedRaptor"]/statBases/MeleeCritChance</xpath>
+            <value>
+              <MeleeCritChance>0.35</MeleeCritChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_PedigreedRaptor"]/statBases</xpath>
+            <value>
+              <MeleeCritChance>0.35</MeleeCritChance>
+            </value>
+          </nomatch>
         </li>
-        <li Class="PatchOperationAdd">
-          <xpath>Defs/ThingDef[defName="AA_PedigreedRaptor"]/statBases</xpath>
-          <value>
-            <MeleeParryChance>0.05</MeleeParryChance>
-          </value>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_PedigreedRaptor"]/statBases/MeleeParryChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_PedigreedRaptor"]/statBases/MeleeParryChance</xpath>
+            <value>
+              <MeleeParryChance>0.05</MeleeParryChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_PedigreedRaptor"]/statBases</xpath>
+            <value>
+              <MeleeParryChance>0.05</MeleeParryChance>
+            </value>
+          </nomatch>
         </li>
-        <li Class="PatchOperationAdd">
-          <xpath>Defs/ThingDef[defName="AA_PedigreedRaptor"]/statBases</xpath>
-          <value>
-            <ArmorRating_Sharp>0.05</ArmorRating_Sharp>
-          </value>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_PedigreedRaptor"]/statBases/ArmorRating_Sharp</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_PedigreedRaptor"]/statBases/ArmorRating_Sharp</xpath>
+            <value>
+              <ArmorRating_Sharp>0.05</ArmorRating_Sharp>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_PedigreedRaptor"]/statBases</xpath>
+            <value>
+              <ArmorRating_Sharp>0.05</ArmorRating_Sharp>
+            </value>
+          </nomatch>
         </li>
-        <li Class="PatchOperationAdd">
-          <xpath>Defs/ThingDef[defName="AA_PedigreedRaptor"]/statBases</xpath>
-          <value>
-            <ArmorRating_Blunt>0.1</ArmorRating_Blunt>
-          </value>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_PedigreedRaptor"]/statBases/ArmorRating_Blunt</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_PedigreedRaptor"]/statBases/ArmorRating_Blunt</xpath>
+            <value>
+              <ArmorRating_Blunt>0.1</ArmorRating_Blunt>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_PedigreedRaptor"]/statBases</xpath>
+            <value>
+              <ArmorRating_Blunt>0.1</ArmorRating_Blunt>
+            </value>
+          </nomatch>
         </li>
-        <li Class="PatchOperationAdd">
+        <li Class="PatchOperationConditional">
           <xpath>Defs/ThingDef[defName="AA_PedigreedRaptor"]/comps</xpath>
-          <value>
-            <li Class="CombatExtended.CompProperties_ArmorDurability">
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_PedigreedRaptor"]</xpath>
+            <value>
+              <comps/>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_PedigreedRaptor"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_PedigreedRaptor"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]/Durability</xpath>
+            <value>
               <Durability>300</Durability>
-              <Regenerates>true</Regenerates>
-              <RegenInterval>600</RegenInterval>
-              <RegenValue>5</RegenValue>
-              <MinArmorPct>0.5</MinArmorPct>
-            </li>
-          </value>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_PedigreedRaptor"]/comps</xpath>
+            <value>
+              <li Class="CombatExtended.CompProperties_ArmorDurability">
+                <Durability>300</Durability>
+                <Regenerates>true</Regenerates>
+                <RegenInterval>600</RegenInterval>
+                <RegenValue>5</RegenValue>
+                <MinArmorPct>0.5</MinArmorPct>
+              </li>
+            </value>
+          </nomatch>
         </li>
-        <li Class="PatchOperationAddModExtension">
-          <xpath>Defs/ThingDef[defName="AA_PedigreedRaptor"]</xpath>
-          <value>
-            <li Class="CombatExtended.RacePropertiesExtensionCE">
-              <bodyShape>Birdlike</bodyShape>
-            </li>
-          </value>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_PedigreedRaptor"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="AA_PedigreedRaptor"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
+                <match Class="PatchOperationReplace">
+                  <xpath>Defs/ThingDef[defName="AA_PedigreedRaptor"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
+                  <value>
+                    <bodyShape>Birdlike</bodyShape>
+                  </value>
+                </match>
+                <nomatch Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[defName="AA_PedigreedRaptor"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
+                  <value>
+                    <bodyShape>Birdlike</bodyShape>
+                  </value>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+          <nomatch Class="PatchOperationAddModExtension">
+            <xpath>Defs/ThingDef[defName="AA_PedigreedRaptor"]</xpath>
+            <value>
+              <li Class="CombatExtended.RacePropertiesExtensionCE">
+                <bodyShape>Birdlike</bodyShape>
+              </li>
+            </value>
+          </nomatch>
         </li>
-        <li Class="PatchOperationReplace">
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName="AA_PedigreedRaptor"]/tools</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName="AA_PedigreedRaptor"]/tools</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="AA_PedigreedRaptor"]</xpath>
           <value>
             <tools>
               <li Class="CombatExtended.ToolCE">
@@ -2564,47 +3598,156 @@
             </tools>
           </value>
         </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_PedigreedRaptor"]/statBases/ArmorRating_Heat</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>Defs/ThingDef[defName="AA_PedigreedRaptor"]/statBases/ArmorRating_Heat</xpath>
+          </match>
+        </li>
         <!-- AA_RoyalAve CE patches -->
-        <li Class="PatchOperationAdd">
-          <xpath>Defs/ThingDef[defName="AA_RoyalAve"]/statBases</xpath>
-          <value>
-            <MeleeDodgeChance>0.4</MeleeDodgeChance>
-          </value>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_RoyalAve"]/statBases/MeleeDodgeChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_RoyalAve"]/statBases/MeleeDodgeChance</xpath>
+            <value>
+              <MeleeDodgeChance>0.4</MeleeDodgeChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_RoyalAve"]/statBases</xpath>
+            <value>
+              <MeleeDodgeChance>0.4</MeleeDodgeChance>
+            </value>
+          </nomatch>
         </li>
-        <li Class="PatchOperationAdd">
-          <xpath>Defs/ThingDef[defName="AA_RoyalAve"]/statBases</xpath>
-          <value>
-            <MeleeCritChance>0.25</MeleeCritChance>
-          </value>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_RoyalAve"]/statBases/MeleeCritChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_RoyalAve"]/statBases/MeleeCritChance</xpath>
+            <value>
+              <MeleeCritChance>0.25</MeleeCritChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_RoyalAve"]/statBases</xpath>
+            <value>
+              <MeleeCritChance>0.25</MeleeCritChance>
+            </value>
+          </nomatch>
         </li>
-        <li Class="PatchOperationAdd">
-          <xpath>Defs/ThingDef[defName="AA_RoyalAve"]/statBases</xpath>
-          <value>
-            <MeleeParryChance>0.05</MeleeParryChance>
-          </value>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_RoyalAve"]/statBases/MeleeParryChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_RoyalAve"]/statBases/MeleeParryChance</xpath>
+            <value>
+              <MeleeParryChance>0.05</MeleeParryChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_RoyalAve"]/statBases</xpath>
+            <value>
+              <MeleeParryChance>0.05</MeleeParryChance>
+            </value>
+          </nomatch>
         </li>
-        <li Class="PatchOperationAdd">
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_RoyalAve"]/statBases/ArmorRating_Sharp</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_RoyalAve"]/statBases/ArmorRating_Sharp</xpath>
+            <value>
+              <ArmorRating_Sharp>0</ArmorRating_Sharp>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_RoyalAve"]/statBases</xpath>
+            <value>
+              <ArmorRating_Sharp>0</ArmorRating_Sharp>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_RoyalAve"]/statBases/ArmorRating_Blunt</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_RoyalAve"]/statBases/ArmorRating_Blunt</xpath>
+            <value>
+              <ArmorRating_Blunt>0</ArmorRating_Blunt>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_RoyalAve"]/statBases</xpath>
+            <value>
+              <ArmorRating_Blunt>0</ArmorRating_Blunt>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>Defs/ThingDef[defName="AA_RoyalAve"]/comps</xpath>
-          <value>
-            <li Class="CombatExtended.CompProperties_ArmorDurability">
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_RoyalAve"]</xpath>
+            <value>
+              <comps/>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_RoyalAve"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_RoyalAve"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]/Durability</xpath>
+            <value>
               <Durability>900</Durability>
-              <Regenerates>true</Regenerates>
-              <RegenInterval>600</RegenInterval>
-              <RegenValue>5</RegenValue>
-              <MinArmorPct>0.5</MinArmorPct>
-            </li>
-          </value>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_RoyalAve"]/comps</xpath>
+            <value>
+              <li Class="CombatExtended.CompProperties_ArmorDurability">
+                <Durability>900</Durability>
+                <Regenerates>true</Regenerates>
+                <RegenInterval>600</RegenInterval>
+                <RegenValue>5</RegenValue>
+                <MinArmorPct>0.5</MinArmorPct>
+              </li>
+            </value>
+          </nomatch>
         </li>
-        <li Class="PatchOperationAddModExtension">
-          <xpath>Defs/ThingDef[defName="AA_RoyalAve"]</xpath>
-          <value>
-            <li Class="CombatExtended.RacePropertiesExtensionCE">
-              <bodyShape>Birdlike</bodyShape>
-            </li>
-          </value>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_RoyalAve"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="AA_RoyalAve"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
+                <match Class="PatchOperationReplace">
+                  <xpath>Defs/ThingDef[defName="AA_RoyalAve"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
+                  <value>
+                    <bodyShape>Birdlike</bodyShape>
+                  </value>
+                </match>
+                <nomatch Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[defName="AA_RoyalAve"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
+                  <value>
+                    <bodyShape>Birdlike</bodyShape>
+                  </value>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+          <nomatch Class="PatchOperationAddModExtension">
+            <xpath>Defs/ThingDef[defName="AA_RoyalAve"]</xpath>
+            <value>
+              <li Class="CombatExtended.RacePropertiesExtensionCE">
+                <bodyShape>Birdlike</bodyShape>
+              </li>
+            </value>
+          </nomatch>
         </li>
-        <li Class="PatchOperationReplace">
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName="AA_RoyalAve"]/tools</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName="AA_RoyalAve"]/tools</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="AA_RoyalAve"]</xpath>
           <value>
             <tools>
               <li Class="CombatExtended.ToolCE">
@@ -2656,6 +3799,12 @@
               </li>
             </tools>
           </value>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_RoyalAve"]/statBases/ArmorRating_Heat</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>Defs/ThingDef[defName="AA_RoyalAve"]/statBases/ArmorRating_Heat</xpath>
+          </match>
         </li>
       </operations>
     </match>

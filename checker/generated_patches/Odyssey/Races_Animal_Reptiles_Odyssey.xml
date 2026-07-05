@@ -39,12 +39,30 @@
       <ComfyTemperatureMax>50</ComfyTemperatureMax>
     </value>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "MonitorLizard"]/statBases/ArmorRating_Blunt</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "MonitorLizard"]/statBases/ArmorRating_Blunt</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "MonitorLizard"]/statBases/ArmorRating_Sharp</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "MonitorLizard"]/statBases/ArmorRating_Sharp</xpath>
+    </match>
+  </Operation>
   <Operation Class="PatchOperationRemove">
     <xpath>/Defs/ThingDef[defName = "MonitorLizard"]/statBases/ToxicEnvironmentResistance</xpath>
   </Operation>
   <!-- MonitorLizard tools -->
-  <Operation Class="PatchOperationReplace">
+  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "MonitorLizard"]/tools</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "MonitorLizard"]/tools</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "MonitorLizard"]</xpath>
     <value>
       <tools>
         <li>
@@ -293,21 +311,45 @@
       <ComfyTemperatureMax>40</ComfyTemperatureMax>
     </value>
   </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/ThingDef[defName = "Alligator"]/statBases</xpath>
-    <value>
-      <ArmorRating_Blunt>0.25</ArmorRating_Blunt>
-    </value>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Alligator"]/statBases/ArmorRating_Blunt</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "Alligator"]/statBases/ArmorRating_Blunt</xpath>
+      <value>
+        <ArmorRating_Blunt>0.25</ArmorRating_Blunt>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "Alligator"]/statBases</xpath>
+      <value>
+        <ArmorRating_Blunt>0.25</ArmorRating_Blunt>
+      </value>
+    </nomatch>
   </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/ThingDef[defName = "Alligator"]/statBases</xpath>
-    <value>
-      <ArmorRating_Sharp>0.2</ArmorRating_Sharp>
-    </value>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Alligator"]/statBases/ArmorRating_Sharp</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "Alligator"]/statBases/ArmorRating_Sharp</xpath>
+      <value>
+        <ArmorRating_Sharp>0.2</ArmorRating_Sharp>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "Alligator"]/statBases</xpath>
+      <value>
+        <ArmorRating_Sharp>0.2</ArmorRating_Sharp>
+      </value>
+    </nomatch>
   </Operation>
   <!-- Alligator tools -->
-  <Operation Class="PatchOperationReplace">
+  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Alligator"]/tools</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Alligator"]/tools</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Alligator"]</xpath>
     <value>
       <tools>
         <li>
@@ -484,21 +526,45 @@
       <ComfyTemperatureMin>-5</ComfyTemperatureMin>
     </value>
   </Operation>
-  <Operation Class="PatchOperationReplace">
+  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "SeaTurtle"]/statBases/ArmorRating_Blunt</xpath>
-    <value>
-      <ArmorRating_Blunt>0.85</ArmorRating_Blunt>
-    </value>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "SeaTurtle"]/statBases/ArmorRating_Blunt</xpath>
+      <value>
+        <ArmorRating_Blunt>0.85</ArmorRating_Blunt>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "SeaTurtle"]/statBases</xpath>
+      <value>
+        <ArmorRating_Blunt>0.85</ArmorRating_Blunt>
+      </value>
+    </nomatch>
   </Operation>
-  <Operation Class="PatchOperationReplace">
+  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "SeaTurtle"]/statBases/ArmorRating_Sharp</xpath>
-    <value>
-      <ArmorRating_Sharp>0.8</ArmorRating_Sharp>
-    </value>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "SeaTurtle"]/statBases/ArmorRating_Sharp</xpath>
+      <value>
+        <ArmorRating_Sharp>0.8</ArmorRating_Sharp>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "SeaTurtle"]/statBases</xpath>
+      <value>
+        <ArmorRating_Sharp>0.8</ArmorRating_Sharp>
+      </value>
+    </nomatch>
   </Operation>
   <!-- SeaTurtle tools -->
-  <Operation Class="PatchOperationReplace">
+  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "SeaTurtle"]/tools</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "SeaTurtle"]/tools</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "SeaTurtle"]</xpath>
     <value>
       <tools>
         <li>
@@ -635,58 +701,149 @@
     <match Class="PatchOperationSequence">
       <operations>
         <!-- MonitorLizard CE patches -->
-        <li Class="PatchOperationAdd">
-          <xpath>Defs/ThingDef[defName="MonitorLizard"]/statBases</xpath>
-          <value>
-            <MeleeDodgeChance>0.25</MeleeDodgeChance>
-          </value>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="MonitorLizard"]/statBases/MeleeDodgeChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="MonitorLizard"]/statBases/MeleeDodgeChance</xpath>
+            <value>
+              <MeleeDodgeChance>0.25</MeleeDodgeChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="MonitorLizard"]/statBases</xpath>
+            <value>
+              <MeleeDodgeChance>0.25</MeleeDodgeChance>
+            </value>
+          </nomatch>
         </li>
-        <li Class="PatchOperationAdd">
-          <xpath>Defs/ThingDef[defName="MonitorLizard"]/statBases</xpath>
-          <value>
-            <MeleeCritChance>0.4</MeleeCritChance>
-          </value>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="MonitorLizard"]/statBases/MeleeCritChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="MonitorLizard"]/statBases/MeleeCritChance</xpath>
+            <value>
+              <MeleeCritChance>0.4</MeleeCritChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="MonitorLizard"]/statBases</xpath>
+            <value>
+              <MeleeCritChance>0.4</MeleeCritChance>
+            </value>
+          </nomatch>
         </li>
-        <li Class="PatchOperationAdd">
-          <xpath>Defs/ThingDef[defName="MonitorLizard"]/statBases</xpath>
-          <value>
-            <MeleeParryChance>0.05</MeleeParryChance>
-          </value>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="MonitorLizard"]/statBases/MeleeParryChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="MonitorLizard"]/statBases/MeleeParryChance</xpath>
+            <value>
+              <MeleeParryChance>0.05</MeleeParryChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="MonitorLizard"]/statBases</xpath>
+            <value>
+              <MeleeParryChance>0.05</MeleeParryChance>
+            </value>
+          </nomatch>
         </li>
-        <li Class="PatchOperationAdd">
-          <xpath>Defs/ThingDef[defName="MonitorLizard"]/statBases</xpath>
-          <value>
-            <ArmorRating_Sharp>0.07</ArmorRating_Sharp>
-          </value>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="MonitorLizard"]/statBases/ArmorRating_Sharp</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="MonitorLizard"]/statBases/ArmorRating_Sharp</xpath>
+            <value>
+              <ArmorRating_Sharp>0.07</ArmorRating_Sharp>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="MonitorLizard"]/statBases</xpath>
+            <value>
+              <ArmorRating_Sharp>0.07</ArmorRating_Sharp>
+            </value>
+          </nomatch>
         </li>
-        <li Class="PatchOperationAdd">
-          <xpath>Defs/ThingDef[defName="MonitorLizard"]/statBases</xpath>
-          <value>
-            <ArmorRating_Blunt>0.3</ArmorRating_Blunt>
-          </value>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="MonitorLizard"]/statBases/ArmorRating_Blunt</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="MonitorLizard"]/statBases/ArmorRating_Blunt</xpath>
+            <value>
+              <ArmorRating_Blunt>0.3</ArmorRating_Blunt>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="MonitorLizard"]/statBases</xpath>
+            <value>
+              <ArmorRating_Blunt>0.3</ArmorRating_Blunt>
+            </value>
+          </nomatch>
         </li>
-        <li Class="PatchOperationAdd">
+        <li Class="PatchOperationConditional">
           <xpath>Defs/ThingDef[defName="MonitorLizard"]/comps</xpath>
-          <value>
-            <li Class="CombatExtended.CompProperties_ArmorDurability">
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="MonitorLizard"]</xpath>
+            <value>
+              <comps/>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="MonitorLizard"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="MonitorLizard"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]/Durability</xpath>
+            <value>
               <Durability>650</Durability>
-              <Regenerates>true</Regenerates>
-              <RegenInterval>600</RegenInterval>
-              <RegenValue>5</RegenValue>
-              <MinArmorPct>0.5</MinArmorPct>
-            </li>
-          </value>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="MonitorLizard"]/comps</xpath>
+            <value>
+              <li Class="CombatExtended.CompProperties_ArmorDurability">
+                <Durability>650</Durability>
+                <Regenerates>true</Regenerates>
+                <RegenInterval>600</RegenInterval>
+                <RegenValue>5</RegenValue>
+                <MinArmorPct>0.5</MinArmorPct>
+              </li>
+            </value>
+          </nomatch>
         </li>
-        <li Class="PatchOperationAddModExtension">
-          <xpath>Defs/ThingDef[defName="MonitorLizard"]</xpath>
-          <value>
-            <li Class="CombatExtended.RacePropertiesExtensionCE">
-              <bodyShape>QuadrupedLow</bodyShape>
-            </li>
-          </value>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="MonitorLizard"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="MonitorLizard"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
+                <match Class="PatchOperationReplace">
+                  <xpath>Defs/ThingDef[defName="MonitorLizard"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
+                  <value>
+                    <bodyShape>QuadrupedLow</bodyShape>
+                  </value>
+                </match>
+                <nomatch Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[defName="MonitorLizard"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
+                  <value>
+                    <bodyShape>QuadrupedLow</bodyShape>
+                  </value>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+          <nomatch Class="PatchOperationAddModExtension">
+            <xpath>Defs/ThingDef[defName="MonitorLizard"]</xpath>
+            <value>
+              <li Class="CombatExtended.RacePropertiesExtensionCE">
+                <bodyShape>QuadrupedLow</bodyShape>
+              </li>
+            </value>
+          </nomatch>
         </li>
-        <li Class="PatchOperationReplace">
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName="MonitorLizard"]/tools</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName="MonitorLizard"]/tools</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>Defs/ThingDef[defName="MonitorLizard"]</xpath>
           <value>
             <tools>
               <li Class="CombatExtended.ToolCE">
@@ -763,59 +920,156 @@
             </tools>
           </value>
         </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="MonitorLizard"]/statBases/ArmorRating_Heat</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>Defs/ThingDef[defName="MonitorLizard"]/statBases/ArmorRating_Heat</xpath>
+          </match>
+        </li>
         <!-- Alligator CE patches -->
-        <li Class="PatchOperationAdd">
-          <xpath>Defs/ThingDef[defName="Alligator"]/statBases</xpath>
-          <value>
-            <MeleeDodgeChance>0.1</MeleeDodgeChance>
-          </value>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="Alligator"]/statBases/MeleeDodgeChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="Alligator"]/statBases/MeleeDodgeChance</xpath>
+            <value>
+              <MeleeDodgeChance>0.1</MeleeDodgeChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="Alligator"]/statBases</xpath>
+            <value>
+              <MeleeDodgeChance>0.1</MeleeDodgeChance>
+            </value>
+          </nomatch>
         </li>
-        <li Class="PatchOperationAdd">
-          <xpath>Defs/ThingDef[defName="Alligator"]/statBases</xpath>
-          <value>
-            <MeleeCritChance>0.25</MeleeCritChance>
-          </value>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="Alligator"]/statBases/MeleeCritChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="Alligator"]/statBases/MeleeCritChance</xpath>
+            <value>
+              <MeleeCritChance>0.25</MeleeCritChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="Alligator"]/statBases</xpath>
+            <value>
+              <MeleeCritChance>0.25</MeleeCritChance>
+            </value>
+          </nomatch>
         </li>
-        <li Class="PatchOperationAdd">
-          <xpath>Defs/ThingDef[defName="Alligator"]/statBases</xpath>
-          <value>
-            <MeleeParryChance>0.05</MeleeParryChance>
-          </value>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="Alligator"]/statBases/MeleeParryChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="Alligator"]/statBases/MeleeParryChance</xpath>
+            <value>
+              <MeleeParryChance>0.05</MeleeParryChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="Alligator"]/statBases</xpath>
+            <value>
+              <MeleeParryChance>0.05</MeleeParryChance>
+            </value>
+          </nomatch>
         </li>
-        <li Class="PatchOperationReplace">
+        <li Class="PatchOperationConditional">
           <xpath>Defs/ThingDef[defName="Alligator"]/statBases/ArmorRating_Sharp</xpath>
-          <value>
-            <ArmorRating_Sharp>0.31</ArmorRating_Sharp>
-          </value>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="Alligator"]/statBases/ArmorRating_Sharp</xpath>
+            <value>
+              <ArmorRating_Sharp>0.31</ArmorRating_Sharp>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="Alligator"]/statBases</xpath>
+            <value>
+              <ArmorRating_Sharp>0.31</ArmorRating_Sharp>
+            </value>
+          </nomatch>
         </li>
-        <li Class="PatchOperationReplace">
+        <li Class="PatchOperationConditional">
           <xpath>Defs/ThingDef[defName="Alligator"]/statBases/ArmorRating_Blunt</xpath>
-          <value>
-            <ArmorRating_Blunt>0.35</ArmorRating_Blunt>
-          </value>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="Alligator"]/statBases/ArmorRating_Blunt</xpath>
+            <value>
+              <ArmorRating_Blunt>0.35</ArmorRating_Blunt>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="Alligator"]/statBases</xpath>
+            <value>
+              <ArmorRating_Blunt>0.35</ArmorRating_Blunt>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="Alligator"]/comps</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="Alligator"]</xpath>
+            <value>
+              <comps/>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="Alligator"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="Alligator"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]/Durability</xpath>
+            <value>
+              <Durability>875</Durability>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="Alligator"]/comps</xpath>
+            <value>
+              <li Class="CombatExtended.CompProperties_ArmorDurability">
+                <Durability>875</Durability>
+                <Regenerates>true</Regenerates>
+                <RegenInterval>600</RegenInterval>
+                <RegenValue>5</RegenValue>
+                <MinArmorPct>0.5</MinArmorPct>
+              </li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="Alligator"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="Alligator"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
+                <match Class="PatchOperationReplace">
+                  <xpath>Defs/ThingDef[defName="Alligator"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
+                  <value>
+                    <bodyShape>QuadrupedLow</bodyShape>
+                  </value>
+                </match>
+                <nomatch Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[defName="Alligator"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
+                  <value>
+                    <bodyShape>QuadrupedLow</bodyShape>
+                  </value>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+          <nomatch Class="PatchOperationAddModExtension">
+            <xpath>Defs/ThingDef[defName="Alligator"]</xpath>
+            <value>
+              <li Class="CombatExtended.RacePropertiesExtensionCE">
+                <bodyShape>QuadrupedLow</bodyShape>
+              </li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName="Alligator"]/tools</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName="Alligator"]/tools</xpath>
+          </match>
         </li>
         <li Class="PatchOperationAdd">
-          <xpath>Defs/ThingDef[defName="Alligator"]/comps</xpath>
-          <value>
-            <li Class="CombatExtended.CompProperties_ArmorDurability">
-              <Durability>875</Durability>
-              <Regenerates>true</Regenerates>
-              <RegenInterval>600</RegenInterval>
-              <RegenValue>5</RegenValue>
-              <MinArmorPct>0.5</MinArmorPct>
-            </li>
-          </value>
-        </li>
-        <li Class="PatchOperationAddModExtension">
           <xpath>Defs/ThingDef[defName="Alligator"]</xpath>
-          <value>
-            <li Class="CombatExtended.RacePropertiesExtensionCE">
-              <bodyShape>QuadrupedLow</bodyShape>
-            </li>
-          </value>
-        </li>
-        <li Class="PatchOperationReplace">
-          <xpath>/Defs/ThingDef[defName="Alligator"]/tools</xpath>
           <value>
             <tools>
               <li Class="CombatExtended.ToolCE">
@@ -852,41 +1106,156 @@
             </tools>
           </value>
         </li>
-        <!-- SeaTurtle CE patches -->
-        <li Class="PatchOperationReplace">
-          <xpath>Defs/ThingDef[defName="SeaTurtle"]/statBases/ArmorRating_Sharp</xpath>
-          <value>
-            <ArmorRating_Sharp>2.15</ArmorRating_Sharp>
-          </value>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="Alligator"]/statBases/ArmorRating_Heat</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>Defs/ThingDef[defName="Alligator"]/statBases/ArmorRating_Heat</xpath>
+          </match>
         </li>
-        <li Class="PatchOperationReplace">
+        <!-- SeaTurtle CE patches -->
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="SeaTurtle"]/statBases/MeleeDodgeChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="SeaTurtle"]/statBases/MeleeDodgeChance</xpath>
+            <value>
+              <MeleeDodgeChance>0</MeleeDodgeChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="SeaTurtle"]/statBases</xpath>
+            <value>
+              <MeleeDodgeChance>0</MeleeDodgeChance>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="SeaTurtle"]/statBases/MeleeCritChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="SeaTurtle"]/statBases/MeleeCritChance</xpath>
+            <value>
+              <MeleeCritChance>0</MeleeCritChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="SeaTurtle"]/statBases</xpath>
+            <value>
+              <MeleeCritChance>0</MeleeCritChance>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="SeaTurtle"]/statBases/MeleeParryChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="SeaTurtle"]/statBases/MeleeParryChance</xpath>
+            <value>
+              <MeleeParryChance>0</MeleeParryChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="SeaTurtle"]/statBases</xpath>
+            <value>
+              <MeleeParryChance>0</MeleeParryChance>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="SeaTurtle"]/statBases/ArmorRating_Sharp</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="SeaTurtle"]/statBases/ArmorRating_Sharp</xpath>
+            <value>
+              <ArmorRating_Sharp>2.15</ArmorRating_Sharp>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="SeaTurtle"]/statBases</xpath>
+            <value>
+              <ArmorRating_Sharp>2.15</ArmorRating_Sharp>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>Defs/ThingDef[defName="SeaTurtle"]/statBases/ArmorRating_Blunt</xpath>
-          <value>
-            <ArmorRating_Blunt>3.8</ArmorRating_Blunt>
-          </value>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="SeaTurtle"]/statBases/ArmorRating_Blunt</xpath>
+            <value>
+              <ArmorRating_Blunt>3.8</ArmorRating_Blunt>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="SeaTurtle"]/statBases</xpath>
+            <value>
+              <ArmorRating_Blunt>3.8</ArmorRating_Blunt>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="SeaTurtle"]/comps</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="SeaTurtle"]</xpath>
+            <value>
+              <comps/>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="SeaTurtle"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="SeaTurtle"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]/Durability</xpath>
+            <value>
+              <Durability>850</Durability>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="SeaTurtle"]/comps</xpath>
+            <value>
+              <li Class="CombatExtended.CompProperties_ArmorDurability">
+                <Durability>850</Durability>
+                <Regenerates>true</Regenerates>
+                <RegenInterval>600</RegenInterval>
+                <RegenValue>5</RegenValue>
+                <MinArmorPct>0.5</MinArmorPct>
+              </li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="SeaTurtle"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="SeaTurtle"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
+                <match Class="PatchOperationReplace">
+                  <xpath>Defs/ThingDef[defName="SeaTurtle"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
+                  <value>
+                    <bodyShape>QuadrupedLow</bodyShape>
+                  </value>
+                </match>
+                <nomatch Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[defName="SeaTurtle"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
+                  <value>
+                    <bodyShape>QuadrupedLow</bodyShape>
+                  </value>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+          <nomatch Class="PatchOperationAddModExtension">
+            <xpath>Defs/ThingDef[defName="SeaTurtle"]</xpath>
+            <value>
+              <li Class="CombatExtended.RacePropertiesExtensionCE">
+                <bodyShape>QuadrupedLow</bodyShape>
+              </li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName="SeaTurtle"]/tools</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName="SeaTurtle"]/tools</xpath>
+          </match>
         </li>
         <li Class="PatchOperationAdd">
-          <xpath>Defs/ThingDef[defName="SeaTurtle"]/comps</xpath>
-          <value>
-            <li Class="CombatExtended.CompProperties_ArmorDurability">
-              <Durability>850</Durability>
-              <Regenerates>true</Regenerates>
-              <RegenInterval>600</RegenInterval>
-              <RegenValue>5</RegenValue>
-              <MinArmorPct>0.5</MinArmorPct>
-            </li>
-          </value>
-        </li>
-        <li Class="PatchOperationAddModExtension">
           <xpath>Defs/ThingDef[defName="SeaTurtle"]</xpath>
-          <value>
-            <li Class="CombatExtended.RacePropertiesExtensionCE">
-              <bodyShape>QuadrupedLow</bodyShape>
-            </li>
-          </value>
-        </li>
-        <li Class="PatchOperationReplace">
-          <xpath>/Defs/ThingDef[defName="SeaTurtle"]/tools</xpath>
           <value>
             <tools>
               <li Class="CombatExtended.ToolCE">
@@ -914,6 +1283,12 @@
               </li>
             </tools>
           </value>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="SeaTurtle"]/statBases/ArmorRating_Heat</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>Defs/ThingDef[defName="SeaTurtle"]/statBases/ArmorRating_Heat</xpath>
+          </match>
         </li>
       </operations>
     </match>
