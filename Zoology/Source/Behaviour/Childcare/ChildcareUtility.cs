@@ -7,6 +7,13 @@ namespace ZoologyMod
     internal static class ChildcareUtility
     {
         private const int MotherCacheDurationTicks = ZoologyTickLimiter.Childcare.MotherCacheDurationTicks;
+        private const int MotherCandidateMapCacheDurationTicks = ZoologyTickLimiter.Childcare.MotherCandidateMapCacheDurationTicks;
+
+        private sealed class MotherCandidateMapCacheEntry
+        {
+            public int Tick;
+            public readonly List<Pawn> Candidates = new List<Pawn>(64);
+        }
 
         private readonly struct MotherCacheEntry
         {
@@ -24,6 +31,8 @@ namespace ZoologyMod
 
         private static readonly Dictionary<int, MotherCacheEntry> motherCacheByChildId = new Dictionary<int, MotherCacheEntry>(128);
         private static readonly Dictionary<int, Pawn> observedMotherByChildId = new Dictionary<int, Pawn>(128);
+        private static readonly Dictionary<int, MotherCandidateMapCacheEntry> motherCandidateCacheByMapId = new Dictionary<int, MotherCandidateMapCacheEntry>(4);
+        private static readonly List<Pawn> emptyMotherCandidates = new List<Pawn>(0);
         private static Game runtimeCacheGame;
 
         public static bool IsChildcareEnabled
@@ -66,22 +75,22 @@ namespace ZoologyMod
             EnsureRuntimeCacheState();
             int childId = child.thingIDNumber;
 
-            if (now > 0
-                && motherCacheByChildId.TryGetValue(childId, out MotherCacheEntry cached)
-                && now - cached.Tick <= MotherCacheDurationTicks)
+            if (motherCacheByChildId.TryGetValue(childId, out MotherCacheEntry cached))
             {
-                if (!cached.HasMother)
+                if (cached.HasMother)
+                {
+                    if (IsValidMotherRef(cached.Mother))
+                    {
+                        mother = cached.Mother;
+                        return true;
+                    }
+
+                    motherCacheByChildId.Remove(childId);
+                }
+                else if (now > 0 && now - cached.Tick <= MotherCacheDurationTicks)
                 {
                     return false;
                 }
-
-                if (IsValidMotherRef(cached.Mother))
-                {
-                    mother = cached.Mother;
-                    return true;
-                }
-
-                motherCacheByChildId.Remove(childId);
             }
 
             Pawn found = TryGetMotherFromRelations(child);
@@ -103,6 +112,53 @@ namespace ZoologyMod
             if (!IsValidMotherRef(found))
             {
                 return false;
+            }
+
+            mother = found;
+            return true;
+        }
+
+        public static bool TryGetKnownBiologicalMother(Pawn child, out Pawn mother)
+        {
+            mother = null;
+            if (child == null) return false;
+
+            int now = Find.TickManager?.TicksGame ?? 0;
+            EnsureRuntimeCacheState();
+            int childId = child.thingIDNumber;
+
+            if (motherCacheByChildId.TryGetValue(childId, out MotherCacheEntry cached))
+            {
+                if (cached.HasMother)
+                {
+                    if (IsValidMotherRef(cached.Mother))
+                    {
+                        mother = cached.Mother;
+                        return true;
+                    }
+
+                    motherCacheByChildId.Remove(childId);
+                }
+                else if (now > 0 && now - cached.Tick <= MotherCacheDurationTicks)
+                {
+                    return false;
+                }
+            }
+
+            Pawn found = TryGetMotherFromRelations(child);
+            if (!IsValidMotherRef(found))
+            {
+                found = TryGetObservedMother(childId);
+            }
+
+            if (!IsValidMotherRef(found))
+            {
+                return false;
+            }
+
+            if (now > 0)
+            {
+                motherCacheByChildId[childId] = new MotherCacheEntry(found, now, hasMother: true);
             }
 
             mother = found;
@@ -188,7 +244,7 @@ namespace ZoologyMod
 
             Pawn bestMother = null;
             int bestDistanceSq = int.MaxValue;
-            IReadOnlyList<Pawn> pawns = child.Map.mapPawns.AllPawnsSpawned;
+            List<Pawn> pawns = GetMotherCandidatesForMap(child.Map);
             for (int i = 0; i < pawns.Count; i++)
             {
                 Pawn candidate = pawns[i];
@@ -208,6 +264,58 @@ namespace ZoologyMod
             }
 
             return bestMother;
+        }
+
+        private static List<Pawn> GetMotherCandidatesForMap(Map map)
+        {
+            int now = Find.TickManager?.TicksGame ?? 0;
+            int mapId = map?.uniqueID ?? -1;
+            if (map == null || mapId < 0)
+            {
+                return emptyMotherCandidates;
+            }
+
+            if (!motherCandidateCacheByMapId.TryGetValue(mapId, out MotherCandidateMapCacheEntry entry))
+            {
+                entry = new MotherCandidateMapCacheEntry();
+                motherCandidateCacheByMapId[mapId] = entry;
+            }
+
+            if (now > 0
+                && entry.Tick > 0
+                && now - entry.Tick <= MotherCandidateMapCacheDurationTicks)
+            {
+                return entry.Candidates;
+            }
+
+            entry.Candidates.Clear();
+            IReadOnlyList<Pawn> pawns = map.mapPawns?.AllPawnsSpawned;
+            if (pawns != null)
+            {
+                for (int i = 0; i < pawns.Count; i++)
+                {
+                    Pawn candidate = pawns[i];
+                    if (IsPotentialMotherCandidateForAnyChild(candidate, map))
+                    {
+                        entry.Candidates.Add(candidate);
+                    }
+                }
+            }
+
+            entry.Tick = now;
+            return entry.Candidates;
+        }
+
+        private static bool IsPotentialMotherCandidateForAnyChild(Pawn candidate, Map map)
+        {
+            return IsValidMotherRef(candidate)
+                && candidate.IsAnimal
+                && candidate.gender == Gender.Female
+                && candidate.Spawned
+                && !candidate.Downed
+                && candidate.Map == map
+                && HasChildcareExtension(candidate)
+                && !IsAnimalChild(candidate);
         }
 
         private static bool IsPotentialMotherCandidate(Pawn candidate, Pawn child)
@@ -272,6 +380,7 @@ namespace ZoologyMod
             runtimeCacheGame = currentGame;
             motherCacheByChildId.Clear();
             observedMotherByChildId.Clear();
+            motherCandidateCacheByMapId.Clear();
         }
     }
 }
