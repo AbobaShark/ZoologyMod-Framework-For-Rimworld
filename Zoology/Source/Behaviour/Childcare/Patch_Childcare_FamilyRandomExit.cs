@@ -275,7 +275,8 @@ namespace ZoologyMod
                 return false;
             }
 
-            return pawn.jobs.TryTakeOrderedJob(job, JobTag.Misc);
+            pawn.jobs.StartJob(job, JobCondition.InterruptForced, null, resumeCurJobAfterwards: false, cancelBusyStances: true, null, JobTag.Misc);
+            return IsLeavingMap(pawn.CurJob);
         }
 
         private static Job MakeFamilyExitJob(Pawn pawn)

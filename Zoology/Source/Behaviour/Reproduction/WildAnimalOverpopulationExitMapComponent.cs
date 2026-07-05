@@ -6,7 +6,12 @@ namespace ZoologyMod
 {
     public sealed class WildAnimalOverpopulationExitMapComponent : MapComponent
     {
-        private static readonly IntRange ExitIntervalTicks = new IntRange(60000, 120000);
+        private static readonly IntRange InitialCheckDelayTicks = new IntRange(2500, 5000);
+
+        private const int NormalCheckIntervalTicks = 60000;
+        private const int MildOverloadExitIntervalTicks = 60000;
+        private const int SevereOverloadExitIntervalTicks = 2500;
+        private const float SevereOverloadRatio = 2f;
 
         private int nextExitCheckTick = -1;
 
@@ -24,9 +29,10 @@ namespace ZoologyMod
         public override void FinalizeInit()
         {
             base.FinalizeInit();
-            if (nextExitCheckTick < GenTicks.TicksGame)
+            int now = GenTicks.TicksGame;
+            if (nextExitCheckTick < now || nextExitCheckTick - now > NormalCheckIntervalTicks)
             {
-                ScheduleNext(GenTicks.TicksGame);
+                ScheduleInitialCheck(now);
             }
         }
 
@@ -41,7 +47,13 @@ namespace ZoologyMod
             int now = GenTicks.TicksGame;
             if (nextExitCheckTick < 0)
             {
-                ScheduleNext(now);
+                ScheduleInitialCheck(now);
+                return;
+            }
+
+            if (nextExitCheckTick - now > NormalCheckIntervalTicks)
+            {
+                ScheduleInitialCheck(now);
                 return;
             }
 
@@ -50,13 +62,17 @@ namespace ZoologyMod
                 return;
             }
 
-            ScheduleNext(now);
-
             try
             {
                 if (map?.CanEverExit != true
-                    || !WildAnimalEcosystemUtility.IsOverAllowedEcosystemWeight(map, settings.WildAnimalReproductionEcosystemLimitFactor))
+                    || !WildAnimalEcosystemUtility.TryGetOverloadStatus(
+                        map,
+                        settings.WildAnimalReproductionEcosystemLimitFactor,
+                        out _,
+                        out _,
+                        out float overloadRatio))
                 {
+                    ScheduleNormalCheck(now);
                     return;
                 }
 
@@ -65,9 +81,12 @@ namespace ZoologyMod
                 {
                     ChildcareFamilyExitMapUtility.TryStartForcedWildExit(pawn);
                 }
+
+                ScheduleOverloadedCheck(now, overloadRatio);
             }
             catch (Exception ex)
             {
+                ScheduleNormalCheck(now);
                 Log.Warning($"Zoology: forced wild animal ecosystem exit failed: {ex}");
             }
         }
@@ -115,9 +134,21 @@ namespace ZoologyMod
                 && !ChildcareFamilyExitMapUtility.IsProtectedByGuardingEggMother(pawn);
         }
 
-        private void ScheduleNext(int now)
+        private void ScheduleInitialCheck(int now)
         {
-            nextExitCheckTick = now + ExitIntervalTicks.RandomInRange;
+            nextExitCheckTick = now + InitialCheckDelayTicks.RandomInRange;
+        }
+
+        private void ScheduleNormalCheck(int now)
+        {
+            nextExitCheckTick = now + NormalCheckIntervalTicks;
+        }
+
+        private void ScheduleOverloadedCheck(int now, float overloadRatio)
+        {
+            nextExitCheckTick = now + (overloadRatio >= SevereOverloadRatio
+                ? SevereOverloadExitIntervalTicks
+                : MildOverloadExitIntervalTicks);
         }
     }
 }

@@ -52,8 +52,20 @@ namespace ZoologyMod
 
         public static bool IsOverAllowedEcosystemWeight(Map map, float limitFactor)
         {
+            return TryGetOverloadStatus(map, limitFactor, out _, out _, out _);
+        }
+
+        public static bool TryGetOverloadStatus(Map map, float limitFactor, out float currentWeight, out float allowedWeight, out float overloadRatio)
+        {
             EcosystemStatus status = GetEcosystemStatus(map);
-            return status.DesiredWeight > 0f && status.CurrentWeight >= AllowedEcosystemWeight(map, limitFactor);
+            currentWeight = status.CurrentWeight;
+            allowedWeight = status.DesiredWeight * Mathf.Clamp(
+                limitFactor,
+                ModConstants.MinWildAnimalReproductionEcosystemLimitFactor,
+                ModConstants.MaxWildAnimalReproductionEcosystemLimitFactor);
+            overloadRatio = allowedWeight > 0f ? currentWeight / allowedWeight : 0f;
+
+            return allowedWeight > 0f && currentWeight >= allowedWeight;
         }
 
         public static float DesiredTotalAnimalWeight(Map map)
