@@ -88,7 +88,12 @@ namespace ZoologyMod
                 return false;
             }
 
-            return PawnUtility.FertileMateTarget(male, female);
+            if (!PawnUtility.FertileMateTarget(male, female))
+            {
+                return false;
+            }
+
+            return !WildAnimalEcosystemUtility.ShouldBlockWildWildMating(male, female);
         }
 
         private static bool CanUseWildCompatibilityRule(Pawn first, Pawn second)
