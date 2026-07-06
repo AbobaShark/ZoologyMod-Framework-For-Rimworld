@@ -72,14 +72,14 @@ namespace ZoologyMod
 
         public static void Postfix(Pawn eater, Thing foodSource, ThingDef foodDef, float dist, bool takingToInventory, ref float __result)
         {
-            if (!ChildcareDefenseUtility.IsEggProtectionEnabled || eater == null || foodSource == null)
+            if (!ChildcareDefenseUtility.ShouldCheckEggFoodOptimality(eater, foodSource))
             {
                 return;
             }
 
             try
             {
-                __result += ChildcareDefenseUtility.GetFoodOptimalityDeltaForEgg(eater, foodSource);
+                __result += ChildcareDefenseUtility.GetFoodOptimalityDeltaForCheckedEgg(eater, foodSource);
             }
             catch (Exception ex)
             {

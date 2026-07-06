@@ -203,6 +203,35 @@ namespace ZoologyMod
             return output.Count > 0;
         }
 
+        public bool HasPotentialFoodOptimalityProtector(Thing egg, Pawn eater, Map anchorMap)
+        {
+            if (egg == null || eater == null || anchorMap == null)
+            {
+                return false;
+            }
+
+            CompHatcher hatcher = egg.TryGetComp<CompHatcher>();
+            if (IsPotentialFoodOptimalityProtector(hatcher?.hatcheeParent, eater, anchorMap))
+            {
+                return true;
+            }
+
+            if (!TryGetRecord(egg, out EggClutchOwnershipRecord record))
+            {
+                return false;
+            }
+
+            for (int i = 0; i < record.Mothers.Count; i++)
+            {
+                if (IsPotentialFoodOptimalityProtector(record.Mothers[i], eater, anchorMap))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         public bool IsAssociatedWithMother(Thing egg, Pawn mother)
         {
             if (egg == null || mother == null)
@@ -741,6 +770,27 @@ namespace ZoologyMod
         private static bool IsValidMother(Pawn mother)
         {
             return mother != null && !mother.Destroyed && !mother.Dead;
+        }
+
+        private static bool IsPotentialFoodOptimalityProtector(Pawn mother, Pawn eater, Map anchorMap)
+        {
+            if (!IsValidMother(mother)
+                || eater == null
+                || anchorMap == null
+                || !mother.Spawned
+                || mother.Map != anchorMap
+                || !ChildcareUtility.HasChildcareExtension(mother)
+                || ChildcareUtility.IsAnimalChild(mother))
+            {
+                return false;
+            }
+
+            if (!mother.Downed && !mother.InMentalState)
+            {
+                return true;
+            }
+
+            return mother.RaceProps?.herdAnimal == true;
         }
 
         private static Thing ResolveThingById(int thingId)

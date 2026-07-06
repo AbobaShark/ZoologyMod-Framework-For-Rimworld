@@ -1074,13 +1074,43 @@ namespace ZoologyMod
             return true;
         }
 
-        public static float GetFoodOptimalityDeltaForEgg(Pawn eater, Thing foodSource)
+        internal static bool ShouldCheckEggFoodOptimality(Pawn eater, Thing foodSource)
         {
             if (!IsEggProtectionEnabled || eater == null || foodSource == null || !IsFertilizedEgg(foodSource))
+            {
+                return false;
+            }
+
+            if (!TryGetEggProtectionAnchor(foodSource, eater, out Map anchorMap, out _)
+                || eater.MapHeld == null
+                || eater.MapHeld != anchorMap)
+            {
+                return false;
+            }
+
+            EggClutchDefenseGameComponent component = EggClutchDefenseGameComponent.Instance;
+            if (component == null)
+            {
+                return false;
+            }
+
+            return (!CanIgnoreProtectionBecauseOfHunger(eater)
+                    && component.ShouldBlockOwnFertilizedEggConsumption(eater, foodSource))
+                || component.HasPotentialFoodOptimalityProtector(foodSource, eater, anchorMap);
+        }
+
+        public static float GetFoodOptimalityDeltaForEgg(Pawn eater, Thing foodSource)
+        {
+            if (!ShouldCheckEggFoodOptimality(eater, foodSource))
             {
                 return 0f;
             }
 
+            return GetFoodOptimalityDeltaForCheckedEgg(eater, foodSource);
+        }
+
+        internal static float GetFoodOptimalityDeltaForCheckedEgg(Pawn eater, Thing foodSource)
+        {
             TickManager tickManager = Find.TickManager;
             int currentTick = tickManager?.TicksGame ?? 0;
             EnsureEggRuntimeCacheState(currentTick, tickManager);
@@ -1089,14 +1119,6 @@ namespace ZoologyMod
             if (TryGetEggFoodDeltaCached(currentTick, pairKey, out float cachedDelta))
             {
                 return cachedDelta;
-            }
-
-            if (!TryGetEggProtectionAnchor(foodSource, eater, out Map anchorMap, out _)
-                || eater.MapHeld == null
-                || eater.MapHeld != anchorMap)
-            {
-                StoreEggFoodDelta(currentTick, pairKey, 0f);
-                return 0f;
             }
 
             if (!ZoologyTickLimiter.TryConsumeFoodOptimality(ZoologyTickLimiter.FoodOptimalityBudgetPerTick))
