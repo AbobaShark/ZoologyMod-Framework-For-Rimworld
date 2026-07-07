@@ -466,7 +466,12 @@ namespace ZoologyMod
         private void DrawPhysiologySettings(Listing_Standard list)
         {
             list.GapLine(8f);
+            bool oldMammalLactationEnabled = EnableMammalLactation;
             list.CheckboxLabeled("Zoology_EnableMammalLactation_Label".Translate(), ref EnableMammalLactation, "Zoology_EnableMammalLactation_Desc".Translate());
+            if (oldMammalLactationEnabled != EnableMammalLactation)
+            {
+                MammalBabyCache.Clear();
+            }
             DrawLactationSettings(list);
             if (EnableMammalLactation)
             {
@@ -796,6 +801,7 @@ namespace ZoologyMod
             list.CheckboxLabeled("Zoology_EnableCannotChew_Label".Translate(), ref EnableCannotChewExtension, "Zoology_EnableCannotChew_Desc".Translate());
             if (oldCannotChewEnabled != EnableCannotChewExtension)
             {
+                CannotChewUtility.ClearRuntimeCaches();
                 CannotChewPresenceCache.RebuildFromCurrentMaps();
             }
             if (EnableCannotChewExtension)

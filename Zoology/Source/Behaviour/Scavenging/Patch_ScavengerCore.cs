@@ -235,14 +235,8 @@ namespace ZoologyMod.HarmonyPatches
             }
 
             state = BuildScavengerCorpseState(corpse);
-            if (state.HasScavengerEater)
-            {
-                scavengerCorpseStateById[corpseId] = state;
-            }
-            else
-            {
-                scavengerCorpseStateById.Remove(corpseId);
-            }
+            // Cache misses too; Corpse.IngestibleNow is hit repeatedly by map-wide food scans.
+            scavengerCorpseStateById[corpseId] = state;
             return state.HasScavengerEater;
         }
 

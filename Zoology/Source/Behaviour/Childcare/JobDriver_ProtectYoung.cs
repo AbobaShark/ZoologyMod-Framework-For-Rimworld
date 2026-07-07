@@ -12,6 +12,7 @@ namespace ZoologyMod
         private static int MaxDistanceSq => ChildcareDefenseUtility.GetProtectionRangeSquared();
 
         private int startTickLocal = -1;
+        private int nextRetargetTickLocal = -1;
 
         private Pawn TargetPawn => job.GetTarget(TargetIndex.A).Thing as Pawn;
         private Thing ProtectedThing => job.GetTarget(TargetIndex.B).Thing;
@@ -20,6 +21,7 @@ namespace ZoologyMod
         {
             base.ExposeData();
             Scribe_Values.Look(ref startTickLocal, "startTickLocal", -1);
+            Scribe_Values.Look(ref nextRetargetTickLocal, "nextRetargetTickLocal", -1);
         }
 
         public override bool TryMakePreToilReservations(bool errorOnFailed)
@@ -77,12 +79,27 @@ namespace ZoologyMod
                     Pawn target = TargetPawn;
                     if (!IsValidPawn(target))
                     {
+                        if (ChildcareDefenseUtility.TryRetargetProtectYoungJobToNearestThreat(actorPawn))
+                        {
+                            return;
+                        }
+
                         actorPawn?.jobs?.EndCurrentJob(JobCondition.Succeeded, true, true);
+                        return;
+                    }
+
+                    if (ShouldTryRetarget() && ChildcareDefenseUtility.TryRetargetProtectYoungJobToNearestThreat(actorPawn))
+                    {
                         return;
                     }
 
                     if (!ChildcareDefenseUtility.TryGetActiveProtectionAnchor(actorPawn, ProtectedThing, target, out Thing activeProtectedThing, out Map anchorMap, out IntVec3 anchorPosition))
                     {
+                        if (ChildcareDefenseUtility.TryRetargetProtectYoungJobToNearestThreat(actorPawn))
+                        {
+                            return;
+                        }
+
                         actorPawn?.jobs?.EndCurrentJob(JobCondition.Succeeded, true, true);
                         return;
                     }
@@ -94,6 +111,11 @@ namespace ZoologyMod
 
                     if (target.MapHeld != anchorMap)
                     {
+                        if (ChildcareDefenseUtility.TryRetargetProtectYoungJobToNearestThreat(actorPawn))
+                        {
+                            return;
+                        }
+
                         actorPawn?.jobs?.EndCurrentJob(JobCondition.Succeeded, true, true);
                         return;
                     }
@@ -106,12 +128,22 @@ namespace ZoologyMod
 
                     if (!PreyProtectionUtility.IsPawnWithinProtectionRange(target, anchorMap, anchorPosition, MaxDistanceSq))
                     {
+                        if (ChildcareDefenseUtility.TryRetargetProtectYoungJobToNearestThreat(actorPawn))
+                        {
+                            return;
+                        }
+
                         actorPawn?.jobs?.EndCurrentJob(JobCondition.Succeeded, true, true);
                         return;
                     }
 
                     if (!PreyProtectionUtility.IsPawnWithinProtectionRange(actorPawn, anchorMap, anchorPosition, MaxDistanceSq))
                     {
+                        if (ChildcareDefenseUtility.TryRetargetProtectYoungJobToNearestThreat(actorPawn))
+                        {
+                            return;
+                        }
+
                         actorPawn?.jobs?.EndCurrentJob(JobCondition.Succeeded, true, true);
                         return;
                     }
@@ -138,6 +170,23 @@ namespace ZoologyMod
             }
 
             return now - startedAt < MinimumProtectDurationTicks;
+        }
+
+        private bool ShouldTryRetarget()
+        {
+            int now = Find.TickManager?.TicksGame ?? 0;
+            if (now <= 0)
+            {
+                return false;
+            }
+
+            if (nextRetargetTickLocal > now)
+            {
+                return false;
+            }
+
+            nextRetargetTickLocal = now + 15;
+            return true;
         }
 
         private void HitAction()

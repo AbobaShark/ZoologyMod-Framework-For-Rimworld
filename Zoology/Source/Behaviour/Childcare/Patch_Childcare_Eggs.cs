@@ -72,14 +72,14 @@ namespace ZoologyMod
 
         public static void Postfix(Pawn eater, Thing foodSource, ThingDef foodDef, float dist, bool takingToInventory, ref float __result)
         {
-            if (!ChildcareDefenseUtility.IsEggProtectionEnabled || eater == null || foodSource == null)
+            if (!ChildcareDefenseUtility.ShouldCheckEggFoodOptimality(eater, foodSource))
             {
                 return;
             }
 
             try
             {
-                __result += ChildcareDefenseUtility.GetFoodOptimalityDeltaForEgg(eater, foodSource);
+                __result += ChildcareDefenseUtility.GetFoodOptimalityDeltaForCheckedEgg(eater, foodSource);
             }
             catch (Exception ex)
             {
@@ -91,11 +91,16 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(FoodUtility), nameof(FoodUtility.WillEat), new[] { typeof(Pawn), typeof(Thing), typeof(Pawn), typeof(bool), typeof(bool) })]
     internal static class Patch_Childcare_BlockOwnSpeciesEggEating
     {
-        public static bool Prepare() => ChildcareDefenseUtility.IsEggProtectionEnabled;
+        public static bool Prepare() => false;
 
         public static void Postfix(Pawn p, Thing food, Pawn getter, bool careIfNotAcceptableForTitle, bool allowVenerated, ref bool __result)
         {
             if (!__result || !ChildcareDefenseUtility.IsEggProtectionEnabled || p == null || food == null)
+            {
+                return;
+            }
+
+            if (!ChildcareDefenseUtility.CouldBeFertilizedEggFoodSource(food))
             {
                 return;
             }

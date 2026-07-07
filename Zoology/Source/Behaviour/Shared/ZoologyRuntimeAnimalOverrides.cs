@@ -903,6 +903,8 @@ namespace ZoologyMod
             DefModExtensionCache<ModExtension_FleeFromCarrier>.Clear();
 
             ZoologyCacheUtility.ClearCaches();
+            MammalBabyCache.Clear();
+            CannotChewUtility.ClearRuntimeCaches();
             CannotChewPresenceCache.RebuildFromCurrentMaps();
         }
 

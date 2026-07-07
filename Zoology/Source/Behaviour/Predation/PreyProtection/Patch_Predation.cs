@@ -134,8 +134,6 @@ namespace ZoologyMod
                 var postfixFood = typeof(PredationHarmonyPatches).GetMethod(nameof(FoodOptimality_Postfix), BindingFlags.Static | BindingFlags.Public);
                 var targetBestFoodSource = AccessTools.Method(typeof(FoodUtility), nameof(FoodUtility.BestFoodSourceOnMap));
                 var postfixBestFoodSource = typeof(PredationHarmonyPatches).GetMethod(nameof(BestFoodSourceOnMap_Postfix), BindingFlags.Static | BindingFlags.Public);
-                var targetWillEat = AccessTools.Method(typeof(FoodUtility), nameof(FoodUtility.WillEat), new[] { typeof(Pawn), typeof(Thing), typeof(Pawn), typeof(bool), typeof(bool) });
-                var postfixWillEat = typeof(PredationHarmonyPatches).GetMethod(nameof(WillEat_Postfix), BindingFlags.Static | BindingFlags.Public);
                 if (targetFoodOpt != null && postfixFood != null)
                 {
                     harmony.Patch(targetFoodOpt, null, new HarmonyMethod(postfixFood));
@@ -154,14 +152,9 @@ namespace ZoologyMod
                     Log.Warning("Zoology: FoodUtility.BestFoodSourceOnMap method or postfix not found; skipping patch.");
                 }
 
-                if (targetWillEat != null && postfixWillEat != null)
-                {
-                    harmony.Patch(targetWillEat, null, new HarmonyMethod(postfixWillEat));
-                }
-                else
-                {
-                    Log.Warning("Zoology: FoodUtility.WillEat method or postfix not found; skipping guarded-corpse patch.");
-                }
+                // FoodUtility.WillEat(Thing) guarded-corpse logic is folded into
+                // Patch_FoodUtility_WillEat_Thing_HotPath to avoid an extra global postfix
+                // on every food candidate.
 
                 
                 MethodInfo pawnKillMethod = null;
@@ -396,10 +389,20 @@ namespace ZoologyMod
                 if (PredationDecisionCache.TryGetAcceptablePrey(eater, livePawn, out bool cachedAcceptable))
                 {
                     isAcceptable = cachedAcceptable;
+                    if (isAcceptable && ChildcareDefenseUtility.ShouldBlockProtectedYoungPredation(eater, livePawn))
+                    {
+                        isAcceptable = false;
+                        PredationDecisionCache.StoreAcceptablePrey(eater, livePawn, false);
+                    }
                 }
                 else if (TryConsumeBudget(ref livePreyBudgetTick, ref livePreyBudgetRemaining, ZoologyTickLimiter.PredationFood.LivePreyAcceptableBudgetPerTick))
                 {
                     isAcceptable = FoodUtility.IsAcceptablePreyFor(eater, livePawn);
+                    if (isAcceptable && ChildcareDefenseUtility.ShouldBlockProtectedYoungPredation(eater, livePawn))
+                    {
+                        isAcceptable = false;
+                    }
+
                     PredationDecisionCache.StoreAcceptablePrey(eater, livePawn, isAcceptable);
                 }
                 else
@@ -525,6 +528,12 @@ namespace ZoologyMod
                 && eater.needs.food.CurLevelPercentage <= 0.10f;
         }
 
+        internal static bool ShouldBlockGuardedCorpseConsumptionForFoodPatch(Pawn eater, Corpse corpse)
+        {
+            return PredationSettingsGate.EnablePredatorDefendCorpse()
+                && ShouldBlockGuardedCorpseConsumption(eater, corpse);
+        }
+
         private static bool ShouldBlockGuardedCorpseConsumption(Pawn eater, Corpse corpse)
         {
             if (eater == null
@@ -536,6 +545,11 @@ namespace ZoologyMod
 
             PredatorPreyPairGameComponent comp = PredatorPreyPairGameComponent.Instance;
             if (comp == null)
+            {
+                return false;
+            }
+
+            if (!comp.HasAnyActivePairsQuick() || !comp.HasAnyPairedPredatorsForCorpse(corpse))
             {
                 return false;
             }
@@ -840,7 +854,8 @@ namespace ZoologyMod
                 && !target.Destroyed
                 && target.Spawned
                 && predator.Map != null
-                && target.Map == predator.Map;
+                && target.Map == predator.Map
+                && !ChildcareDefenseUtility.ShouldBlockProtectedYoungPredation(predator, target);
         }
 
         private static void CleanupVanillaHuntTargetCacheIfNeeded(int currentTick)

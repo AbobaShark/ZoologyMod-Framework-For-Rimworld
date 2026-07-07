@@ -66,6 +66,11 @@ namespace ZoologyMod
                 return;
             }
 
+            if (forceRebuild)
+            {
+                Patch_SmallPetThreatDisabled.NotifySettingsChanged();
+            }
+
             if (settings.AreAllRuntimeTogglesDisabled())
             {
                 DisableAllRuntimePatches();

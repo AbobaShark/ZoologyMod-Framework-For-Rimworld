@@ -68,13 +68,17 @@ namespace ZoologyMod
         // Childcare-related timing.
         public static class Childcare
         {
-            public const int MotherCacheDurationTicks = 120;
+            public const int MotherCacheDurationTicks = 600;
+            public const int MotherCandidateMapCacheDurationTicks = 600;
             public const int WanderNearMotherMinTicks = 125;
             public const int WanderNearMotherMaxTicks = 200;
             public const int WanderNearMotherScanBudgetPerTickPerMap = 12;
             public const int EggFoodStateCacheDurationTicks = 60;
             public const int EggFoodStateCacheCleanupIntervalTicks = 600;
             public const int EggFoodStateBudgetPerTick = 24;
+            public const int YoungProtectionTargetStateCacheDurationTicks = 180;
+            public const int YoungProtectionTargetStateMaxStaleTicks = 900;
+            public const int YoungProtectionTargetStateBudgetPerTick = 12;
         }
 
         // Scavenging AI timing.

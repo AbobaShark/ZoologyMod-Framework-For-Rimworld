@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using RimWorld;
 using Verse;
 using Verse.AI;
@@ -16,7 +17,13 @@ namespace ZoologyMod
         private const int EggFoodDeltaCacheDurationTicks = 10;
         private const int EggFoodDeltaHotCacheSize = 8192;
         private const int EggFoodDeltaHotCacheMask = EggFoodDeltaHotCacheSize - 1;
-        private const int YoungProtectionStateCacheDurationTicks = 10;
+        private const int YoungProtectionStateCacheDurationTicks = ZoologyTickLimiter.Childcare.YoungProtectionTargetStateCacheDurationTicks;
+        private const int YoungProtectionStateHotCacheSize = 32768;
+        private const int YoungProtectionStateHotCacheMask = YoungProtectionStateHotCacheSize - 1;
+        private const int YoungProtectionTargetStateHotCacheSize = 8192;
+        private const int YoungProtectionTargetStateHotCacheMask = YoungProtectionTargetStateHotCacheSize - 1;
+        private const int DirectYoungProtectionMapCacheDurationTicks = 60;
+        private const int ActiveYoungProtectionThreatMemoryTicks = 900;
         private const int EggIncubationDurationTicks = 2500;
         private const int EggIncubationSearchFailCooldownTicks = 180;
         private const float EggIncubationSearchRadius = 20f;
@@ -25,6 +32,9 @@ namespace ZoologyMod
         private const byte EggStateNo = 1;
         private const byte EggStateUnfertilized = 2;
         private const byte EggStateFertilized = 4;
+        private const byte HatcherCompStateUnknown = 0;
+        private const byte HatcherCompStateNo = 1;
+        private const byte HatcherCompStateYes = 2;
 
         private readonly struct EggFoodDeltaCacheEntry
         {
@@ -64,6 +74,53 @@ namespace ZoologyMod
             public int Tick { get; }
         }
 
+        private readonly struct YoungProtectionStateHotCacheEntry
+        {
+            public YoungProtectionStateHotCacheEntry(Pawn aggressor, Pawn young, YoungProtectionStateCacheEntry state)
+            {
+                YoungId = young?.thingIDNumber ?? 0;
+                AggressorMap = aggressor?.MapHeld;
+                AggressorDef = aggressor?.def;
+                AggressorKind = aggressor?.kindDef;
+                AggressorLifeStage = aggressor?.ageTracker?.CurLifeStage;
+                AggressorFaction = aggressor?.Faction;
+                State = state;
+            }
+
+            public int YoungId { get; }
+            public Map AggressorMap { get; }
+            public ThingDef AggressorDef { get; }
+            public PawnKindDef AggressorKind { get; }
+            public LifeStageDef AggressorLifeStage { get; }
+            public Faction AggressorFaction { get; }
+            public YoungProtectionStateCacheEntry State { get; }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public bool Matches(Pawn aggressor, Pawn young)
+            {
+                return YoungId > 0
+                    && young != null
+                    && young.thingIDNumber == YoungId
+                    && ReferenceEquals(AggressorMap, aggressor?.MapHeld)
+                    && ReferenceEquals(AggressorDef, aggressor?.def)
+                    && ReferenceEquals(AggressorKind, aggressor?.kindDef)
+                    && ReferenceEquals(AggressorLifeStage, aggressor?.ageTracker?.CurLifeStage)
+                    && ReferenceEquals(AggressorFaction, aggressor?.Faction);
+            }
+        }
+
+        private struct YoungProtectionTargetState
+        {
+            public int YoungId;
+            public int Tick;
+            public Map AnchorMap;
+            public bool HasBestProtector;
+            public float BestProtectorPower;
+            public Faction BestProtectorBlockedFaction;
+            public bool HasFallbackProtector;
+            public float FallbackProtectorPower;
+        }
+
         private readonly struct NearbyYoungCacheEntry
         {
             public NearbyYoungCacheEntry(Pawn young, int tick, bool hasYoung)
@@ -78,11 +135,29 @@ namespace ZoologyMod
             public bool HasYoung { get; }
         }
 
+        private readonly struct YoungProtectionThreatMemoryEntry
+        {
+            public YoungProtectionThreatMemoryEntry(Pawn aggressor, Thing protectedThing, int tick)
+            {
+                Aggressor = aggressor;
+                ProtectedThing = protectedThing;
+                Map = aggressor?.MapHeld ?? protectedThing?.MapHeld;
+                Tick = tick;
+            }
+
+            public Pawn Aggressor { get; }
+            public Thing ProtectedThing { get; }
+            public Map Map { get; }
+            public int Tick { get; }
+        }
+
         private static readonly Dictionary<long, int> recentEggProtectionTriggerByPairKey = new Dictionary<long, int>(128);
         private static readonly Dictionary<long, int> recentYoungProtectionTriggerByPairKey = new Dictionary<long, int>(128);
+        private static readonly Dictionary<long, YoungProtectionThreatMemoryEntry> activeYoungProtectionThreatByPairKey = new Dictionary<long, YoungProtectionThreatMemoryEntry>(128);
         private static readonly Dictionary<long, EggFoodStateCacheEntry> eggFoodStateCacheByPairKey = new Dictionary<long, EggFoodStateCacheEntry>(256);
-        private static readonly Dictionary<long, YoungProtectionStateCacheEntry> youngProtectionStateCacheByPairKey = new Dictionary<long, YoungProtectionStateCacheEntry>(256);
         private static readonly Dictionary<int, NearbyYoungCacheEntry> nearbyYoungCacheByProtectorId = new Dictionary<int, NearbyYoungCacheEntry>(128);
+        private static readonly Dictionary<int, YoungProtectionTargetState> directYoungProtectionStateByYoungId = new Dictionary<int, YoungProtectionTargetState>(256);
+        private static readonly Dictionary<int, int> recentProtectYoungForcedFleeTickByAggressorId = new Dictionary<int, int>(128);
         private static readonly Dictionary<int, int> incubatedEggTouchTickByEggId = new Dictionary<int, int>(64);
         private static readonly Dictionary<int, int> lastIncubationSearchFailureTickByPawnId = new Dictionary<int, int>(64);
         private static readonly List<Pawn> eggProtectorsScratch = new List<Pawn>(8);
@@ -92,10 +167,15 @@ namespace ZoologyMod
         private static readonly List<long> eggTriggerCleanupScratch = new List<long>(64);
         private static readonly List<long> eggFoodStateCleanupScratch = new List<long>(64);
         private static readonly List<long> youngTriggerCleanupScratch = new List<long>(64);
-        private static readonly List<long> youngProtectionStateCleanupScratch = new List<long>(64);
+        private static readonly List<long> activeYoungThreatCleanupScratch = new List<long>(64);
         private static readonly EggFoodDeltaCacheEntry[] eggFoodDeltaHotCacheSlots = new EggFoodDeltaCacheEntry[EggFoodDeltaHotCacheSize];
+        private static readonly YoungProtectionStateHotCacheEntry[] youngProtectionStateHotCacheSlots = new YoungProtectionStateHotCacheEntry[YoungProtectionStateHotCacheSize];
+        private static readonly YoungProtectionTargetState[] youngProtectionTargetStateHotCacheSlots = new YoungProtectionTargetState[YoungProtectionTargetStateHotCacheSize];
         private static readonly ThingDef[] eggDefsByShortHash = new ThingDef[ushort.MaxValue + 1];
         private static readonly byte[] eggStatesByShortHash = new byte[ushort.MaxValue + 1];
+        private static readonly ThingDef[] hatcherCompDefsByShortHash = new ThingDef[ushort.MaxValue + 1];
+        private static readonly byte[] hatcherCompStatesByShortHash = new byte[ushort.MaxValue + 1];
+        private static readonly Dictionary<ThingDef, bool> hatcherCompPresenceByDefFallback = new Dictionary<ThingDef, bool>(64);
 
         private static JobDef protectYoungJobDef;
         private static JobDef incubateEggJobDef;
@@ -105,9 +185,16 @@ namespace ZoologyMod
         private static int eggRuntimeEnsureTick = -1;
         private static int lastEggProtectionCleanupTick = int.MinValue;
         private static int lastYoungProtectionCleanupTick = int.MinValue;
+        private static int lastActiveYoungThreatCleanupTick = int.MinValue;
+        private static int lastProtectYoungForcedFleeCleanupTick = int.MinValue;
         private static int lastEggFoodStateCacheCleanupTick = -ZoologyTickLimiter.Childcare.EggFoodStateCacheCleanupIntervalTicks;
         private static int eggFoodStateBudgetTick = -1;
         private static int eggFoodStateBudgetRemaining;
+        private static int youngProtectionTargetStateBudgetTick = -1;
+        private static int youngProtectionTargetStateBudgetRemaining;
+        private static Map directYoungProtectionMapCacheMap;
+        private static int directYoungProtectionMapCacheMapId = -1;
+        private static int directYoungProtectionMapCacheTick = -1;
 
         public static bool IsYoungProtectionEnabled
         {
@@ -152,17 +239,27 @@ namespace ZoologyMod
             return incubateEggJobDef ?? (incubateEggJobDef = DefDatabase<JobDef>.GetNamedSilentFail("Zoology_IncubateEggClutch"));
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float GetYoungPreyScoreDelta(Pawn predator, Pawn prey)
         {
-            return TryGetYoungProtectionState(predator, prey, out YoungProtectionStateCacheEntry state) && state.IsGuarded
+            if (predator == null
+                || prey == null
+                || !prey.IsAnimal
+                || !ChildcareUtility.IsAnimalChild(prey)
+                || CanIgnoreProtectionBecauseOfHunger(predator))
+            {
+                return 0f;
+            }
+
+            return TryGetYoungProtectionStateForKnownYoung(predator, prey, out YoungProtectionStateCacheEntry state) && state.IsGuarded
                 ? GuardedYoungPenalty
                 : 0f;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool ShouldBlockProtectedYoungPredation(Pawn predator, Pawn prey)
         {
-            if (!IsYoungProtectionEnabled
-                || predator == null
+            if (predator == null
                 || prey == null
                 || !prey.IsAnimal
                 || !ChildcareUtility.IsAnimalChild(prey)
@@ -171,7 +268,22 @@ namespace ZoologyMod
                 return false;
             }
 
-            return TryGetYoungProtectionState(predator, prey, out YoungProtectionStateCacheEntry state) && state.IsGuarded;
+            return TryGetYoungProtectionStateForKnownYoung(predator, prey, out YoungProtectionStateCacheEntry state) && state.IsGuarded;
+        }
+
+        public static bool CouldAnyProtectorBlockYoungPredation(Pawn prey)
+        {
+            if (!IsYoungProtectionEnabled
+                || prey == null
+                || !prey.IsAnimal
+                || !ChildcareUtility.IsAnimalChild(prey))
+            {
+                return false;
+            }
+
+            int currentTick = Find.TickManager?.TicksGame ?? 0;
+            return TryGetDirectYoungProtectionTargetState(prey, currentTick, out YoungProtectionTargetState targetState)
+                && targetState.HasBestProtector;
         }
 
         internal static bool TryGetActiveProtectionAnchor(Pawn protector, Thing protectedThing, Pawn preferredHolder, out Thing activeProtectedThing, out Map map, out IntVec3 position)
@@ -269,6 +381,33 @@ namespace ZoologyMod
                 && eater.needs.food.CurLevelPercentage <= ProtectionHungerThreshold;
         }
 
+        private static bool CanProtectorDeterCurrentJobFast(Pawn protector, Thing protectedThing)
+        {
+            Job curJob = protector?.CurJob;
+            if (curJob == null)
+            {
+                return true;
+            }
+
+            if (ProtectYoungUtility.IsProtectYoungJob(curJob, protector))
+            {
+                return ProtectYoungUtility.IsProtectYoungJobProtecting(protector, protectedThing)
+                    || ProtectYoungUtility.CanRetargetProtectYoungJob(protector, curJob, null, protectedThing);
+            }
+
+            if (ProtectPreyState.IsProtectPreyJob(protector))
+            {
+                return false;
+            }
+
+            if (curJob.playerForced || curJob.def == JobDefOf.AttackMelee)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         private static bool IsHumanlikeOrMechanoidThreat(Pawn aggressor)
         {
             return aggressor != null && PawnThreatUtility.IsHumanlikeOrMechanoid(aggressor);
@@ -336,6 +475,22 @@ namespace ZoologyMod
 
         private static bool CanProtectorGuardThing(Pawn protector, Pawn aggressor, Thing protectedThing, Pawn preferredHolder)
         {
+            if (!TryGetProtectionAnchor(protectedThing, preferredHolder, out Map anchorMap, out IntVec3 anchorPosition))
+            {
+                return false;
+            }
+
+            return CanProtectorGuardThing(protector, aggressor, protectedThing, preferredHolder, anchorMap, anchorPosition);
+        }
+
+        private static bool CanProtectorGuardThing(
+            Pawn protector,
+            Pawn aggressor,
+            Thing protectedThing,
+            Pawn preferredHolder,
+            Map anchorMap,
+            IntVec3 anchorPosition)
+        {
             if (protector == null
                 || aggressor == null
                 || protectedThing == null
@@ -345,8 +500,7 @@ namespace ZoologyMod
                 || !CanProtectorMeetHumanlikeThreatThreshold(protector, aggressor)
                 || IsAttackerTooStrong(aggressor, protector)
                 || IsProtectorAcceptablePrey(aggressor, protector)
-                || !CanProtectorEngage(protector, aggressor)
-                || !TryGetProtectionAnchor(protectedThing, preferredHolder, out Map anchorMap, out IntVec3 anchorPosition))
+                || !CanProtectorEngage(protector, aggressor, protectedThing))
             {
                 return false;
             }
@@ -374,6 +528,82 @@ namespace ZoologyMod
             {
                 return false;
             }
+        }
+
+        private static bool CanProtectorDeterPredationFast(
+            Pawn protector,
+            Pawn aggressor,
+            Thing protectedThing,
+            Map anchorMap,
+            IntVec3 anchorPosition)
+        {
+            if (protector == null
+                || aggressor == null
+                || protectedThing == null
+                || anchorMap == null
+                || !anchorPosition.IsValid
+                || aggressor == protector
+                || aggressor.Dead
+                || aggressor.Destroyed
+                || aggressor.MapHeld != anchorMap
+                || !IsProtectorEligibleForDefense(protector, protectedThing)
+                || protector.Map != anchorMap
+                || !PreyProtectionUtility.IsPawnWithinProtectionRange(protector, anchorMap, anchorPosition, GetProtectionRangeSquared())
+                || IsSameFactionBlocked(protector, aggressor)
+                || !CanProtectorMeetHumanlikeThreatThreshold(protector, aggressor)
+                || IsAttackerTooStrong(aggressor, protector)
+                || !CanProtectorInterruptCurrentJobFast(protector, aggressor, protectedThing))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private static bool CanProtectorDeterPredationTargetFast(
+            Pawn protector,
+            Thing protectedThing,
+            Map anchorMap,
+            IntVec3 anchorPosition)
+        {
+            if (protector == null
+                || protectedThing == null
+                || anchorMap == null
+                || !anchorPosition.IsValid
+                || !IsProtectorEligibleForDefense(protector, protectedThing)
+                || protector.Map != anchorMap
+                || !CanProtectorDeterCurrentJobFast(protector, protectedThing))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private static bool CanProtectorInterruptCurrentJobFast(Pawn protector, Pawn newAggressor, Thing protectedThing)
+        {
+            Job curJob = protector?.CurJob;
+            if (curJob == null)
+            {
+                return true;
+            }
+
+            if (ProtectYoungUtility.IsProtectYoungJob(curJob, protector))
+            {
+                return ProtectYoungUtility.CanRetargetProtectYoungJob(protector, curJob, newAggressor, protectedThing);
+            }
+
+            if (ProtectPreyState.IsProtectPreyJob(protector))
+            {
+                return false;
+            }
+
+            if (curJob.playerForced || curJob.def == JobDefOf.AttackMelee)
+            {
+                return false;
+            }
+
+            return true;
         }
 
         private static bool TryAddUniqueProtector(List<Pawn> protectors, Pawn protector)
@@ -442,7 +672,7 @@ namespace ZoologyMod
                 return;
             }
 
-            if (CanProtectorGuardThing(leader, aggressor, protectedThing, preferredHolder))
+            if (CanProtectorGuardThing(leader, aggressor, protectedThing, preferredHolder, anchorMap, anchorPosition))
             {
                 TryAddUniqueProtector(protectors, leader);
             }
@@ -466,7 +696,7 @@ namespace ZoologyMod
                     continue;
                 }
 
-                if (!CanProtectorGuardThing(candidate, aggressor, protectedThing, preferredHolder))
+                if (!CanProtectorGuardThing(candidate, aggressor, protectedThing, preferredHolder, anchorMap, anchorPosition))
                 {
                     continue;
                 }
@@ -523,6 +753,403 @@ namespace ZoologyMod
 
             AppendSharedProtectors(mother, aggressor, protectedThing, null, protectors);
             return protectors.Count > 0;
+        }
+
+        private static bool HasAnyYoungProtector(Pawn mother, Pawn aggressor, Thing protectedThing)
+        {
+            if (!IsYoungProtectionEnabled
+                || mother == null
+                || aggressor == null
+                || protectedThing == null
+                || !TryGetProtectionAnchor(protectedThing, null, out Map anchorMap, out IntVec3 anchorPosition))
+            {
+                return false;
+            }
+
+            if (CanProtectorDeterPredationFast(mother, aggressor, protectedThing, anchorMap, anchorPosition))
+            {
+                return true;
+            }
+
+            if (!ShouldUseSharedProtectionGroup(mother))
+            {
+                return false;
+            }
+
+            return HasAnySharedYoungProtectorNearAnchor(mother, aggressor, protectedThing, anchorMap, anchorPosition);
+        }
+
+        private static bool HasAnySharedYoungProtectorNearAnchor(
+            Pawn mother,
+            Pawn aggressor,
+            Thing protectedThing,
+            Map anchorMap,
+            IntVec3 anchorPosition)
+        {
+            if (mother?.Map != anchorMap || anchorMap == null || !anchorPosition.IsValid)
+            {
+                return false;
+            }
+
+            int cellCount = GenRadial.NumCellsInRadius(GetProtectionRange());
+            for (int i = 0; i < cellCount; i++)
+            {
+                IntVec3 cell = anchorPosition + GenRadial.RadialPattern[i];
+                if (!cell.InBounds(anchorMap))
+                {
+                    continue;
+                }
+
+                List<Thing> things = cell.GetThingList(anchorMap);
+                for (int j = 0; j < things.Count; j++)
+                {
+                    if (things[j] is not Pawn candidate)
+                    {
+                        continue;
+                    }
+
+                    if (!IsSharedProtectionCandidate(mother, candidate, anchorMap, anchorPosition))
+                    {
+                        continue;
+                    }
+
+                    if (CanProtectorDeterPredationFast(candidate, aggressor, protectedThing, anchorMap, anchorPosition))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private static bool TryGetDirectYoungProtectionTargetState(Pawn young, int currentTick, out YoungProtectionTargetState state)
+        {
+            state = default;
+            if (young == null || young.thingIDNumber <= 0 || currentTick <= 0)
+            {
+                return false;
+            }
+
+            if (TryRefreshDirectYoungProtectionMapCache(young.MapHeld, currentTick))
+            {
+                if (directYoungProtectionStateByYoungId.TryGetValue(young.thingIDNumber, out state))
+                {
+                    return true;
+                }
+
+                state = new YoungProtectionTargetState
+                {
+                    YoungId = young.thingIDNumber,
+                    Tick = directYoungProtectionMapCacheTick,
+                    AnchorMap = young.MapHeld
+                };
+                return true;
+            }
+
+            int slotIndex = GetYoungProtectionTargetStateCacheSlotIndex(young.thingIDNumber);
+            YoungProtectionTargetState cached = youngProtectionTargetStateHotCacheSlots[slotIndex];
+            if (cached.YoungId == young.thingIDNumber
+                && cached.Tick > 0
+                && currentTick - cached.Tick <= ZoologyTickLimiter.Childcare.YoungProtectionTargetStateCacheDurationTicks + (young.thingIDNumber & 63))
+            {
+                state = cached;
+                return true;
+            }
+
+            state = BuildDirectYoungProtectionTargetState(young, currentTick);
+            youngProtectionTargetStateHotCacheSlots[slotIndex] = state;
+            return true;
+        }
+
+        private static bool TryRefreshDirectYoungProtectionMapCache(Map map, int currentTick)
+        {
+            int mapId = map?.uniqueID ?? -1;
+            if (map == null || mapId < 0 || currentTick <= 0)
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(directYoungProtectionMapCacheMap, map)
+                && directYoungProtectionMapCacheMapId == mapId
+                && directYoungProtectionMapCacheTick > 0
+                && currentTick - directYoungProtectionMapCacheTick <= DirectYoungProtectionMapCacheDurationTicks)
+            {
+                return true;
+            }
+
+            directYoungProtectionStateByYoungId.Clear();
+            directYoungProtectionMapCacheMap = map;
+            directYoungProtectionMapCacheMapId = mapId;
+            directYoungProtectionMapCacheTick = currentTick;
+
+            IReadOnlyList<Pawn> pawns = map.mapPawns?.AllPawnsSpawned;
+            if (pawns == null)
+            {
+                return true;
+            }
+
+            for (int i = 0; i < pawns.Count; i++)
+            {
+                Pawn young = pawns[i];
+                if (young == null
+                    || !young.IsAnimal
+                    || !ChildcareUtility.IsAnimalChild(young))
+                {
+                    continue;
+                }
+
+                YoungProtectionTargetState state = BuildDirectYoungProtectionTargetState(young, currentTick);
+                if (state.HasBestProtector)
+                {
+                    directYoungProtectionStateByYoungId[young.thingIDNumber] = state;
+                }
+            }
+
+            return true;
+        }
+
+        private static YoungProtectionTargetState BuildDirectYoungProtectionTargetState(Pawn young, int currentTick)
+        {
+            YoungProtectionTargetState state = new YoungProtectionTargetState
+            {
+                YoungId = young?.thingIDNumber ?? 0,
+                Tick = currentTick
+            };
+
+            if (young == null
+                || !ChildcareUtility.TryGetBiologicalMother(young, out Pawn mother)
+                || !ChildcareUtility.HasChildcareExtension(mother)
+                || !TryGetProtectionAnchor(young, null, out Map anchorMap, out IntVec3 anchorPosition))
+            {
+                return state;
+            }
+
+            state.AnchorMap = anchorMap;
+            TryAddYoungProtectionTargetCandidate(ref state, mother, young, anchorMap, anchorPosition);
+            if (ShouldUseSharedProtectionGroup(mother))
+            {
+                AddSharedYoungProtectionTargetCandidates(ref state, mother, young, anchorMap, anchorPosition);
+            }
+
+            return state;
+        }
+
+        private static bool TryGetYoungProtectionTargetState(Pawn young, int currentTick, out YoungProtectionTargetState state)
+        {
+            state = default;
+            if (young == null || young.thingIDNumber <= 0 || currentTick <= 0)
+            {
+                return false;
+            }
+
+            int slotIndex = GetYoungProtectionTargetStateCacheSlotIndex(young.thingIDNumber);
+            YoungProtectionTargetState cached = youngProtectionTargetStateHotCacheSlots[slotIndex];
+            bool hasCached = cached.YoungId == young.thingIDNumber && cached.Tick > 0;
+            if (hasCached)
+            {
+                int age = currentTick - cached.Tick;
+                int jitter = young.thingIDNumber & 63;
+                if (age <= ZoologyTickLimiter.Childcare.YoungProtectionTargetStateCacheDurationTicks + jitter)
+                {
+                    state = cached;
+                    return true;
+                }
+
+                if (!TryConsumeBudget(
+                        ref youngProtectionTargetStateBudgetTick,
+                        ref youngProtectionTargetStateBudgetRemaining,
+                        ZoologyTickLimiter.Childcare.YoungProtectionTargetStateBudgetPerTick)
+                    && age <= ZoologyTickLimiter.Childcare.YoungProtectionTargetStateMaxStaleTicks)
+                {
+                    state = cached;
+                    return true;
+                }
+            }
+            else if (!TryConsumeBudget(
+                         ref youngProtectionTargetStateBudgetTick,
+                         ref youngProtectionTargetStateBudgetRemaining,
+                         ZoologyTickLimiter.Childcare.YoungProtectionTargetStateBudgetPerTick))
+            {
+                return false;
+            }
+
+            state = BuildYoungProtectionTargetState(young, currentTick);
+            youngProtectionTargetStateHotCacheSlots[slotIndex] = state;
+            return true;
+        }
+
+        private static YoungProtectionTargetState BuildYoungProtectionTargetState(Pawn young, int currentTick)
+        {
+            YoungProtectionTargetState state = new YoungProtectionTargetState
+            {
+                YoungId = young?.thingIDNumber ?? 0,
+                Tick = currentTick
+            };
+
+            if (young == null
+                || !ChildcareUtility.TryGetKnownBiologicalMother(young, out Pawn mother)
+                || !ChildcareUtility.HasChildcareExtension(mother)
+                || !TryGetProtectionAnchor(young, null, out Map anchorMap, out IntVec3 anchorPosition))
+            {
+                return state;
+            }
+
+            state.AnchorMap = anchorMap;
+            TryAddYoungProtectionTargetCandidate(ref state, mother, young, anchorMap, anchorPosition);
+
+            if (ShouldUseSharedProtectionGroup(mother))
+            {
+                AddSharedYoungProtectionTargetCandidates(ref state, mother, young, anchorMap, anchorPosition);
+            }
+
+            return state;
+        }
+
+        private static void AddSharedYoungProtectionTargetCandidates(
+            ref YoungProtectionTargetState state,
+            Pawn mother,
+            Thing protectedThing,
+            Map anchorMap,
+            IntVec3 anchorPosition)
+        {
+            if (mother?.Map != anchorMap || anchorMap == null || !anchorPosition.IsValid)
+            {
+                return;
+            }
+
+            int cellCount = GenRadial.NumCellsInRadius(GetProtectionRange());
+            for (int i = 0; i < cellCount; i++)
+            {
+                IntVec3 cell = anchorPosition + GenRadial.RadialPattern[i];
+                if (!cell.InBounds(anchorMap))
+                {
+                    continue;
+                }
+
+                List<Thing> things = cell.GetThingList(anchorMap);
+                for (int j = 0; j < things.Count; j++)
+                {
+                    if (things[j] is not Pawn candidate)
+                    {
+                        continue;
+                    }
+
+                    if (!IsSharedProtectionCandidate(mother, candidate, anchorMap, anchorPosition))
+                    {
+                        continue;
+                    }
+
+                    TryAddYoungProtectionTargetCandidate(ref state, candidate, protectedThing, anchorMap, anchorPosition);
+                }
+            }
+        }
+
+        private static void TryAddYoungProtectionTargetCandidate(
+            ref YoungProtectionTargetState state,
+            Pawn protector,
+            Thing protectedThing,
+            Map anchorMap,
+            IntVec3 anchorPosition)
+        {
+            if (!CanProtectorDeterPredationTargetFast(protector, protectedThing, anchorMap, anchorPosition))
+            {
+                return;
+            }
+
+            float power = AnimalCombatPowerUtility.GetAdjustedCombatPower(protector);
+            Faction blockedFaction = GetSameFactionBlockedFaction(protector);
+            if (!state.HasBestProtector || power > state.BestProtectorPower)
+            {
+                if (state.HasBestProtector && !ReferenceEquals(state.BestProtectorBlockedFaction, blockedFaction))
+                {
+                    state.HasFallbackProtector = true;
+                    state.FallbackProtectorPower = state.BestProtectorPower;
+                }
+
+                state.HasBestProtector = true;
+                state.BestProtectorPower = power;
+                state.BestProtectorBlockedFaction = blockedFaction;
+                return;
+            }
+
+            if (!ReferenceEquals(state.BestProtectorBlockedFaction, blockedFaction)
+                && (!state.HasFallbackProtector || power > state.FallbackProtectorPower))
+            {
+                state.HasFallbackProtector = true;
+                state.FallbackProtectorPower = power;
+            }
+        }
+
+        private static bool TryGetYoungProtectionPowerAgainst(Pawn aggressor, YoungProtectionTargetState state, out float protectorPower)
+        {
+            protectorPower = 0f;
+            if (aggressor == null || !state.HasBestProtector || aggressor.MapHeld != state.AnchorMap)
+            {
+                return false;
+            }
+
+            if (state.BestProtectorBlockedFaction == null || !ReferenceEquals(state.BestProtectorBlockedFaction, aggressor.Faction))
+            {
+                protectorPower = state.BestProtectorPower;
+                return true;
+            }
+
+            if (!state.HasFallbackProtector)
+            {
+                return false;
+            }
+
+            protectorPower = state.FallbackProtectorPower;
+            return true;
+        }
+
+        private static bool DoesYoungProtectionStateBlockAggressor(Pawn aggressor, YoungProtectionTargetState targetState)
+        {
+            if (!TryGetYoungProtectionPowerAgainst(aggressor, targetState, out float protectorPower))
+            {
+                return false;
+            }
+
+            if (IsHumanlikeOrMechanoidThreat(aggressor)
+                && protectorPower < ModConstants.MinCombatPowerToDefendYoungFromHumans)
+            {
+                return false;
+            }
+
+            float aggressorPower = AnimalCombatPowerUtility.GetAdjustedCombatPower(aggressor);
+            if (aggressorPower <= 0f || protectorPower <= 0f)
+            {
+                return true;
+            }
+
+            return aggressorPower < protectorPower * ModConstants.CombatPowerDominanceFactor;
+        }
+
+        private static Faction GetSameFactionBlockedFaction(Pawn protector)
+        {
+            Faction faction = protector?.Faction;
+            if (faction == null)
+            {
+                return null;
+            }
+
+            FactionDef def = faction.def;
+            if (def != null
+                && def.defName != null
+                && def.defName.Equals("Photonozoa", StringComparison.OrdinalIgnoreCase))
+            {
+                return null;
+            }
+
+            return faction;
+        }
+
+        private static int GetYoungProtectionTargetStateCacheSlotIndex(int youngId)
+        {
+            uint mixed = (uint)youngId;
+            mixed *= 2654435761u;
+            return (int)(mixed & YoungProtectionTargetStateHotCacheMask);
         }
 
         private static bool TryFindProtectedYoungForProtector(Pawn protector, out Pawn young)
@@ -677,13 +1304,43 @@ namespace ZoologyMod
             return true;
         }
 
-        public static float GetFoodOptimalityDeltaForEgg(Pawn eater, Thing foodSource)
+        internal static bool ShouldCheckEggFoodOptimality(Pawn eater, Thing foodSource)
         {
             if (!IsEggProtectionEnabled || eater == null || foodSource == null || !IsFertilizedEgg(foodSource))
+            {
+                return false;
+            }
+
+            if (!TryGetEggProtectionAnchor(foodSource, eater, out Map anchorMap, out _)
+                || eater.MapHeld == null
+                || eater.MapHeld != anchorMap)
+            {
+                return false;
+            }
+
+            EggClutchDefenseGameComponent component = EggClutchDefenseGameComponent.Instance;
+            if (component == null)
+            {
+                return false;
+            }
+
+            return (!CanIgnoreProtectionBecauseOfHunger(eater)
+                    && component.ShouldBlockOwnFertilizedEggConsumption(eater, foodSource))
+                || component.HasPotentialFoodOptimalityProtector(foodSource, eater, anchorMap);
+        }
+
+        public static float GetFoodOptimalityDeltaForEgg(Pawn eater, Thing foodSource)
+        {
+            if (!ShouldCheckEggFoodOptimality(eater, foodSource))
             {
                 return 0f;
             }
 
+            return GetFoodOptimalityDeltaForCheckedEgg(eater, foodSource);
+        }
+
+        internal static float GetFoodOptimalityDeltaForCheckedEgg(Pawn eater, Thing foodSource)
+        {
             TickManager tickManager = Find.TickManager;
             int currentTick = tickManager?.TicksGame ?? 0;
             EnsureEggRuntimeCacheState(currentTick, tickManager);
@@ -692,14 +1349,6 @@ namespace ZoologyMod
             if (TryGetEggFoodDeltaCached(currentTick, pairKey, out float cachedDelta))
             {
                 return cachedDelta;
-            }
-
-            if (!TryGetEggProtectionAnchor(foodSource, eater, out Map anchorMap, out _)
-                || eater.MapHeld == null
-                || eater.MapHeld != anchorMap)
-            {
-                StoreEggFoodDelta(currentTick, pairKey, 0f);
-                return 0f;
             }
 
             if (!ZoologyTickLimiter.TryConsumeFoodOptimality(ZoologyTickLimiter.FoodOptimalityBudgetPerTick))
@@ -735,6 +1384,7 @@ namespace ZoologyMod
                 return false;
             }
 
+            RememberActiveYoungProtectionThreat(aggressor, protectedThing);
             if (!ShouldTriggerYoungProtection(aggressor, protectedThing))
             {
                 return false;
@@ -781,6 +1431,176 @@ namespace ZoologyMod
             TryNotifyPlayerAboutYoungProtection(aggressor, protectedThing, exemplar, triggeredProtectorsScratch, triggeredCount);
             triggeredProtectorsScratch.Clear();
             return true;
+        }
+
+        internal static bool TryRetargetProtectYoungJobToNearestThreat(Pawn protector)
+        {
+            try
+            {
+                Job curJob = protector?.CurJob;
+                if (curJob == null || !ProtectYoungUtility.IsProtectYoungJob(curJob, protector))
+                {
+                    return false;
+                }
+
+                if (!TryFindNearestActiveYoungProtectionThreat(protector, out Pawn bestAggressor, out Thing bestProtectedThing))
+                {
+                    return false;
+                }
+
+                if (ProtectYoungUtility.TryGetProtectYoungTargets(curJob, out Pawn currentAggressor, out Thing currentProtectedThing)
+                    && ReferenceEquals(currentAggressor, bestAggressor)
+                    && ReferenceEquals(currentProtectedThing, bestProtectedThing))
+                {
+                    return false;
+                }
+
+                if (!ProtectYoungUtility.CanRetargetProtectYoungJob(protector, curJob, bestAggressor, bestProtectedThing))
+                {
+                    return false;
+                }
+
+                curJob.SetTarget(TargetIndex.A, bestAggressor);
+                curJob.SetTarget(TargetIndex.B, bestProtectedThing);
+                protector.Map?.attackTargetsCache?.UpdateTarget(protector);
+                TryForceAggressorFleeFromProtectYoung(protector, bestAggressor);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Log.Warning($"Zoology: failed to retarget protect-young job: {ex}");
+                return false;
+            }
+        }
+
+        private static bool TryFindNearestActiveYoungProtectionThreat(Pawn protector, out Pawn bestAggressor, out Thing bestProtectedThing)
+        {
+            bestAggressor = null;
+            bestProtectedThing = null;
+            if (protector?.Map == null || activeYoungProtectionThreatByPairKey.Count == 0)
+            {
+                return false;
+            }
+
+            int currentTick = Find.TickManager?.TicksGame ?? 0;
+            CleanupActiveYoungProtectionThreats(currentTick);
+
+            activeYoungThreatCleanupScratch.Clear();
+            int bestDistanceSq = int.MaxValue;
+            foreach (KeyValuePair<long, YoungProtectionThreatMemoryEntry> entry in activeYoungProtectionThreatByPairKey)
+            {
+                YoungProtectionThreatMemoryEntry memory = entry.Value;
+                if (!IsActiveYoungProtectionThreatValid(memory, currentTick))
+                {
+                    activeYoungThreatCleanupScratch.Add(entry.Key);
+                    continue;
+                }
+
+                Pawn aggressor = memory.Aggressor;
+                Thing protectedThing = memory.ProtectedThing;
+                if (!CanProtectorRespondToRememberedYoungThreat(protector, aggressor, protectedThing))
+                {
+                    continue;
+                }
+
+                int distanceSq = (aggressor.Position - protector.Position).LengthHorizontalSquared;
+                if (distanceSq >= bestDistanceSq)
+                {
+                    continue;
+                }
+
+                bestDistanceSq = distanceSq;
+                bestAggressor = aggressor;
+                bestProtectedThing = protectedThing;
+            }
+
+            if (activeYoungThreatCleanupScratch.Count > 0)
+            {
+                for (int i = 0; i < activeYoungThreatCleanupScratch.Count; i++)
+                {
+                    activeYoungProtectionThreatByPairKey.Remove(activeYoungThreatCleanupScratch[i]);
+                }
+
+                activeYoungThreatCleanupScratch.Clear();
+            }
+
+            return bestAggressor != null && bestProtectedThing != null;
+        }
+
+        private static bool CanProtectorRespondToRememberedYoungThreat(Pawn protector, Pawn aggressor, Thing protectedThing)
+        {
+            if (!TryGetProtectionAnchor(protectedThing, null, out Map anchorMap, out IntVec3 anchorPosition))
+            {
+                return false;
+            }
+
+            if (!IsProtectorLinkedToProtectedYoung(protector, protectedThing, anchorMap, anchorPosition))
+            {
+                return false;
+            }
+
+            return CanProtectorReachAndFightYoungThreat(protector, aggressor, protectedThing, anchorMap, anchorPosition);
+        }
+
+        private static bool IsProtectorLinkedToProtectedYoung(Pawn protector, Thing protectedThing, Map anchorMap, IntVec3 anchorPosition)
+        {
+            if (protector == null || protectedThing is not Pawn young)
+            {
+                return false;
+            }
+
+            if (!ChildcareUtility.TryGetBiologicalMother(young, out Pawn mother)
+                || !ChildcareUtility.HasChildcareExtension(mother))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(mother, protector))
+            {
+                return true;
+            }
+
+            return ShouldUseSharedProtectionGroup(mother)
+                && IsSharedProtectionCandidate(mother, protector, anchorMap, anchorPosition);
+        }
+
+        private static bool CanProtectorReachAndFightYoungThreat(
+            Pawn protector,
+            Pawn aggressor,
+            Thing protectedThing,
+            Map anchorMap,
+            IntVec3 anchorPosition)
+        {
+            if (protector == null
+                || aggressor == null
+                || protectedThing == null
+                || anchorMap == null
+                || !anchorPosition.IsValid
+                || aggressor == protector
+                || !IsProtectorEligibleForDefense(protector, protectedThing)
+                || protector.Map != anchorMap
+                || aggressor.MapHeld != anchorMap
+                || IsSameFactionBlocked(protector, aggressor)
+                || !CanProtectorMeetHumanlikeThreatThreshold(protector, aggressor)
+                || IsAttackerTooStrong(aggressor, protector)
+                || IsProtectorAcceptablePrey(aggressor, protector))
+            {
+                return false;
+            }
+
+            try
+            {
+                if (!GenSight.LineOfSight(protector.Position, anchorPosition, anchorMap))
+                {
+                    return false;
+                }
+
+                return protector.CanReach(anchorPosition, PathEndMode.Touch, Danger.Deadly);
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         public static bool ShouldNullifyEggDeterioration(Thing thing)
@@ -1111,13 +1931,121 @@ namespace ZoologyMod
                     ? JobMaker.MakeJob(jobDef, aggressor, protectedThing)
                     : JobMaker.MakeJob(JobDefOf.AttackMelee, aggressor);
 
-                return protector.jobs?.TryTakeOrderedJob(job) ?? false;
+                if (protector.jobs == null)
+                {
+                    return false;
+                }
+
+                ProtectYoungUtility.InterruptRetargetableProtectYoungJob(protector, aggressor, protectedThing);
+                protector.jobs.StartJob(
+                    job,
+                    JobCondition.InterruptForced,
+                    null,
+                    resumeCurJobAfterwards: false,
+                    cancelBusyStances: true,
+                    null,
+                    JobTag.Misc);
+                TryForceAggressorFleeFromProtectYoung(protector, aggressor);
+                return true;
             }
             catch (Exception ex)
             {
                 Log.Warning($"Zoology: failed to order childcare protection job: {ex}");
                 return false;
             }
+        }
+
+        private static void TryForceAggressorFleeFromProtectYoung(Pawn protector, Pawn aggressor)
+        {
+            try
+            {
+                int currentTick = Find.TickManager?.TicksGame ?? 0;
+                if (protector == null
+                    || aggressor == null
+                    || protector.Map == null
+                    || aggressor.Map != protector.Map
+                    || aggressor.jobs == null
+                    || aggressor.CurJob?.def == JobDefOf.Flee
+                    || HasRecentProtectYoungForcedFlee(aggressor, currentTick)
+                    || !ZoologyFleeSafetyUtility.CanUseForcedThreatFlee(aggressor, ignoreNeverFleeFromEnemies: true)
+                    || !ZoologyFleeSafetyUtility.IsValidThreatForFlee(protector, aggressor)
+                    || ZoologyFleeSafetyUtility.IsThreatMeleeAttackingPawn(protector, aggressor))
+                {
+                    return;
+                }
+
+                int fleeDistance = ZoologyModSettings.Instance?.FleeDistanceTargetPredator ?? ModConstants.DefaultFleeDistanceTargetPredator;
+                if (fleeDistance < 6)
+                {
+                    fleeDistance = 6;
+                }
+                else if (fleeDistance > 40)
+                {
+                    fleeDistance = 40;
+                }
+
+                Job fleeJob = FleeUtility.FleeJob(aggressor, protector, fleeDistance);
+                if (fleeJob == null)
+                {
+                    return;
+                }
+
+                RememberProtectYoungForcedFlee(aggressor, currentTick);
+                aggressor.jobs.StartJob(
+                    fleeJob,
+                    JobCondition.InterruptForced,
+                    null,
+                    resumeCurJobAfterwards: false,
+                    cancelBusyStances: true,
+                    null,
+                    JobTag.Misc);
+            }
+            catch
+            {
+            }
+        }
+
+        private static bool HasRecentProtectYoungForcedFlee(Pawn aggressor, int currentTick)
+        {
+            if (aggressor == null || aggressor.thingIDNumber <= 0 || currentTick <= 0)
+            {
+                return false;
+            }
+
+            return recentProtectYoungForcedFleeTickByAggressorId.TryGetValue(aggressor.thingIDNumber, out int tick)
+                && tick == currentTick;
+        }
+
+        private static void RememberProtectYoungForcedFlee(Pawn aggressor, int currentTick)
+        {
+            if (aggressor == null || aggressor.thingIDNumber <= 0 || currentTick <= 0)
+            {
+                return;
+            }
+
+            recentProtectYoungForcedFleeTickByAggressorId[aggressor.thingIDNumber] = currentTick;
+            if (lastProtectYoungForcedFleeCleanupTick != int.MinValue
+                && currentTick - lastProtectYoungForcedFleeCleanupTick < 600)
+            {
+                return;
+            }
+
+            lastProtectYoungForcedFleeCleanupTick = currentTick;
+            youngTriggerCleanupScratch.Clear();
+            foreach (KeyValuePair<int, int> entry in recentProtectYoungForcedFleeTickByAggressorId)
+            {
+                if (currentTick - entry.Value > 60)
+                {
+                    youngTriggerCleanupScratch.Add(entry.Key);
+                }
+            }
+
+            for (int i = 0; i < youngTriggerCleanupScratch.Count; i++)
+            {
+                recentProtectYoungForcedFleeTickByAggressorId.Remove((int)youngTriggerCleanupScratch[i]);
+            }
+
+            youngTriggerCleanupScratch.Clear();
         }
 
         private static bool ShouldTriggerEggProtection(Pawn aggressor, Thing egg)
@@ -1198,6 +2126,77 @@ namespace ZoologyMod
             }
 
             recentYoungProtectionTriggerByPairKey[pairKey] = Find.TickManager?.TicksGame ?? 0;
+        }
+
+        private static void RememberActiveYoungProtectionThreat(Pawn aggressor, Thing protectedYoung)
+        {
+            long pairKey = MakePairKey(aggressor, protectedYoung);
+            int currentTick = Find.TickManager?.TicksGame ?? 0;
+            if (pairKey == 0L || currentTick <= 0)
+            {
+                return;
+            }
+
+            activeYoungProtectionThreatByPairKey[pairKey] = new YoungProtectionThreatMemoryEntry(aggressor, protectedYoung, currentTick);
+            CleanupActiveYoungProtectionThreats(currentTick);
+        }
+
+        private static bool IsActiveYoungProtectionThreatValid(YoungProtectionThreatMemoryEntry memory, int currentTick)
+        {
+            Pawn aggressor = memory.Aggressor;
+            Thing protectedThing = memory.ProtectedThing;
+            if (currentTick <= 0
+                || memory.Tick <= 0
+                || currentTick - memory.Tick > ActiveYoungProtectionThreatMemoryTicks
+                || aggressor == null
+                || protectedThing == null
+                || aggressor.Dead
+                || aggressor.Destroyed
+                || aggressor.Downed
+                || !aggressor.Spawned
+                || !IsProtectedThingValid(protectedThing)
+                || memory.Map == null
+                || aggressor.MapHeld != memory.Map
+                || protectedThing.MapHeld != memory.Map)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private static void CleanupActiveYoungProtectionThreats(int currentTick)
+        {
+            if (currentTick <= 0
+                || activeYoungProtectionThreatByPairKey.Count == 0
+                || currentTick == lastActiveYoungThreatCleanupTick)
+            {
+                return;
+            }
+
+            if (lastActiveYoungThreatCleanupTick != int.MinValue
+                && activeYoungProtectionThreatByPairKey.Count < 64
+                && currentTick - lastActiveYoungThreatCleanupTick < 120)
+            {
+                return;
+            }
+
+            lastActiveYoungThreatCleanupTick = currentTick;
+            activeYoungThreatCleanupScratch.Clear();
+            foreach (KeyValuePair<long, YoungProtectionThreatMemoryEntry> entry in activeYoungProtectionThreatByPairKey)
+            {
+                if (!IsActiveYoungProtectionThreatValid(entry.Value, currentTick))
+                {
+                    activeYoungThreatCleanupScratch.Add(entry.Key);
+                }
+            }
+
+            for (int i = 0; i < activeYoungThreatCleanupScratch.Count; i++)
+            {
+                activeYoungProtectionThreatByPairKey.Remove(activeYoungThreatCleanupScratch[i]);
+            }
+
+            activeYoungThreatCleanupScratch.Clear();
         }
 
         private static void CleanupRecentYoungProtectionTriggers()
@@ -1413,7 +2412,15 @@ namespace ZoologyMod
             ThingDef def = thing.def;
             if (def != null && TryGetCachedEggState(def, out byte state))
             {
-                return state == EggStateUnfertilized || state == EggStateFertilized;
+                if (state == EggStateUnfertilized || state == EggStateFertilized)
+                {
+                    return true;
+                }
+
+                if (!DefHasHatcherComp(def))
+                {
+                    return false;
+                }
             }
 
             return thing.TryGetComp<CompHatcher>() != null;
@@ -1427,13 +2434,42 @@ namespace ZoologyMod
             }
 
             ThingDef def = egg.def;
-            if (def != null && TryGetCachedEggState(def, out byte state) && state == EggStateFertilized)
+            if (def != null && TryGetCachedEggState(def, out byte state))
             {
-                return true;
+                if (state == EggStateFertilized)
+                {
+                    return true;
+                }
+
+                if (!DefHasHatcherComp(def))
+                {
+                    return false;
+                }
             }
 
             CompHatcher hatcher = egg.TryGetComp<CompHatcher>();
             return hatcher != null && hatcher.otherParent != null;
+        }
+
+        internal static bool CouldBeFertilizedEggFoodSource(Thing thing)
+        {
+            if (thing == null || thing.Destroyed)
+            {
+                return false;
+            }
+
+            ThingDef def = thing.def;
+            if (def == null)
+            {
+                return false;
+            }
+
+            if (TryGetCachedEggState(def, out byte state) && state == EggStateFertilized)
+            {
+                return true;
+            }
+
+            return DefHasHatcherComp(def);
         }
 
         private static bool TryGetCachedEggState(ThingDef def, out byte state)
@@ -1483,6 +2519,53 @@ namespace ZoologyMod
 
             state = resolvedState;
             return resolvedState != EggStateUnknown;
+        }
+
+        private static bool DefHasHatcherComp(ThingDef def)
+        {
+            if (def == null)
+            {
+                return false;
+            }
+
+            ushort shortHash = def.shortHash;
+            if (shortHash != 0 && ReferenceEquals(hatcherCompDefsByShortHash[shortHash], def))
+            {
+                byte state = hatcherCompStatesByShortHash[shortHash];
+                if (state != HatcherCompStateUnknown)
+                {
+                    return state == HatcherCompStateYes;
+                }
+            }
+
+            if (hatcherCompPresenceByDefFallback.TryGetValue(def, out bool cached))
+            {
+                return cached;
+            }
+
+            bool hasComp = false;
+            try
+            {
+                hasComp = def.HasComp(typeof(CompHatcher));
+            }
+            catch
+            {
+                hasComp = false;
+            }
+
+            if (shortHash != 0)
+            {
+                ThingDef cachedDef = hatcherCompDefsByShortHash[shortHash];
+                if (cachedDef == null || ReferenceEquals(cachedDef, def))
+                {
+                    hatcherCompDefsByShortHash[shortHash] = def;
+                    hatcherCompStatesByShortHash[shortHash] = hasComp ? HatcherCompStateYes : HatcherCompStateNo;
+                    return hasComp;
+                }
+            }
+
+            hatcherCompPresenceByDefFallback[def] = hasComp;
+            return hasComp;
         }
 
         private static bool IsProtectorEligibleForDefense(Pawn protector, Thing protectedThing)
@@ -1593,7 +2676,7 @@ namespace ZoologyMod
             }
         }
 
-        private static bool CanProtectorEngage(Pawn protector, Pawn aggressor)
+        private static bool CanProtectorEngage(Pawn protector, Pawn aggressor, Thing protectedThing)
         {
             if (protector == null || aggressor == null)
             {
@@ -1603,12 +2686,17 @@ namespace ZoologyMod
             Job curJob = protector.CurJob;
             if (curJob != null)
             {
-                if (curJob.playerForced || curJob.def == JobDefOf.AttackMelee)
+                if (ProtectYoungUtility.IsProtectYoungJob(curJob, protector))
+                {
+                    return ProtectYoungUtility.CanRetargetProtectYoungJob(protector, curJob, aggressor, protectedThing);
+                }
+
+                if (ProtectPreyState.IsProtectPreyJob(protector))
                 {
                     return false;
                 }
 
-                if (ProtectPreyState.IsProtectPreyJob(protector) || ProtectYoungUtility.IsProtectYoungJob(protector))
+                if (curJob.playerForced || curJob.def == JobDefOf.AttackMelee)
                 {
                     return false;
                 }
@@ -1723,56 +2811,109 @@ namespace ZoologyMod
         private static bool TryGetYoungProtectionState(Pawn aggressor, Pawn protectedYoung, out YoungProtectionStateCacheEntry state)
         {
             state = default;
+            if (aggressor == null
+                || protectedYoung == null
+                || !protectedYoung.IsAnimal
+                || !ChildcareUtility.IsAnimalChild(protectedYoung))
+            {
+                return false;
+            }
+
+            return TryGetYoungProtectionStateForKnownYoung(aggressor, protectedYoung, out state);
+        }
+
+        private static bool TryGetYoungProtectionStateForKnownYoung(Pawn aggressor, Pawn youngPawn, out YoungProtectionStateCacheEntry state)
+        {
+            state = default;
             if (!IsYoungProtectionEnabled
                 || aggressor == null
-                || protectedYoung == null
-                || protectedYoung is not Pawn youngPawn
-                || !youngPawn.IsAnimal
-                || !ChildcareUtility.IsAnimalChild(youngPawn))
+                || youngPawn == null)
             {
                 return false;
             }
 
             int currentTick = Find.TickManager?.TicksGame ?? 0;
-            long pairKey = MakePairKey(aggressor, protectedYoung);
-            if (pairKey != 0L
-                && currentTick > 0
-                && youngProtectionStateCacheByPairKey.TryGetValue(pairKey, out YoungProtectionStateCacheEntry cached)
-                && currentTick - cached.Tick <= YoungProtectionStateCacheDurationTicks)
+            if (TryGetYoungProtectionStateCached(currentTick, aggressor, youngPawn, out YoungProtectionStateCacheEntry cached))
             {
                 state = cached;
                 return true;
             }
 
-            bool isGuarded = false;
-            if (ChildcareUtility.TryGetBiologicalMother(youngPawn, out Pawn mother))
+            if (!TryGetDirectYoungProtectionTargetState(youngPawn, currentTick, out YoungProtectionTargetState targetState))
             {
-                if (!ChildcareUtility.HasChildcareExtension(mother))
-                {
-                    return false;
-                }
-
-                try
-                {
-                    if (TryFillYoungProtectors(mother, aggressor, protectedYoung, youngProtectorsScratch))
-                    {
-                        isGuarded = youngProtectorsScratch.Count > 0;
-                    }
-                }
-                finally
-                {
-                    youngProtectorsScratch.Clear();
-                }
+                state = new YoungProtectionStateCacheEntry(isGuarded: false, currentTick);
+                return true;
             }
 
-            state = new YoungProtectionStateCacheEntry(isGuarded, currentTick);
-            if (pairKey != 0L && currentTick > 0)
+            if (!targetState.HasBestProtector)
             {
-                youngProtectionStateCacheByPairKey[pairKey] = state;
-                CleanupYoungProtectionStateCacheIfNeeded(currentTick);
+                state = new YoungProtectionStateCacheEntry(isGuarded: false, currentTick);
+                if (currentTick > 0)
+                {
+                    StoreYoungProtectionStateCached(currentTick, aggressor, youngPawn, state);
+                }
+
+                return true;
+            }
+
+            bool isGuarded = DoesYoungProtectionStateBlockAggressor(aggressor, targetState);
+
+            state = new YoungProtectionStateCacheEntry(isGuarded, currentTick);
+            if (currentTick > 0)
+            {
+                StoreYoungProtectionStateCached(currentTick, aggressor, youngPawn, state);
             }
 
             return true;
+        }
+
+        private static bool TryGetYoungProtectionStateCached(int currentTick, Pawn aggressor, Pawn young, out YoungProtectionStateCacheEntry state)
+        {
+            state = default;
+            if (currentTick <= 0 || aggressor == null || young == null || young.thingIDNumber <= 0)
+            {
+                return false;
+            }
+
+            int slotIndex = GetYoungProtectionStateCacheSlotIndex(aggressor, young);
+            YoungProtectionStateHotCacheEntry cached = youngProtectionStateHotCacheSlots[slotIndex];
+            if (!cached.Matches(aggressor, young)
+                || currentTick - cached.State.Tick > YoungProtectionStateCacheDurationTicks)
+            {
+                return false;
+            }
+
+            state = cached.State;
+            return true;
+        }
+
+        private static void StoreYoungProtectionStateCached(int currentTick, Pawn aggressor, Pawn young, YoungProtectionStateCacheEntry state)
+        {
+            if (currentTick <= 0 || aggressor == null || young == null || young.thingIDNumber <= 0)
+            {
+                return;
+            }
+
+            int slotIndex = GetYoungProtectionStateCacheSlotIndex(aggressor, young);
+            youngProtectionStateHotCacheSlots[slotIndex] = new YoungProtectionStateHotCacheEntry(aggressor, young, state);
+        }
+
+        private static int GetYoungProtectionStateCacheSlotIndex(Pawn aggressor, Pawn young)
+        {
+            unchecked
+            {
+                Faction faction = aggressor?.Faction;
+                uint mixed = (uint)(young?.thingIDNumber ?? 0);
+                mixed ^= (uint)(aggressor?.MapHeld?.uniqueID ?? 0) * 2246822519u;
+                mixed ^= (uint)(aggressor?.def?.shortHash ?? 0) * 3266489917u;
+                mixed ^= (uint)(aggressor?.kindDef?.shortHash ?? 0) * 668265263u;
+                mixed ^= (uint)(aggressor?.ageTracker?.CurLifeStage?.shortHash ?? 0) * 374761393u;
+                mixed ^= (uint)(faction != null ? RuntimeHelpers.GetHashCode(faction) : 0) * 2654435761u;
+                mixed ^= mixed >> 16;
+                mixed *= 2654435761u;
+                mixed ^= mixed >> 13;
+                return (int)(mixed & YoungProtectionStateHotCacheMask);
+            }
         }
 
         private static bool TryConsumeBudget(ref int tick, ref int remaining, int perTick)
@@ -1823,30 +2964,6 @@ namespace ZoologyMod
             eggFoodStateCleanupScratch.Clear();
         }
 
-        private static void CleanupYoungProtectionStateCacheIfNeeded(int currentTick)
-        {
-            if (youngProtectionStateCacheByPairKey.Count == 0)
-            {
-                return;
-            }
-
-            youngProtectionStateCleanupScratch.Clear();
-            foreach (KeyValuePair<long, YoungProtectionStateCacheEntry> entry in youngProtectionStateCacheByPairKey)
-            {
-                if (currentTick - entry.Value.Tick > YoungProtectionStateCacheDurationTicks)
-                {
-                    youngProtectionStateCleanupScratch.Add(entry.Key);
-                }
-            }
-
-            for (int i = 0; i < youngProtectionStateCleanupScratch.Count; i++)
-            {
-                youngProtectionStateCacheByPairKey.Remove(youngProtectionStateCleanupScratch[i]);
-            }
-
-            youngProtectionStateCleanupScratch.Clear();
-        }
-
         private static void EnsureEggRuntimeCacheState(int currentTick, TickManager tickManager)
         {
             if (currentTick > 0
@@ -1864,17 +2981,28 @@ namespace ZoologyMod
             {
                 recentEggProtectionTriggerByPairKey.Clear();
                 recentYoungProtectionTriggerByPairKey.Clear();
+                activeYoungProtectionThreatByPairKey.Clear();
                 eggFoodStateCacheByPairKey.Clear();
-                youngProtectionStateCacheByPairKey.Clear();
                 nearbyYoungCacheByProtectorId.Clear();
+                directYoungProtectionStateByYoungId.Clear();
+                recentProtectYoungForcedFleeTickByAggressorId.Clear();
                 incubatedEggTouchTickByEggId.Clear();
                 lastIncubationSearchFailureTickByPawnId.Clear();
                 Array.Clear(eggFoodDeltaHotCacheSlots, 0, eggFoodDeltaHotCacheSlots.Length);
+                Array.Clear(youngProtectionStateHotCacheSlots, 0, youngProtectionStateHotCacheSlots.Length);
+                Array.Clear(youngProtectionTargetStateHotCacheSlots, 0, youngProtectionTargetStateHotCacheSlots.Length);
                 lastEggProtectionCleanupTick = int.MinValue;
                 lastYoungProtectionCleanupTick = int.MinValue;
+                lastActiveYoungThreatCleanupTick = int.MinValue;
+                lastProtectYoungForcedFleeCleanupTick = int.MinValue;
                 lastEggFoodStateCacheCleanupTick = -ZoologyTickLimiter.Childcare.EggFoodStateCacheCleanupIntervalTicks;
                 eggFoodStateBudgetTick = -1;
                 eggFoodStateBudgetRemaining = 0;
+                youngProtectionTargetStateBudgetTick = -1;
+                youngProtectionTargetStateBudgetRemaining = 0;
+                directYoungProtectionMapCacheMap = null;
+                directYoungProtectionMapCacheMapId = -1;
+                directYoungProtectionMapCacheTick = -1;
                 eggRuntimeTickManager = tickManager;
                 eggRuntimeGame = currentGame;
                 eggRuntimeLastTick = -1;

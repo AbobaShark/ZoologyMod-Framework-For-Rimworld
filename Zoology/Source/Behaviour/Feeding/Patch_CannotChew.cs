@@ -11,7 +11,7 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(FoodUtility), "WillEat", new Type[] { typeof(Pawn), typeof(Thing), typeof(Pawn), typeof(bool), typeof(bool) })]
     internal static class Patch_FoodUtility_WillEat_CannotChew
     {
-        private static bool Prepare() => CannotChewSettingsGate.Enabled();
+        private static bool Prepare() => false;
 
         private static bool Prefix(Pawn p, Thing food, Pawn getter, bool careIfNotAcceptableForTitle, bool allowVenerated, ref bool __result)
         {
@@ -32,12 +32,13 @@ namespace ZoologyMod
                     return true;
                 }
 
-                if (!CannotChewUtility.HasCannotChew(p))
+                Map map = p.MapHeld ?? corpse.MapHeld;
+                if (map != null && !CannotChewPresenceCache.HasCannotChewPawnsOnMap(map))
                 {
                     return true;
                 }
 
-                if (p.Map != null && !CannotChewPresenceCache.HasCannotChewPawnsOnMap(p.Map))
+                if (!CannotChewUtility.HasCannotChew(p))
                 {
                     return true;
                 }
