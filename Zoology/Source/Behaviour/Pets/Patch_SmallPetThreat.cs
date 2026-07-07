@@ -13,6 +13,7 @@ namespace ZoologyMod
     {
         private const float DefaultSmallPetThreshold = ModConstants.DefaultSmallPetBodySizeThreshold;
         private const int SettingsSnapshotRefreshIntervalTicks = ZoologyTickLimiter.SmallPetThreat.SettingsSnapshotRefreshIntervalTicks;
+        private const int RecentEngagementCooldownTicks = 360;
         private const int CandidateMarkInitialSize = 4096;
         private const int CandidateMarkMaxDirectId = 1_000_000;
 
@@ -438,9 +439,87 @@ namespace ZoologyMod
             hostilityCacheByFactionId.Clear();
         }
 
-        private static bool IsCandidateSourceEligible(Pawn pawn, int currentTick)
+        private static Pawn GetCurrentEngagementTarget(Pawn pawn)
         {
-            if (pawn == null)
+            Pawn_MindState mindState = pawn?.mindState;
+            if (mindState?.enemyTarget is Pawn enemyTarget)
+            {
+                return enemyTarget;
+            }
+
+            if (mindState?.meleeThreat != null)
+            {
+                return mindState.meleeThreat;
+            }
+
+            Job curJob = pawn?.CurJob;
+            if (curJob == null)
+            {
+                return null;
+            }
+
+            JobDef jobDef = curJob.def;
+            if (jobDef != JobDefOf.AttackMelee
+                && jobDef != JobDefOf.AttackStatic
+                && jobDef != JobDefOf.Wait_Combat
+                && jobDef != JobDefOf.PredatorHunt
+                && jobDef != JobDefOf.ManTurret)
+            {
+                return null;
+            }
+
+            return curJob.targetA.Thing as Pawn ?? curJob.targetB.Thing as Pawn;
+        }
+
+        private static bool IsHostileThreatToPlayer(Pawn pawn, Faction playerFaction)
+        {
+            if (pawn == null || playerFaction == null)
+            {
+                return false;
+            }
+
+            if (pawn.kindDef?.hostileToAll == true || pawn.InAggroMentalState)
+            {
+                return true;
+            }
+
+            Faction faction = pawn.Faction;
+            return faction != null && IsHostileToPlayerFactionSafe(faction, playerFaction);
+        }
+
+        private static bool HasBlockingRecentEngagement(Pawn pawn, Faction playerFaction, int currentTick)
+        {
+            Pawn currentTarget = GetCurrentEngagementTarget(pawn);
+            if (IsHostileThreatToPlayer(currentTarget, playerFaction))
+            {
+                return true;
+            }
+
+            if (pawn.IsFighting())
+            {
+                return currentTarget == null;
+            }
+
+            Pawn_MindState mindState = pawn.mindState;
+            int lastEngageTick = mindState?.lastEngageTargetTick ?? int.MinValue;
+            if (currentTick >= lastEngageTick + RecentEngagementCooldownTicks)
+            {
+                return false;
+            }
+
+            int lastAttackTargetTick = mindState?.lastAttackTargetTick ?? int.MinValue;
+            if (currentTick < lastAttackTargetTick + RecentEngagementCooldownTicks
+                && mindState?.lastAttackedTarget.Thing is Pawn lastAttackedPawn)
+            {
+                return IsHostileThreatToPlayer(lastAttackedPawn, playerFaction);
+            }
+
+            return currentTarget == null;
+        }
+
+        private static bool IsCandidateSourceEligible(Pawn pawn, Faction playerFaction, int currentTick)
+        {
+            if (pawn == null || playerFaction == null)
             {
                 return false;
             }
@@ -450,13 +529,12 @@ namespace ZoologyMod
                 return false;
             }
 
-            if (pawn.InAggroMentalState || pawn.IsFighting())
+            if (pawn.InAggroMentalState)
             {
                 return false;
             }
 
-            int lastEngageTick = pawn.mindState?.lastEngageTargetTick ?? int.MinValue;
-            return currentTick >= lastEngageTick + 360;
+            return !HasBlockingRecentEngagement(pawn, playerFaction, currentTick);
         }
 
         private static bool CanIgnoreThreatForSmallPet(Pawn smallPet, Pawn otherPawn, Faction playerFaction)
@@ -551,14 +629,14 @@ namespace ZoologyMod
             }
 
             if (IsCurrentSmallPetCandidate(targetPawn, currentTick)
-                && IsCandidateSourceEligible(targetPawn, currentTick))
+                && IsCandidateSourceEligible(targetPawn, playerFaction, currentTick))
             {
                 return CanIgnoreThreatForSmallPet(targetPawn, searcherPawn, playerFaction);
             }
 
             if (searcherPawn == null
                 || !IsCurrentSmallPetCandidate(searcherPawn, currentTick)
-                || !IsCandidateSourceEligible(searcherPawn, currentTick))
+                || !IsCandidateSourceEligible(searcherPawn, playerFaction, currentTick))
             {
                 return false;
             }
@@ -682,7 +760,7 @@ namespace ZoologyMod
             Faction playerFaction = GetPlayerFactionCached();
             if (playerFaction == null
                 || !IsCurrentSmallPetCandidate(smallPet, currentTick)
-                || !IsCandidateSourceEligible(smallPet, currentTick))
+                || !IsCandidateSourceEligible(smallPet, playerFaction, currentTick))
             {
                 return false;
             }
@@ -895,7 +973,7 @@ namespace ZoologyMod
                 Faction playerFaction = GetPlayerFactionCached();
                 if (playerFaction == null
                     || !IsCurrentSmallPetCandidate(pawn, currentTick)
-                    || !IsCandidateSourceEligible(pawn, currentTick)
+                    || !IsCandidateSourceEligible(pawn, playerFaction, currentTick)
                     || !IsHostileToPlayerFactionSafe(fac, playerFaction))
                 {
                     return;

@@ -95,10 +95,23 @@ namespace ZoologyMod
                 return true;
             }
 
-            return protectedThing != null
-                && ReferenceEquals(currentProtectedThing, protectedThing)
-                && newAggressor != null
-                && !ReferenceEquals(currentAggressor, newAggressor);
+            if (newAggressor == null || protectedThing == null)
+            {
+                return false;
+            }
+
+            if (!IsActiveThreat(newAggressor) || !IsValidProtectedThing(protectedThing))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(currentAggressor, newAggressor)
+                && ReferenceEquals(currentProtectedThing, protectedThing))
+            {
+                return true;
+            }
+
+            return IsNewThreatCloser(pawn, currentAggressor, newAggressor);
         }
 
         public static bool IsProtectYoungJobProtecting(Pawn pawn, Thing protectedThing)
@@ -150,7 +163,7 @@ namespace ZoologyMod
             return !(thing is Pawn pawnThing) || !pawnThing.Dead;
         }
 
-        private static bool TryGetProtectYoungTargets(Job curJob, out Pawn aggressor, out Thing protectedThing)
+        public static bool TryGetProtectYoungTargets(Job curJob, out Pawn aggressor, out Thing protectedThing)
         {
             aggressor = null;
             protectedThing = null;
@@ -169,6 +182,29 @@ namespace ZoologyMod
             {
                 return false;
             }
+        }
+
+        private static bool IsNewThreatCloser(Pawn protector, Pawn currentAggressor, Pawn newAggressor)
+        {
+            if (protector == null || newAggressor == null)
+            {
+                return false;
+            }
+
+            if (!IsActiveThreat(currentAggressor)
+                || currentAggressor.Map != protector.Map)
+            {
+                return true;
+            }
+
+            if (newAggressor.Map != protector.Map)
+            {
+                return false;
+            }
+
+            int currentDistanceSq = (currentAggressor.Position - protector.Position).LengthHorizontalSquared;
+            int newDistanceSq = (newAggressor.Position - protector.Position).LengthHorizontalSquared;
+            return newDistanceSq < currentDistanceSq;
         }
     }
 }
