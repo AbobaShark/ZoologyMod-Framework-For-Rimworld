@@ -248,10 +248,27 @@ namespace ZoologyMod
         private const int PackHuntHotCacheDurationTicks = 10;
         private const int PackHuntHotCacheSize = 8192;
         private const int PackHuntHotCacheMask = PackHuntHotCacheSize - 1;
+        private const int GuardedYoungBlockCacheDurationTicks = 30;
+        private const int GuardedYoungBlockHotCacheSize = 32768;
+        private const int GuardedYoungBlockHotCacheMask = GuardedYoungBlockHotCacheSize - 1;
 
         private readonly struct PackHuntHotCacheEntry
         {
             public PackHuntHotCacheEntry(long pairKey, bool value, int tick)
+            {
+                PairKey = pairKey;
+                Value = value;
+                Tick = tick;
+            }
+
+            public long PairKey { get; }
+            public bool Value { get; }
+            public int Tick { get; }
+        }
+
+        private readonly struct GuardedYoungBlockCacheEntry
+        {
+            public GuardedYoungBlockCacheEntry(long pairKey, bool value, int tick)
             {
                 PairKey = pairKey;
                 Value = value;
@@ -278,6 +295,7 @@ namespace ZoologyMod
         }
 
         private static readonly PackHuntHotCacheEntry[] packHuntHotCacheSlots = new PackHuntHotCacheEntry[PackHuntHotCacheSize];
+        private static readonly GuardedYoungBlockCacheEntry[] guardedYoungBlockHotCacheSlots = new GuardedYoungBlockCacheEntry[GuardedYoungBlockHotCacheSize];
         private static readonly Dictionary<long, bool> factionHostilityByPairKey = new Dictionary<long, bool>(128);
         private static Game runtimeCacheGame;
         private static int runtimeCacheLastTick = -1;
@@ -369,6 +387,50 @@ namespace ZoologyMod
             packHuntHotCacheSlots[slotIndex] = new PackHuntHotCacheEntry(pairKey, value, currentTick);
         }
 
+        private static bool TryGetGuardedYoungBlockCached(Pawn predator, Pawn prey, int currentTick, out bool value)
+        {
+            value = false;
+            long pairKey = PairKey(predator, prey);
+            if (pairKey == 0L || currentTick <= 0)
+            {
+                return false;
+            }
+
+            int slotIndex = (int)((ulong)pairKey & GuardedYoungBlockHotCacheMask);
+            GuardedYoungBlockCacheEntry cached = guardedYoungBlockHotCacheSlots[slotIndex];
+            if (cached.PairKey != pairKey || currentTick - cached.Tick > GuardedYoungBlockCacheDurationTicks)
+            {
+                return false;
+            }
+
+            value = cached.Value;
+            return true;
+        }
+
+        private static bool ShouldBlockGuardedYoungPredationCached(Pawn predator, Pawn prey, int currentTick)
+        {
+            if (TryGetGuardedYoungBlockCached(predator, prey, currentTick, out bool cached))
+            {
+                return cached;
+            }
+
+            bool value = ChildcareDefenseUtility.ShouldBlockProtectedYoungPredation(predator, prey);
+            StoreGuardedYoungBlockCached(predator, prey, currentTick, value);
+            return value;
+        }
+
+        private static void StoreGuardedYoungBlockCached(Pawn predator, Pawn prey, int currentTick, bool value)
+        {
+            long pairKey = PairKey(predator, prey);
+            if (pairKey == 0L || currentTick <= 0)
+            {
+                return;
+            }
+
+            int slotIndex = (int)((ulong)pairKey & GuardedYoungBlockHotCacheMask);
+            guardedYoungBlockHotCacheSlots[slotIndex] = new GuardedYoungBlockCacheEntry(pairKey, value, currentTick);
+        }
+
         private static void EnsureRuntimeCacheState(int currentTick)
         {
             Game currentGame = Current.Game;
@@ -377,6 +439,7 @@ namespace ZoologyMod
             if (gameChanged || tickRewound)
             {
                 System.Array.Clear(packHuntHotCacheSlots, 0, packHuntHotCacheSlots.Length);
+                System.Array.Clear(guardedYoungBlockHotCacheSlots, 0, guardedYoungBlockHotCacheSlots.Length);
                 factionHostilityByPairKey.Clear();
                 runtimeCacheGame = currentGame;
             }
@@ -691,6 +754,12 @@ namespace ZoologyMod
                 if (usePackHuntHotCache
                     && TryGetPackHuntHotCachedAcceptablePrey(predator, prey, currentTick, out bool hotCachedAcceptable))
                 {
+                    if (hotCachedAcceptable && ShouldBlockGuardedYoungPredationCached(predator, prey, currentTick))
+                    {
+                        hotCachedAcceptable = false;
+                        StoreAcceptablePreyResult(predator, prey, false, usePackHuntHotCache, currentTick);
+                    }
+
                     __result = hotCachedAcceptable;
                     return false;
                 }
@@ -698,6 +767,12 @@ namespace ZoologyMod
                 if (!usePackHuntHotCache
                     && PredationDecisionCache.TryGetAcceptablePrey(predator, prey, out bool cachedAcceptable))
                 {
+                    if (cachedAcceptable && ShouldBlockGuardedYoungPredationCached(predator, prey, currentTick))
+                    {
+                        cachedAcceptable = false;
+                        StoreAcceptablePreyResult(predator, prey, false, usePackHuntHotCache, currentTick);
+                    }
+
                     __result = cachedAcceptable;
                     return false;
                 }
@@ -779,13 +854,6 @@ namespace ZoologyMod
                     return false;
                 }
 
-                if (ChildcareDefenseUtility.ShouldBlockProtectedYoungPredation(predator, prey))
-                {
-                    __result = false;
-                    StoreAcceptablePreyResult(predator, prey, false, usePackHuntHotCache, currentTick);
-                    return false;
-                }
-
                 if (!prey.RaceProps.IsFlesh)
                 {
                     __result = false;
@@ -801,6 +869,13 @@ namespace ZoologyMod
                 }
 
                 if (CannotChewUtility.IsPreyTooLargeForPredator(predator, prey))
+                {
+                    __result = false;
+                    StoreAcceptablePreyResult(predator, prey, false, usePackHuntHotCache, currentTick);
+                    return false;
+                }
+
+                if (ShouldBlockGuardedYoungPredationCached(predator, prey, currentTick))
                 {
                     __result = false;
                     StoreAcceptablePreyResult(predator, prey, false, usePackHuntHotCache, currentTick);
@@ -833,7 +908,8 @@ namespace ZoologyMod
                     }
                 }
 
-                __result = EvaluateCustomAcceptablePrey(predator, prey, preyCombatPowerAdjusted, photonozoaPairInTheirFaction);
+                bool acceptable = EvaluateCustomAcceptablePrey(predator, prey, preyCombatPowerAdjusted, photonozoaPairInTheirFaction);
+                __result = acceptable;
                 StoreAcceptablePreyResult(predator, prey, __result, usePackHuntHotCache, currentTick);
                 return false;
             }

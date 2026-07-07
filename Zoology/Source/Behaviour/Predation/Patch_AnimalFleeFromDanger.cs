@@ -1116,8 +1116,20 @@ namespace ZoologyMod
                     underMeleeAttack = IsFleeJobThreatMeleeAttackingPawn(pawn, __result)
                         || IsFleeJobThreatMeleeAttackingPawn(pawn, pawn.jobs?.curJob);
                 }
+
                 if (underMeleeAttack)
                 {
+                    bool protectYoungProtectorInMelee = IsProtectYoungThreatMeleeAttackingPawn(meleeAttacker, pawn);
+                    if (!protectYoungProtectorInMelee
+                        && fleeFromProtectYoungEnabled
+                        && TryHandleImmediateProtectYoungThreat(pawn, out Job protectYoungFleeJobWhileInMelee))
+                    {
+                        ClearNoThreatScanCache(pawn);
+                        __result = protectYoungFleeJobWhileInMelee;
+                        StorePawnFleeDecisionCache(pawn, currentTick, __result);
+                        return;
+                    }
+
                     if (__result?.def == JobDefOf.Flee || pawn.jobs?.curJob?.def == JobDefOf.Flee)
                     {
                         __result = null;
@@ -1428,6 +1440,11 @@ namespace ZoologyMod
             Pawn best = null;
             float bestDist = float.MaxValue;
 
+            if (HasProtectYoungProtectorMeleeAttack(pawn, currentTick, entries))
+            {
+                return false;
+            }
+
             for (int i = 0; i < entries.Count; i++)
             {
                 var entry = entries[i];
@@ -1453,7 +1470,7 @@ namespace ZoologyMod
                     continue;
                 }
 
-                if (!CanThreatTargetPawnForFlee(threat, pawn))
+                if (!IsProtectYoungThreatTargetingPawn(threat, pawn))
                 {
                     continue;
                 }
@@ -1470,7 +1487,7 @@ namespace ZoologyMod
                 return false;
             }
 
-            return TryBuildImmediateThreatFleeJob(pawn, best, GetFleeDistanceTargetPredator(), out fleeJob);
+            return TryBuildProtectYoungThreatFleeJob(pawn, best, GetFleeDistanceTargetPredator(), out fleeJob);
         }
 
         private static List<TargetedPredatorEntry> GetTargetedPredatorEntriesForMap(Map map, int currentTick)
@@ -1573,7 +1590,7 @@ namespace ZoologyMod
                     continue;
                 }
 
-                if (!TryGetThreatTargetPawn(protector, out Pawn prey))
+                if (!TryGetProtectYoungAggressorTarget(protector, out Pawn prey))
                 {
                     continue;
                 }
@@ -1682,7 +1699,7 @@ namespace ZoologyMod
                     continue;
                 }
 
-                if (!CanThreatTargetPawnForFlee(protector, pawn))
+                if (!IsProtectPreyThreatTargetingPawn(protector, pawn))
                 {
                     continue;
                 }
@@ -1738,6 +1755,42 @@ namespace ZoologyMod
 
             if (ShouldBlockFleeInMeleeForPawn(pawn)
                 && ZoologyFleeSafetyUtility.IsThreatMeleeAttackingPawn(threat, pawn))
+            {
+                return false;
+            }
+
+            if (!HasReachability(threat, pawn))
+            {
+                return false;
+            }
+
+            int currentTick = Find.TickManager?.TicksGame ?? 0;
+            if (HasFreshFleeJob(pawn, currentTick))
+            {
+                return false;
+            }
+
+            HandlePursuitAllowanceIfNeeded(threat, pawn);
+            fleeJob = FleeUtility.FleeJob(pawn, threat, fleeDistance);
+            return fleeJob != null;
+        }
+
+        private static bool TryBuildProtectYoungThreatFleeJob(Pawn pawn, Pawn threat, int fleeDistance, out Job fleeJob)
+        {
+            fleeJob = null;
+            if (!ZoologyFleeSafetyUtility.CanUseForcedThreatFlee(pawn, ignoreNeverFleeFromEnemies: true))
+            {
+                return false;
+            }
+
+            if (!ZoologyFleeSafetyUtility.IsValidThreatForFlee(threat, pawn)
+                || !IsProtectYoungThreatTargetingPawn(threat, pawn))
+            {
+                return false;
+            }
+
+            if (ShouldBlockFleeInMeleeForPawn(pawn)
+                && IsProtectYoungThreatMeleeAttackingPawn(threat, pawn))
             {
                 return false;
             }
@@ -4351,6 +4404,88 @@ namespace ZoologyMod
             return IsActivePredatorThreat(predator, prey, out bool targetsPreyDirectly) && targetsPreyDirectly;
         }
 
+        private static bool IsProtectYoungThreatTargetingPawn(Pawn threat, Pawn prey)
+        {
+            if (!(ZoologyFleeSafetyUtility.IsValidThreatForFlee(threat, prey)
+                && ProtectYoungUtility.IsProtectYoungJob(threat)
+                && TryGetProtectYoungAggressorTarget(threat, out Pawn targetedPawn)
+                && ReferenceEquals(targetedPawn, prey)))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private static bool IsProtectYoungThreatMeleeAttackingPawn(Pawn threat, Pawn prey)
+        {
+            return IsProtectYoungThreatTargetingPawn(threat, prey)
+                && ZoologyFleeSafetyUtility.IsThreatMeleeAttackingPawn(threat, prey);
+        }
+
+        private static bool HasProtectYoungProtectorMeleeAttack(
+            Pawn pawn,
+            int currentTick,
+            List<TargetedPredatorEntry> entries = null)
+        {
+            if (!ShouldBlockFleeInMeleeForPawn(pawn) || pawn?.Map == null)
+            {
+                return false;
+            }
+
+            entries ??= GetProtectYoungEntriesForMap(pawn.Map, currentTick);
+            if (entries == null || entries.Count == 0)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < entries.Count; i++)
+            {
+                TargetedPredatorEntry entry = entries[i];
+                if (ReferenceEquals(entry.Prey, pawn)
+                    && IsProtectYoungThreatMeleeAttackingPawn(entry.Predator, pawn))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool TryGetProtectYoungAggressorTarget(Pawn protector, out Pawn aggressor)
+        {
+            aggressor = null;
+            Job curJob = protector?.CurJob;
+            if (curJob == null || !ProtectYoungUtility.IsProtectYoungJob(curJob, protector))
+            {
+                return false;
+            }
+
+            try
+            {
+                aggressor = curJob.GetTarget(TargetIndex.A).Thing as Pawn;
+                return aggressor != null && !aggressor.Dead;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private static bool IsProtectPreyThreatTargetingPawn(Pawn threat, Pawn prey)
+        {
+            if (!(ZoologyFleeSafetyUtility.IsValidThreatForFlee(threat, prey)
+                && ProtectPreyState.IsProtectPreyJob(threat)
+                && TryGetThreatTargetPawn(threat, out Pawn targetedPawn)
+                && ReferenceEquals(targetedPawn, prey)))
+            {
+                return false;
+            }
+
+            return prey.RaceProps?.predator != true
+                || AnimalCombatPowerUtility.CanAnimalThreatTriggerTargetedFlee(threat, prey);
+        }
+
         private static bool CanThreatTargetPawnForFlee(Pawn threat, Pawn prey)
         {
             return IsThreatTargetingPawn(threat, prey)
@@ -4442,6 +4577,12 @@ namespace ZoologyMod
                 return false;
             }
 
+            if (ChildcareDefenseUtility.ShouldBlockProtectedYoungPredation(predator, prey))
+            {
+                PredationDecisionCache.StoreAcceptablePrey(predator, prey, false);
+                return false;
+            }
+
             if (PredationDecisionCache.TryGetAcceptablePrey(predator, prey, out bool cachedAcceptable))
             {
                 return cachedAcceptable;
@@ -4449,7 +4590,14 @@ namespace ZoologyMod
 
             try
             {
-                return FoodUtility.IsAcceptablePreyFor(predator, prey);
+                bool acceptable = FoodUtility.IsAcceptablePreyFor(predator, prey);
+                if (acceptable && ChildcareDefenseUtility.ShouldBlockProtectedYoungPredation(predator, prey))
+                {
+                    PredationDecisionCache.StoreAcceptablePrey(predator, prey, false);
+                    return false;
+                }
+
+                return acceptable;
             }
             catch
             {

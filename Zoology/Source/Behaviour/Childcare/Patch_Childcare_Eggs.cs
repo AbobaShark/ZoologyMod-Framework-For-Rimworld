@@ -91,11 +91,16 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(FoodUtility), nameof(FoodUtility.WillEat), new[] { typeof(Pawn), typeof(Thing), typeof(Pawn), typeof(bool), typeof(bool) })]
     internal static class Patch_Childcare_BlockOwnSpeciesEggEating
     {
-        public static bool Prepare() => ChildcareDefenseUtility.IsEggProtectionEnabled;
+        public static bool Prepare() => false;
 
         public static void Postfix(Pawn p, Thing food, Pawn getter, bool careIfNotAcceptableForTitle, bool allowVenerated, ref bool __result)
         {
             if (!__result || !ChildcareDefenseUtility.IsEggProtectionEnabled || p == null || food == null)
+            {
+                return;
+            }
+
+            if (!ChildcareDefenseUtility.CouldBeFertilizedEggFoodSource(food))
             {
                 return;
             }

@@ -1317,6 +1317,14 @@ namespace ZoologyMod
             return false;
         }
 
+        public bool HasAnyActivePairsQuick()
+        {
+            lock (dictLock)
+            {
+                return runtimePredatorToCorpse.Count > 0 || pairsUntil.Count > 0;
+            }
+        }
+
         
 
         private bool AreFactionsEffectivelySame(Pawn a, Pawn b)

@@ -52,7 +52,7 @@ namespace ZoologyMod
                 || ZoologyCacheUtility.HasFleeFromCarrierExtension(pawn.def);
         }
 
-        public static bool CanUseForcedThreatFlee(Pawn pawn)
+        public static bool CanUseForcedThreatFlee(Pawn pawn, bool ignoreNeverFleeFromEnemies = false)
         {
             if (pawn == null)
             {
@@ -70,7 +70,9 @@ namespace ZoologyMod
             }
 
             JobDef currentJobDef = pawn.CurJob?.def;
-            return currentJobDef == null || !currentJobDef.neverFleeFromEnemies;
+            return ignoreNeverFleeFromEnemies
+                || currentJobDef == null
+                || !currentJobDef.neverFleeFromEnemies;
         }
 
         public static bool IsValidThreatForFlee(Pawn threat, Pawn prey)
