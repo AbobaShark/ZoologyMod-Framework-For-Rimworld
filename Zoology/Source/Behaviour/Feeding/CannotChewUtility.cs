@@ -185,6 +185,50 @@ namespace ZoologyMod
             predationBodySizeLimitByPawnId.Clear();
         }
 
+        public static void ForgetPawn(Pawn pawn)
+        {
+            if (pawn == null)
+            {
+                return;
+            }
+
+            if (ReferenceEquals(lastCannotChewPawn, pawn))
+            {
+                lastCannotChewPawn = null;
+                lastCannotChewDef = null;
+                lastCannotChewKindDef = null;
+                lastCannotChew = false;
+            }
+
+            if (ReferenceEquals(lastBodySizeLimitPawn, pawn))
+            {
+                lastBodySizeLimitPawn = null;
+                lastBodySizeLimitDef = null;
+                lastBodySizeLimitKindDef = null;
+                lastBodySizeLimitLifeStageIndex = -1;
+                lastBodySizeLimitBodySize = -1f;
+                lastBodySizeLimit = 0f;
+            }
+
+            int pawnId = pawn.thingIDNumber;
+            if (pawnId <= 0)
+            {
+                return;
+            }
+
+            if (hasCannotChewByPawnId.TryGetValue(pawnId, out CannotChewCacheEntry cachedCannotChew)
+                && ReferenceEquals(cachedCannotChew.Pawn, pawn))
+            {
+                hasCannotChewByPawnId.Remove(pawnId);
+            }
+
+            if (predationBodySizeLimitByPawnId.TryGetValue(pawnId, out BodySizeLimitCacheEntry cachedLimit)
+                && ReferenceEquals(cachedLimit.Pawn, pawn))
+            {
+                predationBodySizeLimitByPawnId.Remove(pawnId);
+            }
+        }
+
         private static void EnsureRuntimeCaches()
         {
             Game currentGame = Current.Game;
