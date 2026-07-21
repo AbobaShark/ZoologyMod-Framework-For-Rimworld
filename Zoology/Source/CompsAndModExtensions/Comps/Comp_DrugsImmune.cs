@@ -34,11 +34,11 @@ namespace ZoologyMod
 
         public override void CompTick()
         {
-            var settings = ZoologyModSettings.Instance;
-            if (settings != null && !settings.EnableDrugsImmunePatch) return;
-
             // Самая дешёвая проверка должна быть первой: не выполнять остальную логику каждый тик.
             if (!parent.IsHashIntervalTick(cleanupInterval)) return;
+
+            var settings = ZoologyModSettings.Instance;
+            if (settings != null && !settings.EnableDrugsImmunePatch) return;
 
             Pawn pawn = parent as Pawn;
             if (pawn == null) return;

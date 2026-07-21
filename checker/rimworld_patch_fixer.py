@@ -207,7 +207,7 @@ class PatchGenerator:
     ODYSSEY_BIOMES = {'Grasslands', 'Glowforest', 'LavaField', 'GlacialPlain', 'Scarlands'}
     ODYSSEY_MAYREQUIRE = 'Ludeon.RimWorld.Odyssey'
 
-    def __init__(self, vanilla_source, ce_source, xml_paths, original_xml_dir=None, original_patches_dir=None, extra_original_xml_paths=None):
+    def __init__(self, vanilla_source, ce_source, xml_paths, original_xml_dir=None, original_patches_dir=None, extra_original_xml_paths=None, preserve_runtime_preconditions=True):
         self.vanilla_df = self._load_table(vanilla_source, sheet_name='Animals', required=True) if vanilla_source else None
         if ce_source:
             ce_sheet = 'Animals CE' if is_excel_source(ce_source) else None
@@ -221,6 +221,7 @@ class PatchGenerator:
         self.original_xml_dir = original_xml_dir or default_original_xml_dir()
         self.original_patches_dir = original_patches_dir or default_original_patches_dir()
         self.extra_original_xml_paths = list(extra_original_xml_paths or [])
+        self.preserve_runtime_preconditions = bool(preserve_runtime_preconditions)
         try:
             os.makedirs(self.original_xml_dir, exist_ok=True)
             os.makedirs(self.original_patches_dir, exist_ok=True)
@@ -269,7 +270,10 @@ class PatchGenerator:
         index = self._get_original_xml_index()
         if not index.enabled:
             return patch_root
-        optimizer = PatchOptimizer(index)
+        optimizer = PatchOptimizer(
+            index,
+            preserve_missing_target_guards=self.preserve_runtime_preconditions,
+        )
         optimized_root = optimizer.optimize(patch_root)
         if optimizer.stats:
             print("OriginalXML optimizer:", dict(sorted(optimizer.stats.items())))
@@ -1575,17 +1579,15 @@ class PatchGenerator:
         """
         То же, что было, но теперь учитываем parent: если parent == "BaseInsect",
         используем EusocialInsectLarva / EusocialInsectJuvenile / EusocialInsectAdult.
-        Параметр inherit_false (bool) — если True, то создаваемый <lifeStageAges> будет иметь
-        атрибут Inherit="False".
+        Полная замена списка всегда требует Inherit="False". Без него
+        RimWorld допишет родительские li при разрешении ParentName.
         """
         attr = '@Name' if is_abstract else 'defName'
         base_xpath = f"/Defs/ThingDef[{attr} = \"{def_name}\"]/race"
 
         # Построим элемент <lifeStageAges> с li-элементами и звуками для Adult (если есть)
         lsa = LET.Element('lifeStageAges')
-        if inherit_false:
-            # задаём точно строку "False", как в оригинале
-            lsa.set('Inherit', 'False')
+        lsa.set('Inherit', 'False')
 
         if stage_template and len(stage_template) == 1:
             tpl = stage_template[0]
@@ -2053,12 +2055,10 @@ class PatchGenerator:
             if rep_row is not None:
                 built = self.build_tools_vanilla(rep_row, is_abstract=True)
                 if built is not None:
-                    # determine if original abstract had Inherit="False" on tools
-                    inherit = self.extract_tools_inherit(original_root, abstract, is_abstract=True)
                     built_copy = copy.deepcopy(built)
-                    if inherit:
-                        # built is a <tools> element - set attribute on it
-                        built_copy.set('Inherit', 'False')
+                    # This is a complete replacement. Without Inherit=False,
+                    # inherited tools would be appended during ParentName merge.
+                    built_copy.set('Inherit', 'False')
                     # add built tools under abstract (always add)
                     add_op = LET.Element("Operation", Class="PatchOperationAdd")
                     LET.SubElement(add_op, "xpath").text = f"/Defs/ThingDef[@Name = \"{abstract}\"]"
@@ -2465,11 +2465,8 @@ class PatchGenerator:
             ops.append(remove_op)
 
             if built is not None:
-                # preserve Inherit="False" from original if present
-                inherit = self.extract_tools_inherit(original_root, def_name, is_abstract=False)
                 built_copy = copy.deepcopy(built)
-                if inherit:
-                    built_copy.set('Inherit', 'False')
+                built_copy.set('Inherit', 'False')
                 # Add built tools under the ThingDef (even if remove did nothing, add will create/replace)
                 add_op = LET.Element("Operation", Class="PatchOperationAdd")
                 LET.SubElement(add_op, "xpath").text = f"/Defs/ThingDef[defName = \"{def_name}\"]"
@@ -3406,7 +3403,8 @@ class PatchGenerator:
         Создаёт PatchOperationConditional:
           - match: заменяет весь узел /race/litterSizeCurve
           - nomatch: добавляет <litterSizeCurve> внутри /race
-        Если inherit_false=True, то добавляем атрибут Inherit="False" на создаваемые элементы.
+        Полная замена кривой всегда использует Inherit="False",
+        чтобы точки родителя не дописывались к новому списку.
         """
         attr = '@Name' if is_abstract else 'defName'
         base_xpath = f"/Defs/ThingDef[{attr} = \"{def_name}\"]/race"
@@ -3422,8 +3420,7 @@ class PatchGenerator:
         LET.SubElement(match, "xpath").text = base_xpath + "/litterSizeCurve"
         val_match = LET.SubElement(match, "value")
         lsc_match = LET.SubElement(val_match, "litterSizeCurve")
-        if inherit_false:
-            lsc_match.set('Inherit', 'False')
+        lsc_match.set('Inherit', 'False')
         pts_match = LET.SubElement(lsc_match, "points")
         for x, y in points:
             LET.SubElement(pts_match, "li").text = f"({x:.4f}, {y})"
@@ -3433,8 +3430,7 @@ class PatchGenerator:
         LET.SubElement(nomatch, "xpath").text = base_xpath
         val_nomatch = LET.SubElement(nomatch, "value")
         lsc_nom = LET.SubElement(val_nomatch, "litterSizeCurve")
-        if inherit_false:
-            lsc_nom.set('Inherit', 'False')
+        lsc_nom.set('Inherit', 'False')
         pts_nom = LET.SubElement(lsc_nom, "points")
         for x, y in points:
             LET.SubElement(pts_nom, "li").text = f"({x:.4f}, {y})"
@@ -3776,11 +3772,8 @@ class PatchGenerator:
                         operations.append(remove_op)
 
                         # add built CE tools under abstract (add to the abstract node)
-                        # preserve Inherit if original abstract had it
-                        inherit = self.extract_tools_inherit(original_root, abstract, is_abstract=True)
                         ce_built_copy = copy.deepcopy(ce_built_tools)
-                        if inherit:
-                            ce_built_copy.set('Inherit', 'False')
+                        ce_built_copy.set('Inherit', 'False')
 
                         add_op = LET.Element("li", Class="PatchOperationAdd")
                         LET.SubElement(add_op, "xpath").text = f"Defs/ThingDef[@Name=\"{abstract}\"]"
@@ -4064,11 +4057,9 @@ class PatchGenerator:
                     LET.SubElement(LET.SubElement(remove_op, "match", Class="PatchOperationRemove"), "xpath").text = f"/Defs/ThingDef[defName=\"{def_name}\"]/tools"
                     operations.append(remove_op)
 
-                    # add built CE tools under this concrete def (preserve Inherit if present)
-                    inherit = self.extract_tools_inherit(original_root, def_name, is_abstract=False)
+                    # Add a complete CE tool list, replacing inherited entries.
                     child_copy = copy.deepcopy(ce_built_tools_child)
-                    if inherit:
-                        child_copy.set('Inherit', 'False')
+                    child_copy.set('Inherit', 'False')
 
                     add_op = LET.Element("li", Class="PatchOperationAdd")
                     LET.SubElement(add_op, "xpath").text = f"Defs/ThingDef[defName=\"{def_name}\"]"
@@ -4152,6 +4143,9 @@ class GeneratorApp(tk.Tk):
             if dropped:
                 print(f"Warning: removed {len(dropped)} missing XML path(s) from config.")
         self.replace_in_place = tk.BooleanVar(value=bool(self.cfg.get('replace_in_place', False)))
+        self.preserve_runtime_preconditions = tk.BooleanVar(
+            value=bool(self.cfg.get('preserve_runtime_preconditions', True))
+        )
         self.table_groups = self._normalize_table_groups(self.cfg.get('table_groups', []))
         self._table_animals_cache = None
         self._table_animals_cache_key = None
@@ -4321,6 +4315,12 @@ class GeneratorApp(tk.Tk):
             variable=self.replace_in_place,
             command=self.on_replace_mode_changed
         ).pack(fill='x', pady=2)
+        ttk.Checkbutton(
+            ctrl,
+            text="Preserve runtime XML preconditions",
+            variable=self.preserve_runtime_preconditions,
+            command=self.on_runtime_preconditions_changed,
+        ).pack(fill='x', pady=2)
         ttk.Separator(ctrl, orient='horizontal').pack(fill='x', pady=6)
         ttk.Button(ctrl, text="Generate/Fix Patches", command=self.run_generation).pack(fill='x', pady=6)
         ttk.Button(ctrl, text="Generate From Original XML", command=self.run_original_xml_generation).pack(fill='x', pady=2)
@@ -4390,6 +4390,10 @@ class GeneratorApp(tk.Tk):
 
     def on_replace_mode_changed(self):
         self.cfg['replace_in_place'] = bool(self.replace_in_place.get())
+        save_config(self.cfg)
+
+    def on_runtime_preconditions_changed(self):
+        self.cfg['preserve_runtime_preconditions'] = bool(self.preserve_runtime_preconditions.get())
         save_config(self.cfg)
 
     def _make_unique_output_path(self, source_xml, used_names):
@@ -4750,7 +4754,12 @@ class GeneratorApp(tk.Tk):
             if not proceed:
                 return
         try:
-            generator = PatchGenerator(v_source, c_source, self.xml_paths)
+            generator = PatchGenerator(
+                v_source,
+                c_source,
+                self.xml_paths,
+                preserve_runtime_preconditions=bool(self.preserve_runtime_preconditions.get()),
+            )
             results = []
             used_names = {}
             for xml in self.xml_paths:
@@ -4793,6 +4802,7 @@ class GeneratorApp(tk.Tk):
                 c_source,
                 [],
                 extra_original_xml_paths=original_xmls,
+                preserve_runtime_preconditions=bool(self.preserve_runtime_preconditions.get()),
             )
             results = []
             used_names = {}
@@ -4869,7 +4879,12 @@ class GeneratorApp(tk.Tk):
                 return
 
         try:
-            generator = PatchGenerator(v_source, c_source, [])
+            generator = PatchGenerator(
+                v_source,
+                c_source,
+                [],
+                preserve_runtime_preconditions=bool(self.preserve_runtime_preconditions.get()),
+            )
             known_defs = set()
             if generator.vanilla_df is not None:
                 for _, row in generator.vanilla_df.iterrows():
@@ -4913,7 +4928,12 @@ class GeneratorApp(tk.Tk):
             messagebox.showerror("Error", "Vanilla table missing or not found (TSV/XLSX).")
             return
         try:
-            generator = PatchGenerator(v_source, self.ce_tsv.get() or None, self.xml_paths)
+            generator = PatchGenerator(
+                v_source,
+                self.ce_tsv.get() or None,
+                self.xml_paths,
+                preserve_runtime_preconditions=bool(self.preserve_runtime_preconditions.get()),
+            )
             created = generator.generate_biome_patch_files(self.report_dir)
             if created:
                 preview = "\n".join([os.path.basename(p) for p in created[:20]])

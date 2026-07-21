@@ -117,35 +117,47 @@ namespace ZoologyMod
 
         public static void NotifyPawnDespawned(Pawn pawn, Map map)
         {
-            if (pawn == null || map == null)
+            if (pawn == null)
             {
                 return;
             }
 
-            if (!CannotChewUtility.HasCannotChew(pawn))
+            try
             {
-                return;
-            }
+                if (map == null)
+                {
+                    return;
+                }
 
-            if (totalCannotChew > 0)
-            {
-                totalCannotChew--;
-            }
+                if (!CannotChewUtility.HasCannotChew(pawn))
+                {
+                    return;
+                }
 
-            int mapId = map.uniqueID;
-            if (!cannotChewCountByMapId.TryGetValue(mapId, out int count))
-            {
-                return;
-            }
+                if (totalCannotChew > 0)
+                {
+                    totalCannotChew--;
+                }
 
-            count--;
-            if (count <= 0)
-            {
-                cannotChewCountByMapId.Remove(mapId);
+                int mapId = map.uniqueID;
+                if (!cannotChewCountByMapId.TryGetValue(mapId, out int count))
+                {
+                    return;
+                }
+
+                count--;
+                if (count <= 0)
+                {
+                    cannotChewCountByMapId.Remove(mapId);
+                }
+                else
+                {
+                    cannotChewCountByMapId[mapId] = count;
+                }
             }
-            else
+            finally
             {
-                cannotChewCountByMapId[mapId] = count;
+                CannotChewUtility.ForgetPawn(pawn);
             }
         }
 

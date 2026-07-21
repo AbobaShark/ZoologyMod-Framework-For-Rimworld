@@ -23,8 +23,9 @@ SCALAR_CONTAINER_TAGS = {"race", "statBases"}
 class PatchOptimizer:
     _TEXT_PREDICATE_RE = re.compile(r"(?:text\(\)|\.)\s*=\s*(['\"])(.*?)\1")
 
-    def __init__(self, original_index):
+    def __init__(self, original_index, preserve_missing_target_guards=True):
         self.index = original_index
+        self.preserve_missing_target_guards = bool(preserve_missing_target_guards)
         self.stats = Counter()
         self._kept_conditional_applier = PatchApplier(record_missing=False)
 
@@ -128,6 +129,18 @@ class PatchOptimizer:
                 self._apply_kept_operation_to_sim(node, sim_root)
                 self._apply_kept_operation_to_sim(node, patched_sim_root)
                 return copy.deepcopy(node)
+
+        # A missing node in the reference XML is not proof that it will still be
+        # missing when RimWorld applies this patch. Earlier mods can add the
+        # field, and resolving the conditional here would turn a guarded Add
+        # into an unconditional Add (or discard a defensive Remove). Keep the
+        # native runtime precondition unless the caller explicitly opts into
+        # closed-world optimization.
+        if not matched and self.preserve_missing_target_guards:
+            self.stats["conditionals_kept_missing_target_guard"] += 1
+            self._apply_kept_operation_to_sim(node, sim_root)
+            self._apply_kept_operation_to_sim(node, patched_sim_root)
+            return copy.deepcopy(node)
 
         branch_name = "match" if matched else "nomatch"
         branch = node.find(branch_name)
