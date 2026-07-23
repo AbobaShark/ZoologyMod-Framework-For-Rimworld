@@ -72,6 +72,7 @@ namespace ZoologyMod
     public static class PetPlayUtility
     {
         public const float MaximumPetDistance = 30f;
+        public const float BondChanceOnPlayStart = 0.007f;
 
         private const float MinimumConsciousness = 0.6f;
         private const float MinimumMoving = 0.7f;
@@ -156,6 +157,14 @@ namespace ZoologyMod
             return Enabled
                 && CanPawnPlay(pawn, true, outdoors)
                 && CanAnimalPlay(pawn, animal, canine, true);
+        }
+
+        public static bool TryDevelopBondOnPlayStart(Pawn colonist, Pawn animal)
+        {
+            return colonist?.RaceProps?.Humanlike == true
+                && colonist.story != null
+                && animal != null
+                && RelationsUtility.TryDevelopBondRelation(colonist, animal, BondChanceOnPlayStart);
         }
 
         public static bool TryFindOutdoorWalkingPath(Pawn pawn, Pawn animal, out List<LocalTargetInfo> path)

@@ -45,6 +45,8 @@ namespace ZoologyMod
         public const bool DefaultEnableAnimalDraftControl = true;
         public const bool DefaultEnableOverrideCEPenetration = false;
         public const bool DefaultEnablePetPlay = true;
+        public const bool DefaultEnablePetBonding = true;
+        public const bool DefaultEnableAnimalBonding = false;
 
         public const int DefaultPredatorSearchRadius = 18;
         public const int DefaultNonHostilePredatorSearchRadius = 12;

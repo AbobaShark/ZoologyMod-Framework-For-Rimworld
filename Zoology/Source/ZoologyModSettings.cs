@@ -48,6 +48,8 @@ namespace ZoologyMod
         public bool EnablePredatorDefendPreyFromHumansAndMechanoids = ModConstants.DefaultEnablePredatorDefendPreyFromHumansAndMechanoids;
         public bool EnableScavengering = ModConstants.DefaultEnableScavengering;
         public bool EnablePetPlay = ModConstants.DefaultEnablePetPlay;
+        public bool EnablePetBonding = ModConstants.DefaultEnablePetBonding;
+        public bool EnableAnimalBonding = ModConstants.DefaultEnableAnimalBonding;
         public bool DisableAllRuntimePatches = ModConstants.DefaultDisableAllRuntimePatches;
 
         public int PredatorSearchRadius = ModConstants.DefaultPredatorSearchRadius;
@@ -385,8 +387,8 @@ namespace ZoologyMod
                 case SettingsPage.Combat:
                     return 580f;
                 case SettingsPage.OtherBehavior:
-                    return 1740f
-                        + (EnablePetPlay ? 96f : 0f)
+                    return 1860f
+                        + ((EnablePetPlay || EnablePetBonding) ? 96f : 0f)
                         + (EnableCustomFleeDanger ? 170f : 0f)
                         + (EnableIgnoreSmallPetsByRaiders ? 200f : 0f)
                         + (AnimalsFreeFromHumans ? 130f : 0f)
@@ -623,7 +625,35 @@ namespace ZoologyMod
                 ref EnablePetPlay,
                 "Zoology_EnablePetPlay_Desc".Translate());
 
-            if (EnablePetPlay)
+            list.GapLine(12f);
+            if (list.RadioButton(
+                "Zoology_ExpandedBondingNone_Label".Translate(),
+                !EnablePetBonding && !EnableAnimalBonding,
+                tooltip: "Zoology_ExpandedBondingNone_Desc".Translate()))
+            {
+                EnablePetBonding = false;
+                EnableAnimalBonding = false;
+            }
+
+            if (list.RadioButton(
+                "Zoology_EnablePetBonding_Label".Translate(),
+                EnablePetBonding,
+                tooltip: "Zoology_EnablePetBonding_Desc".Translate()))
+            {
+                EnablePetBonding = true;
+                EnableAnimalBonding = false;
+            }
+
+            if (list.RadioButton(
+                "Zoology_EnableAnimalBonding_Label".Translate(),
+                EnableAnimalBonding,
+                tooltip: "Zoology_EnableAnimalBonding_Desc".Translate()))
+            {
+                EnablePetBonding = false;
+                EnableAnimalBonding = true;
+            }
+
+            if (EnablePetPlay || EnablePetBonding)
             {
                 list.GapLine(6f);
                 list.Label(string.Format(
@@ -954,6 +984,8 @@ namespace ZoologyMod
             EnablePredatorDefendCorpse = ModConstants.DefaultEnablePredatorDefendCorpse;
             EnablePredatorDefendPreyFromHumansAndMechanoids = ModConstants.DefaultEnablePredatorDefendPreyFromHumansAndMechanoids;
             EnablePetPlay = ModConstants.DefaultEnablePetPlay;
+            EnablePetBonding = ModConstants.DefaultEnablePetBonding;
+            EnableAnimalBonding = ModConstants.DefaultEnableAnimalBonding;
             _petPlayMaxWildness = ModConstants.DefaultPetPlayMaxWildness;
             PredatorSearchRadius = ModConstants.DefaultPredatorSearchRadius;
             NonHostilePredatorSearchRadius = ModConstants.DefaultNonHostilePredatorSearchRadius;
@@ -1042,6 +1074,9 @@ namespace ZoologyMod
             Scribe_Values.Look(ref EnablePredatorDefendCorpse, "EnablePredatorDefendCorpse", ModConstants.DefaultEnablePredatorDefendCorpse);
             Scribe_Values.Look(ref EnablePredatorDefendPreyFromHumansAndMechanoids, "EnablePredatorDefendPreyFromHumansAndMechanoids", ModConstants.DefaultEnablePredatorDefendPreyFromHumansAndMechanoids);
             Scribe_Values.Look(ref EnablePetPlay, "EnablePetPlay", ModConstants.DefaultEnablePetPlay);
+            Scribe_Values.Look(ref EnablePetBonding, "EnablePetBonding", ModConstants.DefaultEnablePetBonding);
+            Scribe_Values.Look(ref EnableAnimalBonding, "EnableAnimalBonding", ModConstants.DefaultEnableAnimalBonding);
+            NormalizeExpandedBondingMode();
             Scribe_Values.Look(ref _petPlayMaxWildness, "PetPlayMaxWildness", ModConstants.DefaultPetPlayMaxWildness);
             Scribe_Values.Look(ref PredatorSearchRadius, "PredatorSearchRadius", ModConstants.DefaultPredatorSearchRadius);
             Scribe_Values.Look(ref NonHostilePredatorSearchRadius, "NonHostilePredatorSearchRadius", ModConstants.DefaultNonHostilePredatorSearchRadius);
@@ -1139,6 +1174,8 @@ namespace ZoologyMod
                 hash = hash * 31 + (EnableAnimalDraftControl ? 1 : 0);
                 hash = hash * 31 + (EnableOverrideCEPenetration ? 1 : 0);
                 hash = hash * 31 + (EnablePetPlay ? 1 : 0);
+                hash = hash * 31 + (EnablePetBonding ? 1 : 0);
+                hash = hash * 31 + (EnableAnimalBonding ? 1 : 0);
                 return hash;
             }
         }
@@ -2164,7 +2201,18 @@ namespace ZoologyMod
                 && !EnableScavengering
                 && !EnableAnimalDamageReduction
                 && !EnableAnimalDraftControl
-                && !EnableOverrideCEPenetration;
+                && !EnableOverrideCEPenetration
+                && !EnablePetBonding
+                && !EnableAnimalBonding;
+        }
+
+        private void NormalizeExpandedBondingMode()
+        {
+            if (EnablePetBonding && EnableAnimalBonding)
+            {
+                // The broader mode subsumes the pet-only mode.
+                EnablePetBonding = false;
+            }
         }
     }
 }
