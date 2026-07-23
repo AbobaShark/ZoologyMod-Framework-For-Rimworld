@@ -12,6 +12,7 @@ namespace ZoologyMod
 
         private int interactivePetJobId = -1;
         private int nextFullValidationTick;
+        private bool bondAttemptMade;
 
         protected Pawn Pet => job?.GetTarget(TargetIndex.A).Pawn;
 
@@ -24,6 +25,7 @@ namespace ZoologyMod
             base.ExposeData();
             Scribe_Values.Look(ref interactivePetJobId, "interactivePetJobId", -1);
             Scribe_Values.Look(ref nextFullValidationTick, "nextFullValidationTick", 0);
+            Scribe_Values.Look(ref bondAttemptMade, "bondAttemptMade", false);
         }
 
         protected void RegisterPetCleanup()
@@ -130,6 +132,24 @@ namespace ZoologyMod
                 defaultDuration = 90
             };
             return MakeRecreational(toil);
+        }
+
+        protected Toil TryDevelopBondAtPlayStart()
+        {
+            return new Toil
+            {
+                initAction = delegate
+                {
+                    if (bondAttemptMade)
+                    {
+                        return;
+                    }
+
+                    bondAttemptMade = true;
+                    PetPlayUtility.TryDevelopBondOnPlayStart(pawn, Pet);
+                },
+                defaultCompleteMode = ToilCompleteMode.Instant
+            };
         }
 
         protected Toil HoldPosition(int ticks)
@@ -318,6 +338,7 @@ namespace ZoologyMod
 
             yield return StartPetJob(ZoologyPetPlayDefOf.Zoology_PetWait, LocomotionUrgency.None);
             yield return GoToPet(LocomotionUrgency.Jog);
+            yield return TryDevelopBondAtPlayStart();
             yield return TalkToPet();
             yield return StartPetJob(JobDefOf.Follow, LocomotionUrgency.Walk);
 
@@ -339,6 +360,7 @@ namespace ZoologyMod
 
             yield return StartPetJob(ZoologyPetPlayDefOf.Zoology_PetWait, LocomotionUrgency.None);
             yield return GoToPet(LocomotionUrgency.Jog);
+            yield return TryDevelopBondAtPlayStart();
             yield return TalkToPet();
 
             Toil follow = StartPetJob(JobDefOf.Follow, LocomotionUrgency.Walk);
@@ -378,6 +400,7 @@ namespace ZoologyMod
 
             yield return StartPetJob(ZoologyPetPlayDefOf.Zoology_PetWait, LocomotionUrgency.None);
             yield return GoToPet(LocomotionUrgency.Jog);
+            yield return TryDevelopBondAtPlayStart();
             yield return TalkToPet();
 
             Toil chooseToyCell = new Toil
