@@ -302,6 +302,20 @@ def is_no_like(value) -> bool:
     s = str(value).strip().lower()
     return s in ("", "no", "none")
 
+def clean_ce_body_shape(value) -> Optional[str]:
+    """Return a usable CE bodyShape value, or None for an empty spreadsheet cell."""
+    if value is None:
+        return None
+    try:
+        if pd.isna(value):
+            return None
+    except (TypeError, ValueError):
+        pass
+    value = str(value).strip()
+    if value.lower() in ("", "no", "none", "nan"):
+        return None
+    return value
+
 
 def is_truthy(value) -> bool:
     if value is None:
@@ -2176,24 +2190,17 @@ def _remove_ce_durability_on_thing(thing: LET._Element):
 
 def _upsert_ce_bodyshape_on_thing(thing: LET._Element, body_shape: str):
     modext = _ensure_direct_child(thing, "modExtensions")
-    ext = None
-    for li in modext.findall("./li"):
-        if li.get("Class", "") == "CombatExtended.RacePropertiesExtensionCE":
-            ext = li
-            break
-    if ext is None:
-        ext = LET.SubElement(modext, "li")
-        ext.set("Class", "CombatExtended.RacePropertiesExtensionCE")
-    _set_direct_text(ext, "bodyShape", body_shape)
-
-
-def _remove_ce_bodyshape_on_thing(thing: LET._Element):
-    modext = _find_direct_child(thing, "modExtensions")
-    if modext is None:
-        return
-    for li in modext.findall("./li"):
-        if li.get("Class", "") == "CombatExtended.RacePropertiesExtensionCE":
-            _remove_from_container(li, "bodyShape")
+    extensions = [
+        li
+        for li in modext.findall("./li")
+        if li.get("Class", "") == "CombatExtended.RacePropertiesExtensionCE"
+    ]
+    if not extensions:
+        extension = LET.SubElement(modext, "li")
+        extension.set("Class", "CombatExtended.RacePropertiesExtensionCE")
+        extensions.append(extension)
+    for extension in extensions:
+        _set_direct_text(extension, "bodyShape", body_shape)
 
 
 def update_ce_on_thing_inplace(
@@ -2230,16 +2237,21 @@ def update_ce_on_thing_inplace(
     elif not is_no_like(child_dur):
         _upsert_ce_durability_on_thing(thing, str(child_dur).strip())
 
-    child_body = ce_row.get("Body shape")
-    parent_body = ce_parent_common.get("Body shape") if consider_parent_rules else None
-    if parent_thing is not None and not is_no_like(parent_body):
-        _upsert_ce_bodyshape_on_thing(parent_thing, str(parent_body).strip())
-        if not is_no_like(child_body) and norm(child_body) != norm(parent_body):
-            _upsert_ce_bodyshape_on_thing(thing, str(child_body).strip())
-        else:
-            _remove_ce_bodyshape_on_thing(thing)
-    elif not is_no_like(child_body):
-        _upsert_ce_bodyshape_on_thing(thing, str(child_body).strip())
+    child_body = clean_ce_body_shape(ce_row.get("Body shape"))
+    parent_body = clean_ce_body_shape(
+        ce_parent_common.get("Body shape") if consider_parent_rules else None
+    )
+    if child_body is None:
+        def_name_node = _find_direct_child(thing, "defName")
+        def_name = (
+            def_name_node.text.strip()
+            if def_name_node is not None and def_name_node.text
+            else thing.get("Name", "<unknown>")
+        )
+        raise ValueError(f"Combat Extended Body shape is required for {def_name}")
+    if parent_thing is not None and parent_body is not None:
+        _upsert_ce_bodyshape_on_thing(parent_thing, parent_body)
+    _upsert_ce_bodyshape_on_thing(thing, child_body)
 
 
 def strip_ce_from_base_thingdef(thing: LET._Element):
@@ -2686,11 +2698,25 @@ def compute_ce_parent_common(animals_df: pd.DataFrame, ce_df: Optional[pd.DataFr
         for child_def in child_defs:
             ce_row = ce_rows_by_def.get(child_def)
             v = ce_row.get(key) if ce_row is not None else ""
-            vals.append(norm(v))
-            if not is_no_like(v):
-                raws.append(str(v).strip())
+            if key == "Body shape":
+                cleaned = clean_ce_body_shape(v)
+                vals.append(norm(cleaned) if cleaned is not None else "")
+                if cleaned is not None:
+                    raws.append(cleaned)
+            else:
+                vals.append(norm(v))
+                if not is_no_like(v):
+                    raws.append(str(v).strip())
         vals_non_empty = [v for v in vals if v != ""]
-        if vals_non_empty and all(v == vals_non_empty[0] for v in vals_non_empty) and raws:
+        all_required_values_present = (
+            key != "Body shape" or len(vals_non_empty) == len(child_defs)
+        )
+        if (
+            vals_non_empty
+            and all_required_values_present
+            and all(v == vals_non_empty[0] for v in vals_non_empty)
+            and raws
+        ):
             out[key] = raws[0]
     return out
 
@@ -2737,19 +2763,26 @@ def _ce_remove_durability_comp(target_xpath: str) -> LET._Element:
 def _ce_set_body_shape(target_xpath: str, body_shape: str) -> LET._Element:
     op = LET.Element("Operation", Class="PatchOperationConditional")
     ext_xpath = f"{target_xpath}/modExtensions/li[@Class=\"CombatExtended.RacePropertiesExtensionCE\"]"
+    body_xpath = ext_xpath + "/bodyShape"
     LET.SubElement(op, "xpath").text = ext_xpath
     match_seq = LET.SubElement(op, "match", Class="PatchOperationSequence")
     ops = LET.SubElement(match_seq, "operations")
 
+    # Replace every existing bodyShape.
     inner = LET.SubElement(ops, "li", Class="PatchOperationConditional")
-    LET.SubElement(inner, "xpath").text = ext_xpath + "/bodyShape"
+    LET.SubElement(inner, "xpath").text = body_xpath
     im = LET.SubElement(inner, "match", Class="PatchOperationReplace")
-    LET.SubElement(im, "xpath").text = ext_xpath + "/bodyShape"
+    LET.SubElement(im, "xpath").text = body_xpath
     imv = LET.SubElement(im, "value")
     LET.SubElement(imv, "bodyShape").text = str(body_shape).strip()
-    inm = LET.SubElement(inner, "nomatch", Class="PatchOperationAdd")
-    LET.SubElement(inm, "xpath").text = ext_xpath
-    inv = LET.SubElement(inm, "value")
+
+    # Then fill every extension that did not have bodyShape.
+    missing_body_xpath = ext_xpath + "[not(bodyShape)]"
+    add_missing = LET.SubElement(ops, "li", Class="PatchOperationConditional")
+    LET.SubElement(add_missing, "xpath").text = missing_body_xpath
+    add_missing_match = LET.SubElement(add_missing, "match", Class="PatchOperationAdd")
+    LET.SubElement(add_missing_match, "xpath").text = missing_body_xpath
+    inv = LET.SubElement(add_missing_match, "value")
     LET.SubElement(inv, "bodyShape").text = str(body_shape).strip()
 
     nm = LET.SubElement(op, "nomatch", Class="PatchOperationAddModExtension")
@@ -2757,15 +2790,6 @@ def _ce_set_body_shape(target_xpath: str, body_shape: str) -> LET._Element:
     nval = LET.SubElement(nm, "value")
     li = LET.SubElement(nval, "li", Class="CombatExtended.RacePropertiesExtensionCE")
     LET.SubElement(li, "bodyShape").text = str(body_shape).strip()
-    return op
-
-
-def _ce_remove_body_shape(target_xpath: str) -> LET._Element:
-    op = LET.Element("Operation", Class="PatchOperationConditional")
-    body_xpath = f"{target_xpath}/modExtensions/li[@Class=\"CombatExtended.RacePropertiesExtensionCE\"]/bodyShape"
-    LET.SubElement(op, "xpath").text = body_xpath
-    match = LET.SubElement(op, "match", Class="PatchOperationRemove")
-    LET.SubElement(match, "xpath").text = body_xpath
     return op
 
 
@@ -2806,15 +2830,18 @@ def build_ce_patch(
         patch.append(_ce_ensure_comps(child_target))
         patch.append(_ce_set_durability(child_target, str(child_dur).strip()))
 
-    child_body_shape = ce_row.get("Body shape")
-    parent_body_shape = ce_parent_common.get("Body shape") if use_parent else None
-    if not is_no_like(parent_body_shape):
-        patch.append(_ce_set_body_shape(parent_target, str(parent_body_shape).strip()))
-        patch.append(_ce_remove_body_shape(child_target))
-        if not is_no_like(child_body_shape) and norm(child_body_shape) != norm(parent_body_shape):
-            patch.append(_ce_set_body_shape(child_target, str(child_body_shape).strip()))
-    elif not is_no_like(child_body_shape):
-        patch.append(_ce_set_body_shape(child_target, str(child_body_shape).strip()))
+    child_body_shape = clean_ce_body_shape(ce_row.get("Body shape"))
+    parent_body_shape = clean_ce_body_shape(
+        ce_parent_common.get("Body shape") if use_parent else None
+    )
+    if child_body_shape is None:
+        raise ValueError(f"Combat Extended Body shape is required for {def_name}")
+    if parent_body_shape is not None:
+        patch.append(_ce_set_body_shape(parent_target, parent_body_shape))
+    # Never remove bodyShape from an existing RacePropertiesExtensionCE: CE melee
+    # damage dereferences it without a null check. Concrete defs get an explicit
+    # value even when their abstract parent has the same value.
+    patch.append(_ce_set_body_shape(child_target, child_body_shape))
 
     ce_tools = build_tools_ce(ce_row, vanilla_row=vanilla_row)
     if ce_tools is not None:
