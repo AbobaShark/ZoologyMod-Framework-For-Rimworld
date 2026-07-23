@@ -2925,12 +2925,6 @@
           </match>
         </li>
         <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="Swan"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
-          <match Class="PatchOperationRemove">
-            <xpath>Defs/ThingDef[defName="Swan"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
-          </match>
-        </li>
-        <li Class="PatchOperationConditional">
           <xpath>Defs/ThingDef[defName="Swan"]/statBases/MeleeDodgeChance</xpath>
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Swan"]/statBases/MeleeDodgeChance</xpath>
@@ -3006,6 +3000,39 @@
           </nomatch>
         </li>
         <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="Swan"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="Swan"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
+                <match Class="PatchOperationReplace">
+                  <xpath>Defs/ThingDef[defName="Swan"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
+                  <value>
+                    <bodyShape>Birdlike</bodyShape>
+                  </value>
+                </match>
+              </li>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="Swan"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"][not(bodyShape)]</xpath>
+                <match Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[defName="Swan"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"][not(bodyShape)]</xpath>
+                  <value>
+                    <bodyShape>Birdlike</bodyShape>
+                  </value>
+                </match>
+              </li>
+            </operations>
+          </match>
+          <nomatch Class="PatchOperationAddModExtension">
+            <xpath>Defs/ThingDef[defName="Swan"]</xpath>
+            <value>
+              <li Class="CombatExtended.RacePropertiesExtensionCE">
+                <bodyShape>Birdlike</bodyShape>
+              </li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName="Swan"]/tools</xpath>
           <match Class="PatchOperationRemove">
             <xpath>/Defs/ThingDef[defName="Swan"]/tools</xpath>
@@ -3058,12 +3085,6 @@
           <xpath>Defs/ThingDef[defName="Heron"]/statBases/ArmorRating_Sharp</xpath>
           <match Class="PatchOperationRemove">
             <xpath>Defs/ThingDef[defName="Heron"]/statBases/ArmorRating_Sharp</xpath>
-          </match>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="Heron"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
-          <match Class="PatchOperationRemove">
-            <xpath>Defs/ThingDef[defName="Heron"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
           </match>
         </li>
         <li Class="PatchOperationConditional">
@@ -3142,6 +3163,39 @@
           </nomatch>
         </li>
         <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="Heron"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="Heron"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
+                <match Class="PatchOperationReplace">
+                  <xpath>Defs/ThingDef[defName="Heron"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
+                  <value>
+                    <bodyShape>Birdlike</bodyShape>
+                  </value>
+                </match>
+              </li>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="Heron"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"][not(bodyShape)]</xpath>
+                <match Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[defName="Heron"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"][not(bodyShape)]</xpath>
+                  <value>
+                    <bodyShape>Birdlike</bodyShape>
+                  </value>
+                </match>
+              </li>
+            </operations>
+          </match>
+          <nomatch Class="PatchOperationAddModExtension">
+            <xpath>Defs/ThingDef[defName="Heron"]</xpath>
+            <value>
+              <li Class="CombatExtended.RacePropertiesExtensionCE">
+                <bodyShape>Birdlike</bodyShape>
+              </li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName="Heron"]/tools</xpath>
           <match Class="PatchOperationRemove">
             <xpath>/Defs/ThingDef[defName="Heron"]/tools</xpath>
@@ -3194,12 +3248,6 @@
           <xpath>Defs/ThingDef[defName="Flamingo"]/statBases/ArmorRating_Sharp</xpath>
           <match Class="PatchOperationRemove">
             <xpath>Defs/ThingDef[defName="Flamingo"]/statBases/ArmorRating_Sharp</xpath>
-          </match>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="Flamingo"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
-          <match Class="PatchOperationRemove">
-            <xpath>Defs/ThingDef[defName="Flamingo"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
           </match>
         </li>
         <li Class="PatchOperationConditional">
@@ -3278,6 +3326,39 @@
           </nomatch>
         </li>
         <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="Flamingo"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="Flamingo"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
+                <match Class="PatchOperationReplace">
+                  <xpath>Defs/ThingDef[defName="Flamingo"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
+                  <value>
+                    <bodyShape>Birdlike</bodyShape>
+                  </value>
+                </match>
+              </li>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="Flamingo"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"][not(bodyShape)]</xpath>
+                <match Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[defName="Flamingo"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"][not(bodyShape)]</xpath>
+                  <value>
+                    <bodyShape>Birdlike</bodyShape>
+                  </value>
+                </match>
+              </li>
+            </operations>
+          </match>
+          <nomatch Class="PatchOperationAddModExtension">
+            <xpath>Defs/ThingDef[defName="Flamingo"]</xpath>
+            <value>
+              <li Class="CombatExtended.RacePropertiesExtensionCE">
+                <bodyShape>Birdlike</bodyShape>
+              </li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName="Flamingo"]/tools</xpath>
           <match Class="PatchOperationRemove">
             <xpath>/Defs/ThingDef[defName="Flamingo"]/tools</xpath>
@@ -3330,12 +3411,6 @@
           <xpath>Defs/ThingDef[defName="Penguin"]/statBases/ArmorRating_Sharp</xpath>
           <match Class="PatchOperationRemove">
             <xpath>Defs/ThingDef[defName="Penguin"]/statBases/ArmorRating_Sharp</xpath>
-          </match>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="Penguin"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
-          <match Class="PatchOperationRemove">
-            <xpath>Defs/ThingDef[defName="Penguin"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
           </match>
         </li>
         <li Class="PatchOperationConditional">
@@ -3414,6 +3489,39 @@
           </nomatch>
         </li>
         <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="Penguin"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="Penguin"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
+                <match Class="PatchOperationReplace">
+                  <xpath>Defs/ThingDef[defName="Penguin"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
+                  <value>
+                    <bodyShape>Birdlike</bodyShape>
+                  </value>
+                </match>
+              </li>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="Penguin"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"][not(bodyShape)]</xpath>
+                <match Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[defName="Penguin"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"][not(bodyShape)]</xpath>
+                  <value>
+                    <bodyShape>Birdlike</bodyShape>
+                  </value>
+                </match>
+              </li>
+            </operations>
+          </match>
+          <nomatch Class="PatchOperationAddModExtension">
+            <xpath>Defs/ThingDef[defName="Penguin"]</xpath>
+            <value>
+              <li Class="CombatExtended.RacePropertiesExtensionCE">
+                <bodyShape>Birdlike</bodyShape>
+              </li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName="Penguin"]/tools</xpath>
           <match Class="PatchOperationRemove">
             <xpath>/Defs/ThingDef[defName="Penguin"]/tools</xpath>
@@ -3466,12 +3574,6 @@
           <xpath>Defs/ThingDef[defName="Peacock"]/statBases/ArmorRating_Sharp</xpath>
           <match Class="PatchOperationRemove">
             <xpath>Defs/ThingDef[defName="Peacock"]/statBases/ArmorRating_Sharp</xpath>
-          </match>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="Peacock"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
-          <match Class="PatchOperationRemove">
-            <xpath>Defs/ThingDef[defName="Peacock"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
           </match>
         </li>
         <li Class="PatchOperationConditional">
@@ -3545,6 +3647,39 @@
                 <RegenInterval>600</RegenInterval>
                 <RegenValue>5</RegenValue>
                 <MinArmorPct>0.5</MinArmorPct>
+              </li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="Peacock"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="Peacock"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
+                <match Class="PatchOperationReplace">
+                  <xpath>Defs/ThingDef[defName="Peacock"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
+                  <value>
+                    <bodyShape>Birdlike</bodyShape>
+                  </value>
+                </match>
+              </li>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="Peacock"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"][not(bodyShape)]</xpath>
+                <match Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[defName="Peacock"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"][not(bodyShape)]</xpath>
+                  <value>
+                    <bodyShape>Birdlike</bodyShape>
+                  </value>
+                </match>
+              </li>
+            </operations>
+          </match>
+          <nomatch Class="PatchOperationAddModExtension">
+            <xpath>Defs/ThingDef[defName="Peacock"]</xpath>
+            <value>
+              <li Class="CombatExtended.RacePropertiesExtensionCE">
+                <bodyShape>Birdlike</bodyShape>
               </li>
             </value>
           </nomatch>
@@ -3629,12 +3764,6 @@
           </match>
         </li>
         <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="Vulture"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
-          <match Class="PatchOperationRemove">
-            <xpath>Defs/ThingDef[defName="Vulture"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
-          </match>
-        </li>
-        <li Class="PatchOperationConditional">
           <xpath>Defs/ThingDef[defName="Vulture"]/statBases/MeleeDodgeChance</xpath>
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Vulture"]/statBases/MeleeDodgeChance</xpath>
@@ -3705,6 +3834,39 @@
                 <RegenInterval>600</RegenInterval>
                 <RegenValue>5</RegenValue>
                 <MinArmorPct>0.5</MinArmorPct>
+              </li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="Vulture"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="Vulture"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
+                <match Class="PatchOperationReplace">
+                  <xpath>Defs/ThingDef[defName="Vulture"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
+                  <value>
+                    <bodyShape>Birdlike</bodyShape>
+                  </value>
+                </match>
+              </li>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="Vulture"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"][not(bodyShape)]</xpath>
+                <match Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[defName="Vulture"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"][not(bodyShape)]</xpath>
+                  <value>
+                    <bodyShape>Birdlike</bodyShape>
+                  </value>
+                </match>
+              </li>
+            </operations>
+          </match>
+          <nomatch Class="PatchOperationAddModExtension">
+            <xpath>Defs/ThingDef[defName="Vulture"]</xpath>
+            <value>
+              <li Class="CombatExtended.RacePropertiesExtensionCE">
+                <bodyShape>Birdlike</bodyShape>
               </li>
             </value>
           </nomatch>

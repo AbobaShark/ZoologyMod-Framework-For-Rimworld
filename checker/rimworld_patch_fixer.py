@@ -29,6 +29,20 @@ def norm(s):
         return ''
     return re.sub(r'\s+', ' ', str(s).strip()).lower()
 
+def clean_ce_body_shape(value):
+    """Return a usable CE bodyShape value, or None for an empty spreadsheet cell."""
+    if value is None:
+        return None
+    try:
+        if pd.isna(value):
+            return None
+    except (TypeError, ValueError):
+        pass
+    value = str(value).strip()
+    if value.lower() in ('', 'no', 'none', 'nan'):
+        return None
+    return value
+
 def ensure_dir(p):
     d = os.path.dirname(p)
     if d:
@@ -3563,6 +3577,20 @@ class PatchGenerator:
             ce_def = m.group(1) if m else xml_name
             ce_rows_all[ce_def] = row
 
+        # A RacePropertiesExtensionCE without bodyShape crashes current CE melee code.
+        # Refuse to generate a partial CE patch instead of silently creating null data.
+        missing_body_shapes = []
+        for def_name in def_to_row:
+            ce_row = ce_rows_all.get(def_name)
+            body_shape = clean_ce_body_shape(ce_row.get('Body shape') if ce_row is not None else None)
+            if body_shape is None:
+                missing_body_shapes.append(def_name)
+        if missing_body_shapes:
+            raise ValueError(
+                "Combat Extended Body shape is required for every generated animal: "
+                + ", ".join(sorted(missing_body_shapes))
+            )
+
         # Build vanilla map for tool signatures (use all vanilla rows)
         vanilla_rows_all = {}
         if self.vanilla_df is not None:
@@ -3639,26 +3667,19 @@ class PatchGenerator:
                     
             # Body shape (Combat Extended specific extension value)
             # read from CE TSV rows (ce_rows_all)
-            vals = []
+            body_shapes = []
             for c in children:
                 r = ce_rows_all.get(c)
-                if r is None:
-                    vals.append('')
-                else:
-                    # get value if present
-                    vals.append(norm(r.get('Body shape', '') if 'Body shape' in r.index else ''))
-            vals_non_empty = [v for v in vals if v != '']
-            if len(vals_non_empty) > 0:
-                if all(v == vals_non_empty[0] for v in vals_non_empty):
-                    # take original (non-normalized) value from first child that has it
-                    first_val = None
-                    for c in children:
-                        r = ce_rows_all.get(c)
-                        if r is not None and r.get('Body shape') is not None and str(r.get('Body shape')).strip() != '':
-                            first_val = str(r.get('Body shape')).strip()
-                            break
-                    if first_val is not None:
-                        common_values['Body shape'] = first_val
+                body_shapes.append(
+                    clean_ce_body_shape(r.get('Body shape') if r is not None else None)
+                )
+            if any(value is not None for value in body_shapes):
+                normalized_shapes = [norm(value) for value in body_shapes if value is not None]
+                if (
+                    len(normalized_shapes) == len(children)
+                    and all(value == normalized_shapes[0] for value in normalized_shapes)
+                ):
+                    common_values['Body shape'] = body_shapes[0]
                 else:
                     differing_cols.append('Body shape')
 
@@ -3689,9 +3710,6 @@ class PatchGenerator:
         child_stat_removals = defaultdict(set)
         child_tools_remove = set()
         child_comp_remove = set()
-        # CE-specific: if parent owns Body shape, children must remove their CE bodyShape entry
-        child_bodyshape_remove = set()
-
         # build CE operation block
         ce_op = LET.Element("Operation", Class="PatchOperationFindMod")
         mods = LET.SubElement(ce_op, "mods")
@@ -3725,11 +3743,6 @@ class PatchGenerator:
                     for child in info.get('children', []):
                         if child in present_defs:
                             child_comp_remove.add(child)
-                # Body shape: if parent covers Body shape -> children must remove their CE bodyShape entry
-                if 'Body shape' in common_values:
-                    for child in info.get('children', []):
-                        if child in present_defs:
-                            child_bodyshape_remove.add(child)
                 # Tools: if tools common -> children must remove their own tools (regardless of emit_parent)
                 if tool_signature is not None:
                     for child in info.get('children', []):
@@ -3876,19 +3889,25 @@ class PatchGenerator:
                         match_seq = LET.SubElement(parent_body_li, "match", Class="PatchOperationSequence")
                         ops_node = LET.SubElement(match_seq, "operations")
 
-                        inner_li = LET.SubElement(ops_node, "li", Class="PatchOperationConditional")
-                        LET.SubElement(inner_li, "xpath").text = f"Defs/ThingDef[@Name=\"{abstract}\"]/modExtensions/li[@Class=\"CombatExtended.RacePropertiesExtensionCE\"]/bodyShape"
+                        parent_extension_xpath = f"Defs/ThingDef[@Name=\"{abstract}\"]/modExtensions/li[@Class=\"CombatExtended.RacePropertiesExtensionCE\"]"
+                        parent_body_xpath = f"{parent_extension_xpath}/bodyShape"
 
-                        # match replace
+                        # Replace every existing bodyShape.
+                        inner_li = LET.SubElement(ops_node, "li", Class="PatchOperationConditional")
+                        LET.SubElement(inner_li, "xpath").text = parent_body_xpath
+
                         match_rep = LET.SubElement(inner_li, "match", Class="PatchOperationReplace")
-                        LET.SubElement(match_rep, "xpath").text = f"Defs/ThingDef[@Name=\"{abstract}\"]/modExtensions/li[@Class=\"CombatExtended.RacePropertiesExtensionCE\"]/bodyShape"
+                        LET.SubElement(match_rep, "xpath").text = parent_body_xpath
                         val_node = LET.SubElement(match_rep, "value")
                         LET.SubElement(val_node, "bodyShape").text = body_val
 
-                        # nomatch add (add bodyShape under existing extension)
-                        nomatch_add = LET.SubElement(inner_li, "nomatch", Class="PatchOperationAdd")
-                        LET.SubElement(nomatch_add, "xpath").text = f"Defs/ThingDef[@Name=\"{abstract}\"]/modExtensions/li[@Class=\"CombatExtended.RacePropertiesExtensionCE\"]"
-                        val_node2 = LET.SubElement(nomatch_add, "value")
+                        # Add bodyShape to every existing extension that still lacks it.
+                        add_missing = LET.SubElement(ops_node, "li", Class="PatchOperationConditional")
+                        missing_body_xpath = f"{parent_extension_xpath}[not(bodyShape)]"
+                        LET.SubElement(add_missing, "xpath").text = missing_body_xpath
+                        add_missing_match = LET.SubElement(add_missing, "match", Class="PatchOperationAdd")
+                        LET.SubElement(add_missing_match, "xpath").text = missing_body_xpath
+                        val_node2 = LET.SubElement(add_missing_match, "value")
                         LET.SubElement(val_node2, "bodyShape").text = body_val
 
                         # IMPORTANT: if the CE extension is absent, create it (AddModExtension) as the outer nomatch
@@ -3900,11 +3919,14 @@ class PatchGenerator:
 
                         operations.append(parent_body_li)
                 else:
-                    # if Body shape differs among children -> ensure parent doesn't force it (remove parent's bodyShape if present)
+                    # Different child shapes cannot safely inherit the same CE extension.
+                    # Remove the whole parent extension: removing only bodyShape leaves a
+                    # RacePropertiesExtensionCE instance whose bodyShape is null.
                     if 'Body shape' in info.get('differing_cols', []):
                         rm_bs = LET.Element("li", Class="PatchOperationConditional")
-                        LET.SubElement(rm_bs, "xpath").text = f"Defs/ThingDef[@Name=\"{abstract}\"]/modExtensions/li[@Class=\"CombatExtended.RacePropertiesExtensionCE\"]/bodyShape"
-                        LET.SubElement(LET.SubElement(rm_bs, "match", Class="PatchOperationRemove"), "xpath").text = f"Defs/ThingDef[@Name=\"{abstract}\"]/modExtensions/li[@Class=\"CombatExtended.RacePropertiesExtensionCE\"]/bodyShape"
+                        parent_extension_xpath = f"Defs/ThingDef[@Name=\"{abstract}\"]/modExtensions/li[@Class=\"CombatExtended.RacePropertiesExtensionCE\"]"
+                        LET.SubElement(rm_bs, "xpath").text = parent_extension_xpath
+                        LET.SubElement(LET.SubElement(rm_bs, "match", Class="PatchOperationRemove"), "xpath").text = parent_extension_xpath
                         operations.append(rm_bs)
 
         # --- Per-child CE patches (only for present defs) ---
@@ -3936,13 +3958,6 @@ class PatchGenerator:
                 LET.SubElement(LET.SubElement(rm_comp, "match", Class="PatchOperationRemove"), "xpath").text = f"Defs/ThingDef[defName=\"{def_name}\"]/comps/li[@Class=\"CombatExtended.CompProperties_ArmorDurability\"]"
                 operations.append(rm_comp)
                 
-            # - bodyShape removal for CE extension (if parent's common covers it)
-            if def_name in child_bodyshape_remove:
-                rm_bs_child = LET.Element("li", Class="PatchOperationConditional")
-                LET.SubElement(rm_bs_child, "xpath").text = f"Defs/ThingDef[defName=\"{def_name}\"]/modExtensions/li[@Class=\"CombatExtended.RacePropertiesExtensionCE\"]/bodyShape"
-                LET.SubElement(LET.SubElement(rm_bs_child, "match", Class="PatchOperationRemove"), "xpath").text = f"Defs/ThingDef[defName=\"{def_name}\"]/modExtensions/li[@Class=\"CombatExtended.RacePropertiesExtensionCE\"]/bodyShape"
-                operations.append(rm_bs_child)
-
             # Determine parent abstract for this def (from vanilla rows)
             parent = ''
             vrow = vanilla_rows_all.get(def_name)
@@ -3999,44 +4014,48 @@ class PatchGenerator:
                     operations.append(cond_comp)
                     
             # --- Body shape per-child (CE mod extension) ---
-            if not (parent_info and 'Body shape' in parent_info.get('common_values', {})):
-                if ce_row is not None and 'Body shape' in ce_row.index:
-                    bs_val = ce_row.get('Body shape')
-                    bs_val_s = None if bs_val is None else str(bs_val).strip()
-                    if bs_val_s is None or bs_val_s == '' or bs_val_s.lower() in ('no', 'none'):
-                        # explicit "no" -> remove child's bodyShape entry if present
-                        rm_bs_child = LET.Element("li", Class="PatchOperationConditional")
-                        LET.SubElement(rm_bs_child, "xpath").text = f"Defs/ThingDef[defName=\"{def_name}\"]/modExtensions/li[@Class=\"CombatExtended.RacePropertiesExtensionCE\"]/bodyShape"
-                        LET.SubElement(LET.SubElement(rm_bs_child, "match", Class="PatchOperationRemove"), "xpath").text = f"Defs/ThingDef[defName=\"{def_name}\"]/modExtensions/li[@Class=\"CombatExtended.RacePropertiesExtensionCE\"]/bodyShape"
-                        operations.append(rm_bs_child)
-                    else:
-                        child_body_li = LET.Element("li", Class="PatchOperationConditional")
-                        LET.SubElement(child_body_li, "xpath").text = f"Defs/ThingDef[defName=\"{def_name}\"]/modExtensions/li[@Class=\"CombatExtended.RacePropertiesExtensionCE\"]"
+            # Always upsert it on the concrete def too. CE allows multiple inherited
+            # extensions of this class and may return any matching instance; every
+            # generated instance must therefore carry a non-null bodyShape.
+            bs_val_s = clean_ce_body_shape(ce_row.get('Body shape') if ce_row is not None else None)
+            if bs_val_s is None:
+                raise ValueError(f"Combat Extended Body shape is required for {def_name}")
 
-                        match_seq = LET.SubElement(child_body_li, "match", Class="PatchOperationSequence")
-                        ops_node = LET.SubElement(match_seq, "operations")
+            child_body_li = LET.Element("li", Class="PatchOperationConditional")
+            LET.SubElement(child_body_li, "xpath").text = f"Defs/ThingDef[defName=\"{def_name}\"]/modExtensions/li[@Class=\"CombatExtended.RacePropertiesExtensionCE\"]"
 
-                        inner_li = LET.SubElement(ops_node, "li", Class="PatchOperationConditional")
-                        LET.SubElement(inner_li, "xpath").text = f"Defs/ThingDef[defName=\"{def_name}\"]/modExtensions/li[@Class=\"CombatExtended.RacePropertiesExtensionCE\"]/bodyShape"
+            match_seq = LET.SubElement(child_body_li, "match", Class="PatchOperationSequence")
+            ops_node = LET.SubElement(match_seq, "operations")
 
-                        match_rep = LET.SubElement(inner_li, "match", Class="PatchOperationReplace")
-                        LET.SubElement(match_rep, "xpath").text = f"Defs/ThingDef[defName=\"{def_name}\"]/modExtensions/li[@Class=\"CombatExtended.RacePropertiesExtensionCE\"]/bodyShape"
-                        val_node = LET.SubElement(match_rep, "value")
-                        LET.SubElement(val_node, "bodyShape").text = bs_val_s
+            child_extension_xpath = f"Defs/ThingDef[defName=\"{def_name}\"]/modExtensions/li[@Class=\"CombatExtended.RacePropertiesExtensionCE\"]"
+            child_body_xpath = f"{child_extension_xpath}/bodyShape"
 
-                        nomatch_add = LET.SubElement(inner_li, "nomatch", Class="PatchOperationAdd")
-                        LET.SubElement(nomatch_add, "xpath").text = f"Defs/ThingDef[defName=\"{def_name}\"]/modExtensions/li[@Class=\"CombatExtended.RacePropertiesExtensionCE\"]"
-                        val_node2 = LET.SubElement(nomatch_add, "value")
-                        LET.SubElement(val_node2, "bodyShape").text = bs_val_s
+            # Replace every existing bodyShape.
+            inner_li = LET.SubElement(ops_node, "li", Class="PatchOperationConditional")
+            LET.SubElement(inner_li, "xpath").text = child_body_xpath
 
-                        # outer nomatch: if CE extension missing entirely, add it under modExtensions (AddModExtension)
-                        nomatch_addmod_child = LET.SubElement(child_body_li, "nomatch", Class="PatchOperationAddModExtension")
-                        LET.SubElement(nomatch_addmod_child, "xpath").text = f"Defs/ThingDef[defName=\"{def_name}\"]"
-                        val_addmod_child = LET.SubElement(nomatch_addmod_child, "value")
-                        li_ce_child = LET.SubElement(val_addmod_child, "li", Class="CombatExtended.RacePropertiesExtensionCE")
-                        LET.SubElement(li_ce_child, "bodyShape").text = bs_val_s
+            match_rep = LET.SubElement(inner_li, "match", Class="PatchOperationReplace")
+            LET.SubElement(match_rep, "xpath").text = child_body_xpath
+            val_node = LET.SubElement(match_rep, "value")
+            LET.SubElement(val_node, "bodyShape").text = bs_val_s
 
-                        operations.append(child_body_li)
+            # Add bodyShape to every existing extension that still lacks it.
+            add_missing = LET.SubElement(ops_node, "li", Class="PatchOperationConditional")
+            missing_body_xpath = f"{child_extension_xpath}[not(bodyShape)]"
+            LET.SubElement(add_missing, "xpath").text = missing_body_xpath
+            add_missing_match = LET.SubElement(add_missing, "match", Class="PatchOperationAdd")
+            LET.SubElement(add_missing_match, "xpath").text = missing_body_xpath
+            val_node2 = LET.SubElement(add_missing_match, "value")
+            LET.SubElement(val_node2, "bodyShape").text = bs_val_s
+
+            # If the CE extension is absent entirely, create it with bodyShape.
+            nomatch_addmod_child = LET.SubElement(child_body_li, "nomatch", Class="PatchOperationAddModExtension")
+            LET.SubElement(nomatch_addmod_child, "xpath").text = f"Defs/ThingDef[defName=\"{def_name}\"]"
+            val_addmod_child = LET.SubElement(nomatch_addmod_child, "value")
+            li_ce_child = LET.SubElement(val_addmod_child, "li", Class="CombatExtended.RacePropertiesExtensionCE")
+            LET.SubElement(li_ce_child, "bodyShape").text = bs_val_s
+
+            operations.append(child_body_li)
 
             # Tools per-child: skip if parent covers tool_signature (parent-level tools were created somewhere)
             skip_child_tools = False

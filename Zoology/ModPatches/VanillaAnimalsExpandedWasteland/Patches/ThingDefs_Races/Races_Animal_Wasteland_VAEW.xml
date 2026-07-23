@@ -4929,12 +4929,15 @@
                     <bodyShape>QuadrupedLow</bodyShape>
                   </value>
                 </match>
-                <nomatch Class="PatchOperationAdd">
-                  <xpath>Defs/ThingDef[@Name="VAEWaste_BaseInsect"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
+              </li>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[@Name="VAEWaste_BaseInsect"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"][not(bodyShape)]</xpath>
+                <match Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[@Name="VAEWaste_BaseInsect"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"][not(bodyShape)]</xpath>
                   <value>
                     <bodyShape>QuadrupedLow</bodyShape>
                   </value>
-                </nomatch>
+                </match>
               </li>
             </operations>
           </match>
@@ -5065,12 +5068,15 @@
                     <bodyShape>Serpentine</bodyShape>
                   </value>
                 </match>
-                <nomatch Class="PatchOperationAdd">
-                  <xpath>Defs/ThingDef[defName="VAEWaste_Hydra"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
+              </li>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="VAEWaste_Hydra"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"][not(bodyShape)]</xpath>
+                <match Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[defName="VAEWaste_Hydra"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"][not(bodyShape)]</xpath>
                   <value>
                     <bodyShape>Serpentine</bodyShape>
                   </value>
-                </nomatch>
+                </match>
               </li>
             </operations>
           </match>
@@ -5153,12 +5159,6 @@
           </match>
         </li>
         <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="VAEWaste_Megatardi"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
-          <match Class="PatchOperationRemove">
-            <xpath>Defs/ThingDef[defName="VAEWaste_Megatardi"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
-          </match>
-        </li>
-        <li Class="PatchOperationConditional">
           <xpath>Defs/ThingDef[defName="VAEWaste_Megatardi"]/statBases/ArmorRating_Sharp</xpath>
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="VAEWaste_Megatardi"]/statBases/ArmorRating_Sharp</xpath>
@@ -5214,6 +5214,39 @@
                 <RegenInterval>600</RegenInterval>
                 <RegenValue>5</RegenValue>
                 <MinArmorPct>0.5</MinArmorPct>
+              </li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="VAEWaste_Megatardi"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="VAEWaste_Megatardi"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
+                <match Class="PatchOperationReplace">
+                  <xpath>Defs/ThingDef[defName="VAEWaste_Megatardi"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
+                  <value>
+                    <bodyShape>QuadrupedLow</bodyShape>
+                  </value>
+                </match>
+              </li>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="VAEWaste_Megatardi"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"][not(bodyShape)]</xpath>
+                <match Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[defName="VAEWaste_Megatardi"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"][not(bodyShape)]</xpath>
+                  <value>
+                    <bodyShape>QuadrupedLow</bodyShape>
+                  </value>
+                </match>
+              </li>
+            </operations>
+          </match>
+          <nomatch Class="PatchOperationAddModExtension">
+            <xpath>Defs/ThingDef[defName="VAEWaste_Megatardi"]</xpath>
+            <value>
+              <li Class="CombatExtended.RacePropertiesExtensionCE">
+                <bodyShape>QuadrupedLow</bodyShape>
               </li>
             </value>
           </nomatch>
@@ -5378,12 +5411,15 @@
                     <bodyShape>QuadrupedLow</bodyShape>
                   </value>
                 </match>
-                <nomatch Class="PatchOperationAdd">
-                  <xpath>Defs/ThingDef[defName="VAEWaste_Pestigator"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
+              </li>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="VAEWaste_Pestigator"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"][not(bodyShape)]</xpath>
+                <match Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[defName="VAEWaste_Pestigator"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"][not(bodyShape)]</xpath>
                   <value>
                     <bodyShape>QuadrupedLow</bodyShape>
                   </value>
-                </nomatch>
+                </match>
               </li>
             </operations>
           </match>
@@ -5564,12 +5600,15 @@
                     <bodyShape>Quadruped</bodyShape>
                   </value>
                 </match>
-                <nomatch Class="PatchOperationAdd">
-                  <xpath>Defs/ThingDef[defName="VAEWaste_Toxafox"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
+              </li>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="VAEWaste_Toxafox"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"][not(bodyShape)]</xpath>
+                <match Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[defName="VAEWaste_Toxafox"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"][not(bodyShape)]</xpath>
                   <value>
                     <bodyShape>Quadruped</bodyShape>
                   </value>
-                </nomatch>
+                </match>
               </li>
             </operations>
           </match>
@@ -5750,12 +5789,15 @@
                     <bodyShape>Quadruped</bodyShape>
                   </value>
                 </match>
-                <nomatch Class="PatchOperationAdd">
-                  <xpath>Defs/ThingDef[defName="VAEWaste_Toxbear"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
+              </li>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="VAEWaste_Toxbear"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"][not(bodyShape)]</xpath>
+                <match Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[defName="VAEWaste_Toxbear"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"][not(bodyShape)]</xpath>
                   <value>
                     <bodyShape>Quadruped</bodyShape>
                   </value>
-                </nomatch>
+                </match>
               </li>
             </operations>
           </match>
@@ -5976,12 +6018,15 @@
                     <bodyShape>QuadrupedLow</bodyShape>
                   </value>
                 </match>
-                <nomatch Class="PatchOperationAdd">
-                  <xpath>Defs/ThingDef[defName="VAEWaste_Toxiguana"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
+              </li>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="VAEWaste_Toxiguana"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"][not(bodyShape)]</xpath>
+                <match Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[defName="VAEWaste_Toxiguana"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"][not(bodyShape)]</xpath>
                   <value>
                     <bodyShape>QuadrupedLow</bodyShape>
                   </value>
-                </nomatch>
+                </match>
               </li>
             </operations>
           </match>
@@ -6178,12 +6223,15 @@
                     <bodyShape>Quadruped</bodyShape>
                   </value>
                 </match>
-                <nomatch Class="PatchOperationAdd">
-                  <xpath>Defs/ThingDef[defName="VAEWaste_Toxlion"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
+              </li>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="VAEWaste_Toxlion"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"][not(bodyShape)]</xpath>
+                <match Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[defName="VAEWaste_Toxlion"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"][not(bodyShape)]</xpath>
                   <value>
                     <bodyShape>Quadruped</bodyShape>
                   </value>
-                </nomatch>
+                </match>
               </li>
             </operations>
           </match>
@@ -6306,12 +6354,6 @@
           </match>
         </li>
         <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="VAEWaste_Toxscorpion"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
-          <match Class="PatchOperationRemove">
-            <xpath>Defs/ThingDef[defName="VAEWaste_Toxscorpion"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
-          </match>
-        </li>
-        <li Class="PatchOperationConditional">
           <xpath>Defs/ThingDef[defName="VAEWaste_Toxscorpion"]/statBases/ArmorRating_Sharp</xpath>
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="VAEWaste_Toxscorpion"]/statBases/ArmorRating_Sharp</xpath>
@@ -6367,6 +6409,39 @@
                 <RegenInterval>600</RegenInterval>
                 <RegenValue>5</RegenValue>
                 <MinArmorPct>0.5</MinArmorPct>
+              </li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="VAEWaste_Toxscorpion"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="VAEWaste_Toxscorpion"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
+                <match Class="PatchOperationReplace">
+                  <xpath>Defs/ThingDef[defName="VAEWaste_Toxscorpion"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape</xpath>
+                  <value>
+                    <bodyShape>QuadrupedLow</bodyShape>
+                  </value>
+                </match>
+              </li>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="VAEWaste_Toxscorpion"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"][not(bodyShape)]</xpath>
+                <match Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[defName="VAEWaste_Toxscorpion"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"][not(bodyShape)]</xpath>
+                  <value>
+                    <bodyShape>QuadrupedLow</bodyShape>
+                  </value>
+                </match>
+              </li>
+            </operations>
+          </match>
+          <nomatch Class="PatchOperationAddModExtension">
+            <xpath>Defs/ThingDef[defName="VAEWaste_Toxscorpion"]</xpath>
+            <value>
+              <li Class="CombatExtended.RacePropertiesExtensionCE">
+                <bodyShape>QuadrupedLow</bodyShape>
               </li>
             </value>
           </nomatch>
@@ -6598,12 +6673,15 @@
                     <bodyShape>Quadruped</bodyShape>
                   </value>
                 </match>
-                <nomatch Class="PatchOperationAdd">
-                  <xpath>Defs/ThingDef[defName="VAEWaste_Wasteboar"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
+              </li>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="VAEWaste_Wasteboar"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"][not(bodyShape)]</xpath>
+                <match Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[defName="VAEWaste_Wasteboar"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"][not(bodyShape)]</xpath>
                   <value>
                     <bodyShape>Quadruped</bodyShape>
                   </value>
-                </nomatch>
+                </match>
               </li>
             </operations>
           </match>
@@ -6788,12 +6866,15 @@
                     <bodyShape>Quadruped</bodyShape>
                   </value>
                 </match>
-                <nomatch Class="PatchOperationAdd">
-                  <xpath>Defs/ThingDef[defName="VAEWaste_Wastedeer"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
+              </li>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="VAEWaste_Wastedeer"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"][not(bodyShape)]</xpath>
+                <match Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[defName="VAEWaste_Wastedeer"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"][not(bodyShape)]</xpath>
                   <value>
                     <bodyShape>Quadruped</bodyShape>
                   </value>
-                </nomatch>
+                </match>
               </li>
             </operations>
           </match>
@@ -6989,12 +7070,15 @@
                     <bodyShape>Quadruped</bodyShape>
                   </value>
                 </match>
-                <nomatch Class="PatchOperationAdd">
-                  <xpath>Defs/ThingDef[defName="VAEWaste_Wasteffalo"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"]</xpath>
+              </li>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="VAEWaste_Wasteffalo"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"][not(bodyShape)]</xpath>
+                <match Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[defName="VAEWaste_Wasteffalo"]/modExtensions/li[@Class="CombatExtended.RacePropertiesExtensionCE"][not(bodyShape)]</xpath>
                   <value>
                     <bodyShape>Quadruped</bodyShape>
                   </value>
-                </nomatch>
+                </match>
               </li>
             </operations>
           </match>
