@@ -66,6 +66,8 @@ namespace ZoologyMod
                 return;
             }
 
+            PetPlayUtility.SyncJoyGiverDefAvailability(settings);
+
             if (forceRebuild)
             {
                 Patch_SmallPetThreatDisabled.NotifySettingsChanged();

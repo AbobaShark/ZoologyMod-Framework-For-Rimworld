@@ -44,6 +44,7 @@ namespace ZoologyMod
         public const bool DefaultEnableAnimalDamageReduction = true;
         public const bool DefaultEnableAnimalDraftControl = true;
         public const bool DefaultEnableOverrideCEPenetration = false;
+        public const bool DefaultEnablePetPlay = true;
 
         public const int DefaultPredatorSearchRadius = 18;
         public const int DefaultNonHostilePredatorSearchRadius = 12;
@@ -65,6 +66,7 @@ namespace ZoologyMod
         public const float DefaultAnimalInfantCombatPowerFactor = 0.2f;
         public const float DefaultAnimalJuvenileCombatPowerFactor = 0.5f;
         public const float CombatPowerDominanceFactor = 1.3f;
+        public const float DefaultPetPlayMaxWildness = 0.2f;
 
         public static ZoologyModSettings Settings => ZoologyModSettings.Instance ?? ZoologyMod.Settings;
 

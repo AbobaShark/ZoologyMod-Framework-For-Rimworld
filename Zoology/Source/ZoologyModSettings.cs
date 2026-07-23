@@ -47,6 +47,7 @@ namespace ZoologyMod
         public bool EnablePredatorDefendCorpse = ModConstants.DefaultEnablePredatorDefendCorpse;
         public bool EnablePredatorDefendPreyFromHumansAndMechanoids = ModConstants.DefaultEnablePredatorDefendPreyFromHumansAndMechanoids;
         public bool EnableScavengering = ModConstants.DefaultEnableScavengering;
+        public bool EnablePetPlay = ModConstants.DefaultEnablePetPlay;
         public bool DisableAllRuntimePatches = ModConstants.DefaultDisableAllRuntimePatches;
 
         public int PredatorSearchRadius = ModConstants.DefaultPredatorSearchRadius;
@@ -111,6 +112,7 @@ namespace ZoologyMod
         private float _smallPetBodySizeThreshold = ModConstants.DefaultSmallPetBodySizeThreshold;
         private float _safePredatorBodySizeThreshold = ModConstants.DefaultSafePredatorBodySizeThreshold;
         private float _safeNonPredatorBodySizeThreshold = ModConstants.DefaultSafeNonPredatorBodySizeThreshold;
+        private float _petPlayMaxWildness = ModConstants.DefaultPetPlayMaxWildness;
         private float _wildAnimalReproductionEcosystemLimitFactor = ModConstants.DefaultWildAnimalReproductionEcosystemLimitFactor;
         private int _minCombatPowerToDefendPreyFromHumans = ModConstants.DefaultMinCombatPowerToDefendPreyFromHumans;
         private int _minCombatPowerToDefendYoungFromHumansAndMechanoids = ModConstants.DefaultMinCombatPowerToDefendYoungFromHumans;
@@ -145,6 +147,12 @@ namespace ZoologyMod
         {
             get => _safeNonPredatorBodySizeThreshold;
             set => _safeNonPredatorBodySizeThreshold = Mathf.Clamp(value, 0f, 10f);
+        }
+
+        public float PetPlayMaxWildness
+        {
+            get => _petPlayMaxWildness;
+            set => _petPlayMaxWildness = Mathf.Clamp01(value);
         }
 
         public float WildAnimalReproductionEcosystemLimitFactor
@@ -378,6 +386,7 @@ namespace ZoologyMod
                     return 580f;
                 case SettingsPage.OtherBehavior:
                     return 1740f
+                        + (EnablePetPlay ? 96f : 0f)
                         + (EnableCustomFleeDanger ? 170f : 0f)
                         + (EnableIgnoreSmallPetsByRaiders ? 200f : 0f)
                         + (AnimalsFreeFromHumans ? 130f : 0f)
@@ -609,6 +618,22 @@ namespace ZoologyMod
         private void DrawOtherBehaviorSettings(Listing_Standard list)
         {
             list.GapLine(8f);
+            list.CheckboxLabeled(
+                "Zoology_EnablePetPlay_Label".Translate(),
+                ref EnablePetPlay,
+                "Zoology_EnablePetPlay_Desc".Translate());
+
+            if (EnablePetPlay)
+            {
+                list.GapLine(6f);
+                list.Label(string.Format(
+                    "Zoology_PetPlayMaxWildness_Label".Translate(),
+                    Mathf.RoundToInt(PetPlayMaxWildness * 100f)));
+                PetPlayMaxWildness = list.Slider(PetPlayMaxWildness, 0f, 1f);
+                list.GapLine(12f);
+            }
+
+            list.GapLine(12f);
             list.CheckboxLabeled("Zoology_EnableCustomFleeDanger_Label".Translate(), ref EnableCustomFleeDanger, "Zoology_EnableCustomFleeDanger_Desc".Translate());
 
             if (EnableCustomFleeDanger)
@@ -928,6 +953,8 @@ namespace ZoologyMod
             EnableCannotChewExtension = ModConstants.DefaultEnableCannotChewExtension;
             EnablePredatorDefendCorpse = ModConstants.DefaultEnablePredatorDefendCorpse;
             EnablePredatorDefendPreyFromHumansAndMechanoids = ModConstants.DefaultEnablePredatorDefendPreyFromHumansAndMechanoids;
+            EnablePetPlay = ModConstants.DefaultEnablePetPlay;
+            _petPlayMaxWildness = ModConstants.DefaultPetPlayMaxWildness;
             PredatorSearchRadius = ModConstants.DefaultPredatorSearchRadius;
             NonHostilePredatorSearchRadius = ModConstants.DefaultNonHostilePredatorSearchRadius;
             HumanSearchRadius = ModConstants.DefaultHumanSearchRadius;
@@ -1014,6 +1041,8 @@ namespace ZoologyMod
             Scribe_Values.Look(ref EnableAnimalWoundLicking, "EnableAnimalWoundLicking", ModConstants.DefaultEnableAnimalWoundLicking);
             Scribe_Values.Look(ref EnablePredatorDefendCorpse, "EnablePredatorDefendCorpse", ModConstants.DefaultEnablePredatorDefendCorpse);
             Scribe_Values.Look(ref EnablePredatorDefendPreyFromHumansAndMechanoids, "EnablePredatorDefendPreyFromHumansAndMechanoids", ModConstants.DefaultEnablePredatorDefendPreyFromHumansAndMechanoids);
+            Scribe_Values.Look(ref EnablePetPlay, "EnablePetPlay", ModConstants.DefaultEnablePetPlay);
+            Scribe_Values.Look(ref _petPlayMaxWildness, "PetPlayMaxWildness", ModConstants.DefaultPetPlayMaxWildness);
             Scribe_Values.Look(ref PredatorSearchRadius, "PredatorSearchRadius", ModConstants.DefaultPredatorSearchRadius);
             Scribe_Values.Look(ref NonHostilePredatorSearchRadius, "NonHostilePredatorSearchRadius", ModConstants.DefaultNonHostilePredatorSearchRadius);
             Scribe_Values.Look(ref HumanSearchRadius, "HumanSearchRadius", ModConstants.DefaultHumanSearchRadius);
@@ -1061,6 +1090,7 @@ namespace ZoologyMod
             WildAnimalReproductionEcosystemLimitFactor = _wildAnimalReproductionEcosystemLimitFactor;
             _minCombatPowerToDefendPreyFromHumans = Mathf.Clamp(_minCombatPowerToDefendPreyFromHumans, MinCombatPowerToDefendPreyFromHumansMin, MinCombatPowerToDefendPreyFromHumansMax);
             _minCombatPowerToDefendYoungFromHumansAndMechanoids = Mathf.Clamp(_minCombatPowerToDefendYoungFromHumansAndMechanoids, MinCombatPowerToDefendYoungFromHumansMin, MinCombatPowerToDefendYoungFromHumansMax);
+            PetPlayMaxWildness = _petPlayMaxWildness;
 
             if (Scribe.mode == LoadSaveMode.PostLoadInit)
             {
@@ -1108,6 +1138,7 @@ namespace ZoologyMod
                 hash = hash * 31 + (EnableAnimalDamageReduction ? 1 : 0);
                 hash = hash * 31 + (EnableAnimalDraftControl ? 1 : 0);
                 hash = hash * 31 + (EnableOverrideCEPenetration ? 1 : 0);
+                hash = hash * 31 + (EnablePetPlay ? 1 : 0);
                 return hash;
             }
         }
@@ -2100,6 +2131,8 @@ namespace ZoologyMod
                 return true;
             }
 
+            // Pet play is implemented entirely through defs and jobs. It obeys the global
+            // disable switch, but must not keep Harmony patched when it is the only feature on.
             return !EnableCustomFleeDanger
                 && !EnableIgnoreSmallPetsByRaiders
                 && (!EnableIgnoreSmallPetsByRaiders || !EnableSmallPetNoMeleeRetaliation)
