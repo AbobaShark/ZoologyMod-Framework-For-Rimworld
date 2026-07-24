@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ZoologyMod")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f52f48726a7da893ea67322c95101a63f611e76e")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d37745ef04dd3b46df3be52cbc6ad4897ef81320")]
 [assembly: System.Reflection.AssemblyProductAttribute("ZoologyMod")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ZoologyMod")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
