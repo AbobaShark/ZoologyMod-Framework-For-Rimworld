@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+
+  <!-- Keep the incident budget and the contained pawn budget synchronized with
+       Zoology's combatPower for each vanilla insect. Only touch cocoons that
+       still contain their corresponding vanilla PawnKindDef; the runtime
+       compatibility safeguard handles custom cocoons and later mod changes. -->
+
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="CocoonMegascarab"]/comps/li[@Class="CompProperties_PawnSpawnOnWakeup"]/spawnablePawnKinds/li[text()="Megascarab"]</xpath>
+    <match Class="PatchOperationSequence">
+      <operations>
+        <li Class="PatchOperationReplace">
+          <xpath>/Defs/ThingDef[defName="CocoonMegascarab"]/building/combatPower</xpath>
+          <value>
+            <combatPower>65</combatPower>
+          </value>
+        </li>
+        <li Class="PatchOperationReplace">
+          <xpath>/Defs/ThingDef[defName="CocoonMegascarab"]/comps/li[@Class="CompProperties_PawnSpawnOnWakeup"]/points</xpath>
+          <value>
+            <points>65</points>
+          </value>
+        </li>
+      </operations>
+    </match>
+  </Operation>
+
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="CocoonSpelopede"]/comps/li[@Class="CompProperties_PawnSpawnOnWakeup"]/spawnablePawnKinds/li[text()="Spelopede"]</xpath>
+    <match Class="PatchOperationSequence">
+      <operations>
+        <li Class="PatchOperationReplace">
+          <xpath>/Defs/ThingDef[defName="CocoonSpelopede"]/building/combatPower</xpath>
+          <value>
+            <combatPower>190</combatPower>
+          </value>
+        </li>
+        <li Class="PatchOperationReplace">
+          <xpath>/Defs/ThingDef[defName="CocoonSpelopede"]/comps/li[@Class="CompProperties_PawnSpawnOnWakeup"]/points</xpath>
+          <value>
+            <points>190</points>
+          </value>
+        </li>
+      </operations>
+    </match>
+  </Operation>
+
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="CocoonMegaspider"]/comps/li[@Class="CompProperties_PawnSpawnOnWakeup"]/spawnablePawnKinds/li[text()="Megaspider"]</xpath>
+    <match Class="PatchOperationSequence">
+      <operations>
+        <li Class="PatchOperationReplace">
+          <xpath>/Defs/ThingDef[defName="CocoonMegaspider"]/building/combatPower</xpath>
+          <value>
+            <combatPower>280</combatPower>
+          </value>
+        </li>
+        <li Class="PatchOperationReplace">
+          <xpath>/Defs/ThingDef[defName="CocoonMegaspider"]/comps/li[@Class="CompProperties_PawnSpawnOnWakeup"]/points</xpath>
+          <value>
+            <points>280</points>
+          </value>
+        </li>
+      </operations>
+    </match>
+  </Operation>
+
+</Patch>

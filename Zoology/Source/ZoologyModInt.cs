@@ -181,6 +181,15 @@ namespace ZoologyMod
             if (!settings.EnableNoPorcupineQuillPatch)
                 TryUnpatchHarmonyId("com.abobashark.zoology.noporcupinequill");
 
+            if (!settings.EnableInsectCocoonSpawnFix)
+            {
+                TryUnpatchSpecificMethod(
+                    AccessTools.Method(typeof(CompPawnSpawnOnWakeup), "GeneratePawns"),
+                    AccessTools.Method(
+                        typeof(Patch_CompPawnSpawnOnWakeup_InsectCocoonBudget),
+                        nameof(Patch_CompPawnSpawnOnWakeup_InsectCocoonBudget.Prefix)));
+            }
+
             if (!settings.EnableOverrideCEPenetration)
                 TryUnpatchHarmonyId("com.abobashark.zoology.mod.melee");
 

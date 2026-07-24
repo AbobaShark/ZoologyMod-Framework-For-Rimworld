@@ -51,6 +51,7 @@ namespace ZoologyMod
         public bool EnablePetBonding = ModConstants.DefaultEnablePetBonding;
         public bool EnableAnimalBonding = ModConstants.DefaultEnableAnimalBonding;
         public bool DisableAllRuntimePatches = ModConstants.DefaultDisableAllRuntimePatches;
+        public bool EnableInsectCocoonSpawnFix = ModConstants.DefaultEnableInsectCocoonSpawnFix;
 
         public int PredatorSearchRadius = ModConstants.DefaultPredatorSearchRadius;
         public int NonHostilePredatorSearchRadius = ModConstants.DefaultNonHostilePredatorSearchRadius;
@@ -396,7 +397,7 @@ namespace ZoologyMod
                         + (EnableWildAnimalReproduction && UsesWildAnimalEcosystemLimit ? 70f : 0f);
                 case SettingsPage.Dev:
                 default:
-                    return 2060f;
+                    return 2110f;
             }
         }
 
@@ -814,6 +815,12 @@ namespace ZoologyMod
             Text.Font = GameFont.Small;
 
             list.GapLine(12f);
+            list.CheckboxLabeled(
+                "Zoology_EnableInsectCocoonSpawnFix_Label".Translate(),
+                ref EnableInsectCocoonSpawnFix,
+                "Zoology_EnableInsectCocoonSpawnFix_Desc".Translate());
+
+            list.GapLine(12f);
             list.CheckboxLabeled("Zoology_EnableCannotBeMutated_Label".Translate(), ref EnableCannotBeMutatedProtection, "Zoology_EnableCannotBeMutated_Desc".Translate());
             if (EnableCannotBeMutatedProtection)
             {
@@ -1015,6 +1022,7 @@ namespace ZoologyMod
             EnableAnimalDraftControl = ModConstants.DefaultEnableAnimalDraftControl;
             EnableOverrideCEPenetration = _cePresent ? true : false;
             DisableAllRuntimePatches = ModConstants.DefaultDisableAllRuntimePatches;
+            EnableInsectCocoonSpawnFix = ModConstants.DefaultEnableInsectCocoonSpawnFix;
             ClampFleeAndThreatSettings();
             ApplyRuntimeDefOverrides();
 
@@ -1092,6 +1100,7 @@ namespace ZoologyMod
             Scribe_Values.Look(ref EnableScavengering, "EnableScavengering", ModConstants.DefaultEnableScavengering);
             Scribe_Values.Look(ref AllowSlaughterLactating, "AllowSlaughterLactating", ModConstants.DefaultAllowSlaughterLactating);
             Scribe_Values.Look(ref DisableAllRuntimePatches, "DisableAllRuntimePatches", ModConstants.DefaultDisableAllRuntimePatches);
+            Scribe_Values.Look(ref EnableInsectCocoonSpawnFix, "EnableInsectCocoonSpawnFix", ModConstants.DefaultEnableInsectCocoonSpawnFix);
 
             EnsureCollectionsInitialized();
             Scribe_Collections.Look(ref AnimalsFreeFromHumansPerAnimal, "AnimalsFreeFromHumansPerAnimal", LookMode.Value, LookMode.Value);
@@ -1141,6 +1150,7 @@ namespace ZoologyMod
             {
                 int hash = 17;
                 hash = hash * 31 + (DisableAllRuntimePatches ? 1 : 0);
+                hash = hash * 31 + (EnableInsectCocoonSpawnFix ? 1 : 0);
                 hash = hash * 31 + (EnableCustomFleeDanger ? 1 : 0);
                 hash = hash * 31 + (EnableIgnoreSmallPetsByRaiders ? 1 : 0);
                 hash = hash * 31 + (EnableSmallPetNoMeleeRetaliation ? 1 : 0);
@@ -2171,6 +2181,7 @@ namespace ZoologyMod
             // Pet play is implemented entirely through defs and jobs. It obeys the global
             // disable switch, but must not keep Harmony patched when it is the only feature on.
             return !EnableCustomFleeDanger
+                && !EnableInsectCocoonSpawnFix
                 && !EnableIgnoreSmallPetsByRaiders
                 && (!EnableIgnoreSmallPetsByRaiders || !EnableSmallPetNoMeleeRetaliation)
                 && !EnablePreyFleeFromPredators
