@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Patch>
+
+  <!--
+    Royalty: the Empire defines its own Trader PawnGroupMaker and therefore
+    does not inherit the Horse/Donkey additions made to OutlanderFactionBase
+    or TribeBase.
+  -->
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>Royalty</li>
+    </mods>
+    <match Class="PatchOperationSequence">
+      <operations>
+
+        <!-- Empire: Horse -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/FactionDef[defName="Empire"]/pawnGroupMakers/li[kindDef="Trader"]/carriers/Horse</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/FactionDef[defName="Empire"]/pawnGroupMakers/li[kindDef="Trader"]/carriers/Horse</xpath>
+            <value>
+              <Horse>10</Horse>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/FactionDef[defName="Empire"]/pawnGroupMakers/li[kindDef="Trader"]/carriers</xpath>
+            <value>
+              <Horse>10</Horse>
+            </value>
+          </nomatch>
+        </li>
+
+        <!-- Empire: Donkey -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/FactionDef[defName="Empire"]/pawnGroupMakers/li[kindDef="Trader"]/carriers/Donkey</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/FactionDef[defName="Empire"]/pawnGroupMakers/li[kindDef="Trader"]/carriers/Donkey</xpath>
+            <value>
+              <Donkey>10</Donkey>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/FactionDef[defName="Empire"]/pawnGroupMakers/li[kindDef="Trader"]/carriers</xpath>
+            <value>
+              <Donkey>10</Donkey>
+            </value>
+          </nomatch>
+        </li>
+
+      </operations>
+    </match>
+  </Operation>
+
+</Patch>

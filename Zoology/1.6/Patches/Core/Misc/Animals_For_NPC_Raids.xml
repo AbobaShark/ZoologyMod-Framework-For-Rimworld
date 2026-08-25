@@ -1,0 +1,519 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Patch>
+
+  <!--
+    Moderate NPC animal integration.
+
+    This adds large domestic dogs to suitable combat, settlement,
+    trader-guard, and Peaceful groups.
+
+    XML only defines group weights. Each inserted option carries a runtime
+    type marker so Zoology settings can disable only Zoology additions.
+    Handler eligibility, ownership, point-preserving replacement, and
+    close-follow combat behavior are implemented by the runtime code.
+
+    Optional Vanilla Animals Expanded - Cats and Dogs entries are guarded
+    individually with MayRequire="VanillaExpanded.VanillaAnimalsExpanded".
+  -->
+
+  <!-- Core outlanders, ordinary pirates, and ordinary tribes -->
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/FactionDef[@Name="OutlanderFactionBase"]/pawnGroupMakers/li[kindDef="Combat"][1]/options</xpath>
+    <match Class="PatchOperationAdd">
+      <xpath>/Defs/FactionDef[@Name="OutlanderFactionBase"]/pawnGroupMakers/li[kindDef="Combat"][1]/options</xpath>
+      <value>
+        <LabradorRetriever Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.8</LabradorRetriever>
+        <Husky Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.8</Husky>
+        <AEXP_GermanShepherd Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_GermanShepherd>
+        <AEXP_GreatDane Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_GreatDane>
+        <AEXP_Poodle Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_Poodle>
+        <AEXP_Rottweiler Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_Rottweiler>
+        <AEXP_WelshTerrier Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_WelshTerrier>
+        </value>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/FactionDef[@Name="OutlanderFactionBase"]/pawnGroupMakers/li[kindDef="Combat"][2]/options</xpath>
+    <match Class="PatchOperationAdd">
+      <xpath>/Defs/FactionDef[@Name="OutlanderFactionBase"]/pawnGroupMakers/li[kindDef="Combat"][2]/options</xpath>
+      <value>
+        <LabradorRetriever Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.8</LabradorRetriever>
+        <Husky Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.8</Husky>
+        <AEXP_GermanShepherd Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_GermanShepherd>
+        <AEXP_GreatDane Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_GreatDane>
+        <AEXP_Poodle Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_Poodle>
+        <AEXP_Rottweiler Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_Rottweiler>
+        <AEXP_WelshTerrier Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_WelshTerrier>
+        </value>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/FactionDef[@Name="OutlanderFactionBase"]/pawnGroupMakers/li[kindDef="Settlement"]/options</xpath>
+    <match Class="PatchOperationAdd">
+      <xpath>/Defs/FactionDef[@Name="OutlanderFactionBase"]/pawnGroupMakers/li[kindDef="Settlement"]/options</xpath>
+      <value>
+        <LabradorRetriever Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.8</LabradorRetriever>
+        <Husky Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.8</Husky>
+        <AEXP_GermanShepherd Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_GermanShepherd>
+        <AEXP_GreatDane Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_GreatDane>
+        <AEXP_Poodle Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_Poodle>
+        <AEXP_Rottweiler Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_Rottweiler>
+        <AEXP_WelshTerrier Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_WelshTerrier>
+        </value>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/FactionDef[@Name="OutlanderFactionBase"]/pawnGroupMakers/li[kindDef="Settlement_RangedOnly"]/options</xpath>
+    <match Class="PatchOperationAdd">
+      <xpath>/Defs/FactionDef[@Name="OutlanderFactionBase"]/pawnGroupMakers/li[kindDef="Settlement_RangedOnly"]/options</xpath>
+      <value>
+        <LabradorRetriever Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.8</LabradorRetriever>
+        <Husky Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.8</Husky>
+        <AEXP_GermanShepherd Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_GermanShepherd>
+        <AEXP_GreatDane Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_GreatDane>
+        <AEXP_Poodle Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_Poodle>
+        <AEXP_Rottweiler Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_Rottweiler>
+        <AEXP_WelshTerrier Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_WelshTerrier>
+        </value>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/FactionDef[@Name="OutlanderFactionBase"]/pawnGroupMakers/li[kindDef="Peaceful"]/options</xpath>
+    <match Class="PatchOperationAdd">
+      <xpath>/Defs/FactionDef[@Name="OutlanderFactionBase"]/pawnGroupMakers/li[kindDef="Peaceful"]/options</xpath>
+      <value>
+        <LabradorRetriever Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.4</LabradorRetriever>
+        <Husky Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.4</Husky>
+        <AEXP_GermanShepherd Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.4</AEXP_GermanShepherd>
+        <AEXP_GreatDane Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.4</AEXP_GreatDane>
+        <AEXP_Poodle Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.4</AEXP_Poodle>
+        <AEXP_Rottweiler Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.4</AEXP_Rottweiler>
+        <AEXP_WelshTerrier Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.4</AEXP_WelshTerrier>
+        </value>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/FactionDef[@Name="OutlanderFactionBase"]/pawnGroupMakers/li[kindDef="Trader"]/guards</xpath>
+    <match Class="PatchOperationAdd">
+      <xpath>/Defs/FactionDef[@Name="OutlanderFactionBase"]/pawnGroupMakers/li[kindDef="Trader"]/guards</xpath>
+      <value>
+        <LabradorRetriever Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.4</LabradorRetriever>
+        <Husky Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.4</Husky>
+        <AEXP_GermanShepherd Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.4</AEXP_GermanShepherd>
+        <AEXP_GreatDane Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.4</AEXP_GreatDane>
+        <AEXP_Poodle Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.4</AEXP_Poodle>
+        <AEXP_Rottweiler Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.4</AEXP_Rottweiler>
+        <AEXP_WelshTerrier Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.4</AEXP_WelshTerrier>
+        </value>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/FactionDef[@Name="PirateBandBase"]/pawnGroupMakers/li[kindDef="Combat"][1]/options</xpath>
+    <match Class="PatchOperationAdd">
+      <xpath>/Defs/FactionDef[@Name="PirateBandBase"]/pawnGroupMakers/li[kindDef="Combat"][1]/options</xpath>
+      <value>
+        <LabradorRetriever Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.8</LabradorRetriever>
+        <Husky Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.8</Husky>
+        <AEXP_GermanShepherd Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_GermanShepherd>
+        <AEXP_GreatDane Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_GreatDane>
+        <AEXP_Poodle Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_Poodle>
+        <AEXP_Rottweiler Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_Rottweiler>
+        <AEXP_WelshTerrier Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_WelshTerrier>
+        </value>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/FactionDef[@Name="PirateBandBase"]/pawnGroupMakers/li[kindDef="Combat"][2]/options</xpath>
+    <match Class="PatchOperationAdd">
+      <xpath>/Defs/FactionDef[@Name="PirateBandBase"]/pawnGroupMakers/li[kindDef="Combat"][2]/options</xpath>
+      <value>
+        <LabradorRetriever Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.8</LabradorRetriever>
+        <Husky Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.8</Husky>
+        <AEXP_GermanShepherd Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_GermanShepherd>
+        <AEXP_GreatDane Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_GreatDane>
+        <AEXP_Poodle Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_Poodle>
+        <AEXP_Rottweiler Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_Rottweiler>
+        <AEXP_WelshTerrier Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_WelshTerrier>
+        </value>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/FactionDef[@Name="PirateBandBase"]/pawnGroupMakers/li[kindDef="Combat"][3]/options</xpath>
+    <match Class="PatchOperationAdd">
+      <xpath>/Defs/FactionDef[@Name="PirateBandBase"]/pawnGroupMakers/li[kindDef="Combat"][3]/options</xpath>
+      <value>
+        <LabradorRetriever Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.8</LabradorRetriever>
+        <Husky Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.8</Husky>
+        <AEXP_GermanShepherd Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_GermanShepherd>
+        <AEXP_GreatDane Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_GreatDane>
+        <AEXP_Poodle Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_Poodle>
+        <AEXP_Rottweiler Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_Rottweiler>
+        <AEXP_WelshTerrier Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_WelshTerrier>
+        </value>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/FactionDef[@Name="PirateBandBase"]/pawnGroupMakers/li[kindDef="Combat"][4]/options</xpath>
+    <match Class="PatchOperationAdd">
+      <xpath>/Defs/FactionDef[@Name="PirateBandBase"]/pawnGroupMakers/li[kindDef="Combat"][4]/options</xpath>
+      <value>
+        <LabradorRetriever Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.8</LabradorRetriever>
+        <Husky Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.8</Husky>
+        <AEXP_GermanShepherd Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_GermanShepherd>
+        <AEXP_GreatDane Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_GreatDane>
+        <AEXP_Poodle Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_Poodle>
+        <AEXP_Rottweiler Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_Rottweiler>
+        <AEXP_WelshTerrier Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_WelshTerrier>
+        </value>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/FactionDef[@Name="PirateBandBase"]/pawnGroupMakers/li[kindDef="Settlement"]/options</xpath>
+    <match Class="PatchOperationAdd">
+      <xpath>/Defs/FactionDef[@Name="PirateBandBase"]/pawnGroupMakers/li[kindDef="Settlement"]/options</xpath>
+      <value>
+        <LabradorRetriever Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.8</LabradorRetriever>
+        <Husky Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.8</Husky>
+        <AEXP_GermanShepherd Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_GermanShepherd>
+        <AEXP_GreatDane Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_GreatDane>
+        <AEXP_Poodle Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_Poodle>
+        <AEXP_Rottweiler Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_Rottweiler>
+        <AEXP_WelshTerrier Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_WelshTerrier>
+        </value>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/FactionDef[@Name="PirateBandBase"]/pawnGroupMakers/li[kindDef="Settlement_RangedOnly"]/options</xpath>
+    <match Class="PatchOperationAdd">
+      <xpath>/Defs/FactionDef[@Name="PirateBandBase"]/pawnGroupMakers/li[kindDef="Settlement_RangedOnly"]/options</xpath>
+      <value>
+        <LabradorRetriever Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.8</LabradorRetriever>
+        <Husky Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.8</Husky>
+        <AEXP_GermanShepherd Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_GermanShepherd>
+        <AEXP_GreatDane Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_GreatDane>
+        <AEXP_Poodle Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_Poodle>
+        <AEXP_Rottweiler Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_Rottweiler>
+        <AEXP_WelshTerrier Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_WelshTerrier>
+        </value>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/FactionDef[@Name="TribeBase"]/pawnGroupMakers/li[kindDef="Combat"][1]/options</xpath>
+    <match Class="PatchOperationAdd">
+      <xpath>/Defs/FactionDef[@Name="TribeBase"]/pawnGroupMakers/li[kindDef="Combat"][1]/options</xpath>
+      <value>
+        <LabradorRetriever Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.8</LabradorRetriever>
+        <Husky Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.8</Husky>
+        <AEXP_GermanShepherd Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_GermanShepherd>
+        <AEXP_GreatDane Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_GreatDane>
+        <AEXP_Poodle Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_Poodle>
+        <AEXP_Rottweiler Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_Rottweiler>
+        <AEXP_WelshTerrier Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_WelshTerrier>
+        </value>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/FactionDef[@Name="TribeBase"]/pawnGroupMakers/li[kindDef="Combat"][2]/options</xpath>
+    <match Class="PatchOperationAdd">
+      <xpath>/Defs/FactionDef[@Name="TribeBase"]/pawnGroupMakers/li[kindDef="Combat"][2]/options</xpath>
+      <value>
+        <LabradorRetriever Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.8</LabradorRetriever>
+        <Husky Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.8</Husky>
+        <AEXP_GermanShepherd Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_GermanShepherd>
+        <AEXP_GreatDane Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_GreatDane>
+        <AEXP_Poodle Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_Poodle>
+        <AEXP_Rottweiler Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_Rottweiler>
+        <AEXP_WelshTerrier Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_WelshTerrier>
+        </value>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/FactionDef[@Name="TribeBase"]/pawnGroupMakers/li[kindDef="Combat"][3]/options</xpath>
+    <match Class="PatchOperationAdd">
+      <xpath>/Defs/FactionDef[@Name="TribeBase"]/pawnGroupMakers/li[kindDef="Combat"][3]/options</xpath>
+      <value>
+        <LabradorRetriever Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.8</LabradorRetriever>
+        <Husky Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.8</Husky>
+        <AEXP_GermanShepherd Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_GermanShepherd>
+        <AEXP_GreatDane Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_GreatDane>
+        <AEXP_Poodle Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_Poodle>
+        <AEXP_Rottweiler Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_Rottweiler>
+        <AEXP_WelshTerrier Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_WelshTerrier>
+        </value>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/FactionDef[@Name="TribeBase"]/pawnGroupMakers/li[kindDef="Combat"][4]/options</xpath>
+    <match Class="PatchOperationAdd">
+      <xpath>/Defs/FactionDef[@Name="TribeBase"]/pawnGroupMakers/li[kindDef="Combat"][4]/options</xpath>
+      <value>
+        <LabradorRetriever Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.8</LabradorRetriever>
+        <Husky Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.8</Husky>
+        <AEXP_GermanShepherd Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_GermanShepherd>
+        <AEXP_GreatDane Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_GreatDane>
+        <AEXP_Poodle Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_Poodle>
+        <AEXP_Rottweiler Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_Rottweiler>
+        <AEXP_WelshTerrier Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_WelshTerrier>
+        </value>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/FactionDef[@Name="TribeBase"]/pawnGroupMakers/li[kindDef="Settlement"]/options</xpath>
+    <match Class="PatchOperationAdd">
+      <xpath>/Defs/FactionDef[@Name="TribeBase"]/pawnGroupMakers/li[kindDef="Settlement"]/options</xpath>
+      <value>
+        <LabradorRetriever Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.8</LabradorRetriever>
+        <Husky Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.8</Husky>
+        <AEXP_GermanShepherd Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_GermanShepherd>
+        <AEXP_GreatDane Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_GreatDane>
+        <AEXP_Poodle Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_Poodle>
+        <AEXP_Rottweiler Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_Rottweiler>
+        <AEXP_WelshTerrier Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_WelshTerrier>
+        </value>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/FactionDef[@Name="TribeBase"]/pawnGroupMakers/li[kindDef="Settlement_RangedOnly"]/options</xpath>
+    <match Class="PatchOperationAdd">
+      <xpath>/Defs/FactionDef[@Name="TribeBase"]/pawnGroupMakers/li[kindDef="Settlement_RangedOnly"]/options</xpath>
+      <value>
+        <LabradorRetriever Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.8</LabradorRetriever>
+        <Husky Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.8</Husky>
+        <AEXP_GermanShepherd Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_GermanShepherd>
+        <AEXP_GreatDane Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_GreatDane>
+        <AEXP_Poodle Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_Poodle>
+        <AEXP_Rottweiler Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_Rottweiler>
+        <AEXP_WelshTerrier Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_WelshTerrier>
+        </value>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/FactionDef[@Name="TribeBase"]/pawnGroupMakers/li[kindDef="Peaceful"]/options</xpath>
+    <match Class="PatchOperationAdd">
+      <xpath>/Defs/FactionDef[@Name="TribeBase"]/pawnGroupMakers/li[kindDef="Peaceful"]/options</xpath>
+      <value>
+        <LabradorRetriever Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.4</LabradorRetriever>
+        <Husky Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.4</Husky>
+        <AEXP_GermanShepherd Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.4</AEXP_GermanShepherd>
+        <AEXP_GreatDane Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.4</AEXP_GreatDane>
+        <AEXP_Poodle Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.4</AEXP_Poodle>
+        <AEXP_Rottweiler Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.4</AEXP_Rottweiler>
+        <AEXP_WelshTerrier Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.4</AEXP_WelshTerrier>
+        </value>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/FactionDef[@Name="TribeBase"]/pawnGroupMakers/li[kindDef="Trader"]/guards</xpath>
+    <match Class="PatchOperationAdd">
+      <xpath>/Defs/FactionDef[@Name="TribeBase"]/pawnGroupMakers/li[kindDef="Trader"]/guards</xpath>
+      <value>
+        <LabradorRetriever Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.4</LabradorRetriever>
+        <Husky Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.4</Husky>
+        <AEXP_GermanShepherd Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.4</AEXP_GermanShepherd>
+        <AEXP_GreatDane Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.4</AEXP_GreatDane>
+        <AEXP_Poodle Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.4</AEXP_Poodle>
+        <AEXP_Rottweiler Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.4</AEXP_Rottweiler>
+        <AEXP_WelshTerrier Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.4</AEXP_WelshTerrier>
+        </value>
+    </match>
+  </Operation>
+
+  <!-- Biotech factions with deliberately different rules -->
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>Biotech</li>
+    </mods>
+    <match Class="PatchOperationSequence">
+      <operations>
+
+        <!-- Rough pig union: same small domestic-dog pool as other outlanders -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/FactionDef[defName="OutlanderRoughPig"]/pawnGroupMakers/li[kindDef="Combat"][1]/options</xpath>
+          <match Class="PatchOperationAdd">
+            <xpath>/Defs/FactionDef[defName="OutlanderRoughPig"]/pawnGroupMakers/li[kindDef="Combat"][1]/options</xpath>
+            <value>
+              <LabradorRetriever Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.8</LabradorRetriever>
+              <Husky Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.8</Husky>
+              <AEXP_GermanShepherd Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_GermanShepherd>
+              <AEXP_GreatDane Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_GreatDane>
+              <AEXP_Poodle Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_Poodle>
+              <AEXP_Rottweiler Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_Rottweiler>
+              <AEXP_WelshTerrier Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_WelshTerrier>
+              </value>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/FactionDef[defName="OutlanderRoughPig"]/pawnGroupMakers/li[kindDef="Combat"][2]/options</xpath>
+          <match Class="PatchOperationAdd">
+            <xpath>/Defs/FactionDef[defName="OutlanderRoughPig"]/pawnGroupMakers/li[kindDef="Combat"][2]/options</xpath>
+            <value>
+              <LabradorRetriever Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.8</LabradorRetriever>
+              <Husky Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.8</Husky>
+              <AEXP_GermanShepherd Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_GermanShepherd>
+              <AEXP_GreatDane Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_GreatDane>
+              <AEXP_Poodle Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_Poodle>
+              <AEXP_Rottweiler Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_Rottweiler>
+              <AEXP_WelshTerrier Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_WelshTerrier>
+              </value>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/FactionDef[defName="OutlanderRoughPig"]/pawnGroupMakers/li[kindDef="Combat"][3]/options</xpath>
+          <match Class="PatchOperationAdd">
+            <xpath>/Defs/FactionDef[defName="OutlanderRoughPig"]/pawnGroupMakers/li[kindDef="Combat"][3]/options</xpath>
+            <value>
+              <LabradorRetriever Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.8</LabradorRetriever>
+              <Husky Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.8</Husky>
+              <AEXP_GermanShepherd Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_GermanShepherd>
+              <AEXP_GreatDane Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_GreatDane>
+              <AEXP_Poodle Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_Poodle>
+              <AEXP_Rottweiler Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_Rottweiler>
+              <AEXP_WelshTerrier Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_WelshTerrier>
+              </value>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/FactionDef[defName="OutlanderRoughPig"]/pawnGroupMakers/li[kindDef="Combat"][4]/options</xpath>
+          <match Class="PatchOperationAdd">
+            <xpath>/Defs/FactionDef[defName="OutlanderRoughPig"]/pawnGroupMakers/li[kindDef="Combat"][4]/options</xpath>
+            <value>
+              <LabradorRetriever Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.8</LabradorRetriever>
+              <Husky Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.8</Husky>
+              <AEXP_GermanShepherd Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_GermanShepherd>
+              <AEXP_GreatDane Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_GreatDane>
+              <AEXP_Poodle Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_Poodle>
+              <AEXP_Rottweiler Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_Rottweiler>
+              <AEXP_WelshTerrier Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_WelshTerrier>
+              </value>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/FactionDef[defName="OutlanderRoughPig"]/pawnGroupMakers/li[kindDef="Settlement"]/options</xpath>
+          <match Class="PatchOperationAdd">
+            <xpath>/Defs/FactionDef[defName="OutlanderRoughPig"]/pawnGroupMakers/li[kindDef="Settlement"]/options</xpath>
+            <value>
+              <LabradorRetriever Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.8</LabradorRetriever>
+              <Husky Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.8</Husky>
+              <AEXP_GermanShepherd Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_GermanShepherd>
+              <AEXP_GreatDane Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_GreatDane>
+              <AEXP_Poodle Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_Poodle>
+              <AEXP_Rottweiler Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_Rottweiler>
+              <AEXP_WelshTerrier Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_WelshTerrier>
+              </value>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/FactionDef[defName="OutlanderRoughPig"]/pawnGroupMakers/li[kindDef="Settlement_RangedOnly"]/options</xpath>
+          <match Class="PatchOperationAdd">
+            <xpath>/Defs/FactionDef[defName="OutlanderRoughPig"]/pawnGroupMakers/li[kindDef="Settlement_RangedOnly"]/options</xpath>
+            <value>
+              <LabradorRetriever Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.8</LabradorRetriever>
+              <Husky Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.8</Husky>
+              <AEXP_GermanShepherd Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_GermanShepherd>
+              <AEXP_GreatDane Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_GreatDane>
+              <AEXP_Poodle Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_Poodle>
+              <AEXP_Rottweiler Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_Rottweiler>
+              <AEXP_WelshTerrier Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.8</AEXP_WelshTerrier>
+              </value>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/FactionDef[defName="OutlanderRoughPig"]/pawnGroupMakers/li[kindDef="Peaceful"]/options</xpath>
+          <match Class="PatchOperationAdd">
+            <xpath>/Defs/FactionDef[defName="OutlanderRoughPig"]/pawnGroupMakers/li[kindDef="Peaceful"]/options</xpath>
+            <value>
+              <LabradorRetriever Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.4</LabradorRetriever>
+              <Husky Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.4</Husky>
+              <AEXP_GermanShepherd Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.4</AEXP_GermanShepherd>
+              <AEXP_GreatDane Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.4</AEXP_GreatDane>
+              <AEXP_Poodle Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.4</AEXP_Poodle>
+              <AEXP_Rottweiler Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.4</AEXP_Rottweiler>
+              <AEXP_WelshTerrier Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.4</AEXP_WelshTerrier>
+              </value>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/FactionDef[defName="OutlanderRoughPig"]/pawnGroupMakers/li[kindDef="Trader"]/guards</xpath>
+          <match Class="PatchOperationAdd">
+            <xpath>/Defs/FactionDef[defName="OutlanderRoughPig"]/pawnGroupMakers/li[kindDef="Trader"]/guards</xpath>
+            <value>
+              <LabradorRetriever Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.4</LabradorRetriever>
+              <Husky Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.4</Husky>
+              <AEXP_GermanShepherd Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.4</AEXP_GermanShepherd>
+              <AEXP_GreatDane Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.4</AEXP_GreatDane>
+              <AEXP_Poodle Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.4</AEXP_Poodle>
+              <AEXP_Rottweiler Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.4</AEXP_Rottweiler>
+              <AEXP_WelshTerrier Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.4</AEXP_WelshTerrier>
+              </value>
+          </match>
+        </li>
+
+        <!-- Wasters: Odyssey bog hounds only; no domestic dogs -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/FactionDef[defName="PirateWaster"]/pawnGroupMakers/li[1]/options</xpath>
+          <match Class="PatchOperationAdd">
+            <xpath>/Defs/FactionDef[defName="PirateWaster"]/pawnGroupMakers/li[1]/options</xpath>
+            <value>
+              <BogHound Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="Ludeon.RimWorld.Odyssey">1.5</BogHound>
+            </value>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/FactionDef[defName="PirateWaster"]/pawnGroupMakers/li[7]/options</xpath>
+          <match Class="PatchOperationAdd">
+            <xpath>/Defs/FactionDef[defName="PirateWaster"]/pawnGroupMakers/li[7]/options</xpath>
+            <value>
+              <BogHound Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod" MayRequire="Ludeon.RimWorld.Odyssey">2.5</BogHound>
+            </value>
+          </match>
+        </li>
+        <!--
+          Yttakin pirates: no domestic dogs.
+          Vanilla WildBoar weights are replaced one-for-one with timber wolves:
+          Combat[1] 15, Combat[3] 5, Combat[4] 3, Settlement 8.
+          Existing Warg entries are intentionally left unchanged.
+        -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/FactionDef[defName="PirateYttakin"]/pawnGroupMakers/li[kindDef="Combat"][1]/options/WildBoar</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/FactionDef[defName="PirateYttakin"]/pawnGroupMakers/li[kindDef="Combat"][1]/options/WildBoar</xpath>
+            <value>
+              <Wolf_Timber Class="ZoologyMod.ZoologyPawnGenOption_WildBoarReplacement, ZoologyMod">15</Wolf_Timber>
+            </value>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/FactionDef[defName="PirateYttakin"]/pawnGroupMakers/li[kindDef="Combat"][3]/options/WildBoar</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/FactionDef[defName="PirateYttakin"]/pawnGroupMakers/li[kindDef="Combat"][3]/options/WildBoar</xpath>
+            <value>
+              <Wolf_Timber Class="ZoologyMod.ZoologyPawnGenOption_WildBoarReplacement, ZoologyMod">5</Wolf_Timber>
+            </value>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/FactionDef[defName="PirateYttakin"]/pawnGroupMakers/li[kindDef="Combat"][4]/options/WildBoar</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/FactionDef[defName="PirateYttakin"]/pawnGroupMakers/li[kindDef="Combat"][4]/options/WildBoar</xpath>
+            <value>
+              <Wolf_Timber Class="ZoologyMod.ZoologyPawnGenOption_WildBoarReplacement, ZoologyMod">3</Wolf_Timber>
+            </value>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/FactionDef[defName="PirateYttakin"]/pawnGroupMakers/li[kindDef="Settlement"]/options/WildBoar</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/FactionDef[defName="PirateYttakin"]/pawnGroupMakers/li[kindDef="Settlement"]/options/WildBoar</xpath>
+            <value>
+              <Wolf_Timber Class="ZoologyMod.ZoologyPawnGenOption_WildBoarReplacement, ZoologyMod">8</Wolf_Timber>
+            </value>
+          </match>
+        </li>
+        <!--
+          TribeSavageImpid and TribeRoughNeanderthal are intentionally
+          not patched: they receive no animals from this file.
+        -->
+      </operations>
+    </match>
+  </Operation>
+</Patch>

@@ -42,6 +42,8 @@ namespace ZoologyMod
         public const bool DefaultAllowSlaughterLactating = false;
         public const bool DefaultDisableAllRuntimePatches = false;
         public const bool DefaultEnableInsectCocoonSpawnFix = true;
+        public const bool DefaultEnableRaidAnimals = true;
+        public const bool DefaultOrphanedRaidAnimalsBecomeWild = false;
         public const bool DefaultEnableAnimalDamageReduction = true;
         public const bool DefaultEnableAnimalDraftControl = true;
         public const bool DefaultEnableOverrideCEPenetration = false;
