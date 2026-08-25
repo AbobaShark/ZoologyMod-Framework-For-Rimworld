@@ -131,12 +131,6 @@ namespace ZoologyMod
                     return;
                 }
 
-                if (pred.pather != null && pred.pather.Moving)
-                {
-                    // Avoid path thrashing: let the current path resolve around obstacles.
-                    return;
-                }
-
                 var curJob = pred.CurJob;
                 if (curJob != null)
                 {
@@ -155,6 +149,15 @@ namespace ZoologyMod
                         LogOnce(pred, corpse, "Already protecting prey (Zoology_ProtectPrey).");
                         return;
                     }
+                    if (pred.mindState?.IsIdle != true && curJob.def?.isIdle != true)
+                    {
+                        return;
+                    }
+                }
+                else if (pred.pather != null && pred.pather.Moving)
+                {
+                    // Avoid path thrashing when a path was started directly without a job.
+                    return;
                 }
 
                 IntVec3 dest = FindClosestReachableCellNear(corpsePos, pred.Map, pred, PreyProtectionUtility.GetProtectionRange());

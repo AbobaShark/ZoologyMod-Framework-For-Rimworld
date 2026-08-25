@@ -52,6 +52,8 @@ namespace ZoologyMod
         public bool EnableAnimalBonding = ModConstants.DefaultEnableAnimalBonding;
         public bool DisableAllRuntimePatches = ModConstants.DefaultDisableAllRuntimePatches;
         public bool EnableInsectCocoonSpawnFix = ModConstants.DefaultEnableInsectCocoonSpawnFix;
+        public bool EnableRaidAnimals = ModConstants.DefaultEnableRaidAnimals;
+        public bool OrphanedRaidAnimalsBecomeWild = ModConstants.DefaultOrphanedRaidAnimalsBecomeWild;
 
         public int PredatorSearchRadius = ModConstants.DefaultPredatorSearchRadius;
         public int NonHostilePredatorSearchRadius = ModConstants.DefaultNonHostilePredatorSearchRadius;
@@ -353,6 +355,7 @@ namespace ZoologyMod
             int runtimePatchToggleHashAfter = GetRuntimePatchToggleHash();
             if (runtimePatchToggleHashBefore != runtimePatchToggleHashAfter)
             {
+                ApplyRuntimeDefOverrides();
                 ZoologyMod.SyncRuntimePatchesWithSettings(forceRebuild: true);
             }
 
@@ -388,7 +391,7 @@ namespace ZoologyMod
                 case SettingsPage.Combat:
                     return 580f;
                 case SettingsPage.OtherBehavior:
-                    return 1860f
+                    return 1970f
                         + ((EnablePetPlay || EnablePetBonding) ? 96f : 0f)
                         + (EnableCustomFleeDanger ? 170f : 0f)
                         + (EnableIgnoreSmallPetsByRaiders ? 200f : 0f)
@@ -621,6 +624,16 @@ namespace ZoologyMod
         private void DrawOtherBehaviorSettings(Listing_Standard list)
         {
             list.GapLine(8f);
+            list.CheckboxLabeled(
+                "Zoology_EnableRaidAnimals_Label".Translate(),
+                ref EnableRaidAnimals,
+                "Zoology_EnableRaidAnimals_Desc".Translate());
+            list.CheckboxLabeled(
+                "Zoology_OrphanedRaidAnimalsBecomeWild_Label".Translate(),
+                ref OrphanedRaidAnimalsBecomeWild,
+                "Zoology_OrphanedRaidAnimalsBecomeWild_Desc".Translate());
+
+            list.GapLine(12f);
             list.CheckboxLabeled(
                 "Zoology_EnablePetPlay_Label".Translate(),
                 ref EnablePetPlay,
@@ -1023,6 +1036,8 @@ namespace ZoologyMod
             EnableOverrideCEPenetration = _cePresent ? true : false;
             DisableAllRuntimePatches = ModConstants.DefaultDisableAllRuntimePatches;
             EnableInsectCocoonSpawnFix = ModConstants.DefaultEnableInsectCocoonSpawnFix;
+            EnableRaidAnimals = ModConstants.DefaultEnableRaidAnimals;
+            OrphanedRaidAnimalsBecomeWild = ModConstants.DefaultOrphanedRaidAnimalsBecomeWild;
             ClampFleeAndThreatSettings();
             ApplyRuntimeDefOverrides();
 
@@ -1101,6 +1116,8 @@ namespace ZoologyMod
             Scribe_Values.Look(ref AllowSlaughterLactating, "AllowSlaughterLactating", ModConstants.DefaultAllowSlaughterLactating);
             Scribe_Values.Look(ref DisableAllRuntimePatches, "DisableAllRuntimePatches", ModConstants.DefaultDisableAllRuntimePatches);
             Scribe_Values.Look(ref EnableInsectCocoonSpawnFix, "EnableInsectCocoonSpawnFix", ModConstants.DefaultEnableInsectCocoonSpawnFix);
+            Scribe_Values.Look(ref EnableRaidAnimals, "EnableRaidAnimals", ModConstants.DefaultEnableRaidAnimals);
+            Scribe_Values.Look(ref OrphanedRaidAnimalsBecomeWild, "OrphanedRaidAnimalsBecomeWild", ModConstants.DefaultOrphanedRaidAnimalsBecomeWild);
 
             EnsureCollectionsInitialized();
             Scribe_Collections.Look(ref AnimalsFreeFromHumansPerAnimal, "AnimalsFreeFromHumansPerAnimal", LookMode.Value, LookMode.Value);
@@ -1151,6 +1168,8 @@ namespace ZoologyMod
                 int hash = 17;
                 hash = hash * 31 + (DisableAllRuntimePatches ? 1 : 0);
                 hash = hash * 31 + (EnableInsectCocoonSpawnFix ? 1 : 0);
+                hash = hash * 31 + (EnableRaidAnimals ? 1 : 0);
+                hash = hash * 31 + (OrphanedRaidAnimalsBecomeWild ? 1 : 0);
                 hash = hash * 31 + (EnableCustomFleeDanger ? 1 : 0);
                 hash = hash * 31 + (EnableIgnoreSmallPetsByRaiders ? 1 : 0);
                 hash = hash * 31 + (EnableSmallPetNoMeleeRetaliation ? 1 : 0);
@@ -1625,6 +1644,11 @@ namespace ZoologyMod
             EnsureCollectionsInitialized();
             ClampFleeAndThreatSettings();
             ZoologyRuntimeAnimalOverrides.ApplyAll(this);
+            ZoologyNpcGroupOptionRegistry.ApplySettings(this);
+            if (DisableAllRuntimePatches)
+            {
+                NpcAnimalCompanionManager.Current?.DetachAllToOwnerLords();
+            }
             Patch_SmallPetThreatDisabled.NotifySettingsChanged();
         }
 
@@ -2178,43 +2202,10 @@ namespace ZoologyMod
                 return true;
             }
 
-            // Pet play is implemented entirely through defs and jobs. It obeys the global
-            // disable switch, but must not keep Harmony patched when it is the only feature on.
-            return !EnableCustomFleeDanger
-                && !EnableInsectCocoonSpawnFix
-                && !EnableIgnoreSmallPetsByRaiders
-                && (!EnableIgnoreSmallPetsByRaiders || !EnableSmallPetNoMeleeRetaliation)
-                && !EnablePreyFleeFromPredators
-                && !AnimalsFreeFromHumans
-                && !EnableWildAnimalReproduction
-                && !EnablePackHunt
-                && !EnableAdvancedPredationLogic
-                && !EnableHumanBionicOnAnimal
-                && !EnableAgroAtSlaughter
-                && !EnableCannotBeMutatedProtection
-                && !EnableCannotBeAugmentedProtection
-                && !EnableNoFleeExtension
-                && !EnableFleeFromCarrier
-                && !EnableFlyingFleeStart
-                && !EnableGenderRestrictedAttacks
-                && !EnableCannotChewExtension
-                && !EnableEctothermicPatch
-                && !EnableAgelessPatch
-                && !EnableDrugsImmunePatch
-                && !EnableAnimalRegenerationComp
-                && !EnableAnimalClottingComp
-                && !EnableNoPorcupineQuillPatch
-                && !EnableMammalLactation
-                && !EnableAnimalChildcare
-                && !EnableAnimalEggProtection
-                && !EnableAnimalWoundLicking
-                && !EnablePredatorDefendCorpse
-                && !EnableScavengering
-                && !EnableAnimalDamageReduction
-                && !EnableAnimalDraftControl
-                && !EnableOverrideCEPenetration
-                && !EnablePetBonding
-                && !EnableAnimalBonding;
+            // The generic NPC companion safety layer is an always-on runtime feature.
+            // It protects vanilla and third-party mixed human groups even when all
+            // optional Zoology behaviours are disabled.
+            return false;
         }
 
         private void NormalizeExpandedBondingMode()
