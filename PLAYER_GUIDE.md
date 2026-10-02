@@ -1030,6 +1030,65 @@ Zoology has dedicated loaded patch sets for:
 
 Biotech and Odyssey have their own conditional DLC patch folders.
 
+### Biotech-specific changes
+
+In addition to Biotech animal race/product data and the cocoon safeguard, Zoology patches toxic-meat recipe handling when Vanilla Animals Expanded - Waste Animals is not present. ToxicMeat is excluded from the relevant pemmican and ordinary meal ingredient filters in that configuration.
+
+### Odyssey-specific changes
+
+Odyssey receives:
+
+- its own animal race balance;
+- biome distributions for Odyssey biomes;
+- Odyssey-specific body definitions;
+- baby life-stage patches;
+- egg-laying and hatching data;
+- meat and graphics corrections.
+
+When Vanilla Expanded Framework is also active, Zoology assigns crepuscular/nocturnal body-clock behavior to selected Odyssey animals through VEF's own race extension rather than inventing a second body-clock system.
+
+### Vanilla Expanded Framework behavior
+
+When VEF is active, Zoology uses VEF systems for several ecological behaviors.
+
+The current patch set includes:
+
+- crepuscular/nocturnal body-clock assignments for selected Core, Odyssey and Vanilla Animals Expanded animals;
+- VEF cross-breeding extensions for supported cross-breed pairs;
+- insect-foraging/auto-nutrition behavior for selected insectivorous animals.
+
+Examples of the foraging integration include fennec foxes and, when the relevant content is loaded, pangolins, hedgehogs, armadillos, crows and bullfrogs. These animals use VEF's AutoNutrition behavior; Zoology supplies the species assignment.
+
+### Vanilla Animals Expanded modules
+
+The VAE patch set is not limited to generated race statistics. Depending on the installed module it also contains:
+
+- biome placement;
+- additional body definitions and Odyssey fallback bodies;
+- life-stage patches;
+- damage defs;
+- graphics;
+- egg-layer and hatcher data;
+- milk and shearable data;
+- leather/item corrections;
+- body-clock assignments through VEF;
+- cross-breeding relationships;
+- crossAggroWith relationships among compatible cat and dog groups.
+
+The Endangered integration additionally removes the Rockhopper Penguin DigWhenHungry comp and the module's raw-fish defs in the configuration Zoology expects, while the VEF foraging patch supplies the replacement insect/ant-feeding behavior for the relevant species.
+
+The Waste Animals integration includes egg/hatcher data and damage corrections in addition to race values.
+
+### Alpha Animals, Alpha Biomes, Dinosauria and Megafauna
+
+Alpha Animals receives generated race patches plus fallback body definitions for several unusual body plans when Odyssey is not providing the corresponding bodies.
+
+Alpha Biomes integration is a biome-distribution layer for the supported Alpha Biomes environments.
+
+Dinosauria receives race balance plus dedicated animal graphics/shadow corrections.
+
+Megafauna currently uses the generated race patch set.
+
 Animals Are Fun Continued is declared incompatible because its animal-interaction/recreation systems overlap Zoology's pet systems.
 
 Zoology also contains generic runtime interoperability for supported external animal drafting and optional health-system behavior. Those branches are intended to prevent duplicated/conflicting behavior rather than expose a second user-facing integration feature.
