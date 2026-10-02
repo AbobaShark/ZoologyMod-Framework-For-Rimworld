@@ -1,22 +1,20 @@
 # AnimalStats data sources
 
-The checker now accepts three source families without changing the XML-generation logic:
+The checker accepts three source families through the common data-loading layer:
 
-1. Local Excel: `.xlsx`, `.xlsm`, `.xls` (existing behavior).
-2. Local TSV: `.tsv` (existing behavior; one table only).
-3. Google Sheets: a spreadsheet URL, `gsheet:<spreadsheet-id>`, or a local `.gsheet` pointer created by Google Drive for desktop.
+1. Local Excel: `.xlsx`, `.xlsm`, `.xls`.
+2. Local TSV: `.tsv` (one table only).
+3. Google Sheets: a spreadsheet URL, `gsheet:<spreadsheet-id>`, a raw spreadsheet ID, or a local `.gsheet` pointer created by Google Drive for desktop.
 
-For this project the current LIVE spreadsheet is:
+For this project the production workbook is `AnimalStats — WORKING`:
 
 `https://docs.google.com/spreadsheets/d/1BsPzRPFLFx2HL4UdlVo058kryub3C4a9ezQ54CnGEB4/edit`
 
-The code reads only the sheets it already used (`Animals` and `Animals CE`). It requests calculated cell values, not formula text. Local XLSX/TSV behavior remains available.
+The standard animal-generation paths read the calculated `Animals` and `Animals CE` sheets. Google reads request calculated cell values rather than formula text. Local XLSX/TSV sources use the same downstream generation logic.
 
 ## Fastest local workflow
 
-No TSV conversion is necessary. Google Sheets can be downloaded as **Microsoft Excel (.xlsx)** and used directly by both scripts. Replace the old `AnimalStats.xlsx` (or point the UI to the newly downloaded file).
-
-This is the simplest mode when you do not need automatic refresh.
+Google Sheets can be downloaded as **Microsoft Excel (.xlsx)** and used directly by both scripts, so TSV conversion is unnecessary for the normal local workflow. Point the generator/fixer source field at the downloaded workbook.
 
 ## Direct LIVE Google Sheets workflow
 
@@ -72,7 +70,7 @@ py rimworld_xml_generator.py ^
 
 ## Google Drive for desktop `.gsheet`
 
-A `.gsheet` file is only a pointer containing the spreadsheet ID/URL; it does not contain the cells. The checker can now accept such a pointer as the source, but it still uses the same read-only Google Sheets authorization described above.
+A `.gsheet` file is a pointer containing the spreadsheet ID/URL rather than the spreadsheet cells. The checker resolves the pointer and uses the same read-only Google Sheets authorization described above.
 
 ## Service account (optional)
 
