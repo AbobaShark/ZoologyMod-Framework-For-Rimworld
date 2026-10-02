@@ -31,82 +31,91 @@ class PatchApplier:
 
     def apply_patch_root(self, patch_root, sim_root, source_path=None):
         if patch_root is None:
-            return
+            return True
         if self._is_operation(patch_root):
-            self.apply_operation(patch_root, sim_root, source_path=source_path)
-            return
+            return self.apply_operation(patch_root, sim_root, source_path=source_path)
+        overall = True
         for node in patch_root:
-            self.apply_operation(node, sim_root, source_path=source_path)
+            if self._is_operation(node):
+                # RimWorld applies top-level patch operations independently; a
+                # failed operation is reported but does not prevent later
+                # top-level operations from being attempted.
+                if not self.apply_operation(node, sim_root, source_path=source_path):
+                    overall = False
+        return overall
 
     def apply_operation(self, node, sim_root, source_path=None):
         if not self._is_operation(node):
-            return
+            return True
 
         cls = node.get("Class")
         self.stats["operations_seen"] += 1
 
         if cls == "PatchOperationSequence":
-            self._apply_sequence(node, sim_root, source_path)
-            return
+            return self._apply_sequence(node, sim_root, source_path)
 
         if cls == "PatchOperationConditional":
-            self._apply_conditional(node, sim_root, source_path)
-            return
+            return self._apply_conditional(node, sim_root, source_path)
 
         if cls == "PatchOperationFindMod":
-            self._apply_find_mod(node, sim_root, source_path)
-            return
+            return self._apply_find_mod(node, sim_root, source_path)
 
         if cls in DIRECT_PATCH_CLASSES:
-            self.apply_direct_operation(node, sim_root, source_path=source_path)
-            return
+            return self.apply_direct_operation(node, sim_root, source_path=source_path)
 
         self.stats["unknown_operations"] += 1
+        return False
 
     def apply_direct_operation(self, node, sim_root, source_path=None):
         cls = node.get("Class")
         xpath = self._child_text(node, "xpath")
         if not xpath:
             self.stats["operations_without_xpath"] += 1
-            return
+            return False
 
         if cls == "PatchOperationAttributeSet":
-            self._apply_attribute_set(node, sim_root, xpath, source_path)
-        elif cls == "PatchOperationRemove":
-            self._apply_remove(node, sim_root, xpath, source_path)
-        elif cls == "PatchOperationReplace":
-            self._apply_replace(node, sim_root, xpath, source_path)
-        elif cls == "PatchOperationAdd":
-            self._apply_add(node, sim_root, xpath, source_path)
-        elif cls == "PatchOperationAddModExtension":
-            self._apply_add_mod_extension(node, sim_root, xpath, source_path)
+            return self._apply_attribute_set(node, sim_root, xpath, source_path)
+        if cls == "PatchOperationRemove":
+            return self._apply_remove(node, sim_root, xpath, source_path)
+        if cls == "PatchOperationReplace":
+            return self._apply_replace(node, sim_root, xpath, source_path)
+        if cls == "PatchOperationAdd":
+            return self._apply_add(node, sim_root, xpath, source_path)
+        if cls == "PatchOperationAddModExtension":
+            return self._apply_add_mod_extension(node, sim_root, xpath, source_path)
+        return False
 
     def _apply_sequence(self, node, sim_root, source_path):
         operations = node.find("operations")
         if operations is None:
             self.stats["empty_sequences"] += 1
-            return
+            return True
         for child in operations:
-            self.apply_operation(child, sim_root, source_path=source_path)
+            if not self._is_operation(child):
+                continue
+            if not self.apply_operation(child, sim_root, source_path=source_path):
+                self.stats["sequence_failures"] += 1
+                return False
+        return True
 
     def _apply_conditional(self, node, sim_root, source_path):
         xpath = self._child_text(node, "xpath")
         if not xpath:
             self.stats["conditionals_without_xpath"] += 1
-            return
+            return False
 
         matched = bool(self._xpath(sim_root, xpath, source_path))
         branch_name = "match" if matched else "nomatch"
         branch = node.find(branch_name)
         self.stats["conditionals_resolved"] += 1
         self.stats[f"conditionals_{branch_name}"] += 1
-        self._apply_branch(branch, sim_root, source_path)
+        return self._apply_branch(branch, sim_root, source_path)
 
     def _apply_find_mod(self, node, sim_root, source_path):
         branch_name = "match" if self._find_mod_matches(node) else "nomatch"
         branch = node.find(branch_name)
         self.stats[f"find_mod_{branch_name}_selected"] += 1
-        self._apply_branch(branch, sim_root, source_path)
+        return self._apply_branch(branch, sim_root, source_path)
 
     def _find_mod_matches(self, node):
         if self.active_mods is None:
@@ -130,38 +139,41 @@ class PatchApplier:
     def _apply_branch(self, branch, sim_root, source_path):
         if branch is None or not isinstance(getattr(branch, "tag", None), str):
             self.stats["empty_branches"] += 1
-            return
+            return True
         if branch.get("Class"):
-            self.apply_operation(branch, sim_root, source_path=source_path)
-            return
+            return self.apply_operation(branch, sim_root, source_path=source_path)
         applied = 0
+        overall = True
         for child in branch:
             if self._is_operation(child):
-                self.apply_operation(child, sim_root, source_path=source_path)
+                if not self.apply_operation(child, sim_root, source_path=source_path):
+                    overall = False
                 applied += 1
         if not applied:
             self.stats["empty_branches"] += 1
+        return overall
 
     def _apply_attribute_set(self, node, sim_root, xpath, source_path):
         attr_name = self._child_text(node, "attribute")
         value = self._child_text(node, "value")
         if not attr_name:
             self.stats["attribute_sets_without_attribute"] += 1
-            return
+            return False
         targets = self._xpath(sim_root, xpath, source_path)
         if not targets:
             self._record_missing("attribute_set", xpath, source_path)
-            return
+            return False
         for target in targets:
             if isinstance(getattr(target, "tag", None), str):
                 target.set(attr_name, "" if value is None else str(value))
         self.stats["attribute_sets_applied"] += 1
+        return True
 
     def _apply_remove(self, node, sim_root, xpath, source_path):
         targets = list(self._xpath(sim_root, xpath, source_path))
         if not targets:
             self._record_missing("remove", xpath, source_path)
-            return
+            return False
         removed = 0
         for target in targets:
             parent = target.getparent() if hasattr(target, "getparent") else None
@@ -170,16 +182,17 @@ class PatchApplier:
                 removed += 1
         if removed:
             self.stats["removes_applied"] += 1
+        return bool(removed)
 
     def _apply_replace(self, node, sim_root, xpath, source_path):
         targets = list(self._xpath(sim_root, xpath, source_path))
         if not targets:
             self._record_missing("replace", xpath, source_path)
-            return
+            return False
         replacements = self._value_children(node)
         if not replacements:
             self.stats["replaces_without_value"] += 1
-            return
+            return False
         applied = 0
         for target in targets:
             parent = target.getparent() if hasattr(target, "getparent") else None
@@ -192,16 +205,17 @@ class PatchApplier:
             applied += 1
         if applied:
             self.stats["replaces_applied"] += 1
+        return bool(applied)
 
     def _apply_add(self, node, sim_root, xpath, source_path):
         targets = self._xpath(sim_root, xpath, source_path)
         if not targets:
             self._record_missing("add", xpath, source_path)
-            return
+            return False
         additions = self._value_children(node)
         if not additions:
             self.stats["adds_without_value"] += 1
-            return
+            return False
         applied = 0
         for target in targets:
             if not isinstance(getattr(target, "tag", None), str):
@@ -211,16 +225,17 @@ class PatchApplier:
             applied += 1
         if applied:
             self.stats["adds_applied"] += 1
+        return bool(applied)
 
     def _apply_add_mod_extension(self, node, sim_root, xpath, source_path):
         targets = self._xpath(sim_root, xpath, source_path)
         if not targets:
             self._record_missing("add_mod_extension", xpath, source_path)
-            return
+            return False
         additions = self._value_children(node)
         if not additions:
             self.stats["add_mod_extensions_without_value"] += 1
-            return
+            return False
         applied = 0
         for target in targets:
             if not isinstance(getattr(target, "tag", None), str):
@@ -237,6 +252,7 @@ class PatchApplier:
             applied += 1
         if applied:
             self.stats["add_mod_extensions_applied"] += 1
+        return bool(applied)
 
     def _xpath(self, sim_root, xpath, source_path):
         text = normalize_patch_xpath(xpath)

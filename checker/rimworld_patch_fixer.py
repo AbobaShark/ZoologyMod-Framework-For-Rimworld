@@ -16,6 +16,14 @@ import copy
 from collections import OrderedDict
 from rimworld_original_xml import OriginalXmlIndex
 from rimworld_patch_optimizer import PatchOptimizer
+from rimworld_patch_compactor import compact_files
+from animalstats_source import (
+    is_google_sheet_source,
+    is_multisheet_source,
+    read_google_sheet,
+    source_available,
+    source_cache_key,
+)
 
 # ---------------- Config ----------------
 CONFIG_FILE = "rimworld_patch_generator_config.json"
@@ -81,6 +89,22 @@ def save_config(cfg):
             json.dump(cfg, f, indent=2)
     except Exception:
         pass
+
+
+def compact_successful_outputs(results, enabled=True, path_index=1, success_index=-1):
+    """Compact only successful XML outputs produced by the current run."""
+    if not enabled:
+        return []
+    paths = []
+    for result in results:
+        try:
+            success = bool(result[success_index])
+            path = result[path_index]
+        except (IndexError, TypeError):
+            continue
+        if success and path:
+            paths.append(path)
+    return compact_files(paths)
 
 def try_parse_number(s):
     try:
@@ -174,6 +198,7 @@ COLUMN_ALIASES = {
     'LeatherDef': ['Leather def', 'LeatherDef', 'Leather_Def', 'Leather'],
     'useMeatFrom': ['useMeatFrom', 'UseMeatFrom', 'use meat from', 'Use meat from', 'Meat from'],
     'ModConflict': ['ModConflict', 'Mod Conflict', 'modConflict', 'Mod conflict'],
+    'flightSpeedFactor': ['flightSpeedFactor', 'FlightSpeedFactor', 'Flight speed factor', 'flight speed factor'],
 }
 
 def find_alias_in_row(row, candidates):
@@ -224,9 +249,9 @@ class PatchGenerator:
     def __init__(self, vanilla_source, ce_source, xml_paths, original_xml_dir=None, original_patches_dir=None, extra_original_xml_paths=None, preserve_runtime_preconditions=True):
         self.vanilla_df = self._load_table(vanilla_source, sheet_name='Animals', required=True) if vanilla_source else None
         if ce_source:
-            ce_sheet = 'Animals CE' if is_excel_source(ce_source) else None
+            ce_sheet = 'Animals CE' if is_multisheet_source(ce_source) else None
             self.ce_df = self._load_table(ce_source, sheet_name=ce_sheet, required=True)
-        elif vanilla_source and is_excel_source(vanilla_source):
+        elif vanilla_source and is_multisheet_source(vanilla_source):
             # Convenience mode: one AnimalStats.xlsx path provides both sheets.
             self.ce_df = self._load_table(vanilla_source, sheet_name='Animals CE', required=False)
         else:
@@ -326,10 +351,18 @@ class PatchGenerator:
             if required:
                 raise RuntimeError("Table source path is empty.")
             return None
-        if not os.path.exists(source_path):
+        if not source_available(source_path):
             if required:
-                raise RuntimeError(f"Table source not found: {source_path}")
+                raise RuntimeError(f"Table source not found or invalid: {source_path}")
             return None
+
+        if is_google_sheet_source(source_path):
+            try:
+                return _normalize_df(read_google_sheet(source_path, sheet_name=sheet_name))
+            except Exception:
+                if required:
+                    raise
+                return None
 
         if is_excel_source(source_path):
             try:
@@ -2628,6 +2661,19 @@ class PatchGenerator:
             else:
                 ops.append(self.create_safe_replace(def_name, 'race', xml_tag, s))
 
+        # Native RimWorld flight speed multiplier. Unlike the generic race fields,
+        # "No"/empty means "leave the original XML alone" rather than remove
+        # the tag. This preserves vanilla/default flight behaviour for rows that
+        # do not provide a calculated override.
+        flight_speed_factor = get_row_value(row, 'flightSpeedFactor')
+        flight_speed_text = '' if flight_speed_factor is None else str(flight_speed_factor).strip()
+        if flight_speed_text.lower() not in ('', 'no', 'none', 'nan'):
+            flight_speed_num = try_parse_number(flight_speed_text)
+            if flight_speed_num is not None and flight_speed_num > 0:
+                flight_speed_xml = ('{:.6f}'.format(flight_speed_num)).rstrip('0').rstrip('.')
+                ops.append(self.create_ensure_container(def_name, 'race'))
+                ops.append(self.create_safe_replace(def_name, 'race', 'flightSpeedFactor', flight_speed_xml))
+
         # race/wildBiomes:
         # - default: always safely remove
         # - when ModConflict is set: safely replace/add from table WildBiomes + Eco system number
@@ -3935,6 +3981,30 @@ class PatchGenerator:
             ce_row = ce_rows_all.get(def_name)
             operations.append(LET.Comment(f" {def_name} CE patches "))
 
+            # MoveSpeed is a CE-specific override. The normal Zoology pass may
+            # deliberately remove a concrete MoveSpeed so the animal inherits the
+            # non-CE parent value. In CE mode we need the concrete CE value back,
+            # so use an upsert instead of a plain Replace; a missing node must not
+            # fail the enclosing PatchOperationSequence / PatchOperationFindMod.
+            if ce_row is not None:
+                move_speed = get_row_value(ce_row, 'MoveSpeed')
+                move_speed_text = '' if move_speed is None else str(move_speed).strip()
+                if move_speed_text.lower() not in ('', 'no', 'none', 'nan'):
+                    speed_xpath = f'Defs/ThingDef[defName="{def_name}"]/statBases/MoveSpeed'
+                    speed_op = LET.Element("li", Class="PatchOperationConditional")
+                    LET.SubElement(speed_op, "xpath").text = speed_xpath
+
+                    speed_match = LET.SubElement(speed_op, "match", Class="PatchOperationReplace")
+                    LET.SubElement(speed_match, "xpath").text = speed_xpath
+                    speed_match_value = LET.SubElement(speed_match, "value")
+                    LET.SubElement(speed_match_value, "MoveSpeed").text = move_speed_text
+
+                    speed_nomatch = LET.SubElement(speed_op, "nomatch", Class="PatchOperationAdd")
+                    LET.SubElement(speed_nomatch, "xpath").text = f'Defs/ThingDef[defName="{def_name}"]/statBases'
+                    speed_nomatch_value = LET.SubElement(speed_nomatch, "value")
+                    LET.SubElement(speed_nomatch_value, "MoveSpeed").text = move_speed_text
+                    operations.append(speed_op)
+
             # First: emit any recorded removals for this child (so they live inside child's block)
             #  - stat removals
             stats_to_remove = sorted(child_stat_removals.get(def_name, []))
@@ -4165,6 +4235,9 @@ class GeneratorApp(tk.Tk):
         self.preserve_runtime_preconditions = tk.BooleanVar(
             value=bool(self.cfg.get('preserve_runtime_preconditions', True))
         )
+        self.compact_generated_patches = tk.BooleanVar(
+            value=bool(self.cfg.get('compact_generated_patches', False))
+        )
         self.table_groups = self._normalize_table_groups(self.cfg.get('table_groups', []))
         self._table_animals_cache = None
         self._table_animals_cache_key = None
@@ -4306,12 +4379,12 @@ class GeneratorApp(tk.Tk):
         main.pack(fill='both', expand=True, padx=10, pady=10)
         v_frame = ttk.Frame(main)
         v_frame.pack(fill='x')
-        ttk.Label(v_frame, text="Vanilla table (TSV/XLSX):").pack(side='left')
+        ttk.Label(v_frame, text="AnimalStats source (TSV/XLSX/Google):").pack(side='left')
         ttk.Entry(v_frame, textvariable=self.vanilla_tsv, width=80).pack(side='left', padx=6)
         ttk.Button(v_frame, text="Browse", command=self.pick_vanilla_tsv).pack(side='left')
         c_frame = ttk.Frame(main)
         c_frame.pack(fill='x', pady=5)
-        ttk.Label(c_frame, text="CE table (TSV/XLSX, optional):").pack(side='left')
+        ttk.Label(c_frame, text="CE source (optional; blank = same workbook/Google Sheet):").pack(side='left')
         ttk.Entry(c_frame, textvariable=self.ce_tsv, width=80).pack(side='left', padx=6)
         ttk.Button(c_frame, text="Browse", command=self.pick_ce_tsv).pack(side='left')
         mid = ttk.Frame(main)
@@ -4340,6 +4413,12 @@ class GeneratorApp(tk.Tk):
             variable=self.preserve_runtime_preconditions,
             command=self.on_runtime_preconditions_changed,
         ).pack(fill='x', pady=2)
+        ttk.Checkbutton(
+            ctrl,
+            text="Compact generated patches (fewer XPath operations)",
+            variable=self.compact_generated_patches,
+            command=self.on_compaction_changed,
+        ).pack(fill='x', pady=2)
         ttk.Separator(ctrl, orient='horizontal').pack(fill='x', pady=6)
         ttk.Button(ctrl, text="Generate/Fix Patches", command=self.run_generation).pack(fill='x', pady=6)
         ttk.Button(ctrl, text="Generate From Original XML", command=self.run_original_xml_generation).pack(fill='x', pady=2)
@@ -4357,7 +4436,7 @@ class GeneratorApp(tk.Tk):
 
     def pick_vanilla_tsv(self):
         p = filedialog.askopenfilename(
-            title="Select Vanilla table (TSV or AnimalStats.xlsx)",
+            title="Select local Vanilla table (TSV or AnimalStats.xlsx)",
             filetypes=[("Tables", "*.tsv *.xlsx *.xlsm *.xls"), ("TSV", "*.tsv"), ("Excel", "*.xlsx *.xlsm *.xls"), ("All", "*.*")]
         )
         if p:
@@ -4369,7 +4448,7 @@ class GeneratorApp(tk.Tk):
 
     def pick_ce_tsv(self):
         p = filedialog.askopenfilename(
-            title="Select CE table (TSV or AnimalStats.xlsx)",
+            title="Select local CE table (TSV or AnimalStats.xlsx)",
             filetypes=[("Tables", "*.tsv *.xlsx *.xlsm *.xls"), ("TSV", "*.tsv"), ("Excel", "*.xlsx *.xlsm *.xls"), ("All", "*.*")]
         )
         if p:
@@ -4415,6 +4494,31 @@ class GeneratorApp(tk.Tk):
         self.cfg['preserve_runtime_preconditions'] = bool(self.preserve_runtime_preconditions.get())
         save_config(self.cfg)
 
+    def on_compaction_changed(self):
+        self.cfg['compact_generated_patches'] = bool(self.compact_generated_patches.get())
+        save_config(self.cfg)
+
+    def _compact_current_outputs(self, results, path_index=1, success_index=-1):
+        reports = compact_successful_outputs(
+            results,
+            enabled=bool(self.compact_generated_patches.get()),
+            path_index=path_index,
+            success_index=success_index,
+        )
+        if reports:
+            before_ops = sum(report.operations_before for report in reports)
+            after_ops = sum(report.operations_after for report in reports)
+            before_xpaths = sum(report.xpaths_before for report in reports)
+            after_xpaths = sum(report.xpaths_after for report in reports)
+            before_bytes = sum(report.bytes_before for report in reports)
+            after_bytes = sum(report.bytes_after for report in reports)
+            print(
+                "Patch compactor: "
+                f"{len(reports)} file(s), bytes {before_bytes}->{after_bytes}, "
+                f"PatchOperations {before_ops}->{after_ops}, XPath {before_xpaths}->{after_xpaths}."
+            )
+        return reports
+
     def _make_unique_output_path(self, source_xml, used_names):
         base = os.path.splitext(os.path.basename(source_xml))[0]
         n = used_names.get(base, 0) + 1
@@ -4438,6 +4542,13 @@ class GeneratorApp(tk.Tk):
         self.cfg['xmls'] = []
         save_config(self.cfg)
 
+    def _persist_table_sources(self):
+        # Text fields can contain pasted Google Sheets URLs, so persist them
+        # even when the file-picker buttons were not used.
+        self.cfg['vanilla_tsv'] = self.vanilla_tsv.get().strip()
+        self.cfg['ce_tsv'] = self.ce_tsv.get().strip()
+        save_config(self.cfg)
+
     def open_output(self):
         folder = self.report_dir
         try:
@@ -4452,17 +4563,14 @@ class GeneratorApp(tk.Tk):
 
     def _load_table_animals_for_ui(self):
         v_source = self.vanilla_tsv.get()
-        if not v_source or not os.path.exists(v_source):
-            raise RuntimeError("Vanilla table missing or not found (TSV/XLSX).")
-        try:
-            cache_key = (os.path.normcase(os.path.abspath(v_source)), os.path.getmtime(v_source))
-        except Exception:
-            cache_key = (os.path.normcase(os.path.abspath(v_source)), None)
-        if self._table_animals_cache_key == cache_key and self._table_animals_cache is not None:
+        if not v_source or not source_available(v_source):
+            raise RuntimeError("AnimalStats source missing or invalid (local TSV/XLSX or Google Sheets).")
+        cache_key = source_cache_key(v_source)
+        if cache_key is not None and self._table_animals_cache_key == cache_key and self._table_animals_cache is not None:
             return self._table_animals_cache
 
         loader = PatchGenerator.__new__(PatchGenerator)
-        sheet_name = 'Animals' if is_excel_source(v_source) else None
+        sheet_name = 'Animals' if is_multisheet_source(v_source) else None
         vanilla_df = loader._load_table(v_source, sheet_name=sheet_name, required=True)
         animals = []
         seen = set()
@@ -4756,10 +4864,11 @@ class GeneratorApp(tk.Tk):
         refresh_groups()
 
     def run_generation(self):
+        self._persist_table_sources()
         v_source = self.vanilla_tsv.get()
         c_source = self.ce_tsv.get() or None
-        if not v_source or not os.path.exists(v_source):
-            messagebox.showerror("Error", "Vanilla table missing or not found (TSV/XLSX).")
+        if not v_source or not source_available(v_source):
+            messagebox.showerror("Error", "AnimalStats source missing or invalid (local TSV/XLSX or Google Sheets URL).")
             return
         if not self.xml_paths:
             messagebox.showerror("Error", "No XML files selected.")
@@ -4785,23 +4894,35 @@ class GeneratorApp(tk.Tk):
                 out_xml = xml if replace_in_place else self._make_unique_output_path(xml, used_names)
                 success = generator.generate_fixed_xml(xml, out_xml)
                 results.append((xml, out_xml, success))
+            compaction_reports = self._compact_current_outputs(results)
+            compaction_suffix = ""
+            if compaction_reports:
+                saved_ops = sum(r.operations_saved for r in compaction_reports)
+                saved_xpaths = sum(r.xpaths_saved for r in compaction_reports)
+                saved_bytes = sum(r.bytes_saved for r in compaction_reports)
+                compaction_suffix = (
+                    f"\n\nCompacted {len(compaction_reports)} file(s): "
+                    f"-{saved_ops} PatchOperations, -{saved_xpaths} XPath, "
+                    f"-{saved_bytes:,} bytes."
+                )
             if replace_in_place:
                 msg = "\n".join([f"{os.path.basename(x)} ({'OK' if s else 'FAILED'})" for x, _, s in results])
-                messagebox.showinfo("Done", f"Updated files in place:\n{msg}")
+                messagebox.showinfo("Done", f"Updated files in place:\n{msg}{compaction_suffix}")
                 self.status.set(f"Processed {len(results)} file(s) in place.")
             else:
                 msg = "\n".join([f"{os.path.basename(x)} → {os.path.basename(o)} ({'OK' if s else 'FAILED'})" for x, o, s in results])
-                messagebox.showinfo("Done", f"Generated patches:\n{msg}\n\nFolder: {self.report_dir}")
+                messagebox.showinfo("Done", f"Generated patches:\n{msg}{compaction_suffix}\n\nFolder: {self.report_dir}")
                 self.status.set(f"Processed {len(results)} file(s).")
         except Exception as e:
             traceback.print_exc()
             messagebox.showerror("Error", str(e))
 
     def run_original_xml_generation(self):
+        self._persist_table_sources()
         v_source = self.vanilla_tsv.get()
         c_source = self.ce_tsv.get() or None
-        if not v_source or not os.path.exists(v_source):
-            messagebox.showerror("Error", "Vanilla table missing or not found (TSV/XLSX).")
+        if not v_source or not source_available(v_source):
+            messagebox.showerror("Error", "AnimalStats source missing or invalid (local TSV/XLSX or Google Sheets URL).")
             return
 
         original_xmls = filedialog.askopenfilenames(
@@ -4843,6 +4964,7 @@ class GeneratorApp(tk.Tk):
                     success = False
                 results.append((xml, out_xml, len(def_names), success))
 
+            self._compact_current_outputs(results, path_index=1, success_index=3)
             ok_count = sum(1 for _xml, _out, _count, success in results if success)
             preview = "\n".join([
                 f"{os.path.basename(xml)} -> {os.path.basename(out)} ({count} defs) {'OK' if success else 'FAILED'}"
@@ -4860,10 +4982,11 @@ class GeneratorApp(tk.Tk):
             messagebox.showerror("Error", str(e))
 
     def run_group_generation(self):
+        self._persist_table_sources()
         v_source = self.vanilla_tsv.get()
         c_source = self.ce_tsv.get() or None
-        if not v_source or not os.path.exists(v_source):
-            messagebox.showerror("Error", "Vanilla table missing or not found (TSV/XLSX).")
+        if not v_source or not source_available(v_source):
+            messagebox.showerror("Error", "AnimalStats source missing or invalid (local TSV/XLSX or Google Sheets URL).")
             return
 
         groups = self._normalize_table_groups(self.table_groups)
@@ -4931,6 +5054,7 @@ class GeneratorApp(tk.Tk):
                 success = generator.generate_patch_from_definitions(out_xml, group['defs'])
                 results.append((group, out_xml, success))
 
+            self._compact_current_outputs(results)
             msg = "\n".join([
                 f"{group['output']} ({len(group.get('defs', []))} defs) {'OK' if success else 'FAILED'}"
                 for group, _out_xml, success in results
@@ -4942,9 +5066,10 @@ class GeneratorApp(tk.Tk):
             messagebox.showerror("Error", str(e))
 
     def run_biome_generation(self):
+        self._persist_table_sources()
         v_source = self.vanilla_tsv.get()
-        if not v_source or not os.path.exists(v_source):
-            messagebox.showerror("Error", "Vanilla table missing or not found (TSV/XLSX).")
+        if not v_source or not source_available(v_source):
+            messagebox.showerror("Error", "AnimalStats source missing or invalid (local TSV/XLSX or Google Sheets URL).")
             return
         try:
             generator = PatchGenerator(
@@ -4954,6 +5079,17 @@ class GeneratorApp(tk.Tk):
                 preserve_runtime_preconditions=bool(self.preserve_runtime_preconditions.get()),
             )
             created = generator.generate_biome_patch_files(self.report_dir)
+            if created and bool(self.compact_generated_patches.get()):
+                reports = compact_files(created)
+                if reports:
+                    print(
+                        "Patch compactor: "
+                        f"{len(reports)} biome file(s), "
+                        f"PatchOperations {sum(r.operations_before for r in reports)}->"
+                        f"{sum(r.operations_after for r in reports)}, "
+                        f"XPath {sum(r.xpaths_before for r in reports)}->"
+                        f"{sum(r.xpaths_after for r in reports)}."
+                    )
             if created:
                 preview = "\n".join([os.path.basename(p) for p in created[:20]])
                 more = "" if len(created) <= 20 else f"\n... and {len(created) - 20} more"

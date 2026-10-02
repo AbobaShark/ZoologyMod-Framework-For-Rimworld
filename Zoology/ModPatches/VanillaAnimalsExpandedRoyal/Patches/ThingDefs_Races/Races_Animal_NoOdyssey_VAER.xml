@@ -6,9 +6,6 @@
     </mods>
     <nomatch Class="PatchOperationSequence">
       <operations>
-        <!---->
-        <!-- VAERoy_Quail -->
-        <!-- VAERoy_Quail StatBases -->
         <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/statBases/MarketValue</xpath>
           <match Class="PatchOperationReplace">
@@ -29,13 +26,13 @@
           <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/statBases/MoveSpeed</xpath>
             <value>
-              <MoveSpeed>2</MoveSpeed>
+              <MoveSpeed>2.75</MoveSpeed>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/statBases</xpath>
             <value>
-              <MoveSpeed>2</MoveSpeed>
+              <MoveSpeed>2.75</MoveSpeed>
             </value>
           </nomatch>
         </li>
@@ -59,13 +56,13 @@
           <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/statBases/FilthRate</xpath>
             <value>
-              <FilthRate>2</FilthRate>
+              <FilthRate>1</FilthRate>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/statBases</xpath>
             <value>
-              <FilthRate>2</FilthRate>
+              <FilthRate>1</FilthRate>
             </value>
           </nomatch>
         </li>
@@ -74,13 +71,13 @@
           <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/statBases/ComfyTemperatureMin</xpath>
             <value>
-              <ComfyTemperatureMin>-25</ComfyTemperatureMin>
+              <ComfyTemperatureMin>5</ComfyTemperatureMin>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/statBases</xpath>
             <value>
-              <ComfyTemperatureMin>-25</ComfyTemperatureMin>
+              <ComfyTemperatureMin>5</ComfyTemperatureMin>
             </value>
           </nomatch>
         </li>
@@ -89,13 +86,13 @@
           <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/statBases/ComfyTemperatureMax</xpath>
             <value>
-              <ComfyTemperatureMax>50</ComfyTemperatureMax>
+              <ComfyTemperatureMax>45</ComfyTemperatureMax>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/statBases</xpath>
             <value>
-              <ComfyTemperatureMax>50</ComfyTemperatureMax>
+              <ComfyTemperatureMax>45</ComfyTemperatureMax>
             </value>
           </nomatch>
         </li>
@@ -132,7 +129,6 @@
             </value>
           </nomatch>
         </li>
-        <!-- VAERoy_Quail tools -->
         <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/tools</xpath>
           <match Class="PatchOperationRemove">
@@ -155,50 +151,29 @@
                 <chanceFactor>0.2</chanceFactor>
               </li>
               <li>
-                <label>rear left claw</label>
-                <labelNoLocation>claw</labelNoLocation>
-                <capacities>
-                  <li>Scratch</li>
-                </capacities>
-                <power>1</power>
-                <cooldownTime>1</cooldownTime>
-                <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
-              </li>
-              <li>
-                <label>rear  right claw</label>
-                <labelNoLocation>claw</labelNoLocation>
-                <capacities>
-                  <li>Scratch</li>
-                </capacities>
-                <power>1</power>
-                <cooldownTime>1</cooldownTime>
-                <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
-              </li>
-              <li>
                 <label>beak</label>
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>1</power>
+                <power>2</power>
                 <cooldownTime>1</cooldownTime>
                 <linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>
               </li>
             </tools>
           </value>
         </li>
-        <!-- VAERoy_Quail RaceProperties -->
         <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/baseBodySize</xpath>
           <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/baseBodySize</xpath>
             <value>
-              <baseBodySize>0.1</baseBodySize>
+              <baseBodySize>0.05</baseBodySize>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race</xpath>
             <value>
-              <baseBodySize>0.1</baseBodySize>
+              <baseBodySize>0.05</baseBodySize>
             </value>
           </nomatch>
         </li>
@@ -207,13 +182,13 @@
           <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/baseHealthScale</xpath>
             <value>
-              <baseHealthScale>0.1</baseHealthScale>
+              <baseHealthScale>0.05</baseHealthScale>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race</xpath>
             <value>
-              <baseHealthScale>0.1</baseHealthScale>
+              <baseHealthScale>0.05</baseHealthScale>
             </value>
           </nomatch>
         </li>
@@ -237,13 +212,13 @@
           <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/lifeExpectancy</xpath>
             <value>
-              <lifeExpectancy>8</lifeExpectancy>
+              <lifeExpectancy>2</lifeExpectancy>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race</xpath>
             <value>
-              <lifeExpectancy>8</lifeExpectancy>
+              <lifeExpectancy>2</lifeExpectancy>
             </value>
           </nomatch>
         </li>
@@ -288,13 +263,13 @@
           <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/foodType</xpath>
             <value>
-              <foodType>VegetarianRoughAnimal</foodType>
+              <foodType>OmnivoreAnimal, OvivoreAnimal</foodType>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race</xpath>
             <value>
-              <foodType>VegetarianRoughAnimal</foodType>
+              <foodType>OmnivoreAnimal, OvivoreAnimal</foodType>
             </value>
           </nomatch>
         </li>
@@ -506,16 +481,39 @@
           </match>
         </li>
         <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]</xpath>
+            <value>
+              <race/>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/flightSpeedFactor</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/flightSpeedFactor</xpath>
+            <value>
+              <flightSpeedFactor>4.3</flightSpeedFactor>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race</xpath>
+            <value>
+              <flightSpeedFactor>4.3</flightSpeedFactor>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/wildBiomes</xpath>
           <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race/wildBiomes</xpath>
             <value>
               <wildBiomes>
-                <TemperateForest>0.5</TemperateForest>
-                <TemperateSwamp>0.5</TemperateSwamp>
-                <AridShrubland>0.5</AridShrubland>
-                <Grasslands MayRequire="Ludeon.RimWorld.Odyssey">0.5</Grasslands>
-                <LavaField MayRequire="Ludeon.RimWorld.Odyssey">0.5</LavaField>
+                <AridShrubland>0.35</AridShrubland>
+                <Grasslands MayRequire="Ludeon.RimWorld.Odyssey">0.35</Grasslands>
+                <AB_IdyllicMeadows>0.35</AB_IdyllicMeadows>
+                <AB_TarPits>0.35</AB_TarPits>
               </wildBiomes>
             </value>
           </match>
@@ -523,11 +521,10 @@
             <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/race</xpath>
             <value>
               <wildBiomes>
-                <TemperateForest>0.5</TemperateForest>
-                <TemperateSwamp>0.5</TemperateSwamp>
-                <AridShrubland>0.5</AridShrubland>
-                <Grasslands MayRequire="Ludeon.RimWorld.Odyssey">0.5</Grasslands>
-                <LavaField MayRequire="Ludeon.RimWorld.Odyssey">0.5</LavaField>
+                <AridShrubland>0.35</AridShrubland>
+                <Grasslands MayRequire="Ludeon.RimWorld.Odyssey">0.35</Grasslands>
+                <AB_IdyllicMeadows>0.35</AB_IdyllicMeadows>
+                <AB_TarPits>0.35</AB_TarPits>
               </wildBiomes>
             </value>
           </nomatch>
@@ -616,19 +613,18 @@
             <li Class="ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod"/>
           </value>
         </li>
-        <!-- VAERoy_Quail PawnKindDef -->
         <li Class="PatchOperationConditional">
           <xpath>/Defs/PawnKindDef[defName = "VAERoy_Quail"]/combatPower</xpath>
           <match Class="PatchOperationReplace">
             <xpath>/Defs/PawnKindDef[defName = "VAERoy_Quail"]/combatPower</xpath>
             <value>
-              <combatPower>20</combatPower>
+              <combatPower>25</combatPower>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>/Defs/PawnKindDef[defName = "VAERoy_Quail"]</xpath>
             <value>
-              <combatPower>20</combatPower>
+              <combatPower>25</combatPower>
             </value>
           </nomatch>
         </li>
@@ -652,13 +648,13 @@
           <match Class="PatchOperationReplace">
             <xpath>/Defs/PawnKindDef[defName = "VAERoy_Quail"]/canArriveManhunter</xpath>
             <value>
-              <canArriveManhunter>false</canArriveManhunter>
+              <canArriveManhunter>true</canArriveManhunter>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>/Defs/PawnKindDef[defName = "VAERoy_Quail"]</xpath>
             <value>
-              <canArriveManhunter>false</canArriveManhunter>
+              <canArriveManhunter>true</canArriveManhunter>
             </value>
           </nomatch>
         </li>
@@ -692,21 +688,18 @@
     </mods>
     <nomatch Class="PatchOperationSequence">
       <operations>
-        <!---->
-        <!-- VAERoy_Swan -->
-        <!-- VAERoy_Swan StatBases -->
         <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/statBases/MarketValue</xpath>
           <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/statBases/MarketValue</xpath>
             <value>
-              <MarketValue>175</MarketValue>
+              <MarketValue>150</MarketValue>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/statBases</xpath>
             <value>
-              <MarketValue>175</MarketValue>
+              <MarketValue>150</MarketValue>
             </value>
           </nomatch>
         </li>
@@ -715,13 +708,13 @@
           <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/statBases/MoveSpeed</xpath>
             <value>
-              <MoveSpeed>1.5</MoveSpeed>
+              <MoveSpeed>4.5</MoveSpeed>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/statBases</xpath>
             <value>
-              <MoveSpeed>1.5</MoveSpeed>
+              <MoveSpeed>4.5</MoveSpeed>
             </value>
           </nomatch>
         </li>
@@ -818,7 +811,6 @@
             </value>
           </nomatch>
         </li>
-        <!-- VAERoy_Swan tools -->
         <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/tools</xpath>
           <match Class="PatchOperationRemove">
@@ -834,25 +826,44 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>3.5</power>
-                <cooldownTime>1.45</cooldownTime>
+                <power>2.5</power>
+                <cooldownTime>1.3</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                 <chanceFactor>0.2</chanceFactor>
               </li>
               <li>
+                <label>rear left claw</label>
+                <labelNoLocation>claw</labelNoLocation>
+                <capacities>
+                  <li>Scratch</li>
+                </capacities>
+                <power>6</power>
+                <cooldownTime>1.5</cooldownTime>
+                <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
+              </li>
+              <li>
+                <label>rear  right claw</label>
+                <labelNoLocation>claw</labelNoLocation>
+                <capacities>
+                  <li>Scratch</li>
+                </capacities>
+                <power>6</power>
+                <cooldownTime>1.5</cooldownTime>
+                <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
+              </li>
+              <li>
                 <label>beak</label>
                 <capacities>
-                  <li>Blunt</li>
+                  <li>Bite</li>
                 </capacities>
-                <power>3.5</power>
-                <cooldownTime>1.15</cooldownTime>
+                <power>5.5</power>
+                <cooldownTime>1.5</cooldownTime>
                 <linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>
               </li>
             </tools>
           </value>
         </li>
-        <!-- VAERoy_Swan RaceProperties -->
         <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/baseBodySize</xpath>
           <match Class="PatchOperationReplace">
@@ -903,13 +914,13 @@
           <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/lifeExpectancy</xpath>
             <value>
-              <lifeExpectancy>25</lifeExpectancy>
+              <lifeExpectancy>21</lifeExpectancy>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race</xpath>
             <value>
-              <lifeExpectancy>25</lifeExpectancy>
+              <lifeExpectancy>21</lifeExpectancy>
             </value>
           </nomatch>
         </li>
@@ -939,13 +950,13 @@
           <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/herdMigrationAllowed</xpath>
             <value>
-              <herdMigrationAllowed>false</herdMigrationAllowed>
+              <herdMigrationAllowed>true</herdMigrationAllowed>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race</xpath>
             <value>
-              <herdMigrationAllowed>false</herdMigrationAllowed>
+              <herdMigrationAllowed>true</herdMigrationAllowed>
             </value>
           </nomatch>
         </li>
@@ -1190,13 +1201,38 @@
           </nomatch>
         </li>
         <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]</xpath>
+            <value>
+              <race/>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/flightSpeedFactor</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/flightSpeedFactor</xpath>
+            <value>
+              <flightSpeedFactor>3.9</flightSpeedFactor>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race</xpath>
+            <value>
+              <flightSpeedFactor>3.9</flightSpeedFactor>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/wildBiomes</xpath>
           <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race/wildBiomes</xpath>
             <value>
               <wildBiomes>
-                <ColdBog>0.325</ColdBog>
-                <TemperateSwamp>0.325</TemperateSwamp>
+                <ColdBog>0.175</ColdBog>
+                <TemperateSwamp>0.175</TemperateSwamp>
+                <AB_GelatinousSuperorganism>0.175</AB_GelatinousSuperorganism>
               </wildBiomes>
             </value>
           </match>
@@ -1204,8 +1240,9 @@
             <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/race</xpath>
             <value>
               <wildBiomes>
-                <ColdBog>0.325</ColdBog>
-                <TemperateSwamp>0.325</TemperateSwamp>
+                <ColdBog>0.175</ColdBog>
+                <TemperateSwamp>0.175</TemperateSwamp>
+                <AB_GelatinousSuperorganism>0.175</AB_GelatinousSuperorganism>
               </wildBiomes>
             </value>
           </nomatch>
@@ -1227,10 +1264,10 @@
                 <li>
                   <def>AnimalAdult</def>
                   <minAge>0.4</minAge>
-                  <soundWounded>Pawn_Goose_Wounded</soundWounded>
-                  <soundDeath>Pawn_Goose_Death</soundDeath>
-                  <soundCall>Pawn_Goose_Call</soundCall>
-                  <soundAngry>Pawn_Goose_Angry</soundAngry>
+                  <soundWounded>Pawn_Chicken_Wounded</soundWounded>
+                  <soundDeath>Pawn_Chicken_Death</soundDeath>
+                  <soundCall>Pawn_Chicken_Call</soundCall>
+                  <soundAngry>Pawn_Chicken_Angry</soundAngry>
                 </li>
               </lifeStageAges>
             </value>
@@ -1250,10 +1287,10 @@
                 <li>
                   <def>AnimalAdult</def>
                   <minAge>0.4</minAge>
-                  <soundWounded>Pawn_Goose_Wounded</soundWounded>
-                  <soundDeath>Pawn_Goose_Death</soundDeath>
-                  <soundCall>Pawn_Goose_Call</soundCall>
-                  <soundAngry>Pawn_Goose_Angry</soundAngry>
+                  <soundWounded>Pawn_Chicken_Wounded</soundWounded>
+                  <soundDeath>Pawn_Chicken_Death</soundDeath>
+                  <soundCall>Pawn_Chicken_Call</soundCall>
+                  <soundAngry>Pawn_Chicken_Angry</soundAngry>
                 </li>
               </lifeStageAges>
             </value>
@@ -1276,14 +1313,14 @@
           <match Class="PatchOperationAdd">
             <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/tradeTags</xpath>
             <value>
-              <li>AnimalUncommon</li>
+              <li>AnimalCommon</li>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]</xpath>
             <value>
               <tradeTags>
-                <li>AnimalUncommon</li>
+                <li>AnimalCommon</li>
               </tradeTags>
             </value>
           </nomatch>
@@ -1294,19 +1331,18 @@
             <li Class="ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod"/>
           </value>
         </li>
-        <!-- VAERoy_Swan PawnKindDef -->
         <li Class="PatchOperationConditional">
           <xpath>/Defs/PawnKindDef[defName = "VAERoy_Swan"]/combatPower</xpath>
           <match Class="PatchOperationReplace">
             <xpath>/Defs/PawnKindDef[defName = "VAERoy_Swan"]/combatPower</xpath>
             <value>
-              <combatPower>35</combatPower>
+              <combatPower>45</combatPower>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>/Defs/PawnKindDef[defName = "VAERoy_Swan"]</xpath>
             <value>
-              <combatPower>35</combatPower>
+              <combatPower>45</combatPower>
             </value>
           </nomatch>
         </li>
@@ -1361,9 +1397,6 @@
     </mods>
     <nomatch Class="PatchOperationSequence">
       <operations>
-        <!---->
-        <!-- VAERoy_Peacock -->
-        <!-- VAERoy_Peacock StatBases -->
         <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/statBases/MarketValue</xpath>
           <match Class="PatchOperationReplace">
@@ -1384,13 +1417,13 @@
           <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/statBases/MoveSpeed</xpath>
             <value>
-              <MoveSpeed>2</MoveSpeed>
+              <MoveSpeed>4.1</MoveSpeed>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/statBases</xpath>
             <value>
-              <MoveSpeed>2</MoveSpeed>
+              <MoveSpeed>4.1</MoveSpeed>
             </value>
           </nomatch>
         </li>
@@ -1444,13 +1477,13 @@
           <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/statBases/ComfyTemperatureMax</xpath>
             <value>
-              <ComfyTemperatureMax>40</ComfyTemperatureMax>
+              <ComfyTemperatureMax>45</ComfyTemperatureMax>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/statBases</xpath>
             <value>
-              <ComfyTemperatureMax>40</ComfyTemperatureMax>
+              <ComfyTemperatureMax>45</ComfyTemperatureMax>
             </value>
           </nomatch>
         </li>
@@ -1487,7 +1520,6 @@
             </value>
           </nomatch>
         </li>
-        <!-- VAERoy_Peacock tools -->
         <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/tools</xpath>
           <match Class="PatchOperationRemove">
@@ -1503,8 +1535,8 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>2.5</power>
-                <cooldownTime>1.25</cooldownTime>
+                <power>2</power>
+                <cooldownTime>1.15</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                 <chanceFactor>0.2</chanceFactor>
@@ -1515,8 +1547,8 @@
                 <capacities>
                   <li>Scratch</li>
                 </capacities>
-                <power>4</power>
-                <cooldownTime>1.25</cooldownTime>
+                <power>5</power>
+                <cooldownTime>1.5</cooldownTime>
                 <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
               </li>
               <li>
@@ -1525,8 +1557,8 @@
                 <capacities>
                   <li>Scratch</li>
                 </capacities>
-                <power>4</power>
-                <cooldownTime>1.25</cooldownTime>
+                <power>5</power>
+                <cooldownTime>1.5</cooldownTime>
                 <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
               </li>
               <li>
@@ -1534,14 +1566,13 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>2.5</power>
-                <cooldownTime>1.25</cooldownTime>
+                <power>4</power>
+                <cooldownTime>1.35</cooldownTime>
                 <linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>
               </li>
             </tools>
           </value>
         </li>
-        <!-- VAERoy_Peacock RaceProperties -->
         <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/baseBodySize</xpath>
           <match Class="PatchOperationReplace">
@@ -1643,13 +1674,13 @@
           <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/foodType</xpath>
             <value>
-              <foodType>VegetarianRoughAnimal</foodType>
+              <foodType>OmnivoreRoughAnimal, OvivoreAnimal</foodType>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race</xpath>
             <value>
-              <foodType>VegetarianRoughAnimal</foodType>
+              <foodType>OmnivoreRoughAnimal, OvivoreAnimal</foodType>
             </value>
           </nomatch>
         </li>
@@ -1870,14 +1901,44 @@
           </nomatch>
         </li>
         <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]</xpath>
+            <value>
+              <race/>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/flightSpeedFactor</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/flightSpeedFactor</xpath>
+            <value>
+              <flightSpeedFactor>4.7</flightSpeedFactor>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race</xpath>
+            <value>
+              <flightSpeedFactor>4.7</flightSpeedFactor>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/wildBiomes</xpath>
           <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race/wildBiomes</xpath>
             <value>
               <wildBiomes>
-                <TropicalRainforest>0.425</TropicalRainforest>
-                <TropicalSwamp>0.425</TropicalSwamp>
-                <Glowforest MayRequire="Ludeon.RimWorld.Odyssey">0.425</Glowforest>
+                <AridShrubland>0.001</AridShrubland>
+                <Grasslands MayRequire="Ludeon.RimWorld.Odyssey">0.001</Grasslands>
+                <TropicalRainforest>0.001</TropicalRainforest>
+                <TropicalSwamp>0.001</TropicalSwamp>
+                <AB_FeraliskInfestedJungle>0.001</AB_FeraliskInfestedJungle>
+                <AB_IdyllicMeadows>0.001</AB_IdyllicMeadows>
+                <AB_MiasmicMangrove>0.001</AB_MiasmicMangrove>
+                <AB_MycoticJungle>0.001</AB_MycoticJungle>
+                <AB_TarPits>0.001</AB_TarPits>
               </wildBiomes>
             </value>
           </match>
@@ -1885,9 +1946,15 @@
             <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/race</xpath>
             <value>
               <wildBiomes>
-                <TropicalRainforest>0.425</TropicalRainforest>
-                <TropicalSwamp>0.425</TropicalSwamp>
-                <Glowforest MayRequire="Ludeon.RimWorld.Odyssey">0.425</Glowforest>
+                <AridShrubland>0.001</AridShrubland>
+                <Grasslands MayRequire="Ludeon.RimWorld.Odyssey">0.001</Grasslands>
+                <TropicalRainforest>0.001</TropicalRainforest>
+                <TropicalSwamp>0.001</TropicalSwamp>
+                <AB_FeraliskInfestedJungle>0.001</AB_FeraliskInfestedJungle>
+                <AB_IdyllicMeadows>0.001</AB_IdyllicMeadows>
+                <AB_MiasmicMangrove>0.001</AB_MiasmicMangrove>
+                <AB_MycoticJungle>0.001</AB_MycoticJungle>
+                <AB_TarPits>0.001</AB_TarPits>
               </wildBiomes>
             </value>
           </nomatch>
@@ -1976,19 +2043,18 @@
             <li Class="ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod"/>
           </value>
         </li>
-        <!-- VAERoy_Peacock PawnKindDef -->
         <li Class="PatchOperationConditional">
           <xpath>/Defs/PawnKindDef[defName = "VAERoy_Peacock"]/combatPower</xpath>
           <match Class="PatchOperationReplace">
             <xpath>/Defs/PawnKindDef[defName = "VAERoy_Peacock"]/combatPower</xpath>
             <value>
-              <combatPower>30</combatPower>
+              <combatPower>40</combatPower>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>/Defs/PawnKindDef[defName = "VAERoy_Peacock"]</xpath>
             <value>
-              <combatPower>30</combatPower>
+              <combatPower>40</combatPower>
             </value>
           </nomatch>
         </li>
@@ -2046,8 +2112,6 @@
       </operations>
     </nomatch>
   </Operation>
-  <!---->
-  <!-- Combat Extended specific patches -->
   <Operation Class="PatchOperationFindMod">
     <mods>
       <li>Combat Extended</li>
@@ -2060,7 +2124,21 @@
           </mods>
           <nomatch Class="PatchOperationSequence">
             <operations>
-              <!-- VAERoy_Quail CE patches -->
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="VAERoy_Quail"]/statBases/MoveSpeed</xpath>
+                <match Class="PatchOperationReplace">
+                  <xpath>Defs/ThingDef[defName="VAERoy_Quail"]/statBases/MoveSpeed</xpath>
+                  <value>
+                    <MoveSpeed>2.75</MoveSpeed>
+                  </value>
+                </match>
+                <nomatch Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[defName="VAERoy_Quail"]/statBases</xpath>
+                  <value>
+                    <MoveSpeed>2.75</MoveSpeed>
+                  </value>
+                </nomatch>
+              </li>
               <li Class="PatchOperationConditional">
                 <xpath>Defs/ThingDef[defName="VAERoy_Quail"]/statBases/MeleeDodgeChance</xpath>
                 <match Class="PatchOperationReplace">
@@ -2150,14 +2228,14 @@
                 <match Class="PatchOperationReplace">
                   <xpath>Defs/ThingDef[defName="VAERoy_Quail"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]/Durability</xpath>
                   <value>
-                    <Durability>50</Durability>
+                    <Durability>25</Durability>
                   </value>
                 </match>
                 <nomatch Class="PatchOperationAdd">
                   <xpath>Defs/ThingDef[defName="VAERoy_Quail"]/comps</xpath>
                   <value>
                     <li Class="CombatExtended.CompProperties_ArmorDurability">
-                      <Durability>50</Durability>
+                      <Durability>25</Durability>
                       <Regenerates>true</Regenerates>
                       <RegenInterval>600</RegenInterval>
                       <RegenValue>5</RegenValue>
@@ -2214,46 +2292,21 @@
                       <capacities>
                         <li>Blunt</li>
                       </capacities>
-                      <power>0.05</power>
+                      <power>0.01</power>
                       <armorPenetrationBlunt>0</armorPenetrationBlunt>
-                      <cooldownTime>1.05</cooldownTime>
+                      <cooldownTime>0.5</cooldownTime>
                       <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                       <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                       <chanceFactor>0.2</chanceFactor>
-                    </li>
-                    <li Class="CombatExtended.ToolCE">
-                      <label>rear left claw</label>
-                      <labelNoLocation>claw</labelNoLocation>
-                      <capacities>
-                        <li>Scratch</li>
-                      </capacities>
-                      <power>0.6</power>
-                      <armorPenetrationBlunt>0.05</armorPenetrationBlunt>
-                      <armorPenetrationSharp>0.02</armorPenetrationSharp>
-                      <cooldownTime>1.45</cooldownTime>
-                      <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
-                    </li>
-                    <li Class="CombatExtended.ToolCE">
-                      <label>rear  right claw</label>
-                      <labelNoLocation>claw</labelNoLocation>
-                      <capacities>
-                        <li>Scratch</li>
-                      </capacities>
-                      <power>0.6</power>
-                      <armorPenetrationBlunt>0.05</armorPenetrationBlunt>
-                      <armorPenetrationSharp>0.02</armorPenetrationSharp>
-                      <cooldownTime>1.45</cooldownTime>
-                      <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
                     </li>
                     <li Class="CombatExtended.ToolCE">
                       <label>beak</label>
                       <capacities>
                         <li>Blunt</li>
                       </capacities>
-                      <power>0.3</power>
-                      <armorPenetrationBlunt>0.05</armorPenetrationBlunt>
-                      <armorPenetrationSharp>0.01</armorPenetrationSharp>
-                      <cooldownTime>1.75</cooldownTime>
+                      <power>0.01</power>
+                      <armorPenetrationBlunt>0.001</armorPenetrationBlunt>
+                      <cooldownTime>0.84</cooldownTime>
                       <linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>
                     </li>
                   </tools>
@@ -2274,7 +2327,21 @@
           </mods>
           <nomatch Class="PatchOperationSequence">
             <operations>
-              <!-- VAERoy_Swan CE patches -->
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="VAERoy_Swan"]/statBases/MoveSpeed</xpath>
+                <match Class="PatchOperationReplace">
+                  <xpath>Defs/ThingDef[defName="VAERoy_Swan"]/statBases/MoveSpeed</xpath>
+                  <value>
+                    <MoveSpeed>4.5</MoveSpeed>
+                  </value>
+                </match>
+                <nomatch Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[defName="VAERoy_Swan"]/statBases</xpath>
+                  <value>
+                    <MoveSpeed>4.5</MoveSpeed>
+                  </value>
+                </nomatch>
+              </li>
               <li Class="PatchOperationConditional">
                 <xpath>Defs/ThingDef[defName="VAERoy_Swan"]/statBases/MeleeDodgeChance</xpath>
                 <match Class="PatchOperationReplace">
@@ -2428,22 +2495,46 @@
                       <capacities>
                         <li>Blunt</li>
                       </capacities>
-                      <power>0.4</power>
-                      <armorPenetrationBlunt>0.3</armorPenetrationBlunt>
-                      <cooldownTime>1.45</cooldownTime>
+                      <power>0.25</power>
+                      <armorPenetrationBlunt>0.068</armorPenetrationBlunt>
+                      <cooldownTime>0.98</cooldownTime>
                       <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                       <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                       <chanceFactor>0.2</chanceFactor>
                     </li>
                     <li Class="CombatExtended.ToolCE">
+                      <label>rear left claw</label>
+                      <labelNoLocation>claw</labelNoLocation>
+                      <capacities>
+                        <li>Scratch</li>
+                      </capacities>
+                      <power>2.95</power>
+                      <armorPenetrationBlunt>0.081</armorPenetrationBlunt>
+                      <armorPenetrationSharp>0.08</armorPenetrationSharp>
+                      <cooldownTime>1.29</cooldownTime>
+                      <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
+                    </li>
+                    <li Class="CombatExtended.ToolCE">
+                      <label>rear  right claw</label>
+                      <labelNoLocation>claw</labelNoLocation>
+                      <capacities>
+                        <li>Scratch</li>
+                      </capacities>
+                      <power>2.95</power>
+                      <armorPenetrationBlunt>0.081</armorPenetrationBlunt>
+                      <armorPenetrationSharp>0.08</armorPenetrationSharp>
+                      <cooldownTime>1.29</cooldownTime>
+                      <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
+                    </li>
+                    <li Class="CombatExtended.ToolCE">
                       <label>beak</label>
                       <capacities>
-                        <li>Blunt</li>
+                        <li>Bite</li>
                       </capacities>
-                      <power>2.1</power>
-                      <armorPenetrationBlunt>0.1</armorPenetrationBlunt>
-                      <armorPenetrationSharp>0.02</armorPenetrationSharp>
-                      <cooldownTime>1.8</cooldownTime>
+                      <power>3.1</power>
+                      <armorPenetrationBlunt>0.038</armorPenetrationBlunt>
+                      <armorPenetrationSharp>0.01</armorPenetrationSharp>
+                      <cooldownTime>1.5</cooldownTime>
                       <linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>
                     </li>
                   </tools>
@@ -2464,7 +2555,21 @@
           </mods>
           <nomatch Class="PatchOperationSequence">
             <operations>
-              <!-- VAERoy_Peacock CE patches -->
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="VAERoy_Peacock"]/statBases/MoveSpeed</xpath>
+                <match Class="PatchOperationReplace">
+                  <xpath>Defs/ThingDef[defName="VAERoy_Peacock"]/statBases/MoveSpeed</xpath>
+                  <value>
+                    <MoveSpeed>4.1</MoveSpeed>
+                  </value>
+                </match>
+                <nomatch Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[defName="VAERoy_Peacock"]/statBases</xpath>
+                  <value>
+                    <MoveSpeed>4.1</MoveSpeed>
+                  </value>
+                </nomatch>
+              </li>
               <li Class="PatchOperationConditional">
                 <xpath>Defs/ThingDef[defName="VAERoy_Peacock"]/statBases/MeleeDodgeChance</xpath>
                 <match Class="PatchOperationReplace">
@@ -2618,9 +2723,9 @@
                       <capacities>
                         <li>Blunt</li>
                       </capacities>
-                      <power>0.2</power>
-                      <armorPenetrationBlunt>0.15</armorPenetrationBlunt>
-                      <cooldownTime>1.3</cooldownTime>
+                      <power>0.1</power>
+                      <armorPenetrationBlunt>0.02</armorPenetrationBlunt>
+                      <cooldownTime>0.87</cooldownTime>
                       <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                       <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                       <chanceFactor>0.2</chanceFactor>
@@ -2631,10 +2736,10 @@
                       <capacities>
                         <li>Scratch</li>
                       </capacities>
-                      <power>3.3</power>
-                      <armorPenetrationBlunt>0.25</armorPenetrationBlunt>
-                      <armorPenetrationSharp>0.05</armorPenetrationSharp>
-                      <cooldownTime>2.15</cooldownTime>
+                      <power>1.8</power>
+                      <armorPenetrationBlunt>0.024</armorPenetrationBlunt>
+                      <armorPenetrationSharp>0.02</armorPenetrationSharp>
+                      <cooldownTime>1.14</cooldownTime>
                       <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
                     </li>
                     <li Class="CombatExtended.ToolCE">
@@ -2643,10 +2748,10 @@
                       <capacities>
                         <li>Scratch</li>
                       </capacities>
-                      <power>3.3</power>
-                      <armorPenetrationBlunt>0.25</armorPenetrationBlunt>
-                      <armorPenetrationSharp>0.05</armorPenetrationSharp>
-                      <cooldownTime>2.15</cooldownTime>
+                      <power>1.8</power>
+                      <armorPenetrationBlunt>0.024</armorPenetrationBlunt>
+                      <armorPenetrationSharp>0.02</armorPenetrationSharp>
+                      <cooldownTime>1.14</cooldownTime>
                       <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
                     </li>
                     <li Class="CombatExtended.ToolCE">
@@ -2654,10 +2759,9 @@
                       <capacities>
                         <li>Blunt</li>
                       </capacities>
-                      <power>1.1</power>
-                      <armorPenetrationBlunt>0.1</armorPenetrationBlunt>
-                      <armorPenetrationSharp>0.02</armorPenetrationSharp>
-                      <cooldownTime>2.25</cooldownTime>
+                      <power>0.15</power>
+                      <armorPenetrationBlunt>0.041</armorPenetrationBlunt>
+                      <cooldownTime>1.35</cooldownTime>
                       <linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>
                     </li>
                   </tools>

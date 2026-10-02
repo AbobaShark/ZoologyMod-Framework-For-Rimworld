@@ -15,7 +15,16 @@ namespace ZoologyMod
     {
         private static void Postfix(Pawn pawn, ref bool __result)
         {
-            if (!__result && NpcAnimalCompanionVanillaAdapter.ShouldFollowMaster(pawn))
+            // This vanilla gate is also called by fear/threat checks for ordinary
+            // animals. Wild and player pawns cannot have an active NPC master link.
+            // Reject them before entering the adapter or looking up a GameComponent.
+            if (__result || pawn == null || !pawn.Spawned
+                || pawn.Faction == null || pawn.Faction.IsPlayer)
+            {
+                return;
+            }
+
+            if (NpcAnimalCompanionVanillaAdapter.ShouldFollowMaster(pawn))
             {
                 // JobGiver_AnimalFlee and both vanilla shot/damage flee paths call
                 // this exact gate. Exposing the NPC link here gives companions the

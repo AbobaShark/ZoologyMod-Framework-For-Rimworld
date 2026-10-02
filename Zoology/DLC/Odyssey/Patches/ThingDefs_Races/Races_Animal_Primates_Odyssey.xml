@@ -1,8 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
 <Patch>
-  <!---->
-  <!-- Gorilla -->
-  <!-- Gorilla StatBases -->
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Gorilla"]/statBases/MarketValue</xpath>
     <value>
@@ -12,13 +9,13 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Gorilla"]/statBases/MoveSpeed</xpath>
     <value>
-      <MoveSpeed>4</MoveSpeed>
+      <MoveSpeed>4.75</MoveSpeed>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Gorilla"]/statBases/Wildness</xpath>
     <value>
-      <Wildness>0.9</Wildness>
+      <Wildness>0.85</Wildness>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -40,24 +37,11 @@
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Gorilla"]/statBases/ArmorRating_Blunt</xpath>
+    <xpath>/Defs/ThingDef[defName = "Gorilla"]/statBases/*[self::ArmorRating_Blunt or self::ArmorRating_Sharp or self::ToxicEnvironmentResistance]</xpath>
     <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Gorilla"]/statBases/ArmorRating_Blunt</xpath>
+      <xpath>/Defs/ThingDef[defName = "Gorilla"]/statBases/*[self::ArmorRating_Blunt or self::ArmorRating_Sharp or self::ToxicEnvironmentResistance]</xpath>
     </match>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Gorilla"]/statBases/ArmorRating_Sharp</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Gorilla"]/statBases/ArmorRating_Sharp</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Gorilla"]/statBases/ToxicEnvironmentResistance</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Gorilla"]/statBases/ToxicEnvironmentResistance</xpath>
-    </match>
-  </Operation>
-  <!-- Gorilla tools -->
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Gorilla"]/tools</xpath>
     <match Class="PatchOperationRemove">
@@ -73,8 +57,8 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>9.5</power>
-          <cooldownTime>2.3</cooldownTime>
+          <power>5.5</power>
+          <cooldownTime>1.7</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
           <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
           <chanceFactor>0.2</chanceFactor>
@@ -85,8 +69,8 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>12.5</power>
-          <cooldownTime>1.5</cooldownTime>
+          <power>15</power>
+          <cooldownTime>1.45</cooldownTime>
           <linkedBodyPartsGroup>LeftHand</linkedBodyPartsGroup>
         </li>
         <li>
@@ -95,8 +79,8 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>12.5</power>
-          <cooldownTime>1.5</cooldownTime>
+          <power>15</power>
+          <cooldownTime>1.45</cooldownTime>
           <linkedBodyPartsGroup>RightHand</linkedBodyPartsGroup>
         </li>
         <li>
@@ -104,36 +88,35 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>14.5</power>
-          <cooldownTime>1.95</cooldownTime>
+          <power>15</power>
+          <cooldownTime>2.05</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
         </li>
       </tools>
     </value>
   </Operation>
-  <!-- Gorilla RaceProperties -->
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/baseBodySize</xpath>
     <value>
-      <baseBodySize>1.5</baseBodySize>
+      <baseBodySize>1.4</baseBodySize>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/baseHealthScale</xpath>
     <value>
-      <baseHealthScale>1.5</baseHealthScale>
+      <baseHealthScale>1.4</baseHealthScale>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/baseHungerRate</xpath>
     <value>
-      <baseHungerRate>0.75</baseHungerRate>
+      <baseHungerRate>0.7</baseHungerRate>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/lifeExpectancy</xpath>
     <value>
-      <lifeExpectancy>50</lifeExpectancy>
+      <lifeExpectancy>30</lifeExpectancy>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -143,52 +126,30 @@
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/herdAnimal</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/herdAnimal</xpath>
-      <value>
-        <herdAnimal>true</herdAnimal>
-      </value>
+    <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/*[self::herdAnimal or self::herdMigrationAllowed or self::roamMtbDays or self::useLeatherFrom or self::petness or self::nuzzleMtbHours or self::mateMtbHours or self::packAnimal or self::predator or self::maxPreyBodySize or self::nameOnTameChance or self::waterCellCost or self::waterSeeker or self::canFishForFood or self::useMeatFrom or self::wildBiomes or self::litterSizeCurve]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/*[self::herdAnimal or self::herdMigrationAllowed or self::roamMtbDays or self::useLeatherFrom or self::petness or self::nuzzleMtbHours or self::mateMtbHours or self::packAnimal or self::predator or self::maxPreyBodySize or self::nameOnTameChance or self::waterCellCost or self::waterSeeker or self::canFishForFood or self::useMeatFrom or self::wildBiomes or self::litterSizeCurve]</xpath>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Gorilla"]/race</xpath>
-      <value>
-        <herdAnimal>true</herdAnimal>
-      </value>
-    </nomatch>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/herdMigrationAllowed</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/herdMigrationAllowed</xpath>
-      <value>
-        <herdMigrationAllowed>false</herdMigrationAllowed>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Gorilla"]/race</xpath>
-      <value>
-        <herdMigrationAllowed>false</herdMigrationAllowed>
-      </value>
-    </nomatch>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Gorilla"]/race</xpath>
+    <value>
+      <herdAnimal>true</herdAnimal>
+      <herdMigrationAllowed>false</herdMigrationAllowed>
+      <mateMtbHours>12</mateMtbHours>
+      <packAnimal>false</packAnimal>
+      <predator>false</predator>
+      <nameOnTameChance>1</nameOnTameChance>
+      <waterSeeker>false</waterSeeker>
+      <canFishForFood>false</canFishForFood>
+      <useMeatFrom>Monkey</useMeatFrom>
+    </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/foodType</xpath>
     <value>
       <foodType>VegetarianRoughAnimal</foodType>
     </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/roamMtbDays</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/roamMtbDays</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/useLeatherFrom</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/useLeatherFrom</xpath>
-    </match>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/manhunterOnTameFailChance</xpath>
@@ -202,146 +163,11 @@
       <manhunterOnDamageChance>0.1</manhunterOnDamageChance>
     </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/petness</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/petness</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/nuzzleMtbHours</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/nuzzleMtbHours</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/mateMtbHours</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/mateMtbHours</xpath>
-      <value>
-        <mateMtbHours>12</mateMtbHours>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Gorilla"]/race</xpath>
-      <value>
-        <mateMtbHours>12</mateMtbHours>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/packAnimal</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/packAnimal</xpath>
-      <value>
-        <packAnimal>false</packAnimal>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Gorilla"]/race</xpath>
-      <value>
-        <packAnimal>false</packAnimal>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/predator</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/predator</xpath>
-      <value>
-        <predator>false</predator>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Gorilla"]/race</xpath>
-      <value>
-        <predator>false</predator>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/maxPreyBodySize</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/maxPreyBodySize</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/nameOnTameChance</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/nameOnTameChance</xpath>
-      <value>
-        <nameOnTameChance>1</nameOnTameChance>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Gorilla"]/race</xpath>
-      <value>
-        <nameOnTameChance>1</nameOnTameChance>
-      </value>
-    </nomatch>
-  </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/body</xpath>
     <value>
       <body>Ape</body>
     </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/waterCellCost</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/waterCellCost</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/waterSeeker</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/waterSeeker</xpath>
-      <value>
-        <waterSeeker>false</waterSeeker>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Gorilla"]/race</xpath>
-      <value>
-        <waterSeeker>false</waterSeeker>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/canFishForFood</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/canFishForFood</xpath>
-      <value>
-        <canFishForFood>false</canFishForFood>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Gorilla"]/race</xpath>
-      <value>
-        <canFishForFood>false</canFishForFood>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/useMeatFrom</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/useMeatFrom</xpath>
-      <value>
-        <useMeatFrom>Monkey</useMeatFrom>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Gorilla"]/race</xpath>
-      <value>
-        <useMeatFrom>Monkey</useMeatFrom>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/wildBiomes</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/wildBiomes</xpath>
-    </match>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/lifeStageAges</xpath>
@@ -366,12 +192,6 @@
       </lifeStageAges>
     </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/litterSizeCurve</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/litterSizeCurve</xpath>
-    </match>
-  </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Gorilla"]/race/specialTrainables/li[text()='Forage']</xpath>
     <value>
@@ -388,56 +208,33 @@
     <xpath>/Defs/ThingDef[defName = "Gorilla"]</xpath>
     <value>
       <li Class="ZoologyMod.ModExtension_IsMammal, ZoologyMod"/>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationAddModExtension">
-    <xpath>/Defs/ThingDef[defName = "Gorilla"]</xpath>
-    <value>
       <li Class="ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod"/>
     </value>
   </Operation>
-  <!-- Gorilla PawnKindDef -->
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "Gorilla"]/combatPower</xpath>
     <value>
-      <combatPower>125</combatPower>
+      <combatPower>135</combatPower>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "Gorilla"]/ecoSystemWeight</xpath>
     <value>
-      <ecoSystemWeight>0.9</ecoSystemWeight>
+      <ecoSystemWeight>0.85</ecoSystemWeight>
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/PawnKindDef[defName = "Gorilla"]/canArriveManhunter</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/PawnKindDef[defName = "Gorilla"]/canArriveManhunter</xpath>
-      <value>
-        <canArriveManhunter>false</canArriveManhunter>
-      </value>
+    <xpath>/Defs/PawnKindDef[defName = "Gorilla"]/*[self::canArriveManhunter or self::wildGroupSize]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/PawnKindDef[defName = "Gorilla"]/*[self::canArriveManhunter or self::wildGroupSize]</xpath>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/PawnKindDef[defName = "Gorilla"]</xpath>
-      <value>
-        <canArriveManhunter>false</canArriveManhunter>
-      </value>
-    </nomatch>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/PawnKindDef[defName = "Gorilla"]/wildGroupSize</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/PawnKindDef[defName = "Gorilla"]/wildGroupSize</xpath>
-      <value>
-        <wildGroupSize>3~10</wildGroupSize>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/PawnKindDef[defName = "Gorilla"]</xpath>
-      <value>
-        <wildGroupSize>3~10</wildGroupSize>
-      </value>
-    </nomatch>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/PawnKindDef[defName = "Gorilla"]</xpath>
+    <value>
+      <canArriveManhunter>false</canArriveManhunter>
+      <wildGroupSize>3~10</wildGroupSize>
+    </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/PawnKindDef[defName = "Gorilla"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
@@ -445,14 +242,27 @@
       <xpath>/Defs/PawnKindDef[defName = "Gorilla"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
     </match>
   </Operation>
-  <!-- Combat Extended specific patches -->
   <Operation Class="PatchOperationFindMod">
     <mods>
       <li>Combat Extended</li>
     </mods>
     <match Class="PatchOperationSequence">
       <operations>
-        <!-- Gorilla CE patches -->
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="Gorilla"]/statBases/MoveSpeed</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="Gorilla"]/statBases/MoveSpeed</xpath>
+            <value>
+              <MoveSpeed>4.85</MoveSpeed>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="Gorilla"]/statBases</xpath>
+            <value>
+              <MoveSpeed>4.85</MoveSpeed>
+            </value>
+          </nomatch>
+        </li>
         <li Class="PatchOperationConditional">
           <xpath>Defs/ThingDef[defName="Gorilla"]/statBases/MeleeDodgeChance</xpath>
           <match Class="PatchOperationReplace">
@@ -473,13 +283,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Gorilla"]/statBases/MeleeCritChance</xpath>
             <value>
-              <MeleeCritChance>0.25</MeleeCritChance>
+              <MeleeCritChance>0.2</MeleeCritChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Gorilla"]/statBases</xpath>
             <value>
-              <MeleeCritChance>0.25</MeleeCritChance>
+              <MeleeCritChance>0.2</MeleeCritChance>
             </value>
           </nomatch>
         </li>
@@ -503,13 +313,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Gorilla"]/statBases/ArmorRating_Sharp</xpath>
             <value>
-              <ArmorRating_Sharp>0.08</ArmorRating_Sharp>
+              <ArmorRating_Sharp>0.13</ArmorRating_Sharp>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Gorilla"]/statBases</xpath>
             <value>
-              <ArmorRating_Sharp>0.08</ArmorRating_Sharp>
+              <ArmorRating_Sharp>0.13</ArmorRating_Sharp>
             </value>
           </nomatch>
         </li>
@@ -518,13 +328,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Gorilla"]/statBases/ArmorRating_Blunt</xpath>
             <value>
-              <ArmorRating_Blunt>0.3</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0.2</ArmorRating_Blunt>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Gorilla"]/statBases</xpath>
             <value>
-              <ArmorRating_Blunt>0.3</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0.2</ArmorRating_Blunt>
             </value>
           </nomatch>
         </li>
@@ -542,14 +352,14 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Gorilla"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]/Durability</xpath>
             <value>
-              <Durability>750</Durability>
+              <Durability>700</Durability>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Gorilla"]/comps</xpath>
             <value>
               <li Class="CombatExtended.CompProperties_ArmorDurability">
-                <Durability>750</Durability>
+                <Durability>700</Durability>
                 <Regenerates>true</Regenerates>
                 <RegenInterval>600</RegenInterval>
                 <RegenValue>5</RegenValue>
@@ -606,9 +416,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>4.3</power>
-                <armorPenetrationBlunt>3.75</armorPenetrationBlunt>
-                <cooldownTime>1.75</cooldownTime>
+                <power>4.65</power>
+                <armorPenetrationBlunt>1.634</armorPenetrationBlunt>
+                <cooldownTime>1.43</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                 <chanceFactor>0.2</chanceFactor>
@@ -619,9 +429,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>9.2</power>
-                <armorPenetrationBlunt>4.65</armorPenetrationBlunt>
-                <cooldownTime>1.45</cooldownTime>
+                <power>14.55</power>
+                <armorPenetrationBlunt>5.769</armorPenetrationBlunt>
+                <cooldownTime>1.43</cooldownTime>
                 <linkedBodyPartsGroup>LeftHand</linkedBodyPartsGroup>
               </li>
               <li Class="CombatExtended.ToolCE">
@@ -630,9 +440,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>9.2</power>
-                <armorPenetrationBlunt>4.65</armorPenetrationBlunt>
-                <cooldownTime>1.45</cooldownTime>
+                <power>14.55</power>
+                <armorPenetrationBlunt>5.769</armorPenetrationBlunt>
+                <cooldownTime>1.43</cooldownTime>
                 <linkedBodyPartsGroup>RightHand</linkedBodyPartsGroup>
               </li>
               <li Class="CombatExtended.ToolCE">
@@ -640,10 +450,10 @@
                 <capacities>
                   <li>Bite</li>
                 </capacities>
-                <power>11.5</power>
-                <armorPenetrationBlunt>2.85</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.13</armorPenetrationSharp>
-                <cooldownTime>2.1</cooldownTime>
+                <power>13.1</power>
+                <armorPenetrationBlunt>1.946</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.67</armorPenetrationSharp>
+                <cooldownTime>2.07</cooldownTime>
                 <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
               </li>
             </tools>

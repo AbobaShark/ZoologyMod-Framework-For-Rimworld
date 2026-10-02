@@ -77,13 +77,18 @@ namespace ZoologyMod
 
         internal static bool HasDraftControlAccess(Pawn pawn, ThingDef raceDef, TrainableDef draftControl)
         {
-            if (pawn == null || draftControl == null)
+            raceDef = pawn?.def ?? raceDef;
+            if (AnimalDraftCompatibility.UsesExternalDrafting(pawn, raceDef))
             {
-                return HasAnyDraftControlTrainable(raceDef?.race?.specialTrainables);
+                return false;
             }
 
-            List<TrainableDef> specialTrainables = pawn.def?.race?.specialTrainables ?? raceDef?.race?.specialTrainables;
-            if (HasAnyDraftControlTrainable(specialTrainables))
+            if (pawn == null || draftControl == null)
+            {
+                return HasAnyDraftControlTrainable(raceDef);
+            }
+
+            if (HasAnyDraftControlTrainable(raceDef))
             {
                 return true;
             }
@@ -233,7 +238,7 @@ namespace ZoologyMod
 
         internal static bool ShouldLinkTrainables(Pawn pawn)
         {
-            if (pawn?.training == null || !TryGetLinkedTrainables(out _, out TrainableDef draftControl))
+            if (!IsFeatureEnabledNow() || pawn?.training == null || !TryGetLinkedTrainables(out _, out TrainableDef draftControl))
             {
                 return false;
             }
@@ -492,7 +497,8 @@ namespace ZoologyMod
 
         internal static bool ShouldUndraftForMasterState(Pawn pawn)
         {
-            if (pawn?.drafter == null
+            if (!IsDraftControlCandidate(pawn)
+                || pawn?.drafter == null
                 || !pawn.drafter.Drafted
                 || pawn.Faction != Faction.OfPlayer
                 || pawn.playerSettings == null)
@@ -567,7 +573,7 @@ namespace ZoologyMod
                     continue;
                 }
 
-                if (pawn.drafter == null || !pawn.drafter.Drafted)
+                if (!IsDraftControlDraftedPawn(pawn))
                 {
                     continue;
                 }
@@ -780,8 +786,9 @@ namespace ZoologyMod
                     && InMasterCommandRange(pawn, c));
         }
 
-        private static bool HasAnyDraftControlTrainable(List<TrainableDef> specialTrainables)
+        private static bool HasAnyDraftControlTrainable(ThingDef raceDef)
         {
+            List<TrainableDef> specialTrainables = raceDef?.race?.specialTrainables;
             if (specialTrainables == null || specialTrainables.Count == 0)
             {
                 return false;
@@ -794,7 +801,8 @@ namespace ZoologyMod
             for (int i = 0; i < specialTrainables.Count; i++)
             {
                 TrainableDef trainable = specialTrainables[i];
-                if (trainable == draftControl || trainable == legacyDraftControl || trainable == vefDraftControl)
+                if (trainable == draftControl || trainable == legacyDraftControl
+                    || (trainable == vefDraftControl && AnimalDraftCompatibility.IsAlphaAnimalsRace(raceDef)))
                 {
                     return true;
                 }
@@ -897,6 +905,17 @@ namespace ZoologyMod
 
             bool featureEnabled = AnimalDraftControlUtility.IsFeatureEnabledNow();
             bool hasDraftControlAccess = AnimalDraftControlUtility.HasDraftControlAccess(pawn, pawnDef, draftControl);
+
+            // Foreign training and gizmos retain their original visibility and requirements.
+            if (AnimalDraftCompatibility.UsesExternalDrafting(pawn, pawnDef))
+            {
+                if (td == draftControl || td == legacyDraftControl)
+                {
+                    visible = false;
+                    __result = false;
+                }
+                return;
+            }
 
             if (td == draftControl)
             {
@@ -1311,7 +1330,7 @@ namespace ZoologyMod
     {
         private static bool Prefix(FloatMenuOptionProvider_DraftedAttack __instance, Thing clickedThing, FloatMenuContext context, ref IEnumerable<FloatMenuOption> __result)
         {
-            if (context == null || !context.IsMultiselect)
+            if (context == null || !context.IsMultiselect || !AnimalDraftControlUtility.AnySelectedDraftControlPawn())
             {
                 return true;
             }

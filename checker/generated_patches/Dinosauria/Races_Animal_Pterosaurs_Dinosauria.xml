@@ -1,382 +1,51 @@
 <?xml version='1.0' encoding='utf-8'?>
 <Patch>
-  <!---->
-  <!-- Quetzalcoatlus -->
-  <!-- Quetzalcoatlus StatBases -->
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/statBases/MarketValue</xpath>
     <value>
-      <MarketValue>1000</MarketValue>
+      <MarketValue>575</MarketValue>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/statBases/MoveSpeed</xpath>
     <value>
-      <MoveSpeed>4</MoveSpeed>
+      <MoveSpeed>4.45</MoveSpeed>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/statBases/Wildness</xpath>
     <value>
-      <Wildness>0.85</Wildness>
+      <Wildness>0.75</Wildness>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/statBases/FilthRate</xpath>
     <value>
-      <FilthRate>3</FilthRate>
+      <FilthRate>2</FilthRate>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/statBases/ComfyTemperatureMin</xpath>
     <value>
-      <ComfyTemperatureMin>-40</ComfyTemperatureMin>
+      <ComfyTemperatureMin>-35</ComfyTemperatureMin>
     </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/statBases/ComfyTemperatureMax</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/statBases/ComfyTemperatureMax</xpath>
-      <value>
-        <ComfyTemperatureMax>50</ComfyTemperatureMax>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/statBases</xpath>
-      <value>
-        <ComfyTemperatureMax>50</ComfyTemperatureMax>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/statBases/ArmorRating_Blunt</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/statBases/ArmorRating_Blunt</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/statBases/ArmorRating_Sharp</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/statBases/ArmorRating_Sharp</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/statBases/ToxicEnvironmentResistance</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/statBases/ToxicEnvironmentResistance</xpath>
-    </match>
-  </Operation>
-  <!-- Quetzalcoatlus tools -->
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/tools</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/tools</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]</xpath>
-    <value>
-      <tools Inherit="False">
-        <li>
-          <label>head</label>
-          <capacities>
-            <li>Blunt</li>
-          </capacities>
-          <power>16.5</power>
-          <cooldownTime>2.85</cooldownTime>
-          <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
-          <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
-          <chanceFactor>0.2</chanceFactor>
-        </li>
-        <li>
-          <label>beak</label>
-          <capacities>
-            <li>Blunt</li>
-          </capacities>
-          <power>30</power>
-          <cooldownTime>2.85</cooldownTime>
-          <linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>
-          <surpriseAttack>
-            <extraMeleeDamages>
-              <li>
-                <def>Stun</def>
-                <amount>30</amount>
-              </li>
-            </extraMeleeDamages>
-          </surpriseAttack>
-        </li>
-      </tools>
-    </value>
-  </Operation>
-  <!-- Quetzalcoatlus RaceProperties -->
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/race/baseBodySize</xpath>
-    <value>
-      <baseBodySize>3</baseBodySize>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/race/baseHealthScale</xpath>
-    <value>
-      <baseHealthScale>3</baseHealthScale>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/race/baseHungerRate</xpath>
-    <value>
-      <baseHungerRate>1.3</baseHungerRate>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/race/lifeExpectancy</xpath>
-    <value>
-      <lifeExpectancy>18</lifeExpectancy>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/race/gestationPeriodDays</xpath>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/race/herdAnimal</xpath>
-    <value>
-      <herdAnimal>false</herdAnimal>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/race/herdMigrationAllowed</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/race/herdMigrationAllowed</xpath>
-      <value>
-        <herdMigrationAllowed>false</herdMigrationAllowed>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/race</xpath>
-      <value>
-        <herdMigrationAllowed>false</herdMigrationAllowed>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/race/foodType</xpath>
-    <value>
-      <foodType>CarnivoreAnimal, OvivoreAnimal</foodType>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/race/roamMtbDays</xpath>
-    <value>
-      <roamMtbDays>2</roamMtbDays>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/race/useLeatherFrom</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/race/useLeatherFrom</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/race/manhunterOnTameFailChance</xpath>
-    <value>
-      <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/race/manhunterOnDamageChance</xpath>
-    <value>
-      <manhunterOnDamageChance>0</manhunterOnDamageChance>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/race/petness</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/race/petness</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/race/nuzzleMtbHours</xpath>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/race/mateMtbHours</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/race/mateMtbHours</xpath>
-      <value>
-        <mateMtbHours>12</mateMtbHours>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/race</xpath>
-      <value>
-        <mateMtbHours>12</mateMtbHours>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/race/trainability</xpath>
-    <value>
-      <trainability>None</trainability>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/race/predator</xpath>
-    <value>
-      <predator>true</predator>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/race/maxPreyBodySize</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/race/maxPreyBodySize</xpath>
-      <value>
-        <maxPreyBodySize>3</maxPreyBodySize>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/race</xpath>
-      <value>
-        <maxPreyBodySize>3</maxPreyBodySize>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/race/nameOnTameChance</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/race/nameOnTameChance</xpath>
-      <value>
-        <nameOnTameChance>0</nameOnTameChance>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/race</xpath>
-      <value>
-        <nameOnTameChance>0</nameOnTameChance>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/race/waterCellCost</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/race/waterCellCost</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/race/waterSeeker</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/race/waterSeeker</xpath>
-      <value>
-        <waterSeeker>false</waterSeeker>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/race</xpath>
-      <value>
-        <waterSeeker>false</waterSeeker>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/race/canFishForFood</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/race/canFishForFood</xpath>
-      <value>
-        <canFishForFood>false</canFishForFood>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/race</xpath>
-      <value>
-        <canFishForFood>false</canFishForFood>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/race/useMeatFrom</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/race/useMeatFrom</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/race/wildBiomes</xpath>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/race/specialTrainables</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/race/specialTrainables</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/tradeTags/li[text()='AnimalExotic']</xpath>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/tradeTags</xpath>
-    <value>
-      <li>AnimalUncommon</li>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationAddModExtension">
-    <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]</xpath>
-    <value>
-      <li Class="ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod"/>
-    </value>
-  </Operation>
-  <!-- Quetzalcoatlus PawnKindDef -->
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "Quetzalcoatlus"]/combatPower</xpath>
     <value>
-      <combatPower>245</combatPower>
+      <combatPower>95</combatPower>
     </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/PawnKindDef[defName = "Quetzalcoatlus"]/ecoSystemWeight</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/PawnKindDef[defName = "Quetzalcoatlus"]/ecoSystemWeight</xpath>
-      <value>
-        <ecoSystemWeight>1.65</ecoSystemWeight>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/PawnKindDef[defName = "Quetzalcoatlus"]</xpath>
-      <value>
-        <ecoSystemWeight>1.65</ecoSystemWeight>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/PawnKindDef[defName = "Quetzalcoatlus"]/canArriveManhunter</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/PawnKindDef[defName = "Quetzalcoatlus"]/canArriveManhunter</xpath>
-      <value>
-        <canArriveManhunter>true</canArriveManhunter>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/PawnKindDef[defName = "Quetzalcoatlus"]</xpath>
-      <value>
-        <canArriveManhunter>true</canArriveManhunter>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/PawnKindDef[defName = "Quetzalcoatlus"]/wildGroupSize</xpath>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/PawnKindDef[defName = "Quetzalcoatlus"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/PawnKindDef[defName = "Quetzalcoatlus"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
-    </match>
-  </Operation>
-  <!-- Pteranodon -->
-  <!-- Pteranodon StatBases -->
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Pteranodon"]/statBases/MarketValue</xpath>
     <value>
-      <MarketValue>350</MarketValue>
+      <MarketValue>325</MarketValue>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Pteranodon"]/statBases/MoveSpeed</xpath>
     <value>
-      <MoveSpeed>2</MoveSpeed>
+      <MoveSpeed>3.95</MoveSpeed>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -398,44 +67,81 @@
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Pteranodon"]/statBases/ComfyTemperatureMax</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Pteranodon"]/statBases/ComfyTemperatureMax</xpath>
-      <value>
-        <ComfyTemperatureMax>50</ComfyTemperatureMax>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Pteranodon"]/statBases</xpath>
-      <value>
-        <ComfyTemperatureMax>50</ComfyTemperatureMax>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Pteranodon"]/statBases/ArmorRating_Blunt</xpath>
+    <xpath>/Defs/ThingDef[defName="Quetzalcoatlus" or defName="Pteranodon"]/statBases/*[self::ComfyTemperatureMax or self::ArmorRating_Blunt or self::ArmorRating_Sharp or self::ToxicEnvironmentResistance]</xpath>
     <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Pteranodon"]/statBases/ArmorRating_Blunt</xpath>
+      <xpath>/Defs/ThingDef[defName="Quetzalcoatlus" or defName="Pteranodon"]/statBases/*[self::ComfyTemperatureMax or self::ArmorRating_Blunt or self::ArmorRating_Sharp or self::ToxicEnvironmentResistance]</xpath>
     </match>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Pteranodon"]/statBases/ArmorRating_Sharp</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Pteranodon"]/statBases/ArmorRating_Sharp</xpath>
-    </match>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName="Quetzalcoatlus" or defName="Pteranodon"]/statBases</xpath>
+    <value>
+      <ComfyTemperatureMax>35</ComfyTemperatureMax>
+    </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Pteranodon"]/statBases/ToxicEnvironmentResistance</xpath>
+    <xpath>/Defs/ThingDef[defName="Quetzalcoatlus" or defName="Pteranodon"]/tools</xpath>
     <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Pteranodon"]/statBases/ToxicEnvironmentResistance</xpath>
+      <xpath>/Defs/ThingDef[defName="Quetzalcoatlus" or defName="Pteranodon"]/tools</xpath>
     </match>
   </Operation>
-  <!-- Pteranodon tools -->
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Pteranodon"]/tools</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Pteranodon"]/tools</xpath>
-    </match>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]</xpath>
+    <value>
+      <tools Inherit="False">
+        <li>
+          <label>head</label>
+          <capacities>
+            <li>Blunt</li>
+          </capacities>
+          <power>6.5</power>
+          <cooldownTime>1.85</cooldownTime>
+          <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
+          <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
+          <chanceFactor>0.2</chanceFactor>
+        </li>
+        <li>
+          <label>beak</label>
+          <capacities>
+            <li>Blunt</li>
+          </capacities>
+          <power>9.5</power>
+          <cooldownTime>2.25</cooldownTime>
+          <linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>
+          <surpriseAttack>
+            <extraMeleeDamages>
+              <li>
+                <def>Stun</def>
+                <amount>25</amount>
+              </li>
+            </extraMeleeDamages>
+          </surpriseAttack>
+        </li>
+      </tools>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/race/baseBodySize</xpath>
+    <value>
+      <baseBodySize>2</baseBodySize>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/race/baseHealthScale</xpath>
+    <value>
+      <baseHealthScale>2</baseHealthScale>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/race/baseHungerRate</xpath>
+    <value>
+      <baseHungerRate>1</baseHungerRate>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/race/lifeExpectancy</xpath>
+    <value>
+      <lifeExpectancy>12</lifeExpectancy>
+    </value>
   </Operation>
   <Operation Class="PatchOperationAdd">
     <xpath>/Defs/ThingDef[defName = "Pteranodon"]</xpath>
@@ -446,8 +152,8 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>4.5</power>
-          <cooldownTime>1.6</cooldownTime>
+          <power>3</power>
+          <cooldownTime>1.4</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
           <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
           <chanceFactor>0.2</chanceFactor>
@@ -457,14 +163,13 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>10.5</power>
-          <cooldownTime>1.6</cooldownTime>
+          <power>5.5</power>
+          <cooldownTime>1.65</cooldownTime>
           <linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>
         </li>
       </tools>
     </value>
   </Operation>
-  <!-- Pteranodon RaceProperties -->
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Pteranodon"]/race/baseBodySize</xpath>
     <value>
@@ -486,146 +191,97 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Pteranodon"]/race/lifeExpectancy</xpath>
     <value>
-      <lifeExpectancy>12</lifeExpectancy>
+      <lifeExpectancy>10</lifeExpectancy>
     </value>
   </Operation>
   <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[defName = "Pteranodon"]/race/gestationPeriodDays</xpath>
+    <xpath>/Defs/ThingDef[defName="Quetzalcoatlus" or defName="Pteranodon"]/race/gestationPeriodDays</xpath>
   </Operation>
   <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "Pteranodon"]/race/herdAnimal</xpath>
+    <xpath>/Defs/ThingDef[defName="Quetzalcoatlus" or defName="Pteranodon"]/race/herdAnimal</xpath>
     <value>
       <herdAnimal>false</herdAnimal>
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Pteranodon"]/race/herdMigrationAllowed</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Pteranodon"]/race/herdMigrationAllowed</xpath>
-      <value>
-        <herdMigrationAllowed>false</herdMigrationAllowed>
-      </value>
+    <xpath>/Defs/ThingDef[defName="Quetzalcoatlus" or defName="Pteranodon"]/race/*[self::herdMigrationAllowed or self::useLeatherFrom or self::petness or self::mateMtbHours or self::maxPreyBodySize or self::nameOnTameChance or self::waterCellCost or self::waterSeeker or self::canFishForFood or self::useMeatFrom or self::flightSpeedFactor or self::specialTrainables]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="Quetzalcoatlus" or defName="Pteranodon"]/race/*[self::herdMigrationAllowed or self::useLeatherFrom or self::petness or self::mateMtbHours or self::maxPreyBodySize or self::nameOnTameChance or self::waterCellCost or self::waterSeeker or self::canFishForFood or self::useMeatFrom or self::flightSpeedFactor or self::specialTrainables]</xpath>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Pteranodon"]/race</xpath>
-      <value>
-        <herdMigrationAllowed>false</herdMigrationAllowed>
-      </value>
-    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/race</xpath>
+    <value>
+      <herdMigrationAllowed>false</herdMigrationAllowed>
+      <mateMtbHours>12</mateMtbHours>
+      <maxPreyBodySize>2</maxPreyBodySize>
+      <nameOnTameChance>0</nameOnTameChance>
+      <waterSeeker>false</waterSeeker>
+      <canFishForFood>false</canFishForFood>
+      <flightSpeedFactor>5.6</flightSpeedFactor>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Pteranodon"]/race</xpath>
+    <value>
+      <herdMigrationAllowed>false</herdMigrationAllowed>
+      <mateMtbHours>12</mateMtbHours>
+      <nameOnTameChance>0</nameOnTameChance>
+      <waterSeeker>false</waterSeeker>
+      <canFishForFood>false</canFishForFood>
+      <flightSpeedFactor>3.3</flightSpeedFactor>
+    </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "Pteranodon"]/race/foodType</xpath>
+    <xpath>/Defs/ThingDef[defName="Quetzalcoatlus" or defName="Pteranodon"]/race/foodType</xpath>
     <value>
       <foodType>CarnivoreAnimal, OvivoreAnimal</foodType>
     </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Pteranodon"]/race/useLeatherFrom</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Pteranodon"]/race/useLeatherFrom</xpath>
-    </match>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/race/roamMtbDays</xpath>
+    <value>
+      <roamMtbDays>2</roamMtbDays>
+    </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "Pteranodon"]/race/manhunterOnTameFailChance</xpath>
+    <xpath>/Defs/ThingDef[defName="Quetzalcoatlus" or defName="Pteranodon"]/race/manhunterOnTameFailChance</xpath>
     <value>
       <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "Pteranodon"]/race/manhunterOnDamageChance</xpath>
+    <xpath>/Defs/ThingDef[defName="Quetzalcoatlus" or defName="Pteranodon"]/race/manhunterOnDamageChance</xpath>
     <value>
       <manhunterOnDamageChance>0</manhunterOnDamageChance>
     </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Pteranodon"]/race/petness</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Pteranodon"]/race/petness</xpath>
-    </match>
+  <Operation Class="PatchOperationRemove">
+    <xpath>/Defs/ThingDef[defName="Quetzalcoatlus" or defName="Pteranodon"]/race/nuzzleMtbHours</xpath>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/race/trainability</xpath>
+    <value>
+      <trainability>None</trainability>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/race/predator</xpath>
+    <value>
+      <predator>true</predator>
+    </value>
   </Operation>
   <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[defName = "Pteranodon"]/race/nuzzleMtbHours</xpath>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Pteranodon"]/race/mateMtbHours</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Pteranodon"]/race/mateMtbHours</xpath>
-      <value>
-        <mateMtbHours>12</mateMtbHours>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Pteranodon"]/race</xpath>
-      <value>
-        <mateMtbHours>12</mateMtbHours>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Pteranodon"]/race/maxPreyBodySize</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Pteranodon"]/race/maxPreyBodySize</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Pteranodon"]/race/nameOnTameChance</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Pteranodon"]/race/nameOnTameChance</xpath>
-      <value>
-        <nameOnTameChance>0</nameOnTameChance>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Pteranodon"]/race</xpath>
-      <value>
-        <nameOnTameChance>0</nameOnTameChance>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Pteranodon"]/race/waterCellCost</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Pteranodon"]/race/waterCellCost</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Pteranodon"]/race/waterSeeker</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Pteranodon"]/race/waterSeeker</xpath>
-      <value>
-        <waterSeeker>false</waterSeeker>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Pteranodon"]/race</xpath>
-      <value>
-        <waterSeeker>false</waterSeeker>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Pteranodon"]/race/canFishForFood</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Pteranodon"]/race/canFishForFood</xpath>
-      <value>
-        <canFishForFood>false</canFishForFood>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Pteranodon"]/race</xpath>
-      <value>
-        <canFishForFood>false</canFishForFood>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Pteranodon"]/race/useMeatFrom</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Pteranodon"]/race/useMeatFrom</xpath>
-    </match>
+    <xpath>/Defs/ThingDef[defName="Quetzalcoatlus" or defName="Pteranodon"]/race/wildBiomes</xpath>
   </Operation>
   <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[defName = "Pteranodon"]/race/wildBiomes</xpath>
+    <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/tradeTags/li[text()='AnimalExotic']</xpath>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]/tradeTags</xpath>
+    <value>
+      <li>AnimalUncommon</li>
+    </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Pteranodon"]/race/lifeStageAges/li[2]/minAge</xpath>
@@ -639,84 +295,80 @@
       <minAge>0.3</minAge>
     </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Pteranodon"]/race/specialTrainables</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Pteranodon"]/race/specialTrainables</xpath>
-    </match>
-  </Operation>
   <Operation Class="PatchOperationAddModExtension">
-    <xpath>/Defs/ThingDef[defName = "Pteranodon"]</xpath>
+    <xpath>/Defs/ThingDef[defName="Quetzalcoatlus" or defName="Pteranodon"]</xpath>
     <value>
       <li Class="ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod"/>
     </value>
   </Operation>
-  <!-- Pteranodon PawnKindDef -->
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "Pteranodon"]/combatPower</xpath>
     <value>
-      <combatPower>60</combatPower>
+      <combatPower>45</combatPower>
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/PawnKindDef[defName = "Pteranodon"]/ecoSystemWeight</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/PawnKindDef[defName = "Pteranodon"]/ecoSystemWeight</xpath>
-      <value>
-        <ecoSystemWeight>0.5</ecoSystemWeight>
-      </value>
+    <xpath>/Defs/PawnKindDef[defName="Quetzalcoatlus" or defName="Pteranodon"]/*[self::ecoSystemWeight or self::canArriveManhunter]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/PawnKindDef[defName="Quetzalcoatlus" or defName="Pteranodon"]/*[self::ecoSystemWeight or self::canArriveManhunter]</xpath>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/PawnKindDef[defName = "Pteranodon"]</xpath>
-      <value>
-        <ecoSystemWeight>0.5</ecoSystemWeight>
-      </value>
-    </nomatch>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/PawnKindDef[defName = "Pteranodon"]/canArriveManhunter</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/PawnKindDef[defName = "Pteranodon"]/canArriveManhunter</xpath>
-      <value>
-        <canArriveManhunter>true</canArriveManhunter>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/PawnKindDef[defName = "Pteranodon"]</xpath>
-      <value>
-        <canArriveManhunter>true</canArriveManhunter>
-      </value>
-    </nomatch>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/PawnKindDef[defName = "Quetzalcoatlus"]</xpath>
+    <value>
+      <ecoSystemWeight>1.2</ecoSystemWeight>
+      <canArriveManhunter>true</canArriveManhunter>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/PawnKindDef[defName = "Pteranodon"]</xpath>
+    <value>
+      <ecoSystemWeight>0.5</ecoSystemWeight>
+      <canArriveManhunter>true</canArriveManhunter>
+    </value>
   </Operation>
   <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/PawnKindDef[defName = "Pteranodon"]/wildGroupSize</xpath>
+    <xpath>/Defs/PawnKindDef[defName="Quetzalcoatlus" or defName="Pteranodon"]/wildGroupSize</xpath>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/PawnKindDef[defName = "Pteranodon"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
+    <xpath>/Defs/PawnKindDef[defName="Quetzalcoatlus" or defName="Pteranodon"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
     <match Class="PatchOperationRemove">
-      <xpath>/Defs/PawnKindDef[defName = "Pteranodon"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
+      <xpath>/Defs/PawnKindDef[defName="Quetzalcoatlus" or defName="Pteranodon"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
     </match>
   </Operation>
-  <!-- Combat Extended specific patches -->
   <Operation Class="PatchOperationFindMod">
     <mods>
       <li>Combat Extended</li>
     </mods>
     <match Class="PatchOperationSequence">
       <operations>
-        <!-- Quetzalcoatlus CE patches -->
         <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="Quetzalcoatlus"]/statBases/MeleeDodgeChance</xpath>
+          <xpath>Defs/ThingDef[defName="Quetzalcoatlus"]/statBases/MoveSpeed</xpath>
           <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="Quetzalcoatlus"]/statBases/MeleeDodgeChance</xpath>
+            <xpath>Defs/ThingDef[defName="Quetzalcoatlus"]/statBases/MoveSpeed</xpath>
             <value>
-              <MeleeDodgeChance>0.35</MeleeDodgeChance>
+              <MoveSpeed>4.45</MoveSpeed>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Quetzalcoatlus"]/statBases</xpath>
             <value>
-              <MeleeDodgeChance>0.35</MeleeDodgeChance>
+              <MoveSpeed>4.45</MoveSpeed>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="Quetzalcoatlus"]/statBases/MeleeDodgeChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="Quetzalcoatlus"]/statBases/MeleeDodgeChance</xpath>
+            <value>
+              <MeleeDodgeChance>0.4</MeleeDodgeChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="Quetzalcoatlus"]/statBases</xpath>
+            <value>
+              <MeleeDodgeChance>0.4</MeleeDodgeChance>
             </value>
           </nomatch>
         </li>
@@ -725,13 +377,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Quetzalcoatlus"]/statBases/MeleeCritChance</xpath>
             <value>
-              <MeleeCritChance>0.4</MeleeCritChance>
+              <MeleeCritChance>0.35</MeleeCritChance>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Quetzalcoatlus"]/statBases</xpath>
             <value>
-              <MeleeCritChance>0.4</MeleeCritChance>
+              <MeleeCritChance>0.35</MeleeCritChance>
             </value>
           </nomatch>
         </li>
@@ -755,13 +407,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Quetzalcoatlus"]/statBases/ArmorRating_Sharp</xpath>
             <value>
-              <ArmorRating_Sharp>0.12</ArmorRating_Sharp>
+              <ArmorRating_Sharp>0.04</ArmorRating_Sharp>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Quetzalcoatlus"]/statBases</xpath>
             <value>
-              <ArmorRating_Sharp>0.12</ArmorRating_Sharp>
+              <ArmorRating_Sharp>0.04</ArmorRating_Sharp>
             </value>
           </nomatch>
         </li>
@@ -770,13 +422,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Quetzalcoatlus"]/statBases/ArmorRating_Blunt</xpath>
             <value>
-              <ArmorRating_Blunt>0.25</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0.1</ArmorRating_Blunt>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Quetzalcoatlus"]/statBases</xpath>
             <value>
-              <ArmorRating_Blunt>0.25</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0.1</ArmorRating_Blunt>
             </value>
           </nomatch>
         </li>
@@ -794,14 +446,14 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Quetzalcoatlus"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]/Durability</xpath>
             <value>
-              <Durability>1500</Durability>
+              <Durability>1000</Durability>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Quetzalcoatlus"]/comps</xpath>
             <value>
               <li Class="CombatExtended.CompProperties_ArmorDurability">
-                <Durability>1500</Durability>
+                <Durability>1000</Durability>
                 <Regenerates>true</Regenerates>
                 <RegenInterval>600</RegenInterval>
                 <RegenValue>5</RegenValue>
@@ -858,9 +510,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>12.8</power>
-                <armorPenetrationBlunt>12.05</armorPenetrationBlunt>
-                <cooldownTime>2.55</cooldownTime>
+                <power>7.9</power>
+                <armorPenetrationBlunt>2.937</armorPenetrationBlunt>
+                <cooldownTime>1.59</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                 <chanceFactor>0.2</chanceFactor>
@@ -870,16 +522,15 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>11.5</power>
-                <armorPenetrationBlunt>1.55</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.05</armorPenetrationSharp>
-                <cooldownTime>3.2</cooldownTime>
+                <power>8.3</power>
+                <armorPenetrationBlunt>3.103</armorPenetrationBlunt>
+                <cooldownTime>2.27</cooldownTime>
                 <linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>
                 <surpriseAttack>
                   <extraMeleeDamages>
                     <li>
                       <def>Stun</def>
-                      <amount>30</amount>
+                      <amount>25</amount>
                     </li>
                   </extraMeleeDamages>
                 </surpriseAttack>
@@ -893,7 +544,21 @@
             <xpath>Defs/ThingDef[defName="Quetzalcoatlus"]/statBases/ArmorRating_Heat</xpath>
           </match>
         </li>
-        <!-- Pteranodon CE patches -->
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="Pteranodon"]/statBases/MoveSpeed</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="Pteranodon"]/statBases/MoveSpeed</xpath>
+            <value>
+              <MoveSpeed>3.95</MoveSpeed>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="Pteranodon"]/statBases</xpath>
+            <value>
+              <MoveSpeed>3.95</MoveSpeed>
+            </value>
+          </nomatch>
+        </li>
         <li Class="PatchOperationConditional">
           <xpath>Defs/ThingDef[defName="Pteranodon"]/statBases/MeleeDodgeChance</xpath>
           <match Class="PatchOperationReplace">
@@ -944,13 +609,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Pteranodon"]/statBases/ArmorRating_Sharp</xpath>
             <value>
-              <ArmorRating_Sharp>0.05</ArmorRating_Sharp>
+              <ArmorRating_Sharp>0.03</ArmorRating_Sharp>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Pteranodon"]/statBases</xpath>
             <value>
-              <ArmorRating_Sharp>0.05</ArmorRating_Sharp>
+              <ArmorRating_Sharp>0.03</ArmorRating_Sharp>
             </value>
           </nomatch>
         </li>
@@ -959,13 +624,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Pteranodon"]/statBases/ArmorRating_Blunt</xpath>
             <value>
-              <ArmorRating_Blunt>0.1</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0.05</ArmorRating_Blunt>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Pteranodon"]/statBases</xpath>
             <value>
-              <ArmorRating_Blunt>0.1</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0.05</ArmorRating_Blunt>
             </value>
           </nomatch>
         </li>
@@ -1047,9 +712,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>0.7</power>
-                <armorPenetrationBlunt>0.55</armorPenetrationBlunt>
-                <cooldownTime>1.6</cooldownTime>
+                <power>0.65</power>
+                <armorPenetrationBlunt>0.184</armorPenetrationBlunt>
+                <cooldownTime>1.09</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                 <chanceFactor>0.2</chanceFactor>
@@ -1059,10 +724,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>3.8</power>
-                <armorPenetrationBlunt>0.15</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.02</armorPenetrationSharp>
-                <cooldownTime>2.35</cooldownTime>
+                <power>0.7</power>
+                <armorPenetrationBlunt>0.197</armorPenetrationBlunt>
+                <cooldownTime>1.64</cooldownTime>
                 <linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>
               </li>
             </tools>

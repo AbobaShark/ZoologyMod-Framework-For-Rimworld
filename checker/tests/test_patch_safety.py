@@ -419,3 +419,85 @@ class CombatExtendedBodyShapeSafetyTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class AlphaBiomesCompatibilityTests(unittest.TestCase):
+    def setUp(self):
+        self.generator = PatchGenerator.__new__(PatchGenerator)
+
+    def test_alpha_biome_race_reference_gets_mayrequire(self):
+        node = self.generator._build_wild_biomes_element(
+            ['TemperateForest', 'AB_OcularForest'],
+            '0.25',
+        )
+        self.assertIsNone(node.find('TemperateForest').get('MayRequire'))
+        self.assertEqual(
+            node.find('AB_OcularForest').get('MayRequire'),
+            'sarg.alphabiomes',
+        )
+
+    def test_default_animal_cleanup_removes_whole_wildbiomes_container(self):
+        op = self.generator.create_safe_remove(
+            'AA_OcularJelly', 'race', 'wildBiomes'
+        )
+        xpath = op.findtext('xpath')
+        self.assertEqual(
+            xpath,
+            '/Defs/ThingDef[defName = "AA_OcularJelly"]/race/wildBiomes',
+        )
+        self.assertEqual(op.find('match').get('Class'), 'PatchOperationRemove')
+        self.assertEqual(op.find('match/xpath').text, xpath)
+
+    def test_alpha_biome_generation_uses_guarded_full_rebuild(self):
+        self.generator.vanilla_df = pd.DataFrame([
+            {
+                'XML name': '<li>AA_OcularJelly</li>',
+                'WildBiomes': 'AB_OcularForest',
+                'Eco system number': '0.05',
+                'Toxic eco system number': 'No',
+                'Costal': 'false',
+                'PackAnimal': 'false',
+                'MayRequire': 'sarg.alphaanimals',
+                'ModConflict': 'None',
+            }
+        ])
+
+        with tempfile.TemporaryDirectory() as tmp:
+            created = self.generator.generate_biome_patch_files(tmp)
+            self.assertEqual(len(created), 1)
+            self.assertTrue(created[0].endswith('Biomes_AB_OcularForest.xml'))
+            root = LET.parse(created[0]).getroot()
+
+        top = root[0]
+        self.assertEqual(top.get('Class'), 'PatchOperationFindMod')
+        self.assertEqual(top.xpath('./mods/li/text()'), ['Alpha Biomes'])
+        self.assertEqual(len(top.xpath('./nomatch')), 0)
+
+        # Alpha biomes are authoritative too: existing spawn containers are reset.
+        remove_xpaths = root.xpath('.//*[@Class="PatchOperationRemove"]/xpath/text()')
+        self.assertIn(
+            '/Defs/BiomeDef[defName="AB_OcularForest"]/wildAnimals',
+            remove_xpaths,
+        )
+        self.assertIn(
+            '/Defs/BiomeDef[defName="AB_OcularForest"]/pollutionWildAnimals',
+            remove_xpaths,
+        )
+        self.assertIn(
+            '/Defs/BiomeDef[defName="AB_OcularForest"]/coastalWildAnimals',
+            remove_xpaths,
+        )
+
+        # The rebuilt list comes solely from AnimalStats.
+        adds = [
+            node for node in root.xpath('.//*[@Class="PatchOperationAdd"]')
+            if node.findtext('xpath') == '/Defs/BiomeDef[defName="AB_OcularForest"]/wildAnimals'
+            and node.xpath('./value/AA_OcularJelly')
+        ]
+        self.assertEqual(len(adds), 1)
+        self.assertEqual(adds[0].xpath('./value/AA_OcularJelly/text()'), ['0.05'])
+        self.assertEqual(
+            adds[0].xpath('./value/AA_OcularJelly/@MayRequire'),
+            ['sarg.alphaanimals'],
+        )
+

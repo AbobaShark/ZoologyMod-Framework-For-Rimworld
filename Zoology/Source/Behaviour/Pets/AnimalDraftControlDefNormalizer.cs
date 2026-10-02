@@ -31,6 +31,12 @@ namespace ZoologyMod
             for (int i = 0; i < allDefs.Count; i++)
             {
                 ThingDef thingDef = allDefs[i];
+                if (!AnimalDraftControlUtility.IsFeatureEnabledNow()
+                    || AnimalDraftCompatibility.UsesExternalDrafting(null, thingDef))
+                {
+                    continue;
+                }
+
                 List<TrainableDef> specialTrainables = thingDef?.race?.specialTrainables;
                 if (specialTrainables == null || specialTrainables.Count == 0)
                 {
@@ -41,7 +47,8 @@ namespace ZoologyMod
                 for (int j = 0; j < specialTrainables.Count; j++)
                 {
                     TrainableDef trainable = specialTrainables[j];
-                    if (trainable == beastmastery || trainable == legacyDraftControl || trainable == vefBeastmastery)
+                    if (trainable == beastmastery || trainable == legacyDraftControl
+                        || (trainable == vefBeastmastery && AnimalDraftCompatibility.IsAlphaAnimalsRace(thingDef)))
                     {
                         hasBeastmasteryVariant = true;
                         break;
@@ -82,7 +89,8 @@ namespace ZoologyMod
                         continue;
                     }
 
-                    if (trainable == beastmastery || trainable == legacyDraftControl || trainable == vefBeastmastery)
+                    if (trainable == beastmastery || trainable == legacyDraftControl
+                        || (trainable == vefBeastmastery && AnimalDraftCompatibility.IsAlphaAnimalsRace(thingDef)))
                     {
                         if (!addedBeastmastery)
                         {
