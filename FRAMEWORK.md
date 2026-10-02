@@ -806,23 +806,6 @@ The production flow is:
 
 AnimalStats imports the production export from Calculations with IMPORTRANGE. Calculations is therefore an upstream model workbook, while AnimalStats is the species/game-production workbook.
 
-### Source/output synchronization
-
-The workbook is the maintenance source, but RimWorld executes the XML that is actually shipped. A workbook change is therefore not a gameplay change until the corresponding downstream XML has been regenerated or otherwise synchronized.
-
-The audit of the current `main` found one concrete divergence in the shared life-stage data:
-
-| Life stage | AnimalStats / LifeStages meleeDamageFactor | Current shipped Core LifeStages.xml |
-| --- | ---: | ---: |
-| AnimalJuvenile / EusocialInsectJuvenile | 0.65 | 0.60 |
-| AnimalBabyTiny | 0.25 | 0.20 |
-
-The other directly comparable body-size, market-value, health, hunger, movement and armor factors in those rows match the current Core life-stage patch.
-
-Until the source/output discrepancy is resolved, the shipped XML values are the values RimWorld actually loads. Documentation should not silently substitute the workbook numbers for the runtime values.
-
-This is also why maintainers should review both workbook QA and the repository diff after regeneration rather than treating a green spreadsheet alone as proof that the mod tree is synchronized.
-
 ## 16. Model/data maintenance rules
 
 Generated race patches are downstream artifacts. If a biological value, model or group rule is wrong, fix the relevant source/model/override and regenerate rather than hand-editing a generated output that the checker will overwrite later.

@@ -41,7 +41,6 @@ Babies and juveniles are not treated as adults with a smaller graphic. Zoology c
 
 This matters outside combat as well. A juvenile predator, a newborn prey animal and an adult of the same species can make different decisions because their effective body size and combat strength are different.
 
-The current game files are the authority for what is actually loaded. The working spreadsheet also contains life-stage source values; maintainers should see FRAMEWORK.md for a currently known source/output synchronization discrepancy rather than assuming every workbook value is already present in the shipped XML.
 
 ### Pregnancy and animal products
 

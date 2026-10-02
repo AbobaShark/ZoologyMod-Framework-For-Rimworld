@@ -535,6 +535,3 @@ The source of truth for biological/model values is the spreadsheet pipeline docu
 
 The checker is responsible for transformation, reference-aware patch construction, validation and deployment. It should not become a second hidden place where scientific coefficients or species values are maintained.
 
-A working spreadsheet and a successful race-patch generation run do not prove that every shared XML file is synchronized. Some gameplay data live in manually maintained or separately generated shared patches such as life-stage defs, product comps and other global XML. Audit those outputs explicitly when their workbook sources change.
-
-At the current documentation audit, AnimalStats/LifeStages and the shipped Core LifeStages.xml differ in two meleeDamageFactor values; FRAMEWORK.md records the exact rows. Resolve that at the data/generation layer rather than teaching the checker or documentation a second set of coefficients.
