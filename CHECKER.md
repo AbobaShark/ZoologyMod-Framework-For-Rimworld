@@ -154,8 +154,6 @@ Passing --input-path while leaving the mode at generate automatically switches t
 | --overwrite-existing | In update mode, write back to source XML instead of out-dir. |
 | --emit-ce-patches | In update mode, emit CE patch XML for processed defs. |
 
-Two hidden compatibility aliases remain in the script for older config/CLI names: --existing-xml maps to --input-path and --core-thingdefs-dir maps to --game-root-dir. They are implementation compatibility aliases, not the preferred documented workflow.
-
 ### Reference lookup
 
 The generator can search the configured RimWorld game root for existing Core/Odyssey animal definitions. Those existing defs are used to preserve or derive values that are not supplied directly by the AnimalStats row.
