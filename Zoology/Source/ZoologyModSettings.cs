@@ -35,6 +35,7 @@ namespace ZoologyMod
         public bool EnableAnimalClottingComp = ModConstants.DefaultEnableAnimalClottingComp;
         public bool EnableNoPorcupineQuillPatch = ModConstants.DefaultEnableNoPorcupineQuillPatch;
         public static bool EnableMammalLactation = ModConstants.DefaultEnableMammalLactation;
+        public bool EnableHandlerBabyFeeding = ModConstants.DefaultEnableHandlerBabyFeeding;
         public bool EnableAnimalChildcare = ModConstants.DefaultEnableAnimalChildcare;
         public bool EnableAnimalEggProtection = ModConstants.DefaultEnableAnimalEggProtection;
         public bool PreventFleeFromHumansWhileProtectingYoung = ModConstants.DefaultPreventFleeFromHumansWhileProtectingYoung;
@@ -385,8 +386,7 @@ namespace ZoologyMod
                         + (EnablePreyFleeFromPredators ? 150f : 0f)
                         + (EnablePredatorDefendCorpse ? 156f : 0f);
                 case SettingsPage.Physiology:
-                    return 1380f
-                        + (!EnableMammalLactation ? 30f : 0f)
+                    return 1410f
                         + (EnableAnimalChildcare && AnimalsFreeFromHumans ? 90f : 0f);
                 case SettingsPage.Combat:
                     return 580f;
@@ -937,6 +937,15 @@ namespace ZoologyMod
 
         private void DrawLactationSettings(Listing_Standard list)
         {
+            if (EnableMammalLactation)
+            {
+                list.CheckboxLabeled("Zoology_EnableHandlerBabyFeeding_Label".Translate(), ref EnableHandlerBabyFeeding, "Zoology_EnableHandlerBabyFeeding_Desc".Translate());
+            }
+            else
+            {
+                EnableHandlerBabyFeeding = false;
+            }
+
             list.GapLine(12f);
             list.Label("Zoology_LactationAutoSlaughter_Label".Translate());
 
@@ -991,6 +1000,7 @@ namespace ZoologyMod
             EnableAnimalClottingComp = ModConstants.DefaultEnableAnimalClottingComp;
             EnableNoPorcupineQuillPatch = ModConstants.DefaultEnableNoPorcupineQuillPatch;
             EnableMammalLactation = ModConstants.DefaultEnableMammalLactation;
+            EnableHandlerBabyFeeding = ModConstants.DefaultEnableHandlerBabyFeeding;
             EnableAnimalChildcare = ModConstants.DefaultEnableAnimalChildcare;
             EnableAnimalEggProtection = ModConstants.DefaultEnableAnimalEggProtection;
             PreventFleeFromHumansWhileProtectingYoung = ModConstants.DefaultPreventFleeFromHumansWhileProtectingYoung;
@@ -1089,6 +1099,7 @@ namespace ZoologyMod
             Scribe_Values.Look(ref _wildAnimalReproductionEcosystemLimitFactor, "WildAnimalReproductionEcosystemLimitFactor", ModConstants.DefaultWildAnimalReproductionEcosystemLimitFactor);
             Scribe_Values.Look(ref EnableAgroAtSlaughter, "EnableAgroAtSlaughter", ModConstants.DefaultEnableAgroAtSlaughter);
             Scribe_Values.Look(ref EnableMammalLactation, "EnableMammalLactation", ModConstants.DefaultEnableMammalLactation);
+            Scribe_Values.Look(ref EnableHandlerBabyFeeding, "EnableHandlerBabyFeeding", ModConstants.DefaultEnableHandlerBabyFeeding);
             Scribe_Values.Look(ref EnableAnimalChildcare, "EnableAnimalChildcare", ModConstants.DefaultEnableAnimalChildcare);
             Scribe_Values.Look(ref EnableAnimalEggProtection, "EnableAnimalEggProtection", ModConstants.DefaultEnableAnimalEggProtection);
             Scribe_Values.Look(ref PreventFleeFromHumansWhileProtectingYoung, "PreventFleeFromHumansWhileProtectingYoung", ModConstants.DefaultPreventFleeFromHumansWhileProtectingYoung);
@@ -1131,6 +1142,7 @@ namespace ZoologyMod
 
             if (!EnableMammalLactation)
             {
+                EnableHandlerBabyFeeding = false;
                 AllowSlaughterLactating = ModConstants.DefaultAllowSlaughterLactating;
             }
 
@@ -1190,6 +1202,7 @@ namespace ZoologyMod
                 hash = hash * 31 + (EnablePredatorDefendCorpse ? 1 : 0);
                 hash = hash * 31 + (EnableScavengering ? 1 : 0);
                 hash = hash * 31 + (EnableMammalLactation ? 1 : 0);
+                hash = hash * 31 + (EnableHandlerBabyFeeding ? 1 : 0);
                 hash = hash * 31 + (EnableAnimalChildcare ? 1 : 0);
                 hash = hash * 31 + (EnableAnimalEggProtection ? 1 : 0);
                 hash = hash * 31 + (PreventFleeFromHumansWhileProtectingYoung ? 1 : 0);

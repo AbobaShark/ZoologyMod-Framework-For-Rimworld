@@ -27,6 +27,7 @@ namespace ZoologyMod
         public const bool DefaultEnableAnimalClottingComp = true;
         public const bool DefaultEnableNoPorcupineQuillPatch = true;
         public const bool DefaultEnableMammalLactation = true;
+        public const bool DefaultEnableHandlerBabyFeeding = true;
         public const bool DefaultEnableAnimalChildcare = true;
         public const bool DefaultEnableAnimalEggProtection = true;
         public const bool DefaultPreventFleeFromHumansWhileProtectingYoung = false;
