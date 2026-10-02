@@ -2,7 +2,7 @@
 
 The checker directory contains the maintainer toolchain that turns AnimalStats outputs into RimWorld XML, validates them against reference Defs and patches, optimizes the result and deploys generated race patches into the mod tree.
 
-This document describes the current code in checker. It is not a player guide.
+This document is the maintainer reference for the current `checker` toolchain.
 
 ## 1. Production inputs
 
@@ -60,7 +60,7 @@ Google access is read-only. The code requests only:
 
     https://www.googleapis.com/auth/spreadsheets.readonly
 
-The current implementation uses the official Sheets API even when the spreadsheet is publicly viewable in a browser. Direct Google mode therefore still requires Google API credentials.
+Google sources use the official Sheets API and require Google API credentials even when the spreadsheet is publicly viewable in a browser.
 
 ### Desktop OAuth
 
@@ -214,11 +214,13 @@ When enabled, the fixer compacts only patch files successfully produced by the c
 
 ### Generate From Original XML
 
-This workflow uses checker/OriginalXML as the baseline source tree rather than requiring the target generated patch to exist first. It is the route for rebuilding patch output from known upstream defs.
+This workflow uses `checker/OriginalXML` as the baseline source tree and rebuilds patch output from known upstream defs without requiring an existing generated target patch.
 
 ### Generate Biome Patches
 
 Biome generation consumes the biome output in AnimalStats and emits the relevant biome patch structure independently of race-field generation.
+
+The fixer writes these files directly to the root of `checker/generated_patches` as `Biomes_<Biome>.xml`. `checker/generated_patches/move_xmls.py` deploys race XML from its mapped subdirectories only; it does not copy these root-level biome files into the mod tree. Review and place biome output through the appropriate biome patch workflow separately.
 
 ### Table-driven groups
 
@@ -366,11 +368,11 @@ checker/generated_patches contains generated race patch output organized by targ
 - Dinosauria;
 - Megafauna.
 
-These are downstream artifacts. Regenerate and review them rather than treating them as the authoritative biological source.
+These files are downstream staging artifacts generated from the production data and should be regenerated and reviewed when their source values change.
 
 ## 17. generated_patches/move_xmls.py
 
-This deployment helper copies generated race XML from generated_patches subfolders into the corresponding Zoology patch directories.
+This deployment helper copies generated race XML from mapped `generated_patches` subfolders into the corresponding Zoology `ThingDefs_Races` patch directories.
 
 Current mappings include:
 
@@ -382,9 +384,9 @@ Current mappings include:
 - Dinosauria -> its ModPatches ThingDefs_Races folder;
 - Megafauna -> its ModPatches ThingDefs_Races folder.
 
-Existing destination files are replaced.
+Existing destination files are replaced. Root-level outputs such as generated `Biomes_*.xml` are outside this helper's mapping and are not copied.
 
-The script locates the project root by searching upward for sibling Zoology and checker directories. It supports --pause and --no-pause console behavior on Windows.
+The script locates the project root by searching upward for sibling Zoology and checker directories. It supports `--pause` and `--no-pause` console behavior on Windows.
 
 Run it only after inspecting generated_patches, because it writes directly into the mod's source-controlled patch tree.
 
@@ -484,8 +486,9 @@ When a change touches both generated XML and runtime behavior, run the relevant 
 9. Review generated_patches.
 10. Run checker tests and any affected runtime tests under Zoology/Tests.
 11. Compare generated race patches with the live mod tree and separately check shared static patches that are not produced by the race generator.
-12. Use move_xmls.py only after the output is reviewed.
-13. Review the final repository diff before committing.
+12. Use `move_xmls.py` only for reviewed generated race XML covered by its mappings.
+13. If biome patches were generated, review and place the root-level `generated_patches/Biomes_*.xml` outputs through the biome patch workflow separately.
+14. Review the final repository diff before committing.
 
 ### Generate one new Def
 
@@ -523,15 +526,15 @@ For TSV, remember that a TSV is one table. Use the fixer's separate CE-source fi
 
 ### Output contains redundant patch operations
 
-Run the optimizer/fixer with an OriginalXML reference and/or enable compaction. Do not manually delete runtime guards solely because they look redundant in the local reference tree.
+Run the optimizer/fixer with an OriginalXML reference and/or enable compaction. Runtime guards that support states outside the local reference tree must be preserved.
 
 ### Generated patches differ from the live mod tree
 
 generated_patches is a staging area. move_xmls.py performs the explicit copy into Zoology. If deployment has not been run, the generated staging output and mod tree can legitimately differ.
 
-## 22. Authority of data
+## 22. Maintaining production data
 
-The source of truth for biological/model values is the spreadsheet pipeline documented in FRAMEWORK.md, not checker/generated_patches.
+Biological/model values are maintained in the spreadsheet pipeline documented in `FRAMEWORK.md`. `checker/generated_patches` contains downstream transformation output.
 
-The checker is responsible for transformation, reference-aware patch construction, validation and deployment. It should not become a second hidden place where scientific coefficients or species values are maintained.
+The checker performs transformation, reference-aware patch construction, validation and deployment. Scientific coefficients and species values remain in the workbook/model layer.
 
