@@ -389,6 +389,45 @@ AnimalCombatPowerUtility uses the explicit extension when present. If it is abse
 
 This adjusted combat power is used by behavior systems such as targeted flee and predator/prey comparisons. It is not a replacement for the PawnKindDef combatPower field stored in XML.
 
+### Combat Extended life-stage penetration Def
+
+Class:
+
+    ZoologyMod.LifeStagePenetrationDef
+
+Base class:
+
+    Verse.Def
+
+Fields:
+
+| Field | Type | Default |
+| --- | --- | --- |
+| meleePenetrationSharpFactor | float | 1 |
+| meleePenetrationBluntFactor | float | 1 |
+
+This Def is used only by Zoology's Combat Extended penetration override. The matching rule is by defName: a LifeStagePenetrationDef is looked up for the pawn's current LifeStageDef using the same defName.
+
+The shipped CE patch currently defines:
+
+- AnimalBabyTiny: sharp 0.05, blunt 0.05;
+- AnimalBaby: sharp 0.15, blunt 0.10;
+- AnimalJuvenile: sharp 0.65, blunt 0.40;
+- EusocialInsectLarva: sharp 0.15, blunt 0.10;
+- EusocialInsectJuvenile: sharp 0.65, blunt 0.40.
+
+Example:
+
+    <LifeStagePenetrationDef Class="ZoologyMod.LifeStagePenetrationDef, ZoologyMod">
+      <defName>AnimalJuvenile</defName>
+      <meleePenetrationSharpFactor>0.65</meleePenetrationSharpFactor>
+      <meleePenetrationBluntFactor>0.40</meleePenetrationBluntFactor>
+    </LifeStagePenetrationDef>
+
+When the override is enabled, CEPatches_Melee multiplies CE tool penetration by the normal CE/stat factors and the matching life-stage factor. CEPatches_UI also replaces the CE penetration explanation/final display so the same life-stage factors are visible in the stat UI.
+
+CEChecker detects CE by its runtime types and package ID, while CEReflectionUtility isolates the reflection-based access to CE internals. This avoids a hard compile-time dependency on CE.
+
 ## 7. NPC pawn-group marker
 
 Class:
