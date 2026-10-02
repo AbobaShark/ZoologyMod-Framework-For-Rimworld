@@ -453,7 +453,6 @@ The generic companion-safety system does not require this marker. It evaluates a
 Zoology defines these trainable names in its runtime compatibility layer:
 
 - Zoology_Beastmastery;
-- Zoology_DraftControl as the legacy Zoology name still recognized internally;
 - VEF_Beastmastery when that compatible def exists.
 
 The shipped Zoology_Beastmastery TrainableDef is gated by Odyssey.
