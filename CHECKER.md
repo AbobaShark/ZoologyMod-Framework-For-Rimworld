@@ -253,7 +253,7 @@ checker/OriginalPatches contains upstream patch material that must be applied on
 
 The committed reference set currently includes Combat Extended Core race patches.
 
-OriginalXmlIndex can load both the original defs and a patches directory so the optimizer can compare against the effective patched state rather than only raw base XML.
+OriginalXmlIndex can load both the original defs and a patches directory, allowing the optimizer to compare against the effective patched state.
 
 ## 10. rimworld_original_xml.py
 
@@ -504,7 +504,7 @@ Use update mode without --overwrite-existing and set --out-dir to a review locat
 
 ### Rebuild against upstream reference XML
 
-Use Generate From Original XML in the patch fixer so the output is derived from checker/OriginalXML and the configured reference patches rather than from a stale generated file.
+Use Generate From Original XML in the patch fixer to derive output from `checker/OriginalXML` and the configured reference patches.
 
 ## 21. Common failure modes
 
