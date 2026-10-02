@@ -37,9 +37,7 @@ Sex-restricted melee tools expose sexually dimorphic attacks only to the appropr
 
 ### Life stages are mechanically different animals
 
-Babies and juveniles are not treated as adults with a smaller graphic. Zoology changes life-stage factors for body size, health, hunger, movement, armor and melee performance, and it uses separate life-stage factors when behavior systems compare Combat Power.
-
-This matters outside combat as well. A juvenile predator, a newborn prey animal and an adult of the same species can make different decisions because their effective body size and combat strength are different.
+Zoology gives babies and juveniles distinct life-stage factors for body size, health, hunger, movement, armor and melee performance, and it uses separate life-stage factors when behavior systems compare Combat Power. A juvenile predator, a newborn prey animal and an adult of the same species can therefore make different decisions because their effective body size and combat strength differ.
 
 
 ### Pregnancy and animal products
@@ -100,7 +98,7 @@ Downed or badly injured prey become easier targets because Zoology evaluates vul
 
 ### Predator-on-predator hunting
 
-Predators do not automatically treat every other predator as safe prey. Zoology applies a stricter combat-power requirement to predator-on-predator hunting than to ordinary prey and can reject a hunt before it starts when the target is too dangerous.
+Predator-on-predator hunting uses a stricter combat-power requirement than hunting ordinary prey, and targets that are too dangerous are rejected before the hunt begins.
 
 This is one reason young life stages matter: a juvenile predator may be an acceptable target where a healthy adult of the same species is not.
 
@@ -114,11 +112,11 @@ Pack hunting provides additional support when a herd/pack predator encounters pr
 
 Zoology tracks predator-prey pursuits. If a hunt turns into a prolonged chase and the predator is still not in immediate melee range, the pursuit can be stopped and that predator/prey pair temporarily blocked.
 
-This prevents a single fast or unreachable prey animal from dragging a predator around the map indefinitely.
+Prolonged unsuccessful chases therefore end instead of continuing indefinitely.
 
 ### Protected young affect prey choice
 
-The childcare system feeds back into predation. A baby or juvenile that has a credible nearby protector can be penalized or rejected as prey rather than being evaluated as an isolated weak pawn.
+The childcare system feeds back into predation. A baby or juvenile with a credible nearby protector receives that protection in the prey evaluation and can be penalized or rejected as a target.
 
 That does not make young completely immune. Protection depends on the actual protector, threat and childcare settings.
 
@@ -146,7 +144,7 @@ Default values:
 - non-hostile predator search radius: 12 cells;
 - flee distance: 16 cells.
 
-This allows prey animals to maintain distance from predators instead of waiting until a formal PredatorHunt job is already active.
+Prey can therefore maintain distance before a formal PredatorHunt job starts.
 
 ### Fleeing from humans
 
@@ -214,7 +212,7 @@ This Combat Power test uses Zoology's life-stage-aware combat values where appro
 
 ### When protection suppresses fleeing
 
-A predator that has committed to defending food may temporarily stop using ordinary flee behavior. This prevents contradictory AI in which an animal chooses to protect a corpse and simultaneously tries to flee from the pawn contesting it.
+A predator that has committed to defending food may temporarily stop using ordinary flee behavior while contesting the protected corpse.
 
 ## 5. Scavengers are adapted to carrion
 
@@ -327,7 +325,7 @@ If the mother is standing and mobile, she can go to the baby and feed it.
 
 If the mother is downed or lying in bed, the baby can go to her and suckle instead, provided the mother is still otherwise capable of nursing.
 
-This prevents the system from depending on one specific pawn being the one whose think tree happened to run first.
+Either side can therefore initiate nursing when its own think tree is evaluated first.
 
 ## 8. Handlers can feed hungry mammal babies
 
@@ -347,7 +345,7 @@ The work:
 - cannot be performed by mechs;
 - can be given as a direct manual order.
 
-Unlike vanilla patient feeding, the baby does not have to be in a medical bed or resting. The custom job driver feeds the animal where it is standing or lying.
+The custom job driver feeds the baby where it is standing or lying; medical-bed or resting status is not required.
 
 ### Which babies qualify
 
@@ -372,9 +370,7 @@ If none is available, the WorkGiver searches the map for food the baby can actua
 
 The search excludes drugs, corpses, food dispensers and opportunistic plant harvesting for this task. The selected food must still pass the baby's race food restrictions and the food's babiesCanIngest flag.
 
-### Why this matters
-
-Nursing remains the preferred biological path, but a colony is no longer forced to let a mammal baby starve because its mother is absent, inaccessible, no longer lactating or temporarily unable to feed it.
+Handler feeding provides suitable food when the mother is absent, inaccessible, no longer lactating or temporarily unable to nurse.
 
 The handler-feeding option is subordinate to the main Mammal lactation setting. Turning lactation off also turns handler baby feeding off.
 
@@ -384,7 +380,7 @@ While mammal lactation is active, Zoology changes ordinary food suitability for 
 
 A food must be marked as ingestible by babies and must also be a food the animal's race can ever eat.
 
-This prevents a newborn mammal from automatically using the full adult diet just because the adult race is a herbivore, carnivore or omnivore.
+Newborn mammals therefore use the baby-ingestibility flag in addition to the race's ordinary adult diet.
 
 The baby-specific logic also blocks the fishing job for mammal babies.
 
@@ -406,7 +402,7 @@ For a mammal baby in a caravan, Zoology:
 4. transfers nutrition from that feeder if possible;
 5. falls back to suitable caravan inventory food when necessary.
 
-The result is that leaving the map does not silently disable the newborn feeding model.
+Caravans therefore preserve the newborn feeding model without map jobs.
 
 ## 11. Lactation and auto-slaughter
 
@@ -454,7 +450,7 @@ A starving protector is not expected to defend indefinitely; the defense code ha
 
 For appropriate social animals, protection is not limited to one exact mother. Nearby compatible herd members can participate in protection when the lineage and state checks pass.
 
-This is why protected-young logic also feeds back into predation: a predator may decide that an apparently weak baby is not actually an easy isolated target.
+Nearby compatible protectors also contribute to predation decisions involving the young they guard.
 
 ### Retargeting protection
 
@@ -468,7 +464,7 @@ Egg protection is a childcare sub-feature and defaults to enabled.
 
 Zoology records the mother associated with fertilized eggs and maintains ownership information beyond the immediate laying event.
 
-The component can recover ownership from the egg's hatcher parent and maintains records through supported egg-stack changes. This matters because RimWorld can split, merge or move egg stacks after laying.
+The component can recover ownership from the egg's hatcher parent and maintains records when RimWorld splits, merges or moves supported egg stacks after laying.
 
 ### Staying near a clutch
 
@@ -686,13 +682,11 @@ If an animal was selected by the pawn-group generator but no valid handler exist
 
 Its selected point cost is returned to the group budget, and Zoology attempts to spend that budget on eligible human pawns from the same group's normal options.
 
-This avoids both broken handlerless animals and raids/trader groups that are silently weaker because an invalid animal simply vanished.
+The replacement spend keeps the generated group from losing the selected animal's point cost when that companion cannot be assigned safely.
 
 ### Companion AI
 
-A tracked NPC companion is not treated as an ordinary human Lord member.
-
-It uses animal-specific follow/defend behavior around its assigned handler.
+A tracked NPC companion uses animal-specific follow/defend behavior around its assigned handler instead of ordinary human Lord-member behavior.
 
 If the master is lost, Zoology first tries to reassign the animal to another valid handler from the same original generated group.
 
@@ -744,7 +738,7 @@ Other organic hediff givers are retained in the cloned set.
 
 Disabling/rebuilding the runtime feature restores the original race hediff-giver sets.
 
-The practical point for a player is that a reptile/invertebrate marked as ectothermic does not use exactly the same cold-injury assumption as an ordinary warm-blooded mammal, while still remaining vulnerable to unsuitable temperatures.
+Marked ectotherms remain vulnerable to unsuitable temperatures while using the ectothermic hypothermia path instead of the ordinary warm-blooded animal assumption.
 
 ## 24. Animal bionics
 
