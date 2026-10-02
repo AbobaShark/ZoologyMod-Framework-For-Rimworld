@@ -6,21 +6,18 @@
     </mods>
     <nomatch Class="PatchOperationSequence">
       <operations>
-        <!---->
-        <!-- AEXP_Panda -->
-        <!-- AEXP_Panda StatBases -->
         <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/statBases/MarketValue</xpath>
           <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/statBases/MarketValue</xpath>
             <value>
-              <MarketValue>600</MarketValue>
+              <MarketValue>625</MarketValue>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/statBases</xpath>
             <value>
-              <MarketValue>600</MarketValue>
+              <MarketValue>625</MarketValue>
             </value>
           </nomatch>
         </li>
@@ -117,7 +114,6 @@
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/statBases/ToxicEnvironmentResistance</xpath>
           </match>
         </li>
-        <!-- AEXP_Panda tools -->
         <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/tools</xpath>
           <match Class="PatchOperationRemove">
@@ -133,8 +129,8 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>9</power>
-                <cooldownTime>2.2</cooldownTime>
+                <power>5</power>
+                <cooldownTime>1.7</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                 <chanceFactor>0.2</chanceFactor>
@@ -145,7 +141,7 @@
                 <capacities>
                   <li>Scratch</li>
                 </capacities>
-                <power>13.5</power>
+                <power>14</power>
                 <cooldownTime>1.45</cooldownTime>
                 <linkedBodyPartsGroup>FrontLeftPaw</linkedBodyPartsGroup>
               </li>
@@ -155,7 +151,7 @@
                 <capacities>
                   <li>Scratch</li>
                 </capacities>
-                <power>13.5</power>
+                <power>14</power>
                 <cooldownTime>1.45</cooldownTime>
                 <linkedBodyPartsGroup>FrontRightPaw</linkedBodyPartsGroup>
               </li>
@@ -164,14 +160,13 @@
                 <capacities>
                   <li>Bite</li>
                 </capacities>
-                <power>15.5</power>
-                <cooldownTime>1.85</cooldownTime>
+                <power>18.5</power>
+                <cooldownTime>2.05</cooldownTime>
                 <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
               </li>
             </tools>
           </value>
         </li>
-        <!-- AEXP_Panda RaceProperties -->
         <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/baseBodySize</xpath>
           <match Class="PatchOperationReplace">
@@ -222,13 +217,13 @@
           <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/lifeExpectancy</xpath>
             <value>
-              <lifeExpectancy>20</lifeExpectancy>
+              <lifeExpectancy>25</lifeExpectancy>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race</xpath>
             <value>
-              <lifeExpectancy>20</lifeExpectancy>
+              <lifeExpectancy>25</lifeExpectancy>
             </value>
           </nomatch>
         </li>
@@ -237,13 +232,13 @@
           <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/gestationPeriodDays</xpath>
             <value>
-              <gestationPeriodDays>6</gestationPeriodDays>
+              <gestationPeriodDays>8</gestationPeriodDays>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race</xpath>
             <value>
-              <gestationPeriodDays>6</gestationPeriodDays>
+              <gestationPeriodDays>8</gestationPeriodDays>
             </value>
           </nomatch>
         </li>
@@ -514,8 +509,7 @@
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/wildBiomes</xpath>
             <value>
               <wildBiomes>
-                <TemperateForest>0.019</TemperateForest>
-                <TemperateSwamp>0.019</TemperateSwamp>
+                <TemperateForest>0.003</TemperateForest>
               </wildBiomes>
             </value>
           </match>
@@ -523,8 +517,7 @@
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race</xpath>
             <value>
               <wildBiomes>
-                <TemperateForest>0.019</TemperateForest>
-                <TemperateSwamp>0.019</TemperateSwamp>
+                <TemperateForest>0.003</TemperateForest>
               </wildBiomes>
             </value>
           </nomatch>
@@ -654,19 +647,18 @@
             <li Class="ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod"/>
           </value>
         </li>
-        <!-- AEXP_Panda PawnKindDef -->
         <li Class="PatchOperationConditional">
           <xpath>/Defs/PawnKindDef[defName = "AEXP_Panda"]/combatPower</xpath>
           <match Class="PatchOperationReplace">
             <xpath>/Defs/PawnKindDef[defName = "AEXP_Panda"]/combatPower</xpath>
             <value>
-              <combatPower>140</combatPower>
+              <combatPower>145</combatPower>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>/Defs/PawnKindDef[defName = "AEXP_Panda"]</xpath>
             <value>
-              <combatPower>140</combatPower>
+              <combatPower>145</combatPower>
             </value>
           </nomatch>
         </li>
@@ -715,8 +707,6 @@
       </operations>
     </nomatch>
   </Operation>
-  <!---->
-  <!-- Combat Extended specific patches -->
   <Operation Class="PatchOperationFindMod">
     <mods>
       <li>Combat Extended</li>
@@ -729,7 +719,21 @@
           </mods>
           <nomatch Class="PatchOperationSequence">
             <operations>
-              <!-- AEXP_Panda CE patches -->
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="AEXP_Panda"]/statBases/MoveSpeed</xpath>
+                <match Class="PatchOperationReplace">
+                  <xpath>Defs/ThingDef[defName="AEXP_Panda"]/statBases/MoveSpeed</xpath>
+                  <value>
+                    <MoveSpeed>5.3</MoveSpeed>
+                  </value>
+                </match>
+                <nomatch Class="PatchOperationAdd">
+                  <xpath>Defs/ThingDef[defName="AEXP_Panda"]/statBases</xpath>
+                  <value>
+                    <MoveSpeed>5.3</MoveSpeed>
+                  </value>
+                </nomatch>
+              </li>
               <li Class="PatchOperationConditional">
                 <xpath>Defs/ThingDef[defName="AEXP_Panda"]/statBases/MeleeDodgeChance</xpath>
                 <match Class="PatchOperationReplace">
@@ -795,13 +799,13 @@
                 <match Class="PatchOperationReplace">
                   <xpath>Defs/ThingDef[defName="AEXP_Panda"]/statBases/ArmorRating_Blunt</xpath>
                   <value>
-                    <ArmorRating_Blunt>0.45</ArmorRating_Blunt>
+                    <ArmorRating_Blunt>0.2</ArmorRating_Blunt>
                   </value>
                 </match>
                 <nomatch Class="PatchOperationAdd">
                   <xpath>Defs/ThingDef[defName="AEXP_Panda"]/statBases</xpath>
                   <value>
-                    <ArmorRating_Blunt>0.45</ArmorRating_Blunt>
+                    <ArmorRating_Blunt>0.2</ArmorRating_Blunt>
                   </value>
                 </nomatch>
               </li>
@@ -883,9 +887,9 @@
                       <capacities>
                         <li>Blunt</li>
                       </capacities>
-                      <power>3.5</power>
-                      <armorPenetrationBlunt>3</armorPenetrationBlunt>
-                      <cooldownTime>1.65</cooldownTime>
+                      <power>4.35</power>
+                      <armorPenetrationBlunt>1.514</armorPenetrationBlunt>
+                      <cooldownTime>1.41</cooldownTime>
                       <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                       <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                       <chanceFactor>0.2</chanceFactor>
@@ -896,10 +900,10 @@
                       <capacities>
                         <li>Scratch</li>
                       </capacities>
-                      <power>14.5</power>
-                      <armorPenetrationBlunt>3.8</armorPenetrationBlunt>
+                      <power>14.05</power>
+                      <armorPenetrationBlunt>1.724</armorPenetrationBlunt>
                       <armorPenetrationSharp>0.19</armorPenetrationSharp>
-                      <cooldownTime>1.5</cooldownTime>
+                      <cooldownTime>1.41</cooldownTime>
                       <linkedBodyPartsGroup>FrontLeftPaw</linkedBodyPartsGroup>
                     </li>
                     <li Class="CombatExtended.ToolCE">
@@ -908,10 +912,10 @@
                       <capacities>
                         <li>Scratch</li>
                       </capacities>
-                      <power>14.5</power>
-                      <armorPenetrationBlunt>3.8</armorPenetrationBlunt>
+                      <power>14.05</power>
+                      <armorPenetrationBlunt>1.724</armorPenetrationBlunt>
                       <armorPenetrationSharp>0.19</armorPenetrationSharp>
-                      <cooldownTime>1.5</cooldownTime>
+                      <cooldownTime>1.41</cooldownTime>
                       <linkedBodyPartsGroup>FrontRightPaw</linkedBodyPartsGroup>
                     </li>
                     <li Class="CombatExtended.ToolCE">
@@ -919,10 +923,10 @@
                       <capacities>
                         <li>Bite</li>
                       </capacities>
-                      <power>17</power>
-                      <armorPenetrationBlunt>5.75</armorPenetrationBlunt>
-                      <armorPenetrationSharp>0.29</armorPenetrationSharp>
-                      <cooldownTime>2.2</cooldownTime>
+                      <power>16.45</power>
+                      <armorPenetrationBlunt>4.474</armorPenetrationBlunt>
+                      <armorPenetrationSharp>0.68</armorPenetrationSharp>
+                      <cooldownTime>2.05</cooldownTime>
                       <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
                     </li>
                   </tools>

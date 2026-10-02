@@ -1,7 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
 <Patch>
-  <!---->
-  <!-- Toxalope -->
   <Operation Class="PatchOperationAttributeSet">
     <xpath>/Defs/ThingDef[defName = "Toxalope"]</xpath>
     <attribute>ParentName</attribute>
@@ -12,51 +10,21 @@
     <attribute>ParentName</attribute>
     <value>AnimalKindBase</value>
   </Operation>
-  <!-- Toxalope StatBases -->
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Toxalope"]/statBases/MarketValue</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/statBases/MarketValue</xpath>
-      <value>
-        <MarketValue>250</MarketValue>
-      </value>
+    <xpath>/Defs/ThingDef[defName = "Toxalope"]/statBases/*[self::MarketValue or self::MoveSpeed or self::Wildness or self::ComfyTemperatureMin or self::ComfyTemperatureMax or self::ArmorRating_Blunt or self::ArmorRating_Sharp]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Toxalope"]/statBases/*[self::MarketValue or self::MoveSpeed or self::Wildness or self::ComfyTemperatureMin or self::ComfyTemperatureMax or self::ArmorRating_Blunt or self::ArmorRating_Sharp]</xpath>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/statBases</xpath>
-      <value>
-        <MarketValue>250</MarketValue>
-      </value>
-    </nomatch>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Toxalope"]/statBases/MoveSpeed</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/statBases/MoveSpeed</xpath>
-      <value>
-        <MoveSpeed>4</MoveSpeed>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/statBases</xpath>
-      <value>
-        <MoveSpeed>4</MoveSpeed>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Toxalope"]/statBases/Wildness</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/statBases/Wildness</xpath>
-      <value>
-        <Wildness>0.5</Wildness>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/statBases</xpath>
-      <value>
-        <Wildness>0.5</Wildness>
-      </value>
-    </nomatch>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Toxalope"]/statBases</xpath>
+    <value>
+      <MarketValue>250</MarketValue>
+      <MoveSpeed>4.3</MoveSpeed>
+      <Wildness>0.5</Wildness>
+      <ComfyTemperatureMin>-35</ComfyTemperatureMin>
+      <ComfyTemperatureMax>50</ComfyTemperatureMax>
+    </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Toxalope"]/statBases/FilthRate</xpath>
@@ -64,49 +32,6 @@
       <FilthRate>8</FilthRate>
     </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Toxalope"]/statBases/ComfyTemperatureMin</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/statBases/ComfyTemperatureMin</xpath>
-      <value>
-        <ComfyTemperatureMin>-45</ComfyTemperatureMin>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/statBases</xpath>
-      <value>
-        <ComfyTemperatureMin>-45</ComfyTemperatureMin>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Toxalope"]/statBases/ComfyTemperatureMax</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/statBases/ComfyTemperatureMax</xpath>
-      <value>
-        <ComfyTemperatureMax>50</ComfyTemperatureMax>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/statBases</xpath>
-      <value>
-        <ComfyTemperatureMax>50</ComfyTemperatureMax>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Toxalope"]/statBases/ArmorRating_Blunt</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/statBases/ArmorRating_Blunt</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Toxalope"]/statBases/ArmorRating_Sharp</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/statBases/ArmorRating_Sharp</xpath>
-    </match>
-  </Operation>
-  <!-- Toxalope tools -->
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Toxalope"]/tools</xpath>
     <match Class="PatchOperationRemove">
@@ -122,8 +47,8 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>9.5</power>
-          <cooldownTime>2.3</cooldownTime>
+          <power>5.5</power>
+          <cooldownTime>1.75</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
           <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
           <chanceFactor>0.2</chanceFactor>
@@ -134,8 +59,8 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>12</power>
-          <cooldownTime>2.15</cooldownTime>
+          <power>12.5</power>
+          <cooldownTime>1.9</cooldownTime>
           <linkedBodyPartsGroup>FrontLeftLeg</linkedBodyPartsGroup>
         </li>
         <li>
@@ -144,23 +69,22 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>12</power>
-          <cooldownTime>2.15</cooldownTime>
+          <power>12.5</power>
+          <cooldownTime>1.9</cooldownTime>
           <linkedBodyPartsGroup>FrontRightLeg</linkedBodyPartsGroup>
         </li>
         <li>
-          <label>teeth</label>
+          <label>canines</label>
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>12</power>
-          <cooldownTime>2.3</cooldownTime>
+          <power>10</power>
+          <cooldownTime>2.15</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
         </li>
       </tools>
     </value>
   </Operation>
-  <!-- Toxalope RaceProperties -->
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/baseBodySize</xpath>
     <value>
@@ -168,383 +92,57 @@
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/baseHealthScale</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/baseHealthScale</xpath>
-      <value>
-        <baseHealthScale>1.5</baseHealthScale>
-      </value>
+    <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/*[self::baseHealthScale or self::baseHungerRate or self::gestationPeriodDays or self::herdAnimal or self::herdMigrationAllowed or self::foodType or self::roamMtbDays or self::leatherDef or self::useLeatherFrom or self::manhunterOnTameFailChance or self::manhunterOnDamageChance or self::petness or self::nuzzleMtbHours or self::mateMtbHours or self::trainability or self::packAnimal or self::predator or self::maxPreyBodySize or self::nameOnTameChance or self::body or self::waterCellCost or self::waterSeeker or self::canFishForFood or self::useMeatFrom or self::wildBiomes or self::lifeStageAges or self::litterSizeCurve or self::specialTrainables]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/*[self::baseHealthScale or self::baseHungerRate or self::gestationPeriodDays or self::herdAnimal or self::herdMigrationAllowed or self::foodType or self::roamMtbDays or self::leatherDef or self::useLeatherFrom or self::manhunterOnTameFailChance or self::manhunterOnDamageChance or self::petness or self::nuzzleMtbHours or self::mateMtbHours or self::trainability or self::packAnimal or self::predator or self::maxPreyBodySize or self::nameOnTameChance or self::body or self::waterCellCost or self::waterSeeker or self::canFishForFood or self::useMeatFrom or self::wildBiomes or self::lifeStageAges or self::litterSizeCurve or self::specialTrainables]</xpath>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/race</xpath>
-      <value>
-        <baseHealthScale>1.5</baseHealthScale>
-      </value>
-    </nomatch>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/baseHungerRate</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/baseHungerRate</xpath>
-      <value>
-        <baseHungerRate>0.75</baseHungerRate>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/race</xpath>
-      <value>
-        <baseHungerRate>0.75</baseHungerRate>
-      </value>
-    </nomatch>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Toxalope"]/race</xpath>
+    <value>
+      <baseHealthScale>1.5</baseHealthScale>
+      <baseHungerRate>0.75</baseHungerRate>
+      <gestationPeriodDays>9.5</gestationPeriodDays>
+      <herdAnimal>true</herdAnimal>
+      <herdMigrationAllowed>true</herdMigrationAllowed>
+      <foodType>VegetarianRoughAnimal</foodType>
+      <roamMtbDays>4</roamMtbDays>
+      <leatherDef>VAEWaste_ToxicLeather</leatherDef>
+      <manhunterOnTameFailChance>0.1</manhunterOnTameFailChance>
+      <manhunterOnDamageChance>0.3</manhunterOnDamageChance>
+      <mateMtbHours>12</mateMtbHours>
+      <trainability>None</trainability>
+      <packAnimal>false</packAnimal>
+      <predator>false</predator>
+      <nameOnTameChance>0</nameOnTameChance>
+      <body>QuadrupedAnimalWithHoovesAndHump</body>
+      <waterSeeker>false</waterSeeker>
+      <canFishForFood>false</canFishForFood>
+      <lifeStageAges Inherit="False">
+        <li>
+          <def>AnimalBaby</def>
+          <minAge>0</minAge>
+        </li>
+        <li>
+          <def>AnimalJuvenile</def>
+          <minAge>0.2</minAge>
+        </li>
+        <li>
+          <def>AnimalAdult</def>
+          <minAge>0.4</minAge>
+          <soundWounded>Pawn_Muffalo_Wounded</soundWounded>
+          <soundDeath>Pawn_Muffalo_Death</soundDeath>
+          <soundCall>Pawn_Muffalo_Call</soundCall>
+          <soundAngry>Pawn_Muffalo_Angry</soundAngry>
+        </li>
+      </lifeStageAges>
+    </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/lifeExpectancy</xpath>
     <value>
-      <lifeExpectancy>12</lifeExpectancy>
+      <lifeExpectancy>18</lifeExpectancy>
     </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/gestationPeriodDays</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/gestationPeriodDays</xpath>
-      <value>
-        <gestationPeriodDays>9.5</gestationPeriodDays>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/race</xpath>
-      <value>
-        <gestationPeriodDays>9.5</gestationPeriodDays>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/herdAnimal</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/herdAnimal</xpath>
-      <value>
-        <herdAnimal>true</herdAnimal>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/race</xpath>
-      <value>
-        <herdAnimal>true</herdAnimal>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/herdMigrationAllowed</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/herdMigrationAllowed</xpath>
-      <value>
-        <herdMigrationAllowed>true</herdMigrationAllowed>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/race</xpath>
-      <value>
-        <herdMigrationAllowed>true</herdMigrationAllowed>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/foodType</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/foodType</xpath>
-      <value>
-        <foodType>VegetarianRoughAnimal</foodType>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/race</xpath>
-      <value>
-        <foodType>VegetarianRoughAnimal</foodType>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/roamMtbDays</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/roamMtbDays</xpath>
-      <value>
-        <roamMtbDays>4</roamMtbDays>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/race</xpath>
-      <value>
-        <roamMtbDays>4</roamMtbDays>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/leatherDef</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/leatherDef</xpath>
-      <value>
-        <leatherDef>VAEWaste_ToxicLeather</leatherDef>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/race</xpath>
-      <value>
-        <leatherDef>VAEWaste_ToxicLeather</leatherDef>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/useLeatherFrom</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/useLeatherFrom</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/manhunterOnTameFailChance</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/manhunterOnTameFailChance</xpath>
-      <value>
-        <manhunterOnTameFailChance>0.1</manhunterOnTameFailChance>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/race</xpath>
-      <value>
-        <manhunterOnTameFailChance>0.1</manhunterOnTameFailChance>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/manhunterOnDamageChance</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/manhunterOnDamageChance</xpath>
-      <value>
-        <manhunterOnDamageChance>0.3</manhunterOnDamageChance>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/race</xpath>
-      <value>
-        <manhunterOnDamageChance>0.3</manhunterOnDamageChance>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/petness</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/petness</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/nuzzleMtbHours</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/nuzzleMtbHours</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/mateMtbHours</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/mateMtbHours</xpath>
-      <value>
-        <mateMtbHours>12</mateMtbHours>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/race</xpath>
-      <value>
-        <mateMtbHours>12</mateMtbHours>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/trainability</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/trainability</xpath>
-      <value>
-        <trainability>None</trainability>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/race</xpath>
-      <value>
-        <trainability>None</trainability>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/packAnimal</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/packAnimal</xpath>
-      <value>
-        <packAnimal>false</packAnimal>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/race</xpath>
-      <value>
-        <packAnimal>false</packAnimal>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/predator</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/predator</xpath>
-      <value>
-        <predator>false</predator>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/race</xpath>
-      <value>
-        <predator>false</predator>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/maxPreyBodySize</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/maxPreyBodySize</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/nameOnTameChance</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/nameOnTameChance</xpath>
-      <value>
-        <nameOnTameChance>0</nameOnTameChance>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/race</xpath>
-      <value>
-        <nameOnTameChance>0</nameOnTameChance>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/body</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/body</xpath>
-      <value>
-        <body>QuadrupedAnimalWithHoovesAndHump</body>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/race</xpath>
-      <value>
-        <body>QuadrupedAnimalWithHoovesAndHump</body>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/waterCellCost</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/waterCellCost</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/waterSeeker</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/waterSeeker</xpath>
-      <value>
-        <waterSeeker>false</waterSeeker>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/race</xpath>
-      <value>
-        <waterSeeker>false</waterSeeker>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/canFishForFood</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/canFishForFood</xpath>
-      <value>
-        <canFishForFood>false</canFishForFood>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/race</xpath>
-      <value>
-        <canFishForFood>false</canFishForFood>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/useMeatFrom</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/useMeatFrom</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/wildBiomes</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/wildBiomes</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/lifeStageAges</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/lifeStageAges</xpath>
-      <value>
-        <lifeStageAges Inherit="False">
-          <li>
-            <def>AnimalBaby</def>
-            <minAge>0</minAge>
-          </li>
-          <li>
-            <def>AnimalJuvenile</def>
-            <minAge>0.2</minAge>
-          </li>
-          <li>
-            <def>AnimalAdult</def>
-            <minAge>0.4</minAge>
-            <soundWounded>Pawn_Muffalo_Wounded</soundWounded>
-            <soundDeath>Pawn_Muffalo_Death</soundDeath>
-            <soundCall>Pawn_Muffalo_Call</soundCall>
-            <soundAngry>Pawn_Muffalo_Angry</soundAngry>
-          </li>
-        </lifeStageAges>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/race</xpath>
-      <value>
-        <lifeStageAges Inherit="False">
-          <li>
-            <def>AnimalBaby</def>
-            <minAge>0</minAge>
-          </li>
-          <li>
-            <def>AnimalJuvenile</def>
-            <minAge>0.2</minAge>
-          </li>
-          <li>
-            <def>AnimalAdult</def>
-            <minAge>0.4</minAge>
-            <soundWounded>Pawn_Muffalo_Wounded</soundWounded>
-            <soundDeath>Pawn_Muffalo_Death</soundDeath>
-            <soundCall>Pawn_Muffalo_Call</soundCall>
-            <soundAngry>Pawn_Muffalo_Angry</soundAngry>
-          </li>
-        </lifeStageAges>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/litterSizeCurve</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/litterSizeCurve</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/specialTrainables</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Toxalope"]/race/specialTrainables</xpath>
-    </match>
   </Operation>
   <Operation Class="PatchOperationAdd">
     <xpath>/Defs/ThingDef[defName = "Toxalope"]/tradeTags</xpath>
@@ -556,65 +154,28 @@
     <xpath>/Defs/ThingDef[defName = "Toxalope"]</xpath>
     <value>
       <li Class="ZoologyMod.ModExtension_IsMammal, ZoologyMod"/>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationAddModExtension">
-    <xpath>/Defs/ThingDef[defName = "Toxalope"]</xpath>
-    <value>
       <li Class="ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod"/>
     </value>
   </Operation>
-  <!-- Toxalope PawnKindDef -->
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "Toxalope"]/combatPower</xpath>
     <value>
-      <combatPower>145</combatPower>
+      <combatPower>150</combatPower>
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/PawnKindDef[defName = "Toxalope"]/ecoSystemWeight</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/PawnKindDef[defName = "Toxalope"]/ecoSystemWeight</xpath>
-      <value>
-        <ecoSystemWeight>0.9</ecoSystemWeight>
-      </value>
+    <xpath>/Defs/PawnKindDef[defName = "Toxalope"]/*[self::ecoSystemWeight or self::canArriveManhunter or self::wildGroupSize]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/PawnKindDef[defName = "Toxalope"]/*[self::ecoSystemWeight or self::canArriveManhunter or self::wildGroupSize]</xpath>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/PawnKindDef[defName = "Toxalope"]</xpath>
-      <value>
-        <ecoSystemWeight>0.9</ecoSystemWeight>
-      </value>
-    </nomatch>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/PawnKindDef[defName = "Toxalope"]/canArriveManhunter</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/PawnKindDef[defName = "Toxalope"]/canArriveManhunter</xpath>
-      <value>
-        <canArriveManhunter>true</canArriveManhunter>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/PawnKindDef[defName = "Toxalope"]</xpath>
-      <value>
-        <canArriveManhunter>true</canArriveManhunter>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/PawnKindDef[defName = "Toxalope"]/wildGroupSize</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/PawnKindDef[defName = "Toxalope"]/wildGroupSize</xpath>
-      <value>
-        <wildGroupSize>2~6</wildGroupSize>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/PawnKindDef[defName = "Toxalope"]</xpath>
-      <value>
-        <wildGroupSize>2~6</wildGroupSize>
-      </value>
-    </nomatch>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/PawnKindDef[defName = "Toxalope"]</xpath>
+    <value>
+      <ecoSystemWeight>0.9</ecoSystemWeight>
+      <canArriveManhunter>true</canArriveManhunter>
+      <wildGroupSize>2~6</wildGroupSize>
+    </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/PawnKindDef[defName = "Toxalope"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
@@ -622,14 +183,27 @@
       <xpath>/Defs/PawnKindDef[defName = "Toxalope"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
     </match>
   </Operation>
-  <!-- Combat Extended specific patches -->
   <Operation Class="PatchOperationFindMod">
     <mods>
       <li>Combat Extended</li>
     </mods>
     <match Class="PatchOperationSequence">
       <operations>
-        <!-- Toxalope CE patches -->
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="Toxalope"]/statBases/MoveSpeed</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="Toxalope"]/statBases/MoveSpeed</xpath>
+            <value>
+              <MoveSpeed>4.3</MoveSpeed>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="Toxalope"]/statBases</xpath>
+            <value>
+              <MoveSpeed>4.3</MoveSpeed>
+            </value>
+          </nomatch>
+        </li>
         <li Class="PatchOperationConditional">
           <xpath>Defs/ThingDef[defName="Toxalope"]/statBases/MeleeDodgeChance</xpath>
           <match Class="PatchOperationReplace">
@@ -695,13 +269,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Toxalope"]/statBases/ArmorRating_Blunt</xpath>
             <value>
-              <ArmorRating_Blunt>0.3</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0.15</ArmorRating_Blunt>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Toxalope"]/statBases</xpath>
             <value>
-              <ArmorRating_Blunt>0.3</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0.15</ArmorRating_Blunt>
             </value>
           </nomatch>
         </li>
@@ -783,9 +357,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>4.3</power>
-                <armorPenetrationBlunt>3.75</armorPenetrationBlunt>
-                <cooldownTime>1.75</cooldownTime>
+                <power>5.65</power>
+                <armorPenetrationBlunt>2.017</armorPenetrationBlunt>
+                <cooldownTime>1.48</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                 <chanceFactor>0.2</chanceFactor>
@@ -796,9 +370,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>7.8</power>
-                <armorPenetrationBlunt>4.65</armorPenetrationBlunt>
-                <cooldownTime>2.3</cooldownTime>
+                <power>6.65</power>
+                <armorPenetrationBlunt>2.416</armorPenetrationBlunt>
+                <cooldownTime>1.95</cooldownTime>
                 <linkedBodyPartsGroup>FrontLeftLeg</linkedBodyPartsGroup>
               </li>
               <li Class="CombatExtended.ToolCE">
@@ -807,20 +381,20 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>7.8</power>
-                <armorPenetrationBlunt>4.65</armorPenetrationBlunt>
-                <cooldownTime>2.3</cooldownTime>
+                <power>6.65</power>
+                <armorPenetrationBlunt>2.416</armorPenetrationBlunt>
+                <cooldownTime>1.95</cooldownTime>
                 <linkedBodyPartsGroup>FrontRightLeg</linkedBodyPartsGroup>
               </li>
               <li Class="CombatExtended.ToolCE">
-                <label>teeth</label>
+                <label>canines</label>
                 <capacities>
                   <li>Bite</li>
                 </capacities>
-                <power>9.9</power>
-                <armorPenetrationBlunt>3.4</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.13</armorPenetrationSharp>
-                <cooldownTime>2.8</cooldownTime>
+                <power>5.35</power>
+                <armorPenetrationBlunt>0.404</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.02</armorPenetrationSharp>
+                <cooldownTime>2.14</cooldownTime>
                 <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
               </li>
             </tools>

@@ -1,34 +1,30 @@
 <?xml version='1.0' encoding='utf-8'?>
 <Patch>
-  <!---->
-  <!-- AA_DuskRat -->
-  <!-- AA_DuskRat StatBases -->
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/statBases/MarketValue</xpath>
     <value>
-      <MarketValue>50</MarketValue>
+      <MarketValue>75</MarketValue>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/statBases/MoveSpeed</xpath>
     <value>
-      <MoveSpeed>1.5</MoveSpeed>
+      <MoveSpeed>3.4</MoveSpeed>
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/statBases/FilthRate</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/statBases/FilthRate</xpath>
-      <value>
-        <FilthRate>1</FilthRate>
-      </value>
+    <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/statBases/*[self::FilthRate or self::ComfyTemperatureMax or self::ArmorRating_Blunt or self::ArmorRating_Sharp or self::ToxicEnvironmentResistance]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/statBases/*[self::FilthRate or self::ComfyTemperatureMax or self::ArmorRating_Blunt or self::ArmorRating_Sharp or self::ToxicEnvironmentResistance]</xpath>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/statBases</xpath>
-      <value>
-        <FilthRate>1</FilthRate>
-      </value>
-    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/statBases</xpath>
+    <value>
+      <FilthRate>1</FilthRate>
+      <ComfyTemperatureMax>35</ComfyTemperatureMax>
+      <ToxicEnvironmentResistance>0.8</ToxicEnvironmentResistance>
+    </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/statBases/ComfyTemperatureMin</xpath>
@@ -36,49 +32,6 @@
       <ComfyTemperatureMin>5</ComfyTemperatureMin>
     </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/statBases/ComfyTemperatureMax</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/statBases/ComfyTemperatureMax</xpath>
-      <value>
-        <ComfyTemperatureMax>35</ComfyTemperatureMax>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/statBases</xpath>
-      <value>
-        <ComfyTemperatureMax>35</ComfyTemperatureMax>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/statBases/ArmorRating_Blunt</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/statBases/ArmorRating_Blunt</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/statBases/ArmorRating_Sharp</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/statBases/ArmorRating_Sharp</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/statBases/ToxicEnvironmentResistance</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/statBases/ToxicEnvironmentResistance</xpath>
-      <value>
-        <ToxicEnvironmentResistance>0.8</ToxicEnvironmentResistance>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/statBases</xpath>
-      <value>
-        <ToxicEnvironmentResistance>0.8</ToxicEnvironmentResistance>
-      </value>
-    </nomatch>
-  </Operation>
-  <!-- AA_DuskRat tools -->
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/tools</xpath>
     <match Class="PatchOperationRemove">
@@ -105,14 +58,13 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>1.5</power>
-          <cooldownTime>0.9</cooldownTime>
+          <power>3</power>
+          <cooldownTime>1</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
         </li>
       </tools>
     </value>
   </Operation>
-  <!-- AA_DuskRat RaceProperties -->
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/race/baseBodySize</xpath>
     <value>
@@ -128,7 +80,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/race/lifeExpectancy</xpath>
     <value>
-      <lifeExpectancy>2</lifeExpectancy>
+      <lifeExpectancy>3</lifeExpectancy>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -138,34 +90,23 @@
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/race/herdAnimal</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/race/herdAnimal</xpath>
-      <value>
-        <herdAnimal>true</herdAnimal>
-      </value>
+    <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/race/*[self::herdAnimal or self::herdMigrationAllowed or self::roamMtbDays or self::useLeatherFrom or self::petness or self::nuzzleMtbHours or self::packAnimal or self::predator or self::maxPreyBodySize or self::nameOnTameChance or self::waterCellCost or self::waterSeeker or self::canFishForFood or self::wildBiomes]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/race/*[self::herdAnimal or self::herdMigrationAllowed or self::roamMtbDays or self::useLeatherFrom or self::petness or self::nuzzleMtbHours or self::packAnimal or self::predator or self::maxPreyBodySize or self::nameOnTameChance or self::waterCellCost or self::waterSeeker or self::canFishForFood or self::wildBiomes]</xpath>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/race</xpath>
-      <value>
-        <herdAnimal>true</herdAnimal>
-      </value>
-    </nomatch>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/race/herdMigrationAllowed</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/race/herdMigrationAllowed</xpath>
-      <value>
-        <herdMigrationAllowed>false</herdMigrationAllowed>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/race</xpath>
-      <value>
-        <herdMigrationAllowed>false</herdMigrationAllowed>
-      </value>
-    </nomatch>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/race</xpath>
+    <value>
+      <herdAnimal>true</herdAnimal>
+      <herdMigrationAllowed>false</herdMigrationAllowed>
+      <nuzzleMtbHours>36</nuzzleMtbHours>
+      <packAnimal>false</packAnimal>
+      <predator>false</predator>
+      <nameOnTameChance>1</nameOnTameChance>
+      <waterSeeker>false</waterSeeker>
+      <canFishForFood>false</canFishForFood>
+    </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/race/foodType</xpath>
@@ -173,143 +114,17 @@
       <foodType>OmnivoreRoughAnimal, OvivoreAnimal</foodType>
     </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/race/roamMtbDays</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/race/roamMtbDays</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/race/useLeatherFrom</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/race/useLeatherFrom</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/race/petness</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/race/petness</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/race/nuzzleMtbHours</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/race/nuzzleMtbHours</xpath>
-      <value>
-        <nuzzleMtbHours>36</nuzzleMtbHours>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/race</xpath>
-      <value>
-        <nuzzleMtbHours>36</nuzzleMtbHours>
-      </value>
-    </nomatch>
-  </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/race/trainability</xpath>
     <value>
       <trainability>Intermediate</trainability>
     </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/race/packAnimal</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/race/packAnimal</xpath>
-      <value>
-        <packAnimal>false</packAnimal>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/race</xpath>
-      <value>
-        <packAnimal>false</packAnimal>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/race/predator</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/race/predator</xpath>
-      <value>
-        <predator>false</predator>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/race</xpath>
-      <value>
-        <predator>false</predator>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/race/maxPreyBodySize</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/race/maxPreyBodySize</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/race/nameOnTameChance</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/race/nameOnTameChance</xpath>
-      <value>
-        <nameOnTameChance>1</nameOnTameChance>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/race</xpath>
-      <value>
-        <nameOnTameChance>1</nameOnTameChance>
-      </value>
-    </nomatch>
-  </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/race/body</xpath>
     <value>
       <body>QuadrupedAnimalWithPawsAndTail</body>
     </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/race/waterCellCost</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/race/waterCellCost</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/race/waterSeeker</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/race/waterSeeker</xpath>
-      <value>
-        <waterSeeker>false</waterSeeker>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/race</xpath>
-      <value>
-        <waterSeeker>false</waterSeeker>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/race/canFishForFood</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/race/canFishForFood</xpath>
-      <value>
-        <canFishForFood>false</canFishForFood>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/race</xpath>
-      <value>
-        <canFishForFood>false</canFishForFood>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/race/wildBiomes</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/race/wildBiomes</xpath>
-    </match>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/race/lifeStageAges</xpath>
@@ -378,52 +193,30 @@
     <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]</xpath>
     <value>
       <li Class="ZoologyMod.ModExtension_IsMammal, ZoologyMod"/>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationAddModExtension">
-    <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]</xpath>
-    <value>
       <li Class="ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod"/>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationAddModExtension">
-    <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]</xpath>
-    <value>
       <li Class="ZoologyMod.ModExtension_IsScavenger, ZoologyMod">
         <allowVeryRotten>true</allowVeryRotten>
       </li>
     </value>
   </Operation>
-  <!-- AA_DuskRat PawnKindDef -->
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/PawnKindDef[defName = "AA_DuskRat"]/ecoSystemWeight</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/PawnKindDef[defName = "AA_DuskRat"]/ecoSystemWeight</xpath>
-      <value>
-        <ecoSystemWeight>0.2</ecoSystemWeight>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/PawnKindDef[defName = "AA_DuskRat"]</xpath>
-      <value>
-        <ecoSystemWeight>0.2</ecoSystemWeight>
-      </value>
-    </nomatch>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/PawnKindDef[defName = "AA_DuskRat"]/combatPower</xpath>
+    <value>
+      <combatPower>30</combatPower>
+    </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/PawnKindDef[defName = "AA_DuskRat"]/canArriveManhunter</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/PawnKindDef[defName = "AA_DuskRat"]/canArriveManhunter</xpath>
-      <value>
-        <canArriveManhunter>false</canArriveManhunter>
-      </value>
+    <xpath>/Defs/PawnKindDef[defName = "AA_DuskRat"]/*[self::ecoSystemWeight or self::canArriveManhunter]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/PawnKindDef[defName = "AA_DuskRat"]/*[self::ecoSystemWeight or self::canArriveManhunter]</xpath>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/PawnKindDef[defName = "AA_DuskRat"]</xpath>
-      <value>
-        <canArriveManhunter>false</canArriveManhunter>
-      </value>
-    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/PawnKindDef[defName = "AA_DuskRat"]</xpath>
+    <value>
+      <ecoSystemWeight>0.2</ecoSystemWeight>
+      <canArriveManhunter>false</canArriveManhunter>
+    </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "AA_DuskRat"]/wildGroupSize</xpath>
@@ -437,18 +230,16 @@
       <xpath>/Defs/PawnKindDef[defName = "AA_DuskRat"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
     </match>
   </Operation>
-  <!-- AA_FissionMouse -->
-  <!-- AA_FissionMouse StatBases -->
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/statBases/MarketValue</xpath>
     <value>
-      <MarketValue>25</MarketValue>
+      <MarketValue>50</MarketValue>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/statBases/MoveSpeed</xpath>
     <value>
-      <MoveSpeed>1.5</MoveSpeed>
+      <MoveSpeed>3.25</MoveSpeed>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -458,19 +249,17 @@
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/statBases/FilthRate</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/statBases/FilthRate</xpath>
-      <value>
-        <FilthRate>1</FilthRate>
-      </value>
+    <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/statBases/*[self::FilthRate or self::ComfyTemperatureMax or self::ArmorRating_Blunt or self::ArmorRating_Sharp or self::ToxicEnvironmentResistance]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/statBases/*[self::FilthRate or self::ComfyTemperatureMax or self::ArmorRating_Blunt or self::ArmorRating_Sharp or self::ToxicEnvironmentResistance]</xpath>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/statBases</xpath>
-      <value>
-        <FilthRate>1</FilthRate>
-      </value>
-    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/statBases</xpath>
+    <value>
+      <FilthRate>1</FilthRate>
+      <ComfyTemperatureMax>50</ComfyTemperatureMax>
+    </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/statBases/ComfyTemperatureMin</xpath>
@@ -478,40 +267,6 @@
       <ComfyTemperatureMin>-35</ComfyTemperatureMin>
     </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/statBases/ComfyTemperatureMax</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/statBases/ComfyTemperatureMax</xpath>
-      <value>
-        <ComfyTemperatureMax>50</ComfyTemperatureMax>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/statBases</xpath>
-      <value>
-        <ComfyTemperatureMax>50</ComfyTemperatureMax>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/statBases/ArmorRating_Blunt</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/statBases/ArmorRating_Blunt</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/statBases/ArmorRating_Sharp</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/statBases/ArmorRating_Sharp</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/statBases/ToxicEnvironmentResistance</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/statBases/ToxicEnvironmentResistance</xpath>
-    </match>
-  </Operation>
-  <!-- AA_FissionMouse tools -->
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/tools</xpath>
     <match Class="PatchOperationRemove">
@@ -538,14 +293,13 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>1.5</power>
-          <cooldownTime>0.95</cooldownTime>
+          <power>3</power>
+          <cooldownTime>1</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
         </li>
       </tools>
     </value>
   </Operation>
-  <!-- AA_FissionMouse RaceProperties -->
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race/baseBodySize</xpath>
     <value>
@@ -567,200 +321,43 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race/lifeExpectancy</xpath>
     <value>
-      <lifeExpectancy>2</lifeExpectancy>
+      <lifeExpectancy>3</lifeExpectancy>
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race/gestationPeriodDays</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race/gestationPeriodDays</xpath>
-      <value>
-        <gestationPeriodDays>5.5</gestationPeriodDays>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race</xpath>
-      <value>
-        <gestationPeriodDays>5.5</gestationPeriodDays>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race/herdMigrationAllowed</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race/herdMigrationAllowed</xpath>
-      <value>
-        <herdMigrationAllowed>false</herdMigrationAllowed>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race</xpath>
-      <value>
-        <herdMigrationAllowed>false</herdMigrationAllowed>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race/roamMtbDays</xpath>
+    <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race/*[self::gestationPeriodDays or self::herdMigrationAllowed or self::roamMtbDays or self::leatherDef or self::manhunterOnTameFailChance or self::manhunterOnDamageChance or self::petness or self::nuzzleMtbHours or self::mateMtbHours or self::packAnimal or self::maxPreyBodySize or self::nameOnTameChance or self::waterCellCost or self::waterSeeker or self::canFishForFood or self::litterSizeCurve]</xpath>
     <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race/roamMtbDays</xpath>
+      <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race/*[self::gestationPeriodDays or self::herdMigrationAllowed or self::roamMtbDays or self::leatherDef or self::manhunterOnTameFailChance or self::manhunterOnDamageChance or self::petness or self::nuzzleMtbHours or self::mateMtbHours or self::packAnimal or self::maxPreyBodySize or self::nameOnTameChance or self::waterCellCost or self::waterSeeker or self::canFishForFood or self::litterSizeCurve]</xpath>
     </match>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race/leatherDef</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race/leatherDef</xpath>
-      <value>
-        <leatherDef>Leather_Light</leatherDef>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race</xpath>
-      <value>
-        <leatherDef>Leather_Light</leatherDef>
-      </value>
-    </nomatch>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race</xpath>
+    <value>
+      <gestationPeriodDays>5.5</gestationPeriodDays>
+      <herdMigrationAllowed>false</herdMigrationAllowed>
+      <leatherDef>Leather_Light</leatherDef>
+      <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
+      <manhunterOnDamageChance>0</manhunterOnDamageChance>
+      <nuzzleMtbHours>36</nuzzleMtbHours>
+      <mateMtbHours>8</mateMtbHours>
+      <packAnimal>false</packAnimal>
+      <nameOnTameChance>0</nameOnTameChance>
+      <waterSeeker>false</waterSeeker>
+      <canFishForFood>false</canFishForFood>
+      <litterSizeCurve Inherit="False">
+        <points>
+          <li>(1.4000, 0)</li>
+          <li>(2.8000, 0.2)</li>
+          <li>(5.6000, 1)</li>
+          <li>(8.4000, 1)</li>
+          <li>(11.2000, 0.2)</li>
+          <li>(12.6000, 0)</li>
+        </points>
+      </litterSizeCurve>
+    </value>
   </Operation>
   <Operation Class="PatchOperationRemove">
     <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race/useLeatherFrom</xpath>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race/manhunterOnTameFailChance</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race/manhunterOnTameFailChance</xpath>
-      <value>
-        <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race</xpath>
-      <value>
-        <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race/manhunterOnDamageChance</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race/manhunterOnDamageChance</xpath>
-      <value>
-        <manhunterOnDamageChance>0</manhunterOnDamageChance>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race</xpath>
-      <value>
-        <manhunterOnDamageChance>0</manhunterOnDamageChance>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race/petness</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race/petness</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race/nuzzleMtbHours</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race/nuzzleMtbHours</xpath>
-      <value>
-        <nuzzleMtbHours>36</nuzzleMtbHours>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race</xpath>
-      <value>
-        <nuzzleMtbHours>36</nuzzleMtbHours>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race/mateMtbHours</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race/mateMtbHours</xpath>
-      <value>
-        <mateMtbHours>8</mateMtbHours>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race</xpath>
-      <value>
-        <mateMtbHours>8</mateMtbHours>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race/packAnimal</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race/packAnimal</xpath>
-      <value>
-        <packAnimal>false</packAnimal>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race</xpath>
-      <value>
-        <packAnimal>false</packAnimal>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race/maxPreyBodySize</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race/maxPreyBodySize</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race/nameOnTameChance</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race/nameOnTameChance</xpath>
-      <value>
-        <nameOnTameChance>0</nameOnTameChance>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race</xpath>
-      <value>
-        <nameOnTameChance>0</nameOnTameChance>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race/waterCellCost</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race/waterCellCost</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race/waterSeeker</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race/waterSeeker</xpath>
-      <value>
-        <waterSeeker>false</waterSeeker>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race</xpath>
-      <value>
-        <waterSeeker>false</waterSeeker>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race/canFishForFood</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race/canFishForFood</xpath>
-      <value>
-        <canFishForFood>false</canFishForFood>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race</xpath>
-      <value>
-        <canFishForFood>false</canFishForFood>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationRemove">
     <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race/wildBiomes</xpath>
@@ -787,39 +384,6 @@
         </li>
       </lifeStageAges>
     </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race/litterSizeCurve</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race/litterSizeCurve</xpath>
-      <value>
-        <litterSizeCurve Inherit="False">
-          <points>
-            <li>(1.4000, 0)</li>
-            <li>(2.8000, 0.2)</li>
-            <li>(5.6000, 1)</li>
-            <li>(8.4000, 1)</li>
-            <li>(11.2000, 0.2)</li>
-            <li>(12.6000, 0)</li>
-          </points>
-        </litterSizeCurve>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race</xpath>
-      <value>
-        <litterSizeCurve Inherit="False">
-          <points>
-            <li>(1.4000, 0)</li>
-            <li>(2.8000, 0.2)</li>
-            <li>(5.6000, 1)</li>
-            <li>(8.4000, 1)</li>
-            <li>(11.2000, 0.2)</li>
-            <li>(12.6000, 0)</li>
-          </points>
-        </litterSizeCurve>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race/specialTrainables/li[text()="SludgeSpew" or text()="EggSpew" or text()="TerrorRoar" or text()="WarTrumpet" or text()="Forage" or text()="Comfort" or text()="AttackTarget" or text()="Dig"]</xpath>
@@ -857,19 +421,13 @@
     <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]</xpath>
     <value>
       <li Class="ZoologyMod.ModExtension_IsMammal, ZoologyMod"/>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationAddModExtension">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]</xpath>
-    <value>
       <li Class="ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod"/>
     </value>
   </Operation>
-  <!-- AA_FissionMouse PawnKindDef -->
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "AA_FissionMouse"]/combatPower</xpath>
     <value>
-      <combatPower>20</combatPower>
+      <combatPower>30</combatPower>
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
@@ -884,18 +442,16 @@
       <xpath>/Defs/PawnKindDef[defName = "AA_FissionMouse"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
     </match>
   </Operation>
-  <!-- AA_FissionMouseSecond -->
-  <!-- AA_FissionMouseSecond StatBases -->
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/statBases/MarketValue</xpath>
     <value>
-      <MarketValue>25</MarketValue>
+      <MarketValue>50</MarketValue>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/statBases/MoveSpeed</xpath>
     <value>
-      <MoveSpeed>1.5</MoveSpeed>
+      <MoveSpeed>3.25</MoveSpeed>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -905,19 +461,17 @@
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/statBases/FilthRate</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/statBases/FilthRate</xpath>
-      <value>
-        <FilthRate>1</FilthRate>
-      </value>
+    <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/statBases/*[self::FilthRate or self::ComfyTemperatureMax or self::ArmorRating_Blunt or self::ArmorRating_Sharp or self::ToxicEnvironmentResistance]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/statBases/*[self::FilthRate or self::ComfyTemperatureMax or self::ArmorRating_Blunt or self::ArmorRating_Sharp or self::ToxicEnvironmentResistance]</xpath>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/statBases</xpath>
-      <value>
-        <FilthRate>1</FilthRate>
-      </value>
-    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/statBases</xpath>
+    <value>
+      <FilthRate>1</FilthRate>
+      <ComfyTemperatureMax>35</ComfyTemperatureMax>
+    </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/statBases/ComfyTemperatureMin</xpath>
@@ -925,40 +479,6 @@
       <ComfyTemperatureMin>-5</ComfyTemperatureMin>
     </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/statBases/ComfyTemperatureMax</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/statBases/ComfyTemperatureMax</xpath>
-      <value>
-        <ComfyTemperatureMax>35</ComfyTemperatureMax>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/statBases</xpath>
-      <value>
-        <ComfyTemperatureMax>35</ComfyTemperatureMax>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/statBases/ArmorRating_Blunt</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/statBases/ArmorRating_Blunt</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/statBases/ArmorRating_Sharp</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/statBases/ArmorRating_Sharp</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/statBases/ToxicEnvironmentResistance</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/statBases/ToxicEnvironmentResistance</xpath>
-    </match>
-  </Operation>
-  <!-- AA_FissionMouseSecond tools -->
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/tools</xpath>
     <match Class="PatchOperationRemove">
@@ -985,14 +505,13 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>1.5</power>
-          <cooldownTime>0.95</cooldownTime>
+          <power>3</power>
+          <cooldownTime>1</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
         </li>
       </tools>
     </value>
   </Operation>
-  <!-- AA_FissionMouseSecond RaceProperties -->
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race/baseBodySize</xpath>
     <value>
@@ -1014,239 +533,43 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race/lifeExpectancy</xpath>
     <value>
-      <lifeExpectancy>2</lifeExpectancy>
+      <lifeExpectancy>3</lifeExpectancy>
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race/gestationPeriodDays</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race/gestationPeriodDays</xpath>
-      <value>
-        <gestationPeriodDays>5.5</gestationPeriodDays>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race</xpath>
-      <value>
-        <gestationPeriodDays>5.5</gestationPeriodDays>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race/herdMigrationAllowed</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race/herdMigrationAllowed</xpath>
-      <value>
-        <herdMigrationAllowed>false</herdMigrationAllowed>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race</xpath>
-      <value>
-        <herdMigrationAllowed>false</herdMigrationAllowed>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race/roamMtbDays</xpath>
+    <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race/*[self::gestationPeriodDays or self::herdMigrationAllowed or self::roamMtbDays or self::leatherDef or self::manhunterOnTameFailChance or self::manhunterOnDamageChance or self::petness or self::nuzzleMtbHours or self::mateMtbHours or self::packAnimal or self::maxPreyBodySize or self::nameOnTameChance or self::waterCellCost or self::waterSeeker or self::canFishForFood or self::wildBiomes or self::litterSizeCurve]</xpath>
     <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race/roamMtbDays</xpath>
+      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race/*[self::gestationPeriodDays or self::herdMigrationAllowed or self::roamMtbDays or self::leatherDef or self::manhunterOnTameFailChance or self::manhunterOnDamageChance or self::petness or self::nuzzleMtbHours or self::mateMtbHours or self::packAnimal or self::maxPreyBodySize or self::nameOnTameChance or self::waterCellCost or self::waterSeeker or self::canFishForFood or self::wildBiomes or self::litterSizeCurve]</xpath>
     </match>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race/leatherDef</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race/leatherDef</xpath>
-      <value>
-        <leatherDef>Leather_Light</leatherDef>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race</xpath>
-      <value>
-        <leatherDef>Leather_Light</leatherDef>
-      </value>
-    </nomatch>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race</xpath>
+    <value>
+      <gestationPeriodDays>5.5</gestationPeriodDays>
+      <herdMigrationAllowed>false</herdMigrationAllowed>
+      <leatherDef>Leather_Light</leatherDef>
+      <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
+      <manhunterOnDamageChance>0</manhunterOnDamageChance>
+      <nuzzleMtbHours>36</nuzzleMtbHours>
+      <mateMtbHours>8</mateMtbHours>
+      <packAnimal>false</packAnimal>
+      <nameOnTameChance>0</nameOnTameChance>
+      <waterSeeker>false</waterSeeker>
+      <canFishForFood>false</canFishForFood>
+      <litterSizeCurve Inherit="False">
+        <points>
+          <li>(1.4000, 0)</li>
+          <li>(2.8000, 0.2)</li>
+          <li>(5.6000, 1)</li>
+          <li>(8.4000, 1)</li>
+          <li>(11.2000, 0.2)</li>
+          <li>(12.6000, 0)</li>
+        </points>
+      </litterSizeCurve>
+    </value>
   </Operation>
   <Operation Class="PatchOperationRemove">
     <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race/useLeatherFrom</xpath>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race/manhunterOnTameFailChance</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race/manhunterOnTameFailChance</xpath>
-      <value>
-        <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race</xpath>
-      <value>
-        <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race/manhunterOnDamageChance</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race/manhunterOnDamageChance</xpath>
-      <value>
-        <manhunterOnDamageChance>0</manhunterOnDamageChance>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race</xpath>
-      <value>
-        <manhunterOnDamageChance>0</manhunterOnDamageChance>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race/petness</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race/petness</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race/nuzzleMtbHours</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race/nuzzleMtbHours</xpath>
-      <value>
-        <nuzzleMtbHours>36</nuzzleMtbHours>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race</xpath>
-      <value>
-        <nuzzleMtbHours>36</nuzzleMtbHours>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race/mateMtbHours</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race/mateMtbHours</xpath>
-      <value>
-        <mateMtbHours>8</mateMtbHours>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race</xpath>
-      <value>
-        <mateMtbHours>8</mateMtbHours>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race/packAnimal</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race/packAnimal</xpath>
-      <value>
-        <packAnimal>false</packAnimal>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race</xpath>
-      <value>
-        <packAnimal>false</packAnimal>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race/maxPreyBodySize</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race/maxPreyBodySize</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race/nameOnTameChance</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race/nameOnTameChance</xpath>
-      <value>
-        <nameOnTameChance>0</nameOnTameChance>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race</xpath>
-      <value>
-        <nameOnTameChance>0</nameOnTameChance>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race/waterCellCost</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race/waterCellCost</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race/waterSeeker</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race/waterSeeker</xpath>
-      <value>
-        <waterSeeker>false</waterSeeker>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race</xpath>
-      <value>
-        <waterSeeker>false</waterSeeker>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race/canFishForFood</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race/canFishForFood</xpath>
-      <value>
-        <canFishForFood>false</canFishForFood>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race</xpath>
-      <value>
-        <canFishForFood>false</canFishForFood>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race/wildBiomes</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race/wildBiomes</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race/litterSizeCurve</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race/litterSizeCurve</xpath>
-      <value>
-        <litterSizeCurve Inherit="False">
-          <points>
-            <li>(1.4000, 0)</li>
-            <li>(2.8000, 0.2)</li>
-            <li>(5.6000, 1)</li>
-            <li>(8.4000, 1)</li>
-            <li>(11.2000, 0.2)</li>
-            <li>(12.6000, 0)</li>
-          </points>
-        </litterSizeCurve>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race</xpath>
-      <value>
-        <litterSizeCurve Inherit="False">
-          <points>
-            <li>(1.4000, 0)</li>
-            <li>(2.8000, 0.2)</li>
-            <li>(5.6000, 1)</li>
-            <li>(8.4000, 1)</li>
-            <li>(11.2000, 0.2)</li>
-            <li>(12.6000, 0)</li>
-          </points>
-        </litterSizeCurve>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race/specialTrainables/li[text()="SludgeSpew" or text()="EggSpew" or text()="TerrorRoar" or text()="WarTrumpet" or text()="Forage" or text()="Comfort" or text()="AttackTarget" or text()="Dig"]</xpath>
@@ -1284,19 +607,13 @@
     <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]</xpath>
     <value>
       <li Class="ZoologyMod.ModExtension_IsMammal, ZoologyMod"/>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationAddModExtension">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]</xpath>
-    <value>
       <li Class="ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod"/>
     </value>
   </Operation>
-  <!-- AA_FissionMouseSecond PawnKindDef -->
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "AA_FissionMouseSecond"]/combatPower</xpath>
     <value>
-      <combatPower>20</combatPower>
+      <combatPower>30</combatPower>
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
@@ -1311,18 +628,16 @@
       <xpath>/Defs/PawnKindDef[defName = "AA_FissionMouseSecond"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
     </match>
   </Operation>
-  <!-- AA_FissionMouseThird -->
-  <!-- AA_FissionMouseThird StatBases -->
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/statBases/MarketValue</xpath>
     <value>
-      <MarketValue>25</MarketValue>
+      <MarketValue>50</MarketValue>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/statBases/MoveSpeed</xpath>
     <value>
-      <MoveSpeed>1.5</MoveSpeed>
+      <MoveSpeed>3.25</MoveSpeed>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -1332,19 +647,17 @@
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/statBases/FilthRate</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/statBases/FilthRate</xpath>
-      <value>
-        <FilthRate>1</FilthRate>
-      </value>
+    <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/statBases/*[self::FilthRate or self::ComfyTemperatureMax or self::ArmorRating_Blunt or self::ArmorRating_Sharp or self::ToxicEnvironmentResistance]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/statBases/*[self::FilthRate or self::ComfyTemperatureMax or self::ArmorRating_Blunt or self::ArmorRating_Sharp or self::ToxicEnvironmentResistance]</xpath>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/statBases</xpath>
-      <value>
-        <FilthRate>1</FilthRate>
-      </value>
-    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/statBases</xpath>
+    <value>
+      <FilthRate>1</FilthRate>
+      <ComfyTemperatureMax>35</ComfyTemperatureMax>
+    </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/statBases/ComfyTemperatureMin</xpath>
@@ -1352,40 +665,6 @@
       <ComfyTemperatureMin>-5</ComfyTemperatureMin>
     </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/statBases/ComfyTemperatureMax</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/statBases/ComfyTemperatureMax</xpath>
-      <value>
-        <ComfyTemperatureMax>35</ComfyTemperatureMax>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/statBases</xpath>
-      <value>
-        <ComfyTemperatureMax>35</ComfyTemperatureMax>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/statBases/ArmorRating_Blunt</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/statBases/ArmorRating_Blunt</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/statBases/ArmorRating_Sharp</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/statBases/ArmorRating_Sharp</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/statBases/ToxicEnvironmentResistance</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/statBases/ToxicEnvironmentResistance</xpath>
-    </match>
-  </Operation>
-  <!-- AA_FissionMouseThird tools -->
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/tools</xpath>
     <match Class="PatchOperationRemove">
@@ -1412,14 +691,13 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>1.5</power>
-          <cooldownTime>0.95</cooldownTime>
+          <power>3</power>
+          <cooldownTime>1</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
         </li>
       </tools>
     </value>
   </Operation>
-  <!-- AA_FissionMouseThird RaceProperties -->
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race/baseBodySize</xpath>
     <value>
@@ -1441,239 +719,43 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race/lifeExpectancy</xpath>
     <value>
-      <lifeExpectancy>2</lifeExpectancy>
+      <lifeExpectancy>3</lifeExpectancy>
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race/gestationPeriodDays</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race/gestationPeriodDays</xpath>
-      <value>
-        <gestationPeriodDays>5.5</gestationPeriodDays>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race</xpath>
-      <value>
-        <gestationPeriodDays>5.5</gestationPeriodDays>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race/herdMigrationAllowed</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race/herdMigrationAllowed</xpath>
-      <value>
-        <herdMigrationAllowed>false</herdMigrationAllowed>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race</xpath>
-      <value>
-        <herdMigrationAllowed>false</herdMigrationAllowed>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race/roamMtbDays</xpath>
+    <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race/*[self::gestationPeriodDays or self::herdMigrationAllowed or self::roamMtbDays or self::leatherDef or self::manhunterOnTameFailChance or self::manhunterOnDamageChance or self::petness or self::nuzzleMtbHours or self::mateMtbHours or self::packAnimal or self::maxPreyBodySize or self::nameOnTameChance or self::waterCellCost or self::waterSeeker or self::canFishForFood or self::wildBiomes or self::litterSizeCurve]</xpath>
     <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race/roamMtbDays</xpath>
+      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race/*[self::gestationPeriodDays or self::herdMigrationAllowed or self::roamMtbDays or self::leatherDef or self::manhunterOnTameFailChance or self::manhunterOnDamageChance or self::petness or self::nuzzleMtbHours or self::mateMtbHours or self::packAnimal or self::maxPreyBodySize or self::nameOnTameChance or self::waterCellCost or self::waterSeeker or self::canFishForFood or self::wildBiomes or self::litterSizeCurve]</xpath>
     </match>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race/leatherDef</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race/leatherDef</xpath>
-      <value>
-        <leatherDef>Leather_Light</leatherDef>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race</xpath>
-      <value>
-        <leatherDef>Leather_Light</leatherDef>
-      </value>
-    </nomatch>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race</xpath>
+    <value>
+      <gestationPeriodDays>5.5</gestationPeriodDays>
+      <herdMigrationAllowed>false</herdMigrationAllowed>
+      <leatherDef>Leather_Light</leatherDef>
+      <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
+      <manhunterOnDamageChance>0</manhunterOnDamageChance>
+      <nuzzleMtbHours>36</nuzzleMtbHours>
+      <mateMtbHours>8</mateMtbHours>
+      <packAnimal>false</packAnimal>
+      <nameOnTameChance>0</nameOnTameChance>
+      <waterSeeker>false</waterSeeker>
+      <canFishForFood>false</canFishForFood>
+      <litterSizeCurve Inherit="False">
+        <points>
+          <li>(1.4000, 0)</li>
+          <li>(2.8000, 0.2)</li>
+          <li>(5.6000, 1)</li>
+          <li>(8.4000, 1)</li>
+          <li>(11.2000, 0.2)</li>
+          <li>(12.6000, 0)</li>
+        </points>
+      </litterSizeCurve>
+    </value>
   </Operation>
   <Operation Class="PatchOperationRemove">
     <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race/useLeatherFrom</xpath>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race/manhunterOnTameFailChance</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race/manhunterOnTameFailChance</xpath>
-      <value>
-        <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race</xpath>
-      <value>
-        <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race/manhunterOnDamageChance</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race/manhunterOnDamageChance</xpath>
-      <value>
-        <manhunterOnDamageChance>0</manhunterOnDamageChance>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race</xpath>
-      <value>
-        <manhunterOnDamageChance>0</manhunterOnDamageChance>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race/petness</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race/petness</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race/nuzzleMtbHours</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race/nuzzleMtbHours</xpath>
-      <value>
-        <nuzzleMtbHours>36</nuzzleMtbHours>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race</xpath>
-      <value>
-        <nuzzleMtbHours>36</nuzzleMtbHours>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race/mateMtbHours</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race/mateMtbHours</xpath>
-      <value>
-        <mateMtbHours>8</mateMtbHours>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race</xpath>
-      <value>
-        <mateMtbHours>8</mateMtbHours>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race/packAnimal</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race/packAnimal</xpath>
-      <value>
-        <packAnimal>false</packAnimal>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race</xpath>
-      <value>
-        <packAnimal>false</packAnimal>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race/maxPreyBodySize</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race/maxPreyBodySize</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race/nameOnTameChance</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race/nameOnTameChance</xpath>
-      <value>
-        <nameOnTameChance>0</nameOnTameChance>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race</xpath>
-      <value>
-        <nameOnTameChance>0</nameOnTameChance>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race/waterCellCost</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race/waterCellCost</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race/waterSeeker</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race/waterSeeker</xpath>
-      <value>
-        <waterSeeker>false</waterSeeker>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race</xpath>
-      <value>
-        <waterSeeker>false</waterSeeker>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race/canFishForFood</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race/canFishForFood</xpath>
-      <value>
-        <canFishForFood>false</canFishForFood>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race</xpath>
-      <value>
-        <canFishForFood>false</canFishForFood>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race/wildBiomes</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race/wildBiomes</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race/litterSizeCurve</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race/litterSizeCurve</xpath>
-      <value>
-        <litterSizeCurve Inherit="False">
-          <points>
-            <li>(1.4000, 0)</li>
-            <li>(2.8000, 0.2)</li>
-            <li>(5.6000, 1)</li>
-            <li>(8.4000, 1)</li>
-            <li>(11.2000, 0.2)</li>
-            <li>(12.6000, 0)</li>
-          </points>
-        </litterSizeCurve>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race</xpath>
-      <value>
-        <litterSizeCurve Inherit="False">
-          <points>
-            <li>(1.4000, 0)</li>
-            <li>(2.8000, 0.2)</li>
-            <li>(5.6000, 1)</li>
-            <li>(8.4000, 1)</li>
-            <li>(11.2000, 0.2)</li>
-            <li>(12.6000, 0)</li>
-          </points>
-        </litterSizeCurve>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race/specialTrainables/li[text()="SludgeSpew" or text()="EggSpew" or text()="TerrorRoar" or text()="WarTrumpet" or text()="Forage" or text()="Comfort" or text()="AttackTarget" or text()="Dig"]</xpath>
@@ -1711,19 +793,13 @@
     <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]</xpath>
     <value>
       <li Class="ZoologyMod.ModExtension_IsMammal, ZoologyMod"/>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationAddModExtension">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]</xpath>
-    <value>
       <li Class="ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod"/>
     </value>
   </Operation>
-  <!-- AA_FissionMouseThird PawnKindDef -->
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "AA_FissionMouseThird"]/combatPower</xpath>
     <value>
-      <combatPower>20</combatPower>
+      <combatPower>30</combatPower>
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
@@ -1738,14 +814,27 @@
       <xpath>/Defs/PawnKindDef[defName = "AA_FissionMouseThird"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
     </match>
   </Operation>
-  <!-- Combat Extended specific patches -->
   <Operation Class="PatchOperationFindMod">
     <mods>
       <li>Combat Extended</li>
     </mods>
     <match Class="PatchOperationSequence">
       <operations>
-        <!-- AA_DuskRat CE patches -->
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_DuskRat"]/statBases/MoveSpeed</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_DuskRat"]/statBases/MoveSpeed</xpath>
+            <value>
+              <MoveSpeed>3.4</MoveSpeed>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_DuskRat"]/statBases</xpath>
+            <value>
+              <MoveSpeed>3.4</MoveSpeed>
+            </value>
+          </nomatch>
+        </li>
         <li Class="PatchOperationConditional">
           <xpath>Defs/ThingDef[defName="AA_DuskRat"]/statBases/MeleeDodgeChance</xpath>
           <match Class="PatchOperationReplace">
@@ -1811,13 +900,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="AA_DuskRat"]/statBases/ArmorRating_Blunt</xpath>
             <value>
-              <ArmorRating_Blunt>0.05</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0</ArmorRating_Blunt>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="AA_DuskRat"]/statBases</xpath>
             <value>
-              <ArmorRating_Blunt>0.05</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0</ArmorRating_Blunt>
             </value>
           </nomatch>
         </li>
@@ -1899,9 +988,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>0.05</power>
+                <power>0.01</power>
                 <armorPenetrationBlunt>0</armorPenetrationBlunt>
-                <cooldownTime>1.1</cooldownTime>
+                <cooldownTime>0.58</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                 <chanceFactor>0.2</chanceFactor>
@@ -1911,10 +1000,10 @@
                 <capacities>
                   <li>Bite</li>
                 </capacities>
-                <power>1.1</power>
-                <armorPenetrationBlunt>0.1</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.03</armorPenetrationSharp>
-                <cooldownTime>1.75</cooldownTime>
+                <power>0.5</power>
+                <armorPenetrationBlunt>0.003</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.01</armorPenetrationSharp>
+                <cooldownTime>0.96</cooldownTime>
                 <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
               </li>
             </tools>
@@ -1926,7 +1015,21 @@
             <xpath>Defs/ThingDef[defName="AA_DuskRat"]/statBases/ArmorRating_Heat</xpath>
           </match>
         </li>
-        <!-- AA_FissionMouse CE patches -->
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_FissionMouse"]/statBases/MoveSpeed</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_FissionMouse"]/statBases/MoveSpeed</xpath>
+            <value>
+              <MoveSpeed>3.25</MoveSpeed>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_FissionMouse"]/statBases</xpath>
+            <value>
+              <MoveSpeed>3.25</MoveSpeed>
+            </value>
+          </nomatch>
+        </li>
         <li Class="PatchOperationConditional">
           <xpath>Defs/ThingDef[defName="AA_FissionMouse"]/statBases/MeleeDodgeChance</xpath>
           <match Class="PatchOperationReplace">
@@ -1992,13 +1095,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="AA_FissionMouse"]/statBases/ArmorRating_Blunt</xpath>
             <value>
-              <ArmorRating_Blunt>0.05</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0</ArmorRating_Blunt>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="AA_FissionMouse"]/statBases</xpath>
             <value>
-              <ArmorRating_Blunt>0.05</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0</ArmorRating_Blunt>
             </value>
           </nomatch>
         </li>
@@ -2080,9 +1183,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>0.05</power>
-                <armorPenetrationBlunt>0.05</armorPenetrationBlunt>
-                <cooldownTime>1.1</cooldownTime>
+                <power>0.01</power>
+                <armorPenetrationBlunt>0.001</armorPenetrationBlunt>
+                <cooldownTime>0.61</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                 <chanceFactor>0.2</chanceFactor>
@@ -2092,10 +1195,10 @@
                 <capacities>
                   <li>Bite</li>
                 </capacities>
-                <power>1.1</power>
-                <armorPenetrationBlunt>0.1</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.03</armorPenetrationSharp>
-                <cooldownTime>1.9</cooldownTime>
+                <power>0.55</power>
+                <armorPenetrationBlunt>0.005</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.01</armorPenetrationSharp>
+                <cooldownTime>1</cooldownTime>
                 <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
               </li>
             </tools>
@@ -2107,7 +1210,21 @@
             <xpath>Defs/ThingDef[defName="AA_FissionMouse"]/statBases/ArmorRating_Heat</xpath>
           </match>
         </li>
-        <!-- AA_FissionMouseSecond CE patches -->
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_FissionMouseSecond"]/statBases/MoveSpeed</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_FissionMouseSecond"]/statBases/MoveSpeed</xpath>
+            <value>
+              <MoveSpeed>3.25</MoveSpeed>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_FissionMouseSecond"]/statBases</xpath>
+            <value>
+              <MoveSpeed>3.25</MoveSpeed>
+            </value>
+          </nomatch>
+        </li>
         <li Class="PatchOperationConditional">
           <xpath>Defs/ThingDef[defName="AA_FissionMouseSecond"]/statBases/MeleeDodgeChance</xpath>
           <match Class="PatchOperationReplace">
@@ -2173,13 +1290,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="AA_FissionMouseSecond"]/statBases/ArmorRating_Blunt</xpath>
             <value>
-              <ArmorRating_Blunt>0.05</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0</ArmorRating_Blunt>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="AA_FissionMouseSecond"]/statBases</xpath>
             <value>
-              <ArmorRating_Blunt>0.05</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0</ArmorRating_Blunt>
             </value>
           </nomatch>
         </li>
@@ -2261,9 +1378,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>0.05</power>
-                <armorPenetrationBlunt>0.05</armorPenetrationBlunt>
-                <cooldownTime>1.1</cooldownTime>
+                <power>0.01</power>
+                <armorPenetrationBlunt>0</armorPenetrationBlunt>
+                <cooldownTime>0.6</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                 <chanceFactor>0.2</chanceFactor>
@@ -2273,10 +1390,10 @@
                 <capacities>
                   <li>Bite</li>
                 </capacities>
-                <power>1.1</power>
-                <armorPenetrationBlunt>0.1</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.03</armorPenetrationSharp>
-                <cooldownTime>1.85</cooldownTime>
+                <power>0.5</power>
+                <armorPenetrationBlunt>0.004</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.01</armorPenetrationSharp>
+                <cooldownTime>0.98</cooldownTime>
                 <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
               </li>
             </tools>
@@ -2288,7 +1405,21 @@
             <xpath>Defs/ThingDef[defName="AA_FissionMouseSecond"]/statBases/ArmorRating_Heat</xpath>
           </match>
         </li>
-        <!-- AA_FissionMouseThird CE patches -->
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="AA_FissionMouseThird"]/statBases/MoveSpeed</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="AA_FissionMouseThird"]/statBases/MoveSpeed</xpath>
+            <value>
+              <MoveSpeed>3.25</MoveSpeed>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="AA_FissionMouseThird"]/statBases</xpath>
+            <value>
+              <MoveSpeed>3.25</MoveSpeed>
+            </value>
+          </nomatch>
+        </li>
         <li Class="PatchOperationConditional">
           <xpath>Defs/ThingDef[defName="AA_FissionMouseThird"]/statBases/MeleeDodgeChance</xpath>
           <match Class="PatchOperationReplace">
@@ -2354,13 +1485,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="AA_FissionMouseThird"]/statBases/ArmorRating_Blunt</xpath>
             <value>
-              <ArmorRating_Blunt>0.05</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0</ArmorRating_Blunt>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="AA_FissionMouseThird"]/statBases</xpath>
             <value>
-              <ArmorRating_Blunt>0.05</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0</ArmorRating_Blunt>
             </value>
           </nomatch>
         </li>
@@ -2442,9 +1573,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>0.05</power>
+                <power>0.01</power>
                 <armorPenetrationBlunt>0</armorPenetrationBlunt>
-                <cooldownTime>1.1</cooldownTime>
+                <cooldownTime>0.58</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                 <chanceFactor>0.2</chanceFactor>
@@ -2454,10 +1585,10 @@
                 <capacities>
                   <li>Bite</li>
                 </capacities>
-                <power>1</power>
-                <armorPenetrationBlunt>0.1</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.03</armorPenetrationSharp>
-                <cooldownTime>1.85</cooldownTime>
+                <power>0.45</power>
+                <armorPenetrationBlunt>0.003</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.01</armorPenetrationSharp>
+                <cooldownTime>0.96</cooldownTime>
                 <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
               </li>
             </tools>

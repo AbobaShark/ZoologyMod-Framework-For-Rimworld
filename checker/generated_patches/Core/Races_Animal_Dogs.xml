@@ -1,34 +1,78 @@
 <?xml version='1.0' encoding='utf-8'?>
 <Patch>
-  <!---->
-  <!-- YorkshireTerrier -->
-  <!-- YorkshireTerrier StatBases -->
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/statBases/MarketValue</xpath>
-    <value>
-      <MarketValue>75</MarketValue>
-    </value>
-  </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/statBases/MoveSpeed</xpath>
     <value>
-      <MoveSpeed>5</MoveSpeed>
+      <MoveSpeed>4.45</MoveSpeed>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/PawnKindDef[defName = "YorkshireTerrier"]/combatPower</xpath>
+    <value>
+      <combatPower>50</combatPower>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName="LabradorRetriever" or defName="Husky"]/statBases/MarketValue</xpath>
+    <value>
+      <MarketValue>325</MarketValue>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/statBases/MoveSpeed</xpath>
+    <value>
+      <MoveSpeed>5.1</MoveSpeed>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/PawnKindDef[defName="LabradorRetriever" or defName="Husky"]/combatPower</xpath>
+    <value>
+      <combatPower>85</combatPower>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/PawnKindDef[defName="LabradorRetriever" or defName="Husky"]/ecoSystemWeight</xpath>
+    <value>
+      <ecoSystemWeight>0.5</ecoSystemWeight>
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/statBases/FilthRate</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/statBases/FilthRate</xpath>
-      <value>
-        <FilthRate>1</FilthRate>
-      </value>
+    <xpath>/Defs/PawnKindDef[defName="YorkshireTerrier" or defName="LabradorRetriever" or defName="Husky"]/*[self::canArriveManhunter or self::wildGroupSize]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/PawnKindDef[defName="YorkshireTerrier" or defName="LabradorRetriever" or defName="Husky"]/*[self::canArriveManhunter or self::wildGroupSize]</xpath>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/statBases</xpath>
-      <value>
-        <FilthRate>1</FilthRate>
-      </value>
-    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/PawnKindDef[defName="YorkshireTerrier" or defName="LabradorRetriever" or defName="Husky"]</xpath>
+    <value>
+      <canArriveManhunter>true</canArriveManhunter>
+      <wildGroupSize>2~6</wildGroupSize>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/PawnKindDef[defName="YorkshireTerrier" or defName="LabradorRetriever" or defName="Husky"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/PawnKindDef[defName="YorkshireTerrier" or defName="LabradorRetriever" or defName="Husky"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Husky"]/statBases/MoveSpeed</xpath>
+    <value>
+      <MoveSpeed>4.9</MoveSpeed>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="YorkshireTerrier" or defName="LabradorRetriever" or defName="Husky"]/statBases/*[self::FilthRate or self::ComfyTemperatureMax or self::ArmorRating_Blunt or self::ArmorRating_Sharp or self::ToxicEnvironmentResistance]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="YorkshireTerrier" or defName="LabradorRetriever" or defName="Husky"]/statBases/*[self::FilthRate or self::ComfyTemperatureMax or self::ArmorRating_Blunt or self::ArmorRating_Sharp or self::ToxicEnvironmentResistance]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName="YorkshireTerrier" or defName="LabradorRetriever" or defName="Husky"]/statBases</xpath>
+    <value>
+      <FilthRate>1</FilthRate>
+      <ComfyTemperatureMax>35</ComfyTemperatureMax>
+    </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/statBases/ComfyTemperatureMin</xpath>
@@ -36,44 +80,22 @@
       <ComfyTemperatureMin>-20</ComfyTemperatureMin>
     </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/statBases/ComfyTemperatureMax</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/statBases/ComfyTemperatureMax</xpath>
-      <value>
-        <ComfyTemperatureMax>35</ComfyTemperatureMax>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/statBases</xpath>
-      <value>
-        <ComfyTemperatureMax>35</ComfyTemperatureMax>
-      </value>
-    </nomatch>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/statBases/ComfyTemperatureMin</xpath>
+    <value>
+      <ComfyTemperatureMin>-25</ComfyTemperatureMin>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Husky"]/statBases/ComfyTemperatureMin</xpath>
+    <value>
+      <ComfyTemperatureMin>-45</ComfyTemperatureMin>
+    </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/statBases/ArmorRating_Blunt</xpath>
+    <xpath>/Defs/ThingDef[defName="YorkshireTerrier" or defName="LabradorRetriever" or defName="Husky"]/tools</xpath>
     <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/statBases/ArmorRating_Blunt</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/statBases/ArmorRating_Sharp</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/statBases/ArmorRating_Sharp</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/statBases/ToxicEnvironmentResistance</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/statBases/ToxicEnvironmentResistance</xpath>
-    </match>
-  </Operation>
-  <!-- YorkshireTerrier tools -->
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/tools</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/tools</xpath>
+      <xpath>/Defs/ThingDef[defName="YorkshireTerrier" or defName="LabradorRetriever" or defName="Husky"]/tools</xpath>
     </match>
   </Operation>
   <Operation Class="PatchOperationAdd">
@@ -86,7 +108,7 @@
             <li>Blunt</li>
           </capacities>
           <power>2</power>
-          <cooldownTime>1.15</cooldownTime>
+          <cooldownTime>1.2</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
           <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
           <chanceFactor>0.2</chanceFactor>
@@ -96,8 +118,8 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>2.5</power>
-          <cooldownTime>0.9</cooldownTime>
+          <power>7.5</power>
+          <cooldownTime>1.4</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
           <surpriseAttack>
             <extraMeleeDamages>
@@ -111,216 +133,168 @@
       </tools>
     </value>
   </Operation>
-  <!-- YorkshireTerrier RaceProperties -->
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/race/baseBodySize</xpath>
     <value>
-      <baseBodySize>0.2</baseBodySize>
+      <baseBodySize>0.3</baseBodySize>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/race/baseHealthScale</xpath>
     <value>
-      <baseHealthScale>0.25</baseHealthScale>
+      <baseHealthScale>0.35</baseHealthScale>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/race/baseHungerRate</xpath>
     <value>
-      <baseHungerRate>0.25</baseHungerRate>
+      <baseHungerRate>0.3</baseHungerRate>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/race/gestationPeriodDays</xpath>
+    <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/race/lifeExpectancy</xpath>
+    <value>
+      <lifeExpectancy>12</lifeExpectancy>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]</xpath>
+    <value>
+      <tools Inherit="False">
+        <li>
+          <label>head</label>
+          <capacities>
+            <li>Blunt</li>
+          </capacities>
+          <power>3.5</power>
+          <cooldownTime>1.45</cooldownTime>
+          <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
+          <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
+          <chanceFactor>0.2</chanceFactor>
+        </li>
+        <li>
+          <label>canines</label>
+          <capacities>
+            <li>Bite</li>
+          </capacities>
+          <power>14</power>
+          <cooldownTime>1.75</cooldownTime>
+          <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
+          <surpriseAttack>
+            <extraMeleeDamages>
+              <li>
+                <def>Stun</def>
+                <amount>20</amount>
+              </li>
+            </extraMeleeDamages>
+          </surpriseAttack>
+        </li>
+      </tools>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/race/baseBodySize</xpath>
+    <value>
+      <baseBodySize>0.7</baseBodySize>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/race/baseHealthScale</xpath>
+    <value>
+      <baseHealthScale>0.85</baseHealthScale>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Husky"]</xpath>
+    <value>
+      <tools Inherit="False">
+        <li>
+          <label>head</label>
+          <capacities>
+            <li>Blunt</li>
+          </capacities>
+          <power>3.5</power>
+          <cooldownTime>1.45</cooldownTime>
+          <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
+          <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
+          <chanceFactor>0.2</chanceFactor>
+        </li>
+        <li>
+          <label>canines</label>
+          <capacities>
+            <li>Bite</li>
+          </capacities>
+          <power>13.5</power>
+          <cooldownTime>1.7</cooldownTime>
+          <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
+          <surpriseAttack>
+            <extraMeleeDamages>
+              <li>
+                <def>Stun</def>
+                <amount>20</amount>
+              </li>
+            </extraMeleeDamages>
+          </surpriseAttack>
+        </li>
+      </tools>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Husky"]/race/baseBodySize</xpath>
+    <value>
+      <baseBodySize>0.65</baseBodySize>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Husky"]/race/baseHealthScale</xpath>
+    <value>
+      <baseHealthScale>0.8</baseHealthScale>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName="LabradorRetriever" or defName="Husky"]/race/baseHungerRate</xpath>
+    <value>
+      <baseHungerRate>0.45</baseHungerRate>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName="LabradorRetriever" or defName="Husky"]/race/lifeExpectancy</xpath>
+    <value>
+      <lifeExpectancy>10</lifeExpectancy>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName="YorkshireTerrier" or defName="LabradorRetriever" or defName="Husky"]/race/gestationPeriodDays</xpath>
     <value>
       <gestationPeriodDays>6.5</gestationPeriodDays>
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/race/herdAnimal</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/race/herdAnimal</xpath>
-      <value>
-        <herdAnimal>true</herdAnimal>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/race</xpath>
-      <value>
-        <herdAnimal>true</herdAnimal>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/race/herdMigrationAllowed</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/race/herdMigrationAllowed</xpath>
-      <value>
-        <herdMigrationAllowed>false</herdMigrationAllowed>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/race</xpath>
-      <value>
-        <herdMigrationAllowed>false</herdMigrationAllowed>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/race/roamMtbDays</xpath>
+    <xpath>/Defs/ThingDef[defName="YorkshireTerrier" or defName="LabradorRetriever" or defName="Husky"]/race/*[self::herdAnimal or self::herdMigrationAllowed or self::roamMtbDays or self::useLeatherFrom or self::manhunterOnTameFailChance or self::manhunterOnDamageChance or self::mateMtbHours or self::packAnimal or self::predator or self::maxPreyBodySize or self::waterCellCost or self::waterSeeker or self::canFishForFood or self::useMeatFrom or self::wildBiomes]</xpath>
     <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/race/roamMtbDays</xpath>
+      <xpath>/Defs/ThingDef[defName="YorkshireTerrier" or defName="LabradorRetriever" or defName="Husky"]/race/*[self::herdAnimal or self::herdMigrationAllowed or self::roamMtbDays or self::useLeatherFrom or self::manhunterOnTameFailChance or self::manhunterOnDamageChance or self::mateMtbHours or self::packAnimal or self::predator or self::maxPreyBodySize or self::waterCellCost or self::waterSeeker or self::canFishForFood or self::useMeatFrom or self::wildBiomes]</xpath>
     </match>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/race/useLeatherFrom</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/race/useLeatherFrom</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/race/manhunterOnTameFailChance</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/race/manhunterOnTameFailChance</xpath>
-      <value>
-        <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/race</xpath>
-      <value>
-        <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/race/manhunterOnDamageChance</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/race/manhunterOnDamageChance</xpath>
-      <value>
-        <manhunterOnDamageChance>0</manhunterOnDamageChance>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/race</xpath>
-      <value>
-        <manhunterOnDamageChance>0</manhunterOnDamageChance>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/race/mateMtbHours</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/race/mateMtbHours</xpath>
-      <value>
-        <mateMtbHours>12</mateMtbHours>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/race</xpath>
-      <value>
-        <mateMtbHours>12</mateMtbHours>
-      </value>
-    </nomatch>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/race</xpath>
+    <value>
+      <herdAnimal>true</herdAnimal>
+      <herdMigrationAllowed>false</herdMigrationAllowed>
+      <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
+      <manhunterOnDamageChance>0</manhunterOnDamageChance>
+      <mateMtbHours>12</mateMtbHours>
+      <packAnimal>false</packAnimal>
+      <predator>true</predator>
+      <maxPreyBodySize>0.2</maxPreyBodySize>
+      <waterSeeker>false</waterSeeker>
+      <canFishForFood>false</canFishForFood>
+    </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/race/trainability</xpath>
     <value>
       <trainability>Advanced</trainability>
     </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/race/packAnimal</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/race/packAnimal</xpath>
-      <value>
-        <packAnimal>false</packAnimal>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/race</xpath>
-      <value>
-        <packAnimal>false</packAnimal>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/race/predator</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/race/predator</xpath>
-      <value>
-        <predator>true</predator>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/race</xpath>
-      <value>
-        <predator>true</predator>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/race/maxPreyBodySize</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/race/maxPreyBodySize</xpath>
-      <value>
-        <maxPreyBodySize>0.1</maxPreyBodySize>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/race</xpath>
-      <value>
-        <maxPreyBodySize>0.1</maxPreyBodySize>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/race/waterCellCost</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/race/waterCellCost</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/race/waterSeeker</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/race/waterSeeker</xpath>
-      <value>
-        <waterSeeker>false</waterSeeker>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/race</xpath>
-      <value>
-        <waterSeeker>false</waterSeeker>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/race/canFishForFood</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/race/canFishForFood</xpath>
-      <value>
-        <canFishForFood>false</canFishForFood>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/race</xpath>
-      <value>
-        <canFishForFood>false</canFishForFood>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/race/useMeatFrom</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/race/useMeatFrom</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/race/wildBiomes</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/race/wildBiomes</xpath>
-    </match>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/race/lifeStageAges</xpath>
@@ -345,8 +319,47 @@
       </lifeStageAges>
     </value>
   </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName="LabradorRetriever" or defName="Husky"]/race</xpath>
+    <value>
+      <herdAnimal>true</herdAnimal>
+      <herdMigrationAllowed>false</herdMigrationAllowed>
+      <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
+      <manhunterOnDamageChance>0.1</manhunterOnDamageChance>
+      <mateMtbHours>12</mateMtbHours>
+      <packAnimal>false</packAnimal>
+      <predator>true</predator>
+      <maxPreyBodySize>1.75</maxPreyBodySize>
+      <waterSeeker>false</waterSeeker>
+      <canFishForFood>false</canFishForFood>
+      <useMeatFrom>YorkshireTerrier</useMeatFrom>
+    </value>
+  </Operation>
   <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]/race/litterSizeCurve</xpath>
+    <xpath>/Defs/ThingDef[defName="LabradorRetriever" or defName="Husky"]/race/lifeStageAges</xpath>
+    <value>
+      <lifeStageAges Inherit="False">
+        <li>
+          <def>AnimalBaby</def>
+          <minAge>0</minAge>
+        </li>
+        <li>
+          <def>AnimalJuvenile</def>
+          <minAge>0.15</minAge>
+        </li>
+        <li>
+          <def>AnimalAdult</def>
+          <minAge>0.3</minAge>
+          <soundWounded>Pawn_Dog_Injured</soundWounded>
+          <soundDeath>Pawn_Dog_Death</soundDeath>
+          <soundCall>Pawn_Dog_Call</soundCall>
+          <soundAngry>Pawn_Dog_Angry</soundAngry>
+        </li>
+      </lifeStageAges>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName="YorkshireTerrier" or defName="LabradorRetriever" or defName="Husky"]/race/litterSizeCurve</xpath>
     <value>
       <litterSizeCurve Inherit="False">
         <points>
@@ -366,965 +379,59 @@
       <li MayRequire="Ludeon.RimWorld.Odyssey">Forage</li>
     </value>
   </Operation>
-  <Operation Class="PatchOperationAddModExtension">
-    <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]</xpath>
-    <value>
-      <li Class="ZoologyMod.ModExtension_IsMammal, ZoologyMod"/>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationAddModExtension">
-    <xpath>/Defs/ThingDef[defName = "YorkshireTerrier"]</xpath>
-    <value>
-      <li Class="ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod"/>
-    </value>
-  </Operation>
-  <!-- YorkshireTerrier PawnKindDef -->
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/PawnKindDef[defName = "YorkshireTerrier"]/combatPower</xpath>
-    <value>
-      <combatPower>35</combatPower>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/PawnKindDef[defName = "YorkshireTerrier"]/ecoSystemWeight</xpath>
-    <value>
-      <ecoSystemWeight>0.25</ecoSystemWeight>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/PawnKindDef[defName = "YorkshireTerrier"]/canArriveManhunter</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/PawnKindDef[defName = "YorkshireTerrier"]/canArriveManhunter</xpath>
-      <value>
-        <canArriveManhunter>true</canArriveManhunter>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/PawnKindDef[defName = "YorkshireTerrier"]</xpath>
-      <value>
-        <canArriveManhunter>true</canArriveManhunter>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/PawnKindDef[defName = "YorkshireTerrier"]/wildGroupSize</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/PawnKindDef[defName = "YorkshireTerrier"]/wildGroupSize</xpath>
-      <value>
-        <wildGroupSize>2~6</wildGroupSize>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/PawnKindDef[defName = "YorkshireTerrier"]</xpath>
-      <value>
-        <wildGroupSize>2~6</wildGroupSize>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/PawnKindDef[defName = "YorkshireTerrier"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/PawnKindDef[defName = "YorkshireTerrier"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
-    </match>
-  </Operation>
-  <!-- LabradorRetriever -->
-  <!-- LabradorRetriever StatBases -->
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/statBases/MarketValue</xpath>
-    <value>
-      <MarketValue>325</MarketValue>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/statBases/MoveSpeed</xpath>
-    <value>
-      <MoveSpeed>6.5</MoveSpeed>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/statBases/FilthRate</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/statBases/FilthRate</xpath>
-      <value>
-        <FilthRate>1</FilthRate>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/statBases</xpath>
-      <value>
-        <FilthRate>1</FilthRate>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/statBases/ComfyTemperatureMin</xpath>
-    <value>
-      <ComfyTemperatureMin>-25</ComfyTemperatureMin>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/statBases/ComfyTemperatureMax</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/statBases/ComfyTemperatureMax</xpath>
-      <value>
-        <ComfyTemperatureMax>35</ComfyTemperatureMax>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/statBases</xpath>
-      <value>
-        <ComfyTemperatureMax>35</ComfyTemperatureMax>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/statBases/ArmorRating_Blunt</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/statBases/ArmorRating_Blunt</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/statBases/ArmorRating_Sharp</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/statBases/ArmorRating_Sharp</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/statBases/ToxicEnvironmentResistance</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/statBases/ToxicEnvironmentResistance</xpath>
-    </match>
-  </Operation>
-  <!-- LabradorRetriever tools -->
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/tools</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/tools</xpath>
-    </match>
-  </Operation>
   <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]</xpath>
-    <value>
-      <tools Inherit="False">
-        <li>
-          <label>head</label>
-          <capacities>
-            <li>Blunt</li>
-          </capacities>
-          <power>5.5</power>
-          <cooldownTime>1.75</cooldownTime>
-          <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
-          <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
-          <chanceFactor>0.2</chanceFactor>
-        </li>
-        <li>
-          <label>canines</label>
-          <capacities>
-            <li>Bite</li>
-          </capacities>
-          <power>10</power>
-          <cooldownTime>1.4</cooldownTime>
-          <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
-          <surpriseAttack>
-            <extraMeleeDamages>
-              <li>
-                <def>Stun</def>
-                <amount>20</amount>
-              </li>
-            </extraMeleeDamages>
-          </surpriseAttack>
-        </li>
-      </tools>
-    </value>
-  </Operation>
-  <!-- LabradorRetriever RaceProperties -->
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/race/baseBodySize</xpath>
-    <value>
-      <baseBodySize>0.7</baseBodySize>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/race/baseHealthScale</xpath>
-    <value>
-      <baseHealthScale>0.85</baseHealthScale>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/race/baseHungerRate</xpath>
-    <value>
-      <baseHungerRate>0.45</baseHungerRate>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/race/lifeExpectancy</xpath>
-    <value>
-      <lifeExpectancy>15</lifeExpectancy>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/race/gestationPeriodDays</xpath>
-    <value>
-      <gestationPeriodDays>6.5</gestationPeriodDays>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/race/herdAnimal</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/race/herdAnimal</xpath>
-      <value>
-        <herdAnimal>true</herdAnimal>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/race</xpath>
-      <value>
-        <herdAnimal>true</herdAnimal>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/race/herdMigrationAllowed</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/race/herdMigrationAllowed</xpath>
-      <value>
-        <herdMigrationAllowed>false</herdMigrationAllowed>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/race</xpath>
-      <value>
-        <herdMigrationAllowed>false</herdMigrationAllowed>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/race/roamMtbDays</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/race/roamMtbDays</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/race/useLeatherFrom</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/race/useLeatherFrom</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/race/manhunterOnTameFailChance</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/race/manhunterOnTameFailChance</xpath>
-      <value>
-        <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/race</xpath>
-      <value>
-        <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/race/manhunterOnDamageChance</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/race/manhunterOnDamageChance</xpath>
-      <value>
-        <manhunterOnDamageChance>0.1</manhunterOnDamageChance>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/race</xpath>
-      <value>
-        <manhunterOnDamageChance>0.1</manhunterOnDamageChance>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/race/mateMtbHours</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/race/mateMtbHours</xpath>
-      <value>
-        <mateMtbHours>12</mateMtbHours>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/race</xpath>
-      <value>
-        <mateMtbHours>12</mateMtbHours>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/race/packAnimal</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/race/packAnimal</xpath>
-      <value>
-        <packAnimal>false</packAnimal>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/race</xpath>
-      <value>
-        <packAnimal>false</packAnimal>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/race/predator</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/race/predator</xpath>
-      <value>
-        <predator>true</predator>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/race</xpath>
-      <value>
-        <predator>true</predator>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/race/maxPreyBodySize</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/race/maxPreyBodySize</xpath>
-      <value>
-        <maxPreyBodySize>1.75</maxPreyBodySize>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/race</xpath>
-      <value>
-        <maxPreyBodySize>1.75</maxPreyBodySize>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/race/waterCellCost</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/race/waterCellCost</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/race/waterSeeker</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/race/waterSeeker</xpath>
-      <value>
-        <waterSeeker>false</waterSeeker>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/race</xpath>
-      <value>
-        <waterSeeker>false</waterSeeker>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/race/canFishForFood</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/race/canFishForFood</xpath>
-      <value>
-        <canFishForFood>false</canFishForFood>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/race</xpath>
-      <value>
-        <canFishForFood>false</canFishForFood>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/race/useMeatFrom</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/race/useMeatFrom</xpath>
-      <value>
-        <useMeatFrom>YorkshireTerrier</useMeatFrom>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/race</xpath>
-      <value>
-        <useMeatFrom>YorkshireTerrier</useMeatFrom>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/race/wildBiomes</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/race/wildBiomes</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/race/lifeStageAges</xpath>
-    <value>
-      <lifeStageAges Inherit="False">
-        <li>
-          <def>AnimalBaby</def>
-          <minAge>0</minAge>
-        </li>
-        <li>
-          <def>AnimalJuvenile</def>
-          <minAge>0.15</minAge>
-        </li>
-        <li>
-          <def>AnimalAdult</def>
-          <minAge>0.3</minAge>
-          <soundWounded>Pawn_Dog_Injured</soundWounded>
-          <soundDeath>Pawn_Dog_Death</soundDeath>
-          <soundCall>Pawn_Dog_Call</soundCall>
-          <soundAngry>Pawn_Dog_Angry</soundAngry>
-        </li>
-      </lifeStageAges>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/race/litterSizeCurve</xpath>
-    <value>
-      <litterSizeCurve Inherit="False">
-        <points>
-          <li>(1.2000, 0)</li>
-          <li>(2.4000, 0.2)</li>
-          <li>(4.8000, 1)</li>
-          <li>(7.2000, 1)</li>
-          <li>(9.6000, 0.2)</li>
-          <li>(10.8000, 0)</li>
-        </points>
-      </litterSizeCurve>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/race/specialTrainables</xpath>
+    <xpath>/Defs/ThingDef[defName="LabradorRetriever" or defName="Husky"]/race/specialTrainables</xpath>
     <value>
       <li MayRequire="Ludeon.RimWorld.Odyssey">AttackTarget</li>
       <li MayRequire="Ludeon.RimWorld.Odyssey">Forage</li>
     </value>
   </Operation>
   <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/tradeTags</xpath>
+    <xpath>/Defs/ThingDef[defName="LabradorRetriever" or defName="Husky"]/tradeTags</xpath>
     <value>
       <li>AnimalFighter</li>
     </value>
   </Operation>
   <Operation Class="PatchOperationAddModExtension">
-    <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]</xpath>
+    <xpath>/Defs/ThingDef[defName="YorkshireTerrier" or defName="LabradorRetriever" or defName="Husky"]</xpath>
     <value>
       <li Class="ZoologyMod.ModExtension_IsMammal, ZoologyMod"/>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationAddModExtension">
-    <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]</xpath>
-    <value>
       <li Class="ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod"/>
     </value>
   </Operation>
-  <!-- LabradorRetriever PawnKindDef -->
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/PawnKindDef[defName = "LabradorRetriever"]/combatPower</xpath>
-    <value>
-      <combatPower>85</combatPower>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/PawnKindDef[defName = "LabradorRetriever"]/ecoSystemWeight</xpath>
-    <value>
-      <ecoSystemWeight>0.5</ecoSystemWeight>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/PawnKindDef[defName = "LabradorRetriever"]/canArriveManhunter</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/PawnKindDef[defName = "LabradorRetriever"]/canArriveManhunter</xpath>
-      <value>
-        <canArriveManhunter>true</canArriveManhunter>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/PawnKindDef[defName = "LabradorRetriever"]</xpath>
-      <value>
-        <canArriveManhunter>true</canArriveManhunter>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/PawnKindDef[defName = "LabradorRetriever"]/wildGroupSize</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/PawnKindDef[defName = "LabradorRetriever"]/wildGroupSize</xpath>
-      <value>
-        <wildGroupSize>2~6</wildGroupSize>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/PawnKindDef[defName = "LabradorRetriever"]</xpath>
-      <value>
-        <wildGroupSize>2~6</wildGroupSize>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/PawnKindDef[defName = "LabradorRetriever"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/PawnKindDef[defName = "LabradorRetriever"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
-    </match>
-  </Operation>
-  <!-- Husky -->
-  <!-- Husky StatBases -->
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "Husky"]/statBases/MarketValue</xpath>
-    <value>
-      <MarketValue>350</MarketValue>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "Husky"]/statBases/MoveSpeed</xpath>
-    <value>
-      <MoveSpeed>6.5</MoveSpeed>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Husky"]/statBases/FilthRate</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Husky"]/statBases/FilthRate</xpath>
-      <value>
-        <FilthRate>1</FilthRate>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Husky"]/statBases</xpath>
-      <value>
-        <FilthRate>1</FilthRate>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "Husky"]/statBases/ComfyTemperatureMin</xpath>
-    <value>
-      <ComfyTemperatureMin>-45</ComfyTemperatureMin>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Husky"]/statBases/ComfyTemperatureMax</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Husky"]/statBases/ComfyTemperatureMax</xpath>
-      <value>
-        <ComfyTemperatureMax>35</ComfyTemperatureMax>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Husky"]/statBases</xpath>
-      <value>
-        <ComfyTemperatureMax>35</ComfyTemperatureMax>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Husky"]/statBases/ArmorRating_Blunt</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Husky"]/statBases/ArmorRating_Blunt</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Husky"]/statBases/ArmorRating_Sharp</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Husky"]/statBases/ArmorRating_Sharp</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Husky"]/statBases/ToxicEnvironmentResistance</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Husky"]/statBases/ToxicEnvironmentResistance</xpath>
-    </match>
-  </Operation>
-  <!-- Husky tools -->
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Husky"]/tools</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Husky"]/tools</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/ThingDef[defName = "Husky"]</xpath>
-    <value>
-      <tools Inherit="False">
-        <li>
-          <label>head</label>
-          <capacities>
-            <li>Blunt</li>
-          </capacities>
-          <power>5.5</power>
-          <cooldownTime>1.8</cooldownTime>
-          <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
-          <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
-          <chanceFactor>0.2</chanceFactor>
-        </li>
-        <li>
-          <label>canines</label>
-          <capacities>
-            <li>Bite</li>
-          </capacities>
-          <power>11</power>
-          <cooldownTime>1.45</cooldownTime>
-          <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
-          <surpriseAttack>
-            <extraMeleeDamages>
-              <li>
-                <def>Stun</def>
-                <amount>20</amount>
-              </li>
-            </extraMeleeDamages>
-          </surpriseAttack>
-        </li>
-      </tools>
-    </value>
-  </Operation>
-  <!-- Husky RaceProperties -->
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "Husky"]/race/baseBodySize</xpath>
-    <value>
-      <baseBodySize>0.75</baseBodySize>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "Husky"]/race/baseHealthScale</xpath>
-    <value>
-      <baseHealthScale>0.9</baseHealthScale>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "Husky"]/race/lifeExpectancy</xpath>
-    <value>
-      <lifeExpectancy>15</lifeExpectancy>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "Husky"]/race/gestationPeriodDays</xpath>
-    <value>
-      <gestationPeriodDays>6.5</gestationPeriodDays>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Husky"]/race/herdAnimal</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Husky"]/race/herdAnimal</xpath>
-      <value>
-        <herdAnimal>true</herdAnimal>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Husky"]/race</xpath>
-      <value>
-        <herdAnimal>true</herdAnimal>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Husky"]/race/herdMigrationAllowed</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Husky"]/race/herdMigrationAllowed</xpath>
-      <value>
-        <herdMigrationAllowed>false</herdMigrationAllowed>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Husky"]/race</xpath>
-      <value>
-        <herdMigrationAllowed>false</herdMigrationAllowed>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Husky"]/race/roamMtbDays</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Husky"]/race/roamMtbDays</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Husky"]/race/useLeatherFrom</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Husky"]/race/useLeatherFrom</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Husky"]/race/manhunterOnTameFailChance</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Husky"]/race/manhunterOnTameFailChance</xpath>
-      <value>
-        <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Husky"]/race</xpath>
-      <value>
-        <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Husky"]/race/manhunterOnDamageChance</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Husky"]/race/manhunterOnDamageChance</xpath>
-      <value>
-        <manhunterOnDamageChance>0.1</manhunterOnDamageChance>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Husky"]/race</xpath>
-      <value>
-        <manhunterOnDamageChance>0.1</manhunterOnDamageChance>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Husky"]/race/mateMtbHours</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Husky"]/race/mateMtbHours</xpath>
-      <value>
-        <mateMtbHours>12</mateMtbHours>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Husky"]/race</xpath>
-      <value>
-        <mateMtbHours>12</mateMtbHours>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Husky"]/race/packAnimal</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Husky"]/race/packAnimal</xpath>
-      <value>
-        <packAnimal>false</packAnimal>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Husky"]/race</xpath>
-      <value>
-        <packAnimal>false</packAnimal>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Husky"]/race/predator</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Husky"]/race/predator</xpath>
-      <value>
-        <predator>true</predator>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Husky"]/race</xpath>
-      <value>
-        <predator>true</predator>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Husky"]/race/maxPreyBodySize</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Husky"]/race/maxPreyBodySize</xpath>
-      <value>
-        <maxPreyBodySize>2</maxPreyBodySize>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Husky"]/race</xpath>
-      <value>
-        <maxPreyBodySize>2</maxPreyBodySize>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Husky"]/race/waterCellCost</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Husky"]/race/waterCellCost</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Husky"]/race/waterSeeker</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Husky"]/race/waterSeeker</xpath>
-      <value>
-        <waterSeeker>false</waterSeeker>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Husky"]/race</xpath>
-      <value>
-        <waterSeeker>false</waterSeeker>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Husky"]/race/canFishForFood</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Husky"]/race/canFishForFood</xpath>
-      <value>
-        <canFishForFood>false</canFishForFood>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Husky"]/race</xpath>
-      <value>
-        <canFishForFood>false</canFishForFood>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Husky"]/race/useMeatFrom</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "Husky"]/race/useMeatFrom</xpath>
-      <value>
-        <useMeatFrom>YorkshireTerrier</useMeatFrom>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Husky"]/race</xpath>
-      <value>
-        <useMeatFrom>YorkshireTerrier</useMeatFrom>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Husky"]/race/wildBiomes</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Husky"]/race/wildBiomes</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "Husky"]/race/lifeStageAges</xpath>
-    <value>
-      <lifeStageAges Inherit="False">
-        <li>
-          <def>AnimalBaby</def>
-          <minAge>0</minAge>
-        </li>
-        <li>
-          <def>AnimalJuvenile</def>
-          <minAge>0.15</minAge>
-        </li>
-        <li>
-          <def>AnimalAdult</def>
-          <minAge>0.3</minAge>
-          <soundWounded>Pawn_Dog_Injured</soundWounded>
-          <soundDeath>Pawn_Dog_Death</soundDeath>
-          <soundCall>Pawn_Dog_Call</soundCall>
-          <soundAngry>Pawn_Dog_Angry</soundAngry>
-        </li>
-      </lifeStageAges>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "Husky"]/race/litterSizeCurve</xpath>
-    <value>
-      <litterSizeCurve Inherit="False">
-        <points>
-          <li>(1.2000, 0)</li>
-          <li>(2.4000, 0.2)</li>
-          <li>(4.8000, 1)</li>
-          <li>(7.2000, 1)</li>
-          <li>(9.6000, 0.2)</li>
-          <li>(10.8000, 0)</li>
-        </points>
-      </litterSizeCurve>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/ThingDef[defName = "Husky"]/race/specialTrainables</xpath>
-    <value>
-      <li MayRequire="Ludeon.RimWorld.Odyssey">AttackTarget</li>
-      <li MayRequire="Ludeon.RimWorld.Odyssey">Forage</li>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/ThingDef[defName = "Husky"]/tradeTags</xpath>
-    <value>
-      <li>AnimalFighter</li>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationAddModExtension">
-    <xpath>/Defs/ThingDef[defName = "Husky"]</xpath>
-    <value>
-      <li Class="ZoologyMod.ModExtension_IsMammal, ZoologyMod"/>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationAddModExtension">
-    <xpath>/Defs/ThingDef[defName = "Husky"]</xpath>
-    <value>
-      <li Class="ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod"/>
-    </value>
-  </Operation>
-  <!-- Husky PawnKindDef -->
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/PawnKindDef[defName = "Husky"]/combatPower</xpath>
-    <value>
-      <combatPower>90</combatPower>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/PawnKindDef[defName = "Husky"]/ecoSystemWeight</xpath>
-    <value>
-      <ecoSystemWeight>0.55</ecoSystemWeight>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/PawnKindDef[defName = "Husky"]/canArriveManhunter</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/PawnKindDef[defName = "Husky"]/canArriveManhunter</xpath>
-      <value>
-        <canArriveManhunter>true</canArriveManhunter>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/PawnKindDef[defName = "Husky"]</xpath>
-      <value>
-        <canArriveManhunter>true</canArriveManhunter>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/PawnKindDef[defName = "Husky"]/wildGroupSize</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/PawnKindDef[defName = "Husky"]/wildGroupSize</xpath>
-      <value>
-        <wildGroupSize>2~6</wildGroupSize>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/PawnKindDef[defName = "Husky"]</xpath>
-      <value>
-        <wildGroupSize>2~6</wildGroupSize>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/PawnKindDef[defName = "Husky"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/PawnKindDef[defName = "Husky"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
-    </match>
-  </Operation>
-  <!-- Combat Extended specific patches -->
   <Operation Class="PatchOperationFindMod">
     <mods>
       <li>Combat Extended</li>
     </mods>
     <match Class="PatchOperationSequence">
       <operations>
-        <!-- YorkshireTerrier CE patches -->
         <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="YorkshireTerrier"]/statBases/MeleeDodgeChance</xpath>
+          <xpath>Defs/ThingDef[defName="YorkshireTerrier"]/statBases/MoveSpeed</xpath>
           <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="YorkshireTerrier"]/statBases/MeleeDodgeChance</xpath>
+            <xpath>Defs/ThingDef[defName="YorkshireTerrier"]/statBases/MoveSpeed</xpath>
             <value>
-              <MeleeDodgeChance>0.85</MeleeDodgeChance>
+              <MoveSpeed>4.45</MoveSpeed>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="YorkshireTerrier"]/statBases</xpath>
             <value>
-              <MeleeDodgeChance>0.85</MeleeDodgeChance>
+              <MoveSpeed>4.45</MoveSpeed>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="YorkshireTerrier"]/statBases/MeleeDodgeChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="YorkshireTerrier"]/statBases/MeleeDodgeChance</xpath>
+            <value>
+              <MeleeDodgeChance>0.75</MeleeDodgeChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="YorkshireTerrier"]/statBases</xpath>
+            <value>
+              <MeleeDodgeChance>0.75</MeleeDodgeChance>
             </value>
           </nomatch>
         </li>
@@ -1363,13 +470,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="YorkshireTerrier"]/statBases/ArmorRating_Sharp</xpath>
             <value>
-              <ArmorRating_Sharp>0.03</ArmorRating_Sharp>
+              <ArmorRating_Sharp>0.04</ArmorRating_Sharp>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="YorkshireTerrier"]/statBases</xpath>
             <value>
-              <ArmorRating_Sharp>0.03</ArmorRating_Sharp>
+              <ArmorRating_Sharp>0.04</ArmorRating_Sharp>
             </value>
           </nomatch>
         </li>
@@ -1378,13 +485,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="YorkshireTerrier"]/statBases/ArmorRating_Blunt</xpath>
             <value>
-              <ArmorRating_Blunt>0.1</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0.05</ArmorRating_Blunt>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="YorkshireTerrier"]/statBases</xpath>
             <value>
-              <ArmorRating_Blunt>0.1</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0.05</ArmorRating_Blunt>
             </value>
           </nomatch>
         </li>
@@ -1402,14 +509,14 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="YorkshireTerrier"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]/Durability</xpath>
             <value>
-              <Durability>125</Durability>
+              <Durability>175</Durability>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="YorkshireTerrier"]/comps</xpath>
             <value>
               <li Class="CombatExtended.CompProperties_ArmorDurability">
-                <Durability>125</Durability>
+                <Durability>175</Durability>
                 <Regenerates>true</Regenerates>
                 <RegenInterval>600</RegenInterval>
                 <RegenValue>5</RegenValue>
@@ -1467,8 +574,8 @@
                   <li>Blunt</li>
                 </capacities>
                 <power>0.1</power>
-                <armorPenetrationBlunt>0.1</armorPenetrationBlunt>
-                <cooldownTime>1.3</cooldownTime>
+                <armorPenetrationBlunt>0.027</armorPenetrationBlunt>
+                <cooldownTime>0.89</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                 <chanceFactor>0.2</chanceFactor>
@@ -1478,10 +585,10 @@
                 <capacities>
                   <li>Bite</li>
                 </capacities>
-                <power>3.3</power>
-                <armorPenetrationBlunt>0.35</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.09</armorPenetrationSharp>
-                <cooldownTime>1.95</cooldownTime>
+                <power>3.5</power>
+                <armorPenetrationBlunt>0.149</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.11</armorPenetrationSharp>
+                <cooldownTime>1.39</cooldownTime>
                 <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
                 <surpriseAttack>
                   <extraMeleeDamages>
@@ -1501,7 +608,21 @@
             <xpath>Defs/ThingDef[defName="YorkshireTerrier"]/statBases/ArmorRating_Heat</xpath>
           </match>
         </li>
-        <!-- LabradorRetriever CE patches -->
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="LabradorRetriever"]/statBases/MoveSpeed</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="LabradorRetriever"]/statBases/MoveSpeed</xpath>
+            <value>
+              <MoveSpeed>5.5</MoveSpeed>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="LabradorRetriever"]/statBases</xpath>
+            <value>
+              <MoveSpeed>5.5</MoveSpeed>
+            </value>
+          </nomatch>
+        </li>
         <li Class="PatchOperationConditional">
           <xpath>Defs/ThingDef[defName="LabradorRetriever"]/statBases/MeleeDodgeChance</xpath>
           <match Class="PatchOperationReplace">
@@ -1567,13 +688,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="LabradorRetriever"]/statBases/ArmorRating_Blunt</xpath>
             <value>
-              <ArmorRating_Blunt>0.3</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0.1</ArmorRating_Blunt>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="LabradorRetriever"]/statBases</xpath>
             <value>
-              <ArmorRating_Blunt>0.3</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0.1</ArmorRating_Blunt>
             </value>
           </nomatch>
         </li>
@@ -1655,9 +776,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>1.1</power>
-                <armorPenetrationBlunt>0.9</armorPenetrationBlunt>
-                <cooldownTime>1.75</cooldownTime>
+                <power>1.25</power>
+                <armorPenetrationBlunt>0.378</armorPenetrationBlunt>
+                <cooldownTime>1.18</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                 <chanceFactor>0.2</chanceFactor>
@@ -1667,10 +788,10 @@
                 <capacities>
                   <li>Bite</li>
                 </capacities>
-                <power>12.5</power>
-                <armorPenetrationBlunt>3.8</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.33</armorPenetrationSharp>
-                <cooldownTime>2.15</cooldownTime>
+                <power>11.65</power>
+                <armorPenetrationBlunt>1.618</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.64</armorPenetrationSharp>
+                <cooldownTime>1.75</cooldownTime>
                 <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
                 <surpriseAttack>
                   <extraMeleeDamages>
@@ -1690,19 +811,33 @@
             <xpath>Defs/ThingDef[defName="LabradorRetriever"]/statBases/ArmorRating_Heat</xpath>
           </match>
         </li>
-        <!-- Husky CE patches -->
         <li Class="PatchOperationConditional">
-          <xpath>Defs/ThingDef[defName="Husky"]/statBases/MeleeDodgeChance</xpath>
+          <xpath>Defs/ThingDef[defName="Husky"]/statBases/MoveSpeed</xpath>
           <match Class="PatchOperationReplace">
-            <xpath>Defs/ThingDef[defName="Husky"]/statBases/MeleeDodgeChance</xpath>
+            <xpath>Defs/ThingDef[defName="Husky"]/statBases/MoveSpeed</xpath>
             <value>
-              <MeleeDodgeChance>0.55</MeleeDodgeChance>
+              <MoveSpeed>5.15</MoveSpeed>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Husky"]/statBases</xpath>
             <value>
-              <MeleeDodgeChance>0.55</MeleeDodgeChance>
+              <MoveSpeed>5.15</MoveSpeed>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>Defs/ThingDef[defName="Husky"]/statBases/MeleeDodgeChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>Defs/ThingDef[defName="Husky"]/statBases/MeleeDodgeChance</xpath>
+            <value>
+              <MeleeDodgeChance>0.6</MeleeDodgeChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>Defs/ThingDef[defName="Husky"]/statBases</xpath>
+            <value>
+              <MeleeDodgeChance>0.6</MeleeDodgeChance>
             </value>
           </nomatch>
         </li>
@@ -1741,13 +876,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Husky"]/statBases/ArmorRating_Sharp</xpath>
             <value>
-              <ArmorRating_Sharp>0.07</ArmorRating_Sharp>
+              <ArmorRating_Sharp>0.06</ArmorRating_Sharp>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Husky"]/statBases</xpath>
             <value>
-              <ArmorRating_Sharp>0.07</ArmorRating_Sharp>
+              <ArmorRating_Sharp>0.06</ArmorRating_Sharp>
             </value>
           </nomatch>
         </li>
@@ -1756,13 +891,13 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Husky"]/statBases/ArmorRating_Blunt</xpath>
             <value>
-              <ArmorRating_Blunt>0.3</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0.1</ArmorRating_Blunt>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Husky"]/statBases</xpath>
             <value>
-              <ArmorRating_Blunt>0.3</ArmorRating_Blunt>
+              <ArmorRating_Blunt>0.1</ArmorRating_Blunt>
             </value>
           </nomatch>
         </li>
@@ -1780,14 +915,14 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Husky"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]/Durability</xpath>
             <value>
-              <Durability>425</Durability>
+              <Durability>375</Durability>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Husky"]/comps</xpath>
             <value>
               <li Class="CombatExtended.CompProperties_ArmorDurability">
-                <Durability>425</Durability>
+                <Durability>375</Durability>
                 <Regenerates>true</Regenerates>
                 <RegenInterval>600</RegenInterval>
                 <RegenValue>5</RegenValue>
@@ -1844,9 +979,9 @@
                 <capacities>
                   <li>Blunt</li>
                 </capacities>
-                <power>1.3</power>
-                <armorPenetrationBlunt>1.05</armorPenetrationBlunt>
-                <cooldownTime>1.8</cooldownTime>
+                <power>1</power>
+                <armorPenetrationBlunt>0.293</armorPenetrationBlunt>
+                <cooldownTime>1.14</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                 <chanceFactor>0.2</chanceFactor>
@@ -1856,10 +991,10 @@
                 <capacities>
                   <li>Bite</li>
                 </capacities>
-                <power>13.5</power>
-                <armorPenetrationBlunt>4.45</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.36</armorPenetrationSharp>
-                <cooldownTime>2.2</cooldownTime>
+                <power>10.3</power>
+                <armorPenetrationBlunt>1.259</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.52</armorPenetrationSharp>
+                <cooldownTime>1.71</cooldownTime>
                 <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
                 <surpriseAttack>
                   <extraMeleeDamages>

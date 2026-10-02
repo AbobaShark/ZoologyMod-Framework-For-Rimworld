@@ -65,9 +65,29 @@ namespace ZoologyMod
         [Unsaved(false)] private readonly Dictionary<int, NpcAnimalCompanionGroup> groupById =
             new Dictionary<int, NpcAnimalCompanionGroup>();
 
-        public static NpcAnimalCompanionManager Current => CurrentGame?.GetComponent<NpcAnimalCompanionManager>();
+        private static Game cachedGame;
+        private static NpcAnimalCompanionManager cachedManager;
 
-        private static Game CurrentGame => Verse.Current.Game;
+        public static NpcAnimalCompanionManager Current
+        {
+            get
+            {
+                Game game = Verse.Current.Game;
+                if (!ReferenceEquals(game, cachedGame))
+                {
+                    cachedGame = game;
+                    cachedManager = null;
+                }
+
+                // Game.GetComponent scans every component. Resolve once per game,
+                // but retry a missing component during early game initialization.
+                if (cachedManager == null && game != null)
+                {
+                    cachedManager = game.GetComponent<NpcAnimalCompanionManager>();
+                }
+                return cachedManager;
+            }
+        }
 
         public NpcAnimalCompanionManager(Game game)
         {
@@ -91,7 +111,9 @@ namespace ZoologyMod
         public bool TryGetLink(Pawn animal, out NpcAnimalCompanionLink link)
         {
             link = null;
-            return animal != null && linkByAnimal.TryGetValue(animal, out link);
+            return linkByAnimal.Count != 0
+                && animal != null
+                && linkByAnimal.TryGetValue(animal, out link);
         }
 
         public bool IsCompanion(Pawn pawn)

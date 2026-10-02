@@ -309,7 +309,7 @@
   </Operation>
 
   <!-- ========== HeadWithEarHoles (ClawsTailAndJowl, TurtleLike, Bird) ========== -->
-  <!-- Для QuadrupedAnimalWithClawsTailAndJowl: сначала удаляем уши и меняем Head -> HeadWithEarHoles (как у вас было) -->
+  <!-- Для QuadrupedAnimalWithClawsTailAndJowl: сначала удаляем уши и меняем Head -> HeadWithEarHoles -->
   <Operation Class="PatchOperationRemove">
     <xpath>Defs/BodyDef[defName="QuadrupedAnimalWithClawsTailAndJowl"]/corePart/parts/li[def="Neck"]/parts/li[def="Head"]/parts/li[def="Ear" and customLabel="left ear"]</xpath>
   </Operation>
@@ -355,6 +355,25 @@
   <Operation Class="PatchOperationReplace">
     <xpath>Defs/BodyDef[defName="QuadrupedAnimalWithClawsTailAndJowl"]/corePart/parts/li[def="Tail"]/coverage</xpath>
     <value><coverage>0.1</coverage></value>
+  </Operation>
+  
+  <!-- QuadrupedAnimalWithClawsTailAndJowl: tail as attack tool -->
+  <Operation Class="PatchOperationConditional">
+    <xpath>Defs/BodyDef[defName="QuadrupedAnimalWithClawsTailAndJowl"]/corePart/parts/li[def="Tail"]/groups</xpath>
+
+    <nomatch Class="PatchOperationAdd">
+      <xpath>Defs/BodyDef[defName="QuadrupedAnimalWithClawsTailAndJowl"]/corePart/parts/li[def="Tail"]</xpath>
+      <value>
+        <groups />
+      </value>
+    </nomatch>
+  </Operation>
+
+  <Operation Class="PatchOperationAdd">
+    <xpath>Defs/BodyDef[defName="QuadrupedAnimalWithClawsTailAndJowl"]/corePart/parts/li[def="Tail"]/groups</xpath>
+    <value>
+      <li>TailAttackTool</li>
+    </value>
   </Operation>
 
   <!-- Turtle specific: beak и перенос мозга в череп -->

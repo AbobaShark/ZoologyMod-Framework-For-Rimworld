@@ -15,7 +15,10 @@ namespace ZoologyMod
         public static bool TryGetFollowingLink(Pawn pawn, out NpcAnimalCompanionLink link)
         {
             link = null;
-            return NpcAnimalCompanionUtility.SystemEnabled
+            return pawn != null
+                && pawn.Faction != null
+                && !pawn.Faction.IsPlayer
+                && NpcAnimalCompanionUtility.SystemEnabled
                 && NpcAnimalCompanionManager.Current?.TryGetLink(pawn, out link) == true
                 && link.State == NpcAnimalCompanionState.FollowingMaster
                 && link.Master != null;
@@ -23,7 +26,8 @@ namespace ZoologyMod
 
         public static bool ShouldFollowMaster(Pawn animal)
         {
-            if (!animal.Spawned || !TryGetFollowingLink(animal, out NpcAnimalCompanionLink link))
+            if (animal == null || !animal.Spawned
+                || !TryGetFollowingLink(animal, out NpcAnimalCompanionLink link))
             {
                 return false;
             }

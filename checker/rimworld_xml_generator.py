@@ -17,6 +17,13 @@ from typing import Dict, List, Optional, Tuple
 
 import pandas as pd
 from lxml import etree as LET
+
+from animalstats_source import (
+    is_google_sheet_source,
+    is_multisheet_source,
+    read_google_sheet,
+    source_available,
+)
 import tkinter as tk
 from tkinter import filedialog, messagebox, simpledialog, ttk
 
@@ -441,8 +448,10 @@ def read_table(source_path: str, sheet_name: Optional[str] = None) -> pd.DataFra
         out = df.apply(lambda col: col.map(_cell_to_text))
         return out.fillna("")
 
-    if not source_path or not os.path.exists(source_path):
-        raise RuntimeError(f"Table source not found: {source_path}")
+    if not source_path or not source_available(source_path):
+        raise RuntimeError(f"Table source not found or invalid: {source_path}")
+    if is_google_sheet_source(source_path):
+        return _normalize_df(read_google_sheet(source_path, sheet_name=sheet_name))
     if is_excel_source(source_path):
         try:
             kwargs = {"dtype": str, "keep_default_na": False}
@@ -2495,15 +2504,15 @@ def update_xmls_in_path(
     overwrite_existing: bool = False,
     emit_ce_patches: bool = False,
 ) -> Dict[str, object]:
-    if not xlsx or not os.path.exists(xlsx):
-        raise RuntimeError(f"XLSX/TSV not found: {xlsx}")
+    if not xlsx or not source_available(xlsx):
+        raise RuntimeError(f"AnimalStats source not found or invalid: {xlsx}")
     if not xml_input_path or not os.path.exists(xml_input_path):
         raise RuntimeError(f"XML input path not found: {xml_input_path}")
 
-    animals_df = read_table(xlsx, sheet_name=animals_sheet if is_excel_source(xlsx) else None)
+    animals_df = read_table(xlsx, sheet_name=animals_sheet if is_multisheet_source(xlsx) else None)
     ce_df = None
     try:
-        ce_df = read_table(xlsx, sheet_name=animals_ce_sheet if is_excel_source(xlsx) else None)
+        ce_df = read_table(xlsx, sheet_name=animals_ce_sheet if is_multisheet_source(xlsx) else None)
     except Exception:
         ce_df = None
 
@@ -2942,13 +2951,13 @@ def generate_for_def(
     game_root_dir: str = DEFAULT_GAME_ROOT_DIR,
     generate_parent: bool = False,
 ) -> Tuple[str, str]:
-    if not xlsx or not os.path.exists(xlsx):
-        raise RuntimeError(f"XLSX not found: {xlsx}")
+    if not xlsx or not source_available(xlsx):
+        raise RuntimeError(f"AnimalStats source not found or invalid: {xlsx}")
 
-    animals_df = read_table(xlsx, sheet_name=animals_sheet if is_excel_source(xlsx) else None)
+    animals_df = read_table(xlsx, sheet_name=animals_sheet if is_multisheet_source(xlsx) else None)
     ce_df = None
     try:
-        ce_df = read_table(xlsx, sheet_name=animals_ce_sheet if is_excel_source(xlsx) else None)
+        ce_df = read_table(xlsx, sheet_name=animals_ce_sheet if is_multisheet_source(xlsx) else None)
     except Exception:
         ce_df = None
 
@@ -3115,7 +3124,7 @@ class GeneratorApp(tk.Tk):
             command=self._update_mode_ui,
         ).pack(side="left", padx=12)
 
-        add_row("xlsx", "AnimalStats XLSX:", self.xlsx, self.pick_xlsx)
+        add_row("xlsx", "AnimalStats source:", self.xlsx, self.pick_xlsx)
         add_row("def_name", "DefName (optional in update):", self.def_name, None)
 
         xml_row = ttk.Frame(main)
@@ -3187,7 +3196,7 @@ class GeneratorApp(tk.Tk):
 
     def pick_xlsx(self):
         p = filedialog.askopenfilename(
-            title="Select AnimalStats XLSX/TSV",
+            title="Select local AnimalStats XLSX/TSV",
             filetypes=[("Tables", "*.xlsx *.xlsm *.xls *.tsv"), ("All", "*.*")],
         )
         if p:
@@ -3238,8 +3247,12 @@ class GeneratorApp(tk.Tk):
         mode = self.mode.get().strip() or "generate"
         xml_input = self.existing_xml.get().strip()
         out_dir = self.out_dir.get().strip()
-        if not xlsx or not os.path.exists(xlsx):
-            messagebox.showerror("Error", "XLSX/TSV file not found.", parent=self)
+        if not xlsx or not source_available(xlsx):
+            messagebox.showerror(
+                "Error",
+                "AnimalStats source not found or invalid. Use a local XLSX/TSV, Google Sheets URL, gsheet:<id>, or .gsheet pointer.",
+                parent=self,
+            )
             return
 
         self._save_cfg()
@@ -3302,14 +3315,14 @@ class GeneratorApp(tk.Tk):
 def parse_cli_args():
     script_dir = os.path.dirname(os.path.abspath(__file__))
     default_xlsx = os.path.join(script_dir, "AnimalStats.xlsx")
-    parser = argparse.ArgumentParser(description="Generate or update RimWorld animal Def XML from AnimalStats.xlsx")
+    parser = argparse.ArgumentParser(description="Generate or update RimWorld animal Def XML from local AnimalStats files or Google Sheets")
     parser.add_argument(
         "--mode",
         choices=("generate", "update"),
         default="generate",
         help="generate: build new XML files; update: update known fields in existing XML file(s)/folder",
     )
-    parser.add_argument("--xlsx", default=default_xlsx, help="Path to AnimalStats.xlsx (or TSV for Animals)")
+    parser.add_argument("--xlsx", default=default_xlsx, help="AnimalStats source: local XLSX/TSV, Google Sheets URL, gsheet:<id>, or .gsheet pointer")
     parser.add_argument("--def-name", help="Animal defName to generate")
     parser.add_argument("--input-path", help="Update mode: XML file or folder with XML files")
     parser.add_argument("--existing-xml", dest="existing_xml_legacy", help=argparse.SUPPRESS)
