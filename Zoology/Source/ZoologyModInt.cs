@@ -11,6 +11,8 @@ namespace ZoologyMod
     {
         public static ZoologyMod Instance { get; private set; }
         public static ZoologyModSettings Settings { get; private set; }
+        private const string RuntimeHarmonyId = "com.abobashark.zoology.bionic";
+        private static bool runtimeAttributePatchesApplied;
 
         public ZoologyMod(ModContentPack content) : base(content)
         {
@@ -20,8 +22,7 @@ namespace ZoologyMod
 
             if (!allRuntimeTogglesDisabled)
             {
-                var harmony = new Harmony("com.abobashark.zoology.bionic");
-                harmony.PatchAll();
+                EnsureRuntimeAttributePatches();
             }
             else
             {
@@ -87,12 +88,23 @@ namespace ZoologyMod
             EnableAllRuntimePatches();
         }
 
+        private static void EnsureRuntimeAttributePatches()
+        {
+            if (runtimeAttributePatchesApplied)
+            {
+                return;
+            }
+
+            var harmony = new Harmony(RuntimeHarmonyId);
+            harmony.PatchAll(typeof(ZoologyMod).Assembly);
+            runtimeAttributePatchesApplied = true;
+        }
+
         private static void EnableAllRuntimePatches()
         {
             try
             {
-                var harmony = new Harmony("com.abobashark.zoology.bionic");
-                harmony.PatchAll();
+                EnsureRuntimeAttributePatches();
             }
             catch (System.Exception ex)
             {
@@ -123,7 +135,7 @@ namespace ZoologyMod
             {
                 var ids = new List<string>
                 {
-                    "com.abobashark.zoology.bionic",
+                    RuntimeHarmonyId,
                     "com.abobashark.zoology.predatorpairs",
                     "com.abobashark.zoology.lactation",
                     "com.abobashark.zoology.ectothermic",
@@ -222,6 +234,10 @@ namespace ZoologyMod
             {
                 var unpatcher = new Harmony("com.abobashark.zoology.unpatcher");
                 unpatcher.UnpatchAll(id);
+                if (id == RuntimeHarmonyId)
+                {
+                    runtimeAttributePatchesApplied = false;
+                }
             }
             catch (System.Exception exId)
             {
