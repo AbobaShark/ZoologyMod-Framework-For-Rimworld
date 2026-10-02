@@ -140,19 +140,19 @@ namespace ZoologyMod
         public float SmallPetBodySizeThreshold
         {
             get => _smallPetBodySizeThreshold;
-            set => _smallPetBodySizeThreshold = Mathf.Clamp(value, 0f, 10f);
+            set => _smallPetBodySizeThreshold = Mathf.Clamp(value, 0f, 30f);
         }
 
         public float SafePredatorBodySizeThreshold
         {
             get => _safePredatorBodySizeThreshold;
-            set => _safePredatorBodySizeThreshold = Mathf.Clamp(value, 0f, 10f);
+            set => _safePredatorBodySizeThreshold = Mathf.Clamp(value, 0f, 30f);
         }
 
         public float SafeNonPredatorBodySizeThreshold
         {
             get => _safeNonPredatorBodySizeThreshold;
-            set => _safeNonPredatorBodySizeThreshold = Mathf.Clamp(value, 0f, 10f);
+            set => _safeNonPredatorBodySizeThreshold = Mathf.Clamp(value, 0f, 30f);
         }
 
         public float PetPlayMaxWildness
