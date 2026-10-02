@@ -518,7 +518,7 @@ Zoology recognizes these trainable names in its runtime compatibility layer:
 
 The shipped `Zoology_Beastmastery` and `Zoology_DraftControl` TrainableDefs are gated by Odyssey.
 
-For an eligible animal, Zoology synchronizes the linked AttackTarget/draft-control training maps so the compatible trainables do not represent independent progress tracks.
+For an eligible animal, Zoology synchronizes the linked AttackTarget/draft-control training maps so compatible trainables share one progress state.
 
 The runtime detects supported external drafting ownership. When another supported system owns drafting for a pawn/race, Zoology disables its own draft-access path for that pawn/race.
 
