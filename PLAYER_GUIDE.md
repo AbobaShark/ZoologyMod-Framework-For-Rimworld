@@ -190,7 +190,7 @@ Requirements and restrictions include:
 - downed, dormant, deathresting or mentally broken animals cannot be controlled normally;
 - commands remain tied to the master's animal-command range.
 
-Zoology keeps linked draft/attack training state synchronized across its current, legacy and compatible Beastmastery trainables. If another supported drafting system already owns an animal, Zoology yields rather than creating a second direct-control path.
+Zoology keeps linked draft/attack training state synchronized across the supported Beastmastery/attack trainables. If another supported drafting system already owns an animal, Zoology yields rather than creating a second direct-control path.
 
 ### Enable animal damage reduction
 
