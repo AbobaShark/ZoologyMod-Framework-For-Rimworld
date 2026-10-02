@@ -332,7 +332,67 @@ The comp caches thresholds from the race's baseBodySize multiplied by those frac
 
 The current settings UI has a global regeneration toggle but no per-species regeneration selector.
 
-## 5. Gender-restricted melee tools
+## 5. Mammal infant feeding integration
+
+The mammal marker is also the entry point for Zoology's newborn feeding systems. A third-party animal does not need a separate "handler feeding" marker: if the animal is recognized as a mammal, is in a baby life stage and otherwise passes the food rules, the lactation/feeding systems can use it.
+
+### Nursing jobs
+
+The shipped lactation layer contains separate jobs and think-tree nodes for both sides of nursing:
+
+- `Zoology_Breastfeed` / `JobDriver_AnimalBreastfeed` for a mobile lactating female going to a hungry baby;
+- `Zoology_YoungSuckle` / `JobDriver_YoungSuckle` for a baby going to a compatible mother;
+- `JobGiver_MotherRespondToSuckleRequests`;
+- `JobGiver_YoungSuckleFromMother`;
+- `JobGiver_AnimalAutoFeed`.
+
+`AnimalLactationUtility` is the shared implementation for infant-stage recognition, mother eligibility, cross-breed compatibility, food thresholds, mother search and nursing job construction. It is runtime infrastructure rather than a promised external C# API.
+
+The current behavior requests nursing below 33% baby food level. A mother must retain at least 15% of her own food level to nurse.
+
+### Handler feeding
+
+Current builds also ship:
+
+    JobDef: Zoology_FeedMammalBaby
+    driverClass: ZoologyMod.JobDriver_FeedMammalBaby
+
+and:
+
+    WorkGiverDef: Zoology_FeedMammalBaby
+    giverClass: ZoologyMod.WorkGiver_FeedMammalBaby
+    workType: Handling
+    priorityInType: 50
+    directOrderable: true
+    canBeDoneByMechs: false
+    required capacity: Manipulation
+
+The WorkGiver scans player-faction animals and only offers work for hungry mammal babies that pass `MammalBabyCache.ShouldUseBabyFoodRules`.
+
+Food selection first checks the handler's inventory and then the map. The job deliberately excludes drugs, corpses, dispensers and opportunistic plant harvesting from this feeding search. Final suitability still goes through the baby's own race diet and Zoology's baby-food rules.
+
+`JobDriver_FeedMammalBaby` derives from RimWorld's patient-feeding driver but removes the medical-rest requirement: animal babies can be fed where they are. The same WorkGiver is direct-orderable, so the player can force the feeding job.
+
+The feature is gated by both mammal lactation and the `EnableHandlerBabyFeeding` setting. Disabling mammal lactation also disables handler baby feeding.
+
+### Baby food suitability
+
+While lactation is active, the baby-food patch requires a food to satisfy both:
+
+- `IngestibleProperties.babiesCanIngest`;
+- the animal race's ordinary `CanEverEat` rule.
+
+The mammal-baby path also prevents the normal fishing job from being used as a newborn feeding solution.
+
+### Caravan feeding
+
+The caravan patch runs the same biological model without map jobs. It can ensure the biological mother is lactating when both mother and baby are present, choose a compatible lactating feeder, transfer nutrition from that feeder and then fall back to suitable caravan inventory food.
+
+### Auto-slaughter
+
+When `AllowSlaughterLactating` is false, Zoology adjusts auto-slaughter counts and rejects lactating animals in the auto-slaughter WorkGiver. This is specifically automatic herd management; it is distinct from a player's explicit slaughter designation and from `ModExtension_AgroAtSlaughter`.
+
+## 6. Gender-restricted melee tools
 
 Class:
 
@@ -360,7 +420,7 @@ The Harmony patch checks Zoology's own ToolWithGender directly. It also recogniz
 
 This feature is controlled by the Gender-restricted attacks Dev setting.
 
-## 6. Life-stage combat power
+## 7. Life-stage combat power
 
 Class:
 
@@ -428,7 +488,7 @@ When the override is enabled, CEPatches_Melee multiplies CE tool penetration by 
 
 CEChecker detects CE by its runtime types and package ID, while CEReflectionUtility isolates the reflection-based access to CE internals. This avoids a hard compile-time dependency on CE.
 
-## 7. NPC pawn-group marker
+## 8. NPC pawn-group marker
 
 Class:
 
@@ -448,7 +508,7 @@ Example from the shipped patch pattern:
 
 The generic companion-safety system does not require this marker. It evaluates animals selected in supported standard mixed human groups regardless of whether the animal option was added by Zoology.
 
-## 8. Beastmastery and direct-control interoperability
+## 9. Beastmastery and direct-control interoperability
 
 Zoology defines these trainable names in its runtime compatibility layer:
 
@@ -463,7 +523,7 @@ The runtime also detects supported external drafting ownership. If another suppo
 
 This is interoperability, not an invitation to call AnimalDraftControlUtility directly: the implementation class is internal.
 
-## 9. Animal bionics
+## 10. Animal bionics
 
 The Enable human bionics on animals feature is implemented by runtime Def patchers, not by a generic public registration API.
 
@@ -490,7 +550,7 @@ ModExtension_CannotBeAugmented is the supported XML opt-out.
 
 Because these patchers mutate DefDatabase content during initialization, the user-facing bionics toggle is restart-sensitive.
 
-## 10. Runtime species overrides
+## 11. Runtime species overrides
 
 ZoologyRuntimeAnimalOverrides is an internal implementation service used by the settings UI. It is not a public C# API.
 
@@ -523,7 +583,7 @@ Supported editable parameters are:
 
 Regeneration is not in this runtime feature catalog.
 
-## 11. Static XML surface shipped by Zoology
+## 12. Static XML surface shipped by Zoology
 
 The main 1.6 Def layer contains:
 
@@ -531,6 +591,8 @@ The main 1.6 Def layer contains:
 - animal-specific ToolCapacity definitions;
 - animal bionic hediff variants;
 - lactation hediffs;
+- lactation/nursing and handler baby-feeding JobDefs;
+- the Zoology_FeedMammalBaby Handling WorkGiverDef;
 - childcare, pet-play and predation JobDefs;
 - pet-play JoyGiverDefs;
 - animal sound defs;
@@ -561,7 +623,20 @@ The code additionally performs several runtime corrections that are not separate
 
 These are implementation safeguards or global corrections, not framework markers for third-party XML.
 
-## 12. Conditional DLC patches
+### Runtime regression tests
+
+The gameplay/runtime code has a separate test directory at `Zoology/Tests`, independent of `checker/tests`.
+
+Current runtime-oriented tests cover:
+
+- `test_animal_draft_compatibility.py` — direct-control interoperability;
+- `test_handler_baby_feeding.py` — WorkGiver/JobDriver registration, gating, baby eligibility, food selection and feeding behavior;
+- `test_npc_animal_companion_hot_path.py` — NPC companion hot-path behavior;
+- `test_runtime_patch_registration.py` — runtime patch registration/rebuild coverage.
+
+These tests are useful evidence for the intended runtime contract but do not make internal helper classes public APIs.
+
+## 13. Conditional DLC patches
 
 ### Biotech
 
@@ -588,7 +663,7 @@ The loaded Odyssey folder contains patches for:
 
 Zoology_Beastmastery is also Odyssey-gated.
 
-## 13. Conditional third-party patch sets
+## 14. Conditional third-party patch sets
 
 The active LoadFolders configuration contains dedicated folders for:
 
@@ -607,7 +682,7 @@ These folders are loaded only when their package IDs are active.
 
 Combat Extended receives a separate body/combat integration and runtime CE hooks. Alpha Biomes is primarily biome-distribution integration. The animal-content mods receive race/body/product/biome corrections appropriate to their defs.
 
-## 14. Working data pipeline
+## 15. Working data pipeline
 
 The production animal data are split between two Google Sheets.
 
@@ -670,7 +745,24 @@ The production flow is:
 
 AnimalStats imports the production export from Calculations with IMPORTRANGE. Calculations is therefore an upstream model workbook, while AnimalStats is the species/game-production workbook.
 
-## 15. Model/data maintenance rules
+### Source/output synchronization
+
+The workbook is the maintenance source, but RimWorld executes the XML that is actually shipped. A workbook change is therefore not a gameplay change until the corresponding downstream XML has been regenerated or otherwise synchronized.
+
+The audit of the current `main` found one concrete divergence in the shared life-stage data:
+
+| Life stage | AnimalStats / LifeStages meleeDamageFactor | Current shipped Core LifeStages.xml |
+| --- | ---: | ---: |
+| AnimalJuvenile / EusocialInsectJuvenile | 0.65 | 0.60 |
+| AnimalBabyTiny | 0.25 | 0.20 |
+
+The other directly comparable body-size, market-value, health, hunger, movement and armor factors in those rows match the current Core life-stage patch.
+
+Until the source/output discrepancy is resolved, the shipped XML values are the values RimWorld actually loads. Documentation should not silently substitute the workbook numbers for the runtime values.
+
+This is also why maintainers should review both workbook QA and the repository diff after regeneration rather than treating a green spreadsheet alone as proof that the mod tree is synchronized.
+
+## 16. Model/data maintenance rules
 
 Generated race patches are downstream artifacts. If a biological value, model or group rule is wrong, fix the relevant source/model/override and regenerate rather than hand-editing a generated output that the checker will overwrite later.
 

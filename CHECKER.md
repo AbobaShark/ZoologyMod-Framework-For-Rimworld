@@ -456,6 +456,19 @@ Safety/regression tests for optimizer and generated patch behavior, including:
 
 Run the test suite after changing source loading, optimizer semantics, compaction or patch-generation rules.
 
+### Runtime/gameplay tests outside checker
+
+`checker/tests` does not cover the whole Zoology assembly. Runtime behavior has a separate `Zoology/Tests` suite.
+
+The current runtime tests are:
+
+- `test_animal_draft_compatibility.py`;
+- `test_handler_baby_feeding.py`;
+- `test_npc_animal_companion_hot_path.py`;
+- `test_runtime_patch_registration.py`.
+
+When a change touches both generated XML and runtime behavior, run the relevant tests from both directories. The handler-baby-feeding feature is a current example: its JobDef/WorkGiverDef are static XML, while target selection and the JobDriver live in the assembly.
+
 ## 20. Recommended maintainer workflows
 
 ### Refresh generated race patches from the live workbook
@@ -469,9 +482,10 @@ Run the test suite after changing source loading, optimizer semantics, compactio
 7. Keep Preserve runtime XML preconditions enabled unless you have a specific reason to prove the closed-world result is sufficient.
 8. Generate.
 9. Review generated_patches.
-10. Run tests.
-11. Use move_xmls.py only after the output is reviewed.
-12. Review the final repository diff before committing.
+10. Run checker tests and any affected runtime tests under Zoology/Tests.
+11. Compare generated race patches with the live mod tree and separately check shared static patches that are not produced by the race generator.
+12. Use move_xmls.py only after the output is reviewed.
+13. Review the final repository diff before committing.
 
 ### Generate one new Def
 
@@ -520,3 +534,7 @@ generated_patches is a staging area. move_xmls.py performs the explicit copy int
 The source of truth for biological/model values is the spreadsheet pipeline documented in FRAMEWORK.md, not checker/generated_patches.
 
 The checker is responsible for transformation, reference-aware patch construction, validation and deployment. It should not become a second hidden place where scientific coefficients or species values are maintained.
+
+A working spreadsheet and a successful race-patch generation run do not prove that every shared XML file is synchronized. Some gameplay data live in manually maintained or separately generated shared patches such as life-stage defs, product comps and other global XML. Audit those outputs explicitly when their workbook sources change.
+
+At the current documentation audit, AnimalStats/LifeStages and the shipped Core LifeStages.xml differ in two meleeDamageFactor values; FRAMEWORK.md records the exact rows. Resolve that at the data/generation layer rather than teaching the checker or documentation a second set of coefficients.

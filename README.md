@@ -18,7 +18,8 @@ Zoology covers the animal system as a whole rather than only melee damage. Depen
 - meat, leather, eggs, milk and wool-related production;
 - anatomy, body definitions, graphics and selected sound assignments;
 - predation, pack hunting, prey fleeing, scavenging and corpse defense;
-- mammal lactation, childcare, egg-clutch protection and incubation;
+- mammal lactation, newborn nursing and handler feeding of hungry mammal babies;
+- childcare, egg-clutch protection and incubation;
 - pet recreation, expanded bonding and direct animal control;
 - NPC animal companions in standard mixed human groups;
 - ectothermy, wound licking and several species-specific physiological rules;
@@ -53,7 +54,7 @@ The main configurable systems are:
 - scavenging, including optional access to very rotten remains;
 - swallow-whole restrictions for animals that cannot chew;
 - wild mating, ecosystem-capacity limits and overpopulation departure;
-- mammal lactation and nursing;
+- mammal lactation and nursing, including handler-fed mammal babies when nursing is unavailable;
 - childcare, family following, egg incubation and clutch defense;
 - pet recreation and expanded bonding;
 - Beastmastery-based direct control of eligible trained animals;
