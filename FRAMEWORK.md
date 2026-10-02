@@ -640,47 +640,108 @@ These tests are useful evidence for the intended runtime contract but do not mak
 
 ### Biotech
 
-The loaded Biotech folder contains patches for:
+The loaded Biotech folder contains:
 
-- leather/meat/toxic-related data;
-- insect cocoons;
-- selected rodent and ruminant race defs.
+- `Leather_Biotech.xml`;
+- `Meat_Biotech.xml`;
+- `ToxicDefs_Biotech.xml`;
+- insect-cocoon building patches;
+- rodent race patches;
+- ruminant race patches.
+
+`ToxicDefs_Biotech.xml` conditionally excludes `ToxicMeat` from the relevant pemmican and meal ingredient filters when Vanilla Animals Expanded - Waste Animals is not active.
 
 The runtime cocoon safeguard is also Biotech-gated.
 
 ### Odyssey
 
-The loaded Odyssey folder contains patches for:
+The loaded Odyssey folder contains:
 
-- biome defs;
-- bodies;
-- life stages;
-- graphics;
-- body-clock behavior;
-- egg-layer/hatcher data;
-- meat;
-- Odyssey animal race defs.
+- Glacial Plain, Glowforest, Grasslands, Lava Field and Scarlands biome patches, including a separate manual Grasslands patch;
+- Odyssey body definitions;
+- Odyssey baby life-stage patches;
+- animal graphic data;
+- VEF-backed body-clock assignments when VEF is present;
+- egg-layer and hatcher patches;
+- meat patches;
+- grouped Odyssey animal race patches.
 
-Zoology_Beastmastery is also Odyssey-gated.
+`Zoology_Beastmastery` is also Odyssey-gated.
 
 ## 14. Conditional third-party patch sets
 
-The active LoadFolders configuration contains dedicated folders for:
+The active `LoadFolders.xml` contains dedicated conditional folders for the integrations below. These are real loaded patch surfaces, not merely repository directories.
 
-- Combat Extended;
-- Vanilla Expanded Framework;
-- Vanilla Animals Expanded;
-- Vanilla Animals Expanded - Royal Animals;
-- Vanilla Animals Expanded - Endangered;
-- Vanilla Animals Expanded - Waste Animals;
-- Alpha Animals;
-- Alpha Biomes;
-- Dinosauria;
-- Megafauna.
+### Combat Extended
 
-These folders are loaded only when their package IDs are active.
+The CE folder contains:
 
-Combat Extended receives a separate body/combat integration and runtime CE hooks. Alpha Biomes is primarily biome-distribution integration. The animal-content mods receive race/body/product/biome corrections appropriate to their defs.
+- CE variants for Zoology animal body definitions;
+- a CE added-parts HediffDef patch;
+- CE life-stage melee-damage and penetration data.
+
+The assembly adds runtime CE penetration calculation/UI hooks without a compile-time CE reference.
+
+### Vanilla Expanded Framework
+
+The VEF folder contains three behavior-level integrations:
+
+- `Foraging_VEF.xml` assigns VEF `CompProperties_AutoNutrition` to selected insectivores and replaces the relevant pangolin ant-feeding comp when the Endangered module is present;
+- `ModExtension_BodyClock_VEF.xml` assigns crepuscular/nocturnal body clocks to selected animals through VEF's `ExtendedRaceProperties`;
+- `ModExtension_CrossBreeding_VEF.xml` supplies VEF cross-breed extension data for supported Core cross-breed pairs.
+
+The current foraging assignments include fennec fox and, when their source content is active, pangolin, hedgehog, armadillo, crow and bullfrog.
+
+### Vanilla Animals Expanded
+
+The main VAE folder contains more than generated race values. Its current non-race surface includes:
+
+- biome patches;
+- VAE body definitions and an Odyssey-fallback pinniped body;
+- VAE damage defs;
+- baby life-stage patches;
+- animal graphics;
+- cat and dog `crossAggroWith` relationship patches;
+- egg-layer/hatcher patches;
+- milkable and shearable patches;
+- VEF body-clock assignments;
+- VEF/race cross-breeding data;
+- leather/item patches including Odyssey fallback material data.
+
+### Vanilla Animals Expanded - Endangered
+
+The Endangered folder contains:
+
+- egg-layer patches;
+- hatcher patches;
+- Odyssey-fallback leather/item data;
+- `Foraging_VAEE.xml`.
+
+The foraging patch removes the Rockhopper Penguin `DigWhenHungry` comp and removes the module's raw-fish base/def in the supported integration configuration. The VEF foraging patch supplies the corresponding auto-nutrition behavior for species Zoology maps to insect/ant feeding.
+
+### Vanilla Animals Expanded - Royal Animals
+
+The Royal Animals integration contains generated race patches plus egg-layer and hatcher corrections.
+
+### Vanilla Animals Expanded - Waste Animals
+
+The Waste Animals integration contains generated race patches plus egg-layer, hatcher and damage corrections.
+
+### Alpha Animals
+
+Alpha Animals receives generated race patches and fallback body definitions for crab-, larva- and snail-like body plans when those Odyssey body definitions are unavailable.
+
+### Alpha Biomes
+
+Alpha Biomes has a dedicated biome-distribution patch set for its supported custom biomes. It does not depend on generated race XML alone.
+
+### Dinosauria
+
+Dinosauria receives generated race patches plus dedicated animal graphic and shadow corrections.
+
+### Megafauna
+
+Megafauna currently uses its generated race patch set.
 
 ## 15. Working data pipeline
 
