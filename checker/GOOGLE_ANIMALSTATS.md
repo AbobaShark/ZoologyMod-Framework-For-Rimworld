@@ -10,7 +10,7 @@ For this project the production workbook is `AnimalStats — WORKING`:
 
 `https://docs.google.com/spreadsheets/d/1BsPzRPFLFx2HL4UdlVo058kryub3C4a9ezQ54CnGEB4/edit`
 
-The standard animal-generation paths read the calculated `Animals` and `Animals CE` sheets. Google reads request calculated cell values rather than formula text. Local XLSX/TSV sources use the same downstream generation logic.
+The standard animal-generation paths read the calculated `Animals` and `Animals CE` sheets. Google reads request calculated cell values. Local XLSX/TSV sources use the same downstream generation logic.
 
 ## Fastest local workflow
 
@@ -70,7 +70,7 @@ py rimworld_xml_generator.py ^
 
 ## Google Drive for desktop `.gsheet`
 
-A `.gsheet` file is a pointer containing the spreadsheet ID/URL rather than the spreadsheet cells. The checker resolves the pointer and uses the same read-only Google Sheets authorization described above.
+A `.gsheet` file stores a spreadsheet ID/URL pointer and no cell data. The checker resolves the pointer and uses the same read-only Google Sheets authorization described above.
 
 ## Service account (optional)
 
