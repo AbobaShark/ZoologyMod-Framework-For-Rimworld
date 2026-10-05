@@ -111,6 +111,30 @@
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/PawnKindDef[defName="Sparrow" or defName="Crow"]/canArriveManhunter</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/PawnKindDef[defName="Sparrow" or defName="Crow"]/canArriveManhunter</xpath>
+      <value>
+        <canArriveManhunter>true</canArriveManhunter>
+      </value>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/PawnKindDef[defName = "Sparrow"][not(canArriveManhunter)] | /Defs/PawnKindDef[defName = "Crow"][not(canArriveManhunter)]</xpath>
+    <match Class="PatchOperationAdd">
+      <xpath>/Defs/PawnKindDef[defName = "Sparrow"][not(canArriveManhunter)] | /Defs/PawnKindDef[defName = "Crow"][not(canArriveManhunter)]</xpath>
+      <value>
+        <canArriveManhunter>true</canArriveManhunter>
+      </value>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/PawnKindDef[defName="Sparrow" or defName="Crow"]/wildGroupSize</xpath>
+    <value>
+      <wildGroupSize>3~8</wildGroupSize>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Bluebird"]/statBases</xpath>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Bluebird"]</xpath>
@@ -148,6 +172,12 @@
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/PawnKindDef[defName="Sparrow" or defName="Bluebird" or defName="Crow"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/PawnKindDef[defName="Sparrow" or defName="Bluebird" or defName="Crow"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Crow"]/statBases/*[self::MarketValue or self::MoveSpeed or self::FilthRate or self::ComfyTemperatureMin or self::ComfyTemperatureMax or self::ArmorRating_Blunt or self::ArmorRating_Sharp or self::ToxicEnvironmentResistance]</xpath>
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Crow"]/statBases/*[self::MarketValue or self::MoveSpeed or self::FilthRate or self::ComfyTemperatureMin or self::ComfyTemperatureMax or self::ArmorRating_Blunt or self::ArmorRating_Sharp or self::ToxicEnvironmentResistance]</xpath>
@@ -163,42 +193,6 @@
       <ComfyTemperatureMax>50</ComfyTemperatureMax>
       <ToxicEnvironmentResistance>0.8</ToxicEnvironmentResistance>
     </value>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/PawnKindDef[defName = "Crow"]/combatPower</xpath>
-    <value>
-      <combatPower>30</combatPower>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/PawnKindDef[defName="Sparrow" or defName="Crow"]/canArriveManhunter</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/PawnKindDef[defName="Sparrow" or defName="Crow"]/canArriveManhunter</xpath>
-      <value>
-        <canArriveManhunter>true</canArriveManhunter>
-      </value>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/PawnKindDef[defName = "Sparrow"][not(canArriveManhunter)] | /Defs/PawnKindDef[defName = "Crow"][not(canArriveManhunter)]</xpath>
-    <match Class="PatchOperationAdd">
-      <xpath>/Defs/PawnKindDef[defName = "Sparrow"][not(canArriveManhunter)] | /Defs/PawnKindDef[defName = "Crow"][not(canArriveManhunter)]</xpath>
-      <value>
-        <canArriveManhunter>true</canArriveManhunter>
-      </value>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/PawnKindDef[defName="Sparrow" or defName="Crow"]/wildGroupSize</xpath>
-    <value>
-      <wildGroupSize>3~8</wildGroupSize>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/PawnKindDef[defName="Sparrow" or defName="Bluebird" or defName="Crow"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/PawnKindDef[defName="Sparrow" or defName="Bluebird" or defName="Crow"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
-    </match>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Macaw"]/statBases/MarketValue</xpath>
@@ -256,7 +250,7 @@
           <capacities>
             <li>Scratch</li>
           </capacities>
-          <power>1.5</power>
+          <power>1</power>
           <cooldownTime>1.5</cooldownTime>
           <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
         </li>
@@ -266,7 +260,7 @@
           <capacities>
             <li>Scratch</li>
           </capacities>
-          <power>1.5</power>
+          <power>1</power>
           <cooldownTime>1.5</cooldownTime>
           <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
         </li>
@@ -400,7 +394,7 @@
           <capacities>
             <li>Scratch</li>
           </capacities>
-          <power>3</power>
+          <power>1</power>
           <cooldownTime>1.5</cooldownTime>
           <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
         </li>
@@ -410,7 +404,7 @@
           <capacities>
             <li>Scratch</li>
           </capacities>
-          <power>3</power>
+          <power>1</power>
           <cooldownTime>1.5</cooldownTime>
           <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
         </li>
@@ -419,7 +413,7 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>4</power>
+          <power>1.5</power>
           <cooldownTime>1.05</cooldownTime>
           <linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>
         </li>
@@ -457,7 +451,7 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>1.5</power>
+          <power>1</power>
           <cooldownTime>1</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
           <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
@@ -469,7 +463,7 @@
           <capacities>
             <li>Scratch</li>
           </capacities>
-          <power>3.5</power>
+          <power>1</power>
           <cooldownTime>1.5</cooldownTime>
           <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
         </li>
@@ -479,7 +473,7 @@
           <capacities>
             <li>Scratch</li>
           </capacities>
-          <power>3.5</power>
+          <power>1</power>
           <cooldownTime>1.5</cooldownTime>
           <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
         </li>
@@ -488,7 +482,7 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>6</power>
+          <power>2</power>
           <cooldownTime>1.15</cooldownTime>
           <linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>
         </li>
@@ -647,12 +641,6 @@
     </nomatch>
   </Operation>
   <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/PawnKindDef[defName = "Macaw"]/combatPower</xpath>
-    <value>
-      <combatPower>35</combatPower>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "Macaw"]/ecoSystemWeight</xpath>
     <value>
       <ecoSystemWeight>0.25</ecoSystemWeight>
@@ -713,7 +701,7 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>2</power>
+          <power>1.5</power>
           <cooldownTime>1</cooldownTime>
           <linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>
         </li>
@@ -1681,7 +1669,7 @@
                 <capacities>
                   <li>Bite</li>
                 </capacities>
-                <power>3.15</power>
+                <power>1.8</power>
                 <armorPenetrationBlunt>0.048</armorPenetrationBlunt>
                 <armorPenetrationSharp>0.02</armorPenetrationSharp>
                 <cooldownTime>1.14</cooldownTime>

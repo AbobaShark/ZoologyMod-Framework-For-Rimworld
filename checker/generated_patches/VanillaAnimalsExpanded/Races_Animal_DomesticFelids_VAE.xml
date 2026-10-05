@@ -1,7 +1,19 @@
 <?xml version='1.0' encoding='utf-8'?>
 <Patch>
   <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName="AEXP_CatAbyssinian" or defName="AEXP_CatBengal" or defName="AEXP_CatBritishShorthair" or defName="AEXP_CatMaineCoon" or defName="AEXP_CatMunchkin" or defName="AEXP_CatNorwegianForest" or defName="AEXP_CatPersian" or defName="AEXP_CatSiamese" or defName="AEXP_CatSomali" or defName="AEXP_CatSphynx"]/statBases/MarketValue</xpath>
+    <xpath>/Defs/ThingDef[defName="AEXP_CatAbyssinian" or defName="AEXP_CatMunchkin" or defName="AEXP_CatSomali"]/statBases/MarketValue</xpath>
+    <value>
+      <MarketValue>75</MarketValue>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/PawnKindDef[defName="AEXP_CatAbyssinian" or defName="AEXP_CatSomali"]/ecoSystemWeight</xpath>
+    <value>
+      <ecoSystemWeight>0.25</ecoSystemWeight>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName="AEXP_CatBengal" or defName="AEXP_CatBritishShorthair" or defName="AEXP_CatMaineCoon" or defName="AEXP_CatNorwegianForest" or defName="AEXP_CatPersian" or defName="AEXP_CatSiamese" or defName="AEXP_CatSphynx"]/statBases/MarketValue</xpath>
     <value>
       <MarketValue>100</MarketValue>
     </value>
@@ -13,21 +25,9 @@
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/PawnKindDef[defName="AEXP_CatAbyssinian" or defName="AEXP_CatSomali"]/combatPower</xpath>
+    <xpath>/Defs/PawnKindDef[defName="AEXP_CatBengal" or defName="AEXP_CatBritishShorthair" or defName="AEXP_CatMaineCoon" or defName="AEXP_CatNorwegianForest" or defName="AEXP_CatPersian" or defName="AEXP_CatSiamese" or defName="AEXP_CatSphynx"]/combatPower</xpath>
     <value>
-      <combatPower>45</combatPower>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/PawnKindDef[defName="AEXP_CatAbyssinian" or defName="AEXP_CatSomali"]/ecoSystemWeight</xpath>
-    <value>
-      <ecoSystemWeight>0.25</ecoSystemWeight>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/PawnKindDef[defName="AEXP_CatBengal" or defName="AEXP_CatBritishShorthair" or defName="AEXP_CatMaineCoon" or defName="AEXP_CatMunchkin" or defName="AEXP_CatNorwegianForest" or defName="AEXP_CatPersian" or defName="AEXP_CatSiamese" or defName="AEXP_CatSphynx"]/combatPower</xpath>
-    <value>
-      <combatPower>50</combatPower>
+      <combatPower>40</combatPower>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -98,7 +98,7 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/ThingDef[defName = "AEXP_CatAbyssinian"]</xpath>
+    <xpath>/Defs/ThingDef[defName="AEXP_CatAbyssinian" or defName="AEXP_CatSomali"]</xpath>
     <value>
       <tools Inherit="False">
         <li>
@@ -106,7 +106,7 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>2</power>
+          <power>1</power>
           <cooldownTime>1.15</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
           <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
@@ -118,7 +118,7 @@
           <capacities>
             <li>Scratch</li>
           </capacities>
-          <power>4.5</power>
+          <power>2</power>
           <cooldownTime>1</cooldownTime>
           <linkedBodyPartsGroup>FrontLeftPaw</linkedBodyPartsGroup>
           <surpriseAttack>
@@ -136,7 +136,7 @@
           <capacities>
             <li>Scratch</li>
           </capacities>
-          <power>4.5</power>
+          <power>2</power>
           <cooldownTime>1</cooldownTime>
           <linkedBodyPartsGroup>FrontRightPaw</linkedBodyPartsGroup>
           <surpriseAttack>
@@ -153,8 +153,8 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>7</power>
-          <cooldownTime>1.3</cooldownTime>
+          <power>3</power>
+          <cooldownTime>1.15</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
           <surpriseAttack>
             <extraMeleeDamages>
@@ -168,8 +168,26 @@
       </tools>
     </value>
   </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName="AEXP_CatAbyssinian" or defName="AEXP_CatSomali"]/race/baseBodySize</xpath>
+    <value>
+      <baseBodySize>0.25</baseBodySize>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName="AEXP_CatAbyssinian" or defName="AEXP_CatSomali"]/race/baseHealthScale</xpath>
+    <value>
+      <baseHealthScale>0.3</baseHealthScale>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName="AEXP_CatAbyssinian" or defName="AEXP_CatSomali"]/race/baseHungerRate</xpath>
+    <value>
+      <baseHungerRate>0.25</baseHungerRate>
+    </value>
+  </Operation>
   <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/ThingDef[defName = "AEXP_CatBengal"]</xpath>
+    <xpath>/Defs/ThingDef[defName="AEXP_CatBengal" or defName="AEXP_CatBritishShorthair" or defName="AEXP_CatNorwegianForest" or defName="AEXP_CatSiamese" or defName="AEXP_CatSphynx"]</xpath>
     <value>
       <tools Inherit="False">
         <li>
@@ -177,7 +195,7 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>2</power>
+          <power>1</power>
           <cooldownTime>1.2</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
           <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
@@ -189,8 +207,8 @@
           <capacities>
             <li>Scratch</li>
           </capacities>
-          <power>5</power>
-          <cooldownTime>1.05</cooldownTime>
+          <power>2.5</power>
+          <cooldownTime>1</cooldownTime>
           <linkedBodyPartsGroup>FrontLeftPaw</linkedBodyPartsGroup>
           <surpriseAttack>
             <extraMeleeDamages>
@@ -207,8 +225,8 @@
           <capacities>
             <li>Scratch</li>
           </capacities>
-          <power>5</power>
-          <cooldownTime>1.05</cooldownTime>
+          <power>2.5</power>
+          <cooldownTime>1</cooldownTime>
           <linkedBodyPartsGroup>FrontRightPaw</linkedBodyPartsGroup>
           <surpriseAttack>
             <extraMeleeDamages>
@@ -224,79 +242,8 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>8</power>
-          <cooldownTime>1.4</cooldownTime>
-          <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
-          <surpriseAttack>
-            <extraMeleeDamages>
-              <li>
-                <def>Stun</def>
-                <amount>15</amount>
-              </li>
-            </extraMeleeDamages>
-          </surpriseAttack>
-        </li>
-      </tools>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/ThingDef[defName="AEXP_CatBritishShorthair" or defName="AEXP_CatSphynx"]</xpath>
-    <value>
-      <tools Inherit="False">
-        <li>
-          <label>head</label>
-          <capacities>
-            <li>Blunt</li>
-          </capacities>
-          <power>2</power>
+          <power>3.5</power>
           <cooldownTime>1.2</cooldownTime>
-          <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
-          <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
-          <chanceFactor>0.2</chanceFactor>
-        </li>
-        <li>
-          <label>left claw</label>
-          <labelNoLocation>claw</labelNoLocation>
-          <capacities>
-            <li>Scratch</li>
-          </capacities>
-          <power>5</power>
-          <cooldownTime>1.05</cooldownTime>
-          <linkedBodyPartsGroup>FrontLeftPaw</linkedBodyPartsGroup>
-          <surpriseAttack>
-            <extraMeleeDamages>
-              <li>
-                <def>Stun</def>
-                <amount>15</amount>
-              </li>
-            </extraMeleeDamages>
-          </surpriseAttack>
-        </li>
-        <li>
-          <label>right claw</label>
-          <labelNoLocation>claw</labelNoLocation>
-          <capacities>
-            <li>Scratch</li>
-          </capacities>
-          <power>5</power>
-          <cooldownTime>1.05</cooldownTime>
-          <linkedBodyPartsGroup>FrontRightPaw</linkedBodyPartsGroup>
-          <surpriseAttack>
-            <extraMeleeDamages>
-              <li>
-                <def>Stun</def>
-                <amount>15</amount>
-              </li>
-            </extraMeleeDamages>
-          </surpriseAttack>
-        </li>
-        <li>
-          <label>canines</label>
-          <capacities>
-            <li>Bite</li>
-          </capacities>
-          <power>7.5</power>
-          <cooldownTime>1.4</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
           <surpriseAttack>
             <extraMeleeDamages>
@@ -319,7 +266,7 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>2.5</power>
+          <power>1</power>
           <cooldownTime>1.2</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
           <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
@@ -331,8 +278,8 @@
           <capacities>
             <li>Scratch</li>
           </capacities>
-          <power>5</power>
-          <cooldownTime>1.1</cooldownTime>
+          <power>2.5</power>
+          <cooldownTime>1</cooldownTime>
           <linkedBodyPartsGroup>FrontLeftPaw</linkedBodyPartsGroup>
           <surpriseAttack>
             <extraMeleeDamages>
@@ -349,8 +296,8 @@
           <capacities>
             <li>Scratch</li>
           </capacities>
-          <power>5</power>
-          <cooldownTime>1.1</cooldownTime>
+          <power>2.5</power>
+          <cooldownTime>1</cooldownTime>
           <linkedBodyPartsGroup>FrontRightPaw</linkedBodyPartsGroup>
           <surpriseAttack>
             <extraMeleeDamages>
@@ -366,8 +313,8 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>8</power>
-          <cooldownTime>1.4</cooldownTime>
+          <power>4</power>
+          <cooldownTime>1.25</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
           <surpriseAttack>
             <extraMeleeDamages>
@@ -402,7 +349,7 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>2</power>
+          <power>1</power>
           <cooldownTime>1.15</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
           <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
@@ -414,8 +361,8 @@
           <capacities>
             <li>Scratch</li>
           </capacities>
-          <power>4.5</power>
-          <cooldownTime>1.05</cooldownTime>
+          <power>2</power>
+          <cooldownTime>1</cooldownTime>
           <linkedBodyPartsGroup>FrontLeftPaw</linkedBodyPartsGroup>
           <surpriseAttack>
             <extraMeleeDamages>
@@ -432,8 +379,8 @@
           <capacities>
             <li>Scratch</li>
           </capacities>
-          <power>4.5</power>
-          <cooldownTime>1.05</cooldownTime>
+          <power>2</power>
+          <cooldownTime>1</cooldownTime>
           <linkedBodyPartsGroup>FrontRightPaw</linkedBodyPartsGroup>
           <surpriseAttack>
             <extraMeleeDamages>
@@ -449,79 +396,8 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>7.5</power>
-          <cooldownTime>1.35</cooldownTime>
-          <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
-          <surpriseAttack>
-            <extraMeleeDamages>
-              <li>
-                <def>Stun</def>
-                <amount>15</amount>
-              </li>
-            </extraMeleeDamages>
-          </surpriseAttack>
-        </li>
-      </tools>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/ThingDef[defName = "AEXP_CatNorwegianForest"]</xpath>
-    <value>
-      <tools Inherit="False">
-        <li>
-          <label>head</label>
-          <capacities>
-            <li>Blunt</li>
-          </capacities>
-          <power>2.5</power>
+          <power>3</power>
           <cooldownTime>1.2</cooldownTime>
-          <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
-          <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
-          <chanceFactor>0.2</chanceFactor>
-        </li>
-        <li>
-          <label>left claw</label>
-          <labelNoLocation>claw</labelNoLocation>
-          <capacities>
-            <li>Scratch</li>
-          </capacities>
-          <power>5</power>
-          <cooldownTime>1.05</cooldownTime>
-          <linkedBodyPartsGroup>FrontLeftPaw</linkedBodyPartsGroup>
-          <surpriseAttack>
-            <extraMeleeDamages>
-              <li>
-                <def>Stun</def>
-                <amount>15</amount>
-              </li>
-            </extraMeleeDamages>
-          </surpriseAttack>
-        </li>
-        <li>
-          <label>right claw</label>
-          <labelNoLocation>claw</labelNoLocation>
-          <capacities>
-            <li>Scratch</li>
-          </capacities>
-          <power>5</power>
-          <cooldownTime>1.05</cooldownTime>
-          <linkedBodyPartsGroup>FrontRightPaw</linkedBodyPartsGroup>
-          <surpriseAttack>
-            <extraMeleeDamages>
-              <li>
-                <def>Stun</def>
-                <amount>15</amount>
-              </li>
-            </extraMeleeDamages>
-          </surpriseAttack>
-        </li>
-        <li>
-          <label>canines</label>
-          <capacities>
-            <li>Bite</li>
-          </capacities>
-          <power>8</power>
-          <cooldownTime>1.4</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
           <surpriseAttack>
             <extraMeleeDamages>
@@ -544,7 +420,7 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>2</power>
+          <power>1</power>
           <cooldownTime>1.2</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
           <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
@@ -556,8 +432,8 @@
           <capacities>
             <li>Scratch</li>
           </capacities>
-          <power>4.5</power>
-          <cooldownTime>1.05</cooldownTime>
+          <power>2</power>
+          <cooldownTime>1</cooldownTime>
           <linkedBodyPartsGroup>FrontLeftPaw</linkedBodyPartsGroup>
           <surpriseAttack>
             <extraMeleeDamages>
@@ -574,79 +450,8 @@
           <capacities>
             <li>Scratch</li>
           </capacities>
-          <power>4.5</power>
-          <cooldownTime>1.05</cooldownTime>
-          <linkedBodyPartsGroup>FrontRightPaw</linkedBodyPartsGroup>
-          <surpriseAttack>
-            <extraMeleeDamages>
-              <li>
-                <def>Stun</def>
-                <amount>15</amount>
-              </li>
-            </extraMeleeDamages>
-          </surpriseAttack>
-        </li>
-        <li>
-          <label>canines</label>
-          <capacities>
-            <li>Bite</li>
-          </capacities>
-          <power>7.5</power>
-          <cooldownTime>1.35</cooldownTime>
-          <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
-          <surpriseAttack>
-            <extraMeleeDamages>
-              <li>
-                <def>Stun</def>
-                <amount>15</amount>
-              </li>
-            </extraMeleeDamages>
-          </surpriseAttack>
-        </li>
-      </tools>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/ThingDef[defName = "AEXP_CatSiamese"]</xpath>
-    <value>
-      <tools Inherit="False">
-        <li>
-          <label>head</label>
-          <capacities>
-            <li>Blunt</li>
-          </capacities>
           <power>2</power>
-          <cooldownTime>1.2</cooldownTime>
-          <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
-          <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
-          <chanceFactor>0.2</chanceFactor>
-        </li>
-        <li>
-          <label>left claw</label>
-          <labelNoLocation>claw</labelNoLocation>
-          <capacities>
-            <li>Scratch</li>
-          </capacities>
-          <power>5</power>
-          <cooldownTime>1.05</cooldownTime>
-          <linkedBodyPartsGroup>FrontLeftPaw</linkedBodyPartsGroup>
-          <surpriseAttack>
-            <extraMeleeDamages>
-              <li>
-                <def>Stun</def>
-                <amount>15</amount>
-              </li>
-            </extraMeleeDamages>
-          </surpriseAttack>
-        </li>
-        <li>
-          <label>right claw</label>
-          <labelNoLocation>claw</labelNoLocation>
-          <capacities>
-            <li>Scratch</li>
-          </capacities>
-          <power>5</power>
-          <cooldownTime>1.05</cooldownTime>
+          <cooldownTime>1</cooldownTime>
           <linkedBodyPartsGroup>FrontRightPaw</linkedBodyPartsGroup>
           <surpriseAttack>
             <extraMeleeDamages>
@@ -662,8 +467,8 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>7.5</power>
-          <cooldownTime>1.35</cooldownTime>
+          <power>3.5</power>
+          <cooldownTime>1.2</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
           <surpriseAttack>
             <extraMeleeDamages>
@@ -696,6 +501,12 @@
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName="AEXP_CatAbyssinian" or defName="AEXP_CatNorwegianForest" or defName="AEXP_CatSomali"]/race/lifeExpectancy</xpath>
+    <value>
+      <lifeExpectancy>8</lifeExpectancy>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName="AEXP_CatBengal" or defName="AEXP_CatSphynx"]/race/lifeExpectancy</xpath>
     <value>
       <lifeExpectancy>6</lifeExpectancy>
@@ -705,101 +516,6 @@
     <xpath>/Defs/ThingDef[defName="AEXP_CatPersian" or defName="AEXP_CatSiamese"]/race/lifeExpectancy</xpath>
     <value>
       <lifeExpectancy>12</lifeExpectancy>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/ThingDef[defName = "AEXP_CatSomali"]</xpath>
-    <value>
-      <tools Inherit="False">
-        <li>
-          <label>head</label>
-          <capacities>
-            <li>Blunt</li>
-          </capacities>
-          <power>2</power>
-          <cooldownTime>1.15</cooldownTime>
-          <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
-          <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
-          <chanceFactor>0.2</chanceFactor>
-        </li>
-        <li>
-          <label>left claw</label>
-          <labelNoLocation>claw</labelNoLocation>
-          <capacities>
-            <li>Scratch</li>
-          </capacities>
-          <power>4.5</power>
-          <cooldownTime>1</cooldownTime>
-          <linkedBodyPartsGroup>FrontLeftPaw</linkedBodyPartsGroup>
-          <surpriseAttack>
-            <extraMeleeDamages>
-              <li>
-                <def>Stun</def>
-                <amount>15</amount>
-              </li>
-            </extraMeleeDamages>
-          </surpriseAttack>
-        </li>
-        <li>
-          <label>right claw</label>
-          <labelNoLocation>claw</labelNoLocation>
-          <capacities>
-            <li>Scratch</li>
-          </capacities>
-          <power>4.5</power>
-          <cooldownTime>1</cooldownTime>
-          <linkedBodyPartsGroup>FrontRightPaw</linkedBodyPartsGroup>
-          <surpriseAttack>
-            <extraMeleeDamages>
-              <li>
-                <def>Stun</def>
-                <amount>15</amount>
-              </li>
-            </extraMeleeDamages>
-          </surpriseAttack>
-        </li>
-        <li>
-          <label>canines</label>
-          <capacities>
-            <li>Bite</li>
-          </capacities>
-          <power>7</power>
-          <cooldownTime>1.35</cooldownTime>
-          <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
-          <surpriseAttack>
-            <extraMeleeDamages>
-              <li>
-                <def>Stun</def>
-                <amount>15</amount>
-              </li>
-            </extraMeleeDamages>
-          </surpriseAttack>
-        </li>
-      </tools>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName="AEXP_CatAbyssinian" or defName="AEXP_CatSomali"]/race/baseBodySize</xpath>
-    <value>
-      <baseBodySize>0.25</baseBodySize>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName="AEXP_CatAbyssinian" or defName="AEXP_CatSomali"]/race/baseHealthScale</xpath>
-    <value>
-      <baseHealthScale>0.3</baseHealthScale>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName="AEXP_CatAbyssinian" or defName="AEXP_CatSomali"]/race/baseHungerRate</xpath>
-    <value>
-      <baseHungerRate>0.25</baseHungerRate>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName="AEXP_CatAbyssinian" or defName="AEXP_CatNorwegianForest" or defName="AEXP_CatSomali"]/race/lifeExpectancy</xpath>
-    <value>
-      <lifeExpectancy>8</lifeExpectancy>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
