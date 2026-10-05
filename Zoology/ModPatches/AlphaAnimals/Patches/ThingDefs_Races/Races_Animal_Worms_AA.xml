@@ -1,9 +1,48 @@
 <?xml version='1.0' encoding='utf-8'?>
 <Patch>
   <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName="AA_FrostboundBehemoth" or defName="AA_GreatDevourer"]/statBases/MarketValue</xpath>
+    <xpath>/Defs/ThingDef[defName = "AA_FrostboundBehemoth"]/statBases/MarketValue</xpath>
     <value>
-      <MarketValue>850</MarketValue>
+      <MarketValue>975</MarketValue>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/PawnKindDef[defName="AA_FrostboundBehemoth" or defName="AA_GreatDevourer"]/combatPower</xpath>
+    <value>
+      <combatPower>315</combatPower>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/PawnKindDef[defName="AA_FrostboundBehemoth" or defName="AA_GreatDevourer"]/ecoSystemWeight</xpath>
+    <value>
+      <ecoSystemWeight>1.1</ecoSystemWeight>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/PawnKindDef[defName = "AA_FrostboundBehemoth"]/canArriveManhunter</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/PawnKindDef[defName = "AA_FrostboundBehemoth"]/canArriveManhunter</xpath>
+      <value>
+        <canArriveManhunter>true</canArriveManhunter>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/PawnKindDef[defName = "AA_FrostboundBehemoth"]</xpath>
+      <value>
+        <canArriveManhunter>true</canArriveManhunter>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/PawnKindDef[defName = "AA_FrostboundBehemoth"]/wildGroupSize</xpath>
+    <value>
+      <wildGroupSize>2~6</wildGroupSize>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "AA_GreatDevourer"]/statBases/MarketValue</xpath>
+    <value>
+      <MarketValue>1050</MarketValue>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -49,12 +88,6 @@
       <ArmorRating_Sharp>0.8</ArmorRating_Sharp>
     </value>
   </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/PawnKindDef[defName = "AA_FrostboundBehemoth"]/combatPower</xpath>
-    <value>
-      <combatPower>260</combatPower>
-    </value>
-  </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_GreatDevourer"]/statBases/*[self::ComfyTemperatureMax or self::ArmorRating_Blunt or self::ArmorRating_Sharp or self::ToxicEnvironmentResistance]</xpath>
     <match Class="PatchOperationRemove">
@@ -84,7 +117,7 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>10</power>
+          <power>18.5</power>
           <cooldownTime>2.2</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
           <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
@@ -95,7 +128,7 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>22</power>
+          <power>25.5</power>
           <cooldownTime>2.8</cooldownTime>
           <linkedBodyPartsGroup>Mouth</linkedBodyPartsGroup>
         </li>
@@ -111,7 +144,7 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>9.5</power>
+          <power>17</power>
           <cooldownTime>2.15</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
           <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
@@ -122,7 +155,7 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>21</power>
+          <power>25</power>
           <cooldownTime>2.75</cooldownTime>
           <linkedBodyPartsGroup>Mouth</linkedBodyPartsGroup>
           <surpriseAttack>
@@ -292,39 +325,6 @@
     <xpath>/Defs/ThingDef[defName="AA_FrostboundBehemoth" or defName="AA_GreatDevourer"]</xpath>
     <value>
       <li Class="ZoologyMod.ModExtension_Ectothermic, ZoologyMod"/>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/PawnKindDef[defName = "AA_GreatDevourer"]/combatPower</xpath>
-    <value>
-      <combatPower>255</combatPower>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/PawnKindDef[defName="AA_FrostboundBehemoth" or defName="AA_GreatDevourer"]/ecoSystemWeight</xpath>
-    <value>
-      <ecoSystemWeight>1.1</ecoSystemWeight>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/PawnKindDef[defName = "AA_FrostboundBehemoth"]/canArriveManhunter</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/PawnKindDef[defName = "AA_FrostboundBehemoth"]/canArriveManhunter</xpath>
-      <value>
-        <canArriveManhunter>true</canArriveManhunter>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/PawnKindDef[defName = "AA_FrostboundBehemoth"]</xpath>
-      <value>
-        <canArriveManhunter>true</canArriveManhunter>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/PawnKindDef[defName = "AA_FrostboundBehemoth"]/wildGroupSize</xpath>
-    <value>
-      <wildGroupSize>2~6</wildGroupSize>
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">

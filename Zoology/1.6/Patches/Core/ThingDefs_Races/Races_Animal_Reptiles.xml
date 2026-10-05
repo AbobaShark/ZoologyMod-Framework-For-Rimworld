@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='utf-8'?>
 <Patch>
   <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName="Iguana" or defName="Cobra"]/statBases/MarketValue</xpath>
+    <xpath>/Defs/ThingDef[defName = "Iguana"]/statBases/MarketValue</xpath>
     <value>
-      <MarketValue>175</MarketValue>
+      <MarketValue>150</MarketValue>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -30,6 +30,12 @@
       <FilthRate>1</FilthRate>
     </value>
   </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/PawnKindDef[defName = "Iguana"]/combatPower</xpath>
+    <value>
+      <combatPower>30</combatPower>
+    </value>
+  </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Cobra"]/statBases/*[self::MoveSpeed or self::FilthRate or self::ArmorRating_Blunt or self::ArmorRating_Sharp or self::ToxicEnvironmentResistance]</xpath>
     <match Class="PatchOperationRemove">
@@ -52,7 +58,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "Cobra"]/combatPower</xpath>
     <value>
-      <combatPower>35</combatPower>
+      <combatPower>25</combatPower>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -64,7 +70,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Tortoise"]/statBases/MarketValue</xpath>
     <value>
-      <MarketValue>300</MarketValue>
+      <MarketValue>250</MarketValue>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -126,7 +132,7 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>2</power>
+          <power>1</power>
           <cooldownTime>1.1</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
           <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
@@ -138,7 +144,7 @@
           <capacities>
             <li>Scratch</li>
           </capacities>
-          <power>3</power>
+          <power>1</power>
           <cooldownTime>1</cooldownTime>
           <linkedBodyPartsGroup>FrontLeftClaws</linkedBodyPartsGroup>
         </li>
@@ -148,7 +154,7 @@
           <capacities>
             <li>Scratch</li>
           </capacities>
-          <power>3</power>
+          <power>1</power>
           <cooldownTime>1</cooldownTime>
           <linkedBodyPartsGroup>FrontRightClaws</linkedBodyPartsGroup>
         </li>
@@ -157,7 +163,7 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>3.5</power>
+          <power>1.5</power>
           <cooldownTime>1</cooldownTime>
           <linkedBodyPartsGroup>TailAttackTool</linkedBodyPartsGroup>
         </li>
@@ -166,7 +172,7 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>7</power>
+          <power>2.5</power>
           <cooldownTime>1.25</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
         </li>
@@ -188,7 +194,7 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>2</power>
+          <power>1</power>
           <cooldownTime>1.15</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
           <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
@@ -199,7 +205,7 @@
           <capacities>
             <li>ToxicBite</li>
           </capacities>
-          <power>4</power>
+          <power>1.5</power>
           <cooldownTime>1.3</cooldownTime>
           <linkedBodyPartsGroup>Mouth</linkedBodyPartsGroup>
           <surpriseAttack>
@@ -292,7 +298,7 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>3.5</power>
+          <power>1</power>
           <cooldownTime>1.4</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
           <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
@@ -303,7 +309,7 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>9</power>
+          <power>6</power>
           <cooldownTime>1.65</cooldownTime>
           <linkedBodyPartsGroup>TurtleBeakAttackTool</linkedBodyPartsGroup>
         </li>
@@ -460,7 +466,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "Tortoise"]/combatPower</xpath>
     <value>
-      <combatPower>75</combatPower>
+      <combatPower>60</combatPower>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">

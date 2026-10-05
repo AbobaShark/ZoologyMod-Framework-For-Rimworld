@@ -9,13 +9,13 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "YorkshireTerrier"]/combatPower</xpath>
     <value>
-      <combatPower>50</combatPower>
+      <combatPower>40</combatPower>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName="LabradorRetriever" or defName="Husky"]/statBases/MarketValue</xpath>
+    <xpath>/Defs/ThingDef[defName = "LabradorRetriever"]/statBases/MarketValue</xpath>
     <value>
-      <MarketValue>325</MarketValue>
+      <MarketValue>350</MarketValue>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -25,35 +25,16 @@
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/PawnKindDef[defName="LabradorRetriever" or defName="Husky"]/combatPower</xpath>
+    <xpath>/Defs/PawnKindDef[defName = "LabradorRetriever"]/combatPower</xpath>
     <value>
-      <combatPower>85</combatPower>
+      <combatPower>90</combatPower>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/PawnKindDef[defName="LabradorRetriever" or defName="Husky"]/ecoSystemWeight</xpath>
+    <xpath>/Defs/ThingDef[defName = "Husky"]/statBases/MarketValue</xpath>
     <value>
-      <ecoSystemWeight>0.5</ecoSystemWeight>
+      <MarketValue>325</MarketValue>
     </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/PawnKindDef[defName="YorkshireTerrier" or defName="LabradorRetriever" or defName="Husky"]/*[self::canArriveManhunter or self::wildGroupSize]</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/PawnKindDef[defName="YorkshireTerrier" or defName="LabradorRetriever" or defName="Husky"]/*[self::canArriveManhunter or self::wildGroupSize]</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/PawnKindDef[defName="YorkshireTerrier" or defName="LabradorRetriever" or defName="Husky"]</xpath>
-    <value>
-      <canArriveManhunter>true</canArriveManhunter>
-      <wildGroupSize>2~6</wildGroupSize>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/PawnKindDef[defName="YorkshireTerrier" or defName="LabradorRetriever" or defName="Husky"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/PawnKindDef[defName="YorkshireTerrier" or defName="LabradorRetriever" or defName="Husky"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
-    </match>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Husky"]/statBases/MoveSpeed</xpath>
@@ -107,7 +88,7 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>2</power>
+          <power>1</power>
           <cooldownTime>1.2</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
           <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
@@ -118,8 +99,8 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>7.5</power>
-          <cooldownTime>1.4</cooldownTime>
+          <power>3.5</power>
+          <cooldownTime>1.2</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
           <surpriseAttack>
             <extraMeleeDamages>
@@ -166,7 +147,7 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>3.5</power>
+          <power>1.5</power>
           <cooldownTime>1.45</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
           <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
@@ -177,8 +158,8 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>14</power>
-          <cooldownTime>1.75</cooldownTime>
+          <power>11.5</power>
+          <cooldownTime>1.55</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
           <surpriseAttack>
             <extraMeleeDamages>
@@ -213,7 +194,7 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>3.5</power>
+          <power>1</power>
           <cooldownTime>1.45</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
           <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
@@ -224,8 +205,8 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>13.5</power>
-          <cooldownTime>1.7</cooldownTime>
+          <power>10.5</power>
+          <cooldownTime>1.5</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
           <surpriseAttack>
             <extraMeleeDamages>
@@ -398,6 +379,37 @@
       <li Class="ZoologyMod.ModExtension_IsMammal, ZoologyMod"/>
       <li Class="ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod"/>
     </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/PawnKindDef[defName = "Husky"]/combatPower</xpath>
+    <value>
+      <combatPower>85</combatPower>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/PawnKindDef[defName="LabradorRetriever" or defName="Husky"]/ecoSystemWeight</xpath>
+    <value>
+      <ecoSystemWeight>0.5</ecoSystemWeight>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/PawnKindDef[defName="YorkshireTerrier" or defName="LabradorRetriever" or defName="Husky"]/*[self::canArriveManhunter or self::wildGroupSize]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/PawnKindDef[defName="YorkshireTerrier" or defName="LabradorRetriever" or defName="Husky"]/*[self::canArriveManhunter or self::wildGroupSize]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/PawnKindDef[defName="YorkshireTerrier" or defName="LabradorRetriever" or defName="Husky"]</xpath>
+    <value>
+      <canArriveManhunter>true</canArriveManhunter>
+      <wildGroupSize>2~6</wildGroupSize>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/PawnKindDef[defName="YorkshireTerrier" or defName="LabradorRetriever" or defName="Husky"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/PawnKindDef[defName="YorkshireTerrier" or defName="LabradorRetriever" or defName="Husky"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
+    </match>
   </Operation>
   <Operation Class="PatchOperationFindMod">
     <mods>

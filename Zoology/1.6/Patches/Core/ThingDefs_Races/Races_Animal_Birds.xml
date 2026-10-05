@@ -52,9 +52,9 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName="Ostrich" or defName="Cassowary"]/statBases/MarketValue</xpath>
+    <xpath>/Defs/ThingDef[defName = "Ostrich"]/statBases/MarketValue</xpath>
     <value>
-      <MarketValue>275</MarketValue>
+      <MarketValue>325</MarketValue>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -66,7 +66,13 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "Ostrich"]/combatPower</xpath>
     <value>
-      <combatPower>90</combatPower>
+      <combatPower>125</combatPower>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Cassowary"]/statBases/MarketValue</xpath>
+    <value>
+      <MarketValue>300</MarketValue>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -85,6 +91,12 @@
     <xpath>/Defs/ThingDef[defName = "Ostrich"]/statBases/FilthRate</xpath>
     <value>
       <FilthRate>16</FilthRate>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/PawnKindDef[defName = "Cassowary"]/combatPower</xpath>
+    <value>
+      <combatPower>65</combatPower>
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
@@ -147,7 +159,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Turkey"]/statBases/MarketValue</xpath>
     <value>
-      <MarketValue>150</MarketValue>
+      <MarketValue>125</MarketValue>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -163,9 +175,9 @@
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/PawnKindDef[defName="Turkey" or defName="Goose"]/combatPower</xpath>
+    <xpath>/Defs/PawnKindDef[defName = "Turkey"]/combatPower</xpath>
     <value>
-      <combatPower>40</combatPower>
+      <combatPower>30</combatPower>
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
@@ -198,7 +210,7 @@
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName="Goose" or defName="Chicken"]/statBases/MarketValue</xpath>
+    <xpath>/Defs/ThingDef[defName="Goose" or defName="Duck" or defName="Chicken"]/statBases/MarketValue</xpath>
     <value>
       <MarketValue>100</MarketValue>
     </value>
@@ -247,15 +259,15 @@
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/PawnKindDef[defName = "Goose"]/ecoSystemWeight</xpath>
+    <xpath>/Defs/PawnKindDef[defName="Goose" or defName="Duck" or defName="Chicken"]/combatPower</xpath>
     <value>
-      <ecoSystemWeight>0.4</ecoSystemWeight>
+      <combatPower>25</combatPower>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "Duck"]/statBases/MarketValue</xpath>
+    <xpath>/Defs/PawnKindDef[defName = "Goose"]/ecoSystemWeight</xpath>
     <value>
-      <MarketValue>125</MarketValue>
+      <ecoSystemWeight>0.4</ecoSystemWeight>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -358,7 +370,7 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>5.5</power>
+          <power>5</power>
           <cooldownTime>1.7</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
           <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
@@ -370,7 +382,7 @@
           <capacities>
             <li>Scratch</li>
           </capacities>
-          <power>10.5</power>
+          <power>12.5</power>
           <cooldownTime>1.6</cooldownTime>
           <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
         </li>
@@ -380,7 +392,7 @@
           <capacities>
             <li>Scratch</li>
           </capacities>
-          <power>10.5</power>
+          <power>12.5</power>
           <cooldownTime>1.6</cooldownTime>
           <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
         </li>
@@ -389,7 +401,7 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>5.5</power>
+          <power>4</power>
           <cooldownTime>2.1</cooldownTime>
           <linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>
         </li>
@@ -429,7 +441,7 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>4</power>
+          <power>1.5</power>
           <cooldownTime>1.5</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
           <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
@@ -441,7 +453,7 @@
           <capacities>
             <li>Scratch</li>
           </capacities>
-          <power>8</power>
+          <power>7.5</power>
           <cooldownTime>1.5</cooldownTime>
           <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
         </li>
@@ -451,7 +463,7 @@
           <capacities>
             <li>Scratch</li>
           </capacities>
-          <power>8</power>
+          <power>7.5</power>
           <cooldownTime>1.5</cooldownTime>
           <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
         </li>
@@ -460,7 +472,7 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>6.5</power>
+          <power>1.5</power>
           <cooldownTime>1.8</cooldownTime>
           <linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>
         </li>
@@ -476,7 +488,7 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>4</power>
+          <power>1.5</power>
           <cooldownTime>1.45</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
           <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
@@ -488,7 +500,7 @@
           <capacities>
             <li>Scratch</li>
           </capacities>
-          <power>8</power>
+          <power>6.5</power>
           <cooldownTime>1.5</cooldownTime>
           <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
         </li>
@@ -498,7 +510,7 @@
           <capacities>
             <li>Scratch</li>
           </capacities>
-          <power>8</power>
+          <power>6.5</power>
           <cooldownTime>1.5</cooldownTime>
           <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
         </li>
@@ -507,7 +519,7 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>3</power>
+          <power>1</power>
           <cooldownTime>1.75</cooldownTime>
           <linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>
         </li>
@@ -541,7 +553,7 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>2.5</power>
+          <power>1</power>
           <cooldownTime>1.2</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
           <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
@@ -553,7 +565,7 @@
           <capacities>
             <li>Scratch</li>
           </capacities>
-          <power>5</power>
+          <power>2.5</power>
           <cooldownTime>1.5</cooldownTime>
           <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
         </li>
@@ -563,7 +575,7 @@
           <capacities>
             <li>Scratch</li>
           </capacities>
-          <power>5</power>
+          <power>2.5</power>
           <cooldownTime>1.5</cooldownTime>
           <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
         </li>
@@ -572,7 +584,7 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>4.5</power>
+          <power>1.5</power>
           <cooldownTime>1.4</cooldownTime>
           <linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>
         </li>
@@ -588,7 +600,7 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>2.5</power>
+          <power>1</power>
           <cooldownTime>1.25</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
           <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
@@ -600,7 +612,7 @@
           <capacities>
             <li>Scratch</li>
           </capacities>
-          <power>5.5</power>
+          <power>2</power>
           <cooldownTime>1.5</cooldownTime>
           <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
         </li>
@@ -610,7 +622,7 @@
           <capacities>
             <li>Scratch</li>
           </capacities>
-          <power>5.5</power>
+          <power>2</power>
           <cooldownTime>1.5</cooldownTime>
           <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
         </li>
@@ -619,7 +631,7 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>4.5</power>
+          <power>1.5</power>
           <cooldownTime>1.45</cooldownTime>
           <linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>
         </li>
@@ -709,7 +721,7 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>1.5</power>
+          <power>1</power>
           <cooldownTime>1</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
           <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
@@ -721,7 +733,7 @@
           <capacities>
             <li>Scratch</li>
           </capacities>
-          <power>3.5</power>
+          <power>1</power>
           <cooldownTime>1.5</cooldownTime>
           <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
         </li>
@@ -731,7 +743,7 @@
           <capacities>
             <li>Scratch</li>
           </capacities>
-          <power>3.5</power>
+          <power>1</power>
           <cooldownTime>1.5</cooldownTime>
           <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
         </li>
@@ -740,7 +752,7 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>3.5</power>
+          <power>1.5</power>
           <cooldownTime>1.15</cooldownTime>
           <linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>
         </li>
@@ -768,7 +780,7 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>1.5</power>
+          <power>1</power>
           <cooldownTime>1.05</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
           <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
@@ -780,7 +792,7 @@
           <capacities>
             <li>Scratch</li>
           </capacities>
-          <power>4</power>
+          <power>1</power>
           <cooldownTime>1.5</cooldownTime>
           <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
         </li>
@@ -790,7 +802,7 @@
           <capacities>
             <li>Scratch</li>
           </capacities>
-          <power>4</power>
+          <power>1</power>
           <cooldownTime>1.5</cooldownTime>
           <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
         </li>
@@ -799,7 +811,7 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>3</power>
+          <power>1.5</power>
           <cooldownTime>1.2</cooldownTime>
           <linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>
         </li>
@@ -2166,7 +2178,7 @@
                 <capacities>
                   <li>Bite</li>
                 </capacities>
-                <power>1.9</power>
+                <power>1.35</power>
                 <armorPenetrationBlunt>0.016</armorPenetrationBlunt>
                 <armorPenetrationSharp>0.01</armorPenetrationSharp>
                 <cooldownTime>1.43</cooldownTime>
@@ -2385,7 +2397,7 @@
                 <capacities>
                   <li>Bite</li>
                 </capacities>
-                <power>1.15</power>
+                <power>0.7</power>
                 <armorPenetrationBlunt>0.005</armorPenetrationBlunt>
                 <armorPenetrationSharp>0.01</armorPenetrationSharp>
                 <cooldownTime>1.15</cooldownTime>

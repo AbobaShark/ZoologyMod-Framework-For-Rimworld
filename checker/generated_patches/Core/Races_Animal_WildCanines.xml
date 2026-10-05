@@ -299,7 +299,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Warg"]/statBases/MarketValue</xpath>
     <value>
-      <MarketValue>650</MarketValue>
+      <MarketValue>775</MarketValue>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -335,7 +335,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "Warg"]/combatPower</xpath>
     <value>
-      <combatPower>180</combatPower>
+      <combatPower>245</combatPower>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -374,7 +374,7 @@
   <Operation Class="PatchOperationAdd">
     <xpath>/Defs/ThingDef[defName = "Wolf_Timber"]/statBases</xpath>
     <value>
-      <MarketValue>475</MarketValue>
+      <MarketValue>500</MarketValue>
       <Wildness>0.7</Wildness>
       <ComfyTemperatureMin>-50</ComfyTemperatureMin>
       <ComfyTemperatureMax>35</ComfyTemperatureMax>
@@ -389,7 +389,7 @@
   <Operation Class="PatchOperationAdd">
     <xpath>/Defs/PawnKindDef[defName="Wolf_Timber" or defName="Wolf_Arctic"]</xpath>
     <value>
-      <combatPower>95</combatPower>
+      <combatPower>105</combatPower>
       <ecoSystemWeight>0.55</ecoSystemWeight>
     </value>
   </Operation>
@@ -402,7 +402,7 @@
   <Operation Class="PatchOperationAdd">
     <xpath>/Defs/ThingDef[defName = "Wolf_Arctic"]/statBases</xpath>
     <value>
-      <MarketValue>475</MarketValue>
+      <MarketValue>500</MarketValue>
       <Wildness>0.7</Wildness>
       <ComfyTemperatureMax>30</ComfyTemperatureMax>
     </value>
@@ -416,7 +416,7 @@
   <Operation Class="PatchOperationAdd">
     <xpath>/Defs/ThingDef[defName = "Fox_Red"]/statBases</xpath>
     <value>
-      <MarketValue>150</MarketValue>
+      <MarketValue>125</MarketValue>
       <MoveSpeed>5.5</MoveSpeed>
       <Wildness>0.6</Wildness>
       <ComfyTemperatureMin>-45</ComfyTemperatureMin>
@@ -426,14 +426,14 @@
   <Operation Class="PatchOperationAdd">
     <xpath>/Defs/PawnKindDef[defName = "Fox_Red"]</xpath>
     <value>
-      <combatPower>55</combatPower>
+      <combatPower>45</combatPower>
       <ecoSystemWeight>0.35</ecoSystemWeight>
     </value>
   </Operation>
   <Operation Class="PatchOperationAdd">
     <xpath>/Defs/ThingDef[defName = "Fox_Arctic"]/statBases</xpath>
     <value>
-      <MarketValue>125</MarketValue>
+      <MarketValue>100</MarketValue>
       <MoveSpeed>5</MoveSpeed>
       <Wildness>0.55</Wildness>
       <ComfyTemperatureMax>10</ComfyTemperatureMax>
@@ -448,14 +448,14 @@
   <Operation Class="PatchOperationAdd">
     <xpath>/Defs/PawnKindDef[defName = "Fox_Arctic"]</xpath>
     <value>
-      <combatPower>50</combatPower>
+      <combatPower>35</combatPower>
       <ecoSystemWeight>0.25</ecoSystemWeight>
     </value>
   </Operation>
   <Operation Class="PatchOperationAdd">
     <xpath>/Defs/ThingDef[defName = "Fox_Fennec"]/statBases</xpath>
     <value>
-      <MarketValue>100</MarketValue>
+      <MarketValue>75</MarketValue>
       <MoveSpeed>4.4</MoveSpeed>
       <Wildness>0.5</Wildness>
       <ComfyTemperatureMax>50</ComfyTemperatureMax>
@@ -493,8 +493,8 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>22</power>
-          <cooldownTime>2.15</cooldownTime>
+          <power>25.5</power>
+          <cooldownTime>1.9</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
           <surpriseAttack>
             <extraMeleeDamages>
@@ -644,7 +644,7 @@
     </value>
   </Operation>
   <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/ThingDef[defName="Wolf_Timber" or defName="Wolf_Arctic"]</xpath>
+    <xpath>/Defs/ThingDef[defName = "Wolf_Timber"]</xpath>
     <value>
       <tools Inherit="False">
         <li>
@@ -652,7 +652,7 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>4</power>
+          <power>1.5</power>
           <cooldownTime>1.5</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
           <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
@@ -663,8 +663,8 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>14.5</power>
-          <cooldownTime>1.8</cooldownTime>
+          <power>13.5</power>
+          <cooldownTime>1.6</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
           <surpriseAttack>
             <extraMeleeDamages>
@@ -683,6 +683,41 @@
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Wolf_Timber"]/race/*[self::baseBodySize or self::baseHealthScale or self::baseHungerRate or self::lifeExpectancy or self::gestationPeriodDays or self::herdAnimal or self::herdMigrationAllowed or self::foodType or self::roamMtbDays or self::leatherDef or self::useLeatherFrom or self::manhunterOnTameFailChance or self::manhunterOnDamageChance or self::petness or self::nuzzleMtbHours or self::mateMtbHours or self::trainability or self::packAnimal or self::predator or self::maxPreyBodySize or self::nameOnTameChance or self::body or self::waterCellCost or self::waterSeeker or self::canFishForFood or self::useMeatFrom or self::wildBiomes or self::lifeStageAges or self::specialTrainables]</xpath>
     </match>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName = "Wolf_Arctic"]</xpath>
+    <value>
+      <tools Inherit="False">
+        <li>
+          <label>head</label>
+          <capacities>
+            <li>Blunt</li>
+          </capacities>
+          <power>1.5</power>
+          <cooldownTime>1.5</cooldownTime>
+          <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
+          <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
+          <chanceFactor>0.2</chanceFactor>
+        </li>
+        <li>
+          <label>canines</label>
+          <capacities>
+            <li>Bite</li>
+          </capacities>
+          <power>13</power>
+          <cooldownTime>1.6</cooldownTime>
+          <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
+          <surpriseAttack>
+            <extraMeleeDamages>
+              <li>
+                <def>Stun</def>
+                <amount>20</amount>
+              </li>
+            </extraMeleeDamages>
+          </surpriseAttack>
+        </li>
+      </tools>
+    </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Wolf_Arctic"]/race/*[self::baseBodySize or self::baseHealthScale or self::baseHungerRate or self::lifeExpectancy or self::gestationPeriodDays or self::herdAnimal or self::herdMigrationAllowed or self::foodType or self::roamMtbDays or self::leatherDef or self::useLeatherFrom or self::manhunterOnTameFailChance or self::manhunterOnDamageChance or self::petness or self::nuzzleMtbHours or self::mateMtbHours or self::trainability or self::packAnimal or self::predator or self::maxPreyBodySize or self::nameOnTameChance or self::body or self::waterCellCost or self::waterSeeker or self::canFishForFood or self::wildBiomes or self::lifeStageAges or self::specialTrainables]</xpath>
@@ -709,7 +744,7 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>2.5</power>
+          <power>1</power>
           <cooldownTime>1.25</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
           <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
@@ -720,8 +755,8 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>8</power>
-          <cooldownTime>1.45</cooldownTime>
+          <power>4</power>
+          <cooldownTime>1.3</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
           <surpriseAttack>
             <extraMeleeDamages>
@@ -744,7 +779,7 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>2</power>
+          <power>1</power>
           <cooldownTime>1.15</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
           <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
@@ -755,8 +790,8 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>7.5</power>
-          <cooldownTime>1.3</cooldownTime>
+          <power>3</power>
+          <cooldownTime>1.15</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
           <surpriseAttack>
             <extraMeleeDamages>
@@ -823,7 +858,7 @@
           <capacities>
             <li>Blunt</li>
           </capacities>
-          <power>1.5</power>
+          <power>1</power>
           <cooldownTime>1</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
           <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
@@ -834,8 +869,8 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>4.5</power>
-          <cooldownTime>1.15</cooldownTime>
+          <power>1.5</power>
+          <cooldownTime>1</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
           <surpriseAttack>
             <extraMeleeDamages>
@@ -883,7 +918,7 @@
   <Operation Class="PatchOperationAdd">
     <xpath>/Defs/PawnKindDef[defName = "Fox_Fennec"]</xpath>
     <value>
-      <combatPower>40</combatPower>
+      <combatPower>30</combatPower>
       <ecoSystemWeight>0.25</ecoSystemWeight>
     </value>
   </Operation>
