@@ -8,7 +8,7 @@ The project combines generated XML patches with runtime systems. The generated l
 
 ## What Zoology changes
 
-Zoology covers the animal system as a whole rather than only melee damage. Depending on the species and installed content, it can change:
+Zoology changes animal statistics, ecology, behavior, products, anatomy and combat. Depending on the species and installed content, it can change:
 
 - body size, health scale, movement, hunger and carrying-related values;
 - growth, life stages, gestation, litter or clutch behavior and wild reproduction;
@@ -57,7 +57,7 @@ The main configurable systems are:
 - mammal lactation and nursing, including handler-fed mammal babies when nursing is unavailable;
 - childcare, family following, egg incubation and clutch defense;
 - pet recreation and expanded bonding;
-- Beastmastery-based direct control of eligible trained animals;
+- Odyssey-gated Beastmastery-based direct control of eligible trained animals;
 - handler-bound NPC animal companions;
 - small-pet protection from inappropriate raid targeting;
 - human bionics on compatible animals;
@@ -101,7 +101,7 @@ Additional runtime interoperability exists where Zoology can detect another draf
 
 Zoology is declared incompatible with Animals Are Fun Continued because both mods implement overlapping animal-interaction and recreation behavior.
 
-When Combat Extended is active, Zoology uses CE-specific animal combat data and disables its non-CE animal damage-reduction system. The optional CE penetration override affects Zoology's life-stage penetration handling rather than replacing CE as a whole.
+When Combat Extended is active, Zoology uses CE-specific animal combat data and disables its non-CE animal damage-reduction system. Combat Extended remains the combat backend; the optional Zoology override adds life-stage penetration handling for animal melee.
 
 ## Repository documentation
 

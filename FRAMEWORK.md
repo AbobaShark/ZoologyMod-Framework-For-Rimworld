@@ -12,7 +12,7 @@ The static layer consists of Defs and patches under Zoology/1.6, conditional DLC
 
 The runtime layer is the ZoologyMod assembly. Harmony patches and GameComponents implement behavior that cannot be represented reliably by static XML alone: predation decisions, pack hunting, fleeing, corpse defense, childcare, lactation, wild reproduction, pet systems, NPC companions, bionic expansion and runtime species overrides.
 
-Do not treat every internal utility class as a supported external API. The stable modder-facing surface is primarily the XML Def/extension/comp types documented below.
+The supported modder-facing surface consists primarily of the XML Def, DefModExtension, CompProperties and Tool types documented below. Internal runtime utility classes are implementation details.
 
 ## 2. Load structure
 
@@ -34,7 +34,7 @@ The current LoadFolders.xml loads:
 - Megafauna patches;
 - Alpha Biomes patches.
 
-A Zoology/DLC/Royalty directory exists in the repository, but the current LoadFolders.xml does not reference it. Do not assume an XML folder is active merely because it exists in the tree.
+`Zoology/DLC/Royalty` is not referenced by the current `LoadFolders.xml` and is therefore not part of the active XML load surface.
 
 The mod metadata declares RimWorld 1.6 and Harmony as the hard requirements. It also declares load ordering after the supported game/DLC and animal/combat frameworks.
 
@@ -84,7 +84,7 @@ Fields:
 
 | Field | Type | Default | Meaning |
 | --- | --- | --- | --- |
-| verboseLogging | bool | false | Emits additional developer logging when DevMode is active. |
+| verboseLogging | bool | false | Emits additional logging for slaughter designation, slaughter-response and ritual-role paths. |
 | excludeFromRituals | bool | true | Excludes marked animals from supported peaceful ritual animal roles. |
 
 Example:
@@ -346,7 +346,7 @@ The shipped lactation layer contains separate jobs and think-tree nodes for both
 - `JobGiver_YoungSuckleFromMother`;
 - `JobGiver_AnimalAutoFeed`.
 
-`AnimalLactationUtility` is the shared implementation for infant-stage recognition, mother eligibility, cross-breed compatibility, food thresholds, mother search and nursing job construction. It is runtime infrastructure rather than a promised external C# API.
+`AnimalLactationUtility` is internal runtime infrastructure for infant-stage recognition, mother eligibility, cross-breed compatibility, food thresholds, mother search and nursing job construction.
 
 The current behavior requests nursing below 33% baby food level. A mother must retain at least 15% of her own food level to nurse.
 
@@ -466,7 +466,7 @@ Fields:
 | meleePenetrationSharpFactor | float | 1 |
 | meleePenetrationBluntFactor | float | 1 |
 
-This Def is used only by Zoology's Combat Extended penetration override. The matching rule is by defName: a LifeStagePenetrationDef is looked up for the pawn's current LifeStageDef using the same defName.
+This Def is used only by Zoology's Combat Extended penetration override. Resolution first tries an exact `defName` match, then a case-insensitive `defName` match, then a case-insensitive match between the life-stage `defName` and the penetration Def label, and finally a partial-name fallback. Matching `defName` values are the recommended unambiguous configuration.
 
 The shipped CE patch currently defines:
 
@@ -510,16 +510,17 @@ The generic companion-safety system does not require this marker. It evaluates a
 
 ## 9. Beastmastery and direct-control interoperability
 
-Zoology defines these trainable names in its runtime compatibility layer:
+Zoology recognizes these trainable names in its runtime compatibility layer:
 
-- Zoology_Beastmastery;
-- VEF_Beastmastery when that compatible def exists.
+- `Zoology_Beastmastery` — current Zoology trainable;
+- `Zoology_DraftControl` — shipped legacy compatibility trainable;
+- `VEF_Beastmastery` when that compatible Def exists.
 
-The shipped Zoology_Beastmastery TrainableDef is gated by Odyssey.
+The shipped `Zoology_Beastmastery` and `Zoology_DraftControl` TrainableDefs are gated by Odyssey.
 
-For an eligible animal, Zoology synchronizes the linked AttackTarget/draft-control training maps so the compatible trainables do not represent independent progress tracks.
+For an eligible animal, Zoology synchronizes the linked AttackTarget/draft-control training maps so compatible trainables share one progress state.
 
-The runtime also detects supported external drafting ownership. If another supported system owns drafting for a pawn/race, Zoology's draft-access test returns false rather than creating two command systems.
+The runtime detects supported external drafting ownership. When another supported system owns drafting for a pawn/race, Zoology disables its own draft-access path for that pawn/race.
 
 This is interoperability, not an invitation to call AnimalDraftControlUtility directly: the implementation class is internal.
 
@@ -634,7 +635,7 @@ Current runtime-oriented tests cover:
 - `test_npc_animal_companion_hot_path.py` — NPC companion hot-path behavior;
 - `test_runtime_patch_registration.py` — runtime patch registration/rebuild coverage.
 
-These tests are useful evidence for the intended runtime contract but do not make internal helper classes public APIs.
+These tests provide regression coverage for the runtime contracts described above.
 
 ## 13. Conditional DLC patches
 
@@ -670,7 +671,7 @@ The loaded Odyssey folder contains:
 
 ## 14. Conditional third-party patch sets
 
-The active `LoadFolders.xml` contains dedicated conditional folders for the integrations below. These are real loaded patch surfaces, not merely repository directories.
+The active `LoadFolders.xml` conditionally loads the integration folders below.
 
 ### Combat Extended
 
@@ -808,7 +809,7 @@ AnimalStats imports the production export from Calculations with IMPORTRANGE. Ca
 
 ## 16. Model/data maintenance rules
 
-Generated race patches are downstream artifacts. If a biological value, model or group rule is wrong, fix the relevant source/model/override and regenerate rather than hand-editing a generated output that the checker will overwrite later.
+Generated race patches are downstream artifacts. Biological values, model changes and group/species rules are maintained in the relevant workbook source/model/override and then regenerated into XML.
 
 Use Species overrides only for genuine species-level exceptions that should supersede the generic group/base calculation.
 

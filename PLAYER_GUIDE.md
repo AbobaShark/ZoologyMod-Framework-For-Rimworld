@@ -25,7 +25,7 @@ For supported animals, Zoology can replace or recalculate values such as:
 - reproduction-related values;
 - animal products such as eggs, milk and wool.
 
-The goal is not to force every real-world measurement directly into RimWorld. Biological measurements are first converted into game-facing quantities so that encounter budgets, hunting, melee combat and animal husbandry remain playable.
+Biological measurements are converted into game-facing quantities so that encounter budgets, hunting, melee combat and animal husbandry remain playable.
 
 ### Anatomy and attack tools
 
@@ -33,13 +33,11 @@ Zoology ships additional or corrected animal body definitions and body-part grou
 
 Melee tools are also species-specific. A bite, horn strike, claw swipe, kick or other attack can have its own damage, cooldown, selection weight and, when Combat Extended is present, its own penetration values.
 
-Some attacks can be restricted by sex when the anatomy is sexually dimorphic. This is handled by Zoology's gender-restricted attack system rather than by giving both sexes an attack they should not possess.
+Sex-restricted melee tools expose sexually dimorphic attacks only to the appropriate sex.
 
 ### Life stages are mechanically different animals
 
-Babies and juveniles are not treated as adults with a smaller graphic. Zoology changes life-stage factors for body size, health, hunger, movement, armor and melee performance, and it uses separate life-stage factors when behavior systems compare Combat Power.
-
-This matters outside combat as well. A juvenile predator, a newborn prey animal and an adult of the same species can make different decisions because their effective body size and combat strength are different.
+Zoology gives babies and juveniles distinct life-stage factors for body size, health, hunger, movement, armor and melee performance, and it uses separate life-stage factors when behavior systems compare Combat Power. A juvenile predator, a newborn prey animal and an adult of the same species can therefore make different decisions because their effective body size and combat strength differ.
 
 
 ### Pregnancy and animal products
@@ -51,7 +49,7 @@ The static patch layer also changes husbandry-related values. Examples include:
 - fertilized egg incubation times are species-specific;
 - milk yield and milking intervals are adjusted for supported mammals;
 - wool/shearing data are adjusted for supported animals and integrations;
-- meat yields are derived from the animal data rather than one generic assumption;
+- meat yields are derived from species data;
 - leather market, protection and insulation values are rebalanced;
 - chitin and other non-mammalian materials are handled separately where the animal data require it.
 
@@ -73,11 +71,11 @@ The same race-level compatibility is reused by several runtime systems. A compat
 
 The XML layer also contains smaller corrections that are visible in normal play, including selected animal graphics, shadows, sounds, caravan carrier choices, body-clock data, egg/hatcher definitions and compatibility-specific race patches.
 
-For example, the Core caravan patch sets Horse and Donkey carrier entries for Outlander and tribal trader groups. These changes are data patches rather than settings-driven AI features.
+For example, the Core caravan patch assigns Horse and Donkey carrier entries to Outlander and tribal trader groups.
 
 ## 2. Predation is based on the actual predator and prey
 
-Vanilla predation mostly asks whether a target is legal food and then uses fairly broad heuristics. Zoology adds a second layer intended to make prey choice reflect size, health, life stage and danger.
+Zoology extends prey selection with size, health, life stage and danger checks after RimWorld determines that a target is legal food.
 
 ### Choosing prey
 
@@ -100,7 +98,7 @@ Downed or badly injured prey become easier targets because Zoology evaluates vul
 
 ### Predator-on-predator hunting
 
-Predators do not automatically treat every other predator as safe prey. Zoology applies a stricter combat-power requirement to predator-on-predator hunting than to ordinary prey and can reject a hunt before it starts when the target is too dangerous.
+Predator-on-predator hunting uses a stricter combat-power requirement than hunting ordinary prey, and targets that are too dangerous are rejected before the hunt begins.
 
 This is one reason young life stages matter: a juvenile predator may be an acceptable target where a healthy adult of the same species is not.
 
@@ -108,19 +106,17 @@ This is one reason young life stages matter: a juvenile predator may be an accep
 
 Default: enabled.
 
-Pack hunting provides additional support when a herd/pack predator encounters prey that would be too dangerous for one hunter. The acceptance logic can treat supported pack participation as additional combat strength rather than requiring the lead predator to pass the entire danger test alone.
-
-This is not a generic permanent combat buff. The support is used in the predation decision and pack-hunt behavior around the selected prey.
+Pack hunting provides additional support when a herd/pack predator encounters prey that would be too dangerous for one hunter. Nearby supported pack participation contributes additional combat strength to prey-selection and pack-hunt decisions around the selected prey.
 
 ### Chase limits
 
 Zoology tracks predator-prey pursuits. If a hunt turns into a prolonged chase and the predator is still not in immediate melee range, the pursuit can be stopped and that predator/prey pair temporarily blocked.
 
-This prevents a single fast or unreachable prey animal from dragging a predator around the map indefinitely.
+Prolonged unsuccessful chases therefore end instead of continuing indefinitely.
 
 ### Protected young affect prey choice
 
-The childcare system feeds back into predation. A baby or juvenile that has a credible nearby protector can be penalized or rejected as prey rather than being evaluated as an isolated weak pawn.
+The childcare system feeds back into predation. A baby or juvenile with a credible nearby protector receives that protection in the prey evaluation and can be penalized or rejected as a target.
 
 That does not make young completely immune. Protection depends on the actual protector, threat and childcare settings.
 
@@ -148,7 +144,7 @@ Default values:
 - non-hostile predator search radius: 12 cells;
 - flee distance: 16 cells.
 
-This allows prey animals to maintain distance from predators instead of waiting until a formal PredatorHunt job is already active.
+Prey can therefore maintain distance before a formal PredatorHunt job starts.
 
 ### Fleeing from humans
 
@@ -177,16 +173,16 @@ For example, an animal normally should not break its current behavior just becau
 
 Default: enabled.
 
-Zoology can replace part of vanilla's animal danger check with BodySize thresholds. The default safe thresholds are:
+Zoology can replace part of RimWorld's animal danger check with race base-BodySize thresholds for player animals on a player home map. The default safe thresholds are:
 
-- predator BodySize: 0.7;
-- non-predator BodySize: 3.0.
+- predator base BodySize: 0.7;
+- non-predator base BodySize: 3.0.
 
-These are RimWorld BodySize values, not kilograms.
+These are RimWorld BodySize values, not kilograms. Player animals at or above the applicable threshold are treated as safe from the ordinary flee-danger response on the home map.
 
 ### Flying flee start
 
-The Dev feature "Flying flee start" enables Zoology's special flee-start handling for supported flying animals so their escape behavior can begin through the appropriate flight path rather than relying only on ordinary ground-animal assumptions.
+The Dev feature "Flying flee start" enables Zoology's special flee-start handling for supported flying animals so their escape behavior can begin through the appropriate flight path.
 
 ## 4. Predators can own and defend a kill
 
@@ -216,7 +212,7 @@ This Combat Power test uses Zoology's life-stage-aware combat values where appro
 
 ### When protection suppresses fleeing
 
-A predator that has committed to defending food may temporarily stop using ordinary flee behavior. This prevents contradictory AI in which an animal chooses to protect a corpse and simultaneously tries to flee from the pawn contesting it.
+A predator that has committed to defending food may temporarily stop using ordinary flee behavior while contesting the protected corpse.
 
 ## 5. Scavengers are adapted to carrion
 
@@ -329,13 +325,13 @@ If the mother is standing and mobile, she can go to the baby and feed it.
 
 If the mother is downed or lying in bed, the baby can go to her and suckle instead, provided the mother is still otherwise capable of nursing.
 
-This prevents the system from depending on one specific pawn being the one whose think tree happened to run first.
+Either side can therefore initiate nursing when its own think tree is evaluated first.
 
 ## 8. Handlers can feed hungry mammal babies
 
 Default: enabled while mammal lactation is enabled.
 
-This is a separate colony work system in the current build, not merely a side effect of nursing.
+Handler feeding is an independent Handling WorkGiver.
 
 ### What handlers do
 
@@ -349,7 +345,7 @@ The work:
 - cannot be performed by mechs;
 - can be given as a direct manual order.
 
-Unlike vanilla patient feeding, the baby does not have to be in a medical bed or resting. The custom job driver feeds the animal where it is standing or lying.
+The custom job driver feeds the baby where it is standing or lying; medical-bed or resting status is not required.
 
 ### Which babies qualify
 
@@ -374,9 +370,7 @@ If none is available, the WorkGiver searches the map for food the baby can actua
 
 The search excludes drugs, corpses, food dispensers and opportunistic plant harvesting for this task. The selected food must still pass the baby's race food restrictions and the food's babiesCanIngest flag.
 
-### Why this matters
-
-Nursing remains the preferred biological path, but a colony is no longer forced to let a mammal baby starve because its mother is absent, inaccessible, no longer lactating or temporarily unable to feed it.
+Handler feeding provides suitable food when the mother is absent, inaccessible, no longer lactating or temporarily unable to nurse.
 
 The handler-feeding option is subordinate to the main Mammal lactation setting. Turning lactation off also turns handler baby feeding off.
 
@@ -386,11 +380,11 @@ While mammal lactation is active, Zoology changes ordinary food suitability for 
 
 A food must be marked as ingestible by babies and must also be a food the animal's race can ever eat.
 
-This prevents a newborn mammal from automatically using the full adult diet just because the adult race is a herbivore, carnivore or omnivore.
+Newborn mammals therefore use the baby-ingestibility flag in addition to the race's ordinary adult diet.
 
 The baby-specific logic also blocks the fishing job for mammal babies.
 
-If no nursing interaction happens, a baby can still use suitable ordinary baby food. Handler feeding uses the same suitability rules rather than a separate list.
+If no nursing interaction happens, a baby can still use suitable ordinary baby food. Handler feeding uses the same baby-food suitability rules.
 
 ### Infant training
 
@@ -408,7 +402,7 @@ For a mammal baby in a caravan, Zoology:
 4. transfers nutrition from that feeder if possible;
 5. falls back to suitable caravan inventory food when necessary.
 
-The result is that leaving the map does not silently disable the newborn feeding model.
+Caravans therefore preserve the newborn feeding model without map jobs.
 
 ## 11. Lactation and auto-slaughter
 
@@ -434,7 +428,7 @@ The wander behavior uses a short local radius around the mother.
 
 Zoology first tries to use the actual parent relation. If that relation is unavailable, it can reuse a mother observed by the birth/childcare systems, and as a fallback it can infer a nearby compatible adult female of the same species lineage and factional context.
 
-The fallback exists to keep behavior robust in modded games where the expected relation data are incomplete; it is not meant to redefine every nearby female as the biological mother.
+The fallback is used when relation data are incomplete and selects a nearby compatible adult female only when the lineage and faction checks pass.
 
 ### Adults defend young
 
@@ -456,7 +450,7 @@ A starving protector is not expected to defend indefinitely; the defense code ha
 
 For appropriate social animals, protection is not limited to one exact mother. Nearby compatible herd members can participate in protection when the lineage and state checks pass.
 
-This is why protected-young logic also feeds back into predation: a predator may decide that an apparently weak baby is not actually an easy isolated target.
+Nearby compatible protectors also contribute to predation decisions involving the young they guard.
 
 ### Retargeting protection
 
@@ -470,7 +464,7 @@ Egg protection is a childcare sub-feature and defaults to enabled.
 
 Zoology records the mother associated with fertilized eggs and maintains ownership information beyond the immediate laying event.
 
-The component can recover ownership from the egg's hatcher parent and maintains records through supported egg-stack changes. This matters because RimWorld can split, merge or move egg stacks after laying.
+The component can recover ownership from the egg's hatcher parent and maintains records when RimWorld splits, merges or moves supported egg stacks after laying.
 
 ### Staying near a clutch
 
@@ -478,11 +472,9 @@ A laying female can wander near her clutch. Compatible herd protectors can also 
 
 ### Active incubation
 
-Supported animals can receive an incubation job for a nearby clutch rather than treating the egg as an inert map object.
+Supported animals can receive an incubation job for a nearby clutch. The childcare code searches locally for an incubation target and keeps the incubator at the egg for the configured incubation job duration.
 
-The current childcare code searches locally for an incubation target and keeps the incubator at the egg for the configured incubation job duration.
-
-This behavior does not replace the egg's normal hatching comp or its overall days-to-hatch value. It is parental behavior around the egg.
+Completing the incubation job restores the egg's hit points to its maximum. The egg's normal hatching comp and overall days-to-hatch value remain unchanged.
 
 ### Defending eggs
 
@@ -504,7 +496,7 @@ A mother actively tied to an egg clutch is protected from ordinary forced-depart
 
 Default: enabled.
 
-Zoology adds a wild mating job rather than relying only on domesticated-animal mating opportunities.
+Zoology adds a mating job for compatible factionless wild animals.
 
 ### Finding a mate
 
@@ -535,7 +527,7 @@ The default allowed limit is 1.2 times the calculated desired weight. The settin
 
 ### Pollution
 
-With Biotech, heavy pollution reduces the ecosystem capacity used by this system rather than being ignored. The calculation uses Zoology's pollution-to-animal-density curve on top of the other density inputs.
+With Biotech, heavy pollution reduces the ecosystem capacity used by this system. The calculation applies Zoology's pollution-to-animal-density curve on top of the other density inputs.
 
 ### Forced departure
 
@@ -547,7 +539,7 @@ When the ecosystem remains overloaded, Zoology can make random wild animals leav
 
 Default: enabled.
 
-Pet recreation is a real joy system rather than a cosmetic animation.
+Pet recreation gives colonists joy through walks, fetch and local play.
 
 ### Who counts as a pet
 
@@ -559,7 +551,7 @@ A candidate animal must:
 - be alive, spawned and not downed;
 - not be in a mental state;
 - have sufficient consciousness and movement;
-- be idle and available rather than already busy with an urgent basic need.
+- be idle and available, with no urgent basic need taking priority.
 
 Default maximum wildness: 0.2.
 
@@ -620,9 +612,9 @@ The setting changes who is eligible for the bonding check. It does not make ever
 
 Default: enabled.
 
-Zoology provides Beastmastery-based direct control for eligible player animals.
+Zoology provides Beastmastery-based direct control for eligible player animals when Odyssey is active. Zoology's shipped Beastmastery and legacy draft-control trainables are Odyssey-gated.
 
-When the required training exists, the player can draft the animal and give direct movement/attack commands rather than relying exclusively on Follow master and Release.
+When the required training exists, the player can draft the animal and give direct movement and attack commands.
 
 Important restrictions include:
 
@@ -658,11 +650,13 @@ Default: enabled.
 
 Raiders can ignore very small player animals while those animals are behaving as non-combatant pets.
 
-Default small-pet BodySize threshold: 0.45.
+Default small-pet race base BodySize threshold: 0.45.
 
-The protection is contextual, not permanent invulnerability. A small animal can stop qualifying when it enters combat-relevant behavior, for example by actively following a master into combat or entering a hostile mental state.
+The protection applies to player animals below that race base-BodySize threshold that are not roamers. It is contextual: an animal stops qualifying while following a master into combat, in an aggressive mental state, or after combat engagement makes it an active participant.
 
-"Small pets do not retaliate in melee" defaults to enabled. It prevents a protected tiny pet from defeating the point of the system by automatically joining melee after being attacked.
+The same small-pet system can make an eligible pet flee from nearby hostile raiders instead of remaining a passive target.
+
+"Small pets do not retaliate in melee" defaults to enabled. It suppresses automatic melee retaliation while the animal still qualifies for small-pet protection.
 
 ## 21. NPC groups can have real animal companions
 
@@ -688,13 +682,11 @@ If an animal was selected by the pawn-group generator but no valid handler exist
 
 Its selected point cost is returned to the group budget, and Zoology attempts to spend that budget on eligible human pawns from the same group's normal options.
 
-This avoids both broken handlerless animals and raids/trader groups that are silently weaker because an invalid animal simply vanished.
+The replacement spend keeps the generated group from losing the selected animal's point cost when that companion cannot be assigned safely.
 
 ### Companion AI
 
-A tracked NPC companion is not treated as an ordinary human Lord member.
-
-It uses animal-specific follow/defend behavior around its assigned handler.
+A tracked NPC companion uses animal-specific follow/defend behavior around its assigned handler instead of ordinary human Lord-member behavior.
 
 If the master is lost, Zoology first tries to reassign the animal to another valid handler from the same original generated group.
 
@@ -718,7 +710,7 @@ All-animal and non-human faction groups are intentionally outside this system.
 
 Default: enabled.
 
-This feature is not restricted to wild/factionless animals. Any eligible animal can use it.
+Automatic wound licking is available to eligible animals that are not in the player's faction.
 
 An animal can lick wounds when it is:
 
@@ -746,7 +738,7 @@ Other organic hediff givers are retained in the cloned set.
 
 Disabling/rebuilding the runtime feature restores the original race hediff-giver sets.
 
-The practical point for a player is that a reptile/invertebrate marked as ectothermic does not use exactly the same cold-injury assumption as an ordinary warm-blooded mammal, while still remaining vulnerable to unsuitable temperatures.
+Marked ectotherms remain vulnerable to unsuitable temperatures while using the ectothermic hypothermia path instead of the ordinary warm-blooded animal assumption.
 
 ## 24. Animal bionics
 
@@ -754,7 +746,7 @@ Default: enabled.
 
 Zoology extends supported human bionic recipes to compatible animal anatomy during startup.
 
-The patchers check whether an animal actually has the body part required by a recipe. Where an animal uses an alternative corresponding body-part def, Zoology can clone the install/remove recipe for that part rather than simply adding every animal to every human recipe.
+The patchers check whether an animal has the body part required by a recipe. When an animal uses an alternative corresponding body-part def, Zoology can clone the install/remove recipe for that part.
 
 Combat-oriented bionic parts have size-dependent animal variants so a tiny animal and a huge animal do not receive the exact same game-facing melee implant.
 
@@ -793,9 +785,9 @@ It does not apply to:
 
 The correction never increases damage.
 
-Predator status and base/current size are considered so the rule does not simply say "small attacker always weak."
+The correction considers predator status and the attacker's and target's base/current size.
 
-When Combat Extended is active, this system is forced off rather than being stacked on top of CE's armor/penetration model.
+Combat Extended disables this non-CE size-aware damage-reduction system.
 
 ## 27. Combat Extended integration
 
@@ -879,7 +871,7 @@ Marked animals are excluded from the supported porcupine-quill hediff path.
 
 ## 29. Automatic technical corrections
 
-A few Zoology runtime patches are not meant to be "features" a player configures, but they can affect a real save.
+Zoology also applies several global runtime corrections that can affect a real save.
 
 ### Insect cocoon budget safeguard
 
@@ -947,7 +939,7 @@ Turning mammal lactation off also disables handler baby feeding and the lactatio
 | Setting | Default | Range / dependency |
 | --- | --- | --- |
 | Override Combat Extended penetration | On after Reset when CE is present; Off without CE | Hidden/unavailable without CE. |
-| Enable animal draft control | On | Beastmastery/direct-control system. |
+| Enable animal draft control | On | Beastmastery/direct-control system; Zoology's shipped trainables require Odyssey. |
 | Enable animal damage reduction | On without CE; forced Off with CE | Non-CE natural-attack size correction. |
 
 ### Other behavior
@@ -960,11 +952,11 @@ Turning mammal lactation off also disables handler baby feeding and the lactatio
 | Maximum pet wildness | 0.2 | 0-1. |
 | Expanded pet bonding | On in default bonding mode | See bonding modes above. |
 | Expanded all-animal bonding | Off in default bonding mode | Broader bonding scope. |
-| Custom flee danger | On | Enables BodySize thresholds. |
+| Custom flee danger | On | Enables home-map race base-BodySize safety thresholds. |
 | Safe predator BodySize | 0.7 | UI slider 0-30. |
 | Safe non-predator BodySize | 3.0 | UI slider 0-30. |
 | Ignore small pets by raiders | On | Non-combatant tiny-pet protection. |
-| Small-pet BodySize threshold | 0.45 | UI slider 0-30. |
+| Small-pet base BodySize threshold | 0.45 | UI slider 0-30; applies to non-roamer player animals. |
 | Small pets do not retaliate in melee | On | Requires small-pet handling. |
 | Animals flee from humans | On | Species list configurable. |
 | Human search radius | 12 | 6-24. |
@@ -1044,7 +1036,7 @@ Odyssey receives:
 - egg-laying and hatching data;
 - meat and graphics corrections.
 
-When Vanilla Expanded Framework is also active, Zoology assigns crepuscular/nocturnal body-clock behavior to selected Odyssey animals through VEF's own race extension rather than inventing a second body-clock system.
+When Vanilla Expanded Framework is also active, Zoology assigns VEF crepuscular/nocturnal body-clock extensions to selected Odyssey animals.
 
 ### Vanilla Expanded Framework behavior
 
@@ -1090,7 +1082,7 @@ Megafauna currently uses the generated race patch set.
 
 Animals Are Fun Continued is declared incompatible because its animal-interaction/recreation systems overlap Zoology's pet systems.
 
-Zoology also contains generic runtime interoperability for supported external animal drafting and optional health-system behavior. Those branches are intended to prevent duplicated/conflicting behavior rather than expose a second user-facing integration feature.
+Zoology also detects supported external animal-drafting ownership and optional health-system hooks so overlapping runtime behavior can defer to the installed integration.
 
 ## 33. Troubleshooting behavior conflicts
 
@@ -1106,6 +1098,6 @@ Examples:
 - animal drafting conflicts: test Zoology draft control against the other drafting system;
 - CE melee display/penetration disagreement: test the CE penetration override.
 
-The Dev master switch is a last-resort diagnostic control. It is not meant to convert Zoology into a pure XML-stat mod during ordinary play, because the static generated animal patches remain loaded even when runtime Harmony systems are disabled.
+The Dev master switch disables Zoology's rebuildable runtime Harmony and AI behavior. Static XML/Def patches remain loaded, and startup DefDatabase mutations that have already run are not rolled back.
 
 For XML/framework behavior and the spreadsheet pipeline, see [FRAMEWORK.md](FRAMEWORK.md). For regeneration and patch-generation tooling, see [CHECKER.md](CHECKER.md).
