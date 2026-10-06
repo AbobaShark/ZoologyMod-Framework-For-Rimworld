@@ -1,13 +1,25 @@
 <?xml version='1.0' encoding='utf-8'?>
 <Patch>
   <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/statBases/MarketValue</xpath>
+    <xpath>/Defs/ThingDef[@Name="ThingBaseWolf" or @Name="ThingBaseFox"]/statBases/MarketValue</xpath>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[@Name = "ThingBaseWolf"]/statBases/MoveSpeed</xpath>
+    <value>
+      <MoveSpeed>6.25</MoveSpeed>
+    </value>
   </Operation>
   <Operation Class="PatchOperationRemove">
     <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/statBases/MoveSpeed</xpath>
   </Operation>
   <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/statBases/Wildness</xpath>
+    <xpath>/Defs/ThingDef[@Name="ThingBaseWolf" or @Name="ThingBaseFox"]/statBases/Wildness</xpath>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[@Name = "ThingBaseWolf"]/statBases/FilthRate</xpath>
+    <value>
+      <FilthRate>1</FilthRate>
+    </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/statBases/*[self::FilthRate or self::ComfyTemperatureMax or self::ArmorRating_Blunt or self::ArmorRating_Sharp or self::ToxicEnvironmentResistance]</xpath>
@@ -22,22 +34,53 @@
     </value>
   </Operation>
   <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/statBases/ComfyTemperatureMin</xpath>
+    <xpath>/Defs/ThingDef[@Name="ThingBaseWolf" or @Name="ThingBaseFox"]/statBases/ComfyTemperatureMin</xpath>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/tools</xpath>
+    <xpath>/Defs/ThingDef[@Name = "ThingBaseWolf"]/statBases/*[self::ComfyTemperatureMax or self::ArmorRating_Blunt or self::ArmorRating_Sharp or self::ToxicEnvironmentResistance]</xpath>
     <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/tools</xpath>
+      <xpath>/Defs/ThingDef[@Name = "ThingBaseWolf"]/statBases/*[self::ComfyTemperatureMax or self::ArmorRating_Blunt or self::ArmorRating_Sharp or self::ToxicEnvironmentResistance]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[@Name="ThingBaseWolf" or @Name="ThingBaseFox"]/tools</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[@Name="ThingBaseWolf" or @Name="ThingBaseFox"]/tools</xpath>
     </match>
   </Operation>
   <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/race/baseBodySize</xpath>
+    <xpath>/Defs/ThingDef[@Name="ThingBaseWolf" or @Name="ThingBaseFox"]/race/baseBodySize</xpath>
   </Operation>
   <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/race/baseHealthScale</xpath>
+    <xpath>/Defs/ThingDef[@Name="ThingBaseWolf" or @Name="ThingBaseFox"]/race/baseHealthScale</xpath>
   </Operation>
   <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/race/baseHungerRate</xpath>
+    <xpath>/Defs/ThingDef[@Name="ThingBaseWolf" or @Name="ThingBaseFox"]/race/baseHungerRate</xpath>
+  </Operation>
+  <Operation Class="PatchOperationRemove">
+    <xpath>/Defs/ThingDef[@Name = "ThingBaseWolf"]/race/lifeExpectancy</xpath>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[@Name = "ThingBaseWolf"]/race/gestationPeriodDays</xpath>
+    <value>
+      <gestationPeriodDays>6.5</gestationPeriodDays>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[@Name = "ThingBaseWolf"]/race/*[self::herdAnimal or self::herdMigrationAllowed or self::roamMtbDays or self::useLeatherFrom or self::nuzzleMtbHours or self::mateMtbHours or self::waterCellCost or self::waterSeeker or self::canFishForFood or self::useMeatFrom]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[@Name = "ThingBaseWolf"]/race/*[self::herdAnimal or self::herdMigrationAllowed or self::roamMtbDays or self::useLeatherFrom or self::nuzzleMtbHours or self::mateMtbHours or self::waterCellCost or self::waterSeeker or self::canFishForFood or self::useMeatFrom]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[@Name = "ThingBaseWolf"]/race</xpath>
+    <value>
+      <herdAnimal>true</herdAnimal>
+      <herdMigrationAllowed>false</herdMigrationAllowed>
+      <mateMtbHours>12</mateMtbHours>
+      <waterSeeker>false</waterSeeker>
+      <canFishForFood>false</canFishForFood>
+    </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/race/lifeExpectancy</xpath>
@@ -71,130 +114,7 @@
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/race/foodType</xpath>
-    <value>
-      <foodType>CarnivoreAnimal, OvivoreAnimal</foodType>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/race/petness</xpath>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/race/trainability</xpath>
-    <value>
-      <trainability>Advanced</trainability>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/race/maxPreyBodySize</xpath>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/race/lifeStageAges/li[def = 'AnimalJuvenile']/minAge</xpath>
-    <value>
-      <minAge>0.15</minAge>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/race/lifeStageAges/li[def = 'AnimalAdult']/minAge</xpath>
-    <value>
-      <minAge>0.3</minAge>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/race/specialTrainables/li[text()="SludgeSpew" or text()="EggSpew" or text()="TerrorRoar" or text()="WarTrumpet" or text()="Forage" or text()="Comfort" or text()="AttackTarget" or text()="Dig"]</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/race/specialTrainables/li[text()="SludgeSpew" or text()="EggSpew" or text()="TerrorRoar" or text()="WarTrumpet" or text()="Forage" or text()="Comfort" or text()="AttackTarget" or text()="Dig"]</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/race/specialTrainables</xpath>
-    <match Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/race/specialTrainables</xpath>
-      <value>
-        <li MayRequire="Ludeon.RimWorld.Odyssey">Comfort</li>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/race</xpath>
-      <value>
-        <specialTrainables>
-          <li MayRequire="Ludeon.RimWorld.Odyssey">Comfort</li>
-        </specialTrainables>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/race/litterSizeCurve</xpath>
-  </Operation>
-  <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseWolf"]/statBases/MarketValue</xpath>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseWolf"]/statBases/MoveSpeed</xpath>
-    <value>
-      <MoveSpeed>6.25</MoveSpeed>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseWolf"]/statBases/Wildness</xpath>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseWolf"]/statBases/FilthRate</xpath>
-    <value>
-      <FilthRate>1</FilthRate>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseWolf"]/statBases/ComfyTemperatureMin</xpath>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseWolf"]/statBases/*[self::ComfyTemperatureMax or self::ArmorRating_Blunt or self::ArmorRating_Sharp or self::ToxicEnvironmentResistance]</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[@Name = "ThingBaseWolf"]/statBases/*[self::ComfyTemperatureMax or self::ArmorRating_Blunt or self::ArmorRating_Sharp or self::ToxicEnvironmentResistance]</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseWolf"]/tools</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[@Name = "ThingBaseWolf"]/tools</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseWolf"]/race/baseBodySize</xpath>
-  </Operation>
-  <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseWolf"]/race/baseHealthScale</xpath>
-  </Operation>
-  <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseWolf"]/race/baseHungerRate</xpath>
-  </Operation>
-  <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseWolf"]/race/lifeExpectancy</xpath>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseWolf"]/race/gestationPeriodDays</xpath>
-    <value>
-      <gestationPeriodDays>6.5</gestationPeriodDays>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseWolf"]/race/*[self::herdAnimal or self::herdMigrationAllowed or self::roamMtbDays or self::useLeatherFrom or self::nuzzleMtbHours or self::mateMtbHours or self::waterCellCost or self::waterSeeker or self::canFishForFood or self::useMeatFrom]</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[@Name = "ThingBaseWolf"]/race/*[self::herdAnimal or self::herdMigrationAllowed or self::roamMtbDays or self::useLeatherFrom or self::nuzzleMtbHours or self::mateMtbHours or self::waterCellCost or self::waterSeeker or self::canFishForFood or self::useMeatFrom]</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseWolf"]/race</xpath>
-    <value>
-      <herdAnimal>true</herdAnimal>
-      <herdMigrationAllowed>false</herdMigrationAllowed>
-      <mateMtbHours>12</mateMtbHours>
-      <waterSeeker>false</waterSeeker>
-      <canFishForFood>false</canFishForFood>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseWolf"]/race/foodType</xpath>
+    <xpath>/Defs/ThingDef[@Name="ThingBaseWolf" or @Name="ThingBaseFox"]/race/foodType</xpath>
     <value>
       <foodType>CarnivoreAnimal, OvivoreAnimal</foodType>
     </value>
@@ -212,10 +132,16 @@
     </value>
   </Operation>
   <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseWolf"]/race/petness</xpath>
+    <xpath>/Defs/ThingDef[@Name="ThingBaseWolf" or @Name="ThingBaseFox"]/race/petness</xpath>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/race/trainability</xpath>
+    <value>
+      <trainability>Advanced</trainability>
+    </value>
   </Operation>
   <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[@Name = "ThingBaseWolf"]/race/maxPreyBodySize</xpath>
+    <xpath>/Defs/ThingDef[@Name="ThingBaseWolf" or @Name="ThingBaseFox"]/race/maxPreyBodySize</xpath>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[@Name = "ThingBaseWolf"]/race/lifeStageAges</xpath>
@@ -265,7 +191,52 @@
     </value>
   </Operation>
   <Operation Class="PatchOperationAddModExtension">
-    <xpath>/Defs/ThingDef[@Name="ThingBaseFox" or @Name="ThingBaseWolf"]</xpath>
+    <xpath>/Defs/ThingDef[@Name = "ThingBaseWolf"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_IsMammal, ZoologyMod"/>
+      <li Class="ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod"/>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/race/lifeStageAges/li[def = 'AnimalJuvenile']/minAge</xpath>
+    <value>
+      <minAge>0.15</minAge>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/race/lifeStageAges/li[def = 'AnimalAdult']/minAge</xpath>
+    <value>
+      <minAge>0.3</minAge>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/race/specialTrainables/li[text()="SludgeSpew" or text()="EggSpew" or text()="TerrorRoar" or text()="WarTrumpet" or text()="Forage" or text()="Comfort" or text()="AttackTarget" or text()="Dig"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/race/specialTrainables/li[text()="SludgeSpew" or text()="EggSpew" or text()="TerrorRoar" or text()="WarTrumpet" or text()="Forage" or text()="Comfort" or text()="AttackTarget" or text()="Dig"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/race/specialTrainables</xpath>
+    <match Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/race/specialTrainables</xpath>
+      <value>
+        <li MayRequire="Ludeon.RimWorld.Odyssey">Comfort</li>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/race</xpath>
+      <value>
+        <specialTrainables>
+          <li MayRequire="Ludeon.RimWorld.Odyssey">Comfort</li>
+        </specialTrainables>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationRemove">
+    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]/race/litterSizeCurve</xpath>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[@Name = "ThingBaseFox"]</xpath>
     <value>
       <li Class="ZoologyMod.ModExtension_IsMammal, ZoologyMod"/>
       <li Class="ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod"/>
@@ -483,7 +454,7 @@
             <li>Blunt</li>
           </capacities>
           <power>6</power>
-          <cooldownTime>1.75</cooldownTime>
+          <cooldownTime>2.25</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
           <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
           <chanceFactor>0.2</chanceFactor>
@@ -653,7 +624,7 @@
             <li>Blunt</li>
           </capacities>
           <power>1.5</power>
-          <cooldownTime>1.5</cooldownTime>
+          <cooldownTime>1.8</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
           <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
           <chanceFactor>0.2</chanceFactor>
@@ -694,7 +665,7 @@
             <li>Blunt</li>
           </capacities>
           <power>1.5</power>
-          <cooldownTime>1.5</cooldownTime>
+          <cooldownTime>1.8</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
           <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
           <chanceFactor>0.2</chanceFactor>
@@ -745,7 +716,7 @@
             <li>Blunt</li>
           </capacities>
           <power>1</power>
-          <cooldownTime>1.25</cooldownTime>
+          <cooldownTime>1.4</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
           <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
           <chanceFactor>0.2</chanceFactor>
@@ -780,7 +751,7 @@
             <li>Blunt</li>
           </capacities>
           <power>1</power>
-          <cooldownTime>1.15</cooldownTime>
+          <cooldownTime>1.2</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
           <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
           <chanceFactor>0.2</chanceFactor>
@@ -859,7 +830,7 @@
             <li>Blunt</li>
           </capacities>
           <power>1</power>
-          <cooldownTime>1</cooldownTime>
+          <cooldownTime>1.05</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
           <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
           <chanceFactor>0.2</chanceFactor>
@@ -1314,7 +1285,7 @@
                 </capacities>
                 <power>6.2</power>
                 <armorPenetrationBlunt>2.241</armorPenetrationBlunt>
-                <cooldownTime>1.51</cooldownTime>
+                <cooldownTime>2.26</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                 <chanceFactor>0.2</chanceFactor>
@@ -1499,7 +1470,7 @@
                 </capacities>
                 <power>1.65</power>
                 <armorPenetrationBlunt>0.522</armorPenetrationBlunt>
-                <cooldownTime>1.22</cooldownTime>
+                <cooldownTime>1.8</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                 <chanceFactor>0.2</chanceFactor>
@@ -1684,7 +1655,7 @@
                 </capacities>
                 <power>1.65</power>
                 <armorPenetrationBlunt>0.506</armorPenetrationBlunt>
-                <cooldownTime>1.22</cooldownTime>
+                <cooldownTime>1.8</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                 <chanceFactor>0.2</chanceFactor>
@@ -1869,7 +1840,7 @@
                 </capacities>
                 <power>0.2</power>
                 <armorPenetrationBlunt>0.052</armorPenetrationBlunt>
-                <cooldownTime>0.95</cooldownTime>
+                <cooldownTime>1.39</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                 <chanceFactor>0.2</chanceFactor>
@@ -2054,7 +2025,7 @@
                 </capacities>
                 <power>0.05</power>
                 <armorPenetrationBlunt>0.014</armorPenetrationBlunt>
-                <cooldownTime>0.84</cooldownTime>
+                <cooldownTime>1.22</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                 <chanceFactor>0.2</chanceFactor>
@@ -2239,7 +2210,7 @@
                 </capacities>
                 <power>0.01</power>
                 <armorPenetrationBlunt>0.003</armorPenetrationBlunt>
-                <cooldownTime>0.71</cooldownTime>
+                <cooldownTime>1.03</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
                 <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
                 <chanceFactor>0.2</chanceFactor>
