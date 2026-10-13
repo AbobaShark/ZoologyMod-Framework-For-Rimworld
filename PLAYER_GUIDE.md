@@ -664,6 +664,8 @@ Default: enabled.
 
 Zoology adds selected animal options to standard mixed human pawn groups, but it does not leave those animals as handlerless props.
 
+For Yttakin pirate groups, Zoology replaces certain vanilla WildBoar options with timber wolves. Disabling Animals in NPC groups restores the wild boar options instead of removing them, so these original group slots remain available.
+
 ### Handler validation
 
 A generated companion must have an eligible humanlike handler in the same generated group.

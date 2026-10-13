@@ -447,6 +447,8 @@ Example:
 
 AnimalCombatPowerUtility uses the explicit extension when present. If it is absent, the utility falls back to Zoology's infant/juvenile recognition and then to factor 1 for other stages.
 
+These Combat Power factors are separate from Combat Extended's `meleeDamageFactor`. The shipped CE life-stage patch sets `AnimalBabyTiny` to 0.15, `AnimalBaby` and `EusocialInsectLarva` to 0.2, and `AnimalJuvenile` and `EusocialInsectJuvenile` to 0.5. In particular, `AnimalBabyTiny` has a 0.2 Combat Power factor but a 0.15 CE melee-damage factor.
+
 This adjusted combat power is used by behavior systems such as targeted flee and predator/prey comparisons. It is not a replacement for the PawnKindDef combatPower field stored in XML.
 
 ### Combat Extended life-stage penetration Def
@@ -507,6 +509,8 @@ Example from the shipped patch pattern:
     <Husky Class="ZoologyMod.ZoologyPawnGenOption, ZoologyMod">0.8</Husky>
 
 The generic companion-safety system does not require this marker. It evaluates animals selected in supported standard mixed human groups regardless of whether the animal option was added by Zoology.
+
+`ZoologyMod.ZoologyPawnGenOption_WildBoarReplacement` is a second, specialized XML option type derived from `ZoologyPawnGenOption`. The Core NPC-group patch uses it to replace specific `WildBoar` options with `Wolf_Timber` for Yttakin pirates, preserving their selection weights. Unlike ordinary Zoology-added options, these replacements remain in the group when Animals in NPC groups is disabled: the runtime registry restores their `WildBoar` kind when that PawnKindDef is available. No additional XML fields are defined by this subclass.
 
 ## 9. Beastmastery and direct-control interoperability
 

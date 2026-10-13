@@ -214,7 +214,7 @@ When enabled, the fixer compacts only patch files successfully produced by the c
 
 ### Generate From Original XML
 
-This workflow uses `checker/OriginalXML` as the baseline source tree and rebuilds patch output from known upstream defs without requiring an existing generated target patch.
+This workflow uses `checker/OriginalXML` as the baseline source tree and rebuilds patch output from known upstream defs without requiring an existing generated target patch. The GUI asks the user to select one or more original ThingDef XML files, then writes generated patches under `checker/generated_patches/FromOriginalXML`. The deployment helper `move_xmls.py` does not copy this subdirectory, so review and place these generated files into the appropriate mod patch folders separately.
 
 ### Generate Biome Patches
 
@@ -504,7 +504,7 @@ Use update mode without --overwrite-existing and set --out-dir to a review locat
 
 ### Rebuild against upstream reference XML
 
-Use Generate From Original XML in the patch fixer to derive output from `checker/OriginalXML` and the configured reference patches.
+Use Generate From Original XML in the patch fixer and select the source ThingDef XML file(s). The fixer uses `checker/OriginalXML` and the configured reference patches to build output in `checker/generated_patches/FromOriginalXML`; review and deploy these files manually because `move_xmls.py` does not map that folder.
 
 ## 21. Common failure modes
 
