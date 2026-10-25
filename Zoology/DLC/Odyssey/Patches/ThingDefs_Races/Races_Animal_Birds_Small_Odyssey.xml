@@ -53,7 +53,6 @@
     <value>
       <herdMigrationAllowed>false</herdMigrationAllowed>
       <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
-      <predator>false</predator>
       <waterSeeker>false</waterSeeker>
       <canFishForFood>false</canFishForFood>
     </value>
@@ -111,28 +110,19 @@
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/PawnKindDef[defName="Sparrow" or defName="Crow"]/canArriveManhunter</xpath>
+    <xpath>/Defs/PawnKindDef[defName = "Sparrow"]/canArriveManhunter</xpath>
     <match Class="PatchOperationReplace">
-      <xpath>/Defs/PawnKindDef[defName="Sparrow" or defName="Crow"]/canArriveManhunter</xpath>
+      <xpath>/Defs/PawnKindDef[defName = "Sparrow"]/canArriveManhunter</xpath>
       <value>
-        <canArriveManhunter>true</canArriveManhunter>
+        <canArriveManhunter>false</canArriveManhunter>
       </value>
     </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/PawnKindDef[defName = "Sparrow"][not(canArriveManhunter)] | /Defs/PawnKindDef[defName = "Crow"][not(canArriveManhunter)]</xpath>
-    <match Class="PatchOperationAdd">
-      <xpath>/Defs/PawnKindDef[defName = "Sparrow"][not(canArriveManhunter)] | /Defs/PawnKindDef[defName = "Crow"][not(canArriveManhunter)]</xpath>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/PawnKindDef[defName = "Sparrow"]</xpath>
       <value>
-        <canArriveManhunter>true</canArriveManhunter>
+        <canArriveManhunter>false</canArriveManhunter>
       </value>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/PawnKindDef[defName="Sparrow" or defName="Crow"]/wildGroupSize</xpath>
-    <value>
-      <wildGroupSize>3~8</wildGroupSize>
-    </value>
+    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Bluebird"]/statBases</xpath>
@@ -172,12 +162,6 @@
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/PawnKindDef[defName="Sparrow" or defName="Bluebird" or defName="Crow"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/PawnKindDef[defName="Sparrow" or defName="Bluebird" or defName="Crow"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Crow"]/statBases/*[self::MarketValue or self::MoveSpeed or self::FilthRate or self::ComfyTemperatureMin or self::ComfyTemperatureMax or self::ArmorRating_Blunt or self::ArmorRating_Sharp or self::ToxicEnvironmentResistance]</xpath>
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Crow"]/statBases/*[self::MarketValue or self::MoveSpeed or self::FilthRate or self::ComfyTemperatureMin or self::ComfyTemperatureMax or self::ArmorRating_Blunt or self::ArmorRating_Sharp or self::ToxicEnvironmentResistance]</xpath>
@@ -193,6 +177,33 @@
       <ComfyTemperatureMax>50</ComfyTemperatureMax>
       <ToxicEnvironmentResistance>0.8</ToxicEnvironmentResistance>
     </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/PawnKindDef[defName = "Crow"]/canArriveManhunter</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/PawnKindDef[defName = "Crow"]/canArriveManhunter</xpath>
+      <value>
+        <canArriveManhunter>true</canArriveManhunter>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/PawnKindDef[defName = "Crow"]</xpath>
+      <value>
+        <canArriveManhunter>true</canArriveManhunter>
+      </value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/PawnKindDef[defName="Sparrow" or defName="Crow"]/wildGroupSize</xpath>
+    <value>
+      <wildGroupSize>3~8</wildGroupSize>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/PawnKindDef[defName="Sparrow" or defName="Bluebird" or defName="Crow"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/PawnKindDef[defName="Sparrow" or defName="Bluebird" or defName="Crow"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
+    </match>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Macaw"]/statBases/MarketValue</xpath>
@@ -299,8 +310,9 @@
     <value>
       <baseHungerRate>0.25</baseHungerRate>
       <lifeExpectancy>3</lifeExpectancy>
-      <foodType>OmnivoreAnimal, OvivoreAnimal</foodType>
+      <foodType>VegetarianRoughAnimal</foodType>
       <trainability>None</trainability>
+      <predator>false</predator>
       <nameOnTameChance>0</nameOnTameChance>
       <useMeatFrom>Cassowary</useMeatFrom>
       <flightSpeedFactor>3.3</flightSpeedFactor>
@@ -345,6 +357,7 @@
       <herdAnimal>false</herdAnimal>
       <foodType>OmnivoreAnimal, OvivoreAnimal</foodType>
       <trainability>None</trainability>
+      <predator>false</predator>
       <nameOnTameChance>0</nameOnTameChance>
       <useMeatFrom>Cassowary</useMeatFrom>
       <flightSpeedFactor>3.2</flightSpeedFactor>
@@ -373,6 +386,12 @@
       </lifeStageAges>
     </value>
   </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName="Sparrow" or defName="Bluebird"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_CannotChew, ZoologyMod"/>
+    </value>
+  </Operation>
   <Operation Class="PatchOperationAdd">
     <xpath>/Defs/ThingDef[defName = "Crow"]</xpath>
     <value>
@@ -397,6 +416,14 @@
           <power>1</power>
           <cooldownTime>1.5</cooldownTime>
           <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
+          <surpriseAttack>
+            <extraMeleeDamages>
+              <li>
+                <def>Stun</def>
+                <amount>15</amount>
+              </li>
+            </extraMeleeDamages>
+          </surpriseAttack>
         </li>
         <li>
           <label>rear  right claw</label>
@@ -407,6 +434,14 @@
           <power>1</power>
           <cooldownTime>1.5</cooldownTime>
           <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
+          <surpriseAttack>
+            <extraMeleeDamages>
+              <li>
+                <def>Stun</def>
+                <amount>15</amount>
+              </li>
+            </extraMeleeDamages>
+          </surpriseAttack>
         </li>
         <li>
           <label>beak</label>
@@ -416,6 +451,14 @@
           <power>1.5</power>
           <cooldownTime>1.05</cooldownTime>
           <linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>
+          <surpriseAttack>
+            <extraMeleeDamages>
+              <li>
+                <def>Stun</def>
+                <amount>15</amount>
+              </li>
+            </extraMeleeDamages>
+          </surpriseAttack>
         </li>
       </tools>
     </value>
@@ -434,6 +477,8 @@
       <baseHungerRate>0.25</baseHungerRate>
       <lifeExpectancy>10</lifeExpectancy>
       <nuzzleMtbHours>36</nuzzleMtbHours>
+      <predator>true</predator>
+      <maxPreyBodySize>0.05</maxPreyBodySize>
       <nameOnTameChance>1</nameOnTameChance>
       <useMeatFrom>Cassowary</useMeatFrom>
       <flightSpeedFactor>3.6</flightSpeedFactor>
@@ -524,6 +569,7 @@
     <value>
       <foodType>VegetarianRoughAnimal</foodType>
       <nuzzleMtbHours>36</nuzzleMtbHours>
+      <predator>false</predator>
       <nameOnTameChance>1</nameOnTameChance>
       <useMeatFrom>Cassowary</useMeatFrom>
       <flightSpeedFactor>3.9</flightSpeedFactor>
@@ -725,8 +771,9 @@
     <value>
       <baseHealthScale>0.05</baseHealthScale>
       <lifeExpectancy>2</lifeExpectancy>
-      <foodType>OmnivoreAnimal, OvivoreAnimal</foodType>
+      <foodType>VegetarianRoughAnimal</foodType>
       <trainability>None</trainability>
+      <predator>false</predator>
       <nameOnTameChance>0</nameOnTameChance>
       <flightSpeedFactor>4.3</flightSpeedFactor>
     </value>
@@ -766,6 +813,12 @@
       </lifeStageAges>
     </value>
   </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName="Macaw" or defName="Quail"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_CannotChew, ZoologyMod"/>
+    </value>
+  </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "Quail"]/ecoSystemWeight</xpath>
     <value>
@@ -777,13 +830,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "Quail"]/canArriveManhunter</xpath>
       <value>
-        <canArriveManhunter>true</canArriveManhunter>
+        <canArriveManhunter>false</canArriveManhunter>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "Quail"]</xpath>
       <value>
-        <canArriveManhunter>true</canArriveManhunter>
+        <canArriveManhunter>false</canArriveManhunter>
       </value>
     </nomatch>
   </Operation>
@@ -1460,6 +1513,14 @@
                 <armorPenetrationSharp>0.01</armorPenetrationSharp>
                 <cooldownTime>0.83</cooldownTime>
                 <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
+                <surpriseAttack>
+                  <extraMeleeDamages>
+                    <li>
+                      <def>Stun</def>
+                      <amount>15</amount>
+                    </li>
+                  </extraMeleeDamages>
+                </surpriseAttack>
               </li>
               <li Class="CombatExtended.ToolCE">
                 <label>rear  right claw</label>
@@ -1472,6 +1533,14 @@
                 <armorPenetrationSharp>0.01</armorPenetrationSharp>
                 <cooldownTime>0.83</cooldownTime>
                 <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
+                <surpriseAttack>
+                  <extraMeleeDamages>
+                    <li>
+                      <def>Stun</def>
+                      <amount>15</amount>
+                    </li>
+                  </extraMeleeDamages>
+                </surpriseAttack>
               </li>
               <li Class="CombatExtended.ToolCE">
                 <label>beak</label>
@@ -1482,6 +1551,14 @@
                 <armorPenetrationBlunt>0.017</armorPenetrationBlunt>
                 <cooldownTime>1.03</cooldownTime>
                 <linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>
+                <surpriseAttack>
+                  <extraMeleeDamages>
+                    <li>
+                      <def>Stun</def>
+                      <amount>15</amount>
+                    </li>
+                  </extraMeleeDamages>
+                </surpriseAttack>
               </li>
             </tools>
           </value>

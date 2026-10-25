@@ -37,6 +37,7 @@
       <herdMigrationAllowed>false</herdMigrationAllowed>
       <leatherDef>Leather_BlackChitin</leatherDef>
       <mateMtbHours>12</mateMtbHours>
+      <predator>true</predator>
       <waterSeeker>false</waterSeeker>
       <canFishForFood>false</canFishForFood>
       <useMeatFrom>Megaspider</useMeatFrom>
@@ -166,7 +167,6 @@
       <manhunterOnDamageChance>0</manhunterOnDamageChance>
       <trainability>Advanced</trainability>
       <packAnimal>false</packAnimal>
-      <predator>true</predator>
       <maxPreyBodySize>0.2</maxPreyBodySize>
       <nameOnTameChance>1</nameOnTameChance>
     </value>
@@ -412,7 +412,6 @@
       <manhunterOnTameFailChance>0.1</manhunterOnTameFailChance>
       <manhunterOnDamageChance>1</manhunterOnDamageChance>
       <packAnimal>false</packAnimal>
-      <predator>true</predator>
       <maxPreyBodySize>1.5</maxPreyBodySize>
       <nameOnTameChance>1</nameOnTameChance>
     </value>
@@ -666,7 +665,6 @@
       <manhunterOnTameFailChance>0.1</manhunterOnTameFailChance>
       <manhunterOnDamageChance>1</manhunterOnDamageChance>
       <packAnimal>false</packAnimal>
-      <predator>true</predator>
       <maxPreyBodySize>2.5</maxPreyBodySize>
       <nameOnTameChance>1</nameOnTameChance>
     </value>
@@ -910,6 +908,14 @@
           <power>45</power>
           <cooldownTime>3.2</cooldownTime>
           <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
+          <surpriseAttack>
+            <extraMeleeDamages>
+              <li>
+                <def>Stun</def>
+                <amount>40</amount>
+              </li>
+            </extraMeleeDamages>
+          </surpriseAttack>
         </li>
         <li>
           <label>mandibles</label>
@@ -919,6 +925,14 @@
           <power>32</power>
           <cooldownTime>3.25</cooldownTime>
           <linkedBodyPartsGroup>Mouth</linkedBodyPartsGroup>
+          <surpriseAttack>
+            <extraMeleeDamages>
+              <li>
+                <def>Stun</def>
+                <amount>40</amount>
+              </li>
+            </extraMeleeDamages>
+          </surpriseAttack>
         </li>
       </tools>
     </value>
@@ -960,7 +974,7 @@
       <roamMtbDays>2</roamMtbDays>
       <manhunterOnTameFailChance>0.1</manhunterOnTameFailChance>
       <manhunterOnDamageChance>0.3</manhunterOnDamageChance>
-      <predator>false</predator>
+      <maxPreyBodySize>4.75</maxPreyBodySize>
       <nameOnTameChance>0</nameOnTameChance>
     </value>
   </Operation>
@@ -1086,11 +1100,8 @@
       <trainability>None</trainability>
     </value>
   </Operation>
-  <Operation Class="PatchOperationReplace">
+  <Operation Class="PatchOperationRemove">
     <xpath>/Defs/ThingDef[defName = "AA_MegaLouse"]/race/predator</xpath>
-    <value>
-      <predator>true</predator>
-    </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName="AA_MammothWorm" or defName="AA_MegaLouse"]/race/body</xpath>
@@ -1390,6 +1401,9 @@
     </value>
   </Operation>
   <Operation Class="PatchOperationRemove">
+    <xpath>/Defs/ThingDef[defName = "AA_Ravager"]/race/predator</xpath>
+  </Operation>
+  <Operation Class="PatchOperationRemove">
     <xpath>/Defs/ThingDef[defName = "AA_Ravager"]/race/useMeatFrom</xpath>
   </Operation>
   <Operation Class="PatchOperationRemove">
@@ -1619,7 +1633,6 @@
       <manhunterOnTameFailChance>0.1</manhunterOnTameFailChance>
       <manhunterOnDamageChance>1</manhunterOnDamageChance>
       <packAnimal>false</packAnimal>
-      <predator>true</predator>
       <maxPreyBodySize>2.5</maxPreyBodySize>
       <nameOnTameChance>1</nameOnTameChance>
     </value>
@@ -2585,6 +2598,14 @@
                 <armorPenetrationSharp>13.03</armorPenetrationSharp>
                 <cooldownTime>3.76</cooldownTime>
                 <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
+                <surpriseAttack>
+                  <extraMeleeDamages>
+                    <li>
+                      <def>Stun</def>
+                      <amount>40</amount>
+                    </li>
+                  </extraMeleeDamages>
+                </surpriseAttack>
               </li>
               <li Class="CombatExtended.ToolCE">
                 <label>mandibles</label>
@@ -2596,6 +2617,14 @@
                 <armorPenetrationSharp>0.2</armorPenetrationSharp>
                 <cooldownTime>3.25</cooldownTime>
                 <linkedBodyPartsGroup>Mouth</linkedBodyPartsGroup>
+                <surpriseAttack>
+                  <extraMeleeDamages>
+                    <li>
+                      <def>Stun</def>
+                      <amount>40</amount>
+                    </li>
+                  </extraMeleeDamages>
+                </surpriseAttack>
               </li>
             </tools>
           </value>

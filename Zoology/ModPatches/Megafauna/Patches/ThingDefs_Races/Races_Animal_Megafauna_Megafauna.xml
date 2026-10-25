@@ -321,6 +321,14 @@
           <power>20</power>
           <cooldownTime>2.65</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
+          <surpriseAttack>
+            <extraMeleeDamages>
+              <li>
+                <def>Stun</def>
+                <amount>30</amount>
+              </li>
+            </extraMeleeDamages>
+          </surpriseAttack>
         </li>
       </tools>
     </value>
@@ -468,13 +476,10 @@
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "Daeodon"]/race/predator</xpath>
-    <value>
-      <predator>false</predator>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationRemove">
     <xpath>/Defs/ThingDef[defName = "Daeodon"]/race/maxPreyBodySize</xpath>
+    <value>
+      <maxPreyBodySize>3.25</maxPreyBodySize>
+    </value>
   </Operation>
   <Operation Class="PatchOperationRemove">
     <xpath>/Defs/ThingDef[defName="Arthropleura" or defName="Doedicurus" or defName="Daeodon"]/race/wildBiomes</xpath>
@@ -578,6 +583,7 @@
     <match Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Daeodon"]/race/specialTrainables</xpath>
       <value>
+        <li MayRequire="Ludeon.RimWorld.Odyssey">AttackTarget</li>
         <li MayRequire="Ludeon.RimWorld.Odyssey">Forage</li>
       </value>
     </match>
@@ -585,6 +591,7 @@
       <xpath>/Defs/ThingDef[defName = "Daeodon"]/race</xpath>
       <value>
         <specialTrainables>
+          <li MayRequire="Ludeon.RimWorld.Odyssey">AttackTarget</li>
           <li MayRequire="Ludeon.RimWorld.Odyssey">Forage</li>
         </specialTrainables>
       </value>
@@ -4521,6 +4528,14 @@
           <power>20.5</power>
           <cooldownTime>2.65</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
+          <surpriseAttack>
+            <extraMeleeDamages>
+              <li>
+                <def>Stun</def>
+                <amount>30</amount>
+              </li>
+            </extraMeleeDamages>
+          </surpriseAttack>
         </li>
       </tools>
     </value>
@@ -4618,13 +4633,10 @@
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "Andrewsarchus"]/race/predator</xpath>
-    <value>
-      <predator>false</predator>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationRemove">
     <xpath>/Defs/ThingDef[defName = "Andrewsarchus"]/race/maxPreyBodySize</xpath>
+    <value>
+      <maxPreyBodySize>3.25</maxPreyBodySize>
+    </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName="Sivatherium" or defName="Andrewsarchus"]/race/body</xpath>
@@ -4705,6 +4717,7 @@
     <match Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Andrewsarchus"]/race/specialTrainables</xpath>
       <value>
+        <li MayRequire="Ludeon.RimWorld.Odyssey">AttackTarget</li>
         <li MayRequire="Ludeon.RimWorld.Odyssey">Forage</li>
       </value>
     </match>
@@ -4712,6 +4725,7 @@
       <xpath>/Defs/ThingDef[defName = "Andrewsarchus"]/race</xpath>
       <value>
         <specialTrainables>
+          <li MayRequire="Ludeon.RimWorld.Odyssey">AttackTarget</li>
           <li MayRequire="Ludeon.RimWorld.Odyssey">Forage</li>
         </specialTrainables>
       </value>
@@ -6066,6 +6080,7 @@
   <Operation Class="PatchOperationAddModExtension">
     <xpath>/Defs/ThingDef[defName = "Palaeeudyptes"]</xpath>
     <value>
+      <li Class="ZoologyMod.ModExtension_CannotChew, ZoologyMod"/>
       <li Class="ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod"/>
     </value>
   </Operation>
@@ -9320,6 +9335,14 @@
                 <armorPenetrationSharp>0.21</armorPenetrationSharp>
                 <cooldownTime>2.63</cooldownTime>
                 <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
+                <surpriseAttack>
+                  <extraMeleeDamages>
+                    <li>
+                      <def>Stun</def>
+                      <amount>30</amount>
+                    </li>
+                  </extraMeleeDamages>
+                </surpriseAttack>
               </li>
             </tools>
           </value>
@@ -13031,6 +13054,14 @@
                 <armorPenetrationSharp>0.22</armorPenetrationSharp>
                 <cooldownTime>2.66</cooldownTime>
                 <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
+                <surpriseAttack>
+                  <extraMeleeDamages>
+                    <li>
+                      <def>Stun</def>
+                      <amount>30</amount>
+                    </li>
+                  </extraMeleeDamages>
+                </surpriseAttack>
               </li>
             </tools>
           </value>

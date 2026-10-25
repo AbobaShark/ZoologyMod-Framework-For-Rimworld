@@ -23,7 +23,6 @@
     <value>
       <mateMtbHours>12</mateMtbHours>
       <trainability>None</trainability>
-      <predator>false</predator>
       <nameOnTameChance>0</nameOnTameChance>
     </value>
   </Operation>
@@ -686,6 +685,7 @@
       <herdMigrationAllowed>false</herdMigrationAllowed>
       <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
       <manhunterOnDamageChance>0</manhunterOnDamageChance>
+      <predator>false</predator>
       <waterSeeker>false</waterSeeker>
       <canFishForFood>false</canFishForFood>
       <flightSpeedFactor>5.8</flightSpeedFactor>
@@ -853,6 +853,7 @@
     <value>
       <herdMigrationAllowed>false</herdMigrationAllowed>
       <leatherDef>Leather_Bird</leatherDef>
+      <predator>false</predator>
       <waterSeeker>false</waterSeeker>
       <canFishForFood>false</canFishForFood>
     </value>
@@ -1062,6 +1063,12 @@
       </lifeStageAges>
     </value>
   </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "Goose"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod"/>
+    </value>
+  </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Duck"]/race/lifeStageAges</xpath>
     <value>
@@ -1088,6 +1095,12 @@
   <Operation Class="PatchOperationRemove">
     <xpath>/Defs/ThingDef[defName="Turkey" or defName="Duck"]/tradeTags/li[text()='AnimalFarm']</xpath>
   </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName="Emu" or defName="Turkey"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_CannotChew, ZoologyMod"/>
+    </value>
+  </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Chicken"]/race/lifeStageAges</xpath>
     <value>
@@ -1112,8 +1125,9 @@
     </value>
   </Operation>
   <Operation Class="PatchOperationAddModExtension">
-    <xpath>/Defs/ThingDef[defName="Goose" or defName="Duck" or defName="Chicken"]</xpath>
+    <xpath>/Defs/ThingDef[defName="Duck" or defName="Chicken"]</xpath>
     <value>
+      <li Class="ZoologyMod.ModExtension_CannotChew, ZoologyMod"/>
       <li Class="ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod"/>
     </value>
   </Operation>

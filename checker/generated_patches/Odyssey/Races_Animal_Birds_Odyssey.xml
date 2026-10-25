@@ -211,6 +211,7 @@
       <herdMigrationAllowed>true</herdMigrationAllowed>
       <foodType>VegetarianRoughAnimal</foodType>
       <roamMtbDays>4</roamMtbDays>
+      <predator>false</predator>
       <waterCellCost>1</waterCellCost>
       <waterSeeker>true</waterSeeker>
       <canFishForFood>false</canFishForFood>
@@ -277,6 +278,14 @@
           <power>1</power>
           <cooldownTime>1.5</cooldownTime>
           <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
+          <surpriseAttack>
+            <extraMeleeDamages>
+              <li>
+                <def>Stun</def>
+                <amount>15</amount>
+              </li>
+            </extraMeleeDamages>
+          </surpriseAttack>
         </li>
         <li>
           <label>rear  right claw</label>
@@ -287,6 +296,14 @@
           <power>1</power>
           <cooldownTime>1.5</cooldownTime>
           <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
+          <surpriseAttack>
+            <extraMeleeDamages>
+              <li>
+                <def>Stun</def>
+                <amount>15</amount>
+              </li>
+            </extraMeleeDamages>
+          </surpriseAttack>
         </li>
         <li>
           <label>beak</label>
@@ -296,6 +313,14 @@
           <power>1.5</power>
           <cooldownTime>1.2</cooldownTime>
           <linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>
+          <surpriseAttack>
+            <extraMeleeDamages>
+              <li>
+                <def>Stun</def>
+                <amount>15</amount>
+              </li>
+            </extraMeleeDamages>
+          </surpriseAttack>
         </li>
       </tools>
     </value>
@@ -318,6 +343,8 @@
       <roamMtbDays>4</roamMtbDays>
       <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
       <manhunterOnDamageChance>0</manhunterOnDamageChance>
+      <predator>true</predator>
+      <maxPreyBodySize>0.1</maxPreyBodySize>
       <waterCellCost>1</waterCellCost>
       <waterSeeker>true</waterSeeker>
       <useMeatFrom>Cassowary</useMeatFrom>
@@ -388,6 +415,7 @@
       <roamMtbDays>4</roamMtbDays>
       <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
       <manhunterOnDamageChance>0</manhunterOnDamageChance>
+      <predator>false</predator>
       <waterCellCost>1</waterCellCost>
       <waterSeeker>true</waterSeeker>
       <useMeatFrom>Cassowary</useMeatFrom>
@@ -508,6 +536,7 @@
       <leatherDef>Leather_Bird</leatherDef>
       <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
       <manhunterOnDamageChance>0</manhunterOnDamageChance>
+      <predator>false</predator>
       <waterSeeker>true</waterSeeker>
     </value>
   </Operation>
@@ -573,6 +602,12 @@
     <xpath>/Defs/ThingDef[defName="Swan" or defName="Heron" or defName="Flamingo" or defName="Penguin"]/tradeTags</xpath>
     <value>
       <li>AnimalCommon</li>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName="Heron" or defName="Flamingo" or defName="Penguin"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_CannotChew, ZoologyMod"/>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -771,6 +806,7 @@
       <foodType>OmnivoreRoughAnimal, OvivoreAnimal</foodType>
       <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
       <manhunterOnDamageChance>0</manhunterOnDamageChance>
+      <predator>false</predator>
       <waterSeeker>false</waterSeeker>
       <canFishForFood>false</canFishForFood>
       <useMeatFrom>Cassowary</useMeatFrom>
@@ -815,6 +851,12 @@
       <li>AnimalCommon</li>
     </value>
   </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "Peacock"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_CannotChew, ZoologyMod"/>
+    </value>
+  </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Vulture"]/race/*[self::baseBodySize or self::baseHealthScale or self::baseHungerRate or self::lifeExpectancy or self::gestationPeriodDays or self::herdAnimal or self::herdMigrationAllowed or self::roamMtbDays or self::leatherDef or self::useLeatherFrom or self::manhunterOnTameFailChance or self::manhunterOnDamageChance or self::petness or self::nuzzleMtbHours or self::mateMtbHours or self::packAnimal or self::predator or self::maxPreyBodySize or self::nameOnTameChance or self::body or self::waterCellCost or self::waterSeeker or self::canFishForFood or self::useMeatFrom or self::flightSpeedFactor or self::wildBiomes or self::specialTrainables]</xpath>
     <match Class="PatchOperationRemove">
@@ -832,6 +874,7 @@
       <herdMigrationAllowed>false</herdMigrationAllowed>
       <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
       <manhunterOnDamageChance>0</manhunterOnDamageChance>
+      <predator>false</predator>
       <waterSeeker>false</waterSeeker>
       <canFishForFood>false</canFishForFood>
       <useMeatFrom>Cassowary</useMeatFrom>
@@ -1248,6 +1291,14 @@
                 <armorPenetrationSharp>0.01</armorPenetrationSharp>
                 <cooldownTime>0.97</cooldownTime>
                 <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
+                <surpriseAttack>
+                  <extraMeleeDamages>
+                    <li>
+                      <def>Stun</def>
+                      <amount>15</amount>
+                    </li>
+                  </extraMeleeDamages>
+                </surpriseAttack>
               </li>
               <li Class="CombatExtended.ToolCE">
                 <label>rear  right claw</label>
@@ -1260,6 +1311,14 @@
                 <armorPenetrationSharp>0.01</armorPenetrationSharp>
                 <cooldownTime>0.97</cooldownTime>
                 <linkedBodyPartsGroup>Feet</linkedBodyPartsGroup>
+                <surpriseAttack>
+                  <extraMeleeDamages>
+                    <li>
+                      <def>Stun</def>
+                      <amount>15</amount>
+                    </li>
+                  </extraMeleeDamages>
+                </surpriseAttack>
               </li>
               <li Class="CombatExtended.ToolCE">
                 <label>beak</label>
@@ -1271,6 +1330,14 @@
                 <armorPenetrationSharp>0.02</armorPenetrationSharp>
                 <cooldownTime>1.18</cooldownTime>
                 <linkedBodyPartsGroup>Beak</linkedBodyPartsGroup>
+                <surpriseAttack>
+                  <extraMeleeDamages>
+                    <li>
+                      <def>Stun</def>
+                      <amount>15</amount>
+                    </li>
+                  </extraMeleeDamages>
+                </surpriseAttack>
               </li>
             </tools>
           </value>
