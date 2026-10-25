@@ -19,7 +19,7 @@ import os
 # --- Настройка: имена локальных папок -> целевые пути относительно корня ZoologyFramework
 MAPPINGS = {
     "Biotech": Path("Zoology") / "DLC" / "Biotech" / "Patches" / "ThingDefs_Races",
-    "Core": Path("Zoology") / "1.6" / "Patches" / "Core" / "ThingDefs_Races",
+    "Core": Path("Zoology") / "Core" / "Patches" / "Core" / "ThingDefs_Races",
     "Odyssey": Path("Zoology") / "DLC" / "Odyssey" / "Patches" / "ThingDefs_Races",
     "VanillaAnimalsExpanded": Path("Zoology") / "ModPatches" / "VanillaAnimalsExpanded" / "Patches" / "ThingDefs_Races",
     "VanillaAnimalsExpandedRoyal": Path("Zoology") / "ModPatches" / "VanillaAnimalsExpandedRoyal" / "Patches" / "ThingDefs_Races",
