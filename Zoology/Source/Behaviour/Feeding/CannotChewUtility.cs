@@ -102,6 +102,12 @@ namespace ZoologyMod
                 return false;
             }
 
+            // For non-predators, CannotChew excludes whole corpses regardless of body size.
+            if (HasCannotChew(eater) && eater.RaceProps?.predator == false)
+            {
+                return true;
+            }
+
             return corpse.InnerPawn.BodySize > GetPredationBodySizeLimit(eater);
         }
 
