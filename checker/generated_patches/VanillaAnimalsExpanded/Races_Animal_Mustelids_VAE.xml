@@ -414,6 +414,30 @@
       <li Class="ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod"/>
     </value>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AEXP_RedPanda"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AEXP_RedPanda"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AEXP_RedPanda"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AEXP_RedPanda"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AEXP_RedPanda"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AEXP_RedPanda"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "AEXP_RedPanda"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_TreeClimber, ZoologyMod"/>
+    </value>
+  </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_MegaWolverine"]/race/lifeStageAges</xpath>
     <value>
@@ -482,6 +506,32 @@
         <allowVeryRotten>true</allowVeryRotten>
       </li>
     </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AEXP_MegaWolverine"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AEXP_MegaWolverine"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "AEXP_MegaWolverine"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_PredationStrategy, ZoologyMod">
+        <strategy>Chasing</strategy>
+      </li>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AEXP_MegaWolverine"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AEXP_MegaWolverine"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AEXP_MegaWolverine"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AEXP_MegaWolverine"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    </match>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "AEXP_MegaWolverine"]/combatPower</xpath>

@@ -446,7 +446,7 @@
         <li>
           <label>stinger</label>
           <capacities>
-            <li>Sting</li>
+            <li>ZVenom_AtispecSting</li>
           </capacities>
           <power>45.5</power>
           <cooldownTime>1.6</cooldownTime>
@@ -638,7 +638,7 @@
         <li>
           <label>stinger</label>
           <capacities>
-            <li>Sting</li>
+            <li>ZVenom_BarbSting</li>
           </capacities>
           <power>4</power>
           <cooldownTime>1.05</cooldownTime>
@@ -825,6 +825,32 @@
     <value>
       <li>AnimalUncommon</li>
     </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="AA_AngelMoth" or defName="AA_AngelMothLarva" or defName="AA_Atispec" or defName="AA_LarvalAtispec"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="AA_AngelMoth" or defName="AA_AngelMothLarva" or defName="AA_Atispec" or defName="AA_LarvalAtispec"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "AA_Atispec"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_PredationStrategy, ZoologyMod">
+        <strategy>Chasing</strategy>
+      </li>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="AA_AngelMoth" or defName="AA_AngelMothLarva" or defName="AA_Atispec" or defName="AA_LarvalAtispec"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="AA_AngelMoth" or defName="AA_AngelMothLarva" or defName="AA_Atispec" or defName="AA_LarvalAtispec"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="AA_AngelMoth" or defName="AA_AngelMothLarva" or defName="AA_Atispec" or defName="AA_LarvalAtispec"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="AA_AngelMoth" or defName="AA_AngelMothLarva" or defName="AA_Atispec" or defName="AA_LarvalAtispec"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    </match>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_Barbslinger"]/race/lifeStageAges</xpath>
@@ -1145,7 +1171,7 @@
         <li>
           <label>stinger</label>
           <capacities>
-            <li>Sting</li>
+            <li>ZVenom_WaspSting</li>
           </capacities>
           <power>5</power>
           <cooldownTime>1</cooldownTime>
@@ -1270,7 +1296,7 @@
         <li>
           <label>stinger</label>
           <capacities>
-            <li>Sting</li>
+            <li>ZVenom_WaspSting</li>
           </capacities>
           <power>5.5</power>
           <cooldownTime>1</cooldownTime>
@@ -1456,6 +1482,32 @@
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="AA_Barbslinger" or defName="AA_BedBug" or defName="AA_Bumbledrone"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="AA_Barbslinger" or defName="AA_BedBug" or defName="AA_Bumbledrone"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName="AA_Barbslinger" or defName="AA_BedBug" or defName="AA_Bumbledrone"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_PredationStrategy, ZoologyMod">
+        <strategy>Chasing</strategy>
+      </li>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="AA_Barbslinger" or defName="AA_BedBug" or defName="AA_Bumbledrone"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="AA_Barbslinger" or defName="AA_BedBug" or defName="AA_Bumbledrone"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="AA_Barbslinger" or defName="AA_BedBug" or defName="AA_Bumbledrone"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="AA_Barbslinger" or defName="AA_BedBug" or defName="AA_Bumbledrone"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_BumbledroneHierophant"]/race/specialTrainables/li[text()="SludgeSpew" or text()="EggSpew" or text()="TerrorRoar" or text()="WarTrumpet" or text()="Forage" or text()="Comfort" or text()="AttackTarget" or text()="Dig"]</xpath>
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "AA_BumbledroneHierophant"]/race/specialTrainables/li[text()="SludgeSpew" or text()="EggSpew" or text()="TerrorRoar" or text()="WarTrumpet" or text()="Forage" or text()="Comfort" or text()="AttackTarget" or text()="Dig"]</xpath>
@@ -1483,6 +1535,32 @@
     <value>
       <li>AnimalFighter</li>
     </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_BumbledroneHierophant"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_BumbledroneHierophant"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "AA_BumbledroneHierophant"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_PredationStrategy, ZoologyMod">
+        <strategy>Chasing</strategy>
+      </li>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_BumbledroneHierophant"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_BumbledroneHierophant"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_BumbledroneHierophant"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_BumbledroneHierophant"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    </match>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "AA_BumbledroneHierophant"]/combatPower</xpath>
@@ -1609,7 +1687,7 @@
         <li>
           <label>stinger</label>
           <capacities>
-            <li>Sting</li>
+            <li>ZVenom_WaspSting</li>
           </capacities>
           <power>7</power>
           <cooldownTime>1</cooldownTime>
@@ -2487,7 +2565,7 @@
         <li>
           <label>stinger</label>
           <capacities>
-            <li>Sting</li>
+            <li>ZVenom_WaspSting</li>
           </capacities>
           <power>5</power>
           <cooldownTime>1</cooldownTime>
@@ -3315,6 +3393,32 @@
       </lifeStageAges>
     </value>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="AA_BumbledroneQueen" or defName="AA_ChemfuelMyrmidon" or defName="AA_CrepuscularBeetle" or defName="AA_Drainer" or defName="AA_DrainerLarva" or defName="AA_EmpressButterfly" or defName="AA_EmpressButterflyLarva" or defName="AA_FireWasp" or defName="AA_Frostmite" or defName="AA_IronhuskBeetle" or defName="AA_LuciferBug" or defName="AA_Metallovore"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="AA_BumbledroneQueen" or defName="AA_ChemfuelMyrmidon" or defName="AA_CrepuscularBeetle" or defName="AA_Drainer" or defName="AA_DrainerLarva" or defName="AA_EmpressButterfly" or defName="AA_EmpressButterflyLarva" or defName="AA_FireWasp" or defName="AA_Frostmite" or defName="AA_IronhuskBeetle" or defName="AA_LuciferBug" or defName="AA_Metallovore"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName="AA_BumbledroneQueen" or defName="AA_FireWasp"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_PredationStrategy, ZoologyMod">
+        <strategy>Chasing</strategy>
+      </li>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="AA_BumbledroneQueen" or defName="AA_ChemfuelMyrmidon" or defName="AA_CrepuscularBeetle" or defName="AA_Drainer" or defName="AA_DrainerLarva" or defName="AA_EmpressButterfly" or defName="AA_EmpressButterflyLarva" or defName="AA_FireWasp" or defName="AA_Frostmite" or defName="AA_IronhuskBeetle" or defName="AA_LuciferBug" or defName="AA_Metallovore"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="AA_BumbledroneQueen" or defName="AA_ChemfuelMyrmidon" or defName="AA_CrepuscularBeetle" or defName="AA_Drainer" or defName="AA_DrainerLarva" or defName="AA_EmpressButterfly" or defName="AA_EmpressButterflyLarva" or defName="AA_FireWasp" or defName="AA_Frostmite" or defName="AA_IronhuskBeetle" or defName="AA_LuciferBug" or defName="AA_Metallovore"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="AA_BumbledroneQueen" or defName="AA_ChemfuelMyrmidon" or defName="AA_CrepuscularBeetle" or defName="AA_Drainer" or defName="AA_DrainerLarva" or defName="AA_EmpressButterfly" or defName="AA_EmpressButterflyLarva" or defName="AA_FireWasp" or defName="AA_Frostmite" or defName="AA_IronhuskBeetle" or defName="AA_LuciferBug" or defName="AA_Metallovore"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="AA_BumbledroneQueen" or defName="AA_ChemfuelMyrmidon" or defName="AA_CrepuscularBeetle" or defName="AA_Drainer" or defName="AA_DrainerLarva" or defName="AA_EmpressButterfly" or defName="AA_EmpressButterflyLarva" or defName="AA_FireWasp" or defName="AA_Frostmite" or defName="AA_IronhuskBeetle" or defName="AA_LuciferBug" or defName="AA_Metallovore"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_Swarmling"]/race/lifeStageAges</xpath>
     <value>
@@ -3378,6 +3482,32 @@
         <allowVeryRotten>true</allowVeryRotten>
       </li>
     </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_Swarmling"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_Swarmling"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "AA_Swarmling"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_PredationStrategy, ZoologyMod">
+        <strategy>Chasing</strategy>
+      </li>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_Swarmling"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_Swarmling"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_Swarmling"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_Swarmling"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    </match>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "AA_Swarmling"]/combatPower</xpath>
@@ -4033,7 +4163,7 @@
               <li Class="CombatExtended.ToolCE">
                 <label>stinger</label>
                 <capacities>
-                  <li>Sting</li>
+                  <li>ZVenom_AtispecSting</li>
                 </capacities>
                 <power>60.4</power>
                 <armorPenetrationBlunt>17.5</armorPenetrationBlunt>
@@ -4490,7 +4620,7 @@
               <li Class="CombatExtended.ToolCE">
                 <label>stinger</label>
                 <capacities>
-                  <li>Sting</li>
+                  <li>ZVenom_BarbSting</li>
                 </capacities>
                 <power>3.85</power>
                 <armorPenetrationBlunt>0.375</armorPenetrationBlunt>
@@ -4955,7 +5085,7 @@
               <li Class="CombatExtended.ToolCE">
                 <label>stinger</label>
                 <capacities>
-                  <li>Sting</li>
+                  <li>ZVenom_WaspSting</li>
                 </capacities>
                 <power>4.75</power>
                 <armorPenetrationBlunt>0.075</armorPenetrationBlunt>
@@ -5217,7 +5347,7 @@
               <li Class="CombatExtended.ToolCE">
                 <label>stinger</label>
                 <capacities>
-                  <li>Sting</li>
+                  <li>ZVenom_WaspSting</li>
                 </capacities>
                 <power>5.4</power>
                 <armorPenetrationBlunt>0.1</armorPenetrationBlunt>
@@ -5479,7 +5609,7 @@
               <li Class="CombatExtended.ToolCE">
                 <label>stinger</label>
                 <capacities>
-                  <li>Sting</li>
+                  <li>ZVenom_WaspSting</li>
                 </capacities>
                 <power>7.05</power>
                 <armorPenetrationBlunt>0.175</armorPenetrationBlunt>
@@ -6888,7 +7018,7 @@
               <li Class="CombatExtended.ToolCE">
                 <label>stinger</label>
                 <capacities>
-                  <li>Sting</li>
+                  <li>ZVenom_WaspSting</li>
                 </capacities>
                 <power>4.75</power>
                 <armorPenetrationBlunt>0.075</armorPenetrationBlunt>

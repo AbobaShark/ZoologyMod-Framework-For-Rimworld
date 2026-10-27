@@ -214,7 +214,7 @@
     <value>
       <herdMigrationAllowed>false</herdMigrationAllowed>
       <mateMtbHours>12</mateMtbHours>
-      <maxPreyBodySize>2</maxPreyBodySize>
+      <maxPreyBodySize>0.4</maxPreyBodySize>
       <nameOnTameChance>0</nameOnTameChance>
       <waterSeeker>false</waterSeeker>
       <canFishForFood>false</canFishForFood>
@@ -298,8 +298,35 @@
   <Operation Class="PatchOperationAddModExtension">
     <xpath>/Defs/ThingDef[defName="Quetzalcoatlus" or defName="Pteranodon"]</xpath>
     <value>
+      <li Class="ZoologyMod.ModExtension_CannotChew, ZoologyMod"/>
       <li Class="ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod"/>
     </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="Quetzalcoatlus" or defName="Pteranodon"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="Quetzalcoatlus" or defName="Pteranodon"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "Quetzalcoatlus"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_PredationStrategy, ZoologyMod">
+        <strategy>Chasing</strategy>
+      </li>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="Quetzalcoatlus" or defName="Pteranodon"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="Quetzalcoatlus" or defName="Pteranodon"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="Quetzalcoatlus" or defName="Pteranodon"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="Quetzalcoatlus" or defName="Pteranodon"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    </match>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "Pteranodon"]/combatPower</xpath>

@@ -57,6 +57,21 @@ namespace ZoologyMod
             runtimeCacheLastTick = Find.TickManager?.TicksGame ?? 0;
         }
 
+        public static void InvalidatePrey(Pawn prey)
+        {
+            if (prey == null) return;
+            uint id = (uint)prey.thingIDNumber;
+            for (int i = 0; i < acceptablePreyHotCacheSlots.Length; i++)
+                if ((uint)acceptablePreyHotCacheSlots[i].PairKey == id) acceptablePreyHotCacheSlots[i] = default;
+            for (int i = 0; i < preyScoreHotCacheSlots.Length; i++)
+                if ((uint)preyScoreHotCacheSlots[i].PairKey == id) preyScoreHotCacheSlots[i] = default;
+        }
+
+        // PairKey's low half contains only prey ID. Masking it directly made every predator
+        // evaluating that prey overwrite the same slot, defeating the existing pair cache.
+        private static int Slot(long key, int mask) => (int)(unchecked((uint)key * 2654435761u
+            ^ (uint)((ulong)key >> 32) * 2246822519u) & (uint)mask);
+
         public static bool TryGetAcceptablePrey(Pawn predator, Pawn prey, out bool value)
         {
             value = false;
@@ -68,7 +83,7 @@ namespace ZoologyMod
                 return false;
             }
 
-            int slotIndex = (int)((ulong)pairKey & AcceptablePreyHotCacheMask);
+            int slotIndex = Slot(pairKey, AcceptablePreyHotCacheMask);
             AcceptablePreyCacheEntry cached = acceptablePreyHotCacheSlots[slotIndex];
             if (cached.PairKey != pairKey
                 || currentTick - cached.Tick > AcceptablePreyCacheDurationTicks)
@@ -90,7 +105,7 @@ namespace ZoologyMod
                 return;
             }
 
-            int slotIndex = (int)((ulong)pairKey & AcceptablePreyHotCacheMask);
+            int slotIndex = Slot(pairKey, AcceptablePreyHotCacheMask);
             acceptablePreyHotCacheSlots[slotIndex] = new AcceptablePreyCacheEntry(pairKey, value, currentTick);
         }
 
@@ -105,7 +120,7 @@ namespace ZoologyMod
                 return false;
             }
 
-            int slotIndex = (int)((ulong)pairKey & PreyScoreHotCacheMask);
+            int slotIndex = Slot(pairKey, PreyScoreHotCacheMask);
             PreyScoreCacheEntry cached = preyScoreHotCacheSlots[slotIndex];
             if (cached.PairKey != pairKey
                 || currentTick - cached.Tick > PreyScoreCacheDurationTicks)
@@ -127,7 +142,7 @@ namespace ZoologyMod
                 return;
             }
 
-            int slotIndex = (int)((ulong)pairKey & PreyScoreHotCacheMask);
+            int slotIndex = Slot(pairKey, PreyScoreHotCacheMask);
             preyScoreHotCacheSlots[slotIndex] = new PreyScoreCacheEntry(pairKey, value, currentTick);
         }
 

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <ThingDef ParentName="BuildingBase">
+    <defName>Zoology_AnimalBurrow</defName>
+    <label>animal burrow</label>
+    <description>A shared underground refuge limited by its entrance size and total occupant body size. Social diggers make larger chambers; mothers expand them for their young. Occupants continue to age, hunger and suffer illness. Use repairs the entrance; unused burrows slowly collapse.</description>
+    <thingClass>ZoologyMod.Building_AnimalBurrow, ZoologyMod</thingClass>
+    <containedPawnsSelectable>true</containedPawnsSelectable>
+    <graphicData>
+      <texPath>Things/Building/Zoology/AnimalBurrow</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <drawSize>(1,1)</drawSize>
+    </graphicData>
+    <altitudeLayer>FloorEmplacement</altitudeLayer>
+    <useHitPoints>true</useHitPoints>
+    <size>(1,1)</size>
+    <terrainAffordanceNeeded>Diggable</terrainAffordanceNeeded>
+    <tickerType>Normal</tickerType>
+    <passability>Standable</passability>
+    <statBases><MaxHitPoints>60</MaxHitPoints><Flammability>0</Flammability><Beauty>0</Beauty></statBases>
+    <building><isInert>true</isInert><expandHomeArea>false</expandHomeArea></building>
+    <designationCategory IsNull="True" />
+  </ThingDef>
+  <ZoologyMod.AnimalRefugeDef>
+    <defName>Zoology_AnimalRefuges</defName>
+    <burrow>Zoology_AnimalBurrow</burrow>
+    <digTicks>2500</digTicks>
+    <unusedDecayInterval>60000</unusedDecayInterval>
+    <occupiedRepairInterval>2500</occupiedRepairInterval>
+    <maxBurrowBodySize>2</maxBurrowBodySize>
+    <searchRadius>24</searchRadius>
+    <diggableTerrainAffordance>Diggable</diggableTerrainAffordance>
+    <socialCapacityMultiplier>4</socialCapacityMultiplier>
+    <hungerExitThreshold>0.2</hungerExitThreshold>
+    <foodToReuseShelter>0.35</foodToReuseShelter>
+    <forcedExitReentryDelay>2500</forcedExitReentryDelay>
+  </ZoologyMod.AnimalRefugeDef>
+</Defs>

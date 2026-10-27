@@ -467,6 +467,38 @@
       <xpath>/Defs/ThingDef[defName="Cougar" or defName="Panther"]/tradeTags</xpath>
     </match>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="Cougar" or defName="Panther"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="Cougar" or defName="Panther"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName="Cougar" or defName="Panther"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_PredationStrategy, ZoologyMod">
+        <strategy>Ambush</strategy>
+      </li>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="Cougar" or defName="Panther"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="Cougar" or defName="Panther"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="Cougar" or defName="Panther"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="Cougar" or defName="Panther"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName="Cougar" or defName="Panther"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_TreeClimber, ZoologyMod"/>
+    </value>
+  </Operation>
   <Operation Class="PatchOperationAdd">
     <xpath>/Defs/ThingDef[defName = "Lynx"]</xpath>
     <value>
@@ -871,6 +903,38 @@
     <value>
       <li Class="ZoologyMod.ModExtension_IsMammal, ZoologyMod"/>
       <li Class="ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod"/>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="Lynx" or defName="Cat"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="Lynx" or defName="Cat"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName="Lynx" or defName="Cat"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_PredationStrategy, ZoologyMod">
+        <strategy>Ambush</strategy>
+      </li>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="Lynx" or defName="Cat"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="Lynx" or defName="Cat"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="Lynx" or defName="Cat"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="Lynx" or defName="Cat"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName="Lynx" or defName="Cat"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_TreeClimber, ZoologyMod"/>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">

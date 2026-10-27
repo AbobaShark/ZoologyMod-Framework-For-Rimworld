@@ -264,9 +264,9 @@
         <li>
           <label>fangs</label>
           <capacities>
-            <li>ToxicBite</li>
+            <li>ZVenom_CobraBite</li>
           </capacities>
-          <power>2</power>
+          <power>1.5</power>
           <cooldownTime>1.3</cooldownTime>
           <linkedBodyPartsGroup>Mouth</linkedBodyPartsGroup>
           <surpriseAttack>
@@ -643,6 +643,40 @@
       </li>
     </value>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="VAEWaste_Hydra" or defName="VAEWaste_Megatardi" or defName="VAEWaste_Pestigator"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="VAEWaste_Hydra" or defName="VAEWaste_Megatardi" or defName="VAEWaste_Pestigator"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Hydra"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_PredationStrategy, ZoologyMod">
+        <strategy>Ambush</strategy>
+      </li>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Pestigator"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_PredationStrategy, ZoologyMod">
+        <strategy>WaterAmbush</strategy>
+      </li>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="VAEWaste_Hydra" or defName="VAEWaste_Megatardi" or defName="VAEWaste_Pestigator"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="VAEWaste_Hydra" or defName="VAEWaste_Megatardi" or defName="VAEWaste_Pestigator"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="VAEWaste_Hydra" or defName="VAEWaste_Megatardi" or defName="VAEWaste_Pestigator"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="VAEWaste_Hydra" or defName="VAEWaste_Megatardi" or defName="VAEWaste_Pestigator"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "VAEWaste_Pestigator"]/combatPower</xpath>
     <value>
@@ -898,6 +932,32 @@
       <li Class="ZoologyMod.ModExtension_IsMammal, ZoologyMod"/>
       <li Class="ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod"/>
     </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxafox"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxafox"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxafox"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_PredationStrategy, ZoologyMod">
+        <strategy>Chasing</strategy>
+      </li>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxafox"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxafox"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxafox"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxafox"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    </match>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "VAEWaste_Toxafox"]/combatPower</xpath>
@@ -1192,7 +1252,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxiguana"]/statBases/MarketValue</xpath>
     <value>
-      <MarketValue>225</MarketValue>
+      <MarketValue>200</MarketValue>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -1234,7 +1294,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "VAEWaste_Toxiguana"]/combatPower</xpath>
     <value>
-      <combatPower>50</combatPower>
+      <combatPower>45</combatPower>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -1313,26 +1373,6 @@
           <chanceFactor>0.2</chanceFactor>
         </li>
         <li>
-          <label>left claw</label>
-          <labelNoLocation>claw</labelNoLocation>
-          <capacities>
-            <li>Scratch</li>
-          </capacities>
-          <power>3.5</power>
-          <cooldownTime>1.15</cooldownTime>
-          <linkedBodyPartsGroup>FrontLeftClaws</linkedBodyPartsGroup>
-        </li>
-        <li>
-          <label>right claw</label>
-          <labelNoLocation>claw</labelNoLocation>
-          <capacities>
-            <li>Scratch</li>
-          </capacities>
-          <power>3.5</power>
-          <cooldownTime>1.15</cooldownTime>
-          <linkedBodyPartsGroup>FrontRightClaws</linkedBodyPartsGroup>
-        </li>
-        <li>
           <label>tail</label>
           <capacities>
             <li>Blunt</li>
@@ -1346,7 +1386,7 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>7</power>
+          <power>4.5</power>
           <cooldownTime>1.55</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
         </li>
@@ -1443,6 +1483,38 @@
     <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxiguana"]</xpath>
     <value>
       <li Class="ZoologyMod.ModExtension_Ectothermic, ZoologyMod"/>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="VAEWaste_Toxbear" or defName="VAEWaste_Toxiguana"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="VAEWaste_Toxbear" or defName="VAEWaste_Toxiguana"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxbear"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_PredationStrategy, ZoologyMod">
+        <strategy>Chasing</strategy>
+      </li>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="VAEWaste_Toxbear" or defName="VAEWaste_Toxiguana"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="VAEWaste_Toxbear" or defName="VAEWaste_Toxiguana"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="VAEWaste_Toxbear" or defName="VAEWaste_Toxiguana"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="VAEWaste_Toxbear" or defName="VAEWaste_Toxiguana"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxiguana"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_TreeClimber, ZoologyMod"/>
     </value>
   </Operation>
   <Operation Class="PatchOperationAdd">
@@ -1663,6 +1735,38 @@
     <value>
       <li Class="ZoologyMod.ModExtension_IsMammal, ZoologyMod"/>
       <li Class="ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod"/>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxlion"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxlion"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxlion"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_PredationStrategy, ZoologyMod">
+        <strategy>Ambush</strategy>
+      </li>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxlion"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxlion"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxlion"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxlion"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxlion"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_TreeClimber, ZoologyMod"/>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -1936,6 +2040,32 @@
   </Operation>
   <Operation Class="PatchOperationRemove">
     <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxscorpion"]/tradeTags</xpath>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxscorpion"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxscorpion"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxscorpion"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_PredationStrategy, ZoologyMod">
+        <strategy>Chasing</strategy>
+      </li>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxscorpion"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxscorpion"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxscorpion"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxscorpion"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    </match>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "VAEWaste_Toxscorpion"]/combatPower</xpath>
@@ -2565,6 +2695,24 @@
       <li Class="ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod"/>
     </value>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="VAEWaste_Wasteboar" or defName="VAEWaste_Wastedeer" or defName="VAEWaste_Wasteffalo"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="VAEWaste_Wasteboar" or defName="VAEWaste_Wastedeer" or defName="VAEWaste_Wasteffalo"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="VAEWaste_Wasteboar" or defName="VAEWaste_Wastedeer" or defName="VAEWaste_Wasteffalo"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="VAEWaste_Wasteboar" or defName="VAEWaste_Wastedeer" or defName="VAEWaste_Wasteffalo"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="VAEWaste_Wasteboar" or defName="VAEWaste_Wastedeer" or defName="VAEWaste_Wasteffalo"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="VAEWaste_Wasteboar" or defName="VAEWaste_Wastedeer" or defName="VAEWaste_Wasteffalo"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "VAEWaste_Wasteffalo"]/combatPower</xpath>
     <value>
@@ -2896,11 +3044,11 @@
               <li Class="CombatExtended.ToolCE">
                 <label>fangs</label>
                 <capacities>
-                  <li>ToxicBite</li>
+                  <li>ZVenom_CobraBite</li>
                 </capacities>
-                <power>2.15</power>
-                <armorPenetrationBlunt>0.052</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.59</armorPenetrationSharp>
+                <power>1.3</power>
+                <armorPenetrationBlunt>0.017</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.19</armorPenetrationSharp>
                 <cooldownTime>1.51</cooldownTime>
                 <linkedBodyPartsGroup>Mouth</linkedBodyPartsGroup>
                 <surpriseAttack>
@@ -3914,30 +4062,6 @@
                 <chanceFactor>0.2</chanceFactor>
               </li>
               <li Class="CombatExtended.ToolCE">
-                <label>left claw</label>
-                <labelNoLocation>claw</labelNoLocation>
-                <capacities>
-                  <li>Scratch</li>
-                </capacities>
-                <power>3.35</power>
-                <armorPenetrationBlunt>0.114</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.09</armorPenetrationSharp>
-                <cooldownTime>1.02</cooldownTime>
-                <linkedBodyPartsGroup>FrontLeftClaws</linkedBodyPartsGroup>
-              </li>
-              <li Class="CombatExtended.ToolCE">
-                <label>right claw</label>
-                <labelNoLocation>claw</labelNoLocation>
-                <capacities>
-                  <li>Scratch</li>
-                </capacities>
-                <power>3.35</power>
-                <armorPenetrationBlunt>0.114</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.09</armorPenetrationSharp>
-                <cooldownTime>1.02</cooldownTime>
-                <linkedBodyPartsGroup>FrontRightClaws</linkedBodyPartsGroup>
-              </li>
-              <li Class="CombatExtended.ToolCE">
                 <label>tail</label>
                 <capacities>
                   <li>Blunt</li>
@@ -3952,9 +4076,9 @@
                 <capacities>
                   <li>Bite</li>
                 </capacities>
-                <power>6.8</power>
-                <armorPenetrationBlunt>0.802</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.75</armorPenetrationSharp>
+                <power>4.45</power>
+                <armorPenetrationBlunt>0.304</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.29</armorPenetrationSharp>
                 <cooldownTime>1.55</cooldownTime>
                 <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
               </li>

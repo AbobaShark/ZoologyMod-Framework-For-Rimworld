@@ -398,25 +398,27 @@
           <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
           <chanceFactor>0.2</chanceFactor>
         </li>
-        <li>
+        <li Class="ZoologyMod.ToolWithGender, ZoologyMod">
           <label>left spur</label>
           <labelNoLocation>spur</labelNoLocation>
           <capacities>
-            <li>ScratchToxic</li>
+            <li>ZVenom_PlatypusSpur</li>
           </capacities>
           <power>1</power>
           <cooldownTime>1</cooldownTime>
           <linkedBodyPartsGroup>RearLeftSpur</linkedBodyPartsGroup>
+          <restrictedGender>Male</restrictedGender>
         </li>
-        <li>
+        <li Class="ZoologyMod.ToolWithGender, ZoologyMod">
           <label>right spur</label>
           <labelNoLocation>spur</labelNoLocation>
           <capacities>
-            <li>ScratchToxic</li>
+            <li>ZVenom_PlatypusSpur</li>
           </capacities>
           <power>1</power>
           <cooldownTime>1</cooldownTime>
           <linkedBodyPartsGroup>RearRightSpur</linkedBodyPartsGroup>
+          <restrictedGender>Male</restrictedGender>
         </li>
         <li>
           <label>beak</label>
@@ -702,6 +704,36 @@
       <li Class="ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod"/>
     </value>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="AEXP_Boombat" or defName="AEXP_Kangaroo" or defName="AEXP_Koala" or defName="AEXP_Platypus"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="AEXP_Boombat" or defName="AEXP_Kangaroo" or defName="AEXP_Koala" or defName="AEXP_Platypus"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="AEXP_Boombat" or defName="AEXP_Kangaroo" or defName="AEXP_Koala" or defName="AEXP_Platypus"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="AEXP_Boombat" or defName="AEXP_Kangaroo" or defName="AEXP_Koala" or defName="AEXP_Platypus"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "AEXP_Boombat"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_Burrower, ZoologyMod"/>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="AEXP_Boombat" or defName="AEXP_Kangaroo" or defName="AEXP_Koala" or defName="AEXP_Platypus"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="AEXP_Boombat" or defName="AEXP_Kangaroo" or defName="AEXP_Koala" or defName="AEXP_Platypus"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "AEXP_Koala"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_TreeClimber, ZoologyMod"/>
+    </value>
+  </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "AEXP_Platypus"]/combatPower</xpath>
     <value>
@@ -955,6 +987,32 @@
       <li Class="ZoologyMod.ModExtension_IsMammal, ZoologyMod"/>
       <li Class="ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod"/>
     </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AEXP_Hedgehog"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AEXP_Hedgehog"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "AEXP_Hedgehog"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_PredationStrategy, ZoologyMod">
+        <strategy>Chasing</strategy>
+      </li>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AEXP_Hedgehog"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AEXP_Hedgehog"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AEXP_Hedgehog"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AEXP_Hedgehog"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    </match>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "AEXP_Hedgehog"]/combatPower</xpath>
@@ -1841,25 +1899,27 @@
                 <label>left spur</label>
                 <labelNoLocation>spur</labelNoLocation>
                 <capacities>
-                  <li>ScratchToxic</li>
+                  <li>ZVenom_PlatypusSpur</li>
                 </capacities>
                 <power>0.7</power>
                 <armorPenetrationBlunt>0.003</armorPenetrationBlunt>
                 <armorPenetrationSharp>0.03</armorPenetrationSharp>
                 <cooldownTime>0.94</cooldownTime>
                 <linkedBodyPartsGroup>RearLeftSpur</linkedBodyPartsGroup>
+                <restrictedGender>Male</restrictedGender>
               </li>
               <li Class="CombatExtended.ToolCE">
                 <label>right spur</label>
                 <labelNoLocation>spur</labelNoLocation>
                 <capacities>
-                  <li>ScratchToxic</li>
+                  <li>ZVenom_PlatypusSpur</li>
                 </capacities>
                 <power>0.7</power>
                 <armorPenetrationBlunt>0.003</armorPenetrationBlunt>
                 <armorPenetrationSharp>0.03</armorPenetrationSharp>
                 <cooldownTime>0.94</cooldownTime>
                 <linkedBodyPartsGroup>RearRightSpur</linkedBodyPartsGroup>
+                <restrictedGender>Male</restrictedGender>
               </li>
               <li Class="CombatExtended.ToolCE">
                 <label>beak</label>

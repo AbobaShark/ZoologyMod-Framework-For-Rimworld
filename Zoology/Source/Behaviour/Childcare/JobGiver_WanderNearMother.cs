@@ -41,6 +41,10 @@ namespace ZoologyMod
                 if (mother == null || mother.Dead || mother.Destroyed || !mother.Spawned) return IntVec3.Invalid;
                 if (mother.Map != pawn.Map) return IntVec3.Invalid;
 
+                Area ownArea = pawn.playerSettings?.EffectiveAreaRestrictionInPawnCurrentMap;
+                if (AnimalLifeStageUtility.IsAnimalJuvenileLifeStage(pawn.ageTracker?.CurLifeStage)
+                    && ownArea != null && !ownArea[mother.Position])
+                    return pawn.Position;
                 return mother.Position;
             }
             catch { return IntVec3.Invalid; }

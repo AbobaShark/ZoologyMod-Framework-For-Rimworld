@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
@@ -197,7 +197,8 @@ namespace ZoologyMod
                 if (pawnKillMethod != null)
                 {
                     var postfixKill = typeof(PredationHarmonyPatches).GetMethod(nameof(Pawn_Kill_Postfix), BindingFlags.Static | BindingFlags.Public);
-                    harmony.Patch(pawnKillMethod, null, new HarmonyMethod(postfixKill));
+                    var prefixKill = typeof(PredationHarmonyPatches).GetMethod(nameof(Pawn_Kill_Prefix), BindingFlags.Static | BindingFlags.Public);
+                    harmony.Patch(pawnKillMethod, new HarmonyMethod(prefixKill), new HarmonyMethod(postfixKill));
                 }
                 else
                 {
@@ -1228,11 +1229,18 @@ namespace ZoologyMod
         }
 
         
-        public static void Pawn_Kill_Postfix(Pawn __instance, object[] __args)
+        public static void Pawn_Kill_Prefix(Pawn __instance, object[] __args, out Pawn __state)
+        {
+            // Capture the active hold before Kill despawns the victim and interrupts jobs.
+            __state = __instance != null ? DelayedPredationAttribution.CausalHunter(__instance, __args) : null;
+        }
+
+        public static void Pawn_Kill_Postfix(Pawn __instance, object[] __args, Pawn __state)
         {
             try
             {
                 if (__instance == null) return;
+                if (DelayedPredationAttribution.TryRegister(__instance, __state)) return;
                 if (__args == null || __args.Length == 0) return;
 
                 object dinfoObj = __args.Length > 0 ? __args[0] : null;

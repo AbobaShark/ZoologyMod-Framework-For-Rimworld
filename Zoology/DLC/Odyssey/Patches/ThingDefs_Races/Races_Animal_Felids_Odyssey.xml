@@ -350,6 +350,32 @@
     <xpath>/Defs/ThingDef[defName = "Cat_Scimitar"]/race/petness</xpath>
   </Operation>
   <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="Tiger" or defName="Cat_Scimitar"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="Tiger" or defName="Cat_Scimitar"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName="Tiger" or defName="Cat_Scimitar"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_PredationStrategy, ZoologyMod">
+        <strategy>Ambush</strategy>
+      </li>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="Tiger" or defName="Cat_Scimitar"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="Tiger" or defName="Cat_Scimitar"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="Tiger" or defName="Cat_Scimitar"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="Tiger" or defName="Cat_Scimitar"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/PawnKindDef[defName = "Cat_Scimitar"]/*[self::combatPower or self::ecoSystemWeight or self::canArriveManhunter or self::wildGroupSize]</xpath>
     <match Class="PatchOperationRemove">
       <xpath>/Defs/PawnKindDef[defName = "Cat_Scimitar"]/*[self::combatPower or self::ecoSystemWeight or self::canArriveManhunter or self::wildGroupSize]</xpath>

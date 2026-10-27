@@ -533,7 +533,7 @@ namespace ZoologyMod
 
             if (prey.RaceProps.predator && !prey.Downed)
             {
-                float requiredPredatorCP = preyCombatPowerAdjusted * (4f / 3f);
+                float requiredPredatorCP = preyCombatPowerAdjusted * (4f / 3f) * Mathf.Min(1f, prey.BodySize / predator.BodySize);
                 if (predatorCombatPower < requiredPredatorCP)
                 {
                     if (useLargeMammalSizing)
@@ -617,6 +617,22 @@ namespace ZoologyMod
                 && (!ModsConfig.AnomalyActive || !prey.IsMutant || prey.mutant.Def.canBleed);
         }
 
+        // Container safety needs physical prey suitability before applying the resident mother's protection.
+        internal static bool IsSuitableWithoutYoungProtection(Pawn predator, Pawn prey)
+        {
+            if (predator == null || prey == null || predator == prey || predator.Dead || prey.Dead
+                || predator.RaceProps.predator != true || predator.kindDef == null || prey.kindDef == null
+                || !prey.RaceProps.IsFlesh || !prey.RaceProps.canBePredatorPrey
+                || !Find.Storyteller.difficulty.predatorsHuntHumanlikes && prey.RaceProps.Humanlike
+                || CannotChewUtility.IsPreyTooLargeForPredator(predator, prey) || IsMammalBaby(predator)) return false;
+            if (ChildcareUtility.HasChildcareExtension(predator) && ChildcareUtility.HasChildcareExtension(prey)
+                && (predator.def == prey.def || ZoologyCacheUtility.AreCrossbreedRelated(predator.def, prey.def))) return false;
+            bool photonozoa = ZoologyCacheUtility.IsPhotonozoa(predator.def);
+            if (!photonozoa && ZoologyCacheUtility.IsPhotonozoa(prey.def)) return false;
+            return EvaluateCustomAcceptablePrey(predator, prey, PreyCombatPowerUtility.GetAdjustedCombatPower(prey),
+                photonozoa && ZoologyCacheUtility.IsPhotonozoaPairInTheirFaction(predator, prey));
+        }
+
         internal static bool IsAcceptablePhotonozoaPreyForFlee(Pawn predator, Pawn prey)
         {
             try
@@ -660,7 +676,7 @@ namespace ZoologyMod
 
                 if (prey.RaceProps.predator && !prey.Downed)
                 {
-                    float requiredPredatorCP = preyCombatPowerAdjusted * (4f / 3f);
+                    float requiredPredatorCP = preyCombatPowerAdjusted * (4f / 3f) * Mathf.Min(1f, prey.BodySize / predator.BodySize);
                     if (predatorCombatPower < requiredPredatorCP)
                     {
                         if (useLargeMammalSizing)
@@ -891,7 +907,7 @@ namespace ZoologyMod
 
                 if (prey.RaceProps.predator && !prey.Downed)
                 {
-                    float requiredPredatorCP = preyCombatPowerAdjusted * (4f / 3f);
+                    float requiredPredatorCP = preyCombatPowerAdjusted * (4f / 3f) * Mathf.Min(1f, prey.BodySize / predator.BodySize);
                     if (predatorCombatPower < requiredPredatorCP)
                     {
                         if (useLargeMammalSizing)

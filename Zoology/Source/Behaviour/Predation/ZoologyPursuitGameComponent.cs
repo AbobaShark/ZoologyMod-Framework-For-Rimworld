@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Verse;
 using RimWorld;
@@ -307,7 +307,7 @@ namespace ZoologyMod
                             Job curJob = predator.CurJob;
                             if (curJob == null) continue;
 
-                            bool isHuntDriver = curJob.def == JobDefOf.PredatorHunt;
+                            bool isHuntDriver = curJob.def == JobDefOf.PredatorHunt || predator.jobs.curDriver is JobDriver_Constrict;
                             if (!isHuntDriver)
                             {
                                 Type driverClass = curJob.def?.driverClass;
@@ -335,13 +335,26 @@ namespace ZoologyMod
                                     continue;
                                 }
 
+                                if (predator.jobs.curDriver is JobDriver_Constrict)
+                                {
+                                    chaseStart.Remove(key);
+                                    continue;
+                                }
+
+                                int fleeingSince = prey.TryGetComp<CompAnimalStrategyState>()?.fleeingSince ?? -1;
+                                if (fleeingSince >= 0 && now - fleeingSince >= 200 && AnimalHuntStrategy.HopelessPursuit(predator, prey))
+                                {
+                                    pendingBlocks.Add(new PendingBlock(key, predator, prey));
+                                    continue;
+                                }
+
                                 if (!chaseStart.TryGetValue(key, out long startTick) || startTick == 0L)
                                 {
                                     chaseStart[key] = now;
                                     continue;
                                 }
 
-                                if (now - startTick >= CHASE_TIMEOUT)
+                                if (now - startTick >= AnimalHuntStrategy.ChaseLimit(predator))
                                 {
                                     pendingBlocks.Add(new PendingBlock(key, predator, prey));
                                 }

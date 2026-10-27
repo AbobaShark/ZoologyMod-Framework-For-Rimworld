@@ -15,6 +15,8 @@ import sys
 import traceback
 from typing import Dict, List, Optional, Tuple
 
+from animal_venom_policy import is_platypus_spur
+
 import pandas as pd
 from lxml import etree as LET
 
@@ -109,6 +111,9 @@ COLUMN_ALIASES = {
     "IsScavenger": ["IsScavenger", "Is Scavenger"],
     "TakingCareOfOffspring": ["TakingCareOfOffspring", "Taking Care Of Offspring"],
     "CannotChew": ["CannotChew", "Cannot Chew"],
+    "PredationStrategy": ["PredationStrategy", "Predation Strategy"],
+    "Burrower": ["Burrower"],
+    "TreeClimber": ["TreeClimber", "Tree Climber"],
 }
 
 MOD_EXTENSION_CLASS_MAP = {
@@ -121,7 +126,20 @@ MOD_EXTENSION_CLASS_MAP = {
     "CannotChew": "ZoologyMod.ModExtension_CannotChew, ZoologyMod",
     "TakingCareOfOffspring": "ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod",
     "IsScavenger": "ZoologyMod.ModExtension_IsScavenger, ZoologyMod",
+    "PredationStrategy": "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod",
+    "Burrower": "ZoologyMod.ModExtension_Burrower, ZoologyMod",
+    "TreeClimber": "ZoologyMod.ModExtension_TreeClimber, ZoologyMod",
 }
+
+# These three extensions always belong to concrete ThingDefs: inheriting them from
+# an abstract can accidentally grant a different hunting or hiding ability.
+CONCRETE_ONLY_MOD_EXTENSIONS = frozenset(("PredationStrategy", "Burrower", "TreeClimber"))
+PREDATION_STRATEGIES = {
+    "chasing": "Chasing",
+    "waterambush": "WaterAmbush",
+    "ambush": "Ambush",
+}
+
 
 
 def load_config() -> Dict:
@@ -529,6 +547,8 @@ def _make_tool_li(
     ap_sharp=None,
     stun=None,
 ) -> LET._Element:
+    if is_platypus_spur(capacities):
+        restricted_gender = "Male"
     li = LET.Element("li")
     if class_attr:
         li.set("Class", class_attr)
@@ -613,7 +633,7 @@ def build_tools_vanilla(row) -> Optional[LET._Element]:
             return
         labels = split_and_strip(row.get(label_col))
         linkeds = split_and_strip(row.get(linked_col))
-        caps = row.get(capacities_col) if capacities_col in row.index else None
+        caps = row.get(capacities_col)
         cd_vals = split_and_strip(_find_attack_interval_raw(row, prefix))
         n = max(len(labels), len(linkeds), 1)
         if not labels:
@@ -649,7 +669,7 @@ def build_tools_vanilla(row) -> Optional[LET._Element]:
         tools.append(
             _make_tool_li(
                 label=row.get("Horn/Antler/Tusks label") or None,
-                capacities=row.get("Horn/Antler/Tusks capacities") if "Horn/Antler/Tusks capacities" in row.index else None,
+                capacities=row.get("Horn/Antler/Tusks capacities"),
                 power=horn_damage,
                 cooldown=row.get("Horn/Antler/Tusks attack interval"),
                 linked=row.get("Horn/Antler/Tusks linkedBodyPartsGroup") or None,
@@ -663,7 +683,7 @@ def build_tools_vanilla(row) -> Optional[LET._Element]:
         tools.append(
             _make_tool_li(
                 label=row.get("Bite label") or row.get("Bite") or None,
-                capacities=row.get("Bite capacities") if "Bite capacities" in row.index else None,
+                capacities=row.get("Bite capacities"),
                 power=bite_damage,
                 cooldown=row.get("Bite attack interval"),
                 linked=row.get("Bite linkedBodyPartsGroup") or None,
@@ -710,7 +730,7 @@ def build_tools_ce(ce_row, vanilla_row=None) -> Optional[LET._Element]:
             return
         labels = split_and_strip(row_for_labels.get(label_col))
         linkeds = split_and_strip(row_for_labels.get(linked_col))
-        caps = row_for_labels.get(capacities_col) if capacities_col in row_for_labels.index else None
+        caps = row_for_labels.get(capacities_col)
         cd_vals = split_and_strip(_find_attack_interval_raw(ce_row, prefix))
         if not cd_vals:
             cd_vals = split_and_strip(_find_attack_interval_raw(row_for_labels, prefix))
@@ -751,7 +771,7 @@ def build_tools_ce(ce_row, vanilla_row=None) -> Optional[LET._Element]:
         tools.append(
             _make_tool_li(
                 label=row_for_labels.get("Horn/Antler/Tusks label") if "Horn/Antler/Tusks label" in row_for_labels.index else None,
-                capacities=row_for_labels.get("Horn/Antler/Tusks capacities") if "Horn/Antler/Tusks capacities" in row_for_labels.index else None,
+                capacities=row_for_labels.get("Horn/Antler/Tusks capacities"),
                 power=horn_damage,
                 cooldown=ce_row.get("Horn/Antler/Tusks attack interval"),
                 linked=row_for_labels.get("Horn/Antler/Tusks linkedBodyPartsGroup")
@@ -774,7 +794,7 @@ def build_tools_ce(ce_row, vanilla_row=None) -> Optional[LET._Element]:
         tools.append(
             _make_tool_li(
                 label=row_for_labels.get("Bite label") if "Bite label" in row_for_labels.index else None,
-                capacities=row_for_labels.get("Bite capacities") if "Bite capacities" in row_for_labels.index else None,
+                capacities=row_for_labels.get("Bite capacities"),
                 power=bite_damage,
                 cooldown=ce_row.get("Bite attack interval"),
                 linked=row_for_labels.get("Bite linkedBodyPartsGroup") if "Bite linkedBodyPartsGroup" in row_for_labels.index else None,
@@ -1104,8 +1124,15 @@ def _append_mod_extension(mod_extensions_el: LET._Element, col: str, raw_value) 
     if raw_value is None:
         return False
     s = str(raw_value).strip()
-    if s == "" or s.lower() in ("no", "none"):
+    if s == "" or s.lower() in ("no", "none", "nan"):
         return False
+    if col == "PredationStrategy":
+        if s.lower() not in PREDATION_STRATEGIES:
+            raise ValueError(f"Unknown PredationStrategy: {s!r}")
+        li = LET.SubElement(mod_extensions_el, "li")
+        li.set("Class", class_str)
+        LET.SubElement(li, "strategy").text = PREDATION_STRATEGIES[s.lower()]
+        return True
     if col == "IsScavenger":
         sval = s.lower()
         if sval not in ("flesh", "bone"):
@@ -1126,7 +1153,7 @@ def build_mod_extensions_for_parent(common: Dict) -> Optional[LET._Element]:
     mod_extensions = LET.Element("modExtensions")
     any_added = False
     for col in MOD_EXTENSION_CLASS_MAP:
-        if col not in common:
+        if col in CONCRETE_ONLY_MOD_EXTENSIONS or col not in common:
             continue
         any_added = _append_mod_extension(mod_extensions, col, common.get(col)) or any_added
     return mod_extensions if any_added else None
@@ -1136,8 +1163,12 @@ def build_mod_extensions_for_child(row, p_common: Dict, include_all: bool) -> Op
     mod_extensions = LET.Element("modExtensions")
     any_added = False
     for col in MOD_EXTENSION_CLASS_MAP:
+        if col == "PredationStrategy" and not is_truthy(get_row_value(row, "predator")):
+            continue
         val = get_row_value(row, col)
-        if not include_all and col in p_common and norm(val) == norm(p_common.get(col)):
+        if (col not in CONCRETE_ONLY_MOD_EXTENSIONS
+                and not include_all and col in p_common
+                and norm(val) == norm(p_common.get(col))):
             continue
         any_added = _append_mod_extension(mod_extensions, col, val) or any_added
     return mod_extensions if any_added else None
@@ -1258,6 +1289,9 @@ def compute_parent_common(animals_df: pd.DataFrame, row) -> Dict:
                 "IsScavenger",
                 "TakingCareOfOffspring",
                 "CannotChew",
+                "PredationStrategy",
+                "Burrower",
+                "TreeClimber",
             ]:
                 cv, is_diff = _common_value_and_differing(rows, stat)
                 if cv is not None:
@@ -1812,24 +1846,54 @@ def _replace_tools_node(thing: LET._Element, tools_el: LET._Element, allow_inher
     thing.append(new_tools)
 
 
-def _merge_mod_extensions_node(thing: LET._Element, desired_modext: LET._Element):
-    mod_ext = _ensure_direct_child(thing, "modExtensions")
-    for wanted in desired_modext.findall("./li"):
-        cls = wanted.get("Class", "")
-        if not cls:
-            continue
-        existing = None
-        for li in mod_ext.findall("./li"):
-            if li.get("Class", "") == cls:
-                existing = li
-                break
-        repl = copy.deepcopy(wanted)
-        if existing is None:
-            mod_ext.append(repl)
-        else:
-            idx = list(mod_ext).index(existing)
-            mod_ext.remove(existing)
-            mod_ext.insert(idx, repl)
+def _merge_mod_extensions_node(
+    thing: LET._Element,
+    desired_modext: Optional[LET._Element],
+    manage_concrete_extensions: bool = False,
+):
+    """Upsert expected extensions, and synchronize the three concrete-only ones.
+
+    A repeated update must remove old strategy/ability markers when spreadsheet
+    values change to No/False. Preserve all unrelated and pre-existing extensions.
+    """
+    mod_ext = _find_direct_child(thing, "modExtensions")
+    if mod_ext is None and desired_modext is None:
+        return
+
+    if manage_concrete_extensions and mod_ext is not None:
+        classes = {MOD_EXTENSION_CLASS_MAP[key] for key in CONCRETE_ONLY_MOD_EXTENSIONS}
+        for li in list(mod_ext):
+            if li.tag == "li" and li.get("Class") in classes:
+                mod_ext.remove(li)
+
+    if desired_modext is not None:
+        if mod_ext is None:
+            mod_ext = LET.SubElement(thing, "modExtensions")
+        for wanted in desired_modext.findall("./li"):
+            cls = wanted.get("Class", "")
+            if not cls:
+                continue
+            existing = None
+            for li in mod_ext.findall("./li"):
+                if li.get("Class", "") == cls:
+                    existing = li
+                    break
+            repl = copy.deepcopy(wanted)
+            if existing is None:
+                mod_ext.append(repl)
+            else:
+                idx = list(mod_ext).index(existing)
+                mod_ext.remove(existing)
+                mod_ext.insert(idx, repl)
+
+    if mod_ext is not None and len(mod_ext) == 0 and not (mod_ext.text or "").strip():
+        thing.remove(mod_ext)
+
+
+def _row_has_concrete_extension_columns(row) -> bool:
+    return any(find_alias_in_row(row, COLUMN_ALIASES[col]) is not None
+               for col in CONCRETE_ONLY_MOD_EXTENSIONS)
+
 
 
 def _set_trade_tags(thing: LET._Element, tags: List[str], allow_inherit_false: bool):
@@ -2073,8 +2137,11 @@ def update_thingdef_inplace(
             _replace_tools_node(thing, built_tools, False)
 
     desired_modext = build_mod_extensions_for_child(row, p_common, include_all=not consider_parent_rules)
-    if desired_modext is not None:
-        _merge_mod_extensions_node(thing, desired_modext)
+    if desired_modext is not None or _row_has_concrete_extension_columns(row):
+        _merge_mod_extensions_node(
+            thing, desired_modext,
+            manage_concrete_extensions=_row_has_concrete_extension_columns(row),
+        )
 
 
 def update_pawnkind_inplace(
@@ -2410,8 +2477,11 @@ def update_parent_thingdef_inplace(thing: LET._Element, common: Dict, tools_row=
             _replace_tools_node(thing, tools, allow_inherit_false)
 
     desired_modext = build_mod_extensions_for_parent(common)
-    if desired_modext is not None:
-        _merge_mod_extensions_node(thing, desired_modext)
+    manages_concrete = any(col in common or col in differing_set
+                           for col in CONCRETE_ONLY_MOD_EXTENSIONS)
+    if desired_modext is not None or manages_concrete:
+        _merge_mod_extensions_node(thing, desired_modext,
+                                   manage_concrete_extensions=manages_concrete)
 
 
 def update_parent_pawnkind_inplace(pawn: LET._Element, common: Dict):

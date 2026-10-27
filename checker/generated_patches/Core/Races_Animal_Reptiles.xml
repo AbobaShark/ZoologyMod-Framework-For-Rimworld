@@ -139,26 +139,6 @@
           <chanceFactor>0.2</chanceFactor>
         </li>
         <li>
-          <label>left claw</label>
-          <labelNoLocation>claw</labelNoLocation>
-          <capacities>
-            <li>Scratch</li>
-          </capacities>
-          <power>1</power>
-          <cooldownTime>1</cooldownTime>
-          <linkedBodyPartsGroup>FrontLeftClaws</linkedBodyPartsGroup>
-        </li>
-        <li>
-          <label>right claw</label>
-          <labelNoLocation>claw</labelNoLocation>
-          <capacities>
-            <li>Scratch</li>
-          </capacities>
-          <power>1</power>
-          <cooldownTime>1</cooldownTime>
-          <linkedBodyPartsGroup>FrontRightClaws</linkedBodyPartsGroup>
-        </li>
-        <li>
           <label>tail</label>
           <capacities>
             <li>Blunt</li>
@@ -172,7 +152,7 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>2.5</power>
+          <power>2</power>
           <cooldownTime>1.25</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
         </li>
@@ -203,7 +183,7 @@
         <li>
           <label>fangs</label>
           <capacities>
-            <li>ToxicBite</li>
+            <li>ZVenom_CobraBite</li>
           </capacities>
           <power>1.5</power>
           <cooldownTime>1.15</cooldownTime>
@@ -463,6 +443,38 @@
       <li Class="ZoologyMod.ModExtension_Ectothermic, ZoologyMod"/>
     </value>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="Iguana" or defName="Cobra" or defName="Tortoise"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="Iguana" or defName="Cobra" or defName="Tortoise"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "Cobra"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_PredationStrategy, ZoologyMod">
+        <strategy>Ambush</strategy>
+      </li>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="Iguana" or defName="Cobra" or defName="Tortoise"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="Iguana" or defName="Cobra" or defName="Tortoise"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="Iguana" or defName="Cobra" or defName="Tortoise"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="Iguana" or defName="Cobra" or defName="Tortoise"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName="Iguana" or defName="Cobra"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_TreeClimber, ZoologyMod"/>
+    </value>
+  </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "Tortoise"]/combatPower</xpath>
     <value>
@@ -681,30 +693,6 @@
                 <chanceFactor>0.2</chanceFactor>
               </li>
               <li Class="CombatExtended.ToolCE">
-                <label>left claw</label>
-                <labelNoLocation>claw</labelNoLocation>
-                <capacities>
-                  <li>Scratch</li>
-                </capacities>
-                <power>0.9</power>
-                <armorPenetrationBlunt>0.008</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.02</armorPenetrationSharp>
-                <cooldownTime>0.79</cooldownTime>
-                <linkedBodyPartsGroup>FrontLeftClaws</linkedBodyPartsGroup>
-              </li>
-              <li Class="CombatExtended.ToolCE">
-                <label>right claw</label>
-                <labelNoLocation>claw</labelNoLocation>
-                <capacities>
-                  <li>Scratch</li>
-                </capacities>
-                <power>0.9</power>
-                <armorPenetrationBlunt>0.008</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.02</armorPenetrationSharp>
-                <cooldownTime>0.79</cooldownTime>
-                <linkedBodyPartsGroup>FrontRightClaws</linkedBodyPartsGroup>
-              </li>
-              <li Class="CombatExtended.ToolCE">
                 <label>tail</label>
                 <capacities>
                   <li>Blunt</li>
@@ -719,9 +707,9 @@
                 <capacities>
                   <li>Bite</li>
                 </capacities>
-                <power>2.6</power>
-                <armorPenetrationBlunt>0.104</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.13</armorPenetrationSharp>
+                <power>1.8</power>
+                <armorPenetrationBlunt>0.045</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.06</armorPenetrationSharp>
                 <cooldownTime>1.25</cooldownTime>
                 <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
               </li>
@@ -912,11 +900,11 @@
               <li Class="CombatExtended.ToolCE">
                 <label>fangs</label>
                 <capacities>
-                  <li>ToxicBite</li>
+                  <li>ZVenom_CobraBite</li>
                 </capacities>
-                <power>1</power>
-                <armorPenetrationBlunt>0.011</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.17</armorPenetrationSharp>
+                <power>0.7</power>
+                <armorPenetrationBlunt>0.005</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.08</armorPenetrationSharp>
                 <cooldownTime>1.31</cooldownTime>
                 <linkedBodyPartsGroup>Mouth</linkedBodyPartsGroup>
                 <surpriseAttack>

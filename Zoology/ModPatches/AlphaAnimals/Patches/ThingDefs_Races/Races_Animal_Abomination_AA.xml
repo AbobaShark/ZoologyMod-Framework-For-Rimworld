@@ -376,7 +376,7 @@
         <li>
           <label>eye</label>
           <capacities>
-            <li>Sting</li>
+            <li>ZVenom_OcularSting</li>
           </capacities>
           <power>2.5</power>
           <cooldownTime>1</cooldownTime>
@@ -695,6 +695,32 @@
       <li Class="ZoologyMod.ModExtension_CannotBeMutated, ZoologyMod"/>
       <li Class="ZoologyMod.ModExtension_NoFlee, ZoologyMod"/>
     </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="AA_EngorgedTentacularAberration" or defName="AA_Eyeling" or defName="AA_FungalHusk"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="AA_EngorgedTentacularAberration" or defName="AA_Eyeling" or defName="AA_FungalHusk"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "AA_EngorgedTentacularAberration"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_PredationStrategy, ZoologyMod">
+        <strategy>Chasing</strategy>
+      </li>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="AA_EngorgedTentacularAberration" or defName="AA_Eyeling" or defName="AA_FungalHusk"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="AA_EngorgedTentacularAberration" or defName="AA_Eyeling" or defName="AA_FungalHusk"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="AA_EngorgedTentacularAberration" or defName="AA_Eyeling" or defName="AA_FungalHusk"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="AA_EngorgedTentacularAberration" or defName="AA_Eyeling" or defName="AA_FungalHusk"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    </match>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_MatureFleshbeast"]/race/maxPreyBodySize</xpath>
@@ -1117,7 +1143,7 @@
         <li>
           <label>eye</label>
           <capacities>
-            <li>Sting</li>
+            <li>ZVenom_OcularSting</li>
           </capacities>
           <power>1</power>
           <cooldownTime>2.15</cooldownTime>
@@ -1242,6 +1268,32 @@
       <li Class="ZoologyMod.ModExtension_CannotBeMutated, ZoologyMod"/>
       <li Class="ZoologyMod.ModExtension_NoFlee, ZoologyMod"/>
     </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="AA_MatureFleshbeast" or defName="AA_Mime" or defName="AA_RedSpore" or defName="AA_UnblinkingEye"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="AA_MatureFleshbeast" or defName="AA_Mime" or defName="AA_RedSpore" or defName="AA_UnblinkingEye"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "AA_MatureFleshbeast"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_PredationStrategy, ZoologyMod">
+        <strategy>Chasing</strategy>
+      </li>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="AA_MatureFleshbeast" or defName="AA_Mime" or defName="AA_RedSpore" or defName="AA_UnblinkingEye"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="AA_MatureFleshbeast" or defName="AA_Mime" or defName="AA_RedSpore" or defName="AA_UnblinkingEye"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="AA_MatureFleshbeast" or defName="AA_Mime" or defName="AA_RedSpore" or defName="AA_UnblinkingEye"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="AA_MatureFleshbeast" or defName="AA_Mime" or defName="AA_RedSpore" or defName="AA_UnblinkingEye"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    </match>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "AA_UnblinkingEye"]/combatPower</xpath>
@@ -1691,7 +1743,7 @@
               <li Class="CombatExtended.ToolCE">
                 <label>eye</label>
                 <capacities>
-                  <li>Sting</li>
+                  <li>ZVenom_OcularSting</li>
                 </capacities>
                 <power>2.55</power>
                 <armorPenetrationBlunt>0.191</armorPenetrationBlunt>
@@ -2791,7 +2843,7 @@
               <li Class="CombatExtended.ToolCE">
                 <label>eye</label>
                 <capacities>
-                  <li>Sting</li>
+                  <li>ZVenom_OcularSting</li>
                 </capacities>
                 <power>0.95</power>
                 <armorPenetrationBlunt>37.414</armorPenetrationBlunt>

@@ -198,7 +198,7 @@ namespace ZoologyMod
             }
 
             Type curDriverType = curDriver?.GetType();
-            if (curDriver is JobDriver_PredatorHunt
+            if (curDriver is JobDriver_Constrict || curDriver is JobDriver_PredatorHunt
                 || curDriver is JobDriver_ProtectYoung
                 || IsProtectPreyDriverType(curDriverType))
             {

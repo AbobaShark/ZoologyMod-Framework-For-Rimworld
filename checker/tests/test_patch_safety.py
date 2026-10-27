@@ -501,3 +501,16 @@ class AlphaBiomesCompatibilityTests(unittest.TestCase):
             ['sarg.alphaanimals'],
         )
 
+        # Apply the real generated patch to a biome: without the mod the old
+        # entries survive, while with it the source table replaces them.
+        fixture = b'<Defs><BiomeDef><defName>AB_OcularForest</defName><wildAnimals><OldAnimal>1</OldAnimal></wildAnimals></BiomeDef></Defs>'
+        inactive = LET.fromstring(fixture)
+        PatchApplier(active_mods=[]).apply_patch_root(root, inactive)
+        self.assertEqual(inactive.xpath('./BiomeDef/wildAnimals/OldAnimal/text()'), ['1'])
+        active = LET.fromstring(fixture)
+        applier = PatchApplier(active_mods=['Alpha Biomes'])
+        applier.apply_patch_root(root, active)
+        self.assertEqual(active.xpath('./BiomeDef/wildAnimals/OldAnimal'), [])
+        self.assertEqual(active.xpath('./BiomeDef/wildAnimals/AA_OcularJelly/text()'), ['0.05'])
+        self.assertEqual(applier.errors, [])
+

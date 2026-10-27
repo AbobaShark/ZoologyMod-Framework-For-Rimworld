@@ -51,7 +51,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_Behemoth"]/statBases/MarketValue</xpath>
     <value>
-      <MarketValue>3600</MarketValue>
+      <MarketValue>3200</MarketValue>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -213,7 +213,7 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>70.5</power>
+          <power>45.5</power>
           <cooldownTime>3.55</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
           <surpriseAttack>
@@ -397,6 +397,24 @@
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_AnimaColossus"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_AnimaColossus"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_AnimaColossus"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_AnimaColossus"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_AnimaColossus"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_AnimaColossus"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_Behemoth"]/race/*[self::herdMigrationAllowed or self::roamMtbDays or self::useLeatherFrom or self::petness or self::nuzzleMtbHours or self::mateMtbHours or self::predator or self::maxPreyBodySize or self::nameOnTameChance or self::waterCellCost or self::waterSeeker or self::canFishForFood or self::useMeatFrom or self::wildBiomes or self::litterSizeCurve]</xpath>
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "AA_Behemoth"]/race/*[self::herdMigrationAllowed or self::roamMtbDays or self::useLeatherFrom or self::petness or self::nuzzleMtbHours or self::mateMtbHours or self::predator or self::maxPreyBodySize or self::nameOnTameChance or self::waterCellCost or self::waterSeeker or self::canFishForFood or self::useMeatFrom or self::wildBiomes or self::litterSizeCurve]</xpath>
@@ -493,10 +511,36 @@
       <li Class="ZoologyMod.ModExtension_NoFlee, ZoologyMod"/>
     </value>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_Behemoth"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_Behemoth"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "AA_Behemoth"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_PredationStrategy, ZoologyMod">
+        <strategy>Chasing</strategy>
+      </li>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_Behemoth"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_Behemoth"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_Behemoth"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_Behemoth"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "AA_Behemoth"]/combatPower</xpath>
     <value>
-      <combatPower>1205</combatPower>
+      <combatPower>1040</combatPower>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -526,7 +570,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_CrescendoAnole"]/statBases/MarketValue</xpath>
     <value>
-      <MarketValue>650</MarketValue>
+      <MarketValue>500</MarketValue>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -587,42 +631,6 @@
           <chanceFactor>0.2</chanceFactor>
         </li>
         <li>
-          <label>left claw</label>
-          <labelNoLocation>claw</labelNoLocation>
-          <capacities>
-            <li>Scratch</li>
-          </capacities>
-          <power>6.5</power>
-          <cooldownTime>1.15</cooldownTime>
-          <linkedBodyPartsGroup>FrontLeftClaws</linkedBodyPartsGroup>
-          <surpriseAttack>
-            <extraMeleeDamages>
-              <li>
-                <def>Stun</def>
-                <amount>20</amount>
-              </li>
-            </extraMeleeDamages>
-          </surpriseAttack>
-        </li>
-        <li>
-          <label>right claw</label>
-          <labelNoLocation>claw</labelNoLocation>
-          <capacities>
-            <li>Scratch</li>
-          </capacities>
-          <power>6.5</power>
-          <cooldownTime>1.15</cooldownTime>
-          <linkedBodyPartsGroup>FrontRightClaws</linkedBodyPartsGroup>
-          <surpriseAttack>
-            <extraMeleeDamages>
-              <li>
-                <def>Stun</def>
-                <amount>20</amount>
-              </li>
-            </extraMeleeDamages>
-          </surpriseAttack>
-        </li>
-        <li>
           <label>tail</label>
           <capacities>
             <li>Blunt</li>
@@ -642,9 +650,9 @@
         <li>
           <label>teeth</label>
           <capacities>
-            <li>ToxicBite</li>
+            <li>Bite</li>
           </capacities>
-          <power>19.5</power>
+          <power>12</power>
           <cooldownTime>1.65</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
           <surpriseAttack>
@@ -772,7 +780,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "AA_CrescendoAnole"]/combatPower</xpath>
     <value>
-      <combatPower>230</combatPower>
+      <combatPower>160</combatPower>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -784,7 +792,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_DecayDrake"]/statBases/MarketValue</xpath>
     <value>
-      <MarketValue>600</MarketValue>
+      <MarketValue>550</MarketValue>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -814,7 +822,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "AA_DecayDrake"]/combatPower</xpath>
     <value>
-      <combatPower>140</combatPower>
+      <combatPower>115</combatPower>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -939,7 +947,7 @@
           <capacities>
             <li>Bite</li>
           </capacities>
-          <power>19.5</power>
+          <power>14.5</power>
           <cooldownTime>1.95</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
         </li>
@@ -1187,6 +1195,46 @@
       <li Class="ZoologyMod.ModExtension_Ectothermic, ZoologyMod"/>
     </value>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="AA_CrescendoAnole" or defName="AA_DecayDrake" or defName="AA_Lockjaw"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="AA_CrescendoAnole" or defName="AA_DecayDrake" or defName="AA_Lockjaw"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "AA_CrescendoAnole"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_PredationStrategy, ZoologyMod">
+        <strategy>Chasing</strategy>
+      </li>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "AA_Lockjaw"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_PredationStrategy, ZoologyMod">
+        <strategy>WaterAmbush</strategy>
+      </li>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="AA_CrescendoAnole" or defName="AA_DecayDrake" or defName="AA_Lockjaw"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="AA_CrescendoAnole" or defName="AA_DecayDrake" or defName="AA_Lockjaw"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="AA_CrescendoAnole" or defName="AA_DecayDrake" or defName="AA_Lockjaw"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="AA_CrescendoAnole" or defName="AA_DecayDrake" or defName="AA_Lockjaw"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "AA_CrescendoAnole"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_TreeClimber, ZoologyMod"/>
+    </value>
+  </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "AA_Lockjaw"]/combatPower</xpath>
     <value>
@@ -1329,7 +1377,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_RayHound"]/statBases/MarketValue</xpath>
     <value>
-      <MarketValue>350</MarketValue>
+      <MarketValue>300</MarketValue>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -1545,42 +1593,6 @@
           <chanceFactor>0.2</chanceFactor>
         </li>
         <li>
-          <label>left claw</label>
-          <labelNoLocation>claw</labelNoLocation>
-          <capacities>
-            <li>Scratch</li>
-          </capacities>
-          <power>7</power>
-          <cooldownTime>1.2</cooldownTime>
-          <linkedBodyPartsGroup>FrontLeftClaws</linkedBodyPartsGroup>
-          <surpriseAttack>
-            <extraMeleeDamages>
-              <li>
-                <def>Stun</def>
-                <amount>20</amount>
-              </li>
-            </extraMeleeDamages>
-          </surpriseAttack>
-        </li>
-        <li>
-          <label>right claw</label>
-          <labelNoLocation>claw</labelNoLocation>
-          <capacities>
-            <li>Scratch</li>
-          </capacities>
-          <power>7</power>
-          <cooldownTime>1.2</cooldownTime>
-          <linkedBodyPartsGroup>FrontRightClaws</linkedBodyPartsGroup>
-          <surpriseAttack>
-            <extraMeleeDamages>
-              <li>
-                <def>Stun</def>
-                <amount>20</amount>
-              </li>
-            </extraMeleeDamages>
-          </surpriseAttack>
-        </li>
-        <li>
           <label>tentacles</label>
           <capacities>
             <li>AA_EMPBlunt</li>
@@ -1600,9 +1612,9 @@
         <li>
           <label>teeth</label>
           <capacities>
-            <li>ToxicBite</li>
+            <li>ZVenom_VaranidBite</li>
           </capacities>
-          <power>16.5</power>
+          <power>12.5</power>
           <cooldownTime>1.7</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
           <surpriseAttack>
@@ -1759,6 +1771,24 @@
       <li Class="ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod"/>
     </value>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="AA_MycoidColossus" or defName="AA_OvergrownColossus"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="AA_MycoidColossus" or defName="AA_OvergrownColossus"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="AA_MycoidColossus" or defName="AA_OvergrownColossus"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="AA_MycoidColossus" or defName="AA_OvergrownColossus"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="AA_MycoidColossus" or defName="AA_OvergrownColossus"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="AA_MycoidColossus" or defName="AA_OvergrownColossus"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_RayHound"]/race/lifeStageAges</xpath>
     <value>
@@ -1819,11 +1849,31 @@
       <li Class="ZoologyMod.ModExtension_Ectothermic, ZoologyMod"/>
     </value>
   </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/PawnKindDef[defName = "AA_RayHound"]/combatPower</xpath>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_RayHound"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_RayHound"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "AA_RayHound"]</xpath>
     <value>
-      <combatPower>120</combatPower>
+      <li Class="ZoologyMod.ModExtension_PredationStrategy, ZoologyMod">
+        <strategy>Chasing</strategy>
+      </li>
     </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_RayHound"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_RayHound"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_RayHound"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_RayHound"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    </match>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "AA_RayHound"]/ecoSystemWeight</xpath>
@@ -1852,7 +1902,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_RoughPlatedMonitor"]/statBases/MarketValue</xpath>
     <value>
-      <MarketValue>475</MarketValue>
+      <MarketValue>500</MarketValue>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -1907,42 +1957,6 @@
           <chanceFactor>0.2</chanceFactor>
         </li>
         <li>
-          <label>left claw</label>
-          <labelNoLocation>claw</labelNoLocation>
-          <capacities>
-            <li>Scratch</li>
-          </capacities>
-          <power>9</power>
-          <cooldownTime>1.25</cooldownTime>
-          <linkedBodyPartsGroup>FrontLeftClaws</linkedBodyPartsGroup>
-          <surpriseAttack>
-            <extraMeleeDamages>
-              <li>
-                <def>Stun</def>
-                <amount>20</amount>
-              </li>
-            </extraMeleeDamages>
-          </surpriseAttack>
-        </li>
-        <li>
-          <label>right claw</label>
-          <labelNoLocation>claw</labelNoLocation>
-          <capacities>
-            <li>Scratch</li>
-          </capacities>
-          <power>9</power>
-          <cooldownTime>1.25</cooldownTime>
-          <linkedBodyPartsGroup>FrontRightClaws</linkedBodyPartsGroup>
-          <surpriseAttack>
-            <extraMeleeDamages>
-              <li>
-                <def>Stun</def>
-                <amount>20</amount>
-              </li>
-            </extraMeleeDamages>
-          </surpriseAttack>
-        </li>
-        <li>
           <label>tail</label>
           <capacities>
             <li>Blunt</li>
@@ -1962,9 +1976,9 @@
         <li>
           <label>teeth</label>
           <capacities>
-            <li>ToxicBite</li>
+            <li>ZVenom_VaranidBite</li>
           </capacities>
-          <power>15</power>
+          <power>17.5</power>
           <cooldownTime>1.8</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
           <surpriseAttack>
@@ -2104,10 +2118,36 @@
       <li Class="ZoologyMod.ModExtension_IsScavenger, ZoologyMod"/>
     </value>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_RoughPlatedMonitor"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_RoughPlatedMonitor"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "AA_RoughPlatedMonitor"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_PredationStrategy, ZoologyMod">
+        <strategy>Chasing</strategy>
+      </li>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_RoughPlatedMonitor"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_RoughPlatedMonitor"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_RoughPlatedMonitor"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_RoughPlatedMonitor"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "AA_RoughPlatedMonitor"]/combatPower</xpath>
     <value>
-      <combatPower>130</combatPower>
+      <combatPower>140</combatPower>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -2137,7 +2177,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_SandProwler"]/statBases/MarketValue</xpath>
     <value>
-      <MarketValue>825</MarketValue>
+      <MarketValue>625</MarketValue>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -2192,42 +2232,6 @@
           <chanceFactor>0.2</chanceFactor>
         </li>
         <li>
-          <label>left claw</label>
-          <labelNoLocation>claw</labelNoLocation>
-          <capacities>
-            <li>Scratch</li>
-          </capacities>
-          <power>14</power>
-          <cooldownTime>1.35</cooldownTime>
-          <linkedBodyPartsGroup>FrontLeftClaws</linkedBodyPartsGroup>
-          <surpriseAttack>
-            <extraMeleeDamages>
-              <li>
-                <def>Stun</def>
-                <amount>25</amount>
-              </li>
-            </extraMeleeDamages>
-          </surpriseAttack>
-        </li>
-        <li>
-          <label>right claw</label>
-          <labelNoLocation>claw</labelNoLocation>
-          <capacities>
-            <li>Scratch</li>
-          </capacities>
-          <power>14</power>
-          <cooldownTime>1.35</cooldownTime>
-          <linkedBodyPartsGroup>FrontRightClaws</linkedBodyPartsGroup>
-          <surpriseAttack>
-            <extraMeleeDamages>
-              <li>
-                <def>Stun</def>
-                <amount>25</amount>
-              </li>
-            </extraMeleeDamages>
-          </surpriseAttack>
-        </li>
-        <li>
           <label>tail</label>
           <capacities>
             <li>Blunt</li>
@@ -2247,9 +2251,9 @@
         <li>
           <label>teeth</label>
           <capacities>
-            <li>ToxicBite</li>
+            <li>Bite</li>
           </capacities>
-          <power>34.5</power>
+          <power>21.5</power>
           <cooldownTime>1.95</cooldownTime>
           <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
           <surpriseAttack>
@@ -2397,7 +2401,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "AA_SandProwler"]/combatPower</xpath>
     <value>
-      <combatPower>290</combatPower>
+      <combatPower>200</combatPower>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -2475,7 +2479,7 @@
           <capacities>
             <li>AA_Electric</li>
           </capacities>
-          <power>2</power>
+          <power>1.5</power>
           <cooldownTime>1.3</cooldownTime>
           <linkedBodyPartsGroup>Mouth</linkedBodyPartsGroup>
           <surpriseAttack>
@@ -2603,6 +2607,40 @@
       <li Class="ZoologyMod.ModExtension_Ectothermic, ZoologyMod"/>
       <li Class="ZoologyMod.ModExtension_CannotChew, ZoologyMod"/>
     </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="AA_SandProwler" or defName="AA_Skyeel"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="AA_SandProwler" or defName="AA_Skyeel"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "AA_SandProwler"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_PredationStrategy, ZoologyMod">
+        <strategy>Chasing</strategy>
+      </li>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "AA_Skyeel"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_PredationStrategy, ZoologyMod">
+        <strategy>Ambush</strategy>
+      </li>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="AA_SandProwler" or defName="AA_Skyeel"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="AA_SandProwler" or defName="AA_Skyeel"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="AA_SandProwler" or defName="AA_Skyeel"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="AA_SandProwler" or defName="AA_Skyeel"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    </match>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "AA_Skyeel"]/combatPower</xpath>
@@ -3055,9 +3093,9 @@
                 <capacities>
                   <li>Bite</li>
                 </capacities>
-                <power>100.8</power>
-                <armorPenetrationBlunt>120.017</armorPenetrationBlunt>
-                <armorPenetrationSharp>6.35</armorPenetrationSharp>
+                <power>59.85</power>
+                <armorPenetrationBlunt>36.483</armorPenetrationBlunt>
+                <armorPenetrationSharp>5.19</armorPenetrationSharp>
                 <cooldownTime>3.56</cooldownTime>
                 <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
                 <surpriseAttack>
@@ -3254,46 +3292,6 @@
                 <chanceFactor>0.2</chanceFactor>
               </li>
               <li Class="CombatExtended.ToolCE">
-                <label>left claw</label>
-                <labelNoLocation>claw</labelNoLocation>
-                <capacities>
-                  <li>Scratch</li>
-                </capacities>
-                <power>6.3</power>
-                <armorPenetrationBlunt>0.459</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.14</armorPenetrationSharp>
-                <cooldownTime>1.26</cooldownTime>
-                <linkedBodyPartsGroup>FrontLeftClaws</linkedBodyPartsGroup>
-                <surpriseAttack>
-                  <extraMeleeDamages>
-                    <li>
-                      <def>Stun</def>
-                      <amount>20</amount>
-                    </li>
-                  </extraMeleeDamages>
-                </surpriseAttack>
-              </li>
-              <li Class="CombatExtended.ToolCE">
-                <label>right claw</label>
-                <labelNoLocation>claw</labelNoLocation>
-                <capacities>
-                  <li>Scratch</li>
-                </capacities>
-                <power>6.3</power>
-                <armorPenetrationBlunt>0.459</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.14</armorPenetrationSharp>
-                <cooldownTime>1.26</cooldownTime>
-                <linkedBodyPartsGroup>FrontRightClaws</linkedBodyPartsGroup>
-                <surpriseAttack>
-                  <extraMeleeDamages>
-                    <li>
-                      <def>Stun</def>
-                      <amount>20</amount>
-                    </li>
-                  </extraMeleeDamages>
-                </surpriseAttack>
-              </li>
-              <li Class="CombatExtended.ToolCE">
                 <label>tail</label>
                 <capacities>
                   <li>Blunt</li>
@@ -3314,11 +3312,11 @@
               <li Class="CombatExtended.ToolCE">
                 <label>teeth</label>
                 <capacities>
-                  <li>ToxicBite</li>
+                  <li>Bite</li>
                 </capacities>
-                <power>20.95</power>
-                <armorPenetrationBlunt>6.291</armorPenetrationBlunt>
-                <armorPenetrationSharp>1.98</armorPenetrationSharp>
+                <power>11.9</power>
+                <armorPenetrationBlunt>1.724</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.7</armorPenetrationSharp>
                 <cooldownTime>1.86</cooldownTime>
                 <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
                 <surpriseAttack>
@@ -3543,9 +3541,9 @@
                 <capacities>
                   <li>Bite</li>
                 </capacities>
-                <power>20.55</power>
-                <armorPenetrationBlunt>4.66</armorPenetrationBlunt>
-                <armorPenetrationSharp>1.24</armorPenetrationSharp>
+                <power>14.5</power>
+                <armorPenetrationBlunt>2.093</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.56</armorPenetrationSharp>
                 <cooldownTime>1.94</cooldownTime>
                 <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
               </li>
@@ -4327,46 +4325,6 @@
                 <chanceFactor>0.2</chanceFactor>
               </li>
               <li Class="CombatExtended.ToolCE">
-                <label>left claw</label>
-                <labelNoLocation>claw</labelNoLocation>
-                <capacities>
-                  <li>Scratch</li>
-                </capacities>
-                <power>6.9</power>
-                <armorPenetrationBlunt>0.655</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.16</armorPenetrationSharp>
-                <cooldownTime>1.32</cooldownTime>
-                <linkedBodyPartsGroup>FrontLeftClaws</linkedBodyPartsGroup>
-                <surpriseAttack>
-                  <extraMeleeDamages>
-                    <li>
-                      <def>Stun</def>
-                      <amount>20</amount>
-                    </li>
-                  </extraMeleeDamages>
-                </surpriseAttack>
-              </li>
-              <li Class="CombatExtended.ToolCE">
-                <label>right claw</label>
-                <labelNoLocation>claw</labelNoLocation>
-                <capacities>
-                  <li>Scratch</li>
-                </capacities>
-                <power>6.9</power>
-                <armorPenetrationBlunt>0.655</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.16</armorPenetrationSharp>
-                <cooldownTime>1.32</cooldownTime>
-                <linkedBodyPartsGroup>FrontRightClaws</linkedBodyPartsGroup>
-                <surpriseAttack>
-                  <extraMeleeDamages>
-                    <li>
-                      <def>Stun</def>
-                      <amount>20</amount>
-                    </li>
-                  </extraMeleeDamages>
-                </surpriseAttack>
-              </li>
-              <li Class="CombatExtended.ToolCE">
                 <label>tentacles</label>
                 <capacities>
                   <li>AA_EMPBlunt</li>
@@ -4387,11 +4345,11 @@
               <li Class="CombatExtended.ToolCE">
                 <label>teeth</label>
                 <capacities>
-                  <li>ToxicBite</li>
+                  <li>ZVenom_VaranidBite</li>
                 </capacities>
-                <power>16.85</power>
-                <armorPenetrationBlunt>4.312</armorPenetrationBlunt>
-                <armorPenetrationSharp>2.06</armorPenetrationSharp>
+                <power>12.65</power>
+                <armorPenetrationBlunt>2.247</armorPenetrationBlunt>
+                <armorPenetrationSharp>1.12</armorPenetrationSharp>
                 <cooldownTime>1.94</cooldownTime>
                 <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
                 <surpriseAttack>
@@ -4588,46 +4546,6 @@
                 <chanceFactor>0.2</chanceFactor>
               </li>
               <li Class="CombatExtended.ToolCE">
-                <label>left claw</label>
-                <labelNoLocation>claw</labelNoLocation>
-                <capacities>
-                  <li>Scratch</li>
-                </capacities>
-                <power>9.1</power>
-                <armorPenetrationBlunt>0.939</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.18</armorPenetrationSharp>
-                <cooldownTime>1.4</cooldownTime>
-                <linkedBodyPartsGroup>FrontLeftClaws</linkedBodyPartsGroup>
-                <surpriseAttack>
-                  <extraMeleeDamages>
-                    <li>
-                      <def>Stun</def>
-                      <amount>20</amount>
-                    </li>
-                  </extraMeleeDamages>
-                </surpriseAttack>
-              </li>
-              <li Class="CombatExtended.ToolCE">
-                <label>right claw</label>
-                <labelNoLocation>claw</labelNoLocation>
-                <capacities>
-                  <li>Scratch</li>
-                </capacities>
-                <power>9.1</power>
-                <armorPenetrationBlunt>0.939</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.18</armorPenetrationSharp>
-                <cooldownTime>1.4</cooldownTime>
-                <linkedBodyPartsGroup>FrontRightClaws</linkedBodyPartsGroup>
-                <surpriseAttack>
-                  <extraMeleeDamages>
-                    <li>
-                      <def>Stun</def>
-                      <amount>20</amount>
-                    </li>
-                  </extraMeleeDamages>
-                </surpriseAttack>
-              </li>
-              <li Class="CombatExtended.ToolCE">
                 <label>tail</label>
                 <capacities>
                   <li>Blunt</li>
@@ -4648,11 +4566,11 @@
               <li Class="CombatExtended.ToolCE">
                 <label>teeth</label>
                 <capacities>
-                  <li>ToxicBite</li>
+                  <li>ZVenom_VaranidBite</li>
                 </capacities>
-                <power>14.8</power>
-                <armorPenetrationBlunt>2.571</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.89</armorPenetrationSharp>
+                <power>18.15</power>
+                <armorPenetrationBlunt>4.106</armorPenetrationBlunt>
+                <armorPenetrationSharp>1.42</armorPenetrationSharp>
                 <cooldownTime>2.03</cooldownTime>
                 <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
                 <surpriseAttack>
@@ -4849,46 +4767,6 @@
                 <chanceFactor>0.2</chanceFactor>
               </li>
               <li Class="CombatExtended.ToolCE">
-                <label>left claw</label>
-                <labelNoLocation>claw</labelNoLocation>
-                <capacities>
-                  <li>Scratch</li>
-                </capacities>
-                <power>13.95</power>
-                <armorPenetrationBlunt>1.797</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.23</armorPenetrationSharp>
-                <cooldownTime>1.55</cooldownTime>
-                <linkedBodyPartsGroup>FrontLeftClaws</linkedBodyPartsGroup>
-                <surpriseAttack>
-                  <extraMeleeDamages>
-                    <li>
-                      <def>Stun</def>
-                      <amount>25</amount>
-                    </li>
-                  </extraMeleeDamages>
-                </surpriseAttack>
-              </li>
-              <li Class="CombatExtended.ToolCE">
-                <label>right claw</label>
-                <labelNoLocation>claw</labelNoLocation>
-                <capacities>
-                  <li>Scratch</li>
-                </capacities>
-                <power>13.95</power>
-                <armorPenetrationBlunt>1.797</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.23</armorPenetrationSharp>
-                <cooldownTime>1.55</cooldownTime>
-                <linkedBodyPartsGroup>FrontRightClaws</linkedBodyPartsGroup>
-                <surpriseAttack>
-                  <extraMeleeDamages>
-                    <li>
-                      <def>Stun</def>
-                      <amount>25</amount>
-                    </li>
-                  </extraMeleeDamages>
-                </surpriseAttack>
-              </li>
-              <li Class="CombatExtended.ToolCE">
                 <label>tail</label>
                 <capacities>
                   <li>Blunt</li>
@@ -4909,11 +4787,11 @@
               <li Class="CombatExtended.ToolCE">
                 <label>teeth</label>
                 <capacities>
-                  <li>ToxicBite</li>
+                  <li>Bite</li>
                 </capacities>
-                <power>43.05</power>
-                <armorPenetrationBlunt>20.121</armorPenetrationBlunt>
-                <armorPenetrationSharp>3.03</armorPenetrationSharp>
+                <power>23.45</power>
+                <armorPenetrationBlunt>5.023</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.93</armorPenetrationSharp>
                 <cooldownTime>2.22</cooldownTime>
                 <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
                 <surpriseAttack>
@@ -5114,9 +4992,9 @@
                 <capacities>
                   <li>AA_Electric</li>
                 </capacities>
-                <power>2.2</power>
-                <armorPenetrationBlunt>0.054</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.62</armorPenetrationSharp>
+                <power>1.35</power>
+                <armorPenetrationBlunt>0.018</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.2</armorPenetrationSharp>
                 <cooldownTime>1.51</cooldownTime>
                 <linkedBodyPartsGroup>Mouth</linkedBodyPartsGroup>
                 <surpriseAttack>

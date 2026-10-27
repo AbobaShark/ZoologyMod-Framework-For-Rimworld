@@ -3,13 +3,13 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_Animalisk"]/statBases/MarketValue</xpath>
     <value>
-      <MarketValue>625</MarketValue>
+      <MarketValue>775</MarketValue>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "AA_Animalisk"]/combatPower</xpath>
     <value>
-      <combatPower>165</combatPower>
+      <combatPower>225</combatPower>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -39,7 +39,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_Blizzarisk"]/statBases/MarketValue</xpath>
     <value>
-      <MarketValue>575</MarketValue>
+      <MarketValue>725</MarketValue>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -129,9 +129,9 @@
         <li>
           <label>chelicerae</label>
           <capacities>
-            <li>ToxicBite</li>
+            <li>ZVenom_ArachnidBite</li>
           </capacities>
-          <power>17</power>
+          <power>25.5</power>
           <cooldownTime>2.35</cooldownTime>
           <linkedBodyPartsGroup>Mouth</linkedBodyPartsGroup>
         </li>
@@ -168,9 +168,9 @@
         <li>
           <label>chelicerae</label>
           <capacities>
-            <li>ToxicBite</li>
+            <li>ZVenom_ArachnidBite</li>
           </capacities>
-          <power>16</power>
+          <power>24.5</power>
           <cooldownTime>2.3</cooldownTime>
           <linkedBodyPartsGroup>Mouth</linkedBodyPartsGroup>
           <surpriseAttack>
@@ -298,6 +298,24 @@
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_Animalisk"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_Animalisk"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_Animalisk"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_Animalisk"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_Animalisk"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_Animalisk"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_Blizzarisk"]/race/specialTrainables/li[text()="SludgeSpew" or text()="EggSpew" or text()="TerrorRoar" or text()="WarTrumpet" or text()="Forage" or text()="Comfort" or text()="AttackTarget" or text()="Dig"]</xpath>
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "AA_Blizzarisk"]/race/specialTrainables/li[text()="SludgeSpew" or text()="EggSpew" or text()="TerrorRoar" or text()="WarTrumpet" or text()="Forage" or text()="Comfort" or text()="AttackTarget" or text()="Dig"]</xpath>
@@ -330,10 +348,36 @@
       <li>AnimalFighter</li>
     </value>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_Blizzarisk"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_Blizzarisk"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "AA_Blizzarisk"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_PredationStrategy, ZoologyMod">
+        <strategy>Ambush</strategy>
+      </li>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_Blizzarisk"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_Blizzarisk"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_Blizzarisk"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_Blizzarisk"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "AA_Blizzarisk"]/combatPower</xpath>
     <value>
-      <combatPower>150</combatPower>
+      <combatPower>215</combatPower>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -369,7 +413,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_BlizzariskClutchMother"]/statBases/MarketValue</xpath>
     <value>
-      <MarketValue>950</MarketValue>
+      <MarketValue>1200</MarketValue>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -439,9 +483,9 @@
         <li>
           <label>chelicerae</label>
           <capacities>
-            <li>ToxicBite</li>
+            <li>ZVenom_ArachnidBite</li>
           </capacities>
-          <power>22</power>
+          <power>34</power>
           <cooldownTime>2.75</cooldownTime>
           <linkedBodyPartsGroup>Mouth</linkedBodyPartsGroup>
           <surpriseAttack>
@@ -562,10 +606,36 @@
       <li Class="ZoologyMod.ModExtension_AgroAtSlaughter, ZoologyMod"/>
     </value>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_BlizzariskClutchMother"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_BlizzariskClutchMother"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "AA_BlizzariskClutchMother"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_PredationStrategy, ZoologyMod">
+        <strategy>Ambush</strategy>
+      </li>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_BlizzariskClutchMother"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_BlizzariskClutchMother"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_BlizzariskClutchMother"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_BlizzariskClutchMother"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "AA_BlizzariskClutchMother"]/combatPower</xpath>
     <value>
-      <combatPower>245</combatPower>
+      <combatPower>355</combatPower>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -589,7 +659,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_Cinderlisk"]/statBases/MarketValue</xpath>
     <value>
-      <MarketValue>625</MarketValue>
+      <MarketValue>775</MarketValue>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -661,7 +731,7 @@
           <capacities>
             <li>AA_BurningAndFeedingBite</li>
           </capacities>
-          <power>16.5</power>
+          <power>25</power>
           <cooldownTime>2.3</cooldownTime>
           <linkedBodyPartsGroup>Mouth</linkedBodyPartsGroup>
           <surpriseAttack>
@@ -797,10 +867,36 @@
       <li>AnimalFighter</li>
     </value>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_Cinderlisk"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_Cinderlisk"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "AA_Cinderlisk"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_PredationStrategy, ZoologyMod">
+        <strategy>Ambush</strategy>
+      </li>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_Cinderlisk"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_Cinderlisk"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_Cinderlisk"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_Cinderlisk"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "AA_Cinderlisk"]/combatPower</xpath>
     <value>
-      <combatPower>160</combatPower>
+      <combatPower>230</combatPower>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -836,7 +932,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_Dunealisk"]/statBases/MarketValue</xpath>
     <value>
-      <MarketValue>575</MarketValue>
+      <MarketValue>725</MarketValue>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -906,9 +1002,9 @@
         <li>
           <label>chelicerae</label>
           <capacities>
-            <li>ToxicBite</li>
+            <li>ZVenom_ArachnidBite</li>
           </capacities>
-          <power>16</power>
+          <power>24.5</power>
           <cooldownTime>2.3</cooldownTime>
           <linkedBodyPartsGroup>Mouth</linkedBodyPartsGroup>
           <surpriseAttack>
@@ -1044,10 +1140,36 @@
       <li>AnimalFighter</li>
     </value>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_Dunealisk"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_Dunealisk"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "AA_Dunealisk"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_PredationStrategy, ZoologyMod">
+        <strategy>Ambush</strategy>
+      </li>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_Dunealisk"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_Dunealisk"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_Dunealisk"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_Dunealisk"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "AA_Dunealisk"]/combatPower</xpath>
     <value>
-      <combatPower>150</combatPower>
+      <combatPower>215</combatPower>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -1083,7 +1205,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_DunealiskClutchMother"]/statBases/MarketValue</xpath>
     <value>
-      <MarketValue>950</MarketValue>
+      <MarketValue>1200</MarketValue>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -1148,9 +1270,9 @@
         <li>
           <label>chelicerae</label>
           <capacities>
-            <li>ToxicBite</li>
+            <li>ZVenom_ArachnidBite</li>
           </capacities>
-          <power>22</power>
+          <power>34</power>
           <cooldownTime>2.75</cooldownTime>
           <linkedBodyPartsGroup>Mouth</linkedBodyPartsGroup>
           <surpriseAttack>
@@ -1277,10 +1399,36 @@
       <li Class="ZoologyMod.ModExtension_AgroAtSlaughter, ZoologyMod"/>
     </value>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_DunealiskClutchMother"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_DunealiskClutchMother"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "AA_DunealiskClutchMother"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_PredationStrategy, ZoologyMod">
+        <strategy>Ambush</strategy>
+      </li>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_DunealiskClutchMother"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_DunealiskClutchMother"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_DunealiskClutchMother"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_DunealiskClutchMother"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "AA_DunealiskClutchMother"]/combatPower</xpath>
     <value>
-      <combatPower>245</combatPower>
+      <combatPower>355</combatPower>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -1304,7 +1452,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_Feralisk"]/statBases/MarketValue</xpath>
     <value>
-      <MarketValue>575</MarketValue>
+      <MarketValue>725</MarketValue>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -1369,9 +1517,9 @@
         <li>
           <label>chelicerae</label>
           <capacities>
-            <li>ToxicBite</li>
+            <li>ZVenom_ArachnidBite</li>
           </capacities>
-          <power>16</power>
+          <power>24.5</power>
           <cooldownTime>2.3</cooldownTime>
           <linkedBodyPartsGroup>Mouth</linkedBodyPartsGroup>
           <surpriseAttack>
@@ -1507,10 +1655,36 @@
       <li>AnimalFighter</li>
     </value>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_Feralisk"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_Feralisk"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "AA_Feralisk"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_PredationStrategy, ZoologyMod">
+        <strategy>Ambush</strategy>
+      </li>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_Feralisk"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_Feralisk"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_Feralisk"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_Feralisk"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "AA_Feralisk"]/combatPower</xpath>
     <value>
-      <combatPower>150</combatPower>
+      <combatPower>215</combatPower>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -1546,7 +1720,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_FeraliskClutchMother"]/statBases/MarketValue</xpath>
     <value>
-      <MarketValue>950</MarketValue>
+      <MarketValue>1200</MarketValue>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -1606,9 +1780,9 @@
         <li>
           <label>chelicerae</label>
           <capacities>
-            <li>ToxicBite</li>
+            <li>ZVenom_ArachnidBite</li>
           </capacities>
-          <power>22</power>
+          <power>34</power>
           <cooldownTime>2.75</cooldownTime>
           <linkedBodyPartsGroup>Mouth</linkedBodyPartsGroup>
           <surpriseAttack>
@@ -1735,10 +1909,36 @@
       <li Class="ZoologyMod.ModExtension_AgroAtSlaughter, ZoologyMod"/>
     </value>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_FeraliskClutchMother"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_FeraliskClutchMother"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "AA_FeraliskClutchMother"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_PredationStrategy, ZoologyMod">
+        <strategy>Ambush</strategy>
+      </li>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_FeraliskClutchMother"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_FeraliskClutchMother"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_FeraliskClutchMother"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_FeraliskClutchMother"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "AA_FeraliskClutchMother"]/combatPower</xpath>
     <value>
-      <combatPower>245</combatPower>
+      <combatPower>355</combatPower>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -1762,7 +1962,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_Junglelisk"]/statBases/MarketValue</xpath>
     <value>
-      <MarketValue>625</MarketValue>
+      <MarketValue>775</MarketValue>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -1827,9 +2027,9 @@
         <li>
           <label>chelicerae</label>
           <capacities>
-            <li>ToxicBite</li>
+            <li>ZVenom_ArachnidBite</li>
           </capacities>
-          <power>17</power>
+          <power>25.5</power>
           <cooldownTime>2.35</cooldownTime>
           <linkedBodyPartsGroup>Mouth</linkedBodyPartsGroup>
           <surpriseAttack>
@@ -1962,10 +2162,36 @@
       <li>AnimalFighter</li>
     </value>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_Junglelisk"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_Junglelisk"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "AA_Junglelisk"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_PredationStrategy, ZoologyMod">
+        <strategy>Ambush</strategy>
+      </li>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_Junglelisk"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_Junglelisk"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_Junglelisk"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_Junglelisk"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "AA_Junglelisk"]/combatPower</xpath>
     <value>
-      <combatPower>165</combatPower>
+      <combatPower>225</combatPower>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -2173,11 +2399,11 @@
               <li Class="CombatExtended.ToolCE">
                 <label>chelicerae</label>
                 <capacities>
-                  <li>ToxicBite</li>
+                  <li>ZVenom_ArachnidBite</li>
                 </capacities>
-                <power>17.1</power>
-                <armorPenetrationBlunt>1.861</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.22</armorPenetrationSharp>
+                <power>29.6</power>
+                <armorPenetrationBlunt>6.53</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.77</armorPenetrationSharp>
                 <cooldownTime>2.34</cooldownTime>
                 <linkedBodyPartsGroup>Mouth</linkedBodyPartsGroup>
               </li>
@@ -2368,11 +2594,11 @@
               <li Class="CombatExtended.ToolCE">
                 <label>chelicerae</label>
                 <capacities>
-                  <li>ToxicBite</li>
+                  <li>ZVenom_ArachnidBite</li>
                 </capacities>
-                <power>15.95</power>
-                <armorPenetrationBlunt>1.638</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.21</armorPenetrationSharp>
+                <power>27.6</power>
+                <armorPenetrationBlunt>5.752</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.72</armorPenetrationSharp>
                 <cooldownTime>2.28</cooldownTime>
                 <linkedBodyPartsGroup>Mouth</linkedBodyPartsGroup>
                 <surpriseAttack>
@@ -2571,11 +2797,11 @@
               <li Class="CombatExtended.ToolCE">
                 <label>chelicerae</label>
                 <capacities>
-                  <li>ToxicBite</li>
+                  <li>ZVenom_ArachnidBite</li>
                 </capacities>
-                <power>24.5</power>
-                <armorPenetrationBlunt>3.404</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.28</armorPenetrationSharp>
+                <power>42.35</power>
+                <armorPenetrationBlunt>11.846</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.98</armorPenetrationSharp>
                 <cooldownTime>2.73</cooldownTime>
                 <linkedBodyPartsGroup>Mouth</linkedBodyPartsGroup>
                 <surpriseAttack>
@@ -2776,9 +3002,9 @@
                 <capacities>
                   <li>AA_BurningAndFeedingBite</li>
                 </capacities>
-                <power>16.55</power>
-                <armorPenetrationBlunt>1.754</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.22</armorPenetrationSharp>
+                <power>28.65</power>
+                <armorPenetrationBlunt>6.155</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.75</armorPenetrationSharp>
                 <cooldownTime>2.31</cooldownTime>
                 <linkedBodyPartsGroup>Mouth</linkedBodyPartsGroup>
                 <surpriseAttack>
@@ -2977,11 +3203,11 @@
               <li Class="CombatExtended.ToolCE">
                 <label>chelicerae</label>
                 <capacities>
-                  <li>ToxicBite</li>
+                  <li>ZVenom_ArachnidBite</li>
                 </capacities>
-                <power>15.95</power>
-                <armorPenetrationBlunt>1.638</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.21</armorPenetrationSharp>
+                <power>27.6</power>
+                <armorPenetrationBlunt>5.752</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.72</armorPenetrationSharp>
                 <cooldownTime>2.28</cooldownTime>
                 <linkedBodyPartsGroup>Mouth</linkedBodyPartsGroup>
                 <surpriseAttack>
@@ -3180,11 +3406,11 @@
               <li Class="CombatExtended.ToolCE">
                 <label>chelicerae</label>
                 <capacities>
-                  <li>ToxicBite</li>
+                  <li>ZVenom_ArachnidBite</li>
                 </capacities>
-                <power>24.5</power>
-                <armorPenetrationBlunt>3.404</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.28</armorPenetrationSharp>
+                <power>42.35</power>
+                <armorPenetrationBlunt>11.846</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.98</armorPenetrationSharp>
                 <cooldownTime>2.73</cooldownTime>
                 <linkedBodyPartsGroup>Mouth</linkedBodyPartsGroup>
                 <surpriseAttack>
@@ -3383,11 +3609,11 @@
               <li Class="CombatExtended.ToolCE">
                 <label>chelicerae</label>
                 <capacities>
-                  <li>ToxicBite</li>
+                  <li>ZVenom_ArachnidBite</li>
                 </capacities>
-                <power>15.95</power>
-                <armorPenetrationBlunt>1.638</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.21</armorPenetrationSharp>
+                <power>27.6</power>
+                <armorPenetrationBlunt>5.752</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.72</armorPenetrationSharp>
                 <cooldownTime>2.28</cooldownTime>
                 <linkedBodyPartsGroup>Mouth</linkedBodyPartsGroup>
                 <surpriseAttack>
@@ -3586,11 +3812,11 @@
               <li Class="CombatExtended.ToolCE">
                 <label>chelicerae</label>
                 <capacities>
-                  <li>ToxicBite</li>
+                  <li>ZVenom_ArachnidBite</li>
                 </capacities>
-                <power>24.5</power>
-                <armorPenetrationBlunt>3.404</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.28</armorPenetrationSharp>
+                <power>42.35</power>
+                <armorPenetrationBlunt>11.846</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.98</armorPenetrationSharp>
                 <cooldownTime>2.73</cooldownTime>
                 <linkedBodyPartsGroup>Mouth</linkedBodyPartsGroup>
                 <surpriseAttack>
@@ -3789,11 +4015,11 @@
               <li Class="CombatExtended.ToolCE">
                 <label>chelicerae</label>
                 <capacities>
-                  <li>ToxicBite</li>
+                  <li>ZVenom_ArachnidBite</li>
                 </capacities>
-                <power>17.1</power>
-                <armorPenetrationBlunt>1.861</armorPenetrationBlunt>
-                <armorPenetrationSharp>0.22</armorPenetrationSharp>
+                <power>29.6</power>
+                <armorPenetrationBlunt>6.53</armorPenetrationBlunt>
+                <armorPenetrationSharp>0.77</armorPenetrationSharp>
                 <cooldownTime>2.34</cooldownTime>
                 <linkedBodyPartsGroup>Mouth</linkedBodyPartsGroup>
                 <surpriseAttack>

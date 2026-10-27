@@ -81,6 +81,7 @@ namespace ZoologyMod
                     if (candidate == pawn) continue; 
                     if (candidate.Downed) continue;
                     if (candidate.InMentalState) continue;
+                    if (candidate.jobs?.curDriver is JobDriver_Constrict) continue;
                     if (candidate.RaceProps?.predator != true) continue;
                     
                     if ((candidate.Position - pawnPosition).LengthHorizontalSquared > herdRadiusSq) continue;
@@ -125,7 +126,7 @@ namespace ZoologyMod
 
                             Job newCurJob = candidate.CurJob;
                             given = newCurJob != null
-                                && newCurJob.def == JobDefOf.PredatorHunt
+                                && (newCurJob.def == JobDefOf.PredatorHunt || candidate.jobs.curDriver is JobDriver_AnimalStalk)
                                 && newCurJob.targetA.HasThing
                                 && newCurJob.GetTarget(TargetIndex.A).Thing == preyPawn;
                         }
@@ -284,7 +285,7 @@ namespace ZoologyMod
                     try
                     {
                         Job curJob = candidate.CurJob;
-                        if (curJob != null && curJob.def == JobDefOf.PredatorHunt)
+                        if (curJob != null && (curJob.def == JobDefOf.PredatorHunt || candidate.jobs?.curDriver is JobDriver_Constrict))
                         {
                             Thing curTarget = null;
                             try { curTarget = curJob.targetA.Thing; } catch { curTarget = null; }

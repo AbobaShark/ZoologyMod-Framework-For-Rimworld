@@ -56,8 +56,18 @@ namespace ZoologyMod
                     return false; 
 
                 
-                if (job.def != JobDefOf.Flee)
+                if (job.def != JobDefOf.Flee && job.def.defName != "Zoology_EnvironmentFlee")
                     return true;
+
+                var refugeState = pawn.TryGetComp<CompAnimalStrategyState>();
+                if (refugeState?.groundEscapeUntilFed == true || (refugeState?.lastRangedSource?.Spawned == true && refugeState.lastRangedSource.Map == pawn.Map
+                    && refugeState.lastRangedSource.Position.InHorDistOf(pawn.Position, 30f)))
+                {
+                    job.flying = false;
+                    if (FlyingGetter(__instance)) __instance.ForceLand();
+                    return false;
+                }
+                if (job.def != JobDefOf.Flee) return true;
 
                 
                 if (pawn.RaceProps == null)

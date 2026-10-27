@@ -829,6 +829,24 @@
       <li Class="ZoologyMod.ModExtension_AgroAtSlaughter, ZoologyMod"/>
     </value>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="AA_Helixien" or defName="AA_Plasmorph" or defName="AA_SandSquid" or defName="AA_TarGuzzler" or defName="AA_TetraSlug"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="AA_Helixien" or defName="AA_Plasmorph" or defName="AA_SandSquid" or defName="AA_TarGuzzler" or defName="AA_TetraSlug"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="AA_Helixien" or defName="AA_Plasmorph" or defName="AA_SandSquid" or defName="AA_TarGuzzler" or defName="AA_TetraSlug"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="AA_Helixien" or defName="AA_Plasmorph" or defName="AA_SandSquid" or defName="AA_TarGuzzler" or defName="AA_TetraSlug"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="AA_Helixien" or defName="AA_Plasmorph" or defName="AA_SandSquid" or defName="AA_TarGuzzler" or defName="AA_TetraSlug"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="AA_Helixien" or defName="AA_Plasmorph" or defName="AA_SandSquid" or defName="AA_TarGuzzler" or defName="AA_TetraSlug"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "AA_TetraSlug"]/combatPower</xpath>
     <value>

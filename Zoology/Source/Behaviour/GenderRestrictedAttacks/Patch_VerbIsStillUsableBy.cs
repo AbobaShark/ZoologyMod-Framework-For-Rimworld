@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Reflection;
 using Verse;
@@ -27,6 +27,12 @@ namespace ZoologyMod
 
                 var tool = __instance.tool;
                 if (tool == null) return;
+                if (tool.capacities != null && tool.capacities.Exists(c => c.defName == "ZVenom_PlatypusSpur")
+                    && (pawn.gender != Gender.Male || pawn.ageTracker?.CurLifeStage?.reproductive != true))
+                {
+                    __result = false;
+                    return;
+                }
 
                 
                 var asOur = tool as ToolWithGender;

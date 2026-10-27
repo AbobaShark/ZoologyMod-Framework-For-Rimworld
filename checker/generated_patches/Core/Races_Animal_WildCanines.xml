@@ -880,6 +880,38 @@
       <xpath>/Defs/ThingDef[defName="Wolf_Timber" or defName="Wolf_Arctic" or defName="Fox_Red" or defName="Fox_Arctic" or defName="Fox_Fennec"]/tradeTags</xpath>
     </match>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="Warg" or defName="Wolf_Timber" or defName="Wolf_Arctic" or defName="Fox_Red" or defName="Fox_Arctic" or defName="Fox_Fennec"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="Warg" or defName="Wolf_Timber" or defName="Wolf_Arctic" or defName="Fox_Red" or defName="Fox_Arctic" or defName="Fox_Fennec"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName="Warg" or defName="Wolf_Timber" or defName="Wolf_Arctic" or defName="Fox_Red" or defName="Fox_Arctic" or defName="Fox_Fennec"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_PredationStrategy, ZoologyMod">
+        <strategy>Chasing</strategy>
+      </li>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="Warg" or defName="Wolf_Timber" or defName="Wolf_Arctic" or defName="Fox_Red" or defName="Fox_Arctic" or defName="Fox_Fennec"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="Warg" or defName="Wolf_Timber" or defName="Wolf_Arctic" or defName="Fox_Red" or defName="Fox_Arctic" or defName="Fox_Fennec"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName="Fox_Red" or defName="Fox_Arctic" or defName="Fox_Fennec"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_Burrower, ZoologyMod"/>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="Warg" or defName="Wolf_Timber" or defName="Wolf_Arctic" or defName="Fox_Red" or defName="Fox_Arctic" or defName="Fox_Fennec"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="Warg" or defName="Wolf_Timber" or defName="Wolf_Arctic" or defName="Fox_Red" or defName="Fox_Arctic" or defName="Fox_Fennec"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
   <Operation Class="PatchOperationAdd">
     <xpath>/Defs/PawnKindDef[defName = "Fox_Fennec"]</xpath>
     <value>

@@ -512,8 +512,8 @@
               <wildBiomes>
                 <AridShrubland>0.5</AridShrubland>
                 <Grasslands MayRequire="Ludeon.RimWorld.Odyssey">0.5</Grasslands>
-                <AB_IdyllicMeadows>0.5</AB_IdyllicMeadows>
-                <AB_TarPits>0.5</AB_TarPits>
+                <AB_IdyllicMeadows MayRequire="sarg.alphabiomes">0.5</AB_IdyllicMeadows>
+                <AB_TarPits MayRequire="sarg.alphabiomes">0.5</AB_TarPits>
               </wildBiomes>
             </value>
           </match>
@@ -523,8 +523,8 @@
               <wildBiomes>
                 <AridShrubland>0.5</AridShrubland>
                 <Grasslands MayRequire="Ludeon.RimWorld.Odyssey">0.5</Grasslands>
-                <AB_IdyllicMeadows>0.5</AB_IdyllicMeadows>
-                <AB_TarPits>0.5</AB_TarPits>
+                <AB_IdyllicMeadows MayRequire="sarg.alphabiomes">0.5</AB_IdyllicMeadows>
+                <AB_TarPits MayRequire="sarg.alphabiomes">0.5</AB_TarPits>
               </wildBiomes>
             </value>
           </nomatch>
@@ -618,6 +618,24 @@
           <value>
             <li Class="ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod"/>
           </value>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+          </match>
         </li>
         <li Class="PatchOperationConditional">
           <xpath>/Defs/PawnKindDef[defName = "VAERoy_Quail"]/combatPower</xpath>
@@ -1238,7 +1256,7 @@
               <wildBiomes>
                 <ColdBog>0.325</ColdBog>
                 <TemperateSwamp>0.325</TemperateSwamp>
-                <AB_GelatinousSuperorganism>0.325</AB_GelatinousSuperorganism>
+                <AB_GelatinousSuperorganism MayRequire="sarg.alphabiomes">0.325</AB_GelatinousSuperorganism>
               </wildBiomes>
             </value>
           </match>
@@ -1248,7 +1266,7 @@
               <wildBiomes>
                 <ColdBog>0.325</ColdBog>
                 <TemperateSwamp>0.325</TemperateSwamp>
-                <AB_GelatinousSuperorganism>0.325</AB_GelatinousSuperorganism>
+                <AB_GelatinousSuperorganism MayRequire="sarg.alphabiomes">0.325</AB_GelatinousSuperorganism>
               </wildBiomes>
             </value>
           </nomatch>
@@ -1336,6 +1354,24 @@
           <value>
             <li Class="ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod"/>
           </value>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+          </match>
         </li>
         <li Class="PatchOperationConditional">
           <xpath>/Defs/PawnKindDef[defName = "VAERoy_Swan"]/combatPower</xpath>
@@ -1940,11 +1976,11 @@
                 <Grasslands MayRequire="Ludeon.RimWorld.Odyssey">0.4</Grasslands>
                 <TropicalRainforest>0.4</TropicalRainforest>
                 <TropicalSwamp>0.4</TropicalSwamp>
-                <AB_FeraliskInfestedJungle>0.4</AB_FeraliskInfestedJungle>
-                <AB_IdyllicMeadows>0.4</AB_IdyllicMeadows>
-                <AB_MiasmicMangrove>0.4</AB_MiasmicMangrove>
-                <AB_MycoticJungle>0.4</AB_MycoticJungle>
-                <AB_TarPits>0.4</AB_TarPits>
+                <AB_FeraliskInfestedJungle MayRequire="sarg.alphabiomes">0.4</AB_FeraliskInfestedJungle>
+                <AB_IdyllicMeadows MayRequire="sarg.alphabiomes">0.4</AB_IdyllicMeadows>
+                <AB_MiasmicMangrove MayRequire="sarg.alphabiomes">0.4</AB_MiasmicMangrove>
+                <AB_MycoticJungle MayRequire="sarg.alphabiomes">0.4</AB_MycoticJungle>
+                <AB_TarPits MayRequire="sarg.alphabiomes">0.4</AB_TarPits>
               </wildBiomes>
             </value>
           </match>
@@ -1956,11 +1992,11 @@
                 <Grasslands MayRequire="Ludeon.RimWorld.Odyssey">0.4</Grasslands>
                 <TropicalRainforest>0.4</TropicalRainforest>
                 <TropicalSwamp>0.4</TropicalSwamp>
-                <AB_FeraliskInfestedJungle>0.4</AB_FeraliskInfestedJungle>
-                <AB_IdyllicMeadows>0.4</AB_IdyllicMeadows>
-                <AB_MiasmicMangrove>0.4</AB_MiasmicMangrove>
-                <AB_MycoticJungle>0.4</AB_MycoticJungle>
-                <AB_TarPits>0.4</AB_TarPits>
+                <AB_FeraliskInfestedJungle MayRequire="sarg.alphabiomes">0.4</AB_FeraliskInfestedJungle>
+                <AB_IdyllicMeadows MayRequire="sarg.alphabiomes">0.4</AB_IdyllicMeadows>
+                <AB_MiasmicMangrove MayRequire="sarg.alphabiomes">0.4</AB_MiasmicMangrove>
+                <AB_MycoticJungle MayRequire="sarg.alphabiomes">0.4</AB_MycoticJungle>
+                <AB_TarPits MayRequire="sarg.alphabiomes">0.4</AB_TarPits>
               </wildBiomes>
             </value>
           </nomatch>
@@ -2054,6 +2090,24 @@
           <value>
             <li Class="ZoologyMod.ModExtensiom_Chlidcare, ZoologyMod"/>
           </value>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod"]</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Burrower, ZoologyMod"]</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_TreeClimber, ZoologyMod"]</xpath>
+          </match>
         </li>
         <li Class="PatchOperationConditional">
           <xpath>/Defs/PawnKindDef[defName = "VAERoy_Peacock"]/combatPower</xpath>

@@ -1,0 +1,144 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Patch>
+  <!-- Zoology validated venom tools for MonitorLizard -->
+  <Operation Class="PatchOperationConditional">
+    <xpath>Defs/ThingDef[defName="MonitorLizard"]</xpath>
+    <match Class="PatchOperationSequence">
+      <operations>
+        <li Class="PatchOperationFindMod">
+          <mods>
+            <li>Combat Extended</li>
+          </mods>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="MonitorLizard"]/tools</xpath>
+                <match Class="PatchOperationRemove">
+                  <xpath>Defs/ThingDef[defName="MonitorLizard"]/tools</xpath>
+                </match>
+              </li>
+              <li Class="PatchOperationAdd">
+                <xpath>Defs/ThingDef[defName="MonitorLizard"]</xpath>
+                <value>
+                  <tools Inherit="False">
+                    <li Class="CombatExtended.ToolCE">
+                      <label>head</label>
+                      <capacities>
+                        <li>Blunt</li>
+                      </capacities>
+                      <power>1.9500000000000002</power>
+                      <armorPenetrationBlunt>0.627</armorPenetrationBlunt>
+                      <cooldownTime>1.85</cooldownTime>
+                      <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
+                      <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
+                      <chanceFactor>0.2</chanceFactor>
+                    </li>
+                    <li Class="CombatExtended.ToolCE">
+                      <label>tail</label>
+                      <capacities>
+                        <li>Blunt</li>
+                      </capacities>
+                      <power>7.050000000000001</power>
+                      <armorPenetrationBlunt>2.58</armorPenetrationBlunt>
+                      <cooldownTime>1.94</cooldownTime>
+                      <linkedBodyPartsGroup>TailAttackTool</linkedBodyPartsGroup>
+                      <surpriseAttack>
+                        <extraMeleeDamages>
+                          <li>
+                            <def>Stun</def>
+                            <amount>20</amount>
+                          </li>
+                        </extraMeleeDamages>
+                      </surpriseAttack>
+                    </li>
+                    <li Class="CombatExtended.ToolCE">
+                      <label>teeth</label>
+                      <capacities>
+                        <li>ZVenom_VaranidBite</li>
+                      </capacities>
+                      <power>8.65</power>
+                      <armorPenetrationBlunt>1.059</armorPenetrationBlunt>
+                      <armorPenetrationSharp>0.65</armorPenetrationSharp>
+                      <cooldownTime>1.85</cooldownTime>
+                      <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
+                      <surpriseAttack>
+                        <extraMeleeDamages>
+                          <li>
+                            <def>Stun</def>
+                            <amount>20</amount>
+                          </li>
+                        </extraMeleeDamages>
+                      </surpriseAttack>
+                    </li>
+                  </tools>
+                </value>
+              </li>
+            </operations>
+          </match>
+          <nomatch Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>Defs/ThingDef[defName="MonitorLizard"]/tools</xpath>
+                <match Class="PatchOperationRemove">
+                  <xpath>Defs/ThingDef[defName="MonitorLizard"]/tools</xpath>
+                </match>
+              </li>
+              <li Class="PatchOperationAdd">
+                <xpath>Defs/ThingDef[defName="MonitorLizard"]</xpath>
+                <value>
+                  <tools Inherit="False">
+                    <li>
+                      <label>head</label>
+                      <capacities>
+                        <li>Blunt</li>
+                      </capacities>
+                      <power>2</power>
+                      <cooldownTime>1.85</cooldownTime>
+                      <linkedBodyPartsGroup>HeadAttackTool</linkedBodyPartsGroup>
+                      <ensureLinkedBodyPartsGroupAlwaysUsable>true</ensureLinkedBodyPartsGroupAlwaysUsable>
+                      <chanceFactor>0.2</chanceFactor>
+                    </li>
+                    <li>
+                      <label>tail</label>
+                      <capacities>
+                        <li>Blunt</li>
+                      </capacities>
+                      <power>7</power>
+                      <cooldownTime>1.4500000000000002</cooldownTime>
+                      <linkedBodyPartsGroup>TailAttackTool</linkedBodyPartsGroup>
+                      <surpriseAttack>
+                        <extraMeleeDamages>
+                          <li>
+                            <def>Stun</def>
+                            <amount>20</amount>
+                          </li>
+                        </extraMeleeDamages>
+                      </surpriseAttack>
+                    </li>
+                    <li>
+                      <label>teeth</label>
+                      <capacities>
+                        <li>ZVenom_VaranidBite</li>
+                      </capacities>
+                      <power>8.5</power>
+                      <cooldownTime>1.6</cooldownTime>
+                      <linkedBodyPartsGroup>Teeth</linkedBodyPartsGroup>
+                      <surpriseAttack>
+                        <extraMeleeDamages>
+                          <li>
+                            <def>Stun</def>
+                            <amount>20</amount>
+                          </li>
+                        </extraMeleeDamages>
+                      </surpriseAttack>
+                    </li>
+                  </tools>
+                </value>
+              </li>
+            </operations>
+          </nomatch>
+        </li>
+      </operations>
+    </match>
+  </Operation>
+</Patch>

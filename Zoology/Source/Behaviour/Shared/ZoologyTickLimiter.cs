@@ -11,6 +11,13 @@ namespace ZoologyMod
         public const int GetPreyBudgetPerTick = 4000;
         public const int HasPredatorAttackedBudgetPerTick = 4000;
 
+        public static class Refuges
+        {
+            public const int PlansPerMapPerTick = 4;
+            public const int ReplanTicks = 180;
+            public const int MaxPathCandidates = 4;
+        }
+
         // Predation food selection cache timing.
         public static class PredationFood
         {
@@ -119,7 +126,7 @@ namespace ZoologyMod
         public static class Pursuit
         {
             public const int ChaseTimeoutTicks = 2500;
-            public const int ScanIntervalTicks = 120;
+            public const int ScanIntervalTicks = 100;
             public const int CleanIntervalTicks = 10000;
             public const int TicksPerLongTick = ChaseTimeoutTicks;
             public const int StopPredatorWaitTicks = 250;

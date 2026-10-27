@@ -65,6 +65,7 @@ namespace ZoologyMod
         {
             Job result = base.TryGiveJob(pawn);
             Patch_AnimalFleeFromPredators.ApplyZoologyFleeLogic(this, pawn, ref result);
+            result = AnimalDefense.Choose(pawn, result);
             return result;
         }
     }
@@ -377,6 +378,8 @@ namespace ZoologyMod
             public readonly Dictionary<int, List<Pawn>> ActivePredatorThreatsByBucket = new Dictionary<int, List<Pawn>>(32);
             public readonly Dictionary<int, List<Pawn>> PassivePredatorThreatsByBucket = new Dictionary<int, List<Pawn>>(32);
             public readonly Dictionary<int, List<Pawn>> CarrierThreatsByBucket = new Dictionary<int, List<Pawn>>(16);
+            public readonly Dictionary<int, List<Pawn>> ElevatedThreatsByBucket = new Dictionary<int, List<Pawn>>(16);
+            private readonly HashSet<Pawn> elevatedThreats = new HashSet<Pawn>();
             public readonly Dictionary<int, Pawn> CloseMeleeHumanlikeThreatByPreyId = new Dictionary<int, Pawn>(16);
             public readonly Dictionary<int, Pawn> CloseMeleePredatorThreatByPreyId = new Dictionary<int, Pawn>(16);
             public float MaxCarrierThreatRadius;
@@ -398,6 +401,8 @@ namespace ZoologyMod
                 ThreatMapCache.ReturnBucketLists(ActivePredatorThreatsByBucket);
                 ThreatMapCache.ReturnBucketLists(PassivePredatorThreatsByBucket);
                 ThreatMapCache.ReturnBucketLists(CarrierThreatsByBucket);
+                ThreatMapCache.ReturnBucketLists(ElevatedThreatsByBucket);
+                elevatedThreats.Clear();
                 CloseMeleeHumanlikeThreatByPreyId.Clear();
                 CloseMeleePredatorThreatByPreyId.Clear();
                 MaxCarrierThreatRadius = 0f;
@@ -412,6 +417,8 @@ namespace ZoologyMod
                 HasCloseMeleeHumanlikeThreats = false;
                 HasCloseMeleePredatorThreats = false;
             }
+
+            public bool RegisterElevatedThreat(Pawn threat) => elevatedThreats.Add(threat);
         }
 
         private enum ThreatSearchMode
@@ -599,6 +606,7 @@ namespace ZoologyMod
             private static void AddHumanlikeThreatInfluence(ThreatMapCacheData data, Pawn threat)
             {
                 AddThreat(data.HumanlikeThreatsByBucket, threat);
+                AddElevatedThreatInfluence(data, threat);
 
                 Pawn targetPawn = GetThreatTargetPawnOrNull(threat);
                 if (ZoologyFleeSafetyUtility.IsThreatMeleeAttackingPawn(threat, targetPawn)
@@ -611,11 +619,13 @@ namespace ZoologyMod
             private static void AddSmallPetRaiderThreatInfluence(ThreatMapCacheData data, Pawn threat)
             {
                 AddThreat(data.SmallPetRaiderThreatsByBucket, threat);
+                AddElevatedThreatInfluence(data, threat);
             }
 
             private static void AddActivePredatorThreatInfluence(ThreatMapCacheData data, Pawn threat, Pawn targetPawn)
             {
                 AddThreat(data.ActivePredatorThreatsByBucket, threat);
+                AddElevatedThreatInfluence(data, threat);
 
                 if (targetPawn != null
                     && ZoologyFleeSafetyUtility.IsThreatMeleeAttackingPawn(threat, targetPawn)
@@ -628,6 +638,17 @@ namespace ZoologyMod
             private static void AddPassivePredatorThreatInfluence(ThreatMapCacheData data, Pawn threat)
             {
                 AddThreat(data.PassivePredatorThreatsByBucket, threat);
+                AddElevatedThreatInfluence(data, threat);
+            }
+
+            private static void AddElevatedThreatInfluence(ThreatMapCacheData data, Pawn threat)
+            {
+                // Classify once during the existing map-index refresh, rather than repeating
+                // weapon/flight checks for every animal sleeping in a tree every 60 ticks.
+                if (data.RegisterElevatedThreat(threat) && (AnimalDefense.IsRanged(threat)
+                    || threat.Flying || threat.flight?.CanFlyNow == true
+                    || DefModExtensionCache<ModExtension_TreeClimber>.Has(threat)))
+                    AddThreat(data.ElevatedThreatsByBucket, threat);
             }
 
             private static void AddCarrierThreatInfluence(ThreatMapCacheData data, Pawn threat, ModExtension_FleeFromCarrier extension)
@@ -1045,7 +1066,7 @@ namespace ZoologyMod
 
         private static bool IsTargetedAnimalThreatSourceForPrey(Pawn threat, Pawn prey)
         {
-            if (threat == null || prey == null || !threat.IsAnimal)
+            if (threat == null || prey == null || !threat.IsAnimal || AnimalHuntStrategy.HiddenFrom(threat, prey))
             {
                 return false;
             }
@@ -1059,7 +1080,8 @@ namespace ZoologyMod
         {
             return predator != null
                 && prey != null
-                && predator.RaceProps?.predator == true;
+                && predator.RaceProps?.predator == true
+                && !AnimalHuntStrategy.HiddenFrom(predator, prey);
         }
 
         public static bool Prepare()
@@ -1082,6 +1104,7 @@ namespace ZoologyMod
             }
 
             ApplyZoologyFleeLogic(__instance, pawn, ref __result);
+            __result = AnimalDefense.Choose(pawn, __result);
         }
 
         internal static void ApplyZoologyFleeLogic(JobGiver_AnimalFlee __instance, Pawn pawn, ref Job __result)
@@ -1106,6 +1129,12 @@ namespace ZoologyMod
                 {
                     return;
                 }
+
+                // The refuge driver polls the same threat index and owns descent/hunger. Ground
+                // flee planning cannot improve a safe elevated animal and repeats expensive scans.
+                if (AnimalDefense.IsInTree(pawn)) { __result = null; return; }
+                if (__result?.def == JobDefOf.Flee && __result.targetB.Pawn is Pawn hiddenThreat
+                    && AnimalHuntStrategy.HiddenFrom(hiddenThreat, pawn)) __result = null;
 
                 bool shouldBlockFleeInMelee = ShouldBlockFleeInMeleeForPawn(pawn);
                 Pawn meleeAttacker = null;
@@ -1314,6 +1343,70 @@ namespace ZoologyMod
             {
                 Log.Error($"[ZoologyMod] Patch_AnimalFleeFromPredators failed: {e}");
             }
+        }
+
+        // Shares the existing map threat index; refuge planning does not scan pawns again.
+        internal static List<Pawn> RefugeThreats(Pawn prey, Pawn primary, Plant elevatedTree = null)
+        {
+            var result = new List<Pawn>(8);
+            if (prey?.MapHeld == null) return result;
+            Map map = prey.MapHeld;
+            IntVec3 origin = prey.PositionHeld;
+            if (primary?.Spawned == true && !primary.Dead && !primary.Downed && primary.Map == map && primary.Position.InHorDistOf(origin, 24f)
+                && (elevatedTree == null || ReachesElevatedPrey(primary, prey, elevatedTree)))
+                result.Add(primary);
+            ThreatMapCacheData data = ThreatMapCache.GetOrRefresh(map, GenTicks.TicksGame);
+            if (data == null) return result;
+            var sources = elevatedTree != null ? new[] { data.ElevatedThreatsByBucket }
+                : new[] { data.ActivePredatorThreatsByBucket, data.PassivePredatorThreatsByBucket,
+                    data.HumanlikeThreatsByBucket, data.SmallPetRaiderThreatsByBucket };
+            int minX = Math.Max(0, (origin.x - 24) / ThreatBucketSize);
+            int maxX = (origin.x + 24) / ThreatBucketSize;
+            int minZ = Math.Max(0, (origin.z - 24) / ThreatBucketSize);
+            int maxZ = (origin.z + 24) / ThreatBucketSize;
+            float passiveRadius = GetNonHostilePredatorSearchRadius();
+            float humanRadius = GetHumanSearchRadius();
+            for (int source = 0; source < sources.Length; source++)
+                for (int x = minX; x <= maxX; x++)
+                    for (int z = minZ; z <= maxZ; z++)
+                        if (sources[source].TryGetValue(MakeThreatBucketKey(x, z), out List<Pawn> bucket))
+                            foreach (Pawn threat in bucket)
+                            {
+                                if (result.Contains(threat) || threat == null || !threat.Spawned || threat.Dead || threat.Downed || threat.Map != map
+                                    || !threat.Position.InHorDistOf(origin, 24f)
+                                    || (elevatedTree != null && !ReachesElevatedPrey(threat, prey, elevatedTree))
+                                    || AnimalHuntStrategy.HiddenFrom(threat, prey)) continue;
+                                bool directed = threat.CurJob?.targetA.Pawn == prey;
+                                float radius = directed ? 24f : PawnThreatUtility.IsHumanlikeOrMechanoid(threat) ? humanRadius : passiveRadius;
+                                if (!threat.Position.InHorDistOf(origin, radius)) continue;
+                                // Refuge planning already validates the animal's escape path. A second A*
+                                // from every possible attacker is unnecessary; visible potential threats
+                                // are conservative, and remain meaningful for a pawn held inside a burrow.
+                                bool relevant = GenSight.LineOfSight(origin, threat.Position, map)
+                                    && IsRelevantRefugeThreat(threat, prey);
+                                if (relevant) result.Add(threat);
+                            }
+            return result;
+        }
+
+        private static bool ReachesElevatedPrey(Pawn threat, Pawn prey, Plant tree)
+            => AnimalDefense.IsRanged(threat) || threat.Flying || threat.flight?.CanFlyNow == true
+                || AnimalDefense.DirectClimbingThreat(threat, prey, tree);
+
+        private static bool IsRelevantRefugeThreat(Pawn threat, Pawn prey)
+        {
+            if (PawnThreatUtility.IsHumanlikeOrMechanoid(threat))
+            {
+                if (IsHumanDoingAnimalTamingJob(threat)) return false;
+                var settings = ZoologyModSettings.Instance;
+                return threat.HostileTo(prey) || (prey.Faction == null
+                    && (settings == null || settings.AnimalsFreeFromHumans && settings.GetAnimalsFreeFromHumansFor(prey.def))
+                    && !ChildcareDefenseUtility.ShouldIgnoreHumanlikeThreatForChildcareProtection(prey, threat));
+            }
+            if (IsThreatTargetingPawn(threat, prey)) return true;
+            return IsPredatorThreatSourceForPrey(threat, prey) && IsValidNonTargetPredatorFactionContext(threat, prey)
+                && (prey.Spawned ? IsAcceptablePreyForFlee(threat, prey)
+                    : Patch_IsAcceptablePreyForPredator.IsSuitableWithoutYoungProtection(threat, prey));
         }
 
         private static bool TryHandleImmediateProtectPreyThreat(Pawn pawn, out Job fleeJob)
@@ -3145,7 +3238,7 @@ namespace ZoologyMod
                 return false;
             }
 
-            if (curDriver is JobDriver_PredatorHunt || curJob.def == JobDefOf.PredatorHunt)
+            if (curDriver is JobDriver_PredatorHunt || curDriver is JobDriver_Constrict || curJob.def == JobDefOf.PredatorHunt)
             {
                 return true;
             }
@@ -4488,7 +4581,7 @@ namespace ZoologyMod
 
         private static bool CanThreatTargetPawnForFlee(Pawn threat, Pawn prey)
         {
-            return IsThreatTargetingPawn(threat, prey)
+            return !AnimalHuntStrategy.HiddenFrom(threat, prey) && IsThreatTargetingPawn(threat, prey)
                 && (AnimalCombatPowerUtility.CanAnimalThreatTriggerTargetedFlee(threat, prey)
                     || IsAcceptablePreyForFlee(threat, prey));
         }
@@ -4539,7 +4632,7 @@ namespace ZoologyMod
                 return true;
             }
 
-            if (curJob.def == JobDefOf.PredatorHunt)
+            if (curJob.def == JobDefOf.PredatorHunt || curDriver is JobDriver_Constrict)
             {
                 return true;
             }

@@ -7,12 +7,14 @@ import json
 import csv
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
+from animal_venom_policy import is_platypus_spur
 import pandas as pd
 from lxml import etree as LET
 from collections import defaultdict
 import importlib.util
 import traceback
 import copy
+import tempfile
 from collections import OrderedDict
 from rimworld_original_xml import OriginalXmlIndex
 from rimworld_patch_optimizer import PatchOptimizer
@@ -199,7 +201,20 @@ COLUMN_ALIASES = {
     'useMeatFrom': ['useMeatFrom', 'UseMeatFrom', 'use meat from', 'Use meat from', 'Meat from'],
     'ModConflict': ['ModConflict', 'Mod Conflict', 'modConflict', 'Mod conflict'],
     'flightSpeedFactor': ['flightSpeedFactor', 'FlightSpeedFactor', 'Flight speed factor', 'flight speed factor'],
+    'PredationStrategy': ['PredationStrategy', 'Predation Strategy'],
+    'Burrower': ['Burrower'],
+    'TreeClimber': ['TreeClimber', 'Tree Climber'],
 }
+
+# New extensions intentionally live on concrete ThingDefs only. Sharing one on
+# an abstract would give inconsistent siblings inherited predator/refuge traits.
+CONCRETE_MOD_EXTENSIONS = {
+    'PredationStrategy': 'ZoologyMod.ModExtension_PredationStrategy, ZoologyMod',
+    'Burrower': 'ZoologyMod.ModExtension_Burrower, ZoologyMod',
+    'TreeClimber': 'ZoologyMod.ModExtension_TreeClimber, ZoologyMod',
+}
+PREDATION_STRATEGIES = {'chasing': 'Chasing', 'waterambush': 'WaterAmbush', 'ambush': 'Ambush'}
+
 
 def find_alias_in_row(row, candidates):
     for c in candidates:
@@ -245,6 +260,7 @@ class PatchGenerator:
     ]
     ODYSSEY_BIOMES = {'Grasslands', 'Glowforest', 'LavaField', 'GlacialPlain', 'Scarlands'}
     ODYSSEY_MAYREQUIRE = 'Ludeon.RimWorld.Odyssey'
+    ALPHA_BIOMES_MAYREQUIRE = 'sarg.alphabiomes'
 
     def __init__(self, vanilla_source, ce_source, xml_paths, original_xml_dir=None, original_patches_dir=None, extra_original_xml_paths=None, preserve_runtime_preconditions=True):
         self.vanilla_df = self._load_table(vanilla_source, sheet_name='Animals', required=True) if vanilla_source else None
@@ -593,6 +609,8 @@ class PatchGenerator:
             entry.text = eco_text
             if biome_name in self.ODYSSEY_BIOMES:
                 entry.set('MayRequire', self.ODYSSEY_MAYREQUIRE)
+            elif biome_name.startswith('AB_'):
+                entry.set('MayRequire', self.ALPHA_BIOMES_MAYREQUIRE)
         return node if len(node) > 0 else None
 
     def _wrap_ops_in_mod_conflict(self, ops, conflict_mods, as_li=False):
@@ -881,10 +899,23 @@ class PatchGenerator:
             for op in self.create_biome_pack_animals_safe_ops(biome_name, pack_entries):
                 root.append(op)
 
+            if biome_name.startswith('AB_'):
+                # Alpha Biomes may be absent even when this generated file is loaded.
+                # Keep the complete reset/rebuild inside its mod-presence guard.
+                operations = list(root)
+                root.clear()
+                guard = LET.SubElement(root, 'Operation', Class='PatchOperationFindMod')
+                LET.SubElement(LET.SubElement(guard, 'mods'), 'li').text = 'Alpha Biomes'
+                match = LET.SubElement(guard, 'match', Class='PatchOperationSequence')
+                sequence = LET.SubElement(match, 'operations')
+                for op in operations:
+                    root_op = copy.deepcopy(op)
+                    root_op.tag = 'li'
+                    sequence.append(root_op)
+
             filename = f"Biomes_{self._safe_biome_filename(biome_name)}.xml"
             out_path = os.path.join(output_dir, filename)
-            with open(out_path, 'wb') as f:
-                f.write(LET.tostring(root, pretty_print=True, encoding='utf-8', xml_declaration=True))
+            self._write_patch_root(root, out_path)
             created_files.append(out_path)
 
         return created_files
@@ -927,6 +958,8 @@ class PatchGenerator:
         """Create and return a <li> element for a tool with given parameters.
         If stun is provided (and label != 'head') add a <surpriseAttack> block with Stun damage.
         """
+        if is_platypus_spur(capacities):
+            restricted_gender = 'Male'
         li = LET.Element('li')
 
         # If caller explicitly passed class_attr (e.g. CE), preserve it.
@@ -1036,7 +1069,7 @@ class PatchGenerator:
             """
             labels = self._split_and_strip(row_local.get(label_col))
             linkeds = self._split_and_strip(row_local.get(linked_col))
-            caps = row_local.get(capacities_col) if capacities_col in row_local.index else None
+            caps = row_local.get(capacities_col)
 
             # if nothing to place -> skip
             if not labels and not linkeds:
@@ -1129,7 +1162,7 @@ class PatchGenerator:
         horn_damage = get_row_value(row, 'Horn/Antler/Tusks damage')
         if horn_damage is not None and str(horn_damage).strip().lower() not in ('', 'no', 'none'):
             lab = row.get('Horn/Antler/Tusks label') or None
-            caps = row.get('Horn/Antler/Tusks capacities') if 'Horn/Antler/Tusks capacities' in row.index else None
+            caps = row.get('Horn/Antler/Tusks capacities')
             link = row.get('Horn/Antler/Tusks linkedBodyPartsGroup') or None
             male_only = row.get('Horn/Antler/Tusks Male only')
             li = self._make_tool_li(
@@ -1147,7 +1180,7 @@ class PatchGenerator:
         bite_damage = get_row_value(row, 'Bite damage')
         if bite_damage is not None and str(bite_damage).strip().lower() not in ('', 'no', 'none'):
             lab = row.get('Bite label') or row.get('Bite') or None
-            caps = row.get('Bite capacities') if 'Bite capacities' in row.index else None
+            caps = row.get('Bite capacities')
             link = row.get('Bite linkedBodyPartsGroup') or row.get('Bite linkedBodyPartsGroup') or None
             li = self._make_tool_li(
                 label=lab,
@@ -1232,7 +1265,7 @@ class PatchGenerator:
 
             labels = self._split_and_strip(row_v.get(label_col))
             linkeds = self._split_and_strip(row_v.get(linked_col))
-            caps = row_v.get(capacities_col) if capacities_col in row_v.index else None
+            caps = row_v.get(capacities_col)
 
             # find cooldown raw: similar logic to vanilla version but prefer CE row first
             def _find_cd_raw_ce(r_ce, r_v):
@@ -1330,7 +1363,7 @@ class PatchGenerator:
             apb = ce_row.get('Horn/Antler/Tusks Blunt AP')
             aps = ce_row.get('Horn/Antler/Tusks Sharp AP')
             lab = row_for_labels.get('Horn/Antler/Tusks label') if 'Horn/Antler/Tusks label' in row_for_labels.index else None
-            caps = row_for_labels.get('Horn/Antler/Tusks capacities') if 'Horn/Antler/Tusks capacities' in row_for_labels.index else None
+            caps = row_for_labels.get('Horn/Antler/Tusks capacities')
             link = row_for_labels.get('Horn/Antler/Tusks linkedBodyPartsGroup') if 'Horn/Antler/Tusks linkedBodyPartsGroup' in row_for_labels.index else None
             male_only = row_for_labels.get('Horn/Antler/Tusks Male only')
             li = self._make_tool_li(
@@ -1352,7 +1385,7 @@ class PatchGenerator:
             apb = ce_row.get('Bite Blunt AP')
             aps = ce_row.get('Bite Sharp AP')
             lab = row_for_labels.get('Bite label') if 'Bite label' in row_for_labels.index else None
-            caps = row_for_labels.get('Bite capacities') if 'Bite capacities' in row_for_labels.index else None
+            caps = row_for_labels.get('Bite capacities')
             link = row_for_labels.get('Bite linkedBodyPartsGroup') if 'Bite linkedBodyPartsGroup' in row_for_labels.index else None
             li = self._make_tool_li(
                 label=lab,
@@ -1935,10 +1968,27 @@ class PatchGenerator:
 
     def _write_patch_root(self, new_root, output_path):
         ensure_dir(output_path)
-        with open(output_path, 'wb') as f:
-            f.write(LET.tostring(new_root, pretty_print=True, encoding='utf-8', xml_declaration=True))
-        self.validate_xml(output_path)
-        return True
+        # Never truncate an existing patch before serialization, writing and validation
+        # have all succeeded. The temporary file must be on the same filesystem.
+        destination = os.path.abspath(os.fspath(output_path))
+        temp_path = None
+        try:
+            payload = LET.tostring(new_root, pretty_print=True, encoding='utf-8', xml_declaration=True)
+            with tempfile.NamedTemporaryFile(mode='wb', prefix='.zoology-patch-', suffix='.tmp',
+                                             dir=os.path.dirname(destination), delete=False) as f:
+                temp_path = f.name
+                f.write(payload)
+            if not self.validate_xml(temp_path):
+                raise ValueError(f'Generated XML failed validation: {destination}')
+            os.replace(temp_path, destination)
+            temp_path = None
+            return True
+        finally:
+            if temp_path is not None:
+                try:
+                    os.unlink(temp_path)
+                except FileNotFoundError:
+                    pass
 
     def generate_patch_from_definitions(self, output_path, def_names, patched_abstracts=None, template_path=None):
         try:
@@ -2395,6 +2445,51 @@ class PatchGenerator:
                 # not truthy (e.g. some textual marker) -> skip for abstract
                 pass
 
+        return ops
+
+    def create_concrete_mod_extension_patches(self, def_name, row):
+        """Reconcile Zoology hunting/refuge extensions without touching other mods.
+
+        Patches use a guarded remove then add for enabled extensions. Rebuilding
+        a patch after True -> False or Ambush -> No therefore cannot leave a stale
+        owned extension in the original ThingDef. No abstract-level inheritance.
+        """
+        ops = []
+        thing_xpath = f'/Defs/ThingDef[defName = "{def_name}"]'
+        for col, class_str in CONCRETE_MOD_EXTENSIONS.items():
+            if find_alias_in_row(row, COLUMN_ALIASES[col]) is None:
+                continue  # Older AnimalStats schemas must not alter these fields.
+
+            # The source may already contain one or more copies of our extension.
+            ext_xpath = f'{thing_xpath}/modExtensions/li[@Class = "{class_str}"]'
+            remove_op = LET.Element('Operation', Class='PatchOperationConditional')
+            LET.SubElement(remove_op, 'xpath').text = ext_xpath
+            match = LET.SubElement(remove_op, 'match', Class='PatchOperationRemove')
+            LET.SubElement(match, 'xpath').text = ext_xpath
+            ops.append(remove_op)
+
+            raw = get_row_value(row, col)
+            value = '' if raw is None else str(raw).strip()
+            strategy = None
+            if col == 'PredationStrategy':
+                # Runtime extension is meaningful only for RaceProperties.predator.
+                if str(get_row_value(row, 'predator')).strip().lower() not in ('true','1','yes','y','t'):
+                    continue
+                if value.lower() in ('', 'no', 'none', 'nan'):
+                    continue
+                strategy = PREDATION_STRATEGIES.get(value.lower())
+                if strategy is None:
+                    raise ValueError(f'Unknown PredationStrategy for {def_name}: {value!r}')
+            elif value.lower() not in ('true', '1', 'yes', 'y', 't'):
+                continue
+
+            op = LET.Element('Operation', Class='PatchOperationAddModExtension')
+            LET.SubElement(op, 'xpath').text = thing_xpath
+            v = LET.SubElement(op, 'value')
+            li = LET.SubElement(v, 'li', Class=class_str)
+            if strategy is not None:
+                LET.SubElement(li, 'strategy').text = strategy
+            ops.append(op)
         return ops
 
     def generate_def_patches(self, def_name, row, original_root, parent, parent_common_map=None, pawn_parent_common_map=None):
@@ -2915,6 +3010,9 @@ class PatchGenerator:
             else:
                 # not truthy -> skip
                 continue
+
+        # New hunting/refuge extensions are always explicit on the concrete ThingDef.
+        ops.extend(self.create_concrete_mod_extension_patches(def_name, row))
 
         # PawnKindDef
         ops.append(LET.Comment(f" {def_name} PawnKindDef "))
@@ -4905,6 +5003,18 @@ class GeneratorApp(tk.Tk):
                     f"-{saved_ops} PatchOperations, -{saved_xpaths} XPath, "
                     f"-{saved_bytes:,} bytes."
                 )
+            failed = [(source, destination) for source, destination, success in results if not success]
+            if failed:
+                ok_count = len(results) - len(failed)
+                failures = "\n".join(f"{source} → {destination}" for source, destination in failed)
+                self.status.set(f"Generated {ok_count}/{len(results)} file(s); {len(failed)} FAILED.")
+                messagebox.showwarning(
+                    "Generation incomplete",
+                    f"Generated {ok_count}/{len(results)} file(s). {len(failed)} failed.\n\n"
+                    f"Failed source → output:\n{failures}{compaction_suffix}\n\n"
+                    "Existing output files for failed entries were retained. See the console traceback for the cause."
+                )
+                return
             if replace_in_place:
                 msg = "\n".join([f"{os.path.basename(x)} ({'OK' if s else 'FAILED'})" for x, _, s in results])
                 messagebox.showinfo("Done", f"Updated files in place:\n{msg}{compaction_suffix}")
