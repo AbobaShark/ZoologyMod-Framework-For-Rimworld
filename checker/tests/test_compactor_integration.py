@@ -3,7 +3,7 @@ import unittest
 from pathlib import Path
 from lxml import etree as LET
 
-from rimworld_patch_fixer import compact_successful_outputs
+from core.patch_engine import compact_successful_outputs
 
 
 PATCH = '''<?xml version="1.0" encoding="utf-8"?>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+  <!-- Runs after the generated reptile patch: the colossus must not inherit
+       meat from another animal, especially one with its own useMeatFrom. -->
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="AA_OvergrownColossus"]/race/useMeatFrom</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="AA_OvergrownColossus"]/race/useMeatFrom</xpath>
+    </match>
+  </Operation>
+</Patch>

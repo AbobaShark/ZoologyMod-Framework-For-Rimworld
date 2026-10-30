@@ -1,7 +1,10 @@
-param([ValidateSet('baseline','updated','no-mod')][string]$Mode = 'updated', [string]$Label = '', [int]$Repeats = 3, [switch]$Run)
+param([ValidateSet('baseline','updated','no-mod')][string]$Mode = 'updated', [string]$Label = '', [int]$Repeats = 3, [int]$LogicalCpu = -1, [switch]$Run,
+    [string]$GameRoot = '', [ValidateSet('normal','animals-1000','mass-scavenging','mass-scavenging-ingest','mass-pets','mass-roamers','mass-families','predator-prey','mass-combat','pig-farm','pig-farm-fixed','combined-stress','all')][string]$Scenario = 'normal')
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
-$gameRoot = 'D:/SteamLibrary/steamapps/common/RimWorld'
+if (!$GameRoot) { $GameRoot = Join-Path $repoRoot 'Zoology/Source/codex-build/implementation/game17-sandbox' }
+$gameRoot = (Resolve-Path -LiteralPath $GameRoot).Path
+if ($gameRoot -eq 'D:\SteamLibrary\steamapps\common\RimWorld') { throw 'Benchmark must use an isolated game copy' }
 $profileRoot = Join-Path $env:LOCALAPPDATA ('Temp/' + $(if ($Mode -eq 'no-mod') { 'ZoologyBenchmarkNoMod17' } else { 'ZoologyBenchmark17' }))
 $modRoot = Join-Path $gameRoot ('Mods/' + $(if ($Mode -eq 'no-mod') { 'ZoologyCodexBenchmarkProbe17' } else { 'ZoologyCodexBenchmark17' }))
 Get-CimInstance Win32_Process -Filter "Name = 'RimWorld.exe'" | Where-Object { $_.CommandLine -like '*-savedatafolder=*ZoologyBenchmark*' } | ForEach-Object {
@@ -34,7 +37,9 @@ if ($Mode -ne 'no-mod') {
 }
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'PerformanceProbe/bin/Release/net10.0/ZoologyPerformanceProbe.dll') -Destination (Join-Path $modRoot 'Assemblies/ZoologyPerformanceProbe.dll') -Force
 $Mode | Set-Content -LiteralPath (Join-Path $profileRoot 'benchmark-mode.txt')
+$Scenario | Set-Content -LiteralPath (Join-Path $profileRoot 'scenario.txt')
 $Repeats | Set-Content -LiteralPath (Join-Path $profileRoot 'repeats.txt')
+$LogicalCpu | Set-Content -LiteralPath (Join-Path $profileRoot 'benchmark-cpu.txt')
 New-Item -ItemType File -Force -Path (Join-Path $profileRoot 'pin-benchmark-thread.txt') | Out-Null
 if (Test-Path -LiteralPath (Join-Path $profileRoot 'performance.txt')) { Remove-Item -LiteralPath (Join-Path $profileRoot 'performance.txt') }
 if ($Run) {

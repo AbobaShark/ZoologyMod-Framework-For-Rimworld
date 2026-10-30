@@ -8,7 +8,18 @@ using Verse.AI;
 
 namespace ZoologyMod
 {
-    public class ModExtension_ConstrictibleBody : DefModExtension { }
+    [HarmonyPatch(typeof(HuntJobUtility), nameof(HuntJobUtility.WasKilledByHunter))]
+    internal static class Patch_ConstrictionHuntingKill
+    {
+        static void Postfix(Pawn __0, DamageInfo? __1, ref bool __result)
+        {
+            if (!__result && __1?.Instigator is Pawn hunter
+                && hunter.jobs?.curDriver is JobDriver_Constrict
+                && hunter.CurJob.count == 1
+                && hunter.TryGetComp<CompAnimalStrategyState>()?.constrictedPrey == __0)
+                __result = true;
+        }
+    }
     public class Hediff_AnimalConstriction : HediffWithComps, IDelayedPredationSource
     {
         public Pawn holder;
@@ -16,8 +27,9 @@ namespace ZoologyMod
         public Pawn Hunter => Active ? holder : null;
         public int SourceTick => sourceTick;
         public bool Active => holder?.Spawned == true && pawn.Spawned && holder.Map == pawn.Map && !holder.Dead
-            && !holder.Downed && !holder.stances.stunner.Stunned && holder.CurJob?.targetA.Thing == pawn
-            && holder.jobs.curDriver is JobDriver_Constrict && holder.Position.AdjacentTo8WayOrInside(pawn.Position);
+            && holder.Position == pawn.Position
+            && (holder.Downed ? holder.TryGetComp<CompAnimalStrategyState>()?.constrictedPrey == pawn
+                : holder.CurJob?.targetA.Thing == pawn && holder.jobs.curDriver is JobDriver_Constrict);
         public override void ExposeData()
         {
             base.ExposeData();
@@ -31,14 +43,26 @@ namespace ZoologyMod
     }
     internal static class AnimalConstriction
     {
+        public static void Release(Pawn holder, bool endJob = true)
+        {
+            var state = holder?.TryGetComp<CompAnimalStrategyState>();
+            Pawn prey = state?.constrictedPrey;
+            if (state != null) state.constrictedPrey = null;
+            if (prey?.health?.hediffSet != null)
+            {
+                var effect = prey.health.hediffSet.hediffs.OfType<Hediff_AnimalConstriction>()
+                    .FirstOrDefault(h => h.holder == holder);
+                if (effect != null) prey.health.RemoveHediff(effect);
+            }
+            if (endJob && holder?.jobs?.curDriver is JobDriver_Constrict)
+                holder.jobs.EndCurrentJob(JobCondition.InterruptForced);
+        }
         public static bool Applicable(Pawn snake, Pawn prey)
         {
             var ext = DefModExtensionCache<ModExtension_Constrictor>.Get(snake.def);
             return ext != null && prey.Spawned && snake.Map == prey.Map && !prey.Dead && prey.RaceProps.IsFlesh
                 && prey.BodySize <= snake.BodySize * ext.maxPreySizeRatio
-                && prey.RaceProps.body.HasModExtension<ModExtension_ConstrictibleBody>()
-                && prey.health.hediffSet.GetNotMissingParts().Any(p => p.def.defName == "Heart"
-                    && PawnCapacityUtility.CalculatePartEfficiency(prey.health.hediffSet, p) > 0f);
+                && prey.RaceProps.body.AllParts.Any(p => p.def.defName == "Heart");
         }
     }
     [HarmonyPatch(typeof(Pawn_HealthTracker), nameof(Pawn_HealthTracker.PostApplyDamage))]
@@ -46,7 +70,11 @@ namespace ZoologyMod
     {
         static void Postfix(Pawn ___pawn, DamageInfo dinfo, float totalDamageDealt)
         {
-            if (totalDamageDealt <= 0f || ___pawn.Dead) return;
+            if (totalDamageDealt <= 0f) return;
+            if (___pawn.TryGetComp<CompAnimalStrategyState>()?.constrictedPrey != null
+                && Rand.Chance(Mathf.Clamp01(totalDamageDealt / (10f * ___pawn.HealthScale))))
+                AnimalConstriction.Release(___pawn);
+            if (___pawn.Dead) return;
             var damagedAmbusher = ___pawn.TryGetComp<CompAnimalStrategyState>();
             if (damagedAmbusher?.ambushPrey != null) damagedAmbusher.revealed = true;
             if (___pawn.jobs?.curDriver is JobDriver_AnimalTreeRefuge tree && tree.AtHeight)
@@ -54,10 +82,19 @@ namespace ZoologyMod
             if (!(dinfo.Instigator is Pawn snake)) return;
             var state = snake.TryGetComp<CompAnimalStrategyState>();
             if (state?.ambushPrey == ___pawn) state.revealed = true;
-            if (!AnimalHuntStrategy.IsHunt(snake, ___pawn) || snake.jobs.curDriver is JobDriver_Constrict
+            if (DefModExtensionCache<ModExtension_Constrictor>.Get(snake.def) == null) return;
+            bool hunting = AnimalHuntStrategy.IsHunt(snake, ___pawn);
+            if (dinfo.Tool == null || snake.Downed || snake.jobs == null || snake.jobs.curDriver is JobDriver_Constrict
+                || state?.constrictedPrey != null
+                || ___pawn.health.hediffSet.hediffs.OfType<Hediff_AnimalConstriction>().Any()
                 || !snake.Position.AdjacentTo8WayOrInside(___pawn.Position) || !AnimalConstriction.Applicable(snake, ___pawn)) return;
-            if (Rand.Chance(snake.BodySize / (snake.BodySize + ___pawn.BodySize)))
-                snake.jobs.StartJob(JobMaker.MakeJob(DefDatabase<JobDef>.GetNamed("Zoology_Constrict"), ___pawn), JobCondition.InterruptForced);
+            float chance = snake.BodySize / (snake.BodySize + ___pawn.BodySize) * (hunting ? 1f : 0.1f);
+            if (Rand.Chance(chance))
+            {
+                Job hold = JobMaker.MakeJob(DefDatabase<JobDef>.GetNamed("Zoology_Constrict"), ___pawn);
+                hold.count = hunting ? 1 : 0;
+                snake.jobs.StartJob(hold, JobCondition.InterruptForced);
+            }
         }
     }
     public class JobDriver_Constrict : JobDriver
@@ -71,23 +108,50 @@ namespace ZoologyMod
         protected override IEnumerable<Toil> MakeNewToils()
         {
             this.FailOnDespawnedOrNull(TargetIndex.A);
-            this.FailOn(() => pawn.Downed || pawn.stances.stunner.Stunned || pawn.InMentalState
-                || TargetA.Pawn.Dead || !pawn.Position.AdjacentTo8WayOrInside(TargetA.Cell)
+            this.FailOn(() => pawn.InMentalState
+                || TargetA.Pawn.Dead || (effect != null && pawn.Position != TargetA.Cell)
                 || !AnimalConstriction.Applicable(pawn, TargetA.Pawn));
             AddFinishAction(_ =>
             {
-                if (effect != null && !effect.pawn.Dead && effect.pawn.health.hediffSet.hediffs.Contains(effect)) effect.pawn.health.RemoveHediff(effect);
+                if (!pawn.Downed) AnimalConstriction.Release(pawn, false);
             });
             Toil hold = ToilMaker.MakeToil();
             hold.initAction = () =>
             {
                 pawn.pather.StopDead(); TargetA.Pawn.pather.StopDead();
+                var state = pawn.TryGetComp<CompAnimalStrategyState>();
+                if (state == null || (state.constrictedPrey != null && state.constrictedPrey != TargetA.Pawn)
+                    || TargetA.Pawn.health.hediffSet.hediffs.OfType<Hediff_AnimalConstriction>().Any(h => h.holder != pawn))
+                { EndJobWith(JobCondition.Incompletable); return; }
+                if (!TargetA.Cell.InBounds(pawn.Map) || !TargetA.Cell.Standable(pawn.Map)
+                    || !pawn.Position.AdjacentTo8WayOrInside(TargetA.Cell))
+                { EndJobWith(JobCondition.Incompletable); return; }
+                IntVec3 oldPosition = pawn.Position;
+                try
+                {
+                    pawn.Position = TargetA.Cell;
+                    pawn.Notify_Teleported(false);
+                    if (!pawn.Map.thingGrid.ThingsListAt(TargetA.Cell).Contains(pawn))
+                        throw new System.InvalidOperationException("Constriction holder was not registered at the prey cell");
+                }
+                catch (System.Exception ex)
+                {
+                    pawn.Position = oldPosition; pawn.Notify_Teleported(false);
+                    Log.Warning("[Zoology] Could not place constrictor: " + ex.Message);
+                    EndJobWith(JobCondition.Incompletable); return;
+                }
                 if (effect == null)
                 {
-                    effect = (Hediff_AnimalConstriction)HediffMaker.MakeHediff(DefDatabase<HediffDef>.GetNamed("Zoology_Constriction"), TargetA.Pawn);
-                    effect.holder = pawn; effect.sourceTick = GenTicks.TicksGame;
-                    TargetA.Pawn.health.AddHediff(effect);
+                    effect = TargetA.Pawn.health.hediffSet.hediffs.OfType<Hediff_AnimalConstriction>()
+                        .FirstOrDefault(h => h.holder == pawn);
+                    if (effect == null)
+                    {
+                        effect = (Hediff_AnimalConstriction)HediffMaker.MakeHediff(DefDatabase<HediffDef>.GetNamed("Zoology_Constriction"), TargetA.Pawn);
+                        effect.holder = pawn; effect.sourceTick = GenTicks.TicksGame;
+                        TargetA.Pawn.health.AddHediff(effect);
+                    }
                 }
+                state.constrictedPrey = TargetA.Pawn;
             };
             hold.tickAction = () =>
             {
@@ -103,10 +167,29 @@ namespace ZoologyMod
             hold.defaultCompleteMode = ToilCompleteMode.Never;
             yield return hold;
         }
-        public override void Notify_DamageTaken(DamageInfo dinfo)
+    }
+    [HarmonyPatch(typeof(Pawn_HealthTracker), "MakeUndowned")]
+    internal static class Patch_ResumeConstrictAfterDowned
+    {
+        static void Postfix(Pawn ___pawn)
         {
-            if (dinfo.Amount >= 10f * pawn.HealthScale) EndJobWith(JobCondition.InterruptForced);
+            Pawn prey = ___pawn.TryGetComp<CompAnimalStrategyState>()?.constrictedPrey;
+            if (prey == null) return;
+            if (___pawn.Spawned && prey.Spawned && ___pawn.Map == prey.Map && ___pawn.Position == prey.Position
+                && AnimalConstriction.Applicable(___pawn, prey))
+                ___pawn.jobs.StartJob(JobMaker.MakeJob(DefDatabase<JobDef>.GetNamed("Zoology_Constrict"), prey), JobCondition.InterruptForced);
+            else AnimalConstriction.Release(___pawn);
         }
+    }
+    [HarmonyPatch(typeof(Pawn), nameof(Pawn.DeSpawn))]
+    internal static class Patch_ReleaseConstrictionOnDespawn
+    {
+        static void Prefix(Pawn __instance) => AnimalConstriction.Release(__instance);
+    }
+    [HarmonyPatch(typeof(Pawn), nameof(Pawn.Kill))]
+    internal static class Patch_ReleaseConstrictionOnDeath
+    {
+        static void Prefix(Pawn __instance) => AnimalConstriction.Release(__instance);
     }
     [HarmonyPatch(typeof(Pawn_PathFollower), nameof(Pawn_PathFollower.StartPath))]
     internal static class Patch_ConstrictedMovement

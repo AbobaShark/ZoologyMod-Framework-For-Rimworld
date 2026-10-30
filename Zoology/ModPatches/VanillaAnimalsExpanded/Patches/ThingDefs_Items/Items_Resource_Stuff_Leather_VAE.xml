@@ -5,44 +5,26 @@
 		 Remove leathers
 		 ======================================================================= -->
 	
-	<Operation Class="PatchOperationRemove">
-	  <xpath>Defs/ThingDef[defName="AEXP_Leather_Wildebeest"]</xpath>
-	</Operation>
-	
-	<Operation Class="PatchOperationRemove">
-	  <xpath>Defs/ThingDef[defName="AEXP_Leather_Platypus"]</xpath>
-	</Operation>
-	
-	<Operation Class="PatchOperationRemove">
-	  <xpath>Defs/ThingDef[defName="AEXP_Leather_Lion"]</xpath>
-	</Operation>
-	
-	<!-- =======================================================================
-		 Set stats for WoolCamel
-		 ======================================================================= -->
-	
-    <Operation Class="PatchOperationConditional">
-      <xpath>Defs/ThingDef[defName="WoolCamel"]/statBases/StuffPower_Insulation_Cold</xpath>
-      <match Class="PatchOperationReplace">
-        <xpath>Defs/ThingDef[defName="WoolCamel"]/statBases/StuffPower_Insulation_Cold</xpath>
-        <value><StuffPower_Insulation_Cold>28</StuffPower_Insulation_Cold></value>
+	<Operation Class="PatchOperationConditional">
+      <xpath>/Defs/ThingDef[defName="AEXP_Leather_Wildebeest"]</xpath>
+      <match Class="PatchOperationRemove">
+        <xpath>/Defs/ThingDef[defName="AEXP_Leather_Wildebeest"]</xpath>
       </match>
-      <nomatch Class="PatchOperationAdd">
-        <xpath>Defs/ThingDef[defName="WoolCamel"]/statBases</xpath>
-        <value><StuffPower_Insulation_Cold>28</StuffPower_Insulation_Cold></value>
-      </nomatch>
     </Operation>
-  
-    <Operation Class="PatchOperationConditional">
-      <xpath>Defs/ThingDef[defName="WoolCamel"]/statBases/StuffPower_Insulation_Heat</xpath>
-      <match Class="PatchOperationReplace">
-        <xpath>Defs/ThingDef[defName="WoolCamel"]/statBases/StuffPower_Insulation_Heat</xpath>
-        <value><StuffPower_Insulation_Heat>14</StuffPower_Insulation_Heat></value>
+	
+	<Operation Class="PatchOperationConditional">
+      <xpath>/Defs/ThingDef[defName="AEXP_Leather_Platypus"]</xpath>
+      <match Class="PatchOperationRemove">
+        <xpath>/Defs/ThingDef[defName="AEXP_Leather_Platypus"]</xpath>
       </match>
-      <nomatch Class="PatchOperationAdd">
-        <xpath>Defs/ThingDef[defName="WoolCamel"]/statBases</xpath>
-        <value><StuffPower_Insulation_Heat>14</StuffPower_Insulation_Heat></value>
-      </nomatch>
     </Operation>
-
+	
+	<Operation Class="PatchOperationConditional">
+      <xpath>/Defs/ThingDef[defName="AEXP_Leather_Lion"]</xpath>
+      <match Class="PatchOperationRemove">
+        <xpath>/Defs/ThingDef[defName="AEXP_Leather_Lion"]</xpath>
+      </match>
+    </Operation>
+	
+	
 </Patch>

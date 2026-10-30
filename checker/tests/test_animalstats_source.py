@@ -2,9 +2,9 @@ import json
 
 import pandas as pd
 
-import animalstats_source as src
+import core.animalstats_source as src
 import rimworld_xml_generator as generator
-from rimworld_patch_fixer import PatchGenerator
+from core.patch_engine import PatchGenerator
 
 
 SHEET_ID = "1BsPzRPFLFx2HL4UdlVo058kryub3C4a9ezQ54CnGEB4"
@@ -51,7 +51,7 @@ def test_patch_generator_loads_google_source_via_common_loader(monkeypatch):
         [["Rat", "Rattus norvegicus", "<li>Rat</li>"]],
         columns=["Common name", "Latin name", "XML name"],
     )
-    import rimworld_patch_fixer as fixer
+    from core import patch_engine as fixer
 
     monkeypatch.setattr(fixer, "read_google_sheet", lambda source, sheet_name: expected.copy())
     loader = PatchGenerator.__new__(PatchGenerator)

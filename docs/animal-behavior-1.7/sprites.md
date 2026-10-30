@@ -4,8 +4,8 @@
 
 | Назначение | Файл относительно Zoology | Размер |
 |---|---|---|
-| Образцы яда, три оттенка в Defs | `Textures/Things/Item/ZoologyVenom/VenomSample.png` | 64×64 |
-| Противоядия, три оттенка в Defs | `Textures/Things/Item/ZoologyVenom/Antivenom.png` | 64×64 |
+| Образцы яда, два оттенка в Defs | `Textures/Things/Item/ZoologyVenom/VenomSample.png` | 64×64 |
+| Противоядия, два оттенка в Defs | `Textures/Things/Item/ZoologyVenom/Antivenom.png` | 64×64 |
 | Нора, footprint и drawSize 1×1 | `Textures/Things/Building/Zoology/AnimalBurrow.png` | 128×128 |
 
 Промпты генерации (передают использованный набор требований):

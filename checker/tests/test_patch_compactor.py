@@ -5,10 +5,10 @@ from pathlib import Path
 
 from lxml import etree as LET
 
-from rimworld_patch_apply import PatchApplier
+from core.rimworld_patch_apply import PatchApplier
 
 # Production module intentionally does not exist yet: these tests define the API.
-from rimworld_patch_compactor import PatchCompactor, compact_file, patch_metrics
+from core.rimworld_patch_compactor import PatchCompactor, compact_file, patch_metrics
 
 
 def parse(xml):

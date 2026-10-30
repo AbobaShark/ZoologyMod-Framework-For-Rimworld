@@ -1,0 +1,69 @@
+RimWorld 1.7.4990 rev1069
+Loaded mod assembly: D:/Rimworld mods/Rimworld 1.6/ZoologyFramework/Zoology/Source/codex-build/implementation/game17-sandbox/Mods/ZoologyCodexValidation17/1.7/Assemblies/ZoologyMod.dll
+PASS versioned 1.7 assembly overrides legacy root
+CE loaded=False
+PASS 12 source-used venom profiles
+PASS chain ZVenom_CobraBite
+PASS chain ZVenom_ViperBite
+PASS chain ZVenom_VaranidBite
+PASS chain ZVenom_GilaBite
+PASS chain ZVenom_ArachnidBite
+PASS chain ZVenom_ScorpionSting
+PASS chain ZVenom_AtispecSting
+PASS chain ZVenom_BarbSting
+PASS chain ZVenom_WaspSting
+PASS chain ZVenom_OcularSting
+PASS chain ZVenom_MycoticBite
+PASS chain ZVenom_PlatypusSpur
+PASS Administer recipe Cobra
+PASS Administer recipe Viper
+PASS ambush 10 cells = 10%
+PASS ambush 4 cells = 70%
+PASS zero damage no venom
+PASS two bites merge one hediff and double dose
+PASS wrong antivenom leaves cobra venom
+PASS matching antivenom removes venom
+PASS antivenom grants no prophylaxis
+ARMOR context: worker=DamageWorker_Bite, weapon=Cobra, torso=Outside, worn=1, protection=1.06, received=0, deflected=True
+ARMOR fully stopped hits=11, non-envenoming deflections=1
+PASS real armor stops or deflects biological venom
+PASS real TakeDamage zero damage injects no venom
+CALIBRATION weak: body=1.000, immunityGain=1.000, dead=True, severity=1.0000
+CALIBRATION one: body=1.000, immunityGain=1.000, dead=True, severity=1.0000
+CALIBRATION two: body=1.000, immunityGain=1.000, dead=True, severity=1.0000
+CALIBRATION one_tended_50: body=1.000, immunityGain=1.000, dead=False, severity=0.3466
+CALIBRATION one_tended_100: body=1.000, immunityGain=1.000, dead=False, severity=
+PASS non-flesh no venom
+PASS constrictor eligible vertebrate
+PASS invertebrate excluded
+PASS oversized constriction prey excluded
+PERFORMANCE preyScore 10000 calls ms=36.272
+PASS Chasing declared on wolf
+PASS pair cache retains independent hunters for one prey
+PASS shelter invalidation preserves unrelated prey cache
+PASS shelter invalidation clears affected prey cache
+PASS non-predator strategy No
+PASS Chasing dynamic proportional score outside cache
+PASS Chasing does not penalize sleeping prey
+FAIL locomotion matches native Soil
+FAIL locomotion matches native WaterShallow
+FAIL WaterAmbush fast land prey far from shore excluded
+PASS WaterAmbush fast prey two cells from water accepted
+FAIL Ambush starts stalking below Walk
+FAIL Ambush camouflage covers target and bystanders
+PASS Ambush half chase budget
+PASS adult butchery gives one venom sample
+PASS infant butchery gives no venom sample
+PASS craft ingredients Cobra
+PASS craft ingredients Viper
+PASS venom dose scales inversely with BodySize
+PASS manual slaughter warns for lactating female
+PASS Baby uses mother effective area
+PASS Baby saved assignment unchanged
+PASS Juvenile resumes own area
+PASS Juvenile does not follow mother outside own area
+EXCEPTION System.InvalidOperationException: Sequence contains no elements
+   at System.Linq.ThrowHelper.ThrowNoElementsException() in System.Linq.dll:token 0x6000559+0xa
+   at System.Linq.Enumerable.Single[TSource](IEnumerable`1 source) in System.Linq.dll:token 0x60000fe+0x0
+   at ZoologyValidation.RuntimeValidation.RunImmediate(Map map) in ZoologyRuntimeValidation.dll:token 0x600000d+0xc36
+   at ZoologyValidation.RuntimeValidation.GameComponentUpdate() in ZoologyRuntimeValidation.dll:token 0x600000c+0x1ed

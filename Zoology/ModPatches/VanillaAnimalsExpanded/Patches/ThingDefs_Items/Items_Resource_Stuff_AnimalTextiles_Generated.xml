@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+  <!-- Initial generated-route payload: preserves the existing camel wool
+       material balance until the complete upstream comparison is deployed. -->
+  <Operation Class="PatchOperationConditional">
+    <xpath>Defs/ThingDef[defName="WoolCamel"]/statBases/StuffPower_Insulation_Cold</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>Defs/ThingDef[defName="WoolCamel"]/statBases/StuffPower_Insulation_Cold</xpath>
+      <value><StuffPower_Insulation_Cold>28</StuffPower_Insulation_Cold></value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>Defs/ThingDef[defName="WoolCamel"]/statBases</xpath>
+      <value><StuffPower_Insulation_Cold>28</StuffPower_Insulation_Cold></value>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>Defs/ThingDef[defName="WoolCamel"]/statBases/StuffPower_Insulation_Heat</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>Defs/ThingDef[defName="WoolCamel"]/statBases/StuffPower_Insulation_Heat</xpath>
+      <value><StuffPower_Insulation_Heat>14</StuffPower_Insulation_Heat></value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>Defs/ThingDef[defName="WoolCamel"]/statBases</xpath>
+      <value><StuffPower_Insulation_Heat>14</StuffPower_Insulation_Heat></value>
+    </nomatch>
+  </Operation>
+</Patch>

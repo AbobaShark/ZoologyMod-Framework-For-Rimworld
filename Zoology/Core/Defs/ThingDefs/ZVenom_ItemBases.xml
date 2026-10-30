@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <ThingDef Name="Zoology_AnimalVenomSampleBase" Abstract="True" ParentName="ResourceBase">
+    <description>A small sample collected once when butchering an adult animal; used to make matching antivenom.</description>
+    <stackLimit>25</stackLimit><rotatable>false</rotatable>
+    <graphicData><texPath>Things/Item/ZoologyVenom/VenomSample</texPath><graphicClass>Graphic_Single</graphicClass><drawSize>0.65</drawSize></graphicData>
+    <statBases><Mass>0.05</Mass><MarketValue>15</MarketValue></statBases>
+    <thingCategories><li>Manufactured</li></thingCategories>
+  </ThingDef>
+  <ThingDef Name="Zoology_AnimalAntivenomBase" Abstract="True" ParentName="DrugBase">
+    <description>Neutralizes the matching animal toxin. Does not heal wounds or protect against later bites.</description>
+    <rotatable>false</rotatable><stackLimit>25</stackLimit>
+    <graphicData><texPath>Things/Item/ZoologyVenom/Antivenom</texPath><graphicClass>Graphic_Single</graphicClass><drawSize>0.65</drawSize></graphicData>
+    <statBases><MarketValue>60</MarketValue><Mass>0.1</Mass></statBases>
+    <ingestible><drugCategory>Medical</drugCategory><foodType>Processed</foodType><baseIngestTicks>100</baseIngestTicks></ingestible>
+    <comps><li Class="CompProperties_Drug"><listOrder>1000</listOrder><overdoseSeverityOffset>0~0</overdoseSeverityOffset></li></comps>
+  </ThingDef>
+</Defs>

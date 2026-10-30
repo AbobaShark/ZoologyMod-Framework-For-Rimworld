@@ -1,333 +1,355 @@
 <?xml version='1.0' encoding='utf-8'?>
 <Patch>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/wildAnimals</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/wildAnimals</xpath>
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>Alpha Biomes</li>
+    </mods>
+    <match Class="PatchOperationSequence">
+      <operations>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/wildAnimals</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/wildAnimals</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]</xpath>
+          <value>
+            <wildAnimals/>
+          </value>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/pollutionWildAnimals</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/pollutionWildAnimals</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]</xpath>
+          <value>
+            <pollutionWildAnimals/>
+          </value>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/coastalWildAnimals</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/coastalWildAnimals</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]</xpath>
+          <value>
+            <coastalWildAnimals/>
+          </value>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]</xpath>
+            <value>
+              <allowedPackAnimals/>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/wildAnimals</xpath>
+          <value>
+            <Raccoon>0.375</Raccoon>
+            <Turkey>0.375</Turkey>
+            <Cougar>0.05</Cougar>
+            <Horse>0.125</Horse>
+            <Hare>0.4</Hare>
+            <Megasloth>0.1</Megasloth>
+            <WildBoar>0.2</WildBoar>
+            <Rat>0.5</Rat>
+            <Squirrel>0.5</Squirrel>
+            <Boomrat>0.175</Boomrat>
+            <Bison>0.125</Bison>
+            <Muffalo>0.15</Muffalo>
+            <Elk>0.15</Elk>
+            <Boomalope>0.1</Boomalope>
+            <Deer>0.225</Deer>
+            <Fox_Red>0.075</Fox_Red>
+            <Panda MayRequire="Ludeon.RimWorld.Odyssey">0.02</Panda>
+            <Sparrow MayRequire="Ludeon.RimWorld.Odyssey">0.5</Sparrow>
+            <Bluebird MayRequire="Ludeon.RimWorld.Odyssey">0.5</Bluebird>
+            <Crow MayRequire="Ludeon.RimWorld.Odyssey">0.5</Crow>
+            <Mink MayRequire="Ludeon.RimWorld.Odyssey">0.15</Mink>
+            <Badger MayRequire="Ludeon.RimWorld.Odyssey">0.35</Badger>
+            <Porcupine MayRequire="Ludeon.RimWorld.Odyssey">0.325</Porcupine>
+            <Moose MayRequire="Ludeon.RimWorld.Odyssey">0.15</Moose>
+            <AEXP_Coyote MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.075</AEXP_Coyote>
+            <AEXP_Koala MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.325</AEXP_Koala>
+            <AEXP_RedPanda MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.4</AEXP_RedPanda>
+            <AEXP_Hedgehog MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.5</AEXP_Hedgehog>
+            <AEXP_Moa MayRequire="VanillaExpanded.VAEEndAndExt">0.02</AEXP_Moa>
+            <AEXP_TasmanianDevil MayRequire="VanillaExpanded.VAEEndAndExt">0.035</AEXP_TasmanianDevil>
+            <AA_Aerofleet MayRequire="sarg.alphaanimals">0.2</AA_Aerofleet>
+            <AA_AngelMoth MayRequire="sarg.alphaanimals">0.25</AA_AngelMoth>
+            <AA_AngelMothLarva MayRequire="sarg.alphaanimals">0.5</AA_AngelMothLarva>
+            <AA_AnimaColossus MayRequire="sarg.alphaanimals">0.01</AA_AnimaColossus>
+            <AA_AnimusVox MayRequire="sarg.alphaanimals">0.035</AA_AnimusVox>
+            <AA_BedBug MayRequire="sarg.alphaanimals">0.25</AA_BedBug>
+            <AA_Bobeene MayRequire="sarg.alphaanimals">0.5</AA_Bobeene>
+            <AA_BoulderMit MayRequire="sarg.alphaanimals">0.1</AA_BoulderMit>
+            <AA_Bumbledrone MayRequire="sarg.alphaanimals">0.03</AA_Bumbledrone>
+            <AA_BumbledroneHierophant MayRequire="sarg.alphaanimals">0.03</AA_BumbledroneHierophant>
+            <AA_ChameleonYak MayRequire="sarg.alphaanimals">0.01</AA_ChameleonYak>
+            <AA_CrystalMit MayRequire="sarg.alphaanimals">0.3</AA_CrystalMit>
+            <AA_Darkbeast MayRequire="sarg.alphaanimals">0.015</AA_Darkbeast>
+            <AA_Drainer MayRequire="sarg.alphaanimals">0.375</AA_Drainer>
+            <AA_DrainerLarva MayRequire="sarg.alphaanimals">0.5</AA_DrainerLarva>
+            <AA_EmpressButterfly MayRequire="sarg.alphaanimals">0.25</AA_EmpressButterfly>
+            <AA_EmpressButterflyLarva MayRequire="sarg.alphaanimals">0.5</AA_EmpressButterflyLarva>
+            <AA_FissionMouse MayRequire="sarg.alphaanimals">0.11</AA_FissionMouse>
+            <AA_GiantCrownedSilkie MayRequire="sarg.alphaanimals">0.15</AA_GiantCrownedSilkie>
+            <AA_MeadowAve MayRequire="sarg.alphaanimals">0.175</AA_MeadowAve>
+            <AA_OvergrownColossus MayRequire="sarg.alphaanimals">0.01</AA_OvergrownColossus>
+            <AA_PebbleMit MayRequire="sarg.alphaanimals">0.275</AA_PebbleMit>
+            <AA_Swarmling MayRequire="sarg.alphaanimals">0.4</AA_Swarmling>
+            <AA_Terramorph MayRequire="sarg.alphaanimals">0.025</AA_Terramorph>
+            <AA_Thunderbeast MayRequire="sarg.alphaanimals">0.015</AA_Thunderbeast>
+            <AA_Wildpawn MayRequire="sarg.alphaanimals">0.03</AA_Wildpawn>
+            <AA_WindBeast MayRequire="sarg.alphaanimals">0.015</AA_WindBeast>
+            <TyrannosaurusRex MayRequire="spincrus.dinosauria">0.025</TyrannosaurusRex>
+            <Baryonyx MayRequire="spincrus.dinosauria">0.025</Baryonyx>
+            <Ankylosaurus MayRequire="spincrus.dinosauria">0.1</Ankylosaurus>
+            <Minmi MayRequire="spincrus.dinosauria">0.15</Minmi>
+            <Magyarosaurus MayRequire="spincrus.dinosauria">0.125</Magyarosaurus>
+            <Dakotaraptor MayRequire="spincrus.dinosauria">0.05</Dakotaraptor>
+            <Iguanodon MayRequire="spincrus.dinosauria">0.1</Iguanodon>
+            <Parasaur MayRequire="spincrus.dinosauria">0.1</Parasaur>
+            <Corythosaurus MayRequire="spincrus.dinosauria">0.1</Corythosaurus>
+            <Deinocheirus MayRequire="spincrus.dinosauria">0.1</Deinocheirus>
+            <Pachycephalosaurus MayRequire="spincrus.dinosauria">0.15</Pachycephalosaurus>
+            <Stygimoloch MayRequire="spincrus.dinosauria">0.15</Stygimoloch>
+            <Triceratops MayRequire="spincrus.dinosauria">0.1</Triceratops>
+            <Quetzalcoatlus MayRequire="spincrus.dinosauria">0.15</Quetzalcoatlus>
+            <Gigantopithecus MayRequire="Spino.Megafauna">0.175</Gigantopithecus>
+            <Chalicotherium MayRequire="Spino.Megafauna">0.125</Chalicotherium>
+            <Megaloceros MayRequire="Spino.Megafauna">0.125</Megaloceros>
+            <Diprotodon MayRequire="Spino.Megafauna">0.1</Diprotodon>
+            <Dinornis MayRequire="Spino.Megafauna">0.2</Dinornis>
+            <Deinotherium MayRequire="Spino.Megafauna">0.1</Deinotherium>
+            <Aurochs MayRequire="Spino.Megafauna">0.1</Aurochs>
+            <Josephoartigasia MayRequire="Spino.Megafauna">0.125</Josephoartigasia>
+            <Zygolophodon MayRequire="Spino.Megafauna">0.1</Zygolophodon>
+            <Platybelodon MayRequire="Spino.Megafauna">0.1</Platybelodon>
+            <Uintatherium MayRequire="Spino.Megafauna">0.1</Uintatherium>
+          </value>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/pollutionWildAnimals</xpath>
+          <value>
+            <Raccoon>0.001</Raccoon>
+            <WildBoar>0.001</WildBoar>
+            <Rat>0.1</Rat>
+            <Boomrat>0.001</Boomrat>
+            <Boomalope>0.025</Boomalope>
+            <Toxalope MayRequire="Ludeon.RimWorld.Biotech">0.025</Toxalope>
+            <WasteRat MayRequire="Ludeon.RimWorld.Biotech">0.001</WasteRat>
+            <Sparrow MayRequire="Ludeon.RimWorld.Odyssey">0.5</Sparrow>
+            <Crow MayRequire="Ludeon.RimWorld.Odyssey">0.05</Crow>
+            <VAEWaste_Megatardi MayRequire="VanillaExpanded.VAEWaste">0.001</VAEWaste_Megatardi>
+            <VAEWaste_Toxafox MayRequire="VanillaExpanded.VAEWaste">0.001</VAEWaste_Toxafox>
+            <VAEWaste_Wasteboar MayRequire="VanillaExpanded.VAEWaste">0.001</VAEWaste_Wasteboar>
+            <VAEWaste_Wastedeer MayRequire="VanillaExpanded.VAEWaste">0.05</VAEWaste_Wastedeer>
+            <VAEWaste_Wasteffalo MayRequire="VanillaExpanded.VAEWaste">0.001</VAEWaste_Wasteffalo>
+            <AA_BedBug MayRequire="sarg.alphaanimals">0.001</AA_BedBug>
+            <AA_Radyak MayRequire="sarg.alphaanimals">0.025</AA_Radyak>
+            <AA_Swarmling MayRequire="sarg.alphaanimals">0.001</AA_Swarmling>
+          </value>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/coastalWildAnimals</xpath>
+          <value>
+            <StoneCrab MayRequire="Ludeon.RimWorld.Odyssey">0.5</StoneCrab>
+            <Pteranodon MayRequire="spincrus.dinosauria">0.275</Pteranodon>
+            <Gomphotaria MayRequire="Spino.Megafauna">0.05</Gomphotaria>
+            <Palaeeudyptes MayRequire="Spino.Megafauna">0.225</Palaeeudyptes>
+          </value>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals/li[text()="Horse"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals</xpath>
+            <value>
+              <li>Horse</li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals/li[text()="Bison"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals</xpath>
+            <value>
+              <li>Bison</li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals/li[text()="Muffalo"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals</xpath>
+            <value>
+              <li>Muffalo</li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals/li[text()="VAEWaste_Megatardi"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals</xpath>
+            <value>
+              <li MayRequire="VanillaExpanded.VAEWaste">VAEWaste_Megatardi</li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals/li[text()="VAEWaste_Wasteffalo"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals</xpath>
+            <value>
+              <li MayRequire="VanillaExpanded.VAEWaste">VAEWaste_Wasteffalo</li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals/li[text()="AA_Bobeene"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals</xpath>
+            <value>
+              <li MayRequire="sarg.alphaanimals">AA_Bobeene</li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals/li[text()="AA_ChameleonYak"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals</xpath>
+            <value>
+              <li MayRequire="sarg.alphaanimals">AA_ChameleonYak</li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals/li[text()="AA_GiantCrownedSilkie"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals</xpath>
+            <value>
+              <li MayRequire="sarg.alphaanimals">AA_GiantCrownedSilkie</li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals/li[text()="AA_MeadowAve"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals</xpath>
+            <value>
+              <li MayRequire="sarg.alphaanimals">AA_MeadowAve</li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals/li[text()="AA_Radyak"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals</xpath>
+            <value>
+              <li MayRequire="sarg.alphaanimals">AA_Radyak</li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals/li[text()="Ankylosaurus"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals</xpath>
+            <value>
+              <li MayRequire="spincrus.dinosauria">Ankylosaurus</li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals/li[text()="Magyarosaurus"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals</xpath>
+            <value>
+              <li MayRequire="spincrus.dinosauria">Magyarosaurus</li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals/li[text()="Triceratops"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals</xpath>
+            <value>
+              <li MayRequire="spincrus.dinosauria">Triceratops</li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals/li[text()="Gigantopithecus"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals</xpath>
+            <value>
+              <li MayRequire="Spino.Megafauna">Gigantopithecus</li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals/li[text()="Chalicotherium"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals</xpath>
+            <value>
+              <li MayRequire="Spino.Megafauna">Chalicotherium</li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals/li[text()="Megaloceros"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals</xpath>
+            <value>
+              <li MayRequire="Spino.Megafauna">Megaloceros</li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals/li[text()="Deinotherium"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals</xpath>
+            <value>
+              <li MayRequire="Spino.Megafauna">Deinotherium</li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals/li[text()="Aurochs"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals</xpath>
+            <value>
+              <li MayRequire="Spino.Megafauna">Aurochs</li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals/li[text()="Zygolophodon"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals</xpath>
+            <value>
+              <li MayRequire="Spino.Megafauna">Zygolophodon</li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals/li[text()="Platybelodon"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals</xpath>
+            <value>
+              <li MayRequire="Spino.Megafauna">Platybelodon</li>
+            </value>
+          </nomatch>
+        </li>
+      </operations>
     </match>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]</xpath>
-    <value>
-      <wildAnimals/>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/pollutionWildAnimals</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/pollutionWildAnimals</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]</xpath>
-    <value>
-      <pollutionWildAnimals/>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/coastalWildAnimals</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/coastalWildAnimals</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]</xpath>
-    <value>
-      <coastalWildAnimals/>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals</xpath>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]</xpath>
-      <value>
-        <allowedPackAnimals/>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/wildAnimals</xpath>
-    <value>
-      <Ostrich>0.175</Ostrich>
-      <Emu>0.25</Emu>
-      <Cougar>0.05</Cougar>
-      <Horse>0.125</Horse>
-      <Donkey>0.175</Donkey>
-      <Hare>0.4</Hare>
-      <Rhinoceros>0.1</Rhinoceros>
-      <Elephant>0.1</Elephant>
-      <Rat>0.5</Rat>
-      <Boomrat>0.175</Boomrat>
-      <Bison>0.125</Bison>
-      <Boomalope>0.1</Boomalope>
-      <Deer>0.225</Deer>
-      <Sparrow MayRequire="Ludeon.RimWorld.Odyssey">0.5</Sparrow>
-      <Bluebird MayRequire="Ludeon.RimWorld.Odyssey">0.5</Bluebird>
-      <Crow MayRequire="Ludeon.RimWorld.Odyssey">0.5</Crow>
-      <Quail MayRequire="Ludeon.RimWorld.Odyssey">0.5</Quail>
-      <Peacock MayRequire="Ludeon.RimWorld.Odyssey">0.4</Peacock>
-      <Vulture MayRequire="Ludeon.RimWorld.Odyssey">0.4</Vulture>
-      <Armadillo MayRequire="Ludeon.RimWorld.Odyssey">0.4</Armadillo>
-      <PrairieDog MayRequire="Ludeon.RimWorld.Odyssey">0.5</PrairieDog>
-      <Porcupine MayRequire="Ludeon.RimWorld.Odyssey">0.325</Porcupine>
-      <AEXP_Giraffe MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.125</AEXP_Giraffe>
-      <AEXP_Zebra MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.15</AEXP_Zebra>
-      <AEXP_Wildebeest MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.175</AEXP_Wildebeest>
-      <AEXP_Boombat MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.125</AEXP_Boombat>
-      <AEXP_Kangaroo MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.225</AEXP_Kangaroo>
-      <AEXP_DesertTortoise MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.225</AEXP_DesertTortoise>
-      <AEXP_Hedgehog MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.5</AEXP_Hedgehog>
-      <AEXP_IndianElephant MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.1</AEXP_IndianElephant>
-      <AEXP_BlackRhino MayRequire="VanillaExpanded.VAEEndAndExt">0.01</AEXP_BlackRhino>
-      <AEXP_Quagga MayRequire="VanillaExpanded.VAEEndAndExt">0.015</AEXP_Quagga>
-      <AEXP_Pangolin MayRequire="VanillaExpanded.VAEEndAndExt">0.03</AEXP_Pangolin>
-      <AA_Aerofleet MayRequire="sarg.alphaanimals">0.02</AA_Aerofleet>
-      <AA_AngelMoth MayRequire="sarg.alphaanimals">0.025</AA_AngelMoth>
-      <AA_AngelMothLarva MayRequire="sarg.alphaanimals">0.095</AA_AngelMothLarva>
-      <AA_LarvalAtispec MayRequire="sarg.alphaanimals">0.035</AA_LarvalAtispec>
-      <AA_Bobeene MayRequire="sarg.alphaanimals">0.015</AA_Bobeene>
-      <AA_BoulderMit MayRequire="sarg.alphaanimals">0.01</AA_BoulderMit>
-      <AA_Bumbledrone MayRequire="sarg.alphaanimals">0.03</AA_Bumbledrone>
-      <AA_BumbledroneHierophant MayRequire="sarg.alphaanimals">0.03</AA_BumbledroneHierophant>
-      <AA_Cactipine MayRequire="sarg.alphaanimals">0.035</AA_Cactipine>
-      <AA_ChameleonYak MayRequire="sarg.alphaanimals">0.01</AA_ChameleonYak>
-      <AA_CrystalMit MayRequire="sarg.alphaanimals">0.03</AA_CrystalMit>
-      <AA_Darkbeast MayRequire="sarg.alphaanimals">0.015</AA_Darkbeast>
-      <AA_Drainer MayRequire="sarg.alphaanimals">0.04</AA_Drainer>
-      <AA_DrainerLarva MayRequire="sarg.alphaanimals">0.095</AA_DrainerLarva>
-      <AA_EmpressButterfly MayRequire="sarg.alphaanimals">0.025</AA_EmpressButterfly>
-      <AA_EmpressButterflyLarva MayRequire="sarg.alphaanimals">0.095</AA_EmpressButterflyLarva>
-      <AA_FissionMouse MayRequire="sarg.alphaanimals">0.11</AA_FissionMouse>
-      <AA_GiantCrownedSilkie MayRequire="sarg.alphaanimals">0.015</AA_GiantCrownedSilkie>
-      <AA_Gigantelope MayRequire="sarg.alphaanimals">0.01</AA_Gigantelope>
-      <AA_MeadowAve MayRequire="sarg.alphaanimals">0.015</AA_MeadowAve>
-      <AA_Needlepost MayRequire="sarg.alphaanimals">0.025</AA_Needlepost>
-      <AA_Needleroll MayRequire="sarg.alphaanimals">0.025</AA_Needleroll>
-      <AA_PebbleMit MayRequire="sarg.alphaanimals">0.025</AA_PebbleMit>
-      <AA_Terramorph MayRequire="sarg.alphaanimals">0.025</AA_Terramorph>
-      <AA_Thunderbeast MayRequire="sarg.alphaanimals">0.015</AA_Thunderbeast>
-      <AA_WindBeast MayRequire="sarg.alphaanimals">0.015</AA_WindBeast>
-      <Brachiosaurus MayRequire="spincrus.dinosauria">0.1</Brachiosaurus>
-      <Brontosaurus MayRequire="spincrus.dinosauria">0.1</Brontosaurus>
-      <Diplodocus MayRequire="spincrus.dinosauria">0.1</Diplodocus>
-      <Gallimimus MayRequire="spincrus.dinosauria">0.125</Gallimimus>
-      <Gigantoraptor MayRequire="spincrus.dinosauria">0.1</Gigantoraptor>
-      <Iguanodon MayRequire="spincrus.dinosauria">0.1</Iguanodon>
-      <Deinocheirus MayRequire="spincrus.dinosauria">0.1</Deinocheirus>
-      <Therizinosaurus MayRequire="spincrus.dinosauria">0.1</Therizinosaurus>
-      <Dryosaurus MayRequire="spincrus.dinosauria">0.175</Dryosaurus>
-      <Stegosaurus MayRequire="spincrus.dinosauria">0.1</Stegosaurus>
-      <Doedicurus MayRequire="Spino.Megafauna">0.1</Doedicurus>
-      <Daeodon MayRequire="Spino.Megafauna">0.125</Daeodon>
-      <Paraceratherium MayRequire="Spino.Megafauna">0.1</Paraceratherium>
-      <Procoptodon MayRequire="Spino.Megafauna">0.15</Procoptodon>
-      <Diprotodon MayRequire="Spino.Megafauna">0.1</Diprotodon>
-      <Sivatherium MayRequire="Spino.Megafauna">0.1</Sivatherium>
-      <Andrewsarchus MayRequire="Spino.Megafauna">0.125</Andrewsarchus>
-      <Macrauchenia MayRequire="Spino.Megafauna">0.125</Macrauchenia>
-      <Deinotherium MayRequire="Spino.Megafauna">0.1</Deinotherium>
-      <Aurochs MayRequire="Spino.Megafauna">0.1</Aurochs>
-      <Megalochelys MayRequire="Spino.Megafauna">0.125</Megalochelys>
-      <Platybelodon MayRequire="Spino.Megafauna">0.1</Platybelodon>
-      <Dinopithecus MayRequire="Spino.Megafauna">0.25</Dinopithecus>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/pollutionWildAnimals</xpath>
-    <value>
-      <Rat>0.1</Rat>
-      <Boomrat>0.001</Boomrat>
-      <Boomalope>0.025</Boomalope>
-      <Toxalope MayRequire="Ludeon.RimWorld.Biotech">0.025</Toxalope>
-      <WasteRat MayRequire="Ludeon.RimWorld.Biotech">0.001</WasteRat>
-      <Sparrow MayRequire="Ludeon.RimWorld.Odyssey">0.5</Sparrow>
-      <Crow MayRequire="Ludeon.RimWorld.Odyssey">0.05</Crow>
-      <AEXP_Boombat MayRequire="VanillaExpanded.VanillaAnimalsExpanded">0.075</AEXP_Boombat>
-      <VAEWaste_Megatardi MayRequire="VanillaExpanded.VAEWaste">0.001</VAEWaste_Megatardi>
-      <AA_Gigantelope MayRequire="sarg.alphaanimals">0.001</AA_Gigantelope>
-      <AA_Radyak MayRequire="sarg.alphaanimals">0.001</AA_Radyak>
-      <AA_TarGuzzler MayRequire="sarg.alphaanimals">0.001</AA_TarGuzzler>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/coastalWildAnimals</xpath>
-    <value>
-      <SeaTurtle MayRequire="Ludeon.RimWorld.Odyssey">0.2</SeaTurtle>
-      <StoneCrab MayRequire="Ludeon.RimWorld.Odyssey">0.5</StoneCrab>
-      <HermitCrab MayRequire="Ludeon.RimWorld.Odyssey">0.5</HermitCrab>
-      <AEXP_RockhopperPenguin MayRequire="VanillaExpanded.VAEEndAndExt">0.045</AEXP_RockhopperPenguin>
-      <Gomphotaria MayRequire="Spino.Megafauna">0.05</Gomphotaria>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals/li[text()="Horse"]</xpath>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals</xpath>
-      <value>
-        <li>Horse</li>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals/li[text()="Donkey"]</xpath>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals</xpath>
-      <value>
-        <li>Donkey</li>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals/li[text()="Elephant"]</xpath>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals</xpath>
-      <value>
-        <li>Elephant</li>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals/li[text()="Bison"]</xpath>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals</xpath>
-      <value>
-        <li>Bison</li>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals/li[text()="AEXP_IndianElephant"]</xpath>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals</xpath>
-      <value>
-        <li MayRequire="VanillaExpanded.VanillaAnimalsExpanded">AEXP_IndianElephant</li>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals/li[text()="VAEWaste_Megatardi"]</xpath>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals</xpath>
-      <value>
-        <li MayRequire="VanillaExpanded.VAEWaste">VAEWaste_Megatardi</li>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals/li[text()="AA_Bobeene"]</xpath>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals</xpath>
-      <value>
-        <li MayRequire="sarg.alphaanimals">AA_Bobeene</li>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals/li[text()="AA_ChameleonYak"]</xpath>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals</xpath>
-      <value>
-        <li MayRequire="sarg.alphaanimals">AA_ChameleonYak</li>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals/li[text()="AA_GiantCrownedSilkie"]</xpath>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals</xpath>
-      <value>
-        <li MayRequire="sarg.alphaanimals">AA_GiantCrownedSilkie</li>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals/li[text()="AA_Gigantelope"]</xpath>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals</xpath>
-      <value>
-        <li MayRequire="sarg.alphaanimals">AA_Gigantelope</li>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals/li[text()="AA_MeadowAve"]</xpath>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals</xpath>
-      <value>
-        <li MayRequire="sarg.alphaanimals">AA_MeadowAve</li>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals/li[text()="AA_Radyak"]</xpath>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals</xpath>
-      <value>
-        <li MayRequire="sarg.alphaanimals">AA_Radyak</li>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals/li[text()="Stegosaurus"]</xpath>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals</xpath>
-      <value>
-        <li MayRequire="spincrus.dinosauria">Stegosaurus</li>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals/li[text()="Doedicurus"]</xpath>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals</xpath>
-      <value>
-        <li MayRequire="Spino.Megafauna">Doedicurus</li>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals/li[text()="Paraceratherium"]</xpath>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals</xpath>
-      <value>
-        <li MayRequire="Spino.Megafauna">Paraceratherium</li>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals/li[text()="Macrauchenia"]</xpath>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals</xpath>
-      <value>
-        <li MayRequire="Spino.Megafauna">Macrauchenia</li>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals/li[text()="Deinotherium"]</xpath>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals</xpath>
-      <value>
-        <li MayRequire="Spino.Megafauna">Deinotherium</li>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals/li[text()="Aurochs"]</xpath>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals</xpath>
-      <value>
-        <li MayRequire="Spino.Megafauna">Aurochs</li>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals/li[text()="Platybelodon"]</xpath>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/BiomeDef[defName="AB_IdyllicMeadows"]/allowedPackAnimals</xpath>
-      <value>
-        <li MayRequire="Spino.Megafauna">Platybelodon</li>
-      </value>
-    </nomatch>
   </Operation>
 </Patch>

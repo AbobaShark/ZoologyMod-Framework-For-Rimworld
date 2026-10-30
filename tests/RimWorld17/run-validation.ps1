@@ -1,6 +1,9 @@
-param([string]$GameRoot = 'D:/SteamLibrary/steamapps/common/RimWorld', [switch]$Run, [switch]$CombatExtended, [string]$Configuration = 'Release')
+param([string]$GameRoot = '', [switch]$Run, [switch]$CombatExtended, [string]$Configuration = 'Release')
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
+if (!$GameRoot) { $GameRoot = Join-Path $repoRoot 'Zoology/Source/codex-build/implementation/game17-sandbox' }
+$GameRoot = (Resolve-Path -LiteralPath $GameRoot).Path
+if ($GameRoot -eq 'D:\SteamLibrary\steamapps\common\RimWorld') { throw 'Validation must use an isolated game copy' }
 $testModRoot = Join-Path $GameRoot 'Mods/ZoologyCodexValidation17'
 $profileRoot = Join-Path $env:LOCALAPPDATA $(if ($CombatExtended) { 'Temp/ZoologyValidationCE17' } else { 'Temp/ZoologyValidation17' })
 # Only stop this script's isolated process, never another game/profile.

@@ -44,6 +44,7 @@ namespace ZoologyMod
         public int burrowReentryAfter, nextBurrowHuntPlan;
         public int fleeingSince = -1;
         public Pawn fleeThreat;
+        public Pawn constrictedPrey;
         public override void PostExposeData()
         {
             Scribe_References.Look(ref ambushPrey, "ambushPrey");
@@ -64,6 +65,7 @@ namespace ZoologyMod
             Scribe_Values.Look(ref burrowReentryAfter, "burrowReentryAfter");
             Scribe_Values.Look(ref fleeingSince, "fleeingSince", -1);
             Scribe_References.Look(ref fleeThreat, "fleeThreat");
+            Scribe_References.Look(ref constrictedPrey, "constrictedPrey");
             if (Scribe.mode == LoadSaveMode.PostLoadInit)
             {
                 familiarBurrows = familiarBurrows ?? new List<Building_AnimalBurrow>();
@@ -187,10 +189,9 @@ namespace ZoologyMod
             PredationStrategy strategy = For(predator);
             if (strategy != PredationStrategy.Ambush && strategy != PredationStrategy.WaterAmbush) return false;
             if (predator == null || prey == null || predator.InMentalState || !predator.Spawned || !prey.Spawned) return false;
-            if (predator.Position.AdjacentTo8WayOrInside(prey.Position)) return false;
             if (strategy == PredationStrategy.WaterAmbush) return predator.Position.GetTerrain(predator.Map).IsWater
-                && !prey.Position.GetTerrain(prey.Map).IsWater && !IsHunt(predator, prey)
-                && predator.pather?.Moving != true && predator.CurJob?.def != JobDefOf.AttackMelee;
+                && !prey.Position.GetTerrain(prey.Map).IsWater;
+            if (predator.Position.AdjacentTo8WayOrInside(prey.Position)) return false;
             CompAnimalStrategyState state = predator.TryGetComp<CompAnimalStrategyState>();
             return state?.ambushPrey?.Spawned == true && !state.revealed
                 && state.ambushUntil > GenTicks.TicksGame

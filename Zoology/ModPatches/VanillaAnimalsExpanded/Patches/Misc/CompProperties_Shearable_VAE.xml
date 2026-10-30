@@ -1,22 +1,10 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Patch>
-
-  <!-- ============================
+<?xml version='1.0' encoding='utf-8'?>
+<Patch><!-- ============================
        A) Ensure <comps> exists for animals we will add full milkable blocks to
        (add <comps/> to ThingDef if it's missing)
        ============================ -->
 
   <!-- Dromedary: ensure comps exists -->
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName="Dromedary"]/comps</xpath>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName="Dromedary"]</xpath>
-      <value>
-        <comps />
-      </value>
-    </nomatch>
-  </Operation>
-
   <!-- ============================
        B) Replace or add full <li Class="CompProperties_Shearable">
        (for Dromedary we want to set full block)
@@ -31,7 +19,7 @@
 		  <li Class="CompProperties_Shearable">
 			<woolDef>WoolCamel</woolDef>
 			<shearIntervalDays>15</shearIntervalDays>
-			<woolAmount>120</woolAmount>
+			<woolAmount>135</woolAmount>
 		  </li>
       </value>
     </match>
@@ -41,7 +29,7 @@
 		  <li Class="CompProperties_Shearable">
 			<woolDef>WoolCamel</woolDef>
 			<shearIntervalDays>15</shearIntervalDays>
-			<woolAmount>120</woolAmount>
+			<woolAmount>135</woolAmount>
 		  </li>
       </value>
     </nomatch>

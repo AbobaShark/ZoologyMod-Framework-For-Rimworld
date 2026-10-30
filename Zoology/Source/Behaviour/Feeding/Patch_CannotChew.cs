@@ -11,7 +11,7 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(FoodUtility), "WillEat", new Type[] { typeof(Pawn), typeof(Thing), typeof(Pawn), typeof(bool), typeof(bool) })]
     internal static class Patch_FoodUtility_WillEat_CannotChew
     {
-        private static bool Prepare() => false;
+        private static bool Prepare() => CannotChewSettingsGate.Enabled();
 
         private static bool Prefix(Pawn p, Thing food, Pawn getter, bool careIfNotAcceptableForTitle, bool allowVenerated, ref bool __result)
         {
@@ -28,12 +28,6 @@ namespace ZoologyMod
                 }
 
                 if (food is not Corpse corpse)
-                {
-                    return true;
-                }
-
-                Map map = p.MapHeld ?? corpse.MapHeld;
-                if (map != null && !CannotChewPresenceCache.HasCannotChewPawnsOnMap(map))
                 {
                     return true;
                 }
@@ -55,6 +49,24 @@ namespace ZoologyMod
             }
 
             return true;
+        }
+    }
+
+    // MakeNewToils is rebuilt for loaded jobs as well as new jobs. Revalidate the
+    // source throughout ingestion, including before a saved chewing toil resumes.
+    [HarmonyPatch(typeof(JobDriver_Ingest), "MakeNewToils")]
+    internal static class Patch_Ingest_CannotChewValidity
+    {
+        static void Postfix(JobDriver_Ingest __instance)
+        {
+            __instance.AddEndCondition(() =>
+            {
+                Pawn eater = __instance.pawn;
+                if (!CannotChewSettingsGate.Enabled() || !CannotChewUtility.HasCannotChew(eater))
+                    return JobCondition.Ongoing;
+                return __instance.job.targetA.Thing is Corpse corpse && CannotChewUtility.IsCorpseTooLarge(eater, corpse)
+                    ? JobCondition.Incompletable : JobCondition.Ongoing;
+            });
         }
     }
 

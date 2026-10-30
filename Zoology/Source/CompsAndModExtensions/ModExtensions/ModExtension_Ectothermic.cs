@@ -210,7 +210,11 @@ namespace ZoologyMod
             }
             catch
             {
+#if NET5_0_OR_GREATER
+                clone = System.Runtime.CompilerServices.RuntimeHelpers.GetUninitializedObject(type);
+#else
                 clone = FormatterServices.GetUninitializedObject(type);
+#endif
             }
 
             CopyInstanceFields(type, source, clone);

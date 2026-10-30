@@ -1,0 +1,12 @@
+FIXTURE index-audit forcedProtectYoung=1
+FIXTURE mass-families rottingCorpses=0 families=35 pregnancies=0 attackJobs=0 animals=525
+INDEXCHECK targeted=1 match=True protectYoung=1 match=True
+INDEXCHECK targeted=1 match=True protectYoung=1 match=True
+updated mass-families: sample=1, pinned=True, version=1.7.4990 rev1069, ticks=2000, tickDelta=2000, ms=5261.255, ms/tick=2.6306, uncappedTPS=380.14, cpuMs=5234.375, cpuMs/tick=2.6172, cpuTPS=382.09, pawnsStart=527, spawnedAnimalsStart=524, animalsWithContained=524, trees=3340, burrows=0, spawnedAnimalsEnd=524, rottingStart=0, rottingEnd=0, ingestStart=0, ingestEnd=6, pregnantStart=0, pregnantEnd=0
+updated mass-families preyScore 10000=21.493ms
+PATCHCHECK Pawn_JobTracker.StartJob=com.abobashark.zoology.bionic:Patch_StartAnimalHuntStrategy,com.abobashark.zoology.bionic:ThreatJobStart17
+PATCHCHECK Pawn_JobTracker.CleanupCurrentJob=com.abobashark.zoology.bionic:ThreatJobCleanup17
+PATCHCHECK MapPawns.RegisterPawn=com.abobashark.zoology.bionic:ThreatPawnRegister17
+PATCHCHECK MapPawns.DeRegisterPawn=com.abobashark.zoology.bionic:ThreatPawnDeregister17
+INDEXCHECK targeted=0 match=True protectYoung=0 match=True
+COMPLETE updated

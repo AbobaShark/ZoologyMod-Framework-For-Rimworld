@@ -1233,6 +1233,9 @@ namespace ZoologyMod
         {
             // Capture the active hold before Kill despawns the victim and interrupts jobs.
             __state = __instance != null ? DelayedPredationAttribution.CausalHunter(__instance, __args) : null;
+            if (__state != null && __args != null && __args.Length > 1
+                && __args[1] is Hediff_AnimalConstriction && __args[0] == null)
+                __args[0] = new DamageInfo(DamageDefOf.Blunt, 0f, 0f, -1f, __state);
         }
 
         public static void Pawn_Kill_Postfix(Pawn __instance, object[] __args, Pawn __state)

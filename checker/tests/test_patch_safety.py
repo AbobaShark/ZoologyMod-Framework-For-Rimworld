@@ -11,10 +11,10 @@ CHECKER_DIR = Path(__file__).resolve().parents[1]
 if str(CHECKER_DIR) not in sys.path:
     sys.path.insert(0, str(CHECKER_DIR))
 
-from rimworld_original_xml import OriginalXmlIndex
-from rimworld_patch_apply import PatchApplier
-from rimworld_patch_fixer import PatchGenerator
-from rimworld_patch_optimizer import PatchOptimizer
+from core.rimworld_original_xml import OriginalXmlIndex
+from core.rimworld_patch_apply import PatchApplier
+from core.patch_engine import PatchGenerator
+from core.rimworld_patch_optimizer import PatchOptimizer
 from rimworld_xml_generator import build_ce_patch, update_ce_on_thing_inplace
 
 
@@ -355,14 +355,9 @@ class CombatExtendedBodyShapeSafetyTests(unittest.TestCase):
             patches_dir=str(CHECKER_DIR / "OriginalPatches"),
         ).load()
         runtime_root = index.clone_root()
-        patch = LET.parse(
-            str(
-                CHECKER_DIR
-                / "generated_patches"
-                / "Core"
-                / "Races_Animal_Insects.xml"
-            )
-        ).getroot()
+        staged = CHECKER_DIR / "output/staged/files/Core/Patches/Core/ThingDefs_Races/Races_Animal_Insects.xml"
+        if not staged.exists():self.skipTest('Generate insect group first; no committed templates exist')
+        patch = LET.parse(str(staged)).getroot()
 
         applier = PatchApplier(
             active_mods=["Combat Extended"],
@@ -392,7 +387,7 @@ class CombatExtendedBodyShapeSafetyTests(unittest.TestCase):
 
     def test_committed_patches_never_remove_only_body_shape(self):
         roots = [
-            CHECKER_DIR / "generated_patches",
+            CHECKER_DIR / "output/staged/files",
             CHECKER_DIR.parent / "Zoology",
         ]
         unsafe = []

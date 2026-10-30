@@ -65,7 +65,11 @@ namespace ZoologyMod
         {
             Job result = base.TryGiveJob(pawn);
             Patch_AnimalFleeFromPredators.ApplyZoologyFleeLogic(this, pawn, ref result);
+#if RIMWORLD17
+            if (result?.def == JobDefOf.Flee) result = AnimalDefense.Choose(pawn, result);
+#else
             result = AnimalDefense.Choose(pawn, result);
+#endif
             return result;
         }
     }
@@ -794,6 +798,93 @@ namespace ZoologyMod
         private static readonly List<TargetedPredatorEntry> targetedProtectYoungEntriesScratch = new List<TargetedPredatorEntry>(16);
         private static int targetedProtectYoungEntriesTick = -1;
         private static int targetedProtectYoungEntriesMapId = -1;
+#if RIMWORLD17
+        // A negative-only guard: positive cases still use the original ordered
+        // map scan. Job and map registry events keep the empty state current.
+        private sealed class ThreatJobPresence17
+        {
+            public readonly Map Map;
+            public readonly HashSet<Pawn> Targeted = new HashSet<Pawn>();
+            public readonly HashSet<Pawn> ProtectYoung = new HashSet<Pawn>();
+
+            public ThreatJobPresence17(Map map)
+            {
+                Map = map;
+                IReadOnlyList<Pawn> pawns = map.mapPawns.AllPawnsSpawned;
+                for (int i = 0; i < pawns.Count; i++) Refresh(pawns[i]);
+            }
+
+            public void Refresh(Pawn pawn)
+            {
+                Targeted.Remove(pawn);
+                ProtectYoung.Remove(pawn);
+                if (pawn == null || !pawn.Spawned || pawn.Map != Map || pawn.Dead
+                    || pawn.Destroyed || pawn.Downed || pawn.CurJob == null) return;
+                JobDriver driver = pawn.jobs?.curDriver;
+                if (pawn.IsAnimal && (driver is JobDriver_PredatorHunt || IsThreatJob(pawn.CurJob, driver)))
+                    Targeted.Add(pawn);
+                if (ProtectYoungUtility.IsProtectYoungJob(pawn.CurJob, pawn)) ProtectYoung.Add(pawn);
+            }
+
+            public void Remove(Pawn pawn)
+            {
+                Targeted.Remove(pawn);
+                ProtectYoung.Remove(pawn);
+            }
+        }
+
+        private static readonly Dictionary<int, ThreatJobPresence17> threatJobPresenceByMapId17 = new Dictionary<int, ThreatJobPresence17>();
+
+        private static ThreatJobPresence17 GetThreatJobPresence17(Map map)
+        {
+            int mapId = map.uniqueID;
+            if (!threatJobPresenceByMapId17.TryGetValue(mapId, out ThreatJobPresence17 presence)
+                || !ReferenceEquals(presence.Map, map))
+            {
+                presence = new ThreatJobPresence17(map);
+                threatJobPresenceByMapId17[mapId] = presence;
+            }
+            return presence;
+        }
+
+        private static void RefreshThreatJobPresence17(Pawn pawn)
+        {
+            if (pawn?.Map != null && threatJobPresenceByMapId17.TryGetValue(pawn.Map.uniqueID, out ThreatJobPresence17 presence)
+                && ReferenceEquals(presence.Map, pawn.Map)) presence.Refresh(pawn);
+        }
+
+        [HarmonyPatch(typeof(Pawn_JobTracker), nameof(Pawn_JobTracker.StartJob))]
+        private static class ThreatJobStart17
+        {
+            private static void Postfix(Pawn ___pawn) => RefreshThreatJobPresence17(___pawn);
+        }
+
+        [HarmonyPatch(typeof(Pawn_JobTracker), "CleanupCurrentJob")]
+        private static class ThreatJobCleanup17
+        {
+            private static void Postfix(Pawn ___pawn) => RefreshThreatJobPresence17(___pawn);
+        }
+
+        [HarmonyPatch(typeof(MapPawns), nameof(MapPawns.RegisterPawn))]
+        private static class ThreatPawnRegister17
+        {
+            private static void Postfix(Map ___map, Pawn p)
+            {
+                if (___map != null && threatJobPresenceByMapId17.TryGetValue(___map.uniqueID, out ThreatJobPresence17 presence)
+                    && ReferenceEquals(presence.Map, ___map)) presence.Refresh(p);
+            }
+        }
+
+        [HarmonyPatch(typeof(MapPawns), nameof(MapPawns.DeRegisterPawn))]
+        private static class ThreatPawnDeregister17
+        {
+            private static void Postfix(Map ___map, Pawn p)
+            {
+                if (___map != null && threatJobPresenceByMapId17.TryGetValue(___map.uniqueID, out ThreatJobPresence17 presence)
+                    && ReferenceEquals(presence.Map, ___map)) presence.Remove(p);
+            }
+        }
+#endif
 
         private const float VanillaThreatSearchRadius = 18f;
         private const int VanillaFleeDistance = 24;
@@ -1600,6 +1691,10 @@ namespace ZoologyMod
             targetedPredatorEntriesTick = currentTick;
             targetedPredatorEntriesMapId = mapId;
             targetedPredatorEntriesScratch.Clear();
+#if RIMWORLD17
+            HashSet<Pawn> targetedJobPawns = GetThreatJobPresence17(map).Targeted;
+            if (targetedJobPawns.Count == 0) return targetedPredatorEntriesScratch;
+#endif
 
             IReadOnlyList<Pawn> pawns = map.mapPawns?.AllPawnsSpawned;
             if (pawns == null || pawns.Count == 0)
@@ -1610,6 +1705,9 @@ namespace ZoologyMod
             for (int i = 0; i < pawns.Count; i++)
             {
                 Pawn predator = pawns[i];
+#if RIMWORLD17
+                if (!targetedJobPawns.Contains(predator)) continue;
+#endif
                 if (predator == null || predator.Dead || predator.Destroyed || predator.Downed || !predator.Spawned)
                 {
                     continue;
@@ -1663,6 +1761,10 @@ namespace ZoologyMod
             targetedProtectYoungEntriesTick = currentTick;
             targetedProtectYoungEntriesMapId = mapId;
             targetedProtectYoungEntriesScratch.Clear();
+#if RIMWORLD17
+            HashSet<Pawn> protectYoungJobPawns = GetThreatJobPresence17(map).ProtectYoung;
+            if (protectYoungJobPawns.Count == 0) return targetedProtectYoungEntriesScratch;
+#endif
 
             IReadOnlyList<Pawn> pawns = map.mapPawns?.AllPawnsSpawned;
             if (pawns == null || pawns.Count == 0)
@@ -1673,6 +1775,9 @@ namespace ZoologyMod
             for (int i = 0; i < pawns.Count; i++)
             {
                 Pawn protector = pawns[i];
+#if RIMWORLD17
+                if (!protectYoungJobPawns.Contains(protector)) continue;
+#endif
                 if (protector == null || protector.Dead || protector.Destroyed || protector.Downed || !protector.Spawned)
                 {
                     continue;
@@ -4143,6 +4248,14 @@ namespace ZoologyMod
             CleanupNearbyThreatBucketsCache(currentTick);
             CleanupNearestPredatorThreatCache(currentTick);
             ThreatMapCache.CleanupStaleMaps();
+#if RIMWORLD17
+            List<int> stalePresenceMaps = null;
+            foreach (KeyValuePair<int, ThreatJobPresence17> entry in threatJobPresenceByMapId17)
+                if (Find.Maps == null || !Find.Maps.Contains(entry.Value.Map))
+                    (stalePresenceMaps ??= new List<int>()).Add(entry.Key);
+            if (stalePresenceMaps != null)
+                for (int i = 0; i < stalePresenceMaps.Count; i++) threatJobPresenceByMapId17.Remove(stalePresenceMaps[i]);
+#endif
             CleanupThreatScanBudget();
         }
 
@@ -4175,6 +4288,9 @@ namespace ZoologyMod
             protectPreyThreatEntriesScratch.Clear();
             targetedPredatorEntriesScratch.Clear();
             targetedProtectYoungEntriesScratch.Clear();
+#if RIMWORLD17
+            threatJobPresenceByMapId17.Clear();
+#endif
             protectPreyThreatEntriesTick = -1;
             protectPreyThreatEntriesMapId = -1;
             targetedPredatorEntriesTick = -1;

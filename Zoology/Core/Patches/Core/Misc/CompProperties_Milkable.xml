@@ -1,50 +1,14 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <Patch>
-
-  <!-- ============================
-       A) Ensure <comps> exists for animals we will add full milkable blocks to
-       (add <comps/> to ThingDef if it's missing)
-       ============================ -->
-
-  <!-- Boomrat: ensure comps exists -->
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName="Boomrat"]/comps</xpath>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName="Boomrat"]</xpath>
+    <xpath>/Defs/ThingDef[defName="Boomrat"][not(comps)] | /Defs/ThingDef[defName="Horse"][not(comps)]</xpath>
+    <match Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName="Boomrat"][not(comps)] | /Defs/ThingDef[defName="Horse"][not(comps)]</xpath>
       <value>
-        <comps />
+        <comps/>
       </value>
-    </nomatch>
+    </match>
   </Operation>
-
-  <!-- Boomalope: ensure comps exists -->
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName="Boomalope"]/comps</xpath>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName="Boomalope"]</xpath>
-      <value>
-        <comps />
-      </value>
-    </nomatch>
-  </Operation>
-
-  <!-- Horse: ensure comps exists -->
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName="Horse"]/comps</xpath>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName="Horse"]</xpath>
-      <value>
-        <comps />
-      </value>
-    </nomatch>
-  </Operation>
-
-  <!-- ============================
-       B) Replace or add full <li Class="CompProperties_Milkable">
-       (for Boomrat, Boomalope, Horse we want to set full block)
-       ============================ -->
-
-  <!-- Boomrat: replace if exists, otherwise add li under comps -->
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName="Boomrat"]/comps/li[Class="CompProperties_Milkable"]</xpath>
     <match Class="PatchOperationReplace">
@@ -70,8 +34,6 @@
       </value>
     </nomatch>
   </Operation>
-
-  <!-- Boomalope -->
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName="Boomalope"]/comps/li[Class="CompProperties_Milkable"]</xpath>
     <match Class="PatchOperationReplace">
@@ -97,8 +59,6 @@
       </value>
     </nomatch>
   </Operation>
-
-  <!-- Horse -->
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName="Horse"]/comps/li[Class="CompProperties_Milkable"]</xpath>
     <match Class="PatchOperationReplace">
@@ -107,7 +67,7 @@
         <li Class="CompProperties_Milkable">
           <milkDef>Milk</milkDef>
           <milkIntervalDays>1</milkIntervalDays>
-          <milkAmount>10</milkAmount>
+          <milkAmount>12</milkAmount>
         </li>
       </value>
     </match>
@@ -117,27 +77,18 @@
         <li Class="CompProperties_Milkable">
           <milkDef>Milk</milkDef>
           <milkIntervalDays>1</milkIntervalDays>
-          <milkAmount>10</milkAmount>
+          <milkAmount>12</milkAmount>
         </li>
       </value>
     </nomatch>
   </Operation>
-
-  <!-- =================================================
-       C) Safe text replacements for animals that already
-          have CompProperties_Milkable (replace text nodes only)
-       ================================================= -->
-
-  <!-- Cow: milkAmount -->
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName="Cow"]/comps/li[Class="CompProperties_Milkable"]/milkAmount/text()</xpath>
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName="Cow"]/comps/li[Class="CompProperties_Milkable"]/milkAmount/text()</xpath>
-      <value>20</value>
+      <value>22</value>
     </match>
   </Operation>
-
-  <!-- Cow: milkIntervalDays -->
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName="Cow"]/comps/li[Class="CompProperties_Milkable"]/milkIntervalDays/text()</xpath>
     <match Class="PatchOperationReplace">
@@ -145,13 +96,11 @@
       <value>1</value>
     </match>
   </Operation>
-
-  <!-- Goat -->
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName="Goat"]/comps/li[Class="CompProperties_Milkable"]/milkAmount/text()</xpath>
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName="Goat"]/comps/li[Class="CompProperties_Milkable"]/milkAmount/text()</xpath>
-      <value>8</value>
+      <value>12</value>
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
@@ -161,13 +110,11 @@
       <value>1</value>
     </match>
   </Operation>
-
-  <!-- Elk -->
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName="Elk"]/comps/li[Class="CompProperties_Milkable"]/milkAmount/text()</xpath>
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName="Elk"]/comps/li[Class="CompProperties_Milkable"]/milkAmount/text()</xpath>
-      <value>8</value>
+      <value>10</value>
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
@@ -177,8 +124,6 @@
       <value>1</value>
     </match>
   </Operation>
-
-  <!-- Yak -->
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName="Yak"]/comps/li[Class="CompProperties_Milkable"]/milkAmount/text()</xpath>
     <match Class="PatchOperationReplace">
@@ -193,13 +138,11 @@
       <value>1</value>
     </match>
   </Operation>
-
-  <!-- Dromedary -->
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName="Dromedary"]/comps/li[Class="CompProperties_Milkable"]/milkAmount/text()</xpath>
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName="Dromedary"]/comps/li[Class="CompProperties_Milkable"]/milkAmount/text()</xpath>
-      <value>10</value>
+      <value>12</value>
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
@@ -209,13 +152,11 @@
       <value>1</value>
     </match>
   </Operation>
-
-  <!-- Caribou -->
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName="Caribou"]/comps/li[Class="CompProperties_Milkable"]/milkAmount/text()</xpath>
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName="Caribou"]/comps/li[Class="CompProperties_Milkable"]/milkAmount/text()</xpath>
-      <value>6</value>
+      <value>8</value>
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
@@ -225,5 +166,4 @@
       <value>1</value>
     </match>
   </Operation>
-
 </Patch>

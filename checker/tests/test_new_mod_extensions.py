@@ -12,8 +12,8 @@ from rimworld_xml_generator import (
     build_mod_extensions_for_parent, _merge_mod_extensions_node,
     update_thingdef_inplace,
 )
-from rimworld_patch_fixer import PatchGenerator
-from rimworld_patch_apply import PatchApplier
+from core.patch_engine import PatchGenerator
+from core.rimworld_patch_apply import PatchApplier
 
 CLASSES = {k: MOD_EXTENSION_CLASS_MAP[k] for k in
            ('PredationStrategy', 'Burrower', 'TreeClimber')}

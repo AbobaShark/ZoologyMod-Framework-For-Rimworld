@@ -15,12 +15,14 @@ import sys
 import traceback
 from typing import Dict, List, Optional, Tuple
 
-from animal_venom_policy import is_platypus_spur
+from core.animal_venom_policy import is_platypus_spur
+import core.checker_config as checker_config
+from core.checker_clipboard import enable_paste
 
 import pandas as pd
 from lxml import etree as LET
 
-from animalstats_source import (
+from core.animalstats_source import (
     is_google_sheet_source,
     is_multisheet_source,
     read_google_sheet,
@@ -31,7 +33,7 @@ from tkinter import filedialog, messagebox, simpledialog, ttk
 
 
 CONFIG_FILE = "rimworld_xml_generator_config.json"
-DEFAULT_GAME_ROOT_DIR = r"D:\SteamLibrary\steamapps\common\RimWorld"
+DEFAULT_GAME_ROOT_DIR = ""
 DEFAULT_CORE_THINGDEFS_DIR = os.path.join(DEFAULT_GAME_ROOT_DIR, "Data", "Core", "Defs", "ThingDefs_Races")
 DEFAULT_ODYSSEY_THINGDEFS_DIR = os.path.join(DEFAULT_GAME_ROOT_DIR, "Data", "Odyssey", "Defs", "ThingDefs_Races")
 ODYSSEY_MAYREQUIRE = "Ludeon.RimWorld.Odyssey"
@@ -114,6 +116,8 @@ COLUMN_ALIASES = {
     "PredationStrategy": ["PredationStrategy", "Predation Strategy"],
     "Burrower": ["Burrower"],
     "TreeClimber": ["TreeClimber", "Tree Climber"],
+    "Constrictor": ["Constrictor"],
+    "Venom sample producer": ["Venom sample producer"],
 }
 
 MOD_EXTENSION_CLASS_MAP = {
@@ -129,11 +133,13 @@ MOD_EXTENSION_CLASS_MAP = {
     "PredationStrategy": "ZoologyMod.ModExtension_PredationStrategy, ZoologyMod",
     "Burrower": "ZoologyMod.ModExtension_Burrower, ZoologyMod",
     "TreeClimber": "ZoologyMod.ModExtension_TreeClimber, ZoologyMod",
+    "Constrictor": "ZoologyMod.ModExtension_Constrictor, ZoologyMod",
+    "Venom sample producer": "ZoologyMod.ModExtension_VenomSample, ZoologyMod",
 }
 
 # These three extensions always belong to concrete ThingDefs: inheriting them from
 # an abstract can accidentally grant a different hunting or hiding ability.
-CONCRETE_ONLY_MOD_EXTENSIONS = frozenset(("PredationStrategy", "Burrower", "TreeClimber"))
+CONCRETE_ONLY_MOD_EXTENSIONS = frozenset(("PredationStrategy", "Burrower", "TreeClimber", "Constrictor", "Venom sample producer"))
 PREDATION_STRATEGIES = {
     "chasing": "Chasing",
     "waterambush": "WaterAmbush",
@@ -143,21 +149,11 @@ PREDATION_STRATEGIES = {
 
 
 def load_config() -> Dict:
-    if os.path.exists(CONFIG_FILE):
-        try:
-            with open(CONFIG_FILE, "r", encoding="utf-8") as f:
-                return json.load(f)
-        except Exception:
-            return {}
-    return {}
+    return checker_config.load('xml_generator')
 
 
 def save_config(cfg: Dict):
-    try:
-        with open(CONFIG_FILE, "w", encoding="utf-8") as f:
-            json.dump(cfg, f, indent=2, ensure_ascii=False)
-    except Exception:
-        pass
+    checker_config.save('xml_generator',cfg)
 
 
 class ConsolePromptProvider:
@@ -1166,6 +1162,14 @@ def build_mod_extensions_for_child(row, p_common: Dict, include_all: bool) -> Op
         if col == "PredationStrategy" and not is_truthy(get_row_value(row, "predator")):
             continue
         val = get_row_value(row, col)
+        if col == "Venom sample producer" and is_truthy(val):
+            sample = row.get('_ZoologyVenomSample')
+            if not sample:
+                raise ValueError('Venom sample producer requires a validated Venom profiles catalog')
+            li = LET.SubElement(mod_extensions, 'li', Class=MOD_EXTENSION_CLASS_MAP[col])
+            LET.SubElement(li, 'sample').text = sample
+            any_added = True
+            continue
         if (col not in CONCRETE_ONLY_MOD_EXTENSIONS
                 and not include_all and col in p_common
                 and norm(val) == norm(p_common.get(col))):
@@ -2563,6 +2567,16 @@ def _collect_xml_files(path_or_dir: str) -> List[str]:
     return out
 
 
+def _bind_venom_profiles(animals_df, source, explicit_source=None):
+    from core.venom_profiles import VenomCatalog
+    profile_source = explicit_source or (source if is_multisheet_source(source) else None)
+    if not profile_source:
+        raise RuntimeError('TSV AnimalStats requires an explicit Venom profiles source.')
+    frame = read_table(profile_source, sheet_name='Venom profiles' if is_multisheet_source(profile_source) else None)
+    mod = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'Zoology')
+    return VenomCatalog(frame, mod).decorate(animals_df)
+
+
 def update_xmls_in_path(
     *,
     xlsx: str,
@@ -2573,13 +2587,14 @@ def update_xmls_in_path(
     animals_ce_sheet: str = "Animals CE",
     overwrite_existing: bool = False,
     emit_ce_patches: bool = False,
+    venom_profile_source: Optional[str] = None,
 ) -> Dict[str, object]:
     if not xlsx or not source_available(xlsx):
         raise RuntimeError(f"AnimalStats source not found or invalid: {xlsx}")
     if not xml_input_path or not os.path.exists(xml_input_path):
         raise RuntimeError(f"XML input path not found: {xml_input_path}")
 
-    animals_df = read_table(xlsx, sheet_name=animals_sheet if is_multisheet_source(xlsx) else None)
+    animals_df = _bind_venom_profiles(read_table(xlsx, sheet_name=animals_sheet if is_multisheet_source(xlsx) else None), xlsx, venom_profile_source)
     ce_df = None
     try:
         ce_df = read_table(xlsx, sheet_name=animals_ce_sheet if is_multisheet_source(xlsx) else None)
@@ -3020,11 +3035,12 @@ def generate_for_def(
     animals_ce_sheet: str = "Animals CE",
     game_root_dir: str = DEFAULT_GAME_ROOT_DIR,
     generate_parent: bool = False,
+    venom_profile_source: Optional[str] = None,
 ) -> Tuple[str, str]:
     if not xlsx or not source_available(xlsx):
         raise RuntimeError(f"AnimalStats source not found or invalid: {xlsx}")
 
-    animals_df = read_table(xlsx, sheet_name=animals_sheet if is_multisheet_source(xlsx) else None)
+    animals_df = _bind_venom_profiles(read_table(xlsx, sheet_name=animals_sheet if is_multisheet_source(xlsx) else None), xlsx, venom_profile_source)
     ce_df = None
     try:
         ce_df = read_table(xlsx, sheet_name=animals_ce_sheet if is_multisheet_source(xlsx) else None)
@@ -3170,7 +3186,10 @@ class GeneratorApp(tk.Tk):
             row = ttk.Frame(main)
             row.pack(fill="x", pady=4)
             ttk.Label(row, text=label, width=24).pack(side="left")
-            ttk.Entry(row, textvariable=var, width=90).pack(side="left", padx=6, fill="x", expand=True)
+            field = ttk.Entry(row, textvariable=var, width=90)
+            field.pack(side="left", padx=6, fill="x", expand=True)
+            if key == "xlsx":
+                ttk.Button(row, text="Paste URL", command=enable_paste(field, on_change=self._save_cfg)).pack(side="left", padx=(0, 5))
             if browse is not None:
                 ttk.Button(row, text="Browse", command=browse).pack(side="left")
             self.ui_rows[key] = row
@@ -3384,7 +3403,8 @@ class GeneratorApp(tk.Tk):
 
 def parse_cli_args():
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    default_xlsx = os.path.join(script_dir, "AnimalStats.xlsx")
+    saved = load_config()
+    default_xlsx = saved.get('xlsx') or os.path.join(script_dir, 'AnimalStats.xlsx')
     parser = argparse.ArgumentParser(description="Generate or update RimWorld animal Def XML from local AnimalStats files or Google Sheets")
     parser.add_argument(
         "--mode",
@@ -3398,14 +3418,15 @@ def parse_cli_args():
     parser.add_argument("--existing-xml", dest="existing_xml_legacy", help=argparse.SUPPRESS)
     parser.add_argument(
         "--out-dir",
-        default=os.path.join(script_dir, "generated_defs"),
+        default=saved.get('out_dir') or os.path.join(script_dir, "generated_defs"),
         help="Output folder for generated/updated xml files",
     )
     parser.add_argument("--animals-sheet", default="Animals", help="Sheet name for vanilla animal table")
     parser.add_argument("--animals-ce-sheet", default="Animals CE", help="Sheet name for CE animal table")
+    parser.add_argument("--venom-profiles", help="Explicit Venom profiles TSV, required when Animals is TSV")
     parser.add_argument(
         "--game-root-dir",
-        default=DEFAULT_GAME_ROOT_DIR,
+        default=saved.get('game_root_dir') or DEFAULT_GAME_ROOT_DIR,
         help="RimWorld game root folder (auto-search uses Data/Core and Data/Odyssey ThingDefs_Races)",
     )
     parser.add_argument("--core-thingdefs-dir", dest="core_thingdefs_dir_legacy", help=argparse.SUPPRESS)
@@ -3457,6 +3478,7 @@ def main():
             animals_ce_sheet=args.animals_ce_sheet,
             overwrite_existing=bool(args.overwrite_existing),
             emit_ce_patches=bool(args.emit_ce_patches),
+            venom_profile_source=args.venom_profiles,
         )
         print("")
         print("Updated:")
@@ -3475,6 +3497,7 @@ def main():
             animals_ce_sheet=args.animals_ce_sheet,
             game_root_dir=args.game_root_dir,
             generate_parent=bool(args.generate_parent),
+            venom_profile_source=args.venom_profiles,
         )
         print("")
         print("Generated:")

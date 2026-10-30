@@ -6,6 +6,9 @@
     </mods>
     <nomatch Class="PatchOperationSequence">
       <operations>
+        <!---->
+        <!-- AEXP_Panda -->
+        <!-- AEXP_Panda StatBases -->
         <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/statBases/MarketValue</xpath>
           <match Class="PatchOperationReplace">
@@ -114,6 +117,7 @@
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/statBases/ToxicEnvironmentResistance</xpath>
           </match>
         </li>
+        <!-- AEXP_Panda tools -->
         <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/tools</xpath>
           <match Class="PatchOperationRemove">
@@ -167,6 +171,7 @@
             </tools>
           </value>
         </li>
+        <!-- AEXP_Panda RaceProperties -->
         <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/baseBodySize</xpath>
           <match Class="PatchOperationReplace">
@@ -509,7 +514,8 @@
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/wildBiomes</xpath>
             <value>
               <wildBiomes>
-                <TemperateForest>0.005</TemperateForest>
+                <TemperateForest>0.02</TemperateForest>
+                <AB_IdyllicMeadows MayRequire="sarg.alphabiomes">0.02</AB_IdyllicMeadows>
               </wildBiomes>
             </value>
           </match>
@@ -517,7 +523,8 @@
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race</xpath>
             <value>
               <wildBiomes>
-                <TemperateForest>0.005</TemperateForest>
+                <TemperateForest>0.02</TemperateForest>
+                <AB_IdyllicMeadows MayRequire="sarg.alphabiomes">0.02</AB_IdyllicMeadows>
               </wildBiomes>
             </value>
           </nomatch>
@@ -672,6 +679,19 @@
           </value>
         </li>
         <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Constrictor, ZoologyMod"]</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_Constrictor, ZoologyMod"]</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_VenomSample, ZoologyMod"]</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_VenomSample, ZoologyMod"]</xpath>
+          </match>
+        </li>
+        <!-- AEXP_Panda PawnKindDef -->
+        <li Class="PatchOperationConditional">
           <xpath>/Defs/PawnKindDef[defName = "AEXP_Panda"]/combatPower</xpath>
           <match Class="PatchOperationReplace">
             <xpath>/Defs/PawnKindDef[defName = "AEXP_Panda"]/combatPower</xpath>
@@ -731,6 +751,8 @@
       </operations>
     </nomatch>
   </Operation>
+  <!---->
+  <!-- Combat Extended specific patches -->
   <Operation Class="PatchOperationFindMod">
     <mods>
       <li>Combat Extended</li>
@@ -743,6 +765,7 @@
           </mods>
           <nomatch Class="PatchOperationSequence">
             <operations>
+              <!-- AEXP_Panda CE patches -->
               <li Class="PatchOperationConditional">
                 <xpath>Defs/ThingDef[defName="AEXP_Panda"]/statBases/MoveSpeed</xpath>
                 <match Class="PatchOperationReplace">

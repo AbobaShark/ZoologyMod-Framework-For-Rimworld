@@ -1,132 +1,141 @@
 <?xml version='1.0' encoding='utf-8'?>
 <Patch>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/BiomeDef[defName="AB_PropaneLakes"]/wildAnimals</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/BiomeDef[defName="AB_PropaneLakes"]/wildAnimals</xpath>
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>Alpha Biomes</li>
+    </mods>
+    <match Class="PatchOperationSequence">
+      <operations>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/BiomeDef[defName="AB_PropaneLakes"]/wildAnimals</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/BiomeDef[defName="AB_PropaneLakes"]/wildAnimals</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>/Defs/BiomeDef[defName="AB_PropaneLakes"]</xpath>
+          <value>
+            <wildAnimals/>
+          </value>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/BiomeDef[defName="AB_PropaneLakes"]/pollutionWildAnimals</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/BiomeDef[defName="AB_PropaneLakes"]/pollutionWildAnimals</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>/Defs/BiomeDef[defName="AB_PropaneLakes"]</xpath>
+          <value>
+            <pollutionWildAnimals/>
+          </value>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/BiomeDef[defName="AB_PropaneLakes"]/coastalWildAnimals</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/BiomeDef[defName="AB_PropaneLakes"]/coastalWildAnimals</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>/Defs/BiomeDef[defName="AB_PropaneLakes"]</xpath>
+          <value>
+            <coastalWildAnimals/>
+          </value>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/BiomeDef[defName="AB_PropaneLakes"]/allowedPackAnimals</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/BiomeDef[defName="AB_PropaneLakes"]</xpath>
+            <value>
+              <allowedPackAnimals/>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>/Defs/BiomeDef[defName="AB_PropaneLakes"]/wildAnimals</xpath>
+          <value>
+            <Bear_Polar>0.05</Bear_Polar>
+            <Lynx>0.075</Lynx>
+            <Snowhare>0.425</Snowhare>
+            <Megasloth>0.1</Megasloth>
+            <Wolf_Arctic>0.05</Wolf_Arctic>
+            <Fox_Arctic>0.1</Fox_Arctic>
+            <AA_ArcticLion MayRequire="sarg.alphaanimals">0.05</AA_ArcticLion>
+            <AA_FrostboundBehemoth MayRequire="sarg.alphaanimals">0.1</AA_FrostboundBehemoth>
+            <AA_Blizzarisk MayRequire="sarg.alphaanimals">0.15</AA_Blizzarisk>
+            <AA_ChameleonYak MayRequire="sarg.alphaanimals">0.01</AA_ChameleonYak>
+            <AA_Darkbeast MayRequire="sarg.alphaanimals">0.015</AA_Darkbeast>
+            <AA_FrostAve MayRequire="sarg.alphaanimals">0.175</AA_FrostAve>
+            <AA_FrostLynx MayRequire="sarg.alphaanimals">0.05</AA_FrostLynx>
+            <AA_Frostling MayRequire="sarg.alphaanimals">0.05</AA_Frostling>
+            <AA_Frostmite MayRequire="sarg.alphaanimals">0.25</AA_Frostmite>
+            <AA_Genix MayRequire="sarg.alphaanimals">0.05</AA_Genix>
+            <AA_Thunderbeast MayRequire="sarg.alphaanimals">0.015</AA_Thunderbeast>
+            <AA_WindBeast MayRequire="sarg.alphaanimals">0.015</AA_WindBeast>
+          </value>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>/Defs/BiomeDef[defName="AB_PropaneLakes"]/pollutionWildAnimals</xpath>
+          <value>
+            <VAEWaste_Megatardi MayRequire="VanillaExpanded.VAEWaste">0.001</VAEWaste_Megatardi>
+            <AA_Frostmite MayRequire="sarg.alphaanimals">0.001</AA_Frostmite>
+            <AA_Radyak MayRequire="sarg.alphaanimals">0.025</AA_Radyak>
+          </value>
+        </li>
+        <li Class="PatchOperationAdd">
+          <xpath>/Defs/BiomeDef[defName="AB_PropaneLakes"]/coastalWildAnimals</xpath>
+          <value>
+            <Penguin MayRequire="Ludeon.RimWorld.Odyssey">0.25</Penguin>
+            <Seal MayRequire="Ludeon.RimWorld.Odyssey">0.05</Seal>
+            <Walrus MayRequire="Ludeon.RimWorld.Odyssey">0.05</Walrus>
+          </value>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/BiomeDef[defName="AB_PropaneLakes"]/allowedPackAnimals/li[text()="VAEWaste_Megatardi"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/BiomeDef[defName="AB_PropaneLakes"]/allowedPackAnimals</xpath>
+            <value>
+              <li MayRequire="VanillaExpanded.VAEWaste">VAEWaste_Megatardi</li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/BiomeDef[defName="AB_PropaneLakes"]/allowedPackAnimals/li[text()="AA_ChameleonYak"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/BiomeDef[defName="AB_PropaneLakes"]/allowedPackAnimals</xpath>
+            <value>
+              <li MayRequire="sarg.alphaanimals">AA_ChameleonYak</li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/BiomeDef[defName="AB_PropaneLakes"]/allowedPackAnimals/li[text()="AA_FrostAve"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/BiomeDef[defName="AB_PropaneLakes"]/allowedPackAnimals</xpath>
+            <value>
+              <li MayRequire="sarg.alphaanimals">AA_FrostAve</li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/BiomeDef[defName="AB_PropaneLakes"]/allowedPackAnimals/li[text()="AA_Radyak"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/BiomeDef[defName="AB_PropaneLakes"]/allowedPackAnimals</xpath>
+            <value>
+              <li MayRequire="sarg.alphaanimals">AA_Radyak</li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/BiomeDef[defName="AB_PropaneLakes"]/allowedPackAnimals/li[text()="Horse"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/BiomeDef[defName="AB_PropaneLakes"]/allowedPackAnimals</xpath>
+            <value>
+              <li>Horse</li>
+            </value>
+          </nomatch>
+        </li>
+      </operations>
     </match>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/BiomeDef[defName="AB_PropaneLakes"]</xpath>
-    <value>
-      <wildAnimals/>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/BiomeDef[defName="AB_PropaneLakes"]/pollutionWildAnimals</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/BiomeDef[defName="AB_PropaneLakes"]/pollutionWildAnimals</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/BiomeDef[defName="AB_PropaneLakes"]</xpath>
-    <value>
-      <pollutionWildAnimals/>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/BiomeDef[defName="AB_PropaneLakes"]/coastalWildAnimals</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/BiomeDef[defName="AB_PropaneLakes"]/coastalWildAnimals</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/BiomeDef[defName="AB_PropaneLakes"]</xpath>
-    <value>
-      <coastalWildAnimals/>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/BiomeDef[defName="AB_PropaneLakes"]/allowedPackAnimals</xpath>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/BiomeDef[defName="AB_PropaneLakes"]</xpath>
-      <value>
-        <allowedPackAnimals/>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/BiomeDef[defName="AB_PropaneLakes"]/wildAnimals</xpath>
-    <value>
-      <Bear_Polar>0.05</Bear_Polar>
-      <Lynx>0.075</Lynx>
-      <Snowhare>0.425</Snowhare>
-      <Megasloth>0.1</Megasloth>
-      <Wolf_Arctic>0.05</Wolf_Arctic>
-      <Fox_Arctic>0.1</Fox_Arctic>
-      <AA_ArcticLion MayRequire="sarg.alphaanimals">0.005</AA_ArcticLion>
-      <AA_FrostboundBehemoth MayRequire="sarg.alphaanimals">0.01</AA_FrostboundBehemoth>
-      <AA_Blizzarisk MayRequire="sarg.alphaanimals">0.015</AA_Blizzarisk>
-      <AA_ChameleonYak MayRequire="sarg.alphaanimals">0.01</AA_ChameleonYak>
-      <AA_Darkbeast MayRequire="sarg.alphaanimals">0.015</AA_Darkbeast>
-      <AA_FrostAve MayRequire="sarg.alphaanimals">0.015</AA_FrostAve>
-      <AA_FrostLynx MayRequire="sarg.alphaanimals">0.005</AA_FrostLynx>
-      <AA_Frostling MayRequire="sarg.alphaanimals">0.005</AA_Frostling>
-      <AA_Frostmite MayRequire="sarg.alphaanimals">0.025</AA_Frostmite>
-      <AA_Genix MayRequire="sarg.alphaanimals">0.005</AA_Genix>
-      <AA_Thunderbeast MayRequire="sarg.alphaanimals">0.015</AA_Thunderbeast>
-      <AA_WindBeast MayRequire="sarg.alphaanimals">0.015</AA_WindBeast>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/BiomeDef[defName="AB_PropaneLakes"]/pollutionWildAnimals</xpath>
-    <value>
-      <VAEWaste_Megatardi MayRequire="VanillaExpanded.VAEWaste">0.001</VAEWaste_Megatardi>
-      <AA_Frostmite MayRequire="sarg.alphaanimals">0.001</AA_Frostmite>
-      <AA_Radyak MayRequire="sarg.alphaanimals">0.001</AA_Radyak>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/BiomeDef[defName="AB_PropaneLakes"]/coastalWildAnimals</xpath>
-    <value>
-      <Penguin MayRequire="Ludeon.RimWorld.Odyssey">0.25</Penguin>
-      <Seal MayRequire="Ludeon.RimWorld.Odyssey">0.05</Seal>
-      <Walrus MayRequire="Ludeon.RimWorld.Odyssey">0.05</Walrus>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/BiomeDef[defName="AB_PropaneLakes"]/allowedPackAnimals/li[text()="VAEWaste_Megatardi"]</xpath>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/BiomeDef[defName="AB_PropaneLakes"]/allowedPackAnimals</xpath>
-      <value>
-        <li MayRequire="VanillaExpanded.VAEWaste">VAEWaste_Megatardi</li>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/BiomeDef[defName="AB_PropaneLakes"]/allowedPackAnimals/li[text()="AA_ChameleonYak"]</xpath>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/BiomeDef[defName="AB_PropaneLakes"]/allowedPackAnimals</xpath>
-      <value>
-        <li MayRequire="sarg.alphaanimals">AA_ChameleonYak</li>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/BiomeDef[defName="AB_PropaneLakes"]/allowedPackAnimals/li[text()="AA_FrostAve"]</xpath>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/BiomeDef[defName="AB_PropaneLakes"]/allowedPackAnimals</xpath>
-      <value>
-        <li MayRequire="sarg.alphaanimals">AA_FrostAve</li>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/BiomeDef[defName="AB_PropaneLakes"]/allowedPackAnimals/li[text()="AA_Radyak"]</xpath>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/BiomeDef[defName="AB_PropaneLakes"]/allowedPackAnimals</xpath>
-      <value>
-        <li MayRequire="sarg.alphaanimals">AA_Radyak</li>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/BiomeDef[defName="AB_PropaneLakes"]/allowedPackAnimals/li[text()="Horse"]</xpath>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/BiomeDef[defName="AB_PropaneLakes"]/allowedPackAnimals</xpath>
-      <value>
-        <li>Horse</li>
-      </value>
-    </nomatch>
   </Operation>
 </Patch>

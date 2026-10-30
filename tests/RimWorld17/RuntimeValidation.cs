@@ -116,6 +116,15 @@ namespace ZoologyValidation
                     Find.TickManager.CurTimeSpeed = TimeSpeed.Paused;
                     if (File.Exists(Path.Combine(GenFilePaths.SaveDataFolderPath, "nuance-only.txt")))
                     { RunNewNuanceChecks(map); phase = 99; Write("COMPLETE nuance-only"); return; }
+                    if (File.Exists(Path.Combine(GenFilePaths.SaveDataFolderPath, "constriction-only.txt")))
+                    { RunConstrictionChecks(map); phase = 99; Write("COMPLETE constriction-only"); return; }
+                    if (File.Exists(Path.Combine(GenFilePaths.SaveDataFolderPath, "anaconda-only.txt")))
+                    { RunAnacondaChecks(map); phase = 99; Write("COMPLETE anaconda-only"); return; }
+                    if (File.Exists(Path.Combine(GenFilePaths.SaveDataFolderPath, "venom-only.txt")))
+                    { RunAntivenomChecks(map); phase = 99; Write("COMPLETE venom-only"); return; }
+                    if (File.Exists(Path.Combine(GenFilePaths.SaveDataFolderPath, "scavenger-only.txt"))
+                        && File.ReadAllText(Path.Combine(GenFilePaths.SaveDataFolderPath, "scavenger-only.txt")).Trim() == "run")
+                    { RunScavengerChecks(map); phase = 99; Write("COMPLETE scavenger-only"); return; }
                     RunImmediate(map);
                     SetupSave(map);
                     phase = 1; phaseTick = GenTicks.TicksGame;
@@ -182,7 +191,7 @@ namespace ZoologyValidation
                 Check("chain " + capacity.defName, damage.Worker != null && damage.hediff != null
                     && damage.additionalHediffs.Single().hediff.hediffClass == typeof(Hediff_AnimalVenom));
             }
-            foreach (string family in new[] { "Cobra", "Viper", "Hydra" })
+            foreach (string family in new[] { "Cobra", "Viper" })
                 Check("Administer recipe " + family, DefDatabase<RecipeDef>.AllDefs.Any(r => r.defName.Contains("ZVenom_Drug_" + family)));
             Check("ambush 10 cells = 10%", Math.Abs((float)Internal("AnimalHuntStrategy", "NoReactionChance", 10f) - .1f) < .0001f);
             Check("ambush 4 cells = 70%", Math.Abs((float)Internal("AnimalHuntStrategy", "NoReactionChance", 4f) - .7f) < .0001f);
@@ -265,6 +274,98 @@ namespace ZoologyValidation
             Check("ectotherm constriction progresses four times slower", progression[1] > 0
                 && Math.Abs(progression[0] / progression[1] - 4f) < .02f);
         }
+        private void RunConstrictionChecks(Map map)
+        {
+            Pawn testHolder = Spawn("Zoology_ValidationConstrictor", map), testPrey = Spawn("Colonist", map);
+            IntVec3 cell = GenRadial.RadialCellsAround(map.Center, 30f, true)
+                .First(c => c.InBounds(map) && c.Standable(map) && (c + IntVec3.North).InBounds(map)
+                    && (c + IntVec3.North).Standable(map));
+            testPrey.Position = cell; testPrey.Notify_Teleported(false);
+            testHolder.Position = cell + IntVec3.North; testHolder.Notify_Teleported(false);
+            testHolder.jobs.StartJob(JobMaker.MakeJob(DefDatabase<JobDef>.GetNamed("Zoology_Constrict"), testPrey), JobCondition.InterruptForced);
+            var testHold = testPrey.health.hediffSet.hediffs.OfType<Hediff_AnimalConstriction>().Single();
+            Check("constriction immediately downs prey", testPrey.Downed
+                && testPrey.health.capacities.GetLevel(PawnCapacityDefOf.Moving) <= .15f);
+            Check("holder and prey share registered map cell", testHolder.Position == testPrey.Position
+                && map.thingGrid.ThingsListAt(testPrey.Position).Contains(testHolder));
+            var anesthetic = testHolder.health.AddHediff(HediffDefOf.Anesthetic);
+            Check("downed holder keeps constriction", testHolder.Downed && testHold.Active);
+            testHolder.health.RemoveHediff(anesthetic);
+            Check("undowned holder resumes constriction", !testHolder.Downed && testHold.Active);
+            testHolder.health.PostApplyDamage(new DamageInfo(DamageDefOf.Blunt, 1f), 10f * testHolder.HealthScale);
+            Check("actual damage threshold releases constriction", !testPrey.health.hediffSet.hediffs.Contains(testHold));
+            Check("released healthy prey can move", testPrey.health.capacities.GetLevel(PawnCapacityDefOf.Moving) > .15f);
+            BeginHunt(testHolder, testPrey);
+            var noTool = new DamageInfo(DamageDefOf.Blunt, 1f, 0f, -1f, testHolder);
+            for (int i = 0; i < 20; i++) testPrey.health.PostApplyDamage(noTool, 1f);
+            Check("damage without melee tool cannot start constriction", !(testHolder.jobs.curDriver is JobDriver_Constrict));
+            var melee = new DamageInfo(DamageDefOf.Blunt, 1f, 0f, -1f, testHolder);
+            melee.SetTool(testHolder.def.tools.First());
+            for (int i = 0; i < 20; i++) testPrey.health.PostApplyDamage(melee, 0f);
+            Check("zero dealt damage cannot start constriction", !(testHolder.jobs.curDriver is JobDriver_Constrict));
+            int attempts = 0;
+            while (!(testHolder.jobs.curDriver is JobDriver_Constrict) && attempts++ < 100)
+                testPrey.health.PostApplyDamage(melee, 1f);
+            Check("repeated successful melee events can start hunt constriction", testHolder.jobs.curDriver is JobDriver_Constrict);
+            Check("only one constriction effect after repeated events", testPrey.health.hediffSet.hediffs.OfType<Hediff_AnimalConstriction>().Count() == 1);
+            DisposePawn(testHolder); DisposePawn(testPrey);
+        }
+        private void RunAnacondaChecks(Map map)
+        {
+            var tick = (Action)Delegate.CreateDelegate(typeof(Action), Find.TickManager,
+                typeof(TickManager).GetMethod("DoSingleTick", All));
+            foreach (string preyKind in new[] { "Capybara", "AEXP_Corgi" })
+            {
+                PawnKindDef hunterKind = DefDatabase<PawnKindDef>.GetNamed("AEXP_Anaconda");
+                PawnKindDef victimKind = DefDatabase<PawnKindDef>.GetNamed(preyKind);
+                Pawn hunter = PawnGenerator.GeneratePawn(new PawnGenerationRequest(hunterKind, fixedBiologicalAge: 8f));
+                Pawn victim = PawnGenerator.GeneratePawn(new PawnGenerationRequest(victimKind, fixedBiologicalAge: 8f));
+                IntVec3 cell = GenRadial.RadialCellsAround(map.Center, 30f, true)
+                    .First(c => c.InBounds(map) && c.Standable(map) && (c + IntVec3.North).InBounds(map)
+                        && (c + IntVec3.North).Standable(map));
+                GenSpawn.Spawn(hunter, cell + IntVec3.North, map); GenSpawn.Spawn(victim, cell, map);
+                hunter.needs.food.CurLevelPercentage = .15f;
+                Check("anaconda and " + preyKind + " adult body sizes", Math.Abs(hunter.BodySize - .85f) < .001f
+                    && Math.Abs(victim.BodySize - (preyKind == "Capybara" ? .85f : .45f)) < .001f);
+                Check("anaconda accepts " + preyKind, FoodUtility.IsAcceptablePreyFor(hunter, victim));
+                BeginHunt(hunter, victim);
+                Write($"HUNT start {preyKind}: hunterJob={hunter.CurJob?.def.defName}, preyJob={victim.CurJob?.def.defName}, hunterSpeed={hunter.GetStatValue(StatDefOf.MoveSpeed):F2}, preySpeed={victim.GetStatValue(StatDefOf.MoveSpeed):F2}");
+                bool reached = false, hurt = false, held = false;
+                for (int i = 0; i < 20000 && !victim.Dead && hunter.Spawned; i++)
+                {
+                    tick();
+                    if (i < 500 && i % 100 == 0)
+                        Write($"HUNT tick={i} {preyKind}: hunterJob={hunter.CurJob?.def.defName}, preyJob={victim.CurJob?.def.defName}, distance={hunter.Position.DistanceTo(victim.Position):F1}");
+                    reached |= hunter.Position.AdjacentTo8WayOrInside(victim.Position);
+                    hurt |= victim.health.hediffSet.hediffs.OfType<Hediff_Injury>().Any();
+                    held |= victim.health.hediffSet.hediffs.OfType<Hediff_AnimalConstriction>().Any(h => h.holder == hunter);
+                }
+                Check("anaconda reaches " + preyKind, reached);
+                Check("anaconda damages " + preyKind, hurt);
+                Check("anaconda constricts " + preyKind, held);
+                Check("anaconda completes hunt for " + preyKind, victim.Dead);
+                Write($"HUNT {preyKind}: hunter={hunter.CurJob?.def.defName}, preyDead={victim.Dead}, preyDowned={victim.Downed}");
+                DisposePawn(hunter); DisposePawn(victim);
+            }
+        }
+        private void RunAntivenomChecks(Map map)
+        {
+            var drugs = DefDatabase<ThingDef>.AllDefsListForReading
+                .Where(d => d.ingestible?.outcomeDoers?.OfType<IngestionOutcomeDoer_AnimalAntivenom>().Any() == true).ToList();
+            Check("six generated antivenom definitions load", drugs.Count == 6);
+            Check("generated antivenoms have unique toxin targets", drugs.Select(d => d.ingestible.outcomeDoers
+                .OfType<IngestionOutcomeDoer_AnimalAntivenom>().Single().venom).Distinct().Count() == drugs.Count);
+            foreach (ThingDef drug in drugs)
+            {
+                Pawn target = Spawn("Colonist", map);
+                var effect = drug.ingestible.outcomeDoers.OfType<IngestionOutcomeDoer_AnimalAntivenom>().Single();
+                Hediff toxin = HediffMaker.MakeHediff(effect.venom, target); toxin.Severity = .1f;
+                target.health.AddHediff(toxin);
+                effect.DoIngestionOutcome(target, ThingMaker.MakeThing(drug), 1);
+                Check("antivenom removes matching toxin " + drug.defName, !target.health.hediffSet.hediffs.Contains(toxin));
+                DisposePawn(target);
+            }
+        }
         private void RunBehaviorChecks(Map map)
         {
             Pawn wolf = Spawn("Wolf_Timber", map), hare = Spawn("Hare", map);
@@ -322,6 +423,13 @@ namespace ZoologyValidation
             IntVec3 shore = hare.Position + IntVec3.North * 2;
             map.terrainGrid.SetTerrain(shore, DefDatabase<TerrainDef>.GetNamed("WaterShallow"));
             Check("WaterAmbush fast prey two cells from water accepted", (bool)Internal("AnimalHuntStrategy", "WaterPreyAllowed", cobra, hare));
+            cobra.Position = shore; cobra.Notify_Teleported(false);
+            Check("WaterAmbush in water hidden from land prey", (bool)Internal("AnimalHuntStrategy", "HiddenFrom", cobra, hare));
+            cobra.jobs.StartJob(JobMaker.MakeJob(JobDefOf.PredatorHunt, hare), JobCondition.InterruptForced);
+            Check("WaterAmbush remains hidden while hunting from water", (bool)Internal("AnimalHuntStrategy", "IsHunt", cobra, hare)
+                && (bool)Internal("AnimalHuntStrategy", "HiddenFrom", cobra, hare));
+            map.terrainGrid.SetTerrain(shore, DefDatabase<TerrainDef>.GetNamed("Soil"));
+            Check("WaterAmbush revealed on land", !(bool)Internal("AnimalHuntStrategy", "HiddenFrom", cobra, hare));
             foreach (var pair in changed) map.terrainGrid.SetTerrain(pair.Key, pair.Value);
             cobraStrategy.strategy = originalStrategy;
             cobra.Position = hare.Position + IntVec3.North * 8; cobra.Notify_Teleported(false);
@@ -337,7 +445,7 @@ namespace ZoologyValidation
             Check("adult butchery gives one venom sample", cobra.ButcherProducts(null, 1f).Count(t => t.def.defName == "ZVenom_Sample_Cobra") == 1);
             cobra.ageTracker.AgeBiologicalTicks = 0;
             Check("infant butchery gives no venom sample", !cobra.ButcherProducts(null, 1f).Any(t => t.def.defName.StartsWith("ZVenom_Sample_")));
-            foreach (string family in new[] { "Cobra", "Viper", "Hydra" })
+            foreach (string family in new[] { "Cobra", "Viper" })
             {
                 ThingDef sample = DefDatabase<ThingDef>.GetNamed("ZVenom_Sample_" + family);
                 ThingDef drug = DefDatabase<ThingDef>.GetNamed("ZVenom_Drug_" + family);
@@ -415,7 +523,7 @@ namespace ZoologyValidation
                 IntVec3 c = CellFinder.RandomClosewalkCellNear(tree.Position + IntVec3.South * 3, map, 1);
                 GenSpawn.Spawn(DefDatabase<ThingDef>.GetNamed("Zoology_AnimalBurrow"), c, map);
                 int i = 0;
-                foreach (string name in new[] { "ZVenom_Sample_Cobra", "ZVenom_Drug_Cobra", "ZVenom_Sample_Viper", "ZVenom_Drug_Viper", "ZVenom_Sample_Hydra", "ZVenom_Drug_Hydra" })
+                foreach (string name in new[] { "ZVenom_Sample_Cobra", "ZVenom_Drug_Cobra", "ZVenom_Sample_Viper", "ZVenom_Drug_Viper" })
                     GenSpawn.Spawn(ThingMaker.MakeThing(DefDatabase<ThingDef>.GetNamed(name)), c + IntVec3.East * (++i), map);
             }
         }
@@ -774,6 +882,69 @@ namespace ZoologyValidation
             Check("occupied burrow repairs hit points", home.HitPoints == damaged + 1);
             home.Destroy(); DisposePawn(occupant);
         }
+        private void RunScavengerChecks(Map map)
+        {
+            foreach (Pawn external in map.mapPawns.AllPawnsSpawned.Where(p => p.RaceProps.predator).ToList()) Wait(external);
+            Pawn eater = Spawn("Rat", map);
+            Pawn prey = Spawn("Hare", map);
+            Wait(prey);
+            prey.Position = eater.Position + IntVec3.East;
+            prey.Notify_Teleported(false);
+            prey.Kill(null);
+            Corpse corpse = prey.Corpse;
+            CompRottable rot = corpse?.GetComp<CompRottable>();
+            for (int i = 0; i < 100 && rot?.Stage == RotStage.Fresh; i++) rot.RotProgress += 10000f;
+            Check("scavenger fixture: rotting flesh corpse", corpse?.Spawned == true && rot?.Stage == RotStage.Rotting);
+            eater.needs.food.CurLevelPercentage = .05f;
+            float foodBefore = eater.needs.food.CurLevel;
+            int missingBefore = prey.health.hediffSet.hediffs.OfType<Hediff_MissingPart>().Count();
+            Job job = JobMaker.MakeJob(JobDefOf.Ingest, corpse);
+            eater.jobs.StartJob(job, JobCondition.InterruptForced);
+            Action tick = (Action)Delegate.CreateDelegate(typeof(Action), Find.TickManager,
+                typeof(TickManager).GetMethod("DoSingleTick", All));
+            int ticks = 0;
+            while (ticks < 2400 && eater.CurJob?.def == JobDefOf.Ingest) { tick(); ticks++; }
+            int missingAfter = prey.health.hediffSet.hediffs.OfType<Hediff_MissingPart>().Count();
+            Write($"SCAVENGER eatTicks={ticks}, foodBefore={foodBefore:F3}, foodAfter={eater.needs.food.CurLevel:F3}, missingBefore={missingBefore}, missingAfter={missingAfter}, corpseDestroyed={corpse.Destroyed}, job={eater.CurJob?.def.defName}");
+            Check("rotting corpse actually feeds scavenger", eater.needs.food.CurLevel > foodBefore && (missingAfter > missingBefore || corpse.Destroyed));
+            Check("scavenger Ingest terminates", eater.CurJob?.def != JobDefOf.Ingest && ticks < 2400);
+            if (!corpse.Destroyed)
+            {
+                eater.needs.food.CurLevelPercentage = .05f;
+                eater.jobs.StartJob(JobMaker.MakeJob(JobDefOf.Ingest, corpse), JobCondition.InterruptForced);
+                for (int i = 0; i < 10; i++) tick();
+                corpse.Destroy();
+                int interruptionTicks = 0;
+                while (interruptionTicks < 120 && eater.CurJob?.def == JobDefOf.Ingest
+                    && ReferenceEquals(eater.CurJob.targetA.Thing, corpse)) { tick(); interruptionTicks++; }
+                Write($"SCAVENGER destroyedTargetTicks={interruptionTicks}, job={eater.CurJob?.def.defName}, target={eater.CurJob?.targetA.Thing}");
+                Check("destroyed corpse interrupts its Ingest", eater.CurJob?.def != JobDefOf.Ingest
+                    || !ReferenceEquals(eater.CurJob.targetA.Thing, corpse));
+            }
+            DisposePawn(eater);
+            DisposePawn(prey);
+
+            Pawn snake = Spawn("Cobra", map);
+            snake.SetFaction(Faction.OfPlayer);
+            Pawn giant = Spawn("Elephant", map);
+            Wait(giant); giant.Position = snake.Position + IntVec3.East; giant.Notify_Teleported(false);
+            giant.Kill(null);
+            Corpse giantCorpse = giant.Corpse;
+            snake.needs.food.CurLevelPercentage = .05f;
+            float snakeFood = snake.needs.food.CurLevel;
+            int giantParts = giant.health.hediffSet.hediffs.OfType<Hediff_MissingPart>().Count();
+            Check("CannotChew fixture: oversized corpse", (bool)Internal("CannotChewUtility", "IsCorpseTooLarge", snake, giantCorpse));
+            snake.jobs.StartJob(JobMaker.MakeJob(JobDefOf.Ingest, giantCorpse), JobCondition.InterruptForced);
+            int blockedTicks = 0;
+            while (blockedTicks < 1200 && snake.CurJob?.def == JobDefOf.Ingest) { tick(); blockedTicks++; }
+            Write($"CANNOTCHEW oversizedEatTicks={blockedTicks}, foodBefore={snakeFood:F3}, foodAfter={snake.needs.food.CurLevel:F3}, job={snake.CurJob?.def.defName}");
+            Check("oversized corpse cannot loop in Ingest", snake.CurJob?.def != JobDefOf.Ingest && blockedTicks < 1200
+                && Math.Abs(snake.needs.food.CurLevel - snakeFood) < .001f
+                && giant.health.hediffSet.hediffs.OfType<Hediff_MissingPart>().Count() == giantParts);
+            DisposePawn(snake);
+            DisposePawn(giant);
+        }
+
         private void RunSharedBurrowChecks(Map map)
         {
             // Native predators elsewhere on a random quicktest map must not eat test children.
