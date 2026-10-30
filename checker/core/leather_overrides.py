@@ -157,9 +157,9 @@ class LeatherReferences:
         if unresolved:
             raise ValueError(
                 'Leathers: original material ownership/reference validation failed '
-                f'for {len(unresolved)} material(s):\\n'
-                + '\\n'.join(unresolved)
-                + '\\nVerify Source mod in the local workbook (download a '
+                f'for {len(unresolved)} material(s):\n'
+                + '\n'.join(unresolved)
+                + '\nVerify Source mod in the local workbook (download a '
                   'fresh AnimalStats copy if stale), then update OriginalXML '
                   'with Reference Sync and apply the reviewed changes.')
         if not self.materials and not self.strict_ownership:
