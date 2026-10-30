@@ -151,6 +151,62 @@ def test_current_original_wins_over_legacy_same_group(tmp_path):
     assert len(E.fromstring(outputs[GROUP_ROUTES['Dinosauria']])) == 0
 
 
+
+def _alpha_thrumbo_source(tmp_path):
+    originals = tmp_path / 'OriginalXML'
+    original = '''<Defs><ThingDef ParentName="LeatherBase">
+      <defName>Leather_AlphaThrumbo</defName>
+      <statBases>
+        <MarketValue>20</MarketValue>
+        <StuffPower_Armor_Sharp>2.12</StuffPower_Armor_Sharp>
+        <StuffPower_Armor_Blunt>0.4</StuffPower_Armor_Blunt>
+        <StuffPower_Insulation_Cold>36</StuffPower_Insulation_Cold>
+        <StuffPower_Insulation_Heat>24</StuffPower_Insulation_Heat>
+      </statBases>
+      <stuffProps><color>(242,242,242)</color><statFactors>
+        <Beauty>8</Beauty><MaxHitPoints>2.2</MaxHitPoints>
+      </statFactors></stuffProps>
+    </ThingDef></Defs>'''
+    _write(originals, 'Odyssey/_Leathers/1.7/Defs/Items_Resource_Stuff_Leather.xml', original)
+    return originals, original
+
+
+def test_alpha_thrumbo_routes_to_odyssey_not_alpha_animals(tmp_path):
+    orig, original = _alpha_thrumbo_source(tmp_path)
+    row = _row('Odyssey', 2.12, .4, .77, .12, market=20)
+    row.update(Beauty=8, MaxHitPoints=2.2,
+               StuffPower_Insulation_Cold=36,
+               StuffPower_Insulation_Heat=24, **{'Color hex': '#F2F2F2'})
+    # A historical stale AlphaAnimals reference must not hijack the owner.
+    _write(orig, 'AlphaAnimals/_Leathers/1.7/Defs/Old.xml', original)
+    output, _, report = render_original_overrides(
+        {'Leather_AlphaThrumbo': row},
+        orig, tmp_path / 'OriginalPatches', ce=False)
+    assert report['material_routes']['Leather_AlphaThrumbo'] == GROUP_ROUTES['Odyssey']
+    assert len(E.fromstring(output[GROUP_ROUTES['Odyssey']])) == 0
+    assert len(E.fromstring(output[GROUP_ROUTES['AlphaAnimals']])) == 0
+    assert not report['vanilla_overrides']
+
+
+def test_stale_alpha_thrumbo_owner_explains_mismatch(tmp_path):
+    orig, _ = _alpha_thrumbo_source(tmp_path)
+    row = _row('AlphaAnimals', 2.12, .4, .77, .12, market=20)
+    with pytest.raises(ValueError, match='Leather_AlphaThrumbo.*Source mod.*AlphaAnimals.*Odyssey'):
+        render_original_overrides(
+            {'Leather_AlphaThrumbo': row},
+            orig, tmp_path / 'OriginalPatches', ce=False)
+
+
+def test_missing_odyssey_reference_reports_exact_missing_source(tmp_path):
+    orig, _ = _alpha_thrumbo_source(tmp_path)
+    for path in (orig / 'Odyssey').rglob('*.xml'):
+        path.unlink()
+    with pytest.raises(ValueError, match='Leather_AlphaThrumbo.*OriginalXML/Odyssey'):
+        render_original_overrides(
+            {'Leather_AlphaThrumbo': _row('Odyssey',2.12,.4,.77,.12)},
+            orig, tmp_path / 'OriginalPatches', ce=False)
+
+
 def test_missing_dinosauria_material_is_fatal(tmp_path):
     orig, patches = _refs(tmp_path)
     for path in (orig / 'Dinosauria').rglob('*.xml'):
