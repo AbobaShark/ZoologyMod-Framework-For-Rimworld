@@ -78,7 +78,7 @@ class App:
         ttk.Button(actions, text='Open backup folder', command=self._open_backups).pack(side='left')
         self.status = tk.StringVar(value='Ready. Preview never writes into OriginalXML / OriginalPatches.')
         ttk.Label(actions, textvariable=self.status).pack(side='left', padx=12)
-        ttk.Label(outer, text='Reference changes (MISSING / REVIEW / HISTORICAL are never written)').pack(anchor='w')
+        ttk.Label(outer, text='COPY = new references to import; REPLACE = updated references. MISSING checks only existing references.').pack(anchor='w')
         box = ttk.Frame(outer); box.pack(fill='both', expand=True)
         cols = ('status','reference','source')
         self.results = ttk.Treeview(box, columns=cols, show='headings', height=14)
@@ -171,15 +171,22 @@ class App:
         if self.busy or not self.entries:return
         changes = [x for x in self.entries if x['status'] in ('REPLACE','COPY')]
         if not changes:return
-        if not messagebox.askyesno('Apply changes', f'Overwrite {len(changes)} reviewed reference files?\n'
-                                            'Each previous file will be backed up.\n'
-                                            'Unmatched and historical references remain untouched.'):
+        new_files = sum(x['status'] == 'COPY' for x in changes)
+        updated_files = len(changes) - new_files
+        if not messagebox.askyesno('Apply changes',
+                f'Import {new_files} new reference file(s) and update '
+                f'{updated_files} existing file(s)?\n'
+                'Existing files will be backed up.\n'
+                'Unmatched and historical references remain untouched.'):
             return
         self._set_busy(True)
         try:
             backup = sync.apply(self.entries)
-            self.status.set(f'Updated {len(changes)} files. Backup: {backup}')
-            messagebox.showinfo('Completed', f'Updated {len(changes)} reference files.\nBackup: {backup}\nRegenerate and validate Zoology patches before deployment.')
+            self.status.set(f'Imported {new_files} new and updated {updated_files} existing references. Backup: {backup}')
+            messagebox.showinfo('Completed', f'Imported {new_files} new reference files, '
+                f'updated {updated_files} existing files.\nBackup: {backup}\n'
+                'Material definitions are now available for the generator. '
+                'Regenerate and validate Zoology patches before deployment.')
             self._invalidate()
         except Exception as ex:
             messagebox.showerror('Apply failed', str(ex))
@@ -199,12 +206,36 @@ class App:
                     self.status.set(data)
                 elif kind == 'preview':
                     self.entries, self.warnings = data
-                    for i, ent in enumerate(self.entries):
-                        self.results.insert('', 'end', iid=str(i), values=(ent['status'],ent['destination'],ent.get('source_file','')))
-                    counts = {k:sum(x['status']==k for x in self.entries) for k in ('REPLACE','SKIP','MISSING','REVIEW','HISTORICAL')}
-                    self.status.set('Preview: '+', '.join(f'{k} {v}' for k,v in counts.items())+'; warnings: '+str(len(self.warnings)))
+                    priority = {'COPY': 0, 'REPLACE': 1, 'MISSING': 2,
+                                'REVIEW': 3, 'SKIP': 4, 'HISTORICAL': 5}
+                    ordered = sorted(enumerate(self.entries),
+                                     key=lambda e: (priority.get(e[1]['status'], 6),
+                                                    e[1]['destination'].casefold()))
+                    for i, ent in ordered:
+                        self.results.insert('', 'end', iid=str(i),
+                                            values=(ent['status'], ent['destination'],
+                                                    ent.get('source_file','')))
+                    counts = {k: sum(x['status'] == k for x in self.entries)
+                              for k in ('COPY','REPLACE','SKIP','MISSING','REVIEW','HISTORICAL')}
+                    material_new = sum(x['status'] == 'COPY' and '/_Leathers/' in x['destination']
+                                       for x in self.entries)
+                    pending = counts['COPY'] + counts['REPLACE']
+                    self.status.set('Preview: '+', '.join(f'{k} {v}' for k,v in counts.items())
+                                    + f'; warnings: {len(self.warnings)}')
+                    if pending:
+                        message = (f'Not yet synchronized: {counts["COPY"]} new and '
+                                   f'{counts["REPLACE"]} updated reference file(s); '
+                                   f'{material_new} new leather/wool/CE material XML. '
+                                   'Click Apply reviewed changes to import them.')
+                    else:
+                        message = ('No new or updated upstream files found. '
+                                   'MISSING 0 alone does not validate the complete '
+                                   'material reference corpus.')
                     if self.warnings:
-                        self.info.set('Warnings (first 3): '+' | '.join(self.warnings[:3]))
+                        message += ' Warnings: ' + ' | '.join(self.warnings[:3])
+                    self.info.set(message)
+                    self.apply_button.configure(text=f'Apply ({counts["COPY"]} new, '
+                                                         f'{counts["REPLACE"]} updated)')
                     self._set_busy(False)
                 elif kind == 'error':
                     self._set_busy(False)
