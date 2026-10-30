@@ -142,22 +142,26 @@ class LeatherReferences:
             self.materials[name] = (first_group, first_node)
         if self.duplicates:
             raise ValueError('Ambiguous original leather definitions: '+', '.join(sorted(self.duplicates)))
-        for name, owner in self.expected_owner.items():
-            if owner in (None, 'Zoology', 'External'):
+        unresolved = []
+        for name, owner in sorted(self.expected_owner.items()):
+            if owner in (None, 'Zoology', 'External') or name in self.materials:
                 continue
-            if name not in self.materials:
-                locations = sorted(other_sources.get(name, ()))
-                if locations:
-                    raise ValueError(
-                        f'Leathers: {name} declares Source mod {owner!r}, but the '
-                        f'available original ThingDef is in {locations}. '
-                        'Verify the original mod and update the Leathers Source mod '
-                        'column in the local workbook. Then synchronize OriginalXML.')
-                raise ValueError(
-                    f'Leathers: {name} belongs to {owner!r}, but its original ThingDef '
-                    f'is missing from OriginalXML/{owner}. '
-                    'Run Reference Sync for this mod and apply the reviewed '
-                    'material references; do not change Source mod to bypass this check.')
+            locations = sorted(other_sources.get(name, ()))
+            if locations:
+                unresolved.append(
+                    f'{name}: Source mod {owner!r}, but original ThingDef found '
+                    f'under {", ".join(locations)}')
+            else:
+                unresolved.append(
+                    f'{name} ({owner}): missing from OriginalXML/{owner}')
+        if unresolved:
+            raise ValueError(
+                'Leathers: original material ownership/reference validation failed '
+                f'for {len(unresolved)} material(s):\\n'
+                + '\\n'.join(unresolved)
+                + '\\nVerify Source mod in the local workbook (download a '
+                  'fresh AnimalStats copy if stale), then update OriginalXML '
+                  'with Reference Sync and apply the reviewed changes.')
         if not self.materials and not self.strict_ownership:
             raise ValueError('No original leather ThingDefs in OriginalXML. Run reference_sync_gui.py to import upstream leather XML before generating.')
         if self.include_ce:
