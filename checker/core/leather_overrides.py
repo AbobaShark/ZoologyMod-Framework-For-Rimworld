@@ -70,8 +70,10 @@ def _source_priority(path):
     parts = [p.casefold() for p in path.parts]
     is_sync = int('_leathers' in parts)
     versions = [p.lstrip('v') for p in parts if re.fullmatch(r'v?1\.\d+', p)]
+    # Source version outranks storage location. Stale 1.6 snapshots cannot
+    # displace a newer 1.7 reference merely because they are in _Leathers.
     version = 300 if '1.7' in versions else (100 if versions else 200)
-    return (is_sync, version)
+    return (version, is_sync)
 
 
 class LeatherReferences:
@@ -93,6 +95,7 @@ class LeatherReferences:
 
     def _load(self):
         options = defaultdict(list)
+        other_sources = defaultdict(set)
         if not self.originals.is_dir():
             raise ValueError('OriginalXML not found: synchronize material references before generating leathers')
         for path in sorted(self.originals.rglob('*.xml')):
@@ -110,7 +113,13 @@ class LeatherReferences:
                 name = thing.findtext('defName')
                 parent = thing.get('Name')
                 if name in self.names and self.expected_owner.get(name) not in ('Zoology', 'External'):
-                    options[name].append((group, path, copy.deepcopy(thing)))
+                    # A source snapshot may contain definitions from another
+                    # mod (or a legacy reference file). Only the explicitly
+                    # declared owner is authorized to provide the baseline.
+                    if group == self.expected_owner[name]:
+                        options[name].append((group, path, copy.deepcopy(thing)))
+                    else:
+                        other_sources[name].add(group)
                 if parent and (parent == 'LeatherBase' or parent.startswith('Leather')):
                     for key in ([(group, parent), (None, parent)] if group == 'Core'
                                 else [(group, parent)]):
@@ -121,12 +130,9 @@ class LeatherReferences:
                         elif priority == parent_priority[key] and E.tostring(self.parents[key], method='c14n') != E.tostring(thing, method='c14n'):
                             raise ValueError(f'Conflicting original {parent} definitions for {group}')
         for name, entries in options.items():
-            # Prefer the auto-synced current-source snapshot over an older
-            # separately maintained copy. Cross-group ambiguity is reported.
+            # All entries here belong to the declared owner. Compare only
+            # top-ranked snapshots of this owner; older versions may differ.
             entries.sort(key=lambda e: _source_priority(e[1]), reverse=True)
-            if len({g for g, _, _ in entries}) > 1:
-                self.duplicates.append(name)
-                continue
             first_group, first_path, first_node = entries[0]
             if len(entries) > 1 and any(_source_priority(item[1]) == _source_priority(first_path)
                     and E.tostring(item[2], method='c14n') != E.tostring(first_node, method='c14n')
@@ -140,12 +146,18 @@ class LeatherReferences:
             if owner in (None, 'Zoology', 'External'):
                 continue
             if name not in self.materials:
-                raise ValueError(f'Leathers: {name} ({owner}) not found in OriginalXML. '
-                                 'Synchronize reference XML before generating.')
-            actual = self.materials[name][0]
-            if actual != owner:
-                raise ValueError(f'Leathers: {name} declares Source mod {owner!r} '
-                                 f'but its source definition belongs to {actual!r}')
+                locations = sorted(other_sources.get(name, ()))
+                if locations:
+                    raise ValueError(
+                        f'Leathers: {name} declares Source mod {owner!r}, but the '
+                        f'available original ThingDef is in {locations}. '
+                        'Verify the original mod and update the Leathers Source mod '
+                        'column in the local workbook. Then synchronize OriginalXML.')
+                raise ValueError(
+                    f'Leathers: {name} belongs to {owner!r}, but its original ThingDef '
+                    f'is missing from OriginalXML/{owner}. '
+                    'Run Reference Sync for this mod and apply the reviewed '
+                    'material references; do not change Source mod to bypass this check.')
         if not self.materials and not self.strict_ownership:
             raise ValueError('No original leather ThingDefs in OriginalXML. Run reference_sync_gui.py to import upstream leather XML before generating.')
         if self.include_ce:
