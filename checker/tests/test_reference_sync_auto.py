@@ -44,6 +44,49 @@ class AutoReferenceTests(unittest.TestCase):
         self.assertEqual((backup/'OriginalXML/Core/Races_Animal_Birds.xml').read_text(), old)
         self.assertTrue((backup/'report.json').is_file())
 
+    def test_untracked_material_reference_is_imported_without_missing(self):
+        # The legacy reference corpus has no material XML yet. MISSING 0
+        # does not mean the new leather snapshot has been imported.
+        original = '<Defs><ThingDef ParentName="LeatherBase">' \
+                   '<defName>Leather_Thrumbo</defName></ThingDef></Defs>'
+        self.source('OriginalXML/Core/Races_Animal_Birds.xml',
+                    '<Defs><ThingDef><defName>Chicken</defName></ThingDef></Defs>')
+        self.source('Defs/ThingDefs_Races/Races_Animal_Birds.xml',
+                    '<Defs><ThingDef><defName>Chicken</defName></ThingDef></Defs>',
+                    self.game/'Data'/'Core')
+        self.source('Defs/ThingDefs_Items/Items_Resource_Stuff_Leather.xml',
+                    original, self.game/'Data'/'Core')
+        cfg = {'rimworld_version':'1.7','mods':[self.spec(game_dlc='Core')]}
+        preview, warnings = rs.discover(cfg, steam=str(self.steam),
+                                        github=False, checker_root=self.checker)
+        imported = [x for x in preview if '/_Leathers/' in x['destination']]
+        self.assertEqual(len(imported), 1)
+        self.assertEqual(imported[0]['status'], 'COPY')
+        self.assertFalse(any(x['status']=='MISSING' for x in preview))
+        self.assertFalse((self.checker / imported[0]['destination']).exists())
+        rs.apply(preview, checker_root=self.checker)
+        self.assertEqual((self.checker / imported[0]['destination']).read_text(), original)
+        again, _ = rs.discover(cfg, steam=str(self.steam),
+                               github=False, checker_root=self.checker)
+        self.assertEqual(next(x['status'] for x in again
+                              if '/_Leathers/' in x['destination']), 'SKIP')
+
+    def test_new_source_group_without_existing_targets_can_import_materials(self):
+        root = self.workshop / '4321'
+        self.source('1.7/Defs/ThingDefs_Items/Items_Resource_Stuff_Leather.xml',
+                    '<Defs><ThingDef ParentName="LeatherBase">'
+                    '<defName>Leather_Night</defName></ThingDef></Defs>', root)
+        cfg = {'rimworld_version':'1.7','mods':[
+            self.spec('AlphaAnimals','OriginalXML/AlphaAnimals',
+                      workshop_ids=['4321'])]}
+        preview, warnings = rs.discover(cfg, steam=str(self.steam),
+                                        github=False, checker_root=self.checker)
+        self.assertEqual(len(preview), 1)
+        self.assertEqual(preview[0]['status'], 'COPY')
+        self.assertIn('/_Leathers/', preview[0]['destination'])
+        rs.apply(preview, checker_root=self.checker)
+        self.assertTrue((self.checker / preview[0]['destination']).is_file())
+
     def test_workshop_id_without_mod_name(self):
         target = '<Defs><ThingDef><defName>Wolf</defName></ThingDef></Defs>'
         changed = '<Defs><ThingDef><defName>Wolf</defName><statBases/></ThingDef></Defs>'
