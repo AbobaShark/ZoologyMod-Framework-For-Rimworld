@@ -15,12 +15,21 @@ branch means the latest default branch, not a fixed SHA. You can optionally
 enter a branch or a 40-digit pinned SHA. GitHub takes precedence; if its XML
 cannot be matched or GitHub cannot be reached, a detected local copy is tried.
 
-Select `Preview` to compare; inspect `MISSING`, `REVIEW`, and the origin SHA
-of each proposed change. `Apply` replaces only matched, validated changed
-files after confirmation, with previous file backups and a JSON report in
-`checker/output/reference-backups/`. `HISTORICAL` version snapshots are never
-replaced. No upstream files are deleted. Unknown/new filenames are *not*
-automatically added. Local UI settings are stored under gitignored `output/`.
+Select `Preview` first. `COPY` means **new reference XML not yet imported**
+and `REPLACE` means a previously imported reference has changed. Both are
+included by **Apply reviewed changes**, with prior-file backups and a JSON
+report under `checker/output/reference-backups/`. New material reference XML
+(for leather, wool, silk, and CE) is discovered even if its source group had no
+references before. After applying, rerun Preview: those references should
+normally change from `COPY` to `SKIP`.
+
+`MISSING` means that an **already tracked** reference could not be matched.
+Therefore, `MISSING 0` does **not** mean that all materials are available,
+especially when there are outstanding `COPY` entries. The GUI displays new
+and updated imports first, includes a `COPY` counter, and reports the number
+of newly found material XML files. `REVIEW` and `HISTORICAL` are never written.
+No upstream files are deleted, and arbitrary new race XML is not imported
+without an existing reference. Local settings are under gitignored `output/`.
 
 The tool is intentionally independent of patch generation. After applying
 reference changes, regenerate patches with Checker's existing generator,
