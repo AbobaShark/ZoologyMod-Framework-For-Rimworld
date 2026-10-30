@@ -92,6 +92,11 @@ actual owner: `Core`, `Odyssey`, `AlphaAnimals`, `Dinosauria`, `Megafauna`,
 Zoology leathers), or `External` (other projects not patched by Zoology).
 
 This is checked against the owning upstream ThingDef in `OriginalXML`.
+For example, `Leather_AlphaThrumbo` belongs to **Odyssey**, not Alpha
+Animals, even though the animal name contains "Alpha". The reference
+directory and the `Source mod` value must agree. If generation fails on
+outdated local values, download the latest AnimalStats workbook rather than
+changing a verified source ownership to hide a missing reference.
 A missing or mismatched original fails generation, rather than routing
 a skin to an unrelated mod or silently skipping it. Source-specific output
 is placed only in `generation.json`-registered paths; both Vanilla material
