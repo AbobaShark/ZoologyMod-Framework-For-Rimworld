@@ -201,7 +201,7 @@ def test_missing_odyssey_reference_reports_exact_missing_source(tmp_path):
     orig, _ = _alpha_thrumbo_source(tmp_path)
     for path in (orig / 'Odyssey').rglob('*.xml'):
         path.unlink()
-    with pytest.raises(ValueError, match='Leather_AlphaThrumbo.*OriginalXML/Odyssey'):
+    with pytest.raises(ValueError, match='OriginalXML/Odyssey.*Leather_AlphaThrumbo'):
         render_original_overrides(
             {'Leather_AlphaThrumbo': _row('Odyssey',2.12,.4,.77,.12)},
             orig, tmp_path / 'OriginalPatches', ce=False)
@@ -211,10 +211,26 @@ def test_missing_dinosauria_material_is_fatal(tmp_path):
     orig, patches = _refs(tmp_path)
     for path in (orig / 'Dinosauria').rglob('*.xml'):
         path.unlink()
-    with pytest.raises(ValueError, match='Leather_Tyrannosaurus.*Dinosauria'):
+    with pytest.raises(ValueError, match='OriginalXML/Dinosauria.*Leather_Tyrannosaurus'):
         render_original_overrides(
             {'Leather_Tyrannosaurus': _row('Dinosauria',1.88,.36,.08,.064)},
             orig, patches)
+
+
+def test_missing_leathers_are_grouped_by_mod(tmp_path):
+    orig, patches = _refs(tmp_path, ce=False)
+    rows = {
+        'Leather_AlphaThrumbo': _row('Odyssey', 2.12, .4, .77, .12),
+        'Leather_Night': _row('AlphaAnimals', 1.2, .3, .2, .1),
+    }
+    with pytest.raises(ValueError) as error:
+        render_original_overrides(rows, orig, patches, ce=False)
+    message = str(error.value)
+    assert 'for 2 material(s)' in message
+    assert 'OriginalXML/Odyssey' in message
+    assert 'Leather_AlphaThrumbo' in message
+    assert 'OriginalXML/AlphaAnimals' in message
+    assert 'Leather_Night' in message
 
 
 def test_wrong_mod_owner_fails_before_emitting_xml(tmp_path):
