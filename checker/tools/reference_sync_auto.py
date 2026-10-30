@@ -390,8 +390,9 @@ def discover(cfg, *, steam='', github=True, checker_root=ROOT, progress=None):
                     raise ValueError('Duplicate target reference '+dest_rel)
                 destinations.add(dest_rel.lower())
                 targets.append((dest_rel, path))
-        if not targets:
-            continue
+        # New material references may need to be imported even when this
+        # group has no pre-existing tracked XML files. Do not skip a source
+        # merely because there is nothing yet to compare or replace.
         sources = []
         gh = spec.get('github') or {}
         if github and gh.get('url'):
