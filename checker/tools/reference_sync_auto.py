@@ -274,6 +274,8 @@ class GitSource:
                     self._cache[name] = data
                     self._cache_size += len(data)
             return result
+        except InterruptedError:
+            raise
         except (OSError, TimeoutError, ValueError) as exc:
             self.read_error = 'GitHub XML batch incomplete: ' + str(exc)
             raise OSError(self.read_error) from exc
@@ -370,6 +372,7 @@ def discover(cfg, *, steam='', github=True, checker_root=ROOT, progress=None, ca
             except (OSError, ValueError, subprocess.CalledProcessError,
                     subprocess.TimeoutExpired) as exc:
                 warnings.append(spec['id'] + ': GitHub unavailable: ' + str(exc)[:300])
+        callback('Locating Workshop ' + spec['id'])
         location, err = find_local_mod(spec, games, workshops, mod_roots)
         if location:
             try:
