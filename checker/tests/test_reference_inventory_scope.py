@@ -96,6 +96,25 @@ def test_ce_filter_selects_relevant_animal_and_material_operations_only():
                               patch('Leather_Light'), {'AA_TestWolf'}, strict=True)
 
 
+def test_duplicate_keys_after_ce_are_distinguished_from_source_duplicates(tmp_path):
+    from core.rimworld_original_xml import OriginalXmlIndex
+
+    core = tmp_path / 'Core'
+    ce = tmp_path / 'CEPatches'
+    _write(core, 'Defs/Animals.xml',
+           '<Defs><ThingDef><defName>TestAnimal</defName></ThingDef></Defs>')
+    _write(ce, 'Patches/Animals.xml',
+           '<Patch><Operation Class="PatchOperationAdd">'
+           '<xpath>Defs</xpath><value>'
+           '<ThingDef><defName>TestAnimal</defName></ThingDef>'
+           '</value></Operation></Patch>')
+    index = OriginalXmlIndex(str(core), str(ce)).load()
+    assert not index.duplicates_before_patches
+    assert len(index.duplicates) == 1
+    assert index.duplicates[0][0] == ('ThingDef', 'defName', 'TestAnimal')
+    assert index.duplicates[0][1] == index.duplicates[0][2]
+
+
 def test_zoology_still_removes_endangered_raw_fish_definitions():
     root = Path(__file__).resolve().parents[2]
     path = root / ('Zoology/ModPatches/VanillaAnimalsExpandedEndangered/'
