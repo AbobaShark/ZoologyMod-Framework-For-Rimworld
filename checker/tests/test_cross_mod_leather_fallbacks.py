@@ -174,7 +174,7 @@ def test_ce_reference_sync_discovers_base_and_race_patches(tmp_path):
         return node
     entries = discover_source_references(
         {'id':'CombatExtended','reference_dirs':['OriginalXML/CEPatches']},
-        [Source()], tmp_path, [], '1.7',
+        [Source()], tmp_path, '1.7',
         safe_inside=safe_inside, parse_xml=parse,
         digest=lambda data: hashlib.sha256(data).hexdigest() if data is not None else None,
         animal_names=('Bear',))
