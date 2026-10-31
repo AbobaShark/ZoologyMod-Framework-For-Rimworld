@@ -99,7 +99,7 @@ class App:
         top.pack(fill='x')
         ttk.Entry(top, textvariable=self.steam).pack(side='left', fill='x', expand=True)
         ttk.Button(top, text='Browse…', command=self._browse).pack(side='left', padx=6)
-        ttk.Checkbutton(top, text='Prefer GitHub', variable=self.github).pack(side='left')
+        ttk.Checkbutton(top, text='GitHub fallback for missing mods', variable=self.github).pack(side='left')
         ttk.Label(outer, text='Configured mods: select one to edit. Enabled is saved immediately; GitHub fields use Update selected. Blank branch uses the latest default branch.').pack(anchor='w', pady=(8,2))
         upper = ttk.Frame(outer); upper.pack(fill='both', expand=False)
         self.mods = ttk.Treeview(upper, columns=('github','workshop'), show='tree headings', height=10)
