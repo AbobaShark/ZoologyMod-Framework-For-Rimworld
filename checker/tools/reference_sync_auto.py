@@ -1,7 +1,6 @@
 """Optional automatic, reviewed upstream reference synchronization for Checker.
 
-Runs independently of the generator and of the legacy, explicit-map
-`tools.reference_sync`. No Git operations are performed in the Zoology checkout.
+Runs independently of the generator. No Git operations are performed in the Zoology checkout.
 
 Launch GUI: python reference_sync_gui.py
 CLI: python -m tools.reference_sync_auto --config reference_sources.auto.json --steam <path> [--no-github] [--apply]
@@ -373,6 +372,10 @@ def discover(cfg, *, steam='', github=True, checker_root=ROOT, progress=None):
     items, warnings = [], []
     callback = progress or (lambda _: None)
     destinations = set()
+    from core.reference_inventory import discover_source_references, coverage
+    registry_path = checker_root / 'generation.json'
+    registry = json.loads(registry_path.read_text(encoding='utf-8')) if registry_path.is_file() else {}
+    animal_names = {name for group in registry.get('groups', ()) for name in group['defs']}
     for spec in cfg['mods']:
         if not spec.get('enabled', True):
             continue
@@ -420,6 +423,7 @@ def discover(cfg, *, steam='', github=True, checker_root=ROOT, progress=None):
         elif err:
             warnings.append(spec['id']+': '+err)
         try:
+            claimed_source_paths = set()
             for target_rel, target_path in targets:
                 if historical_reference(target_path.name):
                     items.append({'destination': target_rel, 'status': 'HISTORICAL', 'source_id': spec['id'],
@@ -446,18 +450,22 @@ def discover(cfg, *, steam='', github=True, checker_root=ROOT, progress=None):
                                   'detail':'; '.join(errors) if errors else 'No available upstream source'})
                     continue
                 src, source_path, payload = found
+                claimed_source_paths.add(source_path)
                 status = 'SKIP' if payload == old_data else 'REPLACE'
                 items.append({'destination':target_rel, 'status':status,
                               'source_id':spec['id'], 'provenance':src.provenance,
                               'source_file':source_path, 'source_sha256':digest(payload),
                               'previous_sha256':digest(old_data), 'payload':payload})
-            # Include exact original material files (Core, DLCs and mods) and
-            # CE leather patches even if no such files were in OriginalXML yet.
-            # This is a preview; only apply(items) writes to the references.
-            from core.leather_reference_sync import discover_new_leather_references
-            items.extend(discover_new_leather_references(
-                spec, sources, checker_root, targets, version,
-                safe_inside=safe_inside, parse_xml=parse_xml, digest=digest))
+            # Reconstruct relevant Defs and CE reference patches directly from
+            # upstream files. Existing references are not a prerequisite.
+            discovered = discover_source_references(
+                spec, sources, checker_root, {dest for dest, _ in targets}, version,
+                safe_inside=safe_inside, parse_xml=parse_xml, digest=digest,
+                animal_names=animal_names, claimed_source_paths=claimed_source_paths)
+            items.extend(discovered)
+            if sources:
+                warnings.extend(coverage(registry, spec,
+                                [item for item in items if item.get('source_id') == spec['id']]))
         finally:
             for src in sources:
                 if getattr(src, 'read_error', None):
