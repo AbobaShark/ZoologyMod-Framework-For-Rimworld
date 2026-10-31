@@ -30,7 +30,7 @@ def _row(owner, sharp, blunt, ce_sharp, ce_blunt, *, market=8):
 def _refs(tmp_path, *, ce=True, old_duplicates=False):
     originals = tmp_path / 'OriginalXML'
     patches = tmp_path / 'OriginalXML' / 'CEPatches'
-    _write(originals, 'Core/_Leathers/1.7/Defs/Items_Resource_Stuff_Leather.xml', '''
+    _write(originals, 'Core/1.7/Defs/Items_Resource_Stuff_Leather.xml', '''
       <Defs><ThingDef Name="LeatherBase" Abstract="True">
        <statBases><MarketValue>2.1</MarketValue>
         <StuffPower_Armor_Sharp>0.81</StuffPower_Armor_Sharp>
@@ -62,12 +62,12 @@ def _refs(tmp_path, *, ce=True, old_duplicates=False):
           <Beauty>1</Beauty><MaxHitPoints>2</MaxHitPoints>
         </statFactors></stuffProps>
       </ThingDef></Defs>'''
-    _write(originals, 'Dinosauria/_Leathers/1.7/Defs/Items_Resource_Dinosauria_Stuff_Leather.xml', dino_xml)
+    _write(originals, 'Dinosauria/1.7/Defs/Items_Resource_Dinosauria_Stuff_Leather.xml', dino_xml)
     if old_duplicates:
         _write(originals, 'Dinosauria/Items_Resource_Dinosauria_Stuff_Leather.xml',
                dino_xml.replace('<MarketValue>8</MarketValue>', '<MarketValue>7</MarketValue>'))
     if ce:
-        _write(patches, '_Leathers/1.7/Patches/Core/Leather.xml', '''
+        _write(patches, '1.7/Patches/Core/Leather.xml', '''
           <Patch><Operation Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[@Name="LeatherBase"]/statBases/StuffPower_Armor_Sharp</xpath>
             <value><StuffPower_Armor_Sharp>0.03</StuffPower_Armor_Sharp></value>
@@ -81,7 +81,7 @@ def _refs(tmp_path, *, ce=True, old_duplicates=False):
             <xpath>/Defs/ThingDef[defName="Leather_Elephant"]/statBases/StuffPower_Armor_Blunt</xpath>
             <value><StuffPower_Armor_Blunt>0.064</StuffPower_Armor_Blunt></value>
           </Operation></Patch>''')
-        _write(patches, 'CE/_Leathers/1.7/Patches/Dinosauria/Leather.xml', '''
+        _write(patches, 'CE/1.7/Patches/Dinosauria/Leather.xml', '''
           <Patch><Operation Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName="Leather_Tyrannosaurus"]/statBases/StuffPower_Armor_Sharp</xpath>
             <value><StuffPower_Armor_Sharp>0.72</StuffPower_Armor_Sharp></value>
@@ -187,7 +187,7 @@ def _alpha_thrumbo_source(tmp_path):
         <Beauty>8</Beauty><MaxHitPoints>2.2</MaxHitPoints>
       </statFactors></stuffProps>
     </ThingDef></Defs>'''
-    _write(originals, 'Odyssey/_Leathers/1.7/Defs/Items_Resource_Stuff_Leather.xml', original)
+    _write(originals, 'Odyssey/1.7/Defs/Items_Resource_Stuff_Leather.xml', original)
     return originals, original
 
 
@@ -198,7 +198,7 @@ def test_alpha_thrumbo_routes_to_odyssey_not_alpha_animals(tmp_path):
                StuffPower_Insulation_Cold=36,
                StuffPower_Insulation_Heat=24, **{'Color hex': '#F2F2F2'})
     # A historical stale AlphaAnimals reference must not hijack the owner.
-    _write(orig, 'AlphaAnimals/_Leathers/1.7/Defs/Old.xml', original)
+    _write(orig, 'AlphaAnimals/1.7/Defs/Old.xml', original)
     output, _, report = render_original_overrides(
         {'Leather_AlphaThrumbo': row},
         orig, tmp_path / 'OriginalXML/CEPatches', ce=False)
@@ -232,7 +232,7 @@ def test_leather_parent_priority_is_local_to_reference_scan(tmp_path):
     # as an unbound local in _load, so any LeatherBase caused NameError.
     originals, patches = _refs(tmp_path, ce=False)
     _write(originals,
-           'Core/_Leathers/1.6/Defs/Items_Resource_Stuff_Leather.xml',
+           'Core/1.6/Defs/Items_Resource_Stuff_Leather.xml',
            '<Defs><ThingDef Abstract="True" Name="LeatherBase">'
            '<statBases><StuffPower_Armor_Sharp>999</StuffPower_Armor_Sharp>'
            '</statBases></ThingDef></Defs>')

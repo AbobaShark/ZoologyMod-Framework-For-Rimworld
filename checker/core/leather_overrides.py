@@ -66,14 +66,11 @@ def _rgb(value):
 
 
 def _source_priority(path):
-    # Current-version synchronized snapshots outrank legacy manual copies.
-    parts = [p.casefold() for p in path.parts]
-    is_sync = int('_leathers' in parts)
-    versions = [p.lstrip('v') for p in parts if re.fullmatch(r'v?1\.\d+', p)]
-    # Source version outranks storage location. Stale 1.6 snapshots cannot
-    # displace a newer 1.7 reference merely because they are in _Leathers.
-    version = 300 if '1.7' in versions else (100 if versions else 200)
-    return (version, is_sync)
+    """Higher RimWorld major.minor source versions take priority, without a 1.7 cap."""
+    versions = [tuple(map(int, match.groups()))
+                for part in path.parts
+                if (match := re.fullmatch(r'v?(\d+)\.(\d+)', part, re.I))]
+    return max(versions, default=(0, 0))
 
 
 class LeatherReferences:
@@ -114,7 +111,7 @@ class LeatherReferences:
                 parent = thing.get('Name')
                 if name in self.names and self.expected_owner.get(name) not in ('Zoology', 'External'):
                     # A source snapshot may contain definitions from another
-                    # mod (or a legacy reference file). Only the explicitly
+                    # mod. Only the explicitly
                     # declared owner is authorized to provide the baseline.
                     if group == self.expected_owner[name]:
                         options[name].append((group, path, copy.deepcopy(thing)))

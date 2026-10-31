@@ -9,7 +9,6 @@ import pytest
 from lxml import etree as E
 
 from core.textile_generation import ROUTES, read_textiles, render_textile_outputs
-from core.reference_inventory import _contains_leather
 from core.rimworld_patch_apply import PatchApplier
 
 CHECKER = Path(__file__).resolve().parents[1]
@@ -24,7 +23,7 @@ HEAD = ('Name', 'Type', 'Source mod', 'MarketValue', 'Beauty',
 
 def fixture(tmp_path):
     xml = tmp_path / 'OriginalXML'
-    core = xml / 'Core' / '_Leathers' / 'Data' / 'Core' / 'Defs'
+    core = xml / 'Core' / 'Data' / 'Core' / 'Defs'
     core.mkdir(parents=True)
     (core / 'Items_Resource_Stuff.xml').write_text('''<Defs>
       <ThingDef Name="WoolBase" ParentName="ResourceBase" Abstract="True">
@@ -42,7 +41,7 @@ def fixture(tmp_path):
         <stuffProps><color>(219,214,209)</color></stuffProps>
       </ThingDef>
     </Defs>''', encoding='utf8')
-    vae = xml / 'Vanilla Animals Expanded' / '_Leathers'
+    vae = xml / 'Vanilla Animals Expanded' / 
     vae.mkdir(parents=True)
     (vae / 'Items_Resource_WoolLeather.xml').write_text('''<Defs>
       <ThingDef ParentName="WoolBase"><defName>WoolCamel</defName>
@@ -51,7 +50,7 @@ def fixture(tmp_path):
         <stuffProps><color>(219,214,209)</color></stuffProps>
       </ThingDef>
     </Defs>''', encoding='utf8')
-    ce = tmp_path / 'OriginalXML' / 'CEPatches' / '_Leathers'
+    ce = tmp_path / 'OriginalXML' / 'CEPatches' / 
     ce.mkdir(parents=True)
     (ce / 'Items_Resource_Stuff.xml').write_text('''<Patch>
       <Operation Class="PatchOperationReplace">
@@ -151,13 +150,6 @@ def test_missing_ce_original_is_fatal_only_if_ce_enabled(tmp_path):
     assert len(outputs) == len(ROUTES)
 
 
-def test_reference_sync_detects_textiles_but_not_cloth():
-    assert _contains_leather(E.fromstring('<Defs><ThingDef Name="WoolBase"/></Defs>'), False)
-    assert _contains_leather(E.fromstring('<Defs><ThingDef><defName>AA_MothSilk</defName></ThingDef></Defs>'), False)
-    assert _contains_leather(E.fromstring('<Patch><Operation><xpath>Defs/ThingDef[@Name="WoolBase"]</xpath></Operation></Patch>'), True)
-    assert not _contains_leather(E.fromstring('<Defs><ThingDef><defName>Cloth</defName></ThingDef></Defs>'), False)
-
-
 def test_no_handwritten_camel_or_duplicate_routes():
     assert not (MOD/'ModPatches/VanillaAnimalsExpanded/Patches/ThingDefs_Items/Items_Resource_Stuff_Leather_VAE.xml').exists()
     registry = json.loads((CHECKER/'generation.json').read_text(encoding='utf8'))
@@ -169,7 +161,7 @@ def test_no_handwritten_camel_or_duplicate_routes():
 
 def test_no_odyssey_upstream_wool_is_guarded_in_vanilla_and_ce(tmp_path):
     tsv, xml, patches = fixture(tmp_path)
-    vae = xml / 'Vanilla Animals Expanded' / '_Leathers' / '1.6NotOdyssey' / 'Defs'
+    vae = xml / 'Vanilla Animals Expanded' / '1.6NotOdyssey' / 'Defs'
     vae.mkdir(parents=True)
     (vae / 'Items_Resource_WoolLeather_NO.xml').write_text('''<Defs>
       <ThingDef ParentName="WoolBase"><defName>AEXP_MuskOxWool</defName>

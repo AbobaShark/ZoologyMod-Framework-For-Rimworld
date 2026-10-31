@@ -77,13 +77,13 @@ def test_empty_originalxml_imports_animals_biomes_eggs_materials_and_ce(tmp_path
     assert all(item['status'] == 'COPY' for item in result)
     assert not [warning for warning in warnings if 'registered DefNames missing' in warning]
     destinations = {item['destination'] for item in result}
-    assert 'OriginalXML/Core/_Defs/Defs/ThingDefs_Races/Races_Animal.xml' in destinations
-    assert 'OriginalXML/Core/_Defs/Defs/BiomeDefs/Biomes.xml' in destinations
-    assert 'OriginalXML/Core/_Defs/Defs/ThingDefs_Items/Items_Eggs.xml' in destinations
-    assert 'OriginalXML/Core/_Leathers/Defs/ThingDefs_Items/Items_Resource_Stuff.xml' in destinations
-    assert 'OriginalXML/Dinosauria/_Defs/1.7/Defs/ThingDefs_Races/Animals.xml' in destinations
-    assert 'OriginalXML/Megafauna/_Defs/1.6/Defs/ThingDefs_Races/Mega.xml' in destinations
-    assert 'OriginalXML/AlphaBiomes/_Defs/1.6/Defs/BiomeDefs/Custom.xml' in destinations
+    assert 'OriginalXML/Core/Defs/ThingDefs_Races/Races_Animal.xml' in destinations
+    assert 'OriginalXML/Core/Defs/BiomeDefs/Biomes.xml' in destinations
+    assert 'OriginalXML/Core/Defs/ThingDefs_Items/Items_Eggs.xml' in destinations
+    assert 'OriginalXML/Core/Defs/ThingDefs_Items/Items_Resource_Stuff.xml' in destinations
+    assert 'OriginalXML/Dinosauria/1.7/Defs/ThingDefs_Races/Animals.xml' in destinations
+    assert 'OriginalXML/Megafauna/1.6/Defs/ThingDefs_Races/Mega.xml' in destinations
+    assert 'OriginalXML/AlphaBiomes/1.6/Defs/BiomeDefs/Custom.xml' in destinations
     assert 'OriginalXML/CEPatches/Patches/Core/Items_Resource_Stuff.xml' in destinations
     assert not any('Photonozoa' in path or 'OldDino' in path for path in destinations)
 
@@ -103,6 +103,34 @@ def test_version_selection_does_not_mix_incompatible_main_versions():
     assert '1.7/Defs/Animals.xml' in paths
     assert '1.6NotOdyssey/Defs/Animals.xml' in paths
     assert 'Defs/Common.xml' in paths
+
+
+def test_latest_compatible_version_automatically_includes_future_releases():
+    class Dinosauria:
+        files = [f'1.{minor}/Defs/Animals.xml' for minor in range(9)] + [
+            'Defs/Shared.xml', 'Common/Defs/Always.xml']
+
+    def selected(version):
+        return list(selected_paths(Dinosauria(), version))
+
+    for version, expected in [('1.7', '1.7'), ('1.8', '1.8'), ('1.10', '1.8'),
+                              (None, '1.8')]:
+        paths = selected(version)
+        assert f'{expected}/Defs/Animals.xml' in paths
+        assert len([p for p in paths if p.endswith('Animals.xml')]) == 1
+        assert 'Defs/Shared.xml' in paths
+        assert 'Common/Defs/Always.xml' in paths
+
+    class OldMod:
+        files = [f'1.{minor}/Defs/Animals.xml' for minor in range(7)]
+    assert list(selected_paths(OldMod(), '1.7')) == ['1.6/Defs/Animals.xml']
+
+
+def test_common_file_is_overridden_by_versioned_equivalent():
+    class Mod:
+        files = ['Defs/Races.xml', 'Common/Defs/Races.xml',
+                 '1.6/Defs/Races.xml', '1.7/Defs/Races.xml']
+    assert list(selected_paths(Mod(), '1.7')) == ['1.7/Defs/Races.xml']
 
 
 def test_manual_grasslands_vegetation_is_not_checker_generated():

@@ -23,7 +23,7 @@ def _fixture(tmp_path):
         '<stuffProps><color>(1,2,3)</color><statFactors>'
         '<Beauty>1</Beauty><MaxHitPoints>1</MaxHitPoints>'
         '</statFactors></stuffProps></ThingDef></Defs>', encoding='utf8')
-    odyssey = tmp_path / 'OriginalXML/Odyssey/_Leathers/1.7/Defs'
+    odyssey = tmp_path / 'OriginalXML/Odyssey/1.7/Defs'
     odyssey.mkdir(parents=True)
     (odyssey / 'Leather.xml').write_text(
         '<Defs><ThingDef ParentName="LeatherBase">'

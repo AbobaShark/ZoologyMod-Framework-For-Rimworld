@@ -118,15 +118,12 @@ def _same(a, b):
 
 
 def _version_rank(path):
-    parts = [p.casefold() for p in path.parts]
-    versions = [p.removeprefix('v') for p in parts if re.fullmatch(r'v?1\.\d+', p)]
-    if '1.7' in versions:
-        return 300
-    if '1.6' in versions or any('1.6notodyssey' in p for p in parts):
-        return 200
-    if versions:
-        return 0
-    return 100
+    """Numeric major.minor order for versions including future RimWorld releases."""
+    versions = [tuple(map(int, match.groups()))
+                for part in path.parts
+                if (match := re.match(r'^v?(\d+)\.(\d+)(?:notodyssey)?$',
+                                      part, re.I))]
+    return max(versions, default=(0, 0))
 
 
 def _absent_mod_for_source(path):
@@ -173,7 +170,7 @@ class TextileReferences:
                 continue
             if root.tag != 'Defs':
                 continue
-            rank = (_version_rank(relative), int('_Leathers' in relative.parts))
+            rank = _version_rank(relative)
             for node in root.findall('ThingDef'):
                 abstract = node.get('Name')
                 if abstract:
