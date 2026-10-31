@@ -83,11 +83,20 @@ _ANIMAL_HEDIFF = re.compile(r'Animal|Venom|Poison|Toxin', re.I)
 _XPATH_KEY = re.compile(r'(?:defName|@Name)\s*=\s*["\']([^"\']+)["\']')
 
 
-def _candidate_path(rel, ce):
+def _candidate_path(rel, ce, ce_allowed_mods=None):
     """Avoid fetching definite nonanimal Def families, without requiring filenames."""
     parts = [part.casefold() for part in PurePosixPath(rel).parts]
     if ce:
-        return bool(_CE_HINT.search(rel) and ('patches' in parts or 'modpatches' in parts))
+        if not (_CE_HINT.search(rel) and ('patches' in parts or 'modpatches' in parts)):
+            return False
+        if ce_allowed_mods is not None and 'modpatches' in parts:
+            owner_index = parts.index('modpatches') + 1
+            if owner_index >= len(parts):
+                return False
+            owner = re.sub(r'[^a-z0-9]+', '', parts[owner_index])
+            if owner not in ce_allowed_mods:
+                return False
+        return True
     if not ('defs' in parts or 'def' in parts):
         return False
     return not any('thingdefs_building' in part or
@@ -158,6 +167,7 @@ def _patch_is_relevant(path, root, animal_names, abstract_names=(), biome_names=
 def discover_source_references(spec, sources, checker_root, version,
                                *, safe_inside, parse_xml, digest, animal_names=(),
                                abstract_names=(), biome_names=(), strict=False,
+                               ce_allowed_mods=None,
                                progress=None, cancelled=None):
     """Build canonical snapshots from one preferred upstream source.
 
@@ -186,7 +196,7 @@ def discover_source_references(spec, sources, checker_root, version,
         for rel in selected_paths(source, version):
             if any(token in rel.casefold() for token in _EXCLUDE):
                 continue
-            if not _candidate_path(rel, ce):
+            if not _candidate_path(rel, ce, ce_allowed_mods):
                 continue
             paths.append(rel)
 
