@@ -81,19 +81,9 @@ def version_rank(path: str, target_version: str):
 
 def file_stem(path: str) -> str:
     stem = PurePosixPath(path).stem
-    # Strip an explicit version RANGE suffix on historical Megafauna files,
-    # but never accidentally remove animal-name numerals.
-    stem = re.sub(r'_v1\.\d+(?:-v?1\.\d+(?:\.\d+)?)?-?$', '', stem, flags=re.I)
     return normalized(stem)
 
 
-def historical_reference(name):
-    # Previously committed Megafauna historical strata must not be transformed
-    # into copies of the newest version.
-    return bool(re.search(r'_v1\.(?:0|1|2|3)(?:[-.]|$)', name, re.I))
-
-
-@lru_cache(maxsize=20000)
 def read_about(folder: Path):
     xml = folder / 'About' / 'About.xml'
     try:
@@ -435,10 +425,6 @@ def discover(cfg, *, steam='', github=True, checker_root=ROOT, progress=None):
         try:
             claimed_source_paths = set()
             for target_rel, target_path in targets:
-                if historical_reference(target_path.name):
-                    items.append({'destination': target_rel, 'status': 'HISTORICAL', 'source_id': spec['id'],
-                                  'detail': 'Preserved historical upstream version'})
-                    continue
                 kind = 'Patch' if target_rel.startswith('OriginalXML/CEPatches/') else 'Defs'
                 old_data = target_path.read_bytes()
                 try:
