@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 from lxml import etree as E
 
-from core.leather_overrides import GROUP_ROUTES, render_original_overrides
+from core.leather_overrides import GROUP_ROUTES, LeatherReferences, render_original_overrides
 from core.rimworld_patch_apply import PatchApplier
 
 
@@ -205,6 +205,23 @@ def test_missing_odyssey_reference_reports_exact_missing_source(tmp_path):
         render_original_overrides(
             {'Leather_AlphaThrumbo': _row('Odyssey',2.12,.4,.77,.12)},
             orig, tmp_path / 'OriginalPatches', ce=False)
+
+
+def test_leather_parent_priority_is_local_to_reference_scan(tmp_path):
+    # Regression: priority was previously allocated in __init__ but accessed
+    # as an unbound local in _load, so any LeatherBase caused NameError.
+    originals, patches = _refs(tmp_path, ce=False)
+    _write(originals,
+           'Core/_Leathers/1.6/Defs/Items_Resource_Stuff_Leather.xml',
+           '<Defs><ThingDef Abstract="True" Name="LeatherBase">'
+           '<statBases><StuffPower_Armor_Sharp>999</StuffPower_Armor_Sharp>'
+           '</statBases></ThingDef></Defs>')
+    rows = {'Leather_Tyrannosaurus':
+            _row('Dinosauria', 1.88, .36, .72, .10)}
+    refs = LeatherReferences(originals, patches, rows, ce=False)
+    parent = refs.parents[('Core', 'LeatherBase')]
+    assert parent.findtext('statBases/StuffPower_Armor_Sharp') == '0.81'
+    assert refs.materials['Leather_Tyrannosaurus'][0] == 'Dinosauria'
 
 
 def test_missing_dinosauria_material_is_fatal(tmp_path):
