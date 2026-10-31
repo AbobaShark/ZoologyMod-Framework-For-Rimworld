@@ -325,7 +325,7 @@ def installed_game_version(games):
     return next(iter(found), None)
 
 
-def discover(cfg, *, steam='', github=True, checker_root=ROOT, progress=None):
+def discover(cfg, *, steam='', github=True, checker_root=ROOT, progress=None, cancelled=None):
     """Preview the canonical upstream snapshot for the selected RimWorld version."""
     from core.reference_inventory import discover_source_references, coverage
 
@@ -344,6 +344,8 @@ def discover(cfg, *, steam='', github=True, checker_root=ROOT, progress=None):
     animal_names = {name for group in registry.get('groups', ()) for name in group['defs']}
 
     for spec in cfg['mods']:
+        if cancelled is not None and cancelled.is_set():
+            raise InterruptedError('Reference Sync preview cancelled')
         if not spec.get('enabled', True):
             continue
         callback('Scanning ' + spec['id'])
@@ -385,7 +387,7 @@ def discover(cfg, *, steam='', github=True, checker_root=ROOT, progress=None):
             current = discover_source_references(
                 spec, sources, checker_root, version,
                 safe_inside=safe_inside, parse_xml=parse_xml, digest=digest,
-                animal_names=animal_names)
+                animal_names=animal_names, progress=callback, cancelled=cancelled)
             if not current:
                 warnings.append(spec['id'] + ': no usable upstream XML; existing references preserved')
                 continue

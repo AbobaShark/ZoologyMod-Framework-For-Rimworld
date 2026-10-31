@@ -146,6 +146,8 @@ def discover_source_references(spec, sources, checker_root, version,
         try:
             batch = (source.read_many(paths, progress=progress, cancelled=cancelled)
                      if hasattr(source, 'read_many') else None)
+        except InterruptedError:
+            raise
         except OSError:
             # A failed remote batch cannot define the complete snapshot.
             # Discard it and try a local Workshop installation instead.
