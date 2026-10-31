@@ -19,13 +19,12 @@ report under `checker/output/reference-backups/`. Complete source Definition XML
 without pre-existing reference files. After applying, rerun Preview: those references should
 normally change from `COPY` to `SKIP`.
 
-`MISSING` denotes a reference that cannot be resolved to a source. Reference Sync
+`DELETE` identifies an existing reference that does not belong to the current source snapshot. Deletions require explicit Apply and are backed up along with replacements. `MISSING` denotes a reference that cannot be resolved to a source. Reference Sync
 also imports newly discovered `Defs` XML from game Core/DLC installations and
 third-party mods even if `OriginalXML/` is initially empty. It imports race,
 PawnKind, biome, egg/item, wool/silk/leather, inherited base and relevant CE
 patch XML under source-specific paths. Exact upstream relative paths are
-retained under `_Defs/`, `_Leathers/`, or `CEPatches/`; explicit 1.7 files
-take precedence over older game-version snapshots.
+retained directly under `OriginalXML/<owner>/`, or under `OriginalXML/CEPatches/` for CE. The game version is read from the installed RimWorld `Version.txt`. For each mod, only the highest compatible versioned directory and shared unversioned XML are imported; this automatically supports future minor releases such as 1.8, without a hardcoded version allowlist. If no game version is detected, the newest available mod version is chosen and a warning is displayed.
 
 The source configuration includes Alpha Biomes, Alpha Animals, Vanilla Animals
 Expanded modules and Combat Extended through their GitHub repositories and/or
@@ -34,8 +33,7 @@ local installations. Disabled or unavailable sources cannot be reconstructed:
 review every warning, especially missing registered DefNames. This is a source
 coverage check, not proof of complete RimWorld patch-load-order semantics.
 
-Review COPY/REPLACE entries before applying. Existing files are backed up;
-the updater does not delete unrelated files during preview or apply. Machine
+Review COPY/REPLACE/DELETE entries before applying. Preview never modifies files. Apply archives overwritten or removed XML; if the registered DefName coverage is incomplete, unrelated old snapshots are retained and a warning is shown. Machine
 preferences live in ignored `checker.local.json`; upstream source paths are
 versioned in `reference_sources.auto.json`.
 
@@ -54,8 +52,7 @@ py -m tools.reference_sync_auto --config reference_sources.auto.json --steam "D:
 branch is fetched each time without changing your Zoology Git checkout.
 
 **Limitations**: Discovery is conservative, not a RimWorld XML load-order
-interpreter. Identical filenames with several different plausible sources
-are marked `MISSING` (reason: ambiguous) rather than silently chosen. Files
+interpreter. Files
 whose upstream filenames or Def identities have changed radically require
 manual review. GitHub
 branches are not guaranteed to correspond to the most recent Steam Workshop

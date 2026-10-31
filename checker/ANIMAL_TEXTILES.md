@@ -24,14 +24,12 @@ Missing source definitions are errors, not invitations to create new materials.
 ## Refresh and generate
 
 Use `reference_sync_gui.py` to preview and apply upstream reference XML for
-the installed game, DLCs, optional mods and Combat Extended. Game and mod material ThingDefs go into **local-only** source-relative
-`OriginalXML/<source>/_Leathers` directories. All CE reference XML is placed
-separately under `OriginalXML/CEPatches`. These snapshots are not stored in Git and must be refreshed on each installation. These are input snapshots and are not loaded by RimWorld.
+the installed game, DLCs, optional mods and Combat Extended. All upstream ThingDefs, including materials, are stored under their **local-only** source-relative paths in `OriginalXML/<source>/`, without additional material folders. CE patch references reside under `OriginalXML/CEPatches/`. These snapshots are not stored in Git and must be refreshed on each installation. These are input snapshots and are not loaded by RimWorld.
 
 From the `checker` directory:
 
 ```powershell
-py rimworld_patch_generator.py --category textiles --source "D:\Data\AnimalStats.xlsx"
+py rimworld_patch_generator.py --category textiles --source "gsheet:1BsPzRPFLFx2HL4UdlVo058kryub3C4a9ezQ54CnGEB4"
 py rimworld_patch_generator.py --preview
 py rimworld_patch_generator.py --deploy --yes
 ```

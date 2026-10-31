@@ -14,7 +14,7 @@ The generator stages XML and checks SHA-256 checksums before explicit deployment
 
 ## References
 
-Use `START_REFERENCE_SYNC.bat` / `py reference_sync_gui.py` to preview upstream XML changes and explicitly apply them. `reference_sources.auto.json` supplies the current reference groups, source repositories and paths. CE patch XML belongs under `OriginalXML/CEPatches/`; all `OriginalXML/` is gitignored.
+Use `START_REFERENCE_SYNC.bat` / `py reference_sync_gui.py` to preview upstream XML changes and explicitly apply them. `reference_sources.auto.json` supplies the current reference groups, source repositories and paths. CE patch XML belongs under `OriginalXML/CEPatches/`; all other upstream XML retains its exact source-relative path inside `OriginalXML/<owner>/`. The updater selects the highest version folder compatible with the installed RimWorld `Version.txt` (or the newest available version if no game version is found). All `OriginalXML/` is gitignored.
 
 GitHub sources use the latest default branch unless a branch or exact commit is explicitly chosen. Local game installations and Workshop mods can be used as sources. The GUI displays COPY, REPLACE, SKIP, MISSING and REVIEW; reviewed replacements are backed up under ignored `output/reference-backups/`. Reference Sync does not modify the Zoology mod or run automatically with generation.
 

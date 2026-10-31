@@ -1,6 +1,6 @@
 # Install and run Checker (RimWorld 1.7)
 
-Place the `checker` directory next to the `Zoology` directory from the *same* current project checkout. Use the three `START_*.bat` files for the reference updater, patch generator and Def generator. There is no prerequisite set of `OriginalXML` files: Reference Sync can build the reference inventory from the current game/mod sources.
+Place the `checker` directory next to the `Zoology` directory from the *same* current project checkout. Use the three `START_*.bat` files for the reference updater, patch generator and Def generator. There is no prerequisite set of `OriginalXML` files: Reference Sync discovers the current game/mod sources, selects the newest compatible version directory, and stores their original paths without extra categorization folders.
 
 ```powershell
 cd checker
