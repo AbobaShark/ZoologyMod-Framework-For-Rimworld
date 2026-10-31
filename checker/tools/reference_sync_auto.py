@@ -25,7 +25,6 @@ ROOT = Path(__file__).resolve().parents[1]
 GAME_ID = '294100'
 MAX_XML_BYTES = 12 * 1024 * 1024
 _SHA = re.compile(r'^[0-9a-fA-F]{40}$')
-_V = re.compile(r'^(?:1\.[0-9]+|v1\.[0-9]+)$', re.I)
 
 
 def digest(data: Optional[bytes]):
@@ -54,34 +53,6 @@ def parse_xml(blob: bytes, expected: str):
     if root.tag != expected:
         raise ValueError(f'Expected <{expected}>, got <{root.tag}>')
     return root
-
-
-def signature(root):
-    return {(c.tag, (c.findtext('defName') or c.get('Name') or '').strip())
-            for c in root if (c.findtext('defName') or c.get('Name') or '').strip()}
-
-
-def version_rank(path: str, target_version: str):
-    # Explicit version in a path takes precedence over common/root. Prefer
-    # requested version, then non-versioned directories, then earlier versions.
-    parts = [x.lower().lstrip('v') for x in PurePosixPath(path).parts[:-1]]
-    versions = [x for x in parts if _V.fullmatch(x)]
-    if not versions:
-        return 250
-    if target_version in versions:
-        return 1000
-    ver = versions[-1]
-    try:
-        number = float(ver)
-        target = float(target_version)
-    except ValueError:
-        return -100
-    return int(number * 100) if number < target else -500
-
-
-def file_stem(path: str) -> str:
-    stem = PurePosixPath(path).stem
-    return normalized(stem)
 
 
 def read_about(folder: Path):
@@ -284,239 +255,190 @@ def read_config(path):
     return cfg
 
 
-def candidate_order(rel, dest, version):
-    # Bias towards same directory context (e.g. NoOdyssey / Core).
-    dest_parts = {normalized(x) for x in PurePosixPath(dest).parts[:-1]}
-    shared = sum(1 for part in PurePosixPath(rel).parts[:-1] if normalized(part) in dest_parts)
-    return (version_rank(rel, version), shared)
-
-
-def choose_match(src, dest_rel, old_bytes, *, version, kind):
-    if dest_rel.startswith('OriginalXML/CEPatches/'):
-        rel = dest_rel.removeprefix('OriginalXML/CEPatches/')
-        if rel not in src.files:
-            return None, 'Exact CE patch file not present in upstream source'
-        try:
-            data = src.read(rel)
-            parse_xml(data, 'Patch')
-        except (ValueError, ET.ParseError, OSError, subprocess.TimeoutExpired) as exc:
-            return None, str(exc)
-        return (rel, data), None
-    if '/_Defs/' in dest_rel:
-        rel = dest_rel.split('/_Defs/', 1)[1]
-        if rel not in src.files:
-            return None, 'Exact original Defs file not present in upstream source'
-        try:
-            data = src.read(rel)
-            parse_xml(data, kind)
-        except (ValueError, ET.ParseError, OSError, subprocess.TimeoutExpired) as exc:
-            return None, str(exc)
-        return (rel, data), None
-    if '/_Leathers/' in dest_rel:
-        rel = dest_rel.split('/_Leathers/', 1)[1]
-        if rel not in src.files:
-            return None, 'Exact original leather file not present in upstream source'
-        try:
-            data = src.read(rel)
-            parse_xml(data, kind)
-        except (ValueError, ET.ParseError, OSError, subprocess.TimeoutExpired) as exc:
-            return None, str(exc)
-        return (rel, data), None
-    basename = file_stem(dest_rel)
-    alternatives = [p for p in src.files if file_stem(p) == basename]
-    old_sig = signature(parse_xml(old_bytes, 'Defs')) if kind == 'Defs' else set()
-    # For renamed race XML, try semantic matching only when filenames match
-    # approximately. Otherwise the risk of replacing unrelated files is high.
-    if not alternatives and kind == 'Defs' and old_sig:
-        alternatives = [p for p in src.files if 'race' in p.lower() or 'animal' in p.lower()]
-    # Prefer current-version candidates before downloading any XML. Once a
-    # validated higher-ranked candidate is found, older versions are irrelevant.
-    candidates = []
-    for rel in alternatives:
-        exact = file_stem(rel) == basename
-        vscore, dscore = candidate_order(rel, dest_rel, version)
-        candidates.append(((int(exact), vscore, dscore), rel))
-    candidates.sort(key=lambda item: item[0], reverse=True)
-    best = None
-    for score, rel in candidates:
-        if best is not None and score < best[0]:
-            break
-        try:
-            data = src.read(rel)
-            root = parse_xml(data, kind)
-        except (ValueError, ET.ParseError, OSError, subprocess.CalledProcessError, subprocess.TimeoutExpired):
+def installed_game_version(games):
+    """Infer major.minor from the installed RimWorld Version.txt."""
+    found = set()
+    for game in games:
+        path = game / 'Version.txt'
+        if not path.is_file():
             continue
-        exact = file_stem(rel) == basename
-        if kind == 'Defs':
-            theirs = signature(root)
-            intersection = len(old_sig & theirs)
-            if old_sig and intersection / len(old_sig) < 0.8:
-                continue
-            if not exact and (not theirs or intersection / len(theirs) < 0.6):
-                continue
-        elif not exact:
+        try:
+            content = path.read_text(encoding='utf-8-sig', errors='replace')
+        except OSError:
             continue
-        if best is not None and best[2] != data:
-            return None, 'Ambiguous source: ' + best[1] + ', ' + rel
-        best = (score, rel, data)
-    if best is None:
-        return None, 'No matching validated upstream XML'
-    return (best[1], best[2]), None
+        match = re.search(r'(?<!\d)(\d+)\.(\d+)(?:\.\d+)?', content)
+        if match:
+            found.add('.'.join(match.groups()))
+    if len(found) > 1:
+        raise ValueError('Multiple RimWorld installations with different versions: ' +
+                         ', '.join(sorted(found)) + '. Choose one game installation.')
+    return next(iter(found), None)
 
 
 def discover(cfg, *, steam='', github=True, checker_root=ROOT, progress=None):
-    """Return (items, warnings), without writing the project or references."""
+    """Preview the canonical upstream snapshot for the selected RimWorld version."""
+    from core.reference_inventory import discover_source_references, coverage
+
     checker_root = Path(checker_root).resolve()
     games, workshops, mod_roots = steam_locations(steam)
-    version = cfg.get('rimworld_version', '1.7')
+    configured_version = cfg.get('rimworld_version', 'auto')
+    version = (installed_game_version(games) if str(configured_version).lower() == 'auto'
+               else configured_version)
     items, warnings = [], []
+    if version is None:
+        warnings.append('Game Version.txt unavailable: using the latest version folder in each '
+                        'upstream mod. Select a game installation to constrain compatibility.')
     callback = progress or (lambda _: None)
-    destinations = set()
-    from core.reference_inventory import discover_source_references, coverage
     registry_path = checker_root / 'generation.json'
     registry = json.loads(registry_path.read_text(encoding='utf-8')) if registry_path.is_file() else {}
     animal_names = {name for group in registry.get('groups', ()) for name in group['defs']}
+
     for spec in cfg['mods']:
         if not spec.get('enabled', True):
             continue
-        callback('Scanning '+spec['id'])
-        targets = []
+        callback('Scanning ' + spec['id'])
+        existing = {}
         for ref_dir in spec['reference_dirs']:
             base = safe_inside(checker_root, ref_dir)
-            if not base.exists():
-                # Unicode dash / spacing variations are common in VAE folder
-                # names. Resolve a uniquely matching directory, never guess
-                # between several possible reference groups.
-                parent = base.parent
-                candidates = ([p for p in parent.iterdir() if p.is_dir() and
-                              normalized(p.name) == normalized(base.name)]
-                              if parent.is_dir() else [])
-                if len(candidates) == 1:
-                    base = candidates[0]
-                    warnings.append(spec['id']+': resolved directory spelling '+str(base))
-                else:
-                    warnings.append(spec['id'] + ': reference directory not found: '+ref_dir)
-                    continue
-            for path in sorted(base.rglob('*.xml')):
-                dest_rel = path.relative_to(checker_root).as_posix()
-                if dest_rel.lower() in destinations:
-                    raise ValueError('Duplicate target reference '+dest_rel)
-                destinations.add(dest_rel.lower())
-                targets.append((dest_rel, path))
-        # New material references may need to be imported even when this
-        # group has no pre-existing tracked XML files. Do not skip a source
-        # merely because there is nothing yet to compare or replace.
+            if not base.is_dir():
+                continue
+            for path in base.rglob('*.xml'):
+                relative = path.relative_to(checker_root).as_posix()
+                key = relative.casefold()
+                if key in existing:
+                    raise ValueError('Duplicate reference destination: ' + relative)
+                existing[key] = (relative, path)
+
         sources = []
         gh = spec.get('github') or {}
         if github and gh.get('url'):
-            callback('GitHub '+spec['id']+' (latest default branch unless pinned)')
+            callback('GitHub ' + spec['id'])
             try:
                 sources.append(GitSource(spec))
-            except (OSError, ValueError, subprocess.CalledProcessError, subprocess.TimeoutExpired) as e:
-                warnings.append(spec['id'] + ': GitHub unavailable: '+str(e)[:300])
-        loc, err = find_local_mod(spec, games, workshops, mod_roots)
-        if loc:
+            except (OSError, ValueError, subprocess.CalledProcessError,
+                    subprocess.TimeoutExpired) as exc:
+                warnings.append(spec['id'] + ': GitHub unavailable: ' + str(exc)[:300])
+        location, err = find_local_mod(spec, games, workshops, mod_roots)
+        if location:
             try:
-                sources.append(LocalSource(loc))
-            except OSError as e:
-                warnings.append(spec['id']+': local scan failed: '+str(e))
+                sources.append(LocalSource(location))
+            except OSError as exc:
+                warnings.append(spec['id'] + ': local scan failed: ' + str(exc))
         elif err:
-            warnings.append(spec['id']+': '+err)
+            warnings.append(spec['id'] + ': ' + err)
+
         try:
-            claimed_source_paths = set()
-            for target_rel, target_path in targets:
-                kind = 'Patch' if target_rel.startswith('OriginalXML/CEPatches/') else 'Defs'
-                old_data = target_path.read_bytes()
-                try:
-                    parse_xml(old_data, kind)
-                except (ValueError, ET.ParseError) as e:
-                    items.append({'destination': target_rel, 'status': 'REVIEW', 'source_id':spec['id'],
-                                  'detail':'Existing reference invalid: '+str(e)})
-                    continue
-                found, errors = None, []
-                for src in sources:
-                    callback(spec['id']+': '+target_path.name)
-                    match, error = choose_match(src, target_rel, old_data, version=version, kind=kind)
-                    if match:
-                        found = (src, *match)
-                        break
-                    errors.append(src.provenance+': '+str(error))
-                if not found:
-                    items.append({'destination':target_rel, 'status':'MISSING', 'source_id':spec['id'],
-                                  'detail':'; '.join(errors) if errors else 'No available upstream source'})
-                    continue
-                src, source_path, payload = found
-                claimed_source_paths.add(source_path)
-                status = 'SKIP' if payload == old_data else 'REPLACE'
-                items.append({'destination':target_rel, 'status':status,
-                              'source_id':spec['id'], 'provenance':src.provenance,
-                              'source_file':source_path, 'source_sha256':digest(payload),
-                              'previous_sha256':digest(old_data), 'payload':payload})
-            # Reconstruct relevant Defs and CE reference patches directly from
-            # upstream files. Existing references are not a prerequisite.
-            discovered = discover_source_references(
-                spec, sources, checker_root, {dest for dest, _ in targets}, version,
+            if not sources:
+                if existing:
+                    warnings.append(spec['id'] + ': no upstream source; existing references preserved')
+                continue
+            current = discover_source_references(
+                spec, sources, checker_root, version,
                 safe_inside=safe_inside, parse_xml=parse_xml, digest=digest,
-                animal_names=animal_names, claimed_source_paths=claimed_source_paths)
-            items.extend(discovered)
-            if sources:
-                warnings.extend(coverage(registry, spec,
-                                [item for item in items if item.get('source_id') == spec['id']]))
+                animal_names=animal_names)
+            if not current:
+                warnings.append(spec['id'] + ': no usable upstream XML; existing references preserved')
+                continue
+
+            items.extend(current)
+            missing = coverage(registry, spec, current)
+            warnings.extend(missing)
+            expected = {item['destination'].casefold() for item in current}
+            for key, (relative, path) in sorted(existing.items()):
+                if key in expected:
+                    continue
+                # An exact canonical counterpart supersedes a prior synthetic
+                # material/Defs directory, even if other references are missing.
+                canonical = relative.replace('/_Leathers/', '/').replace('/_Defs/', '/')
+                superseded = canonical.casefold() in expected
+                if missing and not superseded:
+                    continue
+                items.append({
+                    'destination': relative, 'status': 'DELETE',
+                    'source_id': spec['id'], 'previous_sha256': digest(path.read_bytes()),
+                    'detail': 'Not part of the selected upstream version',
+                })
+            if missing:
+                warnings.append(spec['id'] + ': unrelated stale references retained '
+                                'until missing source definitions are resolved')
         finally:
-            for src in sources:
-                if getattr(src, 'read_error', None):
-                    warnings.append(spec['id'] + ': ' + src.read_error)
-                src.close()
+            for source in sources:
+                if getattr(source, 'read_error', None):
+                    warnings.append(spec['id'] + ': ' + source.read_error)
+                source.close()
     return items, warnings
 
 
 def apply(items, checker_root=ROOT):
-    """Atomic best-effort deployment with backups and rollback on failure."""
+    """Apply imports and reviewed removals with backups and checksum protection."""
     checker_root = Path(checker_root).resolve()
-    changes = [it for it in items if it['status'] in ('REPLACE', 'COPY')]
+    changes = [item for item in items if item['status'] in ('COPY', 'REPLACE', 'DELETE')]
     if not changes:
         return None
-    root = checker_root / 'output' / 'reference-backups'
-    root.mkdir(parents=True, exist_ok=True)
-    with tempfile.TemporaryDirectory(prefix='reference-stage-', dir=root) as temp:
+    backup_root = checker_root / 'output' / 'reference-backups'
+    backup_root.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix='reference-stage-', dir=backup_root) as staging:
         staged = []
-        for index, it in enumerate(changes):
-            target = safe_inside(checker_root, it['destination'])
-            current = target.read_bytes() if target.exists() else None
-            if digest(current) != it['previous_sha256']:
-                raise RuntimeError('Reference changed since preview: '+str(target))
-            if digest(it['payload']) != it['source_sha256']:
-                raise RuntimeError('Source payload checksum mismatch: '+str(target))
-            p = Path(temp) / f'{index:05d}.xml'
-            p.write_bytes(it['payload'])
-            staged.append((it, target, p, current))
-        backup = Path(tempfile.mkdtemp(prefix='reference-sync-', dir=root))
+        for index, item in enumerate(changes):
+            target = safe_inside(checker_root, item['destination'])
+            original = target.read_bytes() if target.is_file() else None
+            if digest(original) != item['previous_sha256']:
+                raise RuntimeError('Reference changed since preview: ' + str(target))
+            candidate = None
+            if item['status'] != 'DELETE':
+                if digest(item['payload']) != item['source_sha256']:
+                    raise RuntimeError('Source payload checksum mismatch: ' + str(target))
+                candidate = Path(staging) / f'{index:05d}.xml'
+                candidate.write_bytes(item['payload'])
+            elif original is None:
+                raise RuntimeError('Reference removed since preview: ' + str(target))
+            staged.append((item, target, candidate, original))
+
+        backup = Path(tempfile.mkdtemp(prefix='reference-sync-', dir=backup_root))
         written = []
         try:
-            for it, target, stage, original in staged:
+            for item, target, candidate, original in staged:
                 if original is not None:
-                    bp = safe_inside(backup, it['destination'])
+                    bp = safe_inside(backup, item['destination'])
                     bp.parent.mkdir(parents=True, exist_ok=True)
                     bp.write_bytes(original)
-                target.parent.mkdir(parents=True, exist_ok=True)
-                # Temp target is on same filesystem for os.replace.
-                with tempfile.NamedTemporaryFile(dir=target.parent, delete=False, prefix='.sync-') as f:
-                    f.write(stage.read_bytes())
-                    temp_path = Path(f.name)
-                try:
-                    os.replace(temp_path, target)
-                finally:
-                    temp_path.unlink(missing_ok=True)
+                if item['status'] == 'DELETE':
+                    target.unlink()
+                else:
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    with tempfile.NamedTemporaryFile(dir=target.parent, delete=False,
+                                                     prefix='.sync-') as output:
+                        output.write(candidate.read_bytes())
+                        temporary = Path(output.name)
+                    try:
+                        os.replace(temporary, target)
+                    finally:
+                        temporary.unlink(missing_ok=True)
                 written.append((target, original))
-            report = [{k:v for k,v in it.items() if k != 'payload'} for it in items]
-            (backup / 'report.json').write_text(json.dumps(report, indent=2, ensure_ascii=False)+'\n', encoding='utf-8')
+            report = [{key: value for key, value in item.items() if key != 'payload'}
+                      for item in items]
+            (backup / 'report.json').write_text(
+                json.dumps(report, indent=2, ensure_ascii=False) + '\n', encoding='utf-8')
         except BaseException:
             for target, original in reversed(written):
                 if original is None:
                     target.unlink(missing_ok=True)
                 else:
+                    target.parent.mkdir(parents=True, exist_ok=True)
                     target.write_bytes(original)
             raise
+
+        reference_root = checker_root / 'OriginalXML'
+        for item, target, _, _ in staged:
+            if item['status'] != 'DELETE':
+                continue
+            parent = target.parent
+            while parent.is_relative_to(reference_root) and parent != reference_root:
+                try:
+                    parent.rmdir()
+                except OSError:
+                    break
+                parent = parent.parent
         return backup
 
 
@@ -525,7 +447,7 @@ def main(argv=None):
     ap.add_argument('--config', default=str(ROOT / 'reference_sources.auto.json'))
     ap.add_argument('--steam', default='', help='Steam library, RimWorld or workshop directory')
     ap.add_argument('--no-github', action='store_true')
-    ap.add_argument('--apply', action='store_true', help='Write only validated replacements')
+    ap.add_argument('--apply', action='store_true', help='Apply reviewed imports, updates and removals')
     args = ap.parse_args(argv)
     cfg = read_config(args.config)
     items, warnings = discover(cfg, steam=args.steam, github=not args.no_github, progress=print)
