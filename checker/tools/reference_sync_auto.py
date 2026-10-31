@@ -344,6 +344,9 @@ def discover(cfg, *, steam='', github=True, checker_root=ROOT, progress=None):
             missing = coverage(registry, spec, current)
             warnings.extend(missing)
             expected = {item['destination'].casefold() for item in current}
+            from core.reference_inventory import source_path_version
+            current_versions = {source_path_version(item['source_file']) for item in current}
+            current_versions.discard(None)
             for key, (relative, path) in sorted(existing.items()):
                 if key in expected:
                     continue
@@ -351,7 +354,13 @@ def discover(cfg, *, steam='', github=True, checker_root=ROOT, progress=None):
                 # material/Defs directory, even if other references are missing.
                 canonical = relative.replace('/_Leathers/', '/').replace('/_Defs/', '/')
                 superseded = canonical.casefold() in expected
-                if missing and not superseded:
+                old_version = source_path_version(relative)
+                # RimWorld uses one compatible versioned folder. Snapshots
+                # from another exact version are obsolete even if a separate
+                # registered DefName requires further review.
+                obsolete_version = bool(current_versions and old_version is not None
+                                        and old_version not in current_versions)
+                if missing and not superseded and not obsolete_version:
                     continue
                 items.append({
                     'destination': relative, 'status': 'DELETE',
