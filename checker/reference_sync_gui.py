@@ -2,7 +2,6 @@
 from __future__ import annotations
 import json
 import os
-import shutil
 import tempfile
 from pathlib import Path
 import queue
@@ -15,18 +14,6 @@ from tools import reference_sync_auto as sync
 ROOT = Path(__file__).resolve().parent
 DEFAULT = ROOT / 'reference_sources.auto.json'
 SETTINGS = ROOT / 'checker.local.json'
-
-def _remove_obsolete_files():
-    """Discard abandoned generation and reference state, without migration."""
-    for relative in ('output/reference_sources.local.json',
-                     'reference_sources.local.json', 'OriginalPatches',
-                     'generated_patches'):
-        path = ROOT / relative
-        if path.is_symlink() or path.is_file():
-            path.unlink()
-        elif path.is_dir():
-            shutil.rmtree(path)
-
 
 def _load_reference_config():
     """Always use current versioned source paths, never local copies of them."""
@@ -89,7 +76,6 @@ class App:
         self.root = root
         root.title('Checker — Upstream Reference Sync')
         root.geometry('1190x770')
-        _remove_obsolete_files()
         self.config = _load_reference_config()
         self.steam = tk.StringVar(value=self.config.get('steam_root', ''))
         self.github = tk.BooleanVar(value=True)
