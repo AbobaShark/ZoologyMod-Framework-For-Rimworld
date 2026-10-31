@@ -101,10 +101,29 @@ def test_dinosauria_ce_matches_elephant_without_vanilla_override(tmp_path):
     ce = dino.xpath('./Operation[@Class="PatchOperationFindMod"]')
     assert len(ce) == 1
     assert ce[0].xpath('./mods/li/text()') == ['Combat Extended']
-    changes = {(x.split('/')[-1], v) for x, v in zip(
-        ce[0].xpath('.//li/xpath/text()'), ce[0].xpath('.//li/match/value/*/text()'))}
+    # _conditional nests an outer ThingDef existence guard, followed by a
+    # stat-field guard. A broad .//li/xpath also selects the outer guard,
+    # so zipping XPath strings and values silently misaligns fields.
+    replacements = ce[0].xpath(
+        './match/operations/li/match/operations/li/match/value/*')
+    changes = {(element.tag, element.text) for element in replacements}
     assert changes == {('StuffPower_Armor_Sharp', '0.08'),
                        ('StuffPower_Armor_Blunt', '0.064')}
+    # A runtime-level assertion also verifies CE is actually conditional.
+    for active, expected_sharp, expected_blunt in (
+            ([], '0.72', '0.10'),
+            (['Combat Extended'], '0.08', '0.064')):
+        runtime = E.Element('Defs')
+        item = E.SubElement(runtime, 'ThingDef')
+        E.SubElement(item, 'defName').text = 'Leather_Tyrannosaurus'
+        stats = E.SubElement(item, 'statBases')
+        E.SubElement(stats, 'StuffPower_Armor_Sharp').text = '0.72'
+        E.SubElement(stats, 'StuffPower_Armor_Blunt').text = '0.10'
+        applier = PatchApplier(active_mods=active, record_missing=True)
+        assert applier.apply_patch_root(dino, runtime)
+        assert not applier.missing_targets
+        assert item.xpath('string(statBases/StuffPower_Armor_Sharp)') == expected_sharp
+        assert item.xpath('string(statBases/StuffPower_Armor_Blunt)') == expected_blunt
     assert len(E.fromstring(outputs[GROUP_ROUTES['Core']])) == 0
     assert len(report['ce_overrides']) == 2
 
@@ -115,9 +134,25 @@ def test_dinosauria_vanilla_diff_reasserts_ce_when_original_ce_matches(tmp_path)
     outputs, _, report = render_original_overrides(rows, orig, patches)
     dino = E.fromstring(outputs[GROUP_ROUTES['Dinosauria']])
     assert dino.xpath('.//Operation[@Class="PatchOperationFindMod"]')
-    assert dino.xpath('string(./Operation[@Class="PatchOperationConditional"]/match/value/StuffPower_Armor_Sharp)') == '1.3'
+    # The replacement is inside nested guards, not directly under match.
+    vanilla = dino.xpath('./Operation[@Class="PatchOperationConditional"]')
+    assert len(vanilla) == 1
+    assert vanilla[0].xpath('.//match/value/StuffPower_Armor_Sharp/text()') == ['1.3']
     assert '0.72' in dino.xpath('.//Operation[@Class="PatchOperationFindMod"]//StuffPower_Armor_Sharp/text()')
     assert any(x[1] == 'StuffPower_Armor_Sharp' for x in report['vanilla_overrides'])
+    runtime = E.Element('Defs')
+    item = E.SubElement(runtime, 'ThingDef')
+    E.SubElement(item, 'defName').text = 'Leather_Tyrannosaurus'
+    stats = E.SubElement(item, 'statBases')
+    E.SubElement(stats, 'StuffPower_Armor_Sharp').text = '0.72'
+    E.SubElement(stats, 'StuffPower_Armor_Blunt').text = '0.10'
+    for active, expected in (([], '1.3'), (['Combat Extended'], '0.72')):
+        current = E.fromstring(E.tostring(runtime))
+        applier = PatchApplier(active_mods=active, record_missing=True)
+        assert applier.apply_patch_root(dino, current)
+        assert not applier.missing_targets
+        assert current.xpath(
+            'string(ThingDef/statBases/StuffPower_Armor_Sharp)') == expected
 
 
 def test_handwritten_vanilla_armor_still_forces_ce_reassertion(tmp_path):
@@ -261,7 +296,7 @@ def test_wrong_mod_owner_fails_before_emitting_xml(tmp_path):
 def test_ce_requires_real_baseline_and_no_ce_disables_all_ce_ops(tmp_path):
     orig, patches = _refs(tmp_path, ce=False)
     rows = {'Leather_Tyrannosaurus': _row('Dinosauria',1.88,.36,.08,.064)}
-    with pytest.raises(ValueError, match='CE material references'):
+    with pytest.raises(ValueError, match='cannot verify CE StuffPower_Armor_Sharp'):
         render_original_overrides(rows, orig, patches)
     outputs, _, _ = render_original_overrides(rows, orig, patches, ce=False)
     assert len(E.fromstring(outputs[GROUP_ROUTES['Dinosauria']])) == 0
