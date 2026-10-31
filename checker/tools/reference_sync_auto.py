@@ -109,8 +109,16 @@ def find_local_mod(spec, games, workshops, mod_roots):
         roots = [game / 'Data' / spec['game_dlc'] for game in games]
         present = [p for p in roots if p.is_dir()]
         return (present[0], None) if len(present) == 1 else (None, 'Multiple installations' if present else 'Game/DLC not found')
-    candidates = []
     ids = {str(x) for x in spec.get('workshop_ids', [])}
+    # Normal case: Workshop identity is exactly the item ID. No need to parse
+    # About.xml for every installed mod, or touch GitHub to find a known item.
+    exact = sorted({workshop / item_id for workshop in workshops for item_id in ids
+                    if (workshop / item_id).is_dir()}, key=lambda p: str(p).casefold())
+    if len(exact) == 1:
+        return exact[0], None
+    if len(exact) > 1:
+        return None, 'Multiple matching Workshop installs: ' + ', '.join(map(str, exact))
+    candidates = []
     package_ids = {normalized(x) for x in spec.get('package_ids', [])}
     names = {normalized(x) for x in [spec['id'], *spec.get('names', [])]}
     for workshop in workshops:
@@ -362,21 +370,25 @@ def discover(cfg, *, steam='', github=True, checker_root=ROOT, progress=None, ca
 
         sources = []
         gh = spec.get('github') or {}
-        if github and gh.get('url'):
-            callback('GitHub ' + spec['id'])
-            try:
-                sources.append(GitSource(spec))
-            except (OSError, ValueError) as exc:
-                warnings.append(spec['id'] + ': GitHub unavailable: ' + str(exc)[:300])
-        callback('Locating Workshop ' + spec['id'])
+        callback('Locating installed source: ' + spec['id'])
         location, err = find_local_mod(spec, games, workshops, mod_roots)
         if location:
+            callback('Using local source: ' + str(location))
             try:
                 sources.append(LocalSource(location))
             except OSError as exc:
                 warnings.append(spec['id'] + ': local scan failed: ' + str(exc))
         elif err:
             warnings.append(spec['id'] + ': ' + err)
+
+        # GitHub is the fallback for missing/unusable local sources, not the
+        # default source for an already installed Workshop mod.
+        if not sources and github and gh.get('url'):
+            callback('GitHub fallback: ' + spec['id'])
+            try:
+                sources.append(GitSource(spec))
+            except (OSError, ValueError) as exc:
+                warnings.append(spec['id'] + ': GitHub unavailable: ' + str(exc)[:300])
 
         try:
             if not sources:
@@ -387,6 +399,19 @@ def discover(cfg, *, steam='', github=True, checker_root=ROOT, progress=None, ca
                 spec, sources, checker_root, version,
                 safe_inside=safe_inside, parse_xml=parse_xml, digest=digest,
                 animal_names=animal_names, progress=callback, cancelled=cancelled)
+            if not current and location and github and gh.get('url'):
+                if cancelled is not None and cancelled.is_set():
+                    raise InterruptedError('Reference Sync preview cancelled')
+                callback('Local source contained no usable XML. Trying GitHub: ' + spec['id'])
+                try:
+                    remote = GitSource(spec)
+                    sources.append(remote)
+                    current = discover_source_references(
+                        spec, [remote], checker_root, version,
+                        safe_inside=safe_inside, parse_xml=parse_xml, digest=digest,
+                        animal_names=animal_names, progress=callback, cancelled=cancelled)
+                except (OSError, ValueError) as exc:
+                    warnings.append(spec['id'] + ': GitHub fallback unavailable: ' + str(exc)[:300])
             if not current:
                 warnings.append(spec['id'] + ': no usable upstream XML; existing references preserved')
                 continue
