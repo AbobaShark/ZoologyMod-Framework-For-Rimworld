@@ -20,6 +20,20 @@ class UnifiedEntryPointTests(unittest.TestCase):
             app.return_value.mainloop.assert_called_once_with()
             cli.assert_not_called()
 
+    def test_worker_reports_full_traceback_instead_of_just_exception(self):
+        import queue
+        app = object.__new__(entry.PatchGeneratorApp)
+        app.messages = queue.Queue()
+        failure = TypeError("'NoneType' object has no attribute 'startswith'")
+        with patch.object(entry, 'stage_pipeline', side_effect=failure):
+            app._worker({})
+        kind, summary, details = app.messages.get_nowait()
+        self.assertEqual(kind, 'error')
+        self.assertIn("startswith", summary)
+        self.assertIn("Traceback (most recent call last)", details)
+        self.assertIn("TypeError:", details)
+        self.assertIn("_worker", details)
+
     def test_flags_open_cli_without_gui(self):
         with patch.object(entry, 'PatchGeneratorApp') as app, patch.object(entry, 'stage_pipeline', return_value=Path('manifest.json')) as stage, \
              patch.object(entry, 'load', return_value={}), \
