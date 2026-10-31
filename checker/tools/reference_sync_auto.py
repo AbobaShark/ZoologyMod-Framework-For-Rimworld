@@ -8,14 +8,11 @@ CLI: python -m tools.reference_sync_auto --config reference_sources.auto.json --
 from __future__ import annotations
 
 import argparse
-from dataclasses import dataclass
 import hashlib
-from functools import lru_cache
 import json
 import os
 from pathlib import Path, PurePosixPath
 import re
-import subprocess
 import tempfile
 from typing import Optional
 from urllib import parse as urlparse, request as urlrequest
@@ -369,8 +366,7 @@ def discover(cfg, *, steam='', github=True, checker_root=ROOT, progress=None, ca
             callback('GitHub ' + spec['id'])
             try:
                 sources.append(GitSource(spec))
-            except (OSError, ValueError, subprocess.CalledProcessError,
-                    subprocess.TimeoutExpired) as exc:
+            except (OSError, ValueError) as exc:
                 warnings.append(spec['id'] + ': GitHub unavailable: ' + str(exc)[:300])
         callback('Locating Workshop ' + spec['id'])
         location, err = find_local_mod(spec, games, workshops, mod_roots)

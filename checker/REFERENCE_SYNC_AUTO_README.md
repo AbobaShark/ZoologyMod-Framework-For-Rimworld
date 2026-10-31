@@ -8,7 +8,11 @@ installation directory, or `steamapps/workshop/content/294100`. The scanner
 uses `About/About.xml`, Workshop item IDs and game `Data/` subfolders. If Steam
 has extra libraries, their `libraryfolders.vdf` entries are used when found.
 The GitHub URLs of supported repositories are prefilled and editable. Blank
-branch means the latest default branch, not a fixed SHA. You can optionally
+branch means the latest default branch, not a fixed SHA. GitHub repositories
+are indexed through the GitHub API without creating a temporary Git checkout;
+relevant XML files are downloaded with bounded parallel requests. Preview
+shows per-source file counts and progress, and can be cancelled without
+changing any references. You can optionally
 enter a branch or a 40-digit pinned SHA. GitHub takes precedence; if its XML
 cannot be matched or GitHub cannot be reached, a detected local copy is tried.
 
@@ -48,8 +52,11 @@ py -m tools.reference_sync_auto --config reference_sources.auto.json --steam "D:
 py -m tools.reference_sync_auto --config reference_sources.auto.json --steam "D:\\SteamLibrary" --apply
 ```
 
-`--no-github` uses only installed mods; with GitHub enabled the newest default
-branch is fetched each time without changing your Zoology Git checkout.
+`--no-github` uses only installed mods; with GitHub enabled the latest default
+branch is read via GitHub API without changing your Zoology Git checkout.
+If the network cannot supply a complete XML set, the tool discards that
+incomplete source and tries the local Workshop installation instead. The
+optional `GITHUB_TOKEN` environment variable increases GitHub API rate limits.
 
 **Limitations**: Discovery is conservative, not a RimWorld XML load-order
 interpreter. Files
