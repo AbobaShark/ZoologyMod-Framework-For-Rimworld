@@ -335,8 +335,8 @@ class PatchGenerator:
                     )
                     for key, first, other in self._original_xml_index.duplicates:
                         print(f"  {key[0]} {key[1]}={key[2]}:")
-                        print(f"    first: {os.path.relpath(first, self.original_xml_dir) if os.path.isabs(first) else first}")
-                        print(f"    other: {os.path.relpath(other, self.original_xml_dir) if os.path.isabs(other) else other}")
+                        print(f"    first: {first}")
+                        print(f"    other: {other}")
             else:
                 print(f"OriginalXML optimization disabled: no XML refs found in {self.original_xml_dir}")
                 if os.path.isdir(self.original_patches_dir):
