@@ -223,22 +223,23 @@ class App:
 
     def _apply(self):
         if self.busy or not self.entries:return
-        changes = [x for x in self.entries if x['status'] in ('REPLACE','COPY')]
+        changes = [x for x in self.entries if x['status'] in ('REPLACE','COPY','DELETE')]
         if not changes:return
         new_files = sum(x['status'] == 'COPY' for x in changes)
-        updated_files = len(changes) - new_files
+        updated_files = sum(x['status'] == 'REPLACE' for x in changes)
+        deleted_files = sum(x['status'] == 'DELETE' for x in changes)
         if not messagebox.askyesno('Apply changes',
                 f'Import {new_files} new reference file(s) and update '
-                f'{updated_files} existing file(s)?\n'
-                'Existing files will be backed up.\n'
-                'Unmatched and historical references remain untouched.'):
+                f'{updated_files} existing file(s) and remove {deleted_files} obsolete file(s)?\n'
+                'Replaced and removed files are backed up.\n'
+                'Nothing changes until Apply is confirmed.'):
             return
         self._set_busy(True)
         try:
             backup = sync.apply(self.entries)
-            self.status.set(f'Imported {new_files} new and updated {updated_files} existing references. Backup: {backup}')
+            self.status.set(f'Imported {new_files}, updated {updated_files}, removed {deleted_files}. Backup: {backup}')
             messagebox.showinfo('Completed', f'Imported {new_files} new reference files, '
-                f'updated {updated_files} existing files.\nBackup: {backup}\n'
+                f'updated {updated_files} and removed {deleted_files} obsolete files.\nBackup: {backup}\n'
                 'Material definitions are now available for the generator. '
                 'Regenerate and validate Zoology patches before deployment.')
             self._invalidate()
@@ -250,7 +251,7 @@ class App:
     def _set_busy(self, state):
         self.busy = state
         self.preview_button.configure(state='disabled' if state else 'normal')
-        self.apply_button.configure(state='disabled' if state or not self.entries or not any(i['status'] in ('COPY','REPLACE') for i in self.entries) else 'normal')
+        self.apply_button.configure(state='disabled' if state or not self.entries or not any(i['status'] in ('COPY','REPLACE','DELETE') for i in self.entries) else 'normal')
 
     def _poll(self):
         try:
@@ -260,8 +261,8 @@ class App:
                     self.status.set(data)
                 elif kind == 'preview':
                     self.entries, self.warnings = data
-                    priority = {'COPY': 0, 'REPLACE': 1, 'MISSING': 2,
-                                'REVIEW': 3, 'SKIP': 4}
+                    priority = {'COPY': 0, 'REPLACE': 1, 'DELETE': 2, 'MISSING': 3,
+                                'REVIEW': 4, 'SKIP': 5}
                     ordered = sorted(enumerate(self.entries),
                                      key=lambda e: (priority.get(e[1]['status'], 6),
                                                     e[1]['destination'].casefold()))
@@ -270,19 +271,14 @@ class App:
                                             values=(ent['status'], ent['destination'],
                                                     ent.get('source_file','')))
                     counts = {k: sum(x['status'] == k for x in self.entries)
-                              for k in ('COPY','REPLACE','SKIP','MISSING','REVIEW')}
-                    material_new = sum(x['status'] == 'COPY' and
-                                       ('/_Leathers/' in x['destination'] or
-                                        '/CEPatches/' in x['destination'])
-                                       for x in self.entries)
-                    pending = counts['COPY'] + counts['REPLACE']
+                              for k in ('COPY','REPLACE','DELETE','SKIP','MISSING','REVIEW')}
+                    pending = counts['COPY'] + counts['REPLACE'] + counts['DELETE']
                     self.status.set('Preview: '+', '.join(f'{k} {v}' for k,v in counts.items())
                                     + f'; warnings: {len(self.warnings)}')
                     if pending:
                         message = (f'Not yet synchronized: {counts["COPY"]} new and '
-                                   f'{counts["REPLACE"]} updated reference file(s); '
-                                   f'{material_new} new material/CE reference XML. '
-                                   'Click Apply reviewed changes to import them.')
+                                   f'{counts["REPLACE"]} updated, {counts["DELETE"]} removed reference file(s). '
+                                   'Click Apply reviewed changes to synchronize them.')
                     else:
                         message = ('No new or updated upstream files found. '
                                    'MISSING 0 alone does not validate the complete '
@@ -291,7 +287,7 @@ class App:
                         message += ' Warnings: ' + ' | '.join(self.warnings[:3])
                     self.info.set(message)
                     self.apply_button.configure(text=f'Apply ({counts["COPY"]} new, '
-                                                         f'{counts["REPLACE"]} updated)')
+                                                         f'{counts["REPLACE"]} updated, {counts["DELETE"]} removed)')
                     self._set_busy(False)
                 elif kind == 'error':
                     self._set_busy(False)
