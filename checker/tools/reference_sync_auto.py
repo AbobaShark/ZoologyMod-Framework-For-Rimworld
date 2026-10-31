@@ -437,9 +437,9 @@ def discover(cfg, *, steam='', github=True, checker_root=ROOT, progress=None, ca
                         spec, [remote], checker_root, version,
                         safe_inside=safe_inside, parse_xml=parse_xml, digest=digest,
                         animal_names=animal_names, abstract_names=abstract_names,
-                biome_names=biome_names, strict=strict,
-                allowed_mods=allowed_mods,
-                progress=callback, cancelled=cancelled)
+                        biome_names=biome_names, strict=strict,
+                        allowed_mods=allowed_mods,
+                        progress=callback, cancelled=cancelled)
                 except (OSError, ValueError) as exc:
                     warnings.append(spec['id'] + ': GitHub fallback unavailable: ' + str(exc)[:300])
             if not current:
