@@ -189,7 +189,7 @@ def _render_patch(path, rows, ce_enabled, visited):
         # Embedded fallback definitions: preserve parent, label and metadata.
         _write_thing_def(thing, rows, visited)
     for operation in root.iter():
-        if operation.get("Class", "").startswith("PatchOperation"):
+        if (operation.get("Class") or "").startswith("PatchOperation"):
             _update_operation(operation, rows, visited, ce_enabled)
     if path.name == 'Items_Resource_Stuff_Leather_OdysseyFallback.xml':
         _refresh_odyssey_fallback_ce(root, rows, ce_enabled, visited)
@@ -333,13 +333,13 @@ def _trim_core_manual(root_bytes, rows, refs, ce):
             desired = rows[name][CE_FIELDS[field]]
             if _equals(baseline, desired) and (name, field) not in kept_vanilla:
                 operations.remove(op)
-        if not any(x.get('Class', '').startswith('PatchOperation') for x in operations):
+        if not any((x.get('Class') or '').startswith('PatchOperation') for x in operations):
             root.remove(wrapper)
 
     # Only still-emitted manual operations suppress generated source diffs.
     handwritten = set()
     for op in root.iter():
-        if not op.get('Class', '').startswith('PatchOperation'):
+        if not (op.get('Class') or '').startswith('PatchOperation'):
             continue
         name, field = field_target(op)
         if name in rows and field in NUMERICS:
