@@ -105,7 +105,19 @@ def discover_source_references(spec, sources, checker_root, version,
         return []
     ce = spec['id'] == 'CombatExtended'
     owner = spec['reference_dirs'][0].removeprefix('OriginalXML/')
-    for source in sources:
+    target_version = version_tuple(version)
+
+    def source_rank(source):
+        compatible = [source_path_version(path) for path in source.files]
+        compatible = [item for item in compatible
+                      if item is not None and
+                      (target_version is None or item <= target_version)]
+        return max(compatible, default=(0, 0))
+
+    # Pick the newest compatible upstream mod snapshot across GitHub/Workshop.
+    # For equal versions, preserve the supplied GitHub-before-local preference.
+    ordered_sources = sorted(sources, key=source_rank, reverse=True)
+    for source in ordered_sources:
         results = {}
         for rel in selected_paths(source, version):
             if any(token in rel.casefold() for token in _EXCLUDE):
