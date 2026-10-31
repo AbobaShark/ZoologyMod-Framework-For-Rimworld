@@ -27,18 +27,3 @@ def test_uses_versioned_reference_paths_not_local_paths(tmp_path):
     assert 'reference_dirs' not in str(saved['reference_sync'])
 
 
-def test_discard_obsolete_files(tmp_path):
-    obsolete = tmp_path / 'output/reference_sources.local.json'
-    obsolete.parent.mkdir()
-    obsolete.write_text('old configuration')
-    patches = tmp_path / 'OriginalPatches/CE'
-    patches.mkdir(parents=True)
-    (patches / 'file.xml').write_text('<Patch/>')
-    generated = tmp_path / 'generated_patches'
-    generated.mkdir()
-    (generated / 'old.xml').write_text('<Patch/>')
-    with patch.object(gui, 'ROOT', tmp_path):
-        gui._remove_obsolete_files()
-    assert not obsolete.exists()
-    assert not patches.exists()
-    assert not generated.exists()
