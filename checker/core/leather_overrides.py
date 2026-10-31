@@ -86,7 +86,6 @@ class LeatherReferences:
         self.include_ce = ce
         self.materials = {}  # name => (group, source node)
         self.parents = {}
-        parent_priority = {}
         self.duplicates = []
         self.ce_before = {}
         self.ce_available = False
@@ -96,6 +95,7 @@ class LeatherReferences:
     def _load(self):
         options = defaultdict(list)
         other_sources = defaultdict(set)
+        parent_priority = {}
         if not self.originals.is_dir():
             raise ValueError('OriginalXML not found: synchronize material references before generating leathers')
         for path in sorted(self.originals.rglob('*.xml')):
