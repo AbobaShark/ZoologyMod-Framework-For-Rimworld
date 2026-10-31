@@ -1,0 +1,136 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Patch>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="WoolMastodon"]</xpath>
+    <match Class="PatchOperationSequence">
+      <operations>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName="WoolMastodon"]/statBases/MarketValue</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName="WoolMastodon"]/statBases/MarketValue</xpath>
+            <value>
+              <MarketValue>3</MarketValue>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName="WoolMastodon"]/statBases</xpath>
+            <value>
+              <MarketValue>3</MarketValue>
+            </value>
+          </nomatch>
+        </li>
+      </operations>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="WoolMastodon"]</xpath>
+    <match Class="PatchOperationSequence">
+      <operations>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName="WoolMastodon"]/stuffProps/statFactors</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName="WoolMastodon"]/stuffProps</xpath>
+            <value>
+              <statFactors>
+                <MaxHitPoints>1.2</MaxHitPoints>
+              </statFactors>
+            </value>
+          </nomatch>
+        </li>
+      </operations>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="WoolMastodon"]</xpath>
+    <match Class="PatchOperationSequence">
+      <operations>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName="WoolMastodon"]/statBases/StuffPower_Armor_Sharp</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName="WoolMastodon"]/statBases/StuffPower_Armor_Sharp</xpath>
+            <value>
+              <StuffPower_Armor_Sharp>0.8</StuffPower_Armor_Sharp>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName="WoolMastodon"]/statBases</xpath>
+            <value>
+              <StuffPower_Armor_Sharp>0.8</StuffPower_Armor_Sharp>
+            </value>
+          </nomatch>
+        </li>
+      </operations>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="WoolMuskox"]</xpath>
+    <match Class="PatchOperationSequence">
+      <operations>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName="WoolMuskox"]/statBases/MarketValue</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName="WoolMuskox"]/statBases/MarketValue</xpath>
+            <value>
+              <MarketValue>1.9</MarketValue>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName="WoolMuskox"]/statBases</xpath>
+            <value>
+              <MarketValue>1.9</MarketValue>
+            </value>
+          </nomatch>
+        </li>
+      </operations>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="WoolMuskox"]</xpath>
+    <match Class="PatchOperationSequence">
+      <operations>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName="WoolMuskox"]/stuffProps/statFactors</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName="WoolMuskox"]/stuffProps</xpath>
+            <value>
+              <statFactors>
+                <MaxHitPoints>1.1</MaxHitPoints>
+              </statFactors>
+            </value>
+          </nomatch>
+        </li>
+      </operations>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>Combat Extended</li>
+    </mods>
+    <match Class="PatchOperationSequence">
+      <operations>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName="WoolMastodon"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/ThingDef[defName="WoolMastodon"]/statBases/StuffPower_Armor_Sharp</xpath>
+                <match Class="PatchOperationReplace">
+                  <xpath>/Defs/ThingDef[defName="WoolMastodon"]/statBases/StuffPower_Armor_Sharp</xpath>
+                  <value>
+                    <StuffPower_Armor_Sharp>0.02</StuffPower_Armor_Sharp>
+                  </value>
+                </match>
+                <nomatch Class="PatchOperationAdd">
+                  <xpath>/Defs/ThingDef[defName="WoolMastodon"]/statBases</xpath>
+                  <value>
+                    <StuffPower_Armor_Sharp>0.02</StuffPower_Armor_Sharp>
+                  </value>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+        </li>
+      </operations>
+    </match>
+  </Operation>
+</Patch>

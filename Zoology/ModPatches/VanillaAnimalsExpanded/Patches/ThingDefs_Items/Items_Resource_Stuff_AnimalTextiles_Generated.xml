@@ -1,27 +1,281 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <Patch>
-  <!-- Initial generated-route payload: preserves the existing camel wool
-       material balance until the complete upstream comparison is deployed. -->
   <Operation Class="PatchOperationConditional">
-    <xpath>Defs/ThingDef[defName="WoolCamel"]/statBases/StuffPower_Insulation_Cold</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>Defs/ThingDef[defName="WoolCamel"]/statBases/StuffPower_Insulation_Cold</xpath>
-      <value><StuffPower_Insulation_Cold>28</StuffPower_Insulation_Cold></value>
+    <xpath>/Defs/ThingDef[defName="WoolCamel"]</xpath>
+    <match Class="PatchOperationSequence">
+      <operations>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName="WoolCamel"]/statBases/MarketValue</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName="WoolCamel"]/statBases/MarketValue</xpath>
+            <value>
+              <MarketValue>1.9</MarketValue>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName="WoolCamel"]/statBases</xpath>
+            <value>
+              <MarketValue>1.9</MarketValue>
+            </value>
+          </nomatch>
+        </li>
+      </operations>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>Defs/ThingDef[defName="WoolCamel"]/statBases</xpath>
-      <value><StuffPower_Insulation_Cold>28</StuffPower_Insulation_Cold></value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>Defs/ThingDef[defName="WoolCamel"]/statBases/StuffPower_Insulation_Heat</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>Defs/ThingDef[defName="WoolCamel"]/statBases/StuffPower_Insulation_Heat</xpath>
-      <value><StuffPower_Insulation_Heat>14</StuffPower_Insulation_Heat></value>
+    <xpath>/Defs/ThingDef[defName="WoolCamel"]</xpath>
+    <match Class="PatchOperationSequence">
+      <operations>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName="WoolCamel"]/stuffProps/statFactors</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName="WoolCamel"]/stuffProps</xpath>
+            <value>
+              <statFactors>
+                <MaxHitPoints>1.1</MaxHitPoints>
+              </statFactors>
+            </value>
+          </nomatch>
+        </li>
+      </operations>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>Defs/ThingDef[defName="WoolCamel"]/statBases</xpath>
-      <value><StuffPower_Insulation_Heat>14</StuffPower_Insulation_Heat></value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="WoolCamel"]</xpath>
+    <match Class="PatchOperationSequence">
+      <operations>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName="WoolCamel"]/statBases/StuffPower_Insulation_Cold</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName="WoolCamel"]/statBases/StuffPower_Insulation_Cold</xpath>
+            <value>
+              <StuffPower_Insulation_Cold>28</StuffPower_Insulation_Cold>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName="WoolCamel"]/statBases</xpath>
+            <value>
+              <StuffPower_Insulation_Cold>28</StuffPower_Insulation_Cold>
+            </value>
+          </nomatch>
+        </li>
+      </operations>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="WoolCamel"]</xpath>
+    <match Class="PatchOperationSequence">
+      <operations>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName="WoolCamel"]/statBases/StuffPower_Insulation_Heat</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/ThingDef[defName="WoolCamel"]/statBases/StuffPower_Insulation_Heat</xpath>
+            <value>
+              <StuffPower_Insulation_Heat>14</StuffPower_Insulation_Heat>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/ThingDef[defName="WoolCamel"]/statBases</xpath>
+            <value>
+              <StuffPower_Insulation_Heat>14</StuffPower_Insulation_Heat>
+            </value>
+          </nomatch>
+        </li>
+      </operations>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>Odyssey</li>
+    </mods>
+    <nomatch Class="PatchOperationSequence">
+      <operations>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName="AEXP_MuskOxWool"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/ThingDef[defName="AEXP_MuskOxWool"]/statBases/MarketValue</xpath>
+                <match Class="PatchOperationReplace">
+                  <xpath>/Defs/ThingDef[defName="AEXP_MuskOxWool"]/statBases/MarketValue</xpath>
+                  <value>
+                    <MarketValue>1.9</MarketValue>
+                  </value>
+                </match>
+                <nomatch Class="PatchOperationAdd">
+                  <xpath>/Defs/ThingDef[defName="AEXP_MuskOxWool"]/statBases</xpath>
+                  <value>
+                    <MarketValue>1.9</MarketValue>
+                  </value>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName="AEXP_MuskOxWool"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/ThingDef[defName="AEXP_MuskOxWool"]/stuffProps/statFactors/Beauty</xpath>
+                <match Class="PatchOperationReplace">
+                  <xpath>/Defs/ThingDef[defName="AEXP_MuskOxWool"]/stuffProps/statFactors/Beauty</xpath>
+                  <value>
+                    <Beauty>1.5</Beauty>
+                  </value>
+                </match>
+                <nomatch Class="PatchOperationAdd">
+                  <xpath>/Defs/ThingDef[defName="AEXP_MuskOxWool"]/stuffProps/statFactors</xpath>
+                  <value>
+                    <Beauty>1.5</Beauty>
+                  </value>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName="AEXP_MuskOxWool"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/ThingDef[defName="AEXP_MuskOxWool"]/stuffProps/statFactors/MaxHitPoints</xpath>
+                <match Class="PatchOperationReplace">
+                  <xpath>/Defs/ThingDef[defName="AEXP_MuskOxWool"]/stuffProps/statFactors/MaxHitPoints</xpath>
+                  <value>
+                    <MaxHitPoints>1.1</MaxHitPoints>
+                  </value>
+                </match>
+                <nomatch Class="PatchOperationAdd">
+                  <xpath>/Defs/ThingDef[defName="AEXP_MuskOxWool"]/stuffProps/statFactors</xpath>
+                  <value>
+                    <MaxHitPoints>1.1</MaxHitPoints>
+                  </value>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName="AEXP_MuskOxWool"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/ThingDef[defName="AEXP_MuskOxWool"]/statBases/StuffPower_Armor_Sharp</xpath>
+                <match Class="PatchOperationReplace">
+                  <xpath>/Defs/ThingDef[defName="AEXP_MuskOxWool"]/statBases/StuffPower_Armor_Sharp</xpath>
+                  <value>
+                    <StuffPower_Armor_Sharp>0.36</StuffPower_Armor_Sharp>
+                  </value>
+                </match>
+                <nomatch Class="PatchOperationAdd">
+                  <xpath>/Defs/ThingDef[defName="AEXP_MuskOxWool"]/statBases</xpath>
+                  <value>
+                    <StuffPower_Armor_Sharp>0.36</StuffPower_Armor_Sharp>
+                  </value>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName="AEXP_MuskOxWool"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/ThingDef[defName="AEXP_MuskOxWool"]/statBases/StuffPower_Insulation_Cold</xpath>
+                <match Class="PatchOperationReplace">
+                  <xpath>/Defs/ThingDef[defName="AEXP_MuskOxWool"]/statBases/StuffPower_Insulation_Cold</xpath>
+                  <value>
+                    <StuffPower_Insulation_Cold>30</StuffPower_Insulation_Cold>
+                  </value>
+                </match>
+                <nomatch Class="PatchOperationAdd">
+                  <xpath>/Defs/ThingDef[defName="AEXP_MuskOxWool"]/statBases</xpath>
+                  <value>
+                    <StuffPower_Insulation_Cold>30</StuffPower_Insulation_Cold>
+                  </value>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName="AEXP_MuskOxWool"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/ThingDef[defName="AEXP_MuskOxWool"]/statBases/StuffPower_Insulation_Heat</xpath>
+                <match Class="PatchOperationReplace">
+                  <xpath>/Defs/ThingDef[defName="AEXP_MuskOxWool"]/statBases/StuffPower_Insulation_Heat</xpath>
+                  <value>
+                    <StuffPower_Insulation_Heat>10</StuffPower_Insulation_Heat>
+                  </value>
+                </match>
+                <nomatch Class="PatchOperationAdd">
+                  <xpath>/Defs/ThingDef[defName="AEXP_MuskOxWool"]/statBases</xpath>
+                  <value>
+                    <StuffPower_Insulation_Heat>10</StuffPower_Insulation_Heat>
+                  </value>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+        </li>
+        <li Class="PatchOperationFindMod">
+          <mods>
+            <li>Combat Extended</li>
+          </mods>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/ThingDef[defName="AEXP_MuskOxWool"]</xpath>
+                <match Class="PatchOperationSequence">
+                  <operations>
+                    <li Class="PatchOperationConditional">
+                      <xpath>/Defs/ThingDef[defName="AEXP_MuskOxWool"]/statBases/StuffPower_Armor_Sharp</xpath>
+                      <match Class="PatchOperationReplace">
+                        <xpath>/Defs/ThingDef[defName="AEXP_MuskOxWool"]/statBases/StuffPower_Armor_Sharp</xpath>
+                        <value>
+                          <StuffPower_Armor_Sharp>0.01</StuffPower_Armor_Sharp>
+                        </value>
+                      </match>
+                      <nomatch Class="PatchOperationAdd">
+                        <xpath>/Defs/ThingDef[defName="AEXP_MuskOxWool"]/statBases</xpath>
+                        <value>
+                          <StuffPower_Armor_Sharp>0.01</StuffPower_Armor_Sharp>
+                        </value>
+                      </nomatch>
+                    </li>
+                  </operations>
+                </match>
+              </li>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/ThingDef[defName="AEXP_MuskOxWool"]</xpath>
+                <match Class="PatchOperationSequence">
+                  <operations>
+                    <li Class="PatchOperationConditional">
+                      <xpath>/Defs/ThingDef[defName="AEXP_MuskOxWool"]/statBases/StuffPower_Armor_Blunt</xpath>
+                      <match Class="PatchOperationReplace">
+                        <xpath>/Defs/ThingDef[defName="AEXP_MuskOxWool"]/statBases/StuffPower_Armor_Blunt</xpath>
+                        <value>
+                          <StuffPower_Armor_Blunt>0.044</StuffPower_Armor_Blunt>
+                        </value>
+                      </match>
+                      <nomatch Class="PatchOperationAdd">
+                        <xpath>/Defs/ThingDef[defName="AEXP_MuskOxWool"]/statBases</xpath>
+                        <value>
+                          <StuffPower_Armor_Blunt>0.044</StuffPower_Armor_Blunt>
+                        </value>
+                      </nomatch>
+                    </li>
+                  </operations>
+                </match>
+              </li>
+            </operations>
+          </match>
+        </li>
+      </operations>
     </nomatch>
   </Operation>
 </Patch>
