@@ -36,6 +36,14 @@ local installations. Disabled or unavailable sources cannot be reconstructed:
 review every warning, especially missing registered DefNames. This is a source
 coverage check, not proof of complete RimWorld patch-load-order semantics.
 
+Reference Sync filters source XML by the current `generation.json` registry:
+registered races/PawnKinds and biome DefNames, abstract race parents, animal
+materials (leathers, wool, silk), eggs/hatchers, animal life stages and relevant
+animal health definitions. It excludes unrelated buildings, plants, human
+PawnKindDefs and CE patches whose targets are outside that set. The inventory
+stores whole upstream files, not altered fragments, so mixed XML may also
+contain unrelated sibling definitions.
+
 Review COPY/REPLACE/DELETE entries before applying. Preview never modifies files. Apply archives overwritten or removed XML; if the registered DefName coverage is incomplete, unrelated old snapshots are retained and a warning is shown. Machine
 preferences live in ignored `checker.local.json`; upstream source paths are
 versioned in `reference_sources.auto.json`.

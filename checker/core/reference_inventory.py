@@ -75,7 +75,7 @@ def selected_paths(source, version=None):
 
 
 # File names are not authoritative: mixed XML files may contain supported
-# animals and unrelated objects. Verify actual Def keys before snapshotting.
+# animals and unrelated objects. Use registered Def keys for file selection.
 _MATERIAL_NAME = re.compile(r'Leather|Wool|Silk|Egg|Hatcher', re.I)
 _ANIMAL_BASE = re.compile(r'Animal|Mammal|Bird|Insect|Race|Stuff|Egg', re.I)
 _ANIMAL_LIFESTAGE = re.compile(r'Animal|Insect|Bird|Mammal', re.I)
@@ -161,8 +161,8 @@ def discover_source_references(spec, sources, checker_root, version,
                                progress=None, cancelled=None):
     """Build canonical snapshots from one preferred upstream source.
 
-    A local Workshop source is used only if the preferred GitHub source yields
-    no usable references; different installations are never merged as if one mod.
+    Every snapshot belongs to a single upstream source. Local installed
+    Workshop/game definitions take priority; GitHub is only a fallback.
     """
     if not sources:
         return []
