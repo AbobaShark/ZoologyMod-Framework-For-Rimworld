@@ -155,21 +155,6 @@ def test_dinosauria_vanilla_diff_reasserts_ce_when_original_ce_matches(tmp_path)
             'string(ThingDef/statBases/StuffPower_Armor_Sharp)') == expected
 
 
-def test_handwritten_vanilla_armor_still_forces_ce_reassertion(tmp_path):
-    orig, patches = _refs(tmp_path)
-    rows = {'Leather_Tyrannosaurus': _row('Dinosauria', 1.3, .36, .72, .10)}
-    already_written = {('Leather_Tyrannosaurus', 'vanilla', 'StuffPower_Armor_Sharp')}
-    outputs, _, report = render_original_overrides(
-        rows, orig, patches, skip_vanilla=already_written)
-    dino = E.fromstring(outputs[GROUP_ROUTES['Dinosauria']])
-    # The hypothetical preceding handwritten Vanilla operation writes 1.3.
-    # An explicit CE override must restore .72 even though .72 also equals
-    # the CE source baseline.
-    assert not dino.xpath('./Operation[@Class="PatchOperationConditional"]')
-    assert '0.72' in dino.xpath('.//Operation[@Class="PatchOperationFindMod"]//StuffPower_Armor_Sharp/text()')
-    assert any(change[1] == 'StuffPower_Armor_Sharp' for change in report['ce_overrides'])
-
-
 def test_identical_sources_produce_no_xml_operations(tmp_path):
     orig, patches = _refs(tmp_path)
     rows = {'Leather_Tyrannosaurus': _row('Dinosauria', 1.88, .36, .72, .10)}

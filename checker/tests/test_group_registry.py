@@ -3,7 +3,7 @@ from pathlib import Path
 import json
 import tempfile
 from lxml import etree as E
-from core.generation_registry import load_registry
+from core.generation_registry import load_registry, _unregistered_material_xml
 
 
 def test_all_versioned_groups_have_unique_targets_and_defs():
@@ -15,7 +15,10 @@ def test_all_versioned_groups_have_unique_targets_and_defs():
     animal_names=[name for g in groups for name in g['defs']]
     assert len(animal_names)==407
     assert len(set(animal_names))==407
-    assert len(config['biomes'])==31
+    assert len(config['biomes']) == 29
+    assert set(config['reference_only_biomes']) == {
+        'Alpine', 'MammothSteppe', 'Delta'
+    }
     assert not (root/'generated_patches').exists()
     assert not (root/'rimworld_patch_fixer.py').exists()
 
@@ -50,3 +53,25 @@ def test_leathers_only_generated_and_three_launchers():
         assert {t.findtext('defName') for t in xml.findall('ThingDef')} == {
             'Leather_Beaver', 'Leather_Ostrich', 'Leather_Otter', 'Leather_Squirrel'
         }
+
+
+def test_material_preflight_checks_loaded_folders_not_archived_sources(tmp_path):
+    mod = tmp_path / 'Zoology'
+    mod.mkdir()
+    (mod / 'LoadFolders.xml').write_text(
+        '<loadFolders><v1.7><li>/</li><li>Core</li>'
+        '<li>ModPatches/AlphaAnimals</li></v1.7></loadFolders>',
+        encoding='utf-8')
+    copied = mod / 'Source/codex-build/implementation/test-mods-archive'
+    copied.mkdir(parents=True)
+    (copied / 'Items_Resource_Stuff_Leather.xml').write_text('<Patch/>')
+    assert _unregistered_material_xml(mod, set()) == []
+    active = mod / 'Core/Patches/Core/ThingDefs_Items'
+    active.mkdir(parents=True)
+    legacy = active / 'Leather_Chitin.xml'
+    legacy.write_text('<Patch/>')
+    assert _unregistered_material_xml(mod, set()) == [
+        'Core/Patches/Core/ThingDefs_Items/Leather_Chitin.xml'
+    ]
+    assert _unregistered_material_xml(
+        mod, {'Core/Patches/Core/ThingDefs_Items/Leather_Chitin.xml'}) == []
