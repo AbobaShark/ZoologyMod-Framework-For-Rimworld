@@ -353,14 +353,14 @@ def discover(cfg, *, steam='', github=True, checker_root=ROOT, progress=None, ca
                       for name in group.get('abstracts', ())}
     biome_names = {entry['defName'] for entry in registry.get('biomes', ())}
     strict = bool(registry.get('groups') or registry.get('biomes'))
-    ce_allowed_mods = set()
+    allowed_mods = set()
     for owner in cfg['mods']:
         if not owner.get('enabled', True):
             continue
         for label in (owner['id'], *owner.get('names', ()),
                       owner.get('game_dlc', '')):
             if label:
-                ce_allowed_mods.add(normalized(label))
+                allowed_mods.add(normalized(label))
     loadfolders = checker_root.parent / 'Zoology' / 'LoadFolders.xml'
     if loadfolders.is_file():
         try:
@@ -368,7 +368,7 @@ def discover(cfg, *, steam='', github=True, checker_root=ROOT, progress=None, ca
             for entry in folders.iter('li'):
                 folder = (entry.text or '').replace('\\', '/')
                 if folder.startswith('ModPatches/'):
-                    ce_allowed_mods.add(normalized(folder.split('/', 1)[1]))
+                    allowed_mods.add(normalized(folder.split('/', 1)[1]))
         except (ET.ParseError, OSError):
             warnings.append('Zoology LoadFolders.xml unreadable; limiting CE integration '
                             'patches to configured upstream mods')
@@ -424,7 +424,7 @@ def discover(cfg, *, steam='', github=True, checker_root=ROOT, progress=None, ca
                 safe_inside=safe_inside, parse_xml=parse_xml, digest=digest,
                 animal_names=animal_names, abstract_names=abstract_names,
                 biome_names=biome_names, strict=strict,
-                ce_allowed_mods=ce_allowed_mods,
+                allowed_mods=allowed_mods,
                 progress=callback, cancelled=cancelled)
             if not current and local_ready and github and gh.get('url'):
                 if cancelled is not None and cancelled.is_set():
@@ -438,7 +438,7 @@ def discover(cfg, *, steam='', github=True, checker_root=ROOT, progress=None, ca
                         safe_inside=safe_inside, parse_xml=parse_xml, digest=digest,
                         animal_names=animal_names, abstract_names=abstract_names,
                 biome_names=biome_names, strict=strict,
-                ce_allowed_mods=ce_allowed_mods,
+                allowed_mods=allowed_mods,
                 progress=callback, cancelled=cancelled)
                 except (OSError, ValueError) as exc:
                     warnings.append(spec['id'] + ': GitHub fallback unavailable: ' + str(exc)[:300])

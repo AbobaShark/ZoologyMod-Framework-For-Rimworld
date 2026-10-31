@@ -100,13 +100,21 @@ def test_ce_modpatches_exclude_unsupported_mods_even_for_generic_leatherbase():
     allowed = {'alphaanimals', 'vanillaanimalsexpandedendangered'}
     assert _candidate_path(
         'ModPatches/Alpha Animals/Patches/Alpha Animals/AA_Resource_CEStuff.xml',
-        ce=True, ce_allowed_mods=allowed)
+        ce=True, allowed_mods=allowed)
     assert not _candidate_path(
         'ModPatches/Unsupported Mod/Patches/Items_Resource_Stuff.xml',
-        ce=True, ce_allowed_mods=allowed)
+        ce=True, allowed_mods=allowed)
     assert _candidate_path(
         'Patches/Core/ThingDefs_Items/Items_Resource_Stuff.xml',
-        ce=True, ce_allowed_mods=allowed)
+        ce=True, allowed_mods=allowed)
+
+
+def test_optional_mod_definitions_require_supported_owner():
+    allowed = {'odyssey','alphaanimals'}
+    assert _candidate_path('1.7/Mods/Odyssey/Defs/BiomeDefs.xml',
+                           ce=False, allowed_mods=allowed)
+    assert not _candidate_path('1.7/Mods/UnsupportedExpansion/Defs/AnimalItems.xml',
+                               ce=False, allowed_mods=allowed)
 
 
 def test_duplicate_keys_after_ce_are_distinguished_from_source_duplicates(tmp_path):
