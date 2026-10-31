@@ -107,9 +107,57 @@ class AutoReferenceTests(unittest.TestCase):
         self.assertEqual(target.read_text(), new)
         self.assertEqual((backup / 'OriginalXML/Core/Defs/Birds.xml').read_text(), old)
 
-    def test_github_precedence_and_local_read_failure_fallback(self):
-        self.write('Defs/Wolf.xml', '<Defs><ThingDef><defName>Wolf</defName><label>local</label></ThingDef></Defs>',
-                   self.workshop / '4321')
+    def test_installed_workshop_source_skips_github_entirely(self):
+        local_xml = ('<Defs><ThingDef><defName>Wolf</defName>'
+                     '<label>installed</label></ThingDef></Defs>')
+        workshop = self.workshop / '4321'
+        self.write('Defs/Wolf.xml', local_xml, workshop)
+        cfg = self.cfg('Example', workshop_ids=['4321'],
+                       github={'url': 'https://github.com/owner/repo.git'})
+        # Network access must not be attempted, even with github=True.
+        with patch.object(rs, 'GitSource',
+                          side_effect=AssertionError('Unexpected GitHub access')):
+            entries, warnings = rs.discover(cfg, steam=str(self.steam),
+                                            github=True, checker_root=self.checker)
+        self.assertEqual(len(entries), 1)
+        self.assertEqual(entries[0]['payload'], local_xml.encode())
+        self.assertEqual(entries[0]['provenance'], str(workshop.resolve()))
+
+    def test_workshop_id_resolves_without_scanning_every_about_xml(self):
+        workshop = self.workshop / '1541721856'
+        self.write('Defs/Animals.xml',
+                   '<Defs><ThingDef><defName>TestAnimal</defName></ThingDef></Defs>',
+                   workshop)
+        for index in range(20):
+            self.write('About/About.xml', '<ModMetaData><name>Other</name></ModMetaData>',
+                       self.workshop / str(800000 + index))
+        with patch.object(rs, 'read_about',
+                          side_effect=AssertionError('Scanned unrelated About.xml')):
+            found, error = rs.find_local_mod(
+                {'id':'AlphaAnimals','workshop_ids':['1541721856']},
+                [], [self.workshop], [])
+        self.assertEqual(found, workshop)
+        self.assertIsNone(error)
+
+    def test_github_used_if_workshop_not_installed(self):
+        cfg = self.cfg('Example', workshop_ids=['missing'],
+                       github={'url': 'https://github.com/owner/repo.git'})
+        class FakeGit:
+            files = ['Defs/Wolf.xml']
+            provenance = 'fake github'
+            def __init__(self, spec): pass
+            def read(self, rel):
+                return b'<Defs><ThingDef><defName>Wolf</defName></ThingDef></Defs>'
+            def close(self): pass
+        with patch.object(rs, 'GitSource', FakeGit):
+            entries, warnings = rs.discover(cfg, steam=str(self.steam),
+                                            github=True, checker_root=self.checker)
+        self.assertEqual(len(entries), 1)
+        self.assertEqual(entries[0]['provenance'], 'fake github')
+
+    def test_github_used_if_installed_source_has_no_definitions(self):
+        workshop = self.workshop / '4321'
+        self.write('Defs/NotDefs.xml', '<Other/>', workshop)
         cfg = self.cfg('Example', workshop_ids=['4321'],
                        github={'url': 'https://github.com/owner/repo.git'})
         class FakeGit:
@@ -117,20 +165,13 @@ class AutoReferenceTests(unittest.TestCase):
             provenance = 'fake github'
             def __init__(self, spec): pass
             def read(self, rel):
-                return b'<Defs><ThingDef><defName>Wolf</defName><label>github</label></ThingDef></Defs>'
+                return b'<Defs><ThingDef><defName>Wolf</defName></ThingDef></Defs>'
             def close(self): pass
         with patch.object(rs, 'GitSource', FakeGit):
-            preview, _ = rs.discover(cfg, steam=str(self.steam), github=True,
-                                     checker_root=self.checker)
-        self.assertIn(b'github', preview[0]['payload'])
-
-        def failed_read(self, rel):
-            raise OSError('offline')
-        FakeGit.read = failed_read
-        with patch.object(rs, 'GitSource', FakeGit):
-            preview, _ = rs.discover(cfg, steam=str(self.steam), github=True,
-                                     checker_root=self.checker)
-        self.assertIn(b'local', preview[0]['payload'])
+            entries, warnings = rs.discover(cfg, steam=str(self.steam),
+                                            github=True, checker_root=self.checker)
+        self.assertEqual(len(entries), 1)
+        self.assertEqual(entries[0]['provenance'], 'fake github')
 
     def test_missing_sources_never_delete_existing_references(self):
         old = self.write('OriginalXML/Megafauna/Defs/Mammoth.xml',
@@ -215,11 +256,10 @@ class AutoReferenceTests(unittest.TestCase):
         self.assertEqual(len(progress), 3)
         self.assertIn('24/24', progress[-1])
 
-    def test_github_batch_failure_falls_back_to_local_source(self):
-        self.write('Defs/Wolf.xml',
-                   '<Defs><ThingDef><defName>Wolf</defName></ThingDef></Defs>',
-                   self.workshop / '4321')
-        cfg = self.cfg('Example', workshop_ids=['4321'],
+    def test_github_batch_failure_preserves_existing_references(self):
+        existing = self.write('OriginalXML/Example/Defs/Wolf.xml',
+                              '<Defs><ThingDef><defName>Wolf</defName></ThingDef></Defs>')
+        cfg = self.cfg('Example', workshop_ids=['missing'],
                        github={'url': 'https://github.com/owner/repo.git'})
         class BrokenGit:
             files = ['Defs/Wolf.xml']
@@ -232,8 +272,8 @@ class AutoReferenceTests(unittest.TestCase):
         with patch.object(rs, 'GitSource', BrokenGit):
             entries, warnings = rs.discover(cfg, steam=str(self.steam),
                                             github=True, checker_root=self.checker)
-        self.assertEqual(len(entries), 1)
-        self.assertIn('4321', entries[0]['provenance'])
+        self.assertEqual(entries, [])
+        self.assertTrue(existing.is_file())
         self.assertTrue(any('network timeout' in x for x in warnings))
 
     def test_cancelled_parallel_download_exits_without_writing_xml(self):
