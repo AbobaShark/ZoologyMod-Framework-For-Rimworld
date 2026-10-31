@@ -123,6 +123,22 @@ class AutoReferenceTests(unittest.TestCase):
         self.assertEqual(entries[0]['payload'], local_xml.encode())
         self.assertEqual(entries[0]['provenance'], str(workshop.resolve()))
 
+    def test_accepts_steamapps_workshop_path_from_gui(self):
+        workshop_root = self.steam / 'steamapps/workshop'
+        games, workshops, mods = rs.steam_locations(str(workshop_root))
+        self.assertIn(self.workshop, workshops)
+        self.write('Defs/Races_Animal.xml',
+                   '<Defs><ThingDef><defName>TestAnimal</defName></ThingDef></Defs>',
+                   self.workshop / '1541721856')
+        cfg = self.cfg('AlphaAnimals', workshop_ids=['1541721856'],
+                       github={'url': 'https://github.com/juanosarg/AlphaAnimals.git'})
+        with patch.object(rs, 'GitSource',
+                          side_effect=AssertionError('Installed Workshop should not access GitHub')):
+            entries, warnings = rs.discover(
+                cfg, steam=str(workshop_root), github=True, checker_root=self.checker)
+        self.assertEqual(len(entries), 1)
+        self.assertTrue(entries[0]['provenance'].endswith('1541721856'))
+
     def test_workshop_id_resolves_without_scanning_every_about_xml(self):
         workshop = self.workshop / '1541721856'
         self.write('Defs/Animals.xml',

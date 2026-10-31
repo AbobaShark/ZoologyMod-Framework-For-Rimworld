@@ -13,8 +13,7 @@ are indexed through the GitHub API without creating a temporary Git checkout;
 relevant XML files are downloaded with bounded parallel requests. Preview
 shows per-source file counts and progress, and can be cancelled without
 changing any references. You can optionally
-enter a branch or a 40-digit pinned SHA. GitHub takes precedence; if its XML
-cannot be matched or GitHub cannot be reached, a detected local copy is tried.
+enter a branch or a 40-digit pinned SHA. **Installed Workshop and game files take precedence:** for an installed mod Reference Sync reads local XML without contacting GitHub. The `GitHub fallback for missing mods` option only requests GitHub when the mod is absent locally or its local XML cannot be used.
 
 Select `Preview` first. `COPY` means **new reference XML not yet imported**
 and `REPLACE` means a previously imported reference has changed. Both are
@@ -52,11 +51,7 @@ py -m tools.reference_sync_auto --config reference_sources.auto.json --steam "D:
 py -m tools.reference_sync_auto --config reference_sources.auto.json --steam "D:\\SteamLibrary" --apply
 ```
 
-`--no-github` uses only installed mods; with GitHub enabled the latest default
-branch is read via GitHub API without changing your Zoology Git checkout.
-If the network cannot supply a complete XML set, the tool discards that
-incomplete source and tries the local Workshop installation instead. The
-optional `GITHUB_TOKEN` environment variable increases GitHub API rate limits.
+`--no-github` uses only installed mods. With GitHub enabled, missing or unusable local mod sources are fetched through the GitHub API. A locally installed mod never triggers a GitHub request when its XML can be read. Partial remote downloads are discarded; no destructive changes are planned for a missing source. The optional `GITHUB_TOKEN` environment variable increases GitHub API rate limits.
 
 **Limitations**: Discovery is conservative, not a RimWorld XML load-order
 interpreter. Files
