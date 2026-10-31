@@ -36,7 +36,7 @@ def test_every_native_leather_updates_in_defs_and_ce_patches_only(tmp_path):
                return_value=(routes, E.Element('Patch'), {})):
         outputs, report = render_leather_outputs(
             'unused', mod, entries, original_xml=tmp_path/'OriginalXML',
-            original_patches=tmp_path/'OriginalPatches')
+            original_patches=tmp_path/'OriginalXML/CEPatches')
     generated = dict(outputs)
     native = E.fromstring(generated[CUSTOM_DEST])
     assert {x.findtext('defName') for x in native.findall('ThingDef')} == set(CUSTOM_NAMES)

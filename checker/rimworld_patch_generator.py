@@ -203,7 +203,7 @@ def cli_main(argv=None):
     p.add_argument('--all',action='store_true',help='Generate all categories')
     ce=p.add_mutually_exclusive_group();ce.add_argument('--ce',dest='ce',action='store_true');ce.add_argument('--no-ce',dest='ce',action='store_false');p.set_defaults(ce=None)
     opt=p.add_mutually_exclusive_group();opt.add_argument('--optimize',dest='opt',action='store_true');opt.add_argument('--no-optimize',dest='opt',action='store_false');p.set_defaults(opt=None)
-    p.add_argument('--check',action='store_true',help='Audit all 134 registered destinations and required installed static XML')
+    p.add_argument('--check',action='store_true',help='Audit registered destinations and required installed static XML')
     p.add_argument('--preview',action='store_true',help='Validate staged manifest and print deployment plan')
     p.add_argument('--deploy',action='store_true',help='Deploy validated staged files to Zoology')
     p.add_argument('--yes',action='store_true',help='Required confirmation for --deploy')

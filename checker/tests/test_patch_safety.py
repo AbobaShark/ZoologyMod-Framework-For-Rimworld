@@ -352,7 +352,7 @@ class CombatExtendedBodyShapeSafetyTests(unittest.TestCase):
     def test_insect_patch_repairs_original_ce_megaspider_extension(self):
         index = OriginalXmlIndex(
             str(CHECKER_DIR / "OriginalXML"),
-            patches_dir=str(CHECKER_DIR / "OriginalPatches"),
+            patches_dir=str(CHECKER_DIR / "OriginalXML/CEPatches"),
         ).load()
         runtime_root = index.clone_root()
         staged = CHECKER_DIR / "output/staged/files/Core/Patches/Core/ThingDefs_Races/Races_Animal_Insects.xml"

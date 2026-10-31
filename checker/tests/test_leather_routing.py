@@ -201,7 +201,7 @@ def test_alpha_thrumbo_routes_to_odyssey_not_alpha_animals(tmp_path):
     _write(orig, 'AlphaAnimals/_Leathers/1.7/Defs/Old.xml', original)
     output, _, report = render_original_overrides(
         {'Leather_AlphaThrumbo': row},
-        orig, tmp_path / 'OriginalPatches', ce=False)
+        orig, tmp_path / 'OriginalXML/CEPatches', ce=False)
     assert report['material_routes']['Leather_AlphaThrumbo'] == GROUP_ROUTES['Odyssey']
     assert len(E.fromstring(output[GROUP_ROUTES['Odyssey']])) == 0
     assert len(E.fromstring(output[GROUP_ROUTES['AlphaAnimals']])) == 0
@@ -214,7 +214,7 @@ def test_stale_alpha_thrumbo_owner_explains_mismatch(tmp_path):
     with pytest.raises(ValueError, match='Leather_AlphaThrumbo.*Source mod.*AlphaAnimals.*Odyssey'):
         render_original_overrides(
             {'Leather_AlphaThrumbo': row},
-            orig, tmp_path / 'OriginalPatches', ce=False)
+            orig, tmp_path / 'OriginalXML/CEPatches', ce=False)
 
 
 def test_missing_odyssey_reference_reports_exact_missing_source(tmp_path):
@@ -224,7 +224,7 @@ def test_missing_odyssey_reference_reports_exact_missing_source(tmp_path):
     with pytest.raises(ValueError, match='OriginalXML/Odyssey.*Leather_AlphaThrumbo'):
         render_original_overrides(
             {'Leather_AlphaThrumbo': _row('Odyssey',2.12,.4,.77,.12)},
-            orig, tmp_path / 'OriginalPatches', ce=False)
+            orig, tmp_path / 'OriginalXML/CEPatches', ce=False)
 
 
 def test_leather_parent_priority_is_local_to_reference_scan(tmp_path):

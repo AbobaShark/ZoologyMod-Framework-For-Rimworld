@@ -104,7 +104,7 @@ class UnifiedEntryPointTests(unittest.TestCase):
                                            Path('/tmp/project'), dry_run=False)
 
     def test_check_audits_all_routes_without_generating_or_deploying(self):
-        result = {'destinations':134, 'missing_static':[]}
+        result = {'destinations':147, 'missing_static':[]}
         with patch.object(entry,'audit_routes',return_value=result) as audit, \
              patch.object(entry,'stage_pipeline') as stage, \
              patch.object(entry,'deploy') as deploy, \
@@ -112,7 +112,7 @@ class UnifiedEntryPointTests(unittest.TestCase):
              patch.object(entry,'find_project_root',return_value=Path('/tmp/project')):
             with contextlib.redirect_stdout(io.StringIO()) as output:
                 entry.main(['--check'])
-            self.assertIn('134',output.getvalue())
+            self.assertIn('147',output.getvalue())
             audit.assert_called_once()
             self.assertTrue(audit.call_args.kwargs['require_static_sources'])
             stage.assert_not_called()
