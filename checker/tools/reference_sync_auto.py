@@ -169,7 +169,10 @@ class LocalSource:
 
 
 class GitSource:
-    """Shallow, partial fetch to a private temp bare repo; never touch parent .git."""
+    """Read a pinned GitHub commit via the REST tree API and bounded raw HTTPS.
+
+    No temporary Git repository, clone, partial fetch or lazy blob fetch.
+    """
     def __init__(self, spec):
         gh = spec.get('github') or {}
         url = gh.get('url', '')
@@ -181,59 +184,106 @@ class GitSource:
             raise ValueError('Pinned Git revision must be a full 40-digit SHA')
         if branch and not re.fullmatch(r'[\w./-]+', branch):
             raise ValueError('Invalid Git branch')
-        self.temp = tempfile.TemporaryDirectory(prefix='zoology-upstream-')
-        self.gitdir = Path(self.temp.name) / 'refs.git'
+        owner_repo = url.removeprefix('https://github.com/').removesuffix('.git')
+        self.raw_base = 'https://raw.githubusercontent.com/' + owner_repo + '/'
         self._cache = {}
         self._cache_size = 0
         self.read_error = None
-        self.raw_base = 'https://raw.githubusercontent.com/' + url.removeprefix('https://github.com/').removesuffix('.git') + '/'
-        try:
-            self._run('init', '--bare', '-q', str(self.gitdir), timeout=20)
-            self._run('remote', 'add', 'origin', url, timeout=20)
-            self._run('fetch', '-q', '--depth=1', '--filter=blob:none', 'origin', revision or (f'refs/heads/{branch}' if branch else 'HEAD'), timeout=120)
-            self.revision = self._run('rev-parse', 'FETCH_HEAD').strip()
-            if revision and self.revision.lower() != revision.lower():
-                raise ValueError('Remote revision mismatch')
-            out = self._run('ls-tree', '-r', '--name-only', 'FETCH_HEAD', timeout=40)
-            self.files = [x for x in out.splitlines() if x.lower().endswith('.xml')]
-            self.provenance = url + '@' + self.revision
-        except BaseException:
-            self.close()
-            raise
+        self.provenance = url
+        ref = revision or branch or 'HEAD'
+        api_base = 'https://api.github.com/repos/' + owner_repo
+        commit = self._api_json(api_base + '/commits/' + urlparse.quote(ref, safe=''))
+        self.revision = commit['sha']
+        if revision and self.revision.lower() != revision.lower():
+            raise ValueError('GitHub revision mismatch')
+        tree = self._api_json(api_base + '/git/trees/' + self.revision + '?recursive=1')
+        if tree.get('truncated'):
+            raise ValueError('GitHub tree listing truncated; use the local Workshop source')
+        self.files = [item['path'] for item in tree['tree']
+                      if item.get('type') == 'blob' and
+                      item.get('path', '').casefold().endswith('.xml') and
+                      item.get('size', 0) <= MAX_XML_BYTES]
+        self.provenance = url + '@' + self.revision
 
-    def _run(self, *args, timeout=30, raw=False):
-        env = dict(os.environ, GIT_TERMINAL_PROMPT='0', GIT_CONFIG_NOSYSTEM='1')
-        cmd = ['git', '--git-dir=' + str(self.gitdir), *args] if args[0] != 'init' else ['git', *args]
-        cp = subprocess.run(cmd, check=True, capture_output=True, timeout=timeout, env=env)
-        return cp.stdout if raw else cp.stdout.decode('utf-8', 'replace')
+    @staticmethod
+    def _api_json(url):
+        headers = {'User-Agent': 'Zoology-Checker-ReferenceSync',
+                   'Accept': 'application/vnd.github+json'}
+        token = os.environ.get('GITHUB_TOKEN', '').strip()
+        if token:
+            headers['Authorization'] = 'Bearer ' + token
+        request = urlrequest.Request(url, headers=headers)
+        try:
+            with urlrequest.urlopen(request, timeout=12) as response:
+                return json.load(response)
+        except (OSError, ValueError) as exc:
+            raise OSError('GitHub API unavailable: ' + str(exc)) from exc
+
+    def _fetch_raw(self, rel):
+        path = PurePosixPath(rel)
+        if path.is_absolute() or '..' in path.parts or '\x00' in rel:
+            raise ValueError('Invalid Git path')
+        url = self.raw_base + self.revision + '/' + urlparse.quote(rel, safe='/')
+        with urlrequest.urlopen(url, timeout=12) as stream:
+            data = stream.read(MAX_XML_BYTES + 1)
+        if len(data) > MAX_XML_BYTES:
+            raise ValueError('XML exceeds size limit')
+        return data
 
     def read(self, rel):
         if rel in self._cache:
             return self._cache[rel]
-        path = PurePosixPath(rel)
-        if path.is_absolute() or '..' in path.parts or '\x00' in rel:
-            raise ValueError('Invalid Git path')
         if self.read_error:
             raise OSError(self.read_error)
-        # Blobless git show lazily fetches each XML and may stall for a minute.
-        # Fetch the immutable commit's raw XML over bounded HTTPS instead.
-        url = self.raw_base + self.revision + '/' + urlparse.quote(rel, safe='/')
         try:
-            with urlrequest.urlopen(url, timeout=12) as stream:
-                data = stream.read(MAX_XML_BYTES + 1)
+            data = self._fetch_raw(rel)
         except OSError as exc:
-            self.read_error = 'GitHub XML download unavailable: ' + str(exc)
+            self.read_error = 'GitHub XML unavailable: ' + str(exc)
             raise OSError(self.read_error) from exc
-        if len(data) > MAX_XML_BYTES:
-            raise ValueError('XML exceeds size limit')
         if self._cache_size + len(data) < 48 * 1024 * 1024:
             self._cache[rel] = data
             self._cache_size += len(data)
         return data
 
+    def read_many(self, paths, progress=None, cancelled=None):
+        """Fetch upstream XML concurrently with a finite deadline and progress."""
+        from concurrent.futures import ThreadPoolExecutor, as_completed, TimeoutError
+
+        paths = list(dict.fromkeys(paths))
+        result = {name: self._cache[name] for name in paths if name in self._cache}
+        pending_paths = [name for name in paths if name not in result]
+        if not pending_paths:
+            return result
+        executor = ThreadPoolExecutor(max_workers=12, thread_name_prefix='upstream-xml')
+        futures = {}
+        done = len(result)
+        try:
+            futures = {executor.submit(self._fetch_raw, name): name
+                       for name in pending_paths}
+            for future in as_completed(futures, timeout=120):
+                if cancelled is not None and cancelled.is_set():
+                    raise InterruptedError('Reference Sync preview cancelled')
+                name = futures[future]
+                data = future.result()
+                result[name] = data
+                done += 1
+                if progress is not None and (done % 10 == 0 or done == len(paths)):
+                    progress(f'GitHub XML: {done}/{len(paths)} ({self.provenance})')
+            for name, data in result.items():
+                if name not in self._cache and self._cache_size + len(data) < 48 * 1024 * 1024:
+                    self._cache[name] = data
+                    self._cache_size += len(data)
+            return result
+        except (OSError, TimeoutError, ValueError) as exc:
+            self.read_error = 'GitHub XML batch incomplete: ' + str(exc)
+            raise OSError(self.read_error) from exc
+        finally:
+            for future in futures:
+                future.cancel()
+            executor.shutdown(wait=False, cancel_futures=True)
+
     def close(self):
-        if hasattr(self, 'temp'):
-            self.temp.cleanup()
+        pass
 
 
 def read_config(path):
