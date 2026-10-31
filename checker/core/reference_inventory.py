@@ -10,7 +10,24 @@ import re
 import subprocess
 import xml.etree.ElementTree as ET
 
-from core.leather_reference_sync import _contains_leather
+def _contains_leather(root, is_ce):
+    """Recognize material Defs or CE material patch operations."""
+    if is_ce:
+        if root.tag != 'Patch':
+            return False
+        return any('ThingDef[' in (node.text or '')
+                   and any(term in (node.text or '').casefold()
+                           for term in ('leather', 'wool', 'silk'))
+                   and any(part in (node.text or '')
+                           for part in ('/statBases', '/stuffProps', '/graphicData', '@Name='))
+                   for node in root.iter('xpath'))
+    if root.tag != 'Defs':
+        return False
+    return any(any(term in (td.findtext('defName') or '').casefold()
+                   for term in ('leather', 'wool', 'silk'))
+               or td.get('Name') in ('LeatherBase', 'WoolBase')
+               for td in root.findall('ThingDef'))
+
 
 
 _DEFS = {'ThingDef', 'PawnKindDef', 'BiomeDef', 'LifeStageDef', 'HediffDef'}
