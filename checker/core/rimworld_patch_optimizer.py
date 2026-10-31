@@ -33,6 +33,18 @@ class PatchOptimizer:
         if not self.index or not self.index.enabled:
             return patch_root
 
+        # Identical keys can occur in different source mods, abstract bases,
+        # or stale version directories. In those cases the combined XML does
+        # not represent a unique RimWorld load-order state. Never discard
+        # operations based on that ambiguous reference.
+        duplicates = {entry[0] for entry in getattr(self.index, "duplicates", ())}
+        if duplicates:
+            for xpath_node in patch_root.iter("xpath"):
+                target = parse_target(xpath_node.text)
+                if target in duplicates:
+                    self.stats["semantic_skipped_ambiguous_def"] += 1
+                    return patch_root
+
         sim_root = self.index.clone_base_root() if hasattr(self.index, "clone_base_root") else self.index.clone_root()
         patched_sim_root = self.index.clone_root() if getattr(self.index, "patches_enabled", False) else None
         optimized = LET.Element(patch_root.tag)

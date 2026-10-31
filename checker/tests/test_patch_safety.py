@@ -42,6 +42,51 @@ class PatchOptimizerRuntimeGuardTests(unittest.TestCase):
         )
         return OriginalXmlIndex(temp_dir.name).load()
 
+    def test_duplicate_reference_target_disables_semantic_optimization(self):
+        temp_dir = tempfile.TemporaryDirectory()
+        self.addCleanup(temp_dir.cleanup)
+        base = Path(temp_dir.name)
+        for filename in ("First.xml", "Second.xml"):
+            (base / filename).write_text(
+                '<Defs><ThingDef Name="LeatherBase" Abstract="True">'
+                '<statBases><MarketValue>1</MarketValue></statBases>'
+                '</ThingDef></Defs>', encoding='utf-8')
+        index = OriginalXmlIndex(str(base)).load()
+        self.assertEqual(len(index.duplicates), 1)
+        patch = LET.fromstring(
+            b'<Patch><Operation Class="PatchOperationReplace">'
+            b'<xpath>/Defs/ThingDef[@Name="LeatherBase"]/statBases/MarketValue</xpath>'
+            b'<value><MarketValue>1</MarketValue></value>'
+            b'</Operation></Patch>')
+        optimizer = PatchOptimizer(index)
+        result = optimizer.optimize(patch)
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0].get("Class"), "PatchOperationReplace")
+        self.assertEqual(optimizer.stats["semantic_skipped_ambiguous_def"], 1)
+
+    def test_unrelated_duplicate_does_not_disable_unique_def_optimization(self):
+        temp_dir = tempfile.TemporaryDirectory()
+        self.addCleanup(temp_dir.cleanup)
+        base = Path(temp_dir.name)
+        for filename in ("First.xml", "Second.xml"):
+            (base / filename).write_text(
+                '<Defs><ThingDef Name="SharedBase" Abstract="True"/></Defs>',
+                encoding='utf-8')
+        (base / "Unique.xml").write_text(
+            '<Defs><ThingDef><defName>UniqueAnimal</defName>'
+            '<statBases><MarketValue>1</MarketValue></statBases>'
+            '</ThingDef></Defs>', encoding='utf-8')
+        index = OriginalXmlIndex(str(base)).load()
+        self.assertTrue(index.duplicates)
+        patch = LET.fromstring(
+            b'<Patch><Operation Class="PatchOperationReplace">'
+            b'<xpath>/Defs/ThingDef[defName="UniqueAnimal"]/statBases/MarketValue</xpath>'
+            b'<value><MarketValue>1</MarketValue></value>'
+            b'</Operation></Patch>')
+        optimizer = PatchOptimizer(index)
+        optimizer.optimize(patch)
+        self.assertEqual(optimizer.stats["semantic_skipped_ambiguous_def"], 0)
+
     def test_missing_field_add_precondition_is_kept_by_default(self):
         patch = LET.fromstring(
             b"""<Patch>

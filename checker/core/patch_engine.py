@@ -328,8 +328,15 @@ class PatchGenerator:
                 if self._original_xml_index.duplicates:
                     print(
                         "OriginalXML warning: "
-                        f"{len(self._original_xml_index.duplicates)} duplicate def key(s); first occurrence is used."
+                        f"{len(self._original_xml_index.duplicates)} duplicate Def key(s). "
+                        "Source-path lookup keeps the first entry, but all "
+                        "definitions remain in the combined XML; affected "
+                        "patches will not be semantically optimized."
                     )
+                    for key, first, other in self._original_xml_index.duplicates:
+                        print(f"  {key[0]} {key[1]}={key[2]}:")
+                        print(f"    first: {os.path.relpath(first, self.original_xml_dir) if os.path.isabs(first) else first}")
+                        print(f"    other: {os.path.relpath(other, self.original_xml_dir) if os.path.isabs(other) else other}")
             else:
                 print(f"OriginalXML optimization disabled: no XML refs found in {self.original_xml_dir}")
                 if os.path.isdir(self.original_patches_dir):
