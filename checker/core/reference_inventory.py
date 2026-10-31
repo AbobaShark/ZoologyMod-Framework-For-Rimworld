@@ -102,7 +102,8 @@ def _patch_is_relevant(path, root, animal_names):
 
 
 def discover_source_references(spec, sources, checker_root, version,
-                               *, safe_inside, parse_xml, digest, animal_names=()):
+                               *, safe_inside, parse_xml, digest, animal_names=(),
+                               progress=None, cancelled=None):
     """Build canonical snapshots from one preferred upstream source.
 
     A local Workshop source is used only if the preferred GitHub source yields
@@ -126,6 +127,7 @@ def discover_source_references(spec, sources, checker_root, version,
     ordered_sources = sorted(sources, key=source_rank, reverse=True)
     for source in ordered_sources:
         results = {}
+        paths = []
         for rel in selected_paths(source, version):
             if any(token in rel.casefold() for token in _EXCLUDE):
                 continue
@@ -135,8 +137,26 @@ def discover_source_references(spec, sources, checker_root, version,
                     continue
             elif not ('defs' in parts or 'def' in parts):
                 continue
+            paths.append(rel)
+
+        if progress is not None:
+            progress(f'Inspecting {spec["id"]}: {len(paths)} upstream XML files')
+        if cancelled is not None and cancelled.is_set():
+            raise InterruptedError('Reference Sync preview cancelled')
+        try:
+            batch = (source.read_many(paths, progress=progress, cancelled=cancelled)
+                     if hasattr(source, 'read_many') else None)
+        except OSError:
+            # A failed remote batch cannot define the complete snapshot.
+            # Discard it and try a local Workshop installation instead.
+            continue
+        for index, rel in enumerate(paths, 1):
+            if cancelled is not None and cancelled.is_set():
+                raise InterruptedError('Reference Sync preview cancelled')
+            if progress is not None and batch is None and (index % 50 == 0 or index == len(paths)):
+                progress(f'Inspecting {spec["id"]}: {index}/{len(paths)} XML files')
             try:
-                data = source.read(rel)
+                data = batch[rel] if batch is not None else source.read(rel)
                 doc = parse_xml(data, 'Patch' if ce else 'Defs')
             except (ValueError, OSError, ET.ParseError, subprocess.TimeoutExpired):
                 continue
