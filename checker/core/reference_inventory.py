@@ -72,7 +72,8 @@ def _patch_is_relevant(path, root, animal_names):
 
 
 def discover_source_references(spec, sources, checker_root, existing, version,
-                               *, safe_inside, parse_xml, digest, animal_names=()):
+                               *, safe_inside, parse_xml, digest, animal_names=(),
+                               claimed_source_paths=()):
     """Yield new Defs/CE reference snapshots using upstream XML, not old files."""
     if not sources:
         return []
@@ -82,6 +83,8 @@ def discover_source_references(spec, sources, checker_root, existing, version,
     results = {}
     for source in sources:
         for rel in selected_paths(source, version):
+            if rel in claimed_source_paths:
+                continue
             if any(token in rel.casefold() for token in _EXCLUDE):
                 continue
             parts = [part.casefold() for part in PurePosixPath(rel).parts]
