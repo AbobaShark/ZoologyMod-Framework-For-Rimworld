@@ -247,7 +247,7 @@ class AutoReferenceTests(unittest.TestCase):
             data = {'sha': sha} if '/commits/' in request.full_url else index
             return io.BytesIO(json.dumps(data).encode('utf-8'))
         with patch.object(rs.urlrequest, 'urlopen', side_effect=fake_open):
-            with patch.object(rs.subprocess, 'run', side_effect=AssertionError('git invoked')):
+            with patch('subprocess.run', side_effect=AssertionError('git invoked')):
                 source = rs.GitSource({'github': {
                     'url': 'https://github.com/juanosarg/AlphaAnimals.git'}})
         self.assertEqual(source.revision, sha)
