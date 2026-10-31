@@ -1,6 +1,6 @@
 # XML compactor (optional maintenance tool)
 
-The pipeline's primary optimization mode uses `OriginalXML`/`OriginalPatches` and `PatchOptimizer` while generating patches. The standalone compactor is for explicit post-generation maintenance of individual XML files; it is not part of the verified group-to-group parity contract.
+The pipeline's primary optimization mode uses `OriginalXML`/`OriginalXML/CEPatches` and `PatchOptimizer` while generating patches. The standalone compactor is for explicit post-generation maintenance of individual XML files; it is not part of the verified group-to-group parity contract.
 
 ```powershell
 py -m core.rimworld_patch_compactor "output/staged/files/Core/Patches/Core/ThingDefs_Races/Races_Animal_Birds.xml"

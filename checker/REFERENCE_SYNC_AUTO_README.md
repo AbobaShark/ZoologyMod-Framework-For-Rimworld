@@ -1,9 +1,6 @@
 # Automatic upstream reference sync (RimWorld 1.7)
 
-Copy `reference_sync_gui.py`, `START_REFERENCE_SYNC.bat`,
-`reference_sources.auto.json` to `checker/` and
-`tools/reference_sync_auto.py` to `checker/tools/`.
-These files are additions: do not replace the existing `tools/reference_sync.py`.
+Reference Sync is included in current Checker; no manual copying or obsolete updater is required.
 
 Double-click `START_REFERENCE_SYNC.bat` or run `py reference_sync_gui.py`.
 Enter any of these locations: Steam root, Steam library, `steamapps`, RimWorld
@@ -29,7 +26,7 @@ especially when there are outstanding `COPY` entries. The GUI displays new
 and updated imports first, includes a `COPY` counter, and reports the number
 of newly found material XML files. `REVIEW` and `HISTORICAL` are never written.
 No upstream files are deleted, and arbitrary new race XML is not imported
-without an existing reference. Local settings are under gitignored `output/`.
+without an existing reference. Local preferences are stored in ignored `checker.local.json`, not in a copy of the versioned reference paths. The obsolete `output/reference_sources.local.json`, `OriginalPatches/` and `generated_patches/` are deleted on GUI startup without migration.
 
 The tool is intentionally independent of patch generation. After applying
 reference changes, regenerate patches with Checker's existing generator,
