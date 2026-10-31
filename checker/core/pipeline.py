@@ -139,7 +139,7 @@ def stage_pipeline(source, *, root=None, registry_path=None, sheet_sources=None,
             expected_category = 'biome_patch' if declared_section=='biomes' else ('animal_patch' if declared_section=='groups' else declared['category'])
             if expected_category!=category or declared.get('requires')!=requires:
                 raise ValueError(f'Output category or requirement differs from generation.json: {dest}')
-            if postprocessor is not None and category.endswith('patch') and dest not in animal_group_destinations and dest not in leather_destinations and dest not in textile_destinations:
+            if postprocessor is not None and category.endswith('patch') and dest not in animal_group_destinations:
                 if postprocessor.index is None and generator is not None:
                     postprocessor.index=getattr(generator,'_original_xml_index',None)
                 data=postprocessor.process(data,destination=dest)
