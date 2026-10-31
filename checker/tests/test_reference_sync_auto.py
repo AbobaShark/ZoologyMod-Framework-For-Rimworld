@@ -1,5 +1,8 @@
 """Test canonical Reference Sync paths, source version selection and atomic cleanup."""
+import io
+import json
 import tempfile
+import threading
 import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
@@ -171,6 +174,82 @@ class AutoReferenceTests(unittest.TestCase):
             source.read('1.8/Defs/Animals.xml')
             source.read('1.8/Defs/Animals.xml')
             self.assertEqual(mock.call_count, 1)
+
+
+    def test_github_index_uses_two_api_requests_and_no_git_clone(self):
+        sha = 'a' * 40
+        index = {'truncated': False, 'tree': [
+            {'path': '1.7/Defs/Races.xml', 'type': 'blob', 'size': 127},
+            {'path': 'Textures/Animal.png', 'type': 'blob', 'size': 500},
+            {'path': '1.7/Defs', 'type': 'tree'},
+        ]}
+        urls = []
+        def fake_open(request, timeout):
+            urls.append(request.full_url)
+            self.assertEqual(timeout, 12)
+            data = {'sha': sha} if '/commits/' in request.full_url else index
+            return io.BytesIO(json.dumps(data).encode('utf-8'))
+        with patch.object(rs.urlrequest, 'urlopen', side_effect=fake_open):
+            with patch.object(rs.subprocess, 'run', side_effect=AssertionError('git invoked')):
+                source = rs.GitSource({'github': {
+                    'url': 'https://github.com/juanosarg/AlphaAnimals.git'}})
+        self.assertEqual(source.revision, sha)
+        self.assertEqual(source.files, ['1.7/Defs/Races.xml'])
+        self.assertEqual(len(urls), 2)
+        self.assertIn('/commits/HEAD', urls[0])
+        self.assertIn('/git/trees/' + sha, urls[1])
+
+    def test_parallel_xml_batch_reports_progress_and_finishes(self):
+        source = object.__new__(rs.GitSource)
+        source._cache = {}
+        source._cache_size = 0
+        source.read_error = None
+        source.provenance = 'fake github'
+        paths = [f'1.7/Defs/Animal_{i}.xml' for i in range(24)]
+        progress = []
+        with patch.object(source, '_fetch_raw', side_effect=lambda rel: rel.encode()):
+            found = source.read_many(paths, progress=progress.append)
+        self.assertEqual(len(found), 24)
+        self.assertEqual(set(found), set(paths))
+        self.assertEqual(len(source._cache), 24)
+        self.assertEqual(len(progress), 3)
+        self.assertIn('24/24', progress[-1])
+
+    def test_github_batch_failure_falls_back_to_local_source(self):
+        self.write('Defs/Wolf.xml',
+                   '<Defs><ThingDef><defName>Wolf</defName></ThingDef></Defs>',
+                   self.workshop / '4321')
+        cfg = self.cfg('Example', workshop_ids=['4321'],
+                       github={'url': 'https://github.com/owner/repo.git'})
+        class BrokenGit:
+            files = ['Defs/Wolf.xml']
+            provenance = 'broken github'
+            read_error = 'network timeout'
+            def __init__(self, spec): pass
+            def read_many(self, paths, progress=None, cancelled=None):
+                raise OSError('network timeout')
+            def close(self): pass
+        with patch.object(rs, 'GitSource', BrokenGit):
+            entries, warnings = rs.discover(cfg, steam=str(self.steam),
+                                            github=True, checker_root=self.checker)
+        self.assertEqual(len(entries), 1)
+        self.assertIn('4321', entries[0]['provenance'])
+        self.assertTrue(any('network timeout' in x for x in warnings))
+
+    def test_cancelled_parallel_download_exits_without_writing_xml(self):
+        source = object.__new__(rs.GitSource)
+        source._cache = {}
+        source._cache_size = 0
+        source.read_error = None
+        source.provenance = 'fake github'
+        cancelled = threading.Event()
+        def progress(message):
+            if '10/24' in message:
+                cancelled.set()
+        with patch.object(source, '_fetch_raw', side_effect=lambda rel: rel.encode()):
+            with self.assertRaises(InterruptedError):
+                source.read_many([f'1.7/Defs/Animal_{i}.xml' for i in range(24)],
+                                 progress=progress, cancelled=cancelled)
 
 
 if __name__ == '__main__':
