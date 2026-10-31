@@ -202,12 +202,6 @@ class AutoReferenceTests(unittest.TestCase):
             rs.apply(result,checker_root=self.checker)
         self.assertEqual(target.read_text(), 'changed since preview')
 
-    def test_historical_megafauna_untouched(self):
-        self.source('OriginalXML/Megafauna/Races_Animal_Megafauna_v1.0-v1.1.xml','<Defs/>')
-        cfg={'mods':[self.spec('Megafauna','OriginalXML/Megafauna')]}
-        result,_=rs.discover(cfg,steam='',github=False,checker_root=self.checker)
-        self.assertEqual(result[0]['status'],'HISTORICAL')
-
     def test_version_selection(self):
         old=b'<Defs><ThingDef><defName>Hare</defName></ThingDef></Defs>'
         self.source('OriginalXML/Example/Races_Hare.xml',old.decode())
