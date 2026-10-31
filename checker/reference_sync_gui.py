@@ -132,7 +132,7 @@ class App:
         self.apply_button = ttk.Button(actions, text='Apply reviewed changes', command=self._apply, state='disabled')
         self.apply_button.pack(side='left', padx=10)
         ttk.Button(actions, text='Open backup folder', command=self._open_backups).pack(side='left')
-        self.status = tk.StringVar(value='Ready. Preview never writes into OriginalXML / CEPatches.')
+        self.status = tk.StringVar(value='Ready. Preview imports current upstream Defs and CE patches without touching the reference cache.')
         ttk.Label(actions, textvariable=self.status).pack(side='left', padx=12)
         ttk.Label(outer, text='COPY = new references to import; REPLACE = updated references. MISSING checks only existing references.').pack(anchor='w')
         box = ttk.Frame(outer); box.pack(fill='both', expand=True)
@@ -261,7 +261,7 @@ class App:
                 elif kind == 'preview':
                     self.entries, self.warnings = data
                     priority = {'COPY': 0, 'REPLACE': 1, 'MISSING': 2,
-                                'REVIEW': 3, 'SKIP': 4, 'HISTORICAL': 5}
+                                'REVIEW': 3, 'SKIP': 4}
                     ordered = sorted(enumerate(self.entries),
                                      key=lambda e: (priority.get(e[1]['status'], 6),
                                                     e[1]['destination'].casefold()))
@@ -270,8 +270,10 @@ class App:
                                             values=(ent['status'], ent['destination'],
                                                     ent.get('source_file','')))
                     counts = {k: sum(x['status'] == k for x in self.entries)
-                              for k in ('COPY','REPLACE','SKIP','MISSING','REVIEW','HISTORICAL')}
-                    material_new = sum(x['status'] == 'COPY' and '/_Leathers/' in x['destination']
+                              for k in ('COPY','REPLACE','SKIP','MISSING','REVIEW')}
+                    material_new = sum(x['status'] == 'COPY' and
+                                       ('/_Leathers/' in x['destination'] or
+                                        '/CEPatches/' in x['destination'])
                                        for x in self.entries)
                     pending = counts['COPY'] + counts['REPLACE']
                     self.status.set('Preview: '+', '.join(f'{k} {v}' for k,v in counts.items())
@@ -279,7 +281,7 @@ class App:
                     if pending:
                         message = (f'Not yet synchronized: {counts["COPY"]} new and '
                                    f'{counts["REPLACE"]} updated reference file(s); '
-                                   f'{material_new} new leather/wool/CE material XML. '
+                                   f'{material_new} new material/CE reference XML. '
                                    'Click Apply reviewed changes to import them.')
                     else:
                         message = ('No new or updated upstream files found. '
