@@ -344,16 +344,16 @@ def discover(cfg, *, steam='', github=True, checker_root=ROOT, progress=None):
             missing = coverage(registry, spec, current)
             warnings.extend(missing)
             expected = {item['destination'].casefold() for item in current}
+            imported_hashes = {item['source_sha256'] for item in current}
             from core.reference_inventory import source_path_version
             current_versions = {source_path_version(item['source_file']) for item in current}
             current_versions.discard(None)
             for key, (relative, path) in sorted(existing.items()):
                 if key in expected:
                     continue
-                # An exact canonical counterpart supersedes a prior synthetic
-                # material/Defs directory, even if other references are missing.
-                canonical = relative.replace('/_Leathers/', '/').replace('/_Defs/', '/')
-                superseded = canonical.casefold() in expected
+                # Identical XML in another location is redundant regardless
+                # of its old directory naming or reference categorization.
+                superseded = digest(path.read_bytes()) in imported_hashes
                 old_version = source_path_version(relative)
                 # RimWorld uses one compatible versioned folder. Snapshots
                 # from another exact version are obsolete even if a separate
