@@ -132,7 +132,7 @@ class App:
         self.apply_button = ttk.Button(actions, text='Apply reviewed changes', command=self._apply, state='disabled')
         self.apply_button.pack(side='left', padx=10)
         ttk.Button(actions, text='Open backup folder', command=self._open_backups).pack(side='left')
-        self.status = tk.StringVar(value='Ready. Preview imports current upstream Defs and CE patches without touching the reference cache.')
+        self.status = tk.StringVar(value='Ready. Preview discovers upstream Defs and CE patches without modifying the reference cache.')
         ttk.Label(actions, textvariable=self.status).pack(side='left', padx=12)
         ttk.Label(outer, text='COPY = new references to import; REPLACE = updated references. MISSING checks only existing references.').pack(anchor='w')
         box = ttk.Frame(outer); box.pack(fill='both', expand=True)
