@@ -22,12 +22,14 @@ class UnifiedEntryPointTests(unittest.TestCase):
 
     def test_worker_reports_full_traceback_instead_of_just_exception(self):
         import queue
-        app = object.__new__(entry.PatchGeneratorApp)
-        app.messages = queue.Queue()
+        class Worker:
+            def __init__(self):
+                self.messages = queue.Queue()
+        worker = Worker()
         failure = TypeError("'NoneType' object has no attribute 'startswith'")
         with patch.object(entry, 'stage_pipeline', side_effect=failure):
-            app._worker({})
-        kind, summary, details = app.messages.get_nowait()
+            entry.PatchGeneratorApp._worker(worker, {})
+        kind, summary, details = worker.messages.get_nowait()
         self.assertEqual(kind, 'error')
         self.assertIn("startswith", summary)
         self.assertIn("Traceback (most recent call last)", details)
