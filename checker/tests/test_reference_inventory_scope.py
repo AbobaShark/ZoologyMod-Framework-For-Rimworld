@@ -4,7 +4,7 @@ from pathlib import Path
 
 from lxml import etree as E
 
-from core.reference_inventory import _definitions, _patch_is_relevant
+from core.reference_inventory import _definitions, _patch_is_relevant, _candidate_path
 from tools import reference_sync_auto as sync
 
 
@@ -94,6 +94,19 @@ def test_ce_filter_selects_relevant_animal_and_material_operations_only():
     assert not _patch_is_relevant(sample, patch('AEXP_RawFish'), {'AA_TestWolf'}, strict=True)
     assert _patch_is_relevant('Patches/Core/Items_Resource_Stuff.xml',
                               patch('Leather_Light'), {'AA_TestWolf'}, strict=True)
+
+
+def test_ce_modpatches_exclude_unsupported_mods_even_for_generic_leatherbase():
+    allowed = {'alphaanimals', 'vanillaanimalsexpandedendangered'}
+    assert _candidate_path(
+        'ModPatches/Alpha Animals/Patches/Alpha Animals/AA_Resource_CEStuff.xml',
+        ce=True, ce_allowed_mods=allowed)
+    assert not _candidate_path(
+        'ModPatches/Unsupported Mod/Patches/Items_Resource_Stuff.xml',
+        ce=True, ce_allowed_mods=allowed)
+    assert _candidate_path(
+        'Patches/Core/ThingDefs_Items/Items_Resource_Stuff.xml',
+        ce=True, ce_allowed_mods=allowed)
 
 
 def test_duplicate_keys_after_ce_are_distinguished_from_source_duplicates(tmp_path):
