@@ -18,7 +18,7 @@ Use `START_REFERENCE_SYNC.bat` / `py reference_sync_gui.py` to preview upstream 
 
 GitHub sources use the latest default branch unless a branch or exact commit is explicitly chosen. Local game installations and Workshop mods can be used as sources. The GUI displays COPY, REPLACE, SKIP, MISSING and REVIEW; reviewed replacements are backed up under ignored `output/reference-backups/`. Reference Sync does not modify the Zoology mod or run automatically with generation.
 
-User preferences are stored in `checker.local.json` and cannot override versioned reference directory locations. Reference Sync deletes the old `output/reference_sources.local.json`, `OriginalPatches/` and `generated_patches/` locations when starting, without migrating them. It preserves the current `OriginalXML/` snapshots and staged generated files.
+User preferences are stored in `checker.local.json` and cannot override versioned reference directory locations. Reference Sync imports recognized upstream Def XML and relevant CE patches without requiring pre-existing files. It reports registered animals or biomes that cannot be resolved to a source. No obsolete-file migration or startup cleanup remains. The current `OriginalXML/` snapshots and staged files are not deleted automatically.
 
 ## Optimization
 

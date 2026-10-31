@@ -15,18 +15,29 @@ cannot be matched or GitHub cannot be reached, a detected local copy is tried.
 Select `Preview` first. `COPY` means **new reference XML not yet imported**
 and `REPLACE` means a previously imported reference has changed. Both are
 included by **Apply reviewed changes**, with prior-file backups and a JSON
-report under `checker/output/reference-backups/`. New material reference XML
-(for leather, wool, silk, and CE) is discovered even if its source group had no
-references before. After applying, rerun Preview: those references should
+report under `checker/output/reference-backups/`. Complete source Definition XML and relevant CE patch XML are discovered
+without pre-existing reference files. After applying, rerun Preview: those references should
 normally change from `COPY` to `SKIP`.
 
-`MISSING` means that an **already tracked** reference could not be matched.
-Therefore, `MISSING 0` does **not** mean that all materials are available,
-especially when there are outstanding `COPY` entries. The GUI displays new
-and updated imports first, includes a `COPY` counter, and reports the number
-of newly found material XML files. `REVIEW` and `HISTORICAL` are never written.
-No upstream files are deleted, and arbitrary new race XML is not imported
-without an existing reference. Local preferences are stored in ignored `checker.local.json`, not in a copy of the versioned reference paths. The obsolete `output/reference_sources.local.json`, `OriginalPatches/` and `generated_patches/` are deleted on GUI startup without migration.
+`MISSING` denotes a reference that cannot be resolved to a source. Reference Sync
+also imports newly discovered `Defs` XML from game Core/DLC installations and
+third-party mods even if `OriginalXML/` is initially empty. It imports race,
+PawnKind, biome, egg/item, wool/silk/leather, inherited base and relevant CE
+patch XML under source-specific paths. Exact upstream relative paths are
+retained under `_Defs/`, `_Leathers/`, or `CEPatches/`; explicit 1.7 files
+take precedence over older game-version snapshots.
+
+The source configuration includes Alpha Biomes, Alpha Animals, Vanilla Animals
+Expanded modules and Combat Extended through their GitHub repositories and/or
+Workshop IDs. Dinosauria and Megafauna have Workshop IDs and are read from
+local installations. Disabled or unavailable sources cannot be reconstructed:
+review every warning, especially missing registered DefNames. This is a source
+coverage check, not proof of complete RimWorld patch-load-order semantics.
+
+Review COPY/REPLACE entries before applying. Existing files are backed up;
+the updater does not delete unrelated files during preview or apply. Machine
+preferences live in ignored `checker.local.json`; upstream source paths are
+versioned in `reference_sources.auto.json`.
 
 The tool is intentionally independent of patch generation. After applying
 reference changes, regenerate patches with Checker's existing generator,
@@ -46,7 +57,7 @@ branch is fetched each time without changing your Zoology Git checkout.
 interpreter. Identical filenames with several different plausible sources
 are marked `MISSING` (reason: ambiguous) rather than silently chosen. Files
 whose upstream filenames or Def identities have changed radically require
-manual review. Existing historical Megafauna strata are protected. GitHub
+manual review. GitHub
 branches are not guaranteed to correspond to the most recent Steam Workshop
 release; inspect source provenance before accepting replacements. A local
 Steam game/mod may still be outdated. The UI reports missing local sources.

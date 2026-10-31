@@ -26,6 +26,6 @@ py rimworld_patch_generator.py --preview
 
 `OriginalXML/` and `output/staged/` are gitignored local reference and staging directories. Reference Sync and patch generation never run implicitly as part of the other. Generated XML must be reviewed before deployment.
 
-The abandoned `OriginalPatches/`, `generated_patches/`, and `output/reference_sources.local.json` are no longer inputs. Reference Sync deletes these obsolete locations when starting; their contents are not migrated.
+The upstream XML inventory is rebuilt from current game, Workshop, and optional GitHub files without relying on historical reference filenames. Sources are laid out under `OriginalXML/<owner>/_Defs/`, material files under `OriginalXML/<owner>/_Leathers/`, and CE patches under `OriginalXML/CEPatches/`. The previous material-only sync and startup legacy-cleanup code have been removed.
 
 Run `py -m pytest -q tests` from `checker/` for unit tests. The registry preflight and tests do not replace in-game validation with RimWorld 1.7 and the actual loaded mod list.
