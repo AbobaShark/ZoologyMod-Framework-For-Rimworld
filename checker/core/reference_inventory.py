@@ -10,54 +10,60 @@ import re
 import subprocess
 import xml.etree.ElementTree as ET
 
-def _contains_leather(root, is_ce):
-    """Recognize material Defs or CE material patch operations."""
-    if is_ce:
-        if root.tag != 'Patch':
-            return False
-        return any('ThingDef[' in (node.text or '')
-                   and any(term in (node.text or '').casefold()
-                           for term in ('leather', 'wool', 'silk'))
-                   and any(part in (node.text or '')
-                           for part in ('/statBases', '/stuffProps', '/graphicData', '@Name='))
-                   for node in root.iter('xpath'))
-    if root.tag != 'Defs':
-        return False
-    return any(any(term in (td.findtext('defName') or '').casefold()
-                   for term in ('leather', 'wool', 'silk'))
-               or td.get('Name') in ('LeatherBase', 'WoolBase')
-               for td in root.findall('ThingDef'))
+_VERSION = re.compile(r'^v?(\d+)\.(\d+)$', re.I)
 
 
+def version_tuple(version):
+    """Compare arbitrary RimWorld major.minor versions numerically."""
+    if version is None or str(version).strip().lower() in ('', 'auto'):
+        return None
+    match = re.match(r'^v?(\d+)\.(\d+)(?:\.\d+)?$', str(version).strip(), re.I)
+    if not match:
+        raise ValueError(f'Invalid RimWorld version: {version!r}')
+    return tuple(map(int, match.groups()))
 
-_DEFS = {'ThingDef', 'PawnKindDef', 'BiomeDef', 'LifeStageDef', 'HediffDef'}
-_EXCLUDE = {'photonozoa', 'kaliska'}
-_CE_HINT = re.compile(
-    r'leather|wool|silk|stuff|resource|races?[_/]|animal|biome|egg|hatch|milk|shear|pawnkind',
-    re.I,
-)
-_CE_XPATH = re.compile(r'ThingDef|PawnKindDef|BiomeDef|LifeStageDef|LeatherBase|WoolBase')
-_VERSION = re.compile(r'^v?1\.\d+$', re.I)
+
+def source_path_version(path):
+    for part in PurePosixPath(path).parts[:-1]:
+        match = _VERSION.fullmatch(part)
+        if match:
+            return tuple(map(int, match.groups()))
+    return None
 
 
-def selected_paths(source, version='1.7'):
-    """Use common and highest compatible version paths, never merge 1.6 and 1.7."""
-    paths = sorted(path for path in source.files if path.lower().endswith('.xml'))
-    versions = set()
+def _logical_path(path):
+    """A versioned file replaces the same root/Common relative path."""
+    parts = [part for part in PurePosixPath(path).parts if
+             not _VERSION.fullmatch(part) and part.casefold() != 'common']
+    return '/'.join(parts).casefold()
+
+
+def selected_paths(source, version=None):
+    """Pick one highest compatible version per source, plus shared root/Common XML.
+
+    RimWorld loads the highest compatible version directory, not every version.
+    If the game version is unknown, use the newest version supplied by the mod.
+    """
+    paths = sorted(path for path in source.files if path.casefold().endswith('.xml'))
+    target = version_tuple(version)
+    versions = {source_path_version(path) for path in paths}
+    compatible = [v for v in versions if v is not None and (target is None or v <= target)]
+    selected = max(compatible) if compatible else None
+    matches = {}
     for path in paths:
-        for part in PurePosixPath(path).parts[:-1]:
-            if _VERSION.fullmatch(part):
-                versions.add(part.lstrip('v'))
-    eligible = sorted((v for v in versions if tuple(map(int, v.split('.'))) <=
-                      tuple(map(int, version.split('.')))),
-                      key=lambda v: tuple(map(int, v.split('.'))))
-    chosen = version if version in versions else (eligible[-1] if eligible else None)
-    for path in paths:
-        components = PurePosixPath(path).parts[:-1]
-        versions_in_path = [part.lstrip('v') for part in components
-                            if _VERSION.fullmatch(part)]
-        if versions_in_path and versions_in_path[-1] != chosen:
+        path_version = source_path_version(path)
+        if path_version is not None and path_version != selected:
             continue
+        if path_version is not None and selected is None:
+            continue
+        parts = PurePosixPath(path).parts
+        priority = (2 if path_version is not None else
+                    1 if any(p.casefold() == 'common' for p in parts) else 0)
+        key = _logical_path(path)
+        previous = matches.get(key)
+        if previous is None or priority > previous[0]:
+            matches[key] = (priority, path)
+    for _, path in sorted(matches.values(), key=lambda entry: entry[1].casefold()):
         yield path
 
 
@@ -88,26 +94,25 @@ def _patch_is_relevant(path, root, animal_names):
     return 'races_animal' in name.casefold()
 
 
-def discover_source_references(spec, sources, checker_root, existing, version,
-                               *, safe_inside, parse_xml, digest, animal_names=(),
-                               claimed_source_paths=()):
-    """Yield new Defs/CE reference snapshots using upstream XML, not old files."""
+def discover_source_references(spec, sources, checker_root, version,
+                               *, safe_inside, parse_xml, digest, animal_names=()):
+    """Build canonical snapshots from one preferred upstream source.
+
+    A local Workshop source is used only if the preferred GitHub source yields
+    no usable references; different installations are never merged as if one mod.
+    """
     if not sources:
         return []
     ce = spec['id'] == 'CombatExtended'
     owner = spec['reference_dirs'][0].removeprefix('OriginalXML/')
-    prior = {path.casefold() for path in existing}
-    results = {}
     for source in sources:
+        results = {}
         for rel in selected_paths(source, version):
-            if rel in claimed_source_paths:
-                continue
             if any(token in rel.casefold() for token in _EXCLUDE):
                 continue
             parts = [part.casefold() for part in PurePosixPath(rel).parts]
             if ce:
-                if not _CE_HINT.search(rel) or not ('patches' in parts or
-                                                    'modpatches' in parts):
+                if not _CE_HINT.search(rel) or not ('patches' in parts or 'modpatches' in parts):
                     continue
             elif not ('defs' in parts or 'def' in parts):
                 continue
@@ -123,14 +128,10 @@ def discover_source_references(spec, sources, checker_root, existing, version,
             else:
                 if not _definitions(rel, doc):
                     continue
-                subset = '_Leathers' if _contains_leather(doc, False) else '_Defs'
-                dest = 'OriginalXML/' + owner + '/' + subset + '/' + rel
-            key = dest.casefold()
-            if key in prior or key in results:
-                continue
+                dest = 'OriginalXML/' + owner + '/' + rel
             target = safe_inside(checker_root, dest)
             current = target.read_bytes() if target.is_file() else None
-            results[key] = {
+            results[dest.casefold()] = {
                 'destination': dest,
                 'status': 'COPY' if current is None else
                           ('SKIP' if current == data else 'REPLACE'),
@@ -138,7 +139,9 @@ def discover_source_references(spec, sources, checker_root, existing, version,
                 'source_file': rel, 'source_sha256': digest(data),
                 'previous_sha256': digest(current), 'payload': data,
             }
-    return sorted(results.values(), key=lambda result: result['destination'])
+        if results:
+            return sorted(results.values(), key=lambda result: result['destination'])
+    return []
 
 
 def coverage(registry, spec, items):
