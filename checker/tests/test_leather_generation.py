@@ -10,7 +10,7 @@ from lxml import etree as E
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from core.leather_generation import (
-    read_leathers, render_leather_outputs, CUSTOM_DEST, CE_DEST,
+    read_leathers, render_leather_outputs, _render_patch, _trim_core_manual, CUSTOM_DEST, CE_DEST,
 )
 
 
@@ -93,6 +93,47 @@ def test_leathers_source_mod_is_mandatory(sample):
     df.to_csv(src, sep='\t', index=False)
     with pytest.raises(ValueError, match='Source mod'):
         read_leathers(src)
+
+
+def test_render_ignores_nodes_without_patch_operation_class(sample, tmp_path):
+    src, _ = sample
+    template = tmp_path / 'NonPatchOperationElements.xml'
+    template.write_text('''<Patch>
+      <!-- Real RimWorld patches also contain plain XML elements with no Class. -->
+      <Operation><xpath>Defs/ThingDef[defName="Ignored"]</xpath></Operation>
+      <Operation Class="PatchOperationReplace">
+        <xpath>Defs/ThingDef[defName="Leather_Pig"]/statBases/MarketValue</xpath>
+        <value><MarketValue>999</MarketValue></value>
+      </Operation>
+      <Operation Class="PatchOperationFindMod">
+        <mods><li>Combat Extended</li></mods>
+        <match Class="PatchOperationSequence"><operations><li/></operations></match>
+      </Operation>
+    </Patch>''', encoding='utf8')
+    touched = set()
+    tree = E.fromstring(_render_patch(template, read_leathers(src), True, touched))
+    assert tree.xpath('string(./Operation[2]/value/MarketValue)') == '1.9'
+    assert ('Leather_Pig', 'vanilla', 'MarketValue') in touched
+
+
+def test_prune_ignores_non_operation_xml_nodes(sample):
+    from types import SimpleNamespace
+    src, _ = sample
+    source_xml = b'''<Patch>
+      <Operation Class="PatchOperationFindMod">
+        <mods><li>Combat Extended</li></mods>
+        <match Class="PatchOperationSequence">
+          <operations><li/></operations>
+        </match>
+      </Operation>
+      <Operation><xpath>Defs/ThingDef[defName="OtherDef"]</xpath></Operation>
+    </Patch>'''
+    refs = SimpleNamespace(materials={}, ce_before={})
+    payload, touched = _trim_core_manual(source_xml, read_leathers(src), refs, True)
+    root = E.fromstring(payload)
+    assert len(root) == 1
+    assert root[0].get('Class') is None
+    assert touched == set()
 
 
 def test_render_existing_patch_preserves_original_ops(sample):
