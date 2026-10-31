@@ -381,6 +381,7 @@ def discover(cfg, *, steam='', github=True, checker_root=ROOT, progress=None, ca
         elif err:
             warnings.append(spec['id'] + ': ' + err)
 
+        local_ready = bool(sources)
         # GitHub is the fallback for missing/unusable local sources, not the
         # default source for an already installed Workshop mod.
         if not sources and github and gh.get('url'):
@@ -399,7 +400,7 @@ def discover(cfg, *, steam='', github=True, checker_root=ROOT, progress=None, ca
                 spec, sources, checker_root, version,
                 safe_inside=safe_inside, parse_xml=parse_xml, digest=digest,
                 animal_names=animal_names, progress=callback, cancelled=cancelled)
-            if not current and location and github and gh.get('url'):
+            if not current and local_ready and github and gh.get('url'):
                 if cancelled is not None and cancelled.is_set():
                     raise InterruptedError('Reference Sync preview cancelled')
                 callback('Local source contained no usable XML. Trying GitHub: ' + spec['id'])
