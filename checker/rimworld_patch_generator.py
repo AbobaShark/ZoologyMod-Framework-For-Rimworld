@@ -5,6 +5,7 @@ import argparse
 import sys
 import queue
 import threading
+import traceback
 from pathlib import Path
 import tkinter as tk
 from tkinter import ttk,filedialog,messagebox
@@ -136,17 +137,35 @@ class PatchGeneratorApp(tk.Tk):
         except Exception as exc:messagebox.showerror('Cannot generate',str(exc))
 
     def _worker(self,args):
-        try:self.messages.put(('ok',stage_pipeline(**args)))
-        except Exception as e:self.messages.put(('error',str(e)))
+        try:
+            self.messages.put(('ok',stage_pipeline(**args),None))
+        except Exception as exc:
+            # The full traceback is essential: GUI message boxes previously
+            # hid the crashing file and line, making unrelated guesses likely.
+            self.messages.put(('error',f'{type(exc).__name__}: {exc}',
+                               traceback.format_exc()))
 
     def _poll(self):
         try:
             while True:
-                kind,result=self.messages.get_nowait();self.busy=False
-                if kind=='ok':self._note(f'Staged successfully: {result}. Preview before deploying.')
+                kind,result,details=self.messages.get_nowait()
+                self.busy=False
+                if kind=='ok':
+                    self._note(f'Staged successfully: {result}. Preview before deploying.')
                 else:
-                    self._note('ERROR: '+result);messagebox.showerror('Generation failed',result)
-        except queue.Empty:pass
+                    log_path=ROOT/'output'/'generation-error.log'
+                    self._note('ERROR: '+result)
+                    self._note(details or '(No traceback available)')
+                    try:
+                        log_path.parent.mkdir(parents=True,exist_ok=True)
+                        log_path.write_text(details or result,encoding='utf-8')
+                        location=f'Full traceback: {log_path}'
+                    except OSError as logging_error:
+                        location=f'Could not save traceback: {logging_error}'
+                    messagebox.showerror('Generation failed',
+                                         result+'\n\n'+location)
+        except queue.Empty:
+            pass
         self.after(150,self._poll)
 
     def _preview(self):
