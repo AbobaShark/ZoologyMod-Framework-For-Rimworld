@@ -36,6 +36,19 @@ class UnifiedEntryPointTests(unittest.TestCase):
         self.assertIn("TypeError:", details)
         self.assertIn("_worker", details)
 
+    def test_cli_errors_write_full_traceback_log(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as directory:
+            with patch.object(entry, 'ROOT', Path(directory)), \
+                 patch.object(entry, 'cli_main', side_effect=ValueError('generation failed')):
+                with self.assertRaisesRegex(ValueError, 'generation failed'):
+                    entry.main(['--all'])
+            details = (Path(directory) / 'output' / 'generation-error.log').read_text(
+                encoding='utf-8')
+            self.assertIn('Traceback (most recent call last)', details)
+            self.assertIn('ValueError: generation failed', details)
+
+
     def test_flags_open_cli_without_gui(self):
         with patch.object(entry, 'PatchGeneratorApp') as app, patch.object(entry, 'stage_pipeline', return_value=Path('manifest.json')) as stage, \
              patch.object(entry, 'load', return_value={}), \
