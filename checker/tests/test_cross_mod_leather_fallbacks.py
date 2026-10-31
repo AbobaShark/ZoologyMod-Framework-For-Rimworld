@@ -157,7 +157,7 @@ def test_reference_index_never_reads_ce_patch_files_as_defs(tmp_path):
 
 def test_ce_reference_sync_discovers_base_and_race_patches(tmp_path):
     import hashlib
-    from core.leather_reference_sync import discover_new_leather_references
+    from core.reference_inventory import discover_source_references
     class Source:
         files = ['Patches/Core/Races_Animal_Bears.xml',
                  'Patches/Core/Items_Resource_Stuff.xml']
@@ -172,11 +172,12 @@ def test_ce_reference_sync_discovers_base_and_race_patches(tmp_path):
         node = E.fromstring(data)
         assert node.tag == expected
         return node
-    entries = discover_new_leather_references(
+    entries = discover_source_references(
         {'id':'CombatExtended','reference_dirs':['OriginalXML/CEPatches']},
         [Source()], tmp_path, [], '1.7',
         safe_inside=safe_inside, parse_xml=parse,
-        digest=lambda data: hashlib.sha256(data).hexdigest() if data is not None else None)
+        digest=lambda data: hashlib.sha256(data).hexdigest() if data is not None else None,
+        animal_names=('Bear',))
     assert len(entries) == 2
     assert all(x['destination'].startswith('OriginalXML/CEPatches/') for x in entries)
     assert all(x['status'] == 'COPY' for x in entries)

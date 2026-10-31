@@ -9,7 +9,7 @@ import pytest
 from lxml import etree as E
 
 from core.textile_generation import ROUTES, read_textiles, render_textile_outputs
-from core.leather_reference_sync import _contains_leather
+from core.reference_inventory import _contains_leather
 from core.rimworld_patch_apply import PatchApplier
 
 CHECKER = Path(__file__).resolve().parents[1]
