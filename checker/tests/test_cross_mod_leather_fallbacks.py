@@ -44,7 +44,8 @@ def _fixture(tmp_path):
     rows = {'Leather_Armadillo': row}
     entries = [
         {'destination': destination,
-         'requires': {'Megafauna':'Spino.Megafauna',
+         'requires': {'Odyssey':'Ludeon.RimWorld.Odyssey',
+                      'Megafauna':'Spino.Megafauna',
                       'Vanilla Animals Expanded — Endangered':'VanillaExpanded.VAEEndAndExt'}.get(group)}
         for group, destination in GROUP_ROUTES.items()
     ]

@@ -1,6 +1,9 @@
 """Reviewed auto-sync GUI for the existing Checker upstream reference corpus."""
 from __future__ import annotations
 import json
+import os
+import shutil
+import tempfile
 from pathlib import Path
 import queue
 import threading
@@ -11,7 +14,74 @@ from tools import reference_sync_auto as sync
 
 ROOT = Path(__file__).resolve().parent
 DEFAULT = ROOT / 'reference_sources.auto.json'
-LOCAL = ROOT / 'output' / 'reference_sources.local.json'  # output is gitignored
+SETTINGS = ROOT / 'checker.local.json'
+
+def _remove_obsolete_files():
+    """Discard abandoned generation and reference state, without migration."""
+    for relative in ('output/reference_sources.local.json',
+                     'reference_sources.local.json', 'OriginalPatches',
+                     'generated_patches'):
+        path = ROOT / relative
+        if path.is_symlink() or path.is_file():
+            path.unlink()
+        elif path.is_dir():
+            shutil.rmtree(path)
+
+
+def _load_reference_config():
+    """Always use current versioned source paths, never local copies of them."""
+    config = sync.read_config(DEFAULT)
+    if not SETTINGS.is_file():
+        return config
+    document = json.loads(SETTINGS.read_text(encoding='utf-8-sig'))
+    local = document.get('reference_sync', {})
+    if not isinstance(local, dict) or not isinstance(local.get('mods', {}), dict):
+        raise ValueError('checker.local.json: invalid reference_sync settings')
+    config['steam_root'] = local.get('steam_root', '')
+    edits = local.get('mods', {})
+    for spec in config['mods']:
+        override = edits.get(spec['id'], {})
+        if not isinstance(override, dict):
+            raise ValueError('checker.local.json: invalid reference_sync mod settings')
+        if 'enabled' in override:
+            spec['enabled'] = bool(override['enabled'])
+        if 'github' in override:
+            spec['github'] = override['github']
+    return config
+
+
+def _save_reference_config(config):
+    """Persist only preferences in shared local config, never reference paths."""
+    baseline = sync.read_config(DEFAULT)
+    originals = {spec['id']: spec for spec in baseline['mods']}
+    overrides = {}
+    for spec in config['mods']:
+        original = originals[spec['id']]
+        changed = {}
+        for key in ('enabled', 'github'):
+            if spec.get(key) != original.get(key):
+                changed[key] = spec.get(key)
+        if changed:
+            overrides[spec['id']] = changed
+    document = json.loads(SETTINGS.read_text(encoding='utf-8-sig')) if SETTINGS.is_file() else {}
+    state = {'mods': overrides}
+    if config.get('steam_root', '').strip():
+        state['steam_root'] = config['steam_root'].strip()
+    if overrides or 'steam_root' in state:
+        document['reference_sync'] = state
+    else:
+        document.pop('reference_sync', None)
+    SETTINGS.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.NamedTemporaryFile('w', encoding='utf-8', dir=SETTINGS.parent,
+                                     prefix='.checker-sync-', suffix='.tmp', delete=False) as output:
+        temporary = Path(output.name)
+        json.dump(document, output, ensure_ascii=False, indent=2)
+        output.write('\n')
+    try:
+        os.replace(temporary, SETTINGS)
+    finally:
+        temporary.unlink(missing_ok=True)
+
 
 
 class App:
@@ -19,8 +89,8 @@ class App:
         self.root = root
         root.title('Checker — Upstream Reference Sync')
         root.geometry('1190x770')
-        self.path = LOCAL if LOCAL.is_file() else DEFAULT
-        self.config = sync.read_config(self.path)
+        _remove_obsolete_files()
+        self.config = _load_reference_config()
         self.steam = tk.StringVar(value=self.config.get('steam_root', ''))
         self.github = tk.BooleanVar(value=True)
         self.mod_enabled = tk.BooleanVar()
@@ -141,10 +211,8 @@ class App:
     def _save_config(self):
         if not self._save_selected():return
         self.config['steam_root'] = self.steam.get().strip()
-        LOCAL.parent.mkdir(parents=True, exist_ok=True)
-        LOCAL.write_text(json.dumps(self.config, indent=2, ensure_ascii=False)+'\n', encoding='utf8')
-        self.path = LOCAL
-        self.status.set('Saved: '+str(LOCAL))
+        _save_reference_config(self.config)
+        self.status.set('Saved: '+str(SETTINGS))
 
     def _invalidate(self):
         self.entries = None

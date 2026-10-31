@@ -154,6 +154,7 @@ class TextileReferences:
         self.materials = {}
         self.absent_mod = {}
         self.ce = {}
+        self.include_ce = ce
         self.ce_ready = False
         self.warnings = []
         self._load()
@@ -200,7 +201,7 @@ class TextileReferences:
         if missing:
             raise ValueError('Animal textiles: missing original ThingDefs: ' + ', '.join(missing)
                              + '. Update OriginalXML using Reference Sync.')
-        if ce:
+        if self.include_ce:
             self._load_ce()
 
     def value(self, name, field, *, concrete=None, parents=None):

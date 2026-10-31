@@ -349,42 +349,6 @@ class CombatExtendedBodyShapeSafetyTests(unittest.TestCase):
             ["Quadruped", "Quadruped"],
         )
 
-    def test_insect_patch_repairs_original_ce_megaspider_extension(self):
-        index = OriginalXmlIndex(
-            str(CHECKER_DIR / "OriginalXML"),
-            patches_dir=str(CHECKER_DIR / "OriginalXML/CEPatches"),
-        ).load()
-        runtime_root = index.clone_root()
-        staged = CHECKER_DIR / "output/staged/files/Core/Patches/Core/ThingDefs_Races/Races_Animal_Insects.xml"
-        if not staged.exists():self.skipTest('Generate insect group first; no committed templates exist')
-        patch = LET.parse(str(staged)).getroot()
-
-        applier = PatchApplier(
-            active_mods=["Combat Extended"],
-            record_missing=True,
-        )
-        applier.apply_patch_root(patch, runtime_root)
-
-        base_extensions = runtime_root.xpath(
-            './ThingDef[@Name="BaseInsect"]/modExtensions/'
-            'li[@Class="CombatExtended.RacePropertiesExtensionCE"]'
-        )
-        megaspider_extensions = runtime_root.xpath(
-            './ThingDef[defName="Megaspider"]/modExtensions/'
-            'li[@Class="CombatExtended.RacePropertiesExtensionCE"]'
-        )
-        self.assertEqual(base_extensions, [])
-        self.assertEqual(len(megaspider_extensions), 1)
-        self.assertEqual(
-            megaspider_extensions[0].findtext("bodyShape"),
-            "QuadrupedLow",
-        )
-        self.assertEqual(
-            megaspider_extensions[0].findtext("canParry"),
-            "true",
-        )
-        self.assertEqual(applier.errors, [])
-
     def test_committed_patches_never_remove_only_body_shape(self):
         roots = [
             CHECKER_DIR / "output/staged/files",

@@ -18,7 +18,7 @@ class RegistryTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder:
             mod=Path(folder)/'Zoology';mod.mkdir();write_loadfolders(mod)
             r=load_registry(CHECKER/'generation.json',mod)
-            self.assertEqual(len(r['outputs']),19)
+            self.assertEqual(len(r['outputs']),34)
             self.assertEqual([len(r[k]) for k in ('groups','biomes','shared_defs','outputs')],[81,29,3,34])
             self.assertEqual(audit_routes(CHECKER/'generation.json',mod)['destinations'],147)
             self.assertEqual(output_by_id(r,'bionics.ce')['requires'],'CETeam.CombatExtended')

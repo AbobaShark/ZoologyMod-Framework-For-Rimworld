@@ -143,7 +143,7 @@ def test_missing_original_material_is_fatal(tmp_path):
 
 def test_missing_ce_original_is_fatal_only_if_ce_enabled(tmp_path):
     tsv, xml, patches = fixture(tmp_path)
-    for path in (patches / 'CE').rglob('*.xml'):
+    for path in patches.rglob('*.xml'):
         path.unlink()
     with pytest.raises(ValueError, match='CE WoolBase reference'):
         run_generator(tsv, xml, patches)
@@ -159,8 +159,7 @@ def test_reference_sync_detects_textiles_but_not_cloth():
 
 
 def test_no_handwritten_camel_or_duplicate_routes():
-    old = (MOD/'ModPatches/VanillaAnimalsExpanded/Patches/ThingDefs_Items/Items_Resource_Stuff_Leather_VAE.xml').read_text(encoding='utf8')
-    assert 'WoolCamel' not in old
+    assert not (MOD/'ModPatches/VanillaAnimalsExpanded/Patches/ThingDefs_Items/Items_Resource_Stuff_Leather_VAE.xml').exists()
     registry = json.loads((CHECKER/'generation.json').read_text(encoding='utf8'))
     entries = [e for e in registry['outputs'] if e['pipeline_category'] == 'textiles']
     assert {e['destination'] for e in entries} == set(ROUTES.values())

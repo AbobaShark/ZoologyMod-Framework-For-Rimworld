@@ -13,7 +13,19 @@ def _mod(tmp_path):
 def test_registry_routes_biomes_to_exact_versioned_path(tmp_path):
     mod=_mod(tmp_path)
     reg={'schema':1,'groups':[{'id':'test','mod':'Core','destination':'Core/Patches/Core/ThingDefs_Races/Test.xml','defs':['TestAnimal'],'abstracts':[]}],
-         'biomes':[{'defName':'TestBiome','destination':'Core/Patches/Core/BiomeDefs/Biomes_Test.xml'}]}
+         'biomes':[{'defName':'TestBiome','destination':'Core/Patches/Core/BiomeDefs/Biomes_Test.xml'}],
+         'shared_defs':[],
+         'outputs':[
+             {'id': name, 'destination': destination, 'category': category,
+              'pipeline_category': pipeline, 'source': source,
+              'requires': 'CETeam.CombatExtended' if category == 'ce_patch' else None}
+             for name, destination, category, pipeline, source in (
+                 ('products.test', 'Core/Patches/Core/Misc/Products.xml', 'animal_patch', 'products', 'installed_xml'),
+                 ('bionics.vanilla', 'Core/Defs/HediffDefs/BionicAnimalVariants.xml', 'common_defs', 'bionics', 'installed_xml'),
+                 ('bionics.ce', 'ModPatches/CombatExtended/Patches/HediffDefs/BionicAnimalVariants_CE.xml', 'ce_patch', 'bionics', 'generated'),
+                 ('life-stages.vanilla', 'Core/Patches/Core/LifeStageDefs/LifeStages.xml', 'animal_patch', 'life-stages', 'installed_xml'),
+                 ('life-stages.ce', 'ModPatches/CombatExtended/Patches/LifeStageDefs/LifeStages_CE.xml', 'ce_patch', 'life-stages', 'installed_xml'),
+             )]}
     path=tmp_path/'generation.json';path.write_text(json.dumps(reg))
     obj=load_registry(path,mod)
     assert obj['biomes'][0]['destination']=='Core/Patches/Core/BiomeDefs/Biomes_Test.xml'
