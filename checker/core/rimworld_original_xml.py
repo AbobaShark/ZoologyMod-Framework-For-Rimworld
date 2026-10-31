@@ -62,6 +62,7 @@ class OriginalXmlIndex:
         self.base_root = LET.Element("Defs")
         self.sources = {}
         self.duplicates = []
+        self.duplicates_before_patches = []
         self.files_loaded = 0
         self.patch_files_loaded = 0
         self.patch_apply_stats = Counter()
@@ -116,6 +117,7 @@ class OriginalXmlIndex:
                 self.root.append(copied)
                 self._index_def(copied, path)
         self.base_root = copy.deepcopy(self.root)
+        self.duplicates_before_patches = list(self.duplicates)
         self._apply_original_patches(parser)
         return self
 

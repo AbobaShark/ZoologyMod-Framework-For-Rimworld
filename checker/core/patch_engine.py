@@ -326,12 +326,17 @@ class PatchGenerator:
                             f"{self._original_xml_index.patch_errors[0]}"
                         )
                 if self._original_xml_index.duplicates:
+                    before = {key for key, _, _ in
+                              self._original_xml_index.duplicates_before_patches}
+                    after = {key for key, _, _ in self._original_xml_index.duplicates}
+                    introduced = after - before
                     print(
                         "OriginalXML warning: "
-                        f"{len(self._original_xml_index.duplicates)} duplicate Def key(s). "
-                        "Source-path lookup keeps the first entry, but all "
-                        "definitions remain in the combined XML; affected "
-                        "patches will not be semantically optimized."
+                        f"{len(self._original_xml_index.duplicates)} duplicate Def key(s) "
+                        f"({len(before)} key(s) before CE, "
+                        f"{len(introduced)} new key(s) after CE). "
+                        "Source-path lookup keeps the first entry; semantic "
+                        "optimization is disabled for affected targets."
                     )
                     for key, first, other in self._original_xml_index.duplicates:
                         print(f"  {key[0]} {key[1]}={key[2]}:")
