@@ -312,6 +312,16 @@ def choose_match(src, dest_rel, old_bytes, *, version, kind):
         except (ValueError, ET.ParseError, OSError, subprocess.TimeoutExpired) as exc:
             return None, str(exc)
         return (rel, data), None
+    if '/_Defs/' in dest_rel:
+        rel = dest_rel.split('/_Defs/', 1)[1]
+        if rel not in src.files:
+            return None, 'Exact original Defs file not present in upstream source'
+        try:
+            data = src.read(rel)
+            parse_xml(data, kind)
+        except (ValueError, ET.ParseError, OSError, subprocess.TimeoutExpired) as exc:
+            return None, str(exc)
+        return (rel, data), None
     if '/_Leathers/' in dest_rel:
         rel = dest_rel.split('/_Leathers/', 1)[1]
         if rel not in src.files:
