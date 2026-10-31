@@ -349,6 +349,10 @@ def discover(cfg, *, steam='', github=True, checker_root=ROOT, progress=None, ca
     registry_path = checker_root / 'generation.json'
     registry = json.loads(registry_path.read_text(encoding='utf-8')) if registry_path.is_file() else {}
     animal_names = {name for group in registry.get('groups', ()) for name in group['defs']}
+    abstract_names = {name for group in registry.get('groups', ())
+                      for name in group.get('abstracts', ())}
+    biome_names = {entry['defName'] for entry in registry.get('biomes', ())}
+    strict = bool(registry.get('groups') or registry.get('biomes'))
 
     for spec in cfg['mods']:
         if cancelled is not None and cancelled.is_set():
@@ -399,7 +403,9 @@ def discover(cfg, *, steam='', github=True, checker_root=ROOT, progress=None, ca
             current = discover_source_references(
                 spec, sources, checker_root, version,
                 safe_inside=safe_inside, parse_xml=parse_xml, digest=digest,
-                animal_names=animal_names, progress=callback, cancelled=cancelled)
+                animal_names=animal_names, abstract_names=abstract_names,
+                biome_names=biome_names, strict=strict,
+                progress=callback, cancelled=cancelled)
             if not current and local_ready and github and gh.get('url'):
                 if cancelled is not None and cancelled.is_set():
                     raise InterruptedError('Reference Sync preview cancelled')
@@ -410,7 +416,9 @@ def discover(cfg, *, steam='', github=True, checker_root=ROOT, progress=None, ca
                     current = discover_source_references(
                         spec, [remote], checker_root, version,
                         safe_inside=safe_inside, parse_xml=parse_xml, digest=digest,
-                        animal_names=animal_names, progress=callback, cancelled=cancelled)
+                        animal_names=animal_names, abstract_names=abstract_names,
+                biome_names=biome_names, strict=strict,
+                progress=callback, cancelled=cancelled)
                 except (OSError, ValueError) as exc:
                     warnings.append(spec['id'] + ': GitHub fallback unavailable: ' + str(exc)[:300])
             if not current:
@@ -422,7 +430,8 @@ def discover(cfg, *, steam='', github=True, checker_root=ROOT, progress=None, ca
             warnings.extend(missing)
             expected = {item['destination'].casefold() for item in current}
             imported_hashes = {item['source_sha256'] for item in current}
-            from core.reference_inventory import source_path_version
+            from core.reference_inventory import (
+                source_path_version, _definitions, _patch_is_relevant)
             current_versions = {source_path_version(item['source_file']) for item in current}
             current_versions.discard(None)
             for key, (relative, path) in sorted(existing.items()):
@@ -437,7 +446,22 @@ def discover(cfg, *, steam='', github=True, checker_root=ROOT, progress=None, ca
                 # registered DefName requires further review.
                 obsolete_version = bool(current_versions and old_version is not None
                                         and old_version not in current_versions)
-                if missing and not superseded and not obsolete_version:
+                irrelevant = False
+                if strict and not superseded and not obsolete_version:
+                    try:
+                        old_doc = parse_xml(path.read_bytes(),
+                                            'Patch' if spec['id'] == 'CombatExtended' else 'Defs')
+                        if spec['id'] == 'CombatExtended':
+                            irrelevant = not _patch_is_relevant(
+                                relative, old_doc, animal_names, abstract_names,
+                                biome_names, strict=True)
+                        else:
+                            irrelevant = not _definitions(
+                                relative, old_doc, animal_names, biome_names,
+                                abstract_names, strict=True)
+                    except (OSError, ValueError, ET.ParseError):
+                        pass
+                if missing and not superseded and not obsolete_version and not irrelevant:
                     continue
                 items.append({
                     'destination': relative, 'status': 'DELETE',
