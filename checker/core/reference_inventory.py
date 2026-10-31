@@ -77,9 +77,9 @@ def selected_paths(source, version=None):
 # File names are not authoritative: mixed XML files may contain supported
 # animals and unrelated objects. Verify actual Def keys before snapshotting.
 _MATERIAL_NAME = re.compile(r'Leather|Wool|Silk|Egg|Hatcher', re.I)
-_ANIMAL_BASE = re.compile(r'Animal|Mammal|Bird|Insect|Race|Stuff|Meat|Egg', re.I)
+_ANIMAL_BASE = re.compile(r'Animal|Mammal|Bird|Insect|Race|Stuff|Egg', re.I)
 _ANIMAL_LIFESTAGE = re.compile(r'Animal|Insect|Bird|Mammal', re.I)
-_ANIMAL_HEDIFF = re.compile(r'Animal|Bionic|Venom|Poison|Toxin', re.I)
+_ANIMAL_HEDIFF = re.compile(r'Animal|Venom|Poison|Toxin', re.I)
 _XPATH_KEY = re.compile(r'(?:defName|@Name)\s*=\s*["\']([^"\']+)["\']')
 
 
