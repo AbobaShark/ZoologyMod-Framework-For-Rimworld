@@ -241,6 +241,9 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="VAEWaste_ToxicLeather"]</xpath>
+    <match Class="PatchOperationSequence">
+      <operations><li Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "WasteRat"]/race/leatherDef</xpath>
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "WasteRat"]/race/leatherDef</xpath>
@@ -254,11 +257,13 @@
         <leatherDef>VAEWaste_ToxicLeather</leatherDef>
       </value>
     </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
+  </li>
+  <li Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "WasteRat"]/race/useLeatherFrom</xpath>
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "WasteRat"]/race/useLeatherFrom</xpath>
+    </match>
+  </li></operations>
     </match>
   </Operation>
   <Operation Class="PatchOperationReplace">

@@ -26,6 +26,54 @@ STAGE=ROOT/'output/staged'
 CATEGORIES=('animals','venom','biomes','products','bionics','life-stages','leathers','textiles')
 
 
+def _guard_leather_assignments(payload):
+    """Leave existing race leather unchanged when a referenced material is absent.
+
+    This removes any need to define extra or fallback leather ThingDefs for
+    Odyssey, VAE Waste or other optional material providers.
+    """
+    root = E.fromstring(payload)
+    if root.tag != 'Patch':
+        return payload
+    changed = False
+    for operation in list(root):
+        if not isinstance(operation.tag, str) or operation.tag != 'Operation':
+            continue
+        xpaths = operation.xpath('./xpath/text() | ./match/xpath/text() | ./nomatch/xpath/text()')
+        if not any('/race/leatherDef' in xpath for xpath in xpaths):
+            continue
+        materials = {str(value).strip() for value in operation.xpath(
+            './value//leatherDef/text() | ./match/value//leatherDef/text() | '
+            './nomatch/value//leatherDef/text()')}
+        if not materials:
+            continue
+        if len(materials) != 1:
+            raise ValueError(f'Conflicting leatherDef assignment: {sorted(materials)}')
+        name = materials.pop()
+        if not re.fullmatch(r'[A-Za-z][A-Za-z0-9_]*', name):
+            raise ValueError(f'Invalid assigned leatherDef: {name!r}')
+        idx = root.index(operation)
+        guard = E.Element('Operation', Class='PatchOperationConditional')
+        E.SubElement(guard, 'xpath').text = f'/Defs/ThingDef[defName="{name}"]'
+        seq = E.SubElement(E.SubElement(guard, 'match', Class='PatchOperationSequence'), 'operations')
+        root.remove(operation)
+        operation.tag = 'li'
+        seq.append(operation)
+        # The neighboring useLeatherFrom removal is part of this reassignment.
+        if idx < len(root):
+            following = root[idx]
+            if (isinstance(following.tag, str) and following.tag == 'Operation'
+                and any('/race/useLeatherFrom' in xpath for xpath in
+                        following.xpath('./xpath/text() | ./match/xpath/text()'))):
+                root.remove(following)
+                following.tag = 'li'
+                seq.append(following)
+        root.insert(idx, guard)
+        changed = True
+    return E.tostring(root, xml_declaration=True, encoding='utf-8',
+                      pretty_print=True) if changed else payload
+
+
 def _data_as_entry(mod,rel,category,requires=None):
     return target_entry(mod,rel,category,requires)
 
@@ -68,7 +116,9 @@ def stage_pipeline(source, *, root=None, registry_path=None, sheet_sources=None,
     # Verify all retained staged files before generating or pruning anything.
     for e in old['files']:
         if e['destination'] not in declared_routes:
-            raise ValueError(f'Staged destination not present in generation.json: {e["destination"]}. Review/clear old output/staged first.')
+            if e.get('pipeline_category') in cats:
+                continue  # Deleted legacy output will not be restaged.
+            raise ValueError(f'Staged destination not present in generation.json: {e["destination"]}. Regenerate its category.')
         p=stage/e['source']
         if not p.is_file() or digest(p)!=e.get('sha256'):raise ValueError(f'Staged file changed externally: {p}')
     entry_by_dest={}
@@ -94,6 +144,8 @@ def stage_pipeline(source, *, root=None, registry_path=None, sheet_sources=None,
                     postprocessor.index=getattr(generator,'_original_xml_index',None)
                 data=postprocessor.process(data,destination=dest)
             entry=_data_as_entry(mod,dest,category,requires)
+            if dest in animal_group_destinations:
+                data=_guard_leather_assignments(data)
             xml=E.fromstring(data)
             if xml.tag!=('Defs' if category.endswith('defs') else 'Patch'):
                 raise ValueError(f'{dest}: incorrect XML root {xml.tag}')
@@ -108,6 +160,8 @@ def stage_pipeline(source, *, root=None, registry_path=None, sheet_sources=None,
         selection_dest={e['destination'] for e in registry['shared_defs']} if 'venom' in cats else set()
         selection_dest |= {x['destination'] for x in registry['biomes']} if 'biomes' in cats else set()
         for e in old['files']:
+            if e['destination'] not in declared_routes:
+                continue
             c=e.get('pipeline_category')
             selected=(c in cats and (c!='animals' or groups is None or e['destination'] in active_groups))
             if selected:continue

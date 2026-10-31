@@ -17,7 +17,7 @@ modules under `core/` implement the shared generation and routing logic.
 
 Use one multisheet local XLSX/Google Sheets source with tabs `Animals`, `Animals CE`, `Bionics`, `LifeStages`, `EggMilkWool`, `Venom profiles`, and `Biomes`; the actual biome population export uses its existing AnimalStats inputs. Each needed sheet may instead use an individually configured TSV or workbook/Google URL. Both GUI and CLI support source overrides. No one else's Google credentials are included or required for local XLSX/TSV.
 
-`OriginalXML/` and `OriginalPatches/` contain optional, approved optimization references. They are never overwritten by the generator; for explicitly reviewed refreshes from local installations or pinned GitHub commits, see [docs/ROUTING_REFERENCES_AND_OPTIMIZATION.md](docs/ROUTING_REFERENCES_AND_OPTIMIZATION.md). CE output is controlled by an explicit checkbox/flag. The standalone Def generator is independent.
+`OriginalXML/` and `OriginalPatches/CE/_Leathers/` are local, gitignored upstream snapshots populated by Reference Sync. No source XML snapshots are distributed inside Git. They are never overwritten by the generator; for explicitly reviewed refreshes from local installations or pinned GitHub commits, see [docs/ROUTING_REFERENCES_AND_OPTIMIZATION.md](docs/ROUTING_REFERENCES_AND_OPTIMIZATION.md). CE output is controlled by an explicit checkbox/flag. The standalone Def generator is independent.
 
 ## Output destinations and routing
 
@@ -34,3 +34,9 @@ Specialized production files and the base bionic/life-stage XML still need an ex
 Regen inputs must contain the referenced animals; unknown groups, ambiguous or missing destinations, missing CE body shapes and invalid numeric cells fail visibly. `Generation` never writes into the mod; `Deploy` asks for confirmation and rechecks staged checksums and destinations before writing. `Zoology/LoadFolders.xml` and existing repo contents are not changed by distributing this archive.
 
 Run `python -m pytest tests` from `checker/` for isolated unit tests. Integration and runtime tests using the full `Zoology/` tree must be run after installation. See [PORTABLE_SETUP.md](PORTABLE_SETUP.md) for commands. Wool, silk and leather material generation is documented in [ANIMAL_TEXTILES.md](ANIMAL_TEXTILES.md). The `--optimize` flag now also uses conservative postprocessing for biome, product, CE-bionic and life-stage XML `<Patch>` outputs (full `<Defs>` are not rewritten).
+
+## Material ownership and launchers
+
+Every leather stat in AnimalStats is generated from upstream ThingDefs and CE reference XML. There are **no handwritten leather-stat or fallback patch templates**. The only four Zoology-owned material ThingDefs are `Leather_Beaver`, `Leather_Ostrich`, `Leather_Otter`, and `Leather_Squirrel`, updated directly in `Zoology/Core/Defs/ThingDefs_Items/Items_Resource_Stuff_Leather_Zoology.xml`. Their different Combat Extended armor is handled by a *generated* CE override. Optional animal leather assignments are guarded by presence of their target material, not by defining extra materials.
+
+The three Windows launchers are `START_REFERENCE_SYNC.bat`, `START_PATCH_GENERATOR.bat`, and `START_DEF_GENERATOR.bat`. The Python scripts remain directly callable for CLI usage. The upstream reference XML directories must be synchronized locally after cloning; they do not belong to Git.

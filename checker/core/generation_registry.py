@@ -76,6 +76,22 @@ def load_registry(path,mod):
     actual={e['id'] for e in obj['outputs']}
     if not required_ids <= actual or not any(e['pipeline_category']=='products' for e in obj['outputs']):
         raise ValueError('Missing required named static outputs')
+    # Material balance has a single generated owner. A handwritten leather
+    # patch can silently overwrite CE values after generation, so reject it.
+    if (Path(mod) / 'LoadFolders.xml').is_file():
+        allowed = {e['destination'] for e in obj['outputs']
+                   if e['pipeline_category'] in ('leathers', 'textiles')}
+        forbidden = []
+        for candidate in Path(mod).rglob('*.xml'):
+            name = candidate.name.casefold()
+            if 'leather' not in name and 'animaltextiles' not in name:
+                continue
+            relative = candidate.relative_to(mod).as_posix()
+            if relative not in allowed:
+                forbidden.append(relative)
+        if forbidden:
+            raise ValueError('Handwritten or unregistered material XML forbidden: '
+                             + ', '.join(sorted(forbidden)))
     return obj
 
 

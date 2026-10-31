@@ -315,15 +315,14 @@ def _emit(root):
     return E.tostring(root, encoding='utf-8', xml_declaration=True, pretty_print=True)
 
 
-def render_original_overrides(rows, original_xml, original_patches, *, ce=True, skip_vanilla=(), skip_ce=(), refs=None):
+def render_original_overrides(rows, original_xml, original_patches, *, ce=True, refs=None):
     """Return route-payload dict, CE payload, and comparison report.
 
-    The original source group decides the route. No Odyssey-only material is
-    patched when Odyssey is absent; the existing fallback owns that scenario.
+    The original source group decides the route; no missing ThingDefs are created.
     """
     refs = refs or LeatherReferences(original_xml, original_patches, rows, ce=ce)
     groups = {name: E.Element('Patch') for name in GROUP_ROUTES}
-    ce_root = E.Element('Patch')  # Retained for custom-def CE output compatibility.
+    ce_root = E.Element('Patch')
     ce_by_group = {name: E.Element('Patch') for name in GROUP_ROUTES}
     no_reference = []
     vanilla_changes = []
@@ -337,7 +336,6 @@ def render_original_overrides(rows, original_xml, original_patches, *, ce=True, 
             continue
         group, original = refs.materials[name]
         for field in NUMERICS:
-            if (name, 'vanilla', field) in skip_vanilla: continue
             old = refs.get_number(original, field)
             if old is None:
                 if refs.strict_ownership:
@@ -348,27 +346,24 @@ def render_original_overrides(rows, original_xml, original_patches, *, ce=True, 
             if not _equals(old, new):
                 _conditional(groups[group], name, NUMERICS[field], format(new,'.12g'), original)
                 vanilla_changes.append((name, field, old, new, group))
-        if (name, 'vanilla', 'Color hex') not in skip_vanilla:
-            old = refs.get_color(original)
-            if old is None and refs.strict_ownership:
-                raise ValueError(f'Leathers: cannot resolve original {name} stuffProps/color')
-            if old is not None and old != sheet['Color hex']:
-                _conditional(groups[group], name, 'stuffProps/color', _rgb(sheet['Color hex']), original)
-                # If graphicData has its own independent color, preserve it.
-                if _xml_color(original.findtext('graphicData/color')) == old:
-                    _conditional(groups[group], name, 'graphicData/color', _rgb(sheet['Color hex']), original)
-                vanilla_changes.append((name, 'Color hex', old, sheet['Color hex'], group))
+        old = refs.get_color(original)
+        if old is None and refs.strict_ownership:
+            raise ValueError(f'Leathers: cannot resolve original {name} stuffProps/color')
+        if old is not None and old != sheet['Color hex']:
+            _conditional(groups[group], name, 'stuffProps/color', _rgb(sheet['Color hex']), original)
+            # If graphicData has its own independent color, preserve it.
+            if _xml_color(original.findtext('graphicData/color')) == old:
+                _conditional(groups[group], name, 'graphicData/color', _rgb(sheet['Color hex']), original)
+            vanilla_changes.append((name, 'Color hex', old, sheet['Color hex'], group))
         if not ce:
             continue
         for field, col in CE_FIELDS.items():
-            if (name,'ce',field) in skip_ce: continue
             new = sheet[col]
             reference = refs.ce_before.get(name, {}).get(field)
             # If source CE patches aren't present, only force a value when
             # the desired CE value differs from the Sheet vanilla value.
             known = refs.ce_available and reference is not None
-            vanilla_touch = ((name, 'vanilla', field) in skip_vanilla or
-                             any(n == name and f == field for n, f, *_ in vanilla_changes))
+            vanilla_touch = any(n == name and f == field for n, f, *_ in vanilla_changes)
             if not known:
                 ce_unverified.append((name, field))
                 if refs.strict_ownership:

@@ -15,16 +15,20 @@ def _interesting(rel, is_ce):
     if not path.endswith('.xml'): return False
     # Narrow the scan to original item/stuff and CE patches. Non-leather
     # resource files may contain the abstract LeatherBase or material defs.
-    if is_ce:
-        return any(part in path for part in ('leather', 'stuff', 'resource', 'wool', 'silk'))
     return any(part in path for part in ('leather', 'stuff', 'resource', 'wool', 'silk'))
 
 
 def _contains_leather(root, is_ce):
     if is_ce:
         if root.tag != 'Patch': return False
-        return any(any(term in (x.text or '').casefold() for term in ('leather', 'wool', 'silk'))
-                   for x in root.iter('xpath'))
+        return any(
+            'ThingDef[' in (node.text or '')
+            and any(term in (node.text or '').casefold()
+                    for term in ('leather', 'wool', 'silk'))
+            and any(part in (node.text or '')
+                    for part in ('/statBases', '/stuffProps', '/graphicData', '@Name='))
+            for node in root.iter('xpath')
+        )
     if root.tag != 'Defs': return False
     for td in root.findall('ThingDef'):
         n = td.findtext('defName') or ''

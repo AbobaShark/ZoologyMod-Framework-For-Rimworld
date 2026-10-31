@@ -1,4 +1,4 @@
-"""Source-differential leather patches and conditional Odyssey fallback tests."""
+"""Source-differential leather patches: no fallback definitions or manual overrides."""
 import sys
 from pathlib import Path
 

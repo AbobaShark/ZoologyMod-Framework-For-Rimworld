@@ -26,8 +26,8 @@ Missing source definitions are errors, not invitations to create new materials.
 
 Use `reference_sync_gui.py` to preview and apply upstream reference XML for
 the installed game, DLCs, optional mods and Combat Extended. Both leather and
-textile material XML go into the existing source-relative `_Leathers`
-reference directories. These are input snapshots and are not loaded by RimWorld.
+textile material XML go into **local-only** source-relative `_Leathers`
+reference directories. These snapshots are not stored in Git and must be refreshed on each installation. These are input snapshots and are not loaded by RimWorld.
 
 From the `checker` directory:
 
@@ -117,3 +117,5 @@ copy of the live AnimalStats spreadsheet before using `--category leathers`.
 The source workbook and the installed mod tree must be synchronized separately;
 `--preview` only reviews staged XML and does not write it.
 
+
+For leathers, the only checked-in material definitions are the four Zoology-native ThingDefs. All upstream material stats, including vanilla and CE armor, are generated into owner-specific XML. Never restore legacy leather templates or fallback ThingDefs; if a source mod is absent, do not assign its absent material.
