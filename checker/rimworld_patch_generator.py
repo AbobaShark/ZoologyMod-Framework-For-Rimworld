@@ -31,7 +31,7 @@ class PatchGeneratorApp(tk.Tk):
         self.source=tk.StringVar(value=self.cfg.get('vanilla_tsv',''))
         self.registry=tk.StringVar(value=self.cfg.get('generation_config') or str(ROOT/'generation.json'))
         self.orig_xml=tk.StringVar(value=self.cfg.get('original_xml_dir') or str(ROOT/'OriginalXML'))
-        self.orig_patch=tk.StringVar(value=self.cfg.get('original_patches_dir') or str(ROOT/'OriginalPatches'))
+        self.orig_patch=tk.StringVar(value=self.cfg.get('ce_patches_dir') or str(ROOT/'OriginalXML/CEPatches'))
         self.ce=tk.BooleanVar(value=bool(self.cfg.get('enable_ce',True)))
         self.optimize=tk.BooleanVar(value=bool(self.cfg.get('optimize',True)))
         self.sheets={name:tk.StringVar(value=self.cfg.get('sheet_sources',{}).get(name,'')) for name in SHEETS}
@@ -76,7 +76,7 @@ class PatchGeneratorApp(tk.Tk):
         ttk.Label(source,text='Optional individual sheet sources (TSV, XLSX or Google Sheets; blank = main workbook)').grid(row=2,column=0,columnspan=3,sticky='w',padx=5,pady=(10,2))
         for i,name in enumerate(SHEETS,3):self._path(source,name,self.sheets[name],i)
         originals=ttk.LabelFrame(panel,text='2 · Upstream reference XML and patch sets');originals.pack(fill='x',pady=5);originals.columnconfigure(1,weight=1)
-        for row,(label,var) in enumerate([('OriginalXML directory',self.orig_xml),('OriginalPatches directory',self.orig_patch)]):
+        for row,(label,var) in enumerate([('OriginalXML directory',self.orig_xml),('CE patches directory (OriginalXML/CEPatches)',self.orig_patch)]):
             ttk.Label(originals,text=label).grid(row=row,column=0,sticky='w',padx=5,pady=4)
             entry=ttk.Entry(originals,textvariable=var);entry.grid(row=row,column=1,sticky='ew',padx=5,pady=4);enable_paste(entry)
             ttk.Button(originals,text='Browse',command=lambda var=var:self._folder(var)).grid(row=row,column=2,padx=5)
@@ -104,7 +104,7 @@ class PatchGeneratorApp(tk.Tk):
 
     def _settings(self):
         self.cfg.update({'vanilla_tsv':self.source.get().strip(),'generation_config':self.registry.get().strip(),
-            'original_xml_dir':self.orig_xml.get().strip(),'original_patches_dir':self.orig_patch.get().strip(),
+            'original_xml_dir':self.orig_xml.get().strip(),'ce_patches_dir':self.orig_patch.get().strip(),
             'enable_ce':self.ce.get(),'optimize':self.optimize.get(),
             'sheet_sources':{name:v.get().strip() for name,v in self.sheets.items() if v.get().strip()},
             'ce_tsv':'','venom_profiles_source':'','egg_milk_tsv':''})
@@ -196,7 +196,7 @@ def cli_main(argv=None):
     p.add_argument('--sheet',action='append',default=[],metavar='TAB=SOURCE',help='Per-tab TSV/XLSX/Google override; repeat')
     p.add_argument('--registry',help='Generation groups and exact destination JSON')
     p.add_argument('--original-xml',help='OriginalXML reference directory')
-    p.add_argument('--original-patches',help='OriginalPatches reference directory')
+    p.add_argument('--ce-patches',help='CE reference patches directory (inside OriginalXML)')
     p.add_argument('--project-root')
     p.add_argument('--group',action='append',help='Specific group ID (repeat)')
     p.add_argument('--category',action='append',choices=CATEGORIES,help='Generate selected category (repeat)')
@@ -241,7 +241,7 @@ def cli_main(argv=None):
        ce=cfg.get('enable_ce',True) if args.ce is None else args.ce,
        optimize=cfg.get('optimize',True) if args.opt is None else args.opt,
        original_xml=resolve_path(args.original_xml) if args.original_xml else cfg.get('original_xml_dir') or ROOT/'OriginalXML',
-       original_patches=resolve_path(args.original_patches) if args.original_patches else cfg.get('original_patches_dir') or ROOT/'OriginalPatches',
+       original_patches=resolve_path(args.ce_patches) if args.ce_patches else cfg.get('ce_patches_dir') or ROOT/'OriginalXML/CEPatches',
        venom_source=cfg.get('venom_profiles_source') or None,
        preserve_runtime_preconditions=cfg.get('preserve_runtime_preconditions',True))
     print('Generated files staged, not deployed:',result)

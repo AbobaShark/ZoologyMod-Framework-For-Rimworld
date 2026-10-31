@@ -23,7 +23,7 @@ class PatchPostprocessor:
 
     def _index(self):
         if self.index is None:
-            self.index=OriginalXmlIndex(str(self.original_xml),str(self.original_patches)).load()
+            self.index=OriginalXmlIndex(str(self.original_xml),str(self.original_patches) if self.original_patches else None).load()
         return self.index
 
     def process(self, payload, *, destination):

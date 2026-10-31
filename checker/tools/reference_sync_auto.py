@@ -286,8 +286,8 @@ def read_config(path):
         if not mod.get('id') or not isinstance(dirs, list) or not dirs:
             raise ValueError('Each mod needs id and reference_dirs[]')
         for dr in dirs:
-            if not dr.startswith(('OriginalXML/', 'OriginalPatches/')):
-                raise ValueError('Reference paths must belong to OriginalXML or OriginalPatches')
+            if not dr.startswith(('OriginalXML/',)):
+                raise ValueError('Reference paths must belong to OriginalXML')
             safe_inside(ROOT, dr)
             if dr.casefold() in seen_groups:
                 raise ValueError('Duplicate reference directory '+dr)
@@ -303,6 +303,16 @@ def candidate_order(rel, dest, version):
 
 
 def choose_match(src, dest_rel, old_bytes, *, version, kind):
+    if dest_rel.startswith('OriginalXML/CEPatches/'):
+        rel = dest_rel.removeprefix('OriginalXML/CEPatches/')
+        if rel not in src.files:
+            return None, 'Exact CE patch file not present in upstream source'
+        try:
+            data = src.read(rel)
+            parse_xml(data, 'Patch')
+        except (ValueError, ET.ParseError, OSError, subprocess.TimeoutExpired) as exc:
+            return None, str(exc)
+        return (rel, data), None
     if '/_Leathers/' in dest_rel:
         rel = dest_rel.split('/_Leathers/', 1)[1]
         if rel not in src.files:
@@ -415,7 +425,7 @@ def discover(cfg, *, steam='', github=True, checker_root=ROOT, progress=None):
                     items.append({'destination': target_rel, 'status': 'HISTORICAL', 'source_id': spec['id'],
                                   'detail': 'Preserved historical upstream version'})
                     continue
-                kind = 'Defs' if target_rel.startswith('OriginalXML/') else 'Patch'
+                kind = 'Patch' if target_rel.startswith('OriginalXML/CEPatches/') else 'Defs'
                 old_data = target_path.read_bytes()
                 try:
                     parse_xml(old_data, kind)

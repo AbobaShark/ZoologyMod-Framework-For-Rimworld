@@ -124,7 +124,7 @@ def stage_pipeline(source, *, root=None, registry_path=None, sheet_sources=None,
     entry_by_dest={}
     remove_generated=set()
     postprocessor=PatchPostprocessor(original_xml=original_xml or ROOT/'OriginalXML',
-        original_patches=original_patches or ROOT/'OriginalPatches',
+        original_patches=(original_patches or ROOT/'OriginalXML/CEPatches') if ce else None,
         preserve_guards=preserve_runtime_preconditions) if optimize else None
     with tempfile.TemporaryDirectory(prefix='.zoology-stage-',dir=stage.parent) as temp:
         temp=Path(temp)
@@ -183,7 +183,7 @@ def stage_pipeline(source, *, root=None, registry_path=None, sheet_sources=None,
         if cats & {'animals','venom','biomes'}:
             generator=PatchGenerator(source, None, [],
                 original_xml_dir=original_xml or ROOT/'OriginalXML',
-                original_patches_dir=original_patches or ROOT/'OriginalPatches',
+                original_patches_dir=original_patches or ROOT/'OriginalXML/CEPatches',
                 preserve_runtime_preconditions=preserve_runtime_preconditions,
                 venom_profile_source=venom_source or sheets.get('Venom profiles'),
                 source_map=sheets,enable_ce=ce,optimize=optimize,
@@ -264,7 +264,7 @@ def stage_pipeline(source, *, root=None, registry_path=None, sheet_sources=None,
             entries=outputs_for(registry,'leathers')
             if not entries:raise ValueError('No leathers outputs registered in generation.json')
             leather_source=sheets.get('Leathers') or source
-            rendered, report=render_leather_outputs(leather_source,mod,entries,ce=ce,original_xml=original_xml or ROOT/'OriginalXML',original_patches=original_patches or ROOT/'OriginalPatches')
+            rendered, report=render_leather_outputs(leather_source,mod,entries,ce=ce,original_xml=original_xml or ROOT/'OriginalXML',original_patches=original_patches or ROOT/'OriginalXML/CEPatches',animals_source=sheets.get('Animals') or (source if source != leather_source else None))
             from core.leather_overrides import GROUP_ROUTES as LEATHER_ROUTES
             from core.leather_generation import CE_DEST as LEATHER_CE_DEST
             for dest,payload in rendered:
@@ -282,7 +282,7 @@ def stage_pipeline(source, *, root=None, registry_path=None, sheet_sources=None,
             textile_source=sheets.get('Animal textiles') or source
             rendered,report=render_textile_outputs(textile_source,entries,ce=ce,
                 original_xml=original_xml or ROOT/'OriginalXML',
-                original_patches=original_patches or ROOT/'OriginalPatches')
+                original_patches=original_patches or ROOT/'OriginalXML/CEPatches')
             for dest,payload in rendered:
                 if not len(E.fromstring(payload)):
                     remove_generated.add(dest)

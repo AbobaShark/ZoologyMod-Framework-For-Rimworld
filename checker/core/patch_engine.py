@@ -33,7 +33,7 @@ from core.animalstats_source import (
 CONFIG_FILE = "rimworld_patch_generator_config.json"
 REPORT_DIRNAME = "output"
 ORIGINAL_XML_DIRNAME = "OriginalXML"
-ORIGINAL_PATCHES_DIRNAME = "OriginalPatches"
+CE_PATCHES_DIRNAME = "CEPatches"
 
 # ---------------- Utilities ----------------
 def norm(s):
@@ -73,10 +73,10 @@ def default_original_xml_dir():
     return os.path.join(get_script_dir(), ORIGINAL_XML_DIRNAME)
 
 def default_original_patches_dir():
-    env_path = os.environ.get("RIMWORLD_ORIGINAL_PATCHES_DIR", "").strip()
+    env_path = os.environ.get("RIMWORLD_CE_PATCHES_DIR", "").strip()
     if env_path:
         return env_path
-    return os.path.join(get_script_dir(), ORIGINAL_PATCHES_DIRNAME)
+    return os.path.join(get_script_dir(), ORIGINAL_XML_DIRNAME, CE_PATCHES_DIRNAME)
 
 def load_config():
     return checker_config.load('patch_generator')
@@ -303,7 +303,7 @@ class PatchGenerator:
         if self._original_xml_index is None:
             self._original_xml_index = OriginalXmlIndex(
                 self.original_xml_dir,
-                patches_dir=self.original_patches_dir,
+                patches_dir=self.original_patches_dir if self.enable_ce else None,
                 extra_xml_paths=self.extra_original_xml_paths,
             ).load()
             if self._original_xml_index.enabled:
@@ -314,13 +314,13 @@ class PatchGenerator:
                 )
                 if self._original_xml_index.patches_enabled:
                     print(
-                        "OriginalPatches refs applied: "
+                        "CE reference patches applied: "
                         f"{self._original_xml_index.patch_files_loaded} XML patch file(s), "
                         f"{dict(sorted(self._original_xml_index.patch_apply_stats.items()))}."
                     )
                     if self._original_xml_index.patch_errors:
                         print(
-                            "OriginalPatches warning: "
+                            "CE reference patches warning: "
                             f"{len(self._original_xml_index.patch_errors)} xpath/apply error(s); "
                             "first error: "
                             f"{self._original_xml_index.patch_errors[0]}"
@@ -333,7 +333,7 @@ class PatchGenerator:
             else:
                 print(f"OriginalXML optimization disabled: no XML refs found in {self.original_xml_dir}")
                 if os.path.isdir(self.original_patches_dir):
-                    print(f"OriginalPatches ignored until OriginalXML refs are available: {self.original_patches_dir}")
+                    print(f"CE reference patches ignored until OriginalXML refs are available: {self.original_patches_dir}")
         return self._original_xml_index
 
     def _optimize_patch_with_original_xml(self, patch_root):

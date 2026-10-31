@@ -29,7 +29,7 @@ def _row(owner, sharp, blunt, ce_sharp, ce_blunt, *, market=8):
 
 def _refs(tmp_path, *, ce=True, old_duplicates=False):
     originals = tmp_path / 'OriginalXML'
-    patches = tmp_path / 'OriginalPatches'
+    patches = tmp_path / 'OriginalXML' / 'CEPatches'
     _write(originals, 'Core/_Leathers/1.7/Defs/Items_Resource_Stuff_Leather.xml', '''
       <Defs><ThingDef Name="LeatherBase" Abstract="True">
        <statBases><MarketValue>2.1</MarketValue>
@@ -67,7 +67,7 @@ def _refs(tmp_path, *, ce=True, old_duplicates=False):
         _write(originals, 'Dinosauria/Items_Resource_Dinosauria_Stuff_Leather.xml',
                dino_xml.replace('<MarketValue>8</MarketValue>', '<MarketValue>7</MarketValue>'))
     if ce:
-        _write(patches, 'CE/_Leathers/1.7/Patches/Core/Leather.xml', '''
+        _write(patches, '_Leathers/1.7/Patches/Core/Leather.xml', '''
           <Patch><Operation Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[@Name="LeatherBase"]/statBases/StuffPower_Armor_Sharp</xpath>
             <value><StuffPower_Armor_Sharp>0.03</StuffPower_Armor_Sharp></value>

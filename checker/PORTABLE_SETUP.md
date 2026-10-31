@@ -15,7 +15,7 @@ For Google Sheets sources install the optional OAuth dependencies:
 .\.venv\Scripts\python.exe -m pip install -r requirements-google.txt
 ```
 
-In the GUI choose: (1) the common AnimalStats workbook or Google Sheets URL, (2) `generation.json` (supplied), (3) any separate TSV/other workbook sources for individual tabs, (4) local `OriginalXML` and `OriginalPatches` directories (populated by Reference Sync, not supplied in Git). Enable CE and optimization as required. Generate animal groups, products, venom, biomes, bionics, life stages, leathers, wool and silk, or everything. Material generation requires upstream material snapshots from Reference Sync (see [ANIMAL_TEXTILES.md](ANIMAL_TEXTILES.md)). Inspect the staged deployment before applying. The local paths are written to `checker.local.json` (ignored by Git), never the shared config.
+In the GUI choose: (1) the common AnimalStats workbook or Google Sheets URL, (2) `generation.json` (supplied), (3) any separate TSV/other workbook sources for individual tabs, (4) local `OriginalXML` directory (including `OriginalXML/CEPatches` for CE XML) (populated by Reference Sync, not supplied in Git). Enable CE and optimization as required. Generate animal groups, products, venom, biomes, bionics, life stages, leathers, wool and silk, or everything. Material generation requires upstream material snapshots from Reference Sync (see [ANIMAL_TEXTILES.md](ANIMAL_TEXTILES.md)). Inspect the staged deployment before applying. The local paths are written to `checker.local.json` (ignored by Git), never the shared config.
 
 Examples from `checker/` (launch without arguments to open the GUI; any options run the CLI without opening a window):
 

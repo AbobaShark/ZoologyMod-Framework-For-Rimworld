@@ -1,0 +1,30 @@
+name: Checker regression tests
+
+on:
+  push:
+    branches:
+      - "checker/**"
+  pull_request:
+    paths:
+      - "checker/**"
+      - ".github/workflows/checker-tests.yml"
+
+jobs:
+  checker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: checker/requirements.txt
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r checker/requirements.txt pytest
+      - name: Compile Python sources
+        run: python -m compileall -q checker
+      - name: Run Checker tests
+        working-directory: checker
+        run: python -m pytest -q tests

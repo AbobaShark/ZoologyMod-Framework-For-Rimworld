@@ -51,7 +51,7 @@ def fixture(tmp_path):
         <stuffProps><color>(219,214,209)</color></stuffProps>
       </ThingDef>
     </Defs>''', encoding='utf8')
-    ce = tmp_path / 'OriginalPatches' / 'CE' / '_Leathers'
+    ce = tmp_path / 'OriginalXML' / 'CEPatches' / '_Leathers'
     ce.mkdir(parents=True)
     (ce / 'Items_Resource_Stuff.xml').write_text('''<Patch>
       <Operation Class="PatchOperationReplace">
@@ -76,7 +76,7 @@ def fixture(tmp_path):
         writer = csv.writer(out, delimiter='\t')
         writer.writerow(HEAD)
         writer.writerows(records)
-    return tsv, xml, tmp_path / 'OriginalPatches'
+    return tsv, xml, tmp_path / 'OriginalXML' / 'CEPatches'
 
 
 def run_generator(tsv, xml, patches, ce=True):

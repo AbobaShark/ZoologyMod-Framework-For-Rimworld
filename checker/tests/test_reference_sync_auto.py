@@ -221,9 +221,9 @@ class AutoReferenceTests(unittest.TestCase):
     def test_patch_reference_from_ce(self):
         old = '<Patch><Operation Class="PatchOperationAdd"><xpath>a</xpath></Operation></Patch>'
         new = '<Patch><Operation Class="PatchOperationAdd"><xpath>b</xpath></Operation></Patch>'
-        self.source('OriginalPatches/CE/Core/Races_Birds.xml',old)
+        self.source('OriginalXML/CEPatches/Patches/Core/Races_Birds.xml',old)
         self.source('Patches/Core/Races_Birds.xml',new,self.workshop/'1234')
-        cfg={'mods':[self.spec('CE','OriginalPatches/CE', workshop_ids=['1234'])]}
+        cfg={'mods':[self.spec('CombatExtended','OriginalXML/CEPatches', workshop_ids=['1234'])]}
         result,_=rs.discover(cfg,steam=str(self.steam),github=False,checker_root=self.checker)
         self.assertEqual(result[0]['status'],'REPLACE')
         self.assertEqual(result[0]['source_file'],'Patches/Core/Races_Birds.xml')

@@ -69,7 +69,7 @@ class UnifiedEntryPointTests(unittest.TestCase):
     def test_all_uses_all_categories_and_defaults_from_config(self):
         cfg = {'vanilla_tsv': 'gsheet:main', 'sheet_sources': {'Bionics': 'gsheet:bionics'},
                'generation_config': '/tmp/generation.json', 'original_xml_dir': '/tmp/original',
-               'original_patches_dir': '/tmp/patches', 'enable_ce': False, 'optimize': False}
+               'ce_patches_dir': '/tmp/patches', 'enable_ce': False, 'optimize': False}
         with patch.object(entry, 'stage_pipeline', return_value=Path('manifest.json')) as stage, \
              patch.object(entry, 'load', return_value=cfg), \
              patch.object(entry, 'find_project_root', return_value=Path('/tmp/project')):

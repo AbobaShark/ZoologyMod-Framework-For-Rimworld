@@ -47,19 +47,23 @@ def discover_new_leather_references(spec, sources, checker_root, targets, versio
     if not sources: return []
     ce = spec['id'] == 'CombatExtended'
     group = 'CE' if ce else spec['reference_dirs'][0].removeprefix('OriginalXML/')
-    prefix = ('OriginalPatches/CE' if ce else 'OriginalXML/'+group) + '/_Leathers/'
+    # CE snapshots all belong to one cache tree, mirroring their upstream path.
+    # Material Def snapshots retain the _Leathers subtree for each owner.
+    prefix = 'OriginalXML/CEPatches/' if ce else 'OriginalXML/'+group+'/_Leathers/'
     existing = {dest.casefold() for dest, _ in targets}
     output = {}
     for src in sources:
         for rel in sorted(src.files):
-            if not _interesting(rel, ce): continue
+            race_patch = ce and any(part in PurePosixPath(rel).stem.casefold()
+                                   for part in ('races_animal_', 'races_mechanoid', 'races_humanlike'))
+            if not (_interesting(rel, ce) or race_patch): continue
             dest = prefix + PurePosixPath(rel).as_posix()
             if dest.casefold() in existing or dest.casefold() in output:
                 continue
             try:
                 data = src.read(rel)
                 root = parse_xml(data, 'Patch' if ce else 'Defs')
-                if not _contains_leather(root, ce): continue
+                if not (ce and race_patch or _contains_leather(root, ce)): continue
             except (ValueError, OSError, ET.ParseError, subprocess.TimeoutExpired):
                 continue
             destination = safe_inside(checker_root, dest)

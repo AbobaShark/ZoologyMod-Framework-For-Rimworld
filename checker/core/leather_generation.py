@@ -163,17 +163,65 @@ def _custom_ce(rows, enabled):
     return E.tostring(root, xml_declaration=True, encoding="utf-8", pretty_print=True)
 
 
-def render_leather_outputs(source, mod, entries, *, ce=True, original_xml=None, original_patches=None):
+
+def _cross_mod_consumers(rows, entries, source, animals_source):
+    """Derive fallback ownership from Animals.MayRequire and Leathers.Source mod.
+
+    Destinations and package IDs are supplied by the output registry; no
+    animal-name, leather-name, or mod-specific allowlist is maintained.
+    """
+    if not animals_source and not is_multisheet_source(source):
+        if any(row['Source mod'] == 'Odyssey' for row in rows.values()):
+            raise ValueError('Leathers: Odyssey cross-mod material dependencies '
+                             'require Animals sheet. Use a multisheet workbook '
+                             'or pass --sheet Animals=<path-to-Animals.tsv>.')
+        return {}
+    selected = animals_source or source
+    if Path(str(selected)).suffix.lower() == '.tsv' and not is_multisheet_source(selected):
+        frame = pd.read_csv(selected, sep='\t', dtype=str, keep_default_na=False)
+    else:
+        frame = read_table(selected, 'Animals')
+    required = {'LeatherDef', 'MayRequire'}
+    if not required <= set(frame.columns):
+        raise ValueError('Odyssey leather fallbacks require Animals columns: '
+                         + ', '.join(sorted(required - set(frame.columns))))
+    from core.leather_overrides import GROUP_ROUTES
+    requirements = {str(entry.get('requires') or '').casefold(): group
+                    for group, destination in GROUP_ROUTES.items()
+                    for entry in entries if entry['destination'] == destination
+                    and entry.get('requires')}
+    consumers = {}
+    for index, row in frame.iterrows():
+        leather = str(row['LeatherDef']).strip()
+        if leather not in rows or rows[leather]['Source mod'] != 'Odyssey':
+            continue
+        package = str(row['MayRequire']).strip()
+        if package.casefold() in ('', 'no', 'none', 'nan'):
+            group = 'Core'
+        else:
+            group = requirements.get(package.casefold())
+            if group is None:
+                raise ValueError(f'Animals row {index + 2}: leather {leather} '
+                                 f'is Odyssey-owned but consumer MayRequire '
+                                 f'{package!r} has no registered material route')
+        if group != 'Odyssey':
+            consumers.setdefault(leather, set()).add(group)
+    return consumers
+
+
+def render_leather_outputs(source, mod, entries, *, ce=True, original_xml=None, original_patches=None, animals_source=None):
     """Generate leathers from AnimalStats and original upstream materials only."""
     from core.leather_overrides import render_original_overrides, _emit
     rows = read_leathers(source)
     mod = Path(mod)
     original_xml = Path(original_xml or Path(__file__).resolve().parent.parent / 'OriginalXML')
-    original_patches = Path(original_patches or Path(__file__).resolve().parent.parent / 'OriginalPatches')
+    original_patches = Path(original_patches or Path(__file__).resolve().parent.parent / 'OriginalXML' / 'CEPatches')
     native = mod / CUSTOM_DEST
     if not native.is_file():
         raise ValueError(f'Missing four Zoology leather definitions: {native}')
-    routed, _, report = render_original_overrides(rows, original_xml, original_patches, ce=ce)
+    consumers = _cross_mod_consumers(rows, entries, source, animals_source)
+    routed, _, report = render_original_overrides(
+        rows, original_xml, original_patches, ce=ce, consumers=consumers)
     outputs = dict(routed)
     outputs[CUSTOM_DEST] = _custom_defs(native, rows)
     outputs[CE_DEST] = _emit(E.fromstring(_custom_ce(rows, ce)))

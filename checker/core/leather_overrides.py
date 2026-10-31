@@ -1,6 +1,6 @@
 """Source-aware leather overrides, independent of animal race patches.
 
-OriginalXML provides the baseline. OriginalPatches/CE provides the CE
+OriginalXML provides the baseline. OriginalXML/CEPatches provides the CE
 baseline; no undocumented numeric defaults are inferred when sources are absent.
 """
 from __future__ import annotations
@@ -181,7 +181,7 @@ class LeatherReferences:
         # Simulate the CE leather XML against copies of original material defs.
         # All source XML is used, not Zoology fallback definitions.
         if not self.patches.is_dir(): return
-        ce_root = self.patches/'CE'/'_Leathers'
+        ce_root = self.patches
         discovered = sorted(ce_root.rglob('*.xml')) if ce_root.is_dir() else []
         selected = {}
         for path in discovered:
@@ -194,7 +194,7 @@ class LeatherReferences:
         if not paths:
             if self.strict_ownership and self.materials:
                 raise ValueError('Leathers: CE material references are missing. '
-                                 'Synchronize OriginalPatches/CE/_Leathers or use --no-ce.')
+                                 'Run Reference Sync to populate OriginalXML/CEPatches (or use --no-ce).')
             return
         root = E.Element('Defs')
         for (_, parent), node in self.parents.items():
@@ -276,46 +276,102 @@ class LeatherReferences:
 
 
 def _conditional(root, name, path, value, original):
-    """Only patch existing ThingDefs; add missing subnodes via runtime guards."""
+    """Update an existing material even when its nested nodes are inherited.
+
+    Check the runtime XML structure, not the original snapshot's shape:
+    another mod may add a container between generation and patch execution.
+    """
     target = f'/Defs/ThingDef[defName="{name}"]'
-    # Missing entire ThingDef must not make an operation fail.
     outer = E.SubElement(root, 'Operation', Class='PatchOperationConditional')
     E.SubElement(outer, 'xpath').text = target
-    match = E.SubElement(outer, 'match', Class='PatchOperationSequence')
-    seq = E.SubElement(match, 'operations')
-    # Fields may be inherited and absent in the concrete ThingDef.
+    seq = E.SubElement(E.SubElement(outer, 'match', Class='PatchOperationSequence'),
+                       'operations')
     fragments = path.split('/')
     for depth in range(1, len(fragments)):
-        sub = '/'.join(fragments[:depth])
-        existing = original.find(sub)
-        if existing is not None: continue
-        # Root lacks a container: add it with the full remaining branch.
-        parent = '/'.join(fragments[:depth-1]); missing = '/'.join(fragments[depth-1:])
-        dest = target + ('/'+parent if parent else '')
-        op = E.SubElement(seq, 'li', Class='PatchOperationConditional')
-        E.SubElement(op, 'xpath').text = target+'/'+sub
-        no = E.SubElement(op, 'nomatch', Class='PatchOperationAdd')
-        E.SubElement(no, 'xpath').text = dest
-        val = E.SubElement(no, 'value')
-        at = val
-        for tag in fragments[depth-1:]: at = E.SubElement(at, tag)
-        at.text = str(value)
-        return
+        parent = '/'.join(fragments[:depth-1])
+        current = '/'.join(fragments[:depth])
+        cond = E.SubElement(seq, 'li', Class='PatchOperationConditional')
+        E.SubElement(cond, 'xpath').text = target + '/' + current
+        addition = E.SubElement(cond, 'nomatch', Class='PatchOperationAdd')
+        E.SubElement(addition, 'xpath').text = target + ('/' + parent if parent else '')
+        E.SubElement(E.SubElement(addition, 'value'), fragments[depth-1])
     cond = E.SubElement(seq, 'li', Class='PatchOperationConditional')
-    E.SubElement(cond, 'xpath').text = target+'/'+path
-    m = E.SubElement(cond, 'match', Class='PatchOperationReplace')
-    E.SubElement(m, 'xpath').text = target+'/'+path
-    E.SubElement(E.SubElement(m, 'value'), fragments[-1]).text = str(value)
-    no = E.SubElement(cond, 'nomatch', Class='PatchOperationAdd')
-    E.SubElement(no, 'xpath').text = target+'/'+ '/'.join(fragments[:-1])
-    E.SubElement(E.SubElement(no, 'value'), fragments[-1]).text = str(value)
+    E.SubElement(cond, 'xpath').text = target + '/' + path
+    match = E.SubElement(cond, 'match', Class='PatchOperationReplace')
+    E.SubElement(match, 'xpath').text = target + '/' + path
+    E.SubElement(E.SubElement(match, 'value'), fragments[-1]).text = str(value)
+    nomatch = E.SubElement(cond, 'nomatch', Class='PatchOperationAdd')
+    E.SubElement(nomatch, 'xpath').text = target + '/' + '/'.join(fragments[:-1])
+    E.SubElement(E.SubElement(nomatch, 'value'), fragments[-1]).text = str(value)
 
 
 def _emit(root):
     return E.tostring(root, encoding='utf-8', xml_declaration=True, pretty_print=True)
 
 
-def render_original_overrides(rows, original_xml, original_patches, *, ce=True, refs=None):
+
+def _odyssey_fallbacks(groups, rows, refs, consumers, *, ce):
+    """Define Odyssey-owned leathers only for mods that consume them without DLC.
+
+    Each mod contributes a guarded Add, so simultaneous consumers never add
+    duplicate ThingDefs. CE values come directly from the authoritative sheet.
+    """
+    from core.leather_generation import _write_thing_def
+    created = {}
+    for name, groups_using in sorted((consumers or {}).items()):
+        sheet = rows.get(name)
+        if sheet is None or sheet['Source mod'] != 'Odyssey':
+            continue
+        material = refs.materials.get(name)
+        if material is None:
+            raise ValueError(f'Odyssey fallback: original material {name} not synchronized')
+        source_def = material[1]
+        parent = source_def.get('ParentName')
+        if parent and parent != 'LeatherBase':
+            raise ValueError(f'Odyssey fallback {name}: unsupported parent {parent!r}; '
+                             'cannot create a Def without its DLC parent')
+        # Do not copy DLC-only textures, components or references: the source
+        # DLC is explicitly absent. Core LeatherBase supplies safe defaults.
+        stub = E.Element('ThingDef', ParentName='LeatherBase')
+        E.SubElement(stub, 'defName').text = name
+        for tag in ('label', 'description'):
+            value = source_def.findtext(tag)
+            if value:
+                E.SubElement(stub, tag).text = value
+        _write_thing_def(stub, rows)
+        for group in sorted(groups_using):
+            if group == 'Odyssey':
+                continue
+            if group not in groups:
+                raise ValueError(f'Odyssey fallback {name}: missing route for {group}')
+            outer = E.SubElement(groups[group], 'Operation', Class='PatchOperationFindMod')
+            E.SubElement(E.SubElement(outer, 'mods'), 'li').text = 'Odyssey'
+            operations = E.SubElement(E.SubElement(outer, 'nomatch',
+                                                  Class='PatchOperationSequence'),
+                                      'operations')
+            guard = E.SubElement(operations, 'li', Class='PatchOperationConditional')
+            E.SubElement(guard, 'xpath').text = f'/Defs/ThingDef[defName="{name}"]'
+            addition = E.SubElement(guard, 'nomatch', Class='PatchOperationAdd')
+            E.SubElement(addition, 'xpath').text = '/Defs'
+            E.SubElement(addition, 'value').append(copy.deepcopy(stub))
+            if ce:
+                ce_wrapper = E.SubElement(operations, 'li', Class='PatchOperationFindMod')
+                E.SubElement(E.SubElement(ce_wrapper, 'mods'), 'li').text = 'Combat Extended'
+                ce_ops = E.SubElement(E.SubElement(ce_wrapper, 'match',
+                                                  Class='PatchOperationSequence'),
+                                      'operations')
+                for field, column in CE_FIELDS.items():
+                    patch = E.Element('Patch')
+                    _conditional(patch, name, NUMERICS[field],
+                                 format(sheet[column], '.12g'), stub)
+                    for op in list(patch):
+                        op.tag = 'li'
+                        ce_ops.append(op)
+            created.setdefault(name, []).append(group)
+    return created
+
+
+def render_original_overrides(rows, original_xml, original_patches, *, ce=True, refs=None, consumers=None):
     """Return route-payload dict, CE payload, and comparison report.
 
     The original source group decides the route; no missing ThingDefs are created.
@@ -367,7 +423,7 @@ def render_original_overrides(rows, original_xml, original_patches, *, ce=True, 
             if not known:
                 ce_unverified.append((name, field))
                 if refs.strict_ownership:
-                    raise ValueError(f'Leathers: cannot verify CE {field} for {name} against OriginalPatches')
+                    raise ValueError(f'Leathers: cannot verify CE {field} for {name} against OriginalXML/CEPatches')
             if (known and _equals(reference, new) and not vanilla_touch) or (
                 not known and _equals(sheet[field], new) and not vanilla_touch):
                 continue
@@ -385,7 +441,9 @@ def render_original_overrides(rows, original_xml, original_patches, *, ce=True, 
         for original_op in list(patch):
             original_op.tag = 'li'
             operations.append(original_op)
+    fallback_routes = _odyssey_fallbacks(groups, rows, refs, consumers, ce=ce)
     report = {
+        'odyssey_fallbacks': fallback_routes,
         'original_materials_indexed': len(refs.materials),
         'material_routes': {name: GROUP_ROUTES[group] for name, (group, _) in sorted(refs.materials.items())},
         'excluded_materials': {name: sheet.get('Source mod') for name, sheet in sorted(rows.items())
