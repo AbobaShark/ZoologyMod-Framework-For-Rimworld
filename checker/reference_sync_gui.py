@@ -87,6 +87,7 @@ class App:
         self.warnings = []
         self.q = queue.Queue()
         self.busy = False
+        self.cancel_event = threading.Event()
         self._create()
         self._refresh_sources()
         root.after(150, self._poll)
@@ -129,12 +130,15 @@ class App:
         actions = ttk.Frame(outer); actions.pack(fill='x', pady=(0,6))
         self.preview_button = ttk.Button(actions, text='Preview (read only)', command=self._preview)
         self.preview_button.pack(side='left')
+        self.cancel_button = ttk.Button(actions, text='Cancel preview',
+                                        command=self._cancel_preview, state='disabled')
+        self.cancel_button.pack(side='left', padx=(6, 0))
         self.apply_button = ttk.Button(actions, text='Apply reviewed changes', command=self._apply, state='disabled')
         self.apply_button.pack(side='left', padx=10)
         ttk.Button(actions, text='Open backup folder', command=self._open_backups).pack(side='left')
         self.status = tk.StringVar(value='Ready. Preview discovers upstream Defs and CE patches without modifying the reference cache.')
         ttk.Label(actions, textvariable=self.status).pack(side='left', padx=12)
-        ttk.Label(outer, text='COPY = new references to import; REPLACE = updated references. MISSING checks only existing references.').pack(anchor='w')
+        ttk.Label(outer, text='COPY = new; REPLACE = changed; DELETE = obsolete. No files change before Apply.').pack(anchor='w')
         box = ttk.Frame(outer); box.pack(fill='both', expand=True)
         cols = ('status','reference','source')
         self.results = ttk.Treeview(box, columns=cols, show='headings', height=14)
@@ -209,17 +213,26 @@ class App:
         self._save_config()
         self._invalidate()
         self.results.delete(*self.results.get_children())
-        self._set_busy(True)
+        self.cancel_event.clear()
+        self._set_busy(True, preview=True)
         cfg = json.loads(json.dumps(self.config))
         steam, github = self.steam.get().strip(), self.github.get()
         def worker():
             try:
                 results, warnings = sync.discover(cfg, steam=steam, github=github,
-                                                   progress=lambda msg:self.q.put(('status', msg)))
+                                                   progress=lambda msg:self.q.put(('status', msg)),
+                                                   cancelled=self.cancel_event)
                 self.q.put(('preview', (results, warnings)))
+            except InterruptedError:
+                self.q.put(('cancelled', None))
             except Exception as ex:
                 self.q.put(('error', str(ex)))
         threading.Thread(target=worker, daemon=True).start()
+
+    def _cancel_preview(self):
+        if self.busy:
+            self.cancel_event.set()
+            self.status.set('Cancelling upstream preview...')
 
     def _apply(self):
         if self.busy or not self.entries:return
@@ -248,8 +261,9 @@ class App:
         finally:
             self._set_busy(False)
 
-    def _set_busy(self, state):
+    def _set_busy(self, state, *, preview=False):
         self.busy = state
+        self.cancel_button.configure(state='normal' if state and preview else 'disabled')
         self.preview_button.configure(state='disabled' if state else 'normal')
         self.apply_button.configure(state='disabled' if state or not self.entries or not any(i['status'] in ('COPY','REPLACE','DELETE') for i in self.entries) else 'normal')
 
@@ -289,6 +303,9 @@ class App:
                     self.apply_button.configure(text=f'Apply ({counts["COPY"]} new, '
                                                          f'{counts["REPLACE"]} updated, {counts["DELETE"]} removed)')
                     self._set_busy(False)
+                elif kind == 'cancelled':
+                    self._set_busy(False)
+                    self.status.set('Preview cancelled; no references changed.')
                 elif kind == 'error':
                     self._set_busy(False)
                     messagebox.showerror('Preview failed', data)
