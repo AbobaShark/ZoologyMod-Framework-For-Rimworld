@@ -96,8 +96,6 @@ def stage_pipeline(source, *, root=None, registry_path=None, sheet_sources=None,
     registered_outputs={entry['destination']:entry for entry in registry['outputs']}
     animal_group_destinations={group['destination'] for group in registry['groups']}
     declared_routes={entry['destination']:(section,entry) for section in ('groups','biomes','shared_defs','outputs') for entry in registry[section]}
-    leather_destinations={e['destination'] for e in outputs_for(registry,'leathers')}
-    textile_destinations={e['destination'] for e in outputs_for(registry,'textiles')}
     cats=set(categories)
     if cats-set(CATEGORIES):raise ValueError(f'Unknown categories: {cats-set(CATEGORIES)}')
     sheets=dict(sheet_sources or {})
@@ -117,7 +115,7 @@ def stage_pipeline(source, *, root=None, registry_path=None, sheet_sources=None,
     for e in old['files']:
         if e['destination'] not in declared_routes:
             if e.get('pipeline_category') in cats:
-                continue  # Deleted legacy output will not be restaged.
+                continue  # Retired category output is not retained in the next stage.
             raise ValueError(f'Staged destination not present in generation.json: {e["destination"]}. Regenerate its category.')
         p=stage/e['source']
         if not p.is_file() or digest(p)!=e.get('sha256'):raise ValueError(f'Staged file changed externally: {p}')
