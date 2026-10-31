@@ -252,7 +252,18 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv[1:]
     if argv:
-        return cli_main(argv)
+        try:
+            return cli_main(argv)
+        except Exception:
+            # CLI previously printed tracebacks to stderr only, whereas the
+            # GUI saved them. Keep both entry points equally diagnosable.
+            try:
+                error_file = ROOT/'output'/'generation-error.log'
+                error_file.parent.mkdir(parents=True,exist_ok=True)
+                error_file.write_text(traceback.format_exc(),encoding='utf-8')
+            except OSError:
+                pass  # Preserve the original exception/traceback.
+            raise
     return PatchGeneratorApp().mainloop()
 
 
