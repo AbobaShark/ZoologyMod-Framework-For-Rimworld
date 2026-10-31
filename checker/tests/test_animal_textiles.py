@@ -41,7 +41,7 @@ def fixture(tmp_path):
         <stuffProps><color>(219,214,209)</color></stuffProps>
       </ThingDef>
     </Defs>''', encoding='utf8')
-    vae = xml / 'Vanilla Animals Expanded' / 
+    vae = xml / 'Vanilla Animals Expanded'
     vae.mkdir(parents=True)
     (vae / 'Items_Resource_WoolLeather.xml').write_text('''<Defs>
       <ThingDef ParentName="WoolBase"><defName>WoolCamel</defName>
@@ -50,7 +50,7 @@ def fixture(tmp_path):
         <stuffProps><color>(219,214,209)</color></stuffProps>
       </ThingDef>
     </Defs>''', encoding='utf8')
-    ce = tmp_path / 'OriginalXML' / 'CEPatches' / 
+    ce = tmp_path / 'OriginalXML' / 'CEPatches'
     ce.mkdir(parents=True)
     (ce / 'Items_Resource_Stuff.xml').write_text('''<Patch>
       <Operation Class="PatchOperationReplace">
