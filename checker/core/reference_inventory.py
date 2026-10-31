@@ -74,35 +74,90 @@ def selected_paths(source, version=None):
         yield path
 
 
-def _definitions(path, root):
+# File names are not authoritative: mixed XML files may contain supported
+# animals and unrelated objects. Verify actual Def keys before snapshotting.
+_MATERIAL_NAME = re.compile(r'Leather|Wool|Silk|Egg|Hatcher', re.I)
+_ANIMAL_BASE = re.compile(r'Animal|Mammal|Bird|Insect|Race|Stuff|Meat|Egg', re.I)
+_ANIMAL_LIFESTAGE = re.compile(r'Animal|Insect|Bird|Mammal', re.I)
+_ANIMAL_HEDIFF = re.compile(r'Animal|Bionic|Venom|Poison|Toxin', re.I)
+_XPATH_KEY = re.compile(r'(?:defName|@Name)\s*=\s*["\']([^"\']+)["\']')
+
+
+def _candidate_path(rel, ce):
+    """Avoid fetching definite nonanimal Def families, without requiring filenames."""
+    parts = [part.casefold() for part in PurePosixPath(rel).parts]
+    if ce:
+        return bool(_CE_HINT.search(rel) and ('patches' in parts or 'modpatches' in parts))
+    if not ('defs' in parts or 'def' in parts):
+        return False
+    return not any('thingdefs_building' in part or
+                   'thingdefs_plant' in part or
+                   'pawnkinddefs_human' in part or
+                   'pawnkinds_human' in part
+                   for part in parts)
+
+
+def _definitions(path, root, animal_names=(), biome_names=(),
+                 abstract_names=(), strict=False):
     if root.tag != 'Defs':
         return False
-    # Any Defs XML may contain patched creatures, eggs, items, biome or
-    # inherited abstract definitions, regardless of its filename.
-    return any(node.tag in _DEFS for node in root)
+    if not strict:
+        return any(node.tag in _DEFS for node in root)
+    animals = set(animal_names)
+    biomes = set(biome_names)
+    abstracts = set(abstract_names)
+    for node in root:
+        if node.tag not in _DEFS:
+            continue
+        name = (node.findtext('defName') or '').strip()
+        abstract = (node.get('Name') or '').strip()
+        if node.tag == 'BiomeDef':
+            if name in biomes:
+                return True
+        elif node.tag == 'PawnKindDef':
+            race = (node.findtext('race') or '').strip()
+            if name in animals or race in animals or abstract in abstracts:
+                return True
+        elif node.tag == 'ThingDef':
+            if name in animals or abstract in abstracts:
+                return True
+            if _MATERIAL_NAME.search(name) or _MATERIAL_NAME.search(abstract):
+                return True
+            if (node.get('Abstract', '').casefold() == 'true' and
+                    _ANIMAL_BASE.search(abstract)):
+                return True
+        elif node.tag == 'LifeStageDef':
+            if _ANIMAL_LIFESTAGE.search(name) or _ANIMAL_LIFESTAGE.search(abstract):
+                return True
+        elif node.tag == 'HediffDef':
+            if _ANIMAL_HEDIFF.search(name) or _ANIMAL_HEDIFF.search(abstract):
+                return True
+    return False
 
 
-def _patch_is_relevant(path, root, animal_names):
+def _patch_is_relevant(path, root, animal_names, abstract_names=(), biome_names=(),
+                       strict=False):
     if root.tag != 'Patch':
         return False
-    name = str(PurePosixPath(path))
-    if not _CE_HINT.search(name):
+    if not _CE_HINT.search(path):
         return False
     xpaths = ' '.join((node.text or '') for node in root.iter('xpath'))
     if not _CE_XPATH.search(xpaths):
         return False
-    # Do not accumulate unrelated CE weapon, faction or human patches;
-    # include generic material/biome operations and patch files targeting
-    # declared animals or resources.
-    if re.search(r'Leather|Wool|Silk|StuffPower_|BiomeDef|Egg|Milk|Hatch|Shear', xpaths, re.I):
-        return True
-    if any(name in xpaths for name in animal_names):
-        return True
-    return 'races_animal' in name.casefold()
+    if not strict:
+        return (bool(re.search(r'Leather|Wool|Silk|StuffPower_|BiomeDef|Egg|Milk|Hatch|Shear',
+                              xpaths, re.I))
+                or any(name in xpaths for name in animal_names)
+                or 'races_animal' in path.casefold())
+    targets = set(_XPATH_KEY.findall(xpaths))
+    relevant = set(animal_names) | set(abstract_names) | set(biome_names)
+    return bool(targets & relevant or
+                any(_MATERIAL_NAME.search(name) for name in targets))
 
 
 def discover_source_references(spec, sources, checker_root, version,
                                *, safe_inside, parse_xml, digest, animal_names=(),
+                               abstract_names=(), biome_names=(), strict=False,
                                progress=None, cancelled=None):
     """Build canonical snapshots from one preferred upstream source.
 
@@ -131,11 +186,7 @@ def discover_source_references(spec, sources, checker_root, version,
         for rel in selected_paths(source, version):
             if any(token in rel.casefold() for token in _EXCLUDE):
                 continue
-            parts = [part.casefold() for part in PurePosixPath(rel).parts]
-            if ce:
-                if not _CE_HINT.search(rel) or not ('patches' in parts or 'modpatches' in parts):
-                    continue
-            elif not ('defs' in parts or 'def' in parts):
+            if not _candidate_path(rel, ce):
                 continue
             paths.append(rel)
 
@@ -163,11 +214,13 @@ def discover_source_references(spec, sources, checker_root, version,
             except (ValueError, OSError, ET.ParseError, subprocess.TimeoutExpired):
                 continue
             if ce:
-                if not _patch_is_relevant(rel, doc, animal_names):
+                if not _patch_is_relevant(rel, doc, animal_names, abstract_names,
+                                          biome_names, strict=strict):
                     continue
                 dest = 'OriginalXML/CEPatches/' + rel
             else:
-                if not _definitions(rel, doc):
+                if not _definitions(rel, doc, animal_names, biome_names,
+                                    abstract_names, strict=strict):
                     continue
                 dest = 'OriginalXML/' + owner + '/' + rel
             target = safe_inside(checker_root, dest)
