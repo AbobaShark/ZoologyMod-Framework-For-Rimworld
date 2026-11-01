@@ -1,51 +1,8 @@
 <?xml version='1.0' encoding='utf-8'?>
-<Patch>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/BiomeDef[defName="ExtremeDesert"]/wildAnimals</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/BiomeDef[defName="ExtremeDesert"]/wildAnimals</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/BiomeDef[defName="ExtremeDesert"]</xpath>
-    <value>
-      <wildAnimals/>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/BiomeDef[defName="ExtremeDesert"]/pollutionWildAnimals</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/BiomeDef[defName="ExtremeDesert"]/pollutionWildAnimals</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/BiomeDef[defName="ExtremeDesert"]</xpath>
-    <value>
-      <pollutionWildAnimals/>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/BiomeDef[defName="ExtremeDesert"]/coastalWildAnimals</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/BiomeDef[defName="ExtremeDesert"]/coastalWildAnimals</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/BiomeDef[defName="ExtremeDesert"]</xpath>
-    <value>
-      <coastalWildAnimals/>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/BiomeDef[defName="ExtremeDesert"]/allowedPackAnimals</xpath>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/BiomeDef[defName="ExtremeDesert"]</xpath>
-      <value>
-        <allowedPackAnimals/>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
+<Patch><Operation Class="PatchOperationReplace"><xpath>/Defs/BiomeDef[defName="ExtremeDesert"]/wildAnimals</xpath><value><wildAnimals/>
+    </value></Operation><Operation Class="PatchOperationReplace"><xpath>/Defs/BiomeDef[defName="ExtremeDesert"]/pollutionWildAnimals</xpath><value><pollutionWildAnimals/>
+    </value></Operation><Operation Class="PatchOperationReplace"><xpath>/Defs/BiomeDef[defName="ExtremeDesert"]/coastalWildAnimals</xpath><value><coastalWildAnimals/>
+    </value></Operation><Operation Class="PatchOperationAdd">
     <xpath>/Defs/BiomeDef[defName="ExtremeDesert"]/wildAnimals</xpath>
     <value>
       <Dromedary>0.125</Dromedary>
@@ -92,15 +49,6 @@
   <Operation Class="PatchOperationAdd">
     <xpath>/Defs/BiomeDef[defName="ExtremeDesert"]/coastalWildAnimals</xpath>
     <value/>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/BiomeDef[defName="ExtremeDesert"]/allowedPackAnimals/li[text()="Dromedary"]</xpath>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/BiomeDef[defName="ExtremeDesert"]/allowedPackAnimals</xpath>
-      <value>
-        <li>Dromedary</li>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/BiomeDef[defName="ExtremeDesert"]/allowedPackAnimals/li[text()="Donkey"]</xpath>

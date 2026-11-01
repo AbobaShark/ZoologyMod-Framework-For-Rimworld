@@ -22,7 +22,20 @@ def test_single_bionics_tsv_stages_vanilla_and_ce_without_main_source():
         defs.write_bytes(source_file(directory).read_bytes())
         tab=data();tab['Attack interval']='1';tab['Damage']='11'
         tsv=root/'Bionics.tsv';tab.to_csv(tsv,sep='\t',index=False)
-        cfg=root/'groups.json';cfg.write_text(json.dumps({'schema':1,'groups':[],'biomes':[],'shared_defs':[]}),encoding='utf8')
+        sources = [
+            ('bionics.vanilla', 'Core/Defs/HediffDefs/BionicAnimalVariants.xml', 'common_defs', 'bionics', 'installed_xml'),
+            ('bionics.ce', 'ModPatches/CombatExtended/Patches/HediffDefs/BionicAnimalVariants_CE.xml', 'ce_patch', 'bionics', 'generated'),
+            ('life-stages.vanilla', 'Core/Patches/Core/LifeStageDefs/LifeStages.xml', 'animal_patch', 'life-stages', 'installed_xml'),
+            ('life-stages.ce', 'ModPatches/CombatExtended/Patches/LifeStageDefs/LifeStages_CE.xml', 'ce_patch', 'life-stages', 'installed_xml'),
+            ('products.test', 'Core/Patches/Core/Misc/Products.xml', 'animal_patch', 'products', 'installed_xml'),
+        ]
+        outputs = [{'id': name, 'destination': destination, 'category': category,
+                    'pipeline_category': pipeline, 'source': source,
+                    'requires': 'CETeam.CombatExtended' if category == 'ce_patch' else None}
+                   for name, destination, category, pipeline, source in sources]
+        cfg=root/'groups.json'
+        cfg.write_text(json.dumps({'schema':1,'groups':[],'biomes':[],
+                                   'shared_defs':[], 'outputs':outputs}),encoding='utf8')
         manifest=stage_pipeline('',root=root,registry_path=cfg,sheet_sources={'Bionics':str(tsv)},categories=('bionics',),ce=True,output_dir=root/'output')
         entries=json.loads(manifest.read_text(encoding='utf8'))['files']
         assert len(entries)==2

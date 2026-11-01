@@ -2315,19 +2315,19 @@
       <xpath>/Defs/ThingDef[defName = "Baryonyx"]/race/roamMtbDays</xpath>
     </match>
   </Operation>
-  <Operation Class="PatchOperationReplace">
+  <Operation Class="PatchOperationConditional"><xpath>/Defs/ThingDef[defName="Leather_Spinosaurus"]</xpath><match Class="PatchOperationSequence"><operations><li Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Baryonyx"]/race/leatherDef</xpath>
     <value>
       <leatherDef>Leather_Spinosaurus</leatherDef>
     </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
+  </li>
+  <li Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Baryonyx"]/race/useLeatherFrom</xpath>
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Baryonyx"]/race/useLeatherFrom</xpath>
     </match>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
+  </li>
+  </operations></match></Operation><Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Baryonyx"]/race/manhunterOnTameFailChance</xpath>
     <value>
       <manhunterOnTameFailChance>0.1</manhunterOnTameFailChance>
@@ -6076,19 +6076,19 @@
       <xpath>/Defs/ThingDef[defName = "Dilophosaurus"]/race/roamMtbDays</xpath>
     </match>
   </Operation>
-  <Operation Class="PatchOperationReplace">
+  <Operation Class="PatchOperationConditional"><xpath>/Defs/ThingDef[defName="Leather_DinosaurHide"]</xpath><match Class="PatchOperationSequence"><operations><li Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Dilophosaurus"]/race/leatherDef</xpath>
     <value>
-      <leatherDef>Leather_Theropod</leatherDef>
+      <leatherDef>Leather_DinosaurHide</leatherDef>
     </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
+  </li>
+  <li Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Dilophosaurus"]/race/useLeatherFrom</xpath>
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Dilophosaurus"]/race/useLeatherFrom</xpath>
     </match>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
+  </li>
+  </operations></match></Operation><Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Dilophosaurus"]/race/manhunterOnTameFailChance</xpath>
     <value>
       <manhunterOnTameFailChance>0.1</manhunterOnTameFailChance>
@@ -7353,25 +7353,19 @@
       </value>
     </nomatch>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationConditional"><xpath>/Defs/ThingDef[defName="Leather_DinosaurFuzz"]</xpath><match Class="PatchOperationSequence"><operations><li Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Gallimimus"]/race/leatherDef</xpath>
+    <value>
+      <leatherDef>Leather_DinosaurFuzz</leatherDef>
+    </value>
+  </li>
+  <li Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Gallimimus"]/race/useLeatherFrom</xpath>
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Gallimimus"]/race/useLeatherFrom</xpath>
     </match>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "Gallimimus"]/race/manhunterOnTameFailChance</xpath>
-    <value>
-      <manhunterOnTameFailChance>0.1</manhunterOnTameFailChance>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "Gallimimus"]/race/manhunterOnDamageChance</xpath>
-    <value>
-      <manhunterOnDamageChance>0.3</manhunterOnDamageChance>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
+  </li>
+  </operations></match></Operation><Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Gallimimus"]/race/petness</xpath>
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Gallimimus"]/race/petness</xpath>
@@ -7551,13 +7545,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "Gallimimus"]/canArriveManhunter</xpath>
       <value>
-        <canArriveManhunter>true</canArriveManhunter>
+        <canArriveManhunter>false</canArriveManhunter>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "Gallimimus"]</xpath>
       <value>
-        <canArriveManhunter>true</canArriveManhunter>
+        <canArriveManhunter>false</canArriveManhunter>
       </value>
     </nomatch>
   </Operation>
@@ -7744,13 +7738,19 @@
   <Operation Class="PatchOperationRemove">
     <xpath>/Defs/ThingDef[defName = "Gigantoraptor"]/race/roamMtbDays</xpath>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationConditional"><xpath>/Defs/ThingDef[defName="Leather_DinosaurFuzz"]</xpath><match Class="PatchOperationSequence"><operations><li Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Gigantoraptor"]/race/leatherDef</xpath>
+    <value>
+      <leatherDef>Leather_DinosaurFuzz</leatherDef>
+    </value>
+  </li>
+  <li Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Gigantoraptor"]/race/useLeatherFrom</xpath>
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Gigantoraptor"]/race/useLeatherFrom</xpath>
     </match>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
+  </li>
+  </operations></match></Operation><Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Gigantoraptor"]/race/manhunterOnTameFailChance</xpath>
     <value>
       <manhunterOnTameFailChance>0.1</manhunterOnTameFailChance>
@@ -10429,19 +10429,19 @@
       </value>
     </nomatch>
   </Operation>
-  <Operation Class="PatchOperationReplace">
+  <Operation Class="PatchOperationConditional"><xpath>/Defs/ThingDef[defName="Leather_DinosaurSkin"]</xpath><match Class="PatchOperationSequence"><operations><li Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Stygimoloch"]/race/leatherDef</xpath>
     <value>
       <leatherDef>Leather_DinosaurSkin</leatherDef>
     </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
+  </li>
+  <li Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Stygimoloch"]/race/useLeatherFrom</xpath>
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Stygimoloch"]/race/useLeatherFrom</xpath>
     </match>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
+  </li>
+  </operations></match></Operation><Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Stygimoloch"]/race/manhunterOnTameFailChance</xpath>
     <value>
       <manhunterOnTameFailChance>0.1</manhunterOnTameFailChance>
@@ -10815,18 +10815,6 @@
       <xpath>/Defs/ThingDef[defName = "Dryosaurus"]/race/useLeatherFrom</xpath>
     </match>
   </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "Dryosaurus"]/race/manhunterOnTameFailChance</xpath>
-    <value>
-      <manhunterOnTameFailChance>0.1</manhunterOnTameFailChance>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "Dryosaurus"]/race/manhunterOnDamageChance</xpath>
-    <value>
-      <manhunterOnDamageChance>0.3</manhunterOnDamageChance>
-    </value>
-  </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Dryosaurus"]/race/petness</xpath>
     <match Class="PatchOperationRemove">
@@ -11004,13 +10992,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "Dryosaurus"]/canArriveManhunter</xpath>
       <value>
-        <canArriveManhunter>true</canArriveManhunter>
+        <canArriveManhunter>false</canArriveManhunter>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "Dryosaurus"]</xpath>
       <value>
-        <canArriveManhunter>true</canArriveManhunter>
+        <canArriveManhunter>false</canArriveManhunter>
       </value>
     </nomatch>
   </Operation>

@@ -199,6 +199,40 @@ namespace ZoologyMod
             return ext != null && pawn.BodySize <= ext.maxBodySize && tree?.Spawned == true && tree.Map == pawn.Map
                 && tree.def.plant.IsTree && tree.Growth >= ext.minTreeGrowth && !tree.IsBurning() && !tree.IsForbidden(pawn);
         }
+        // Only inspect the tree's own cell, and only during refuge selection or ascent.
+        // Coexisting non-predatory tree users are not disturbed.
+        internal static Pawn PredatorInTree(Pawn prey, Plant tree)
+        {
+            if (prey == null || tree?.Spawned != true || tree.Map != prey.Map) return null;
+            List<Thing> things = tree.Position.GetThingList(tree.Map);
+            for (int i = 0; i < things.Count; i++)
+            {
+                if (things[i] is Pawn predator && predator != prey && IsInTree(predator)
+                    && predator.CurJob?.targetA.Thing == tree
+                    && Patch_AnimalFleeFromPredators.IsDangerousTreeClimber(predator, prey, tree))
+                    return predator;
+            }
+            return null;
+        }
+
+        internal static void EvictTreePrey(Pawn predator, Plant tree)
+        {
+            if (predator?.RaceProps?.predator != true || tree?.Spawned != true || predator.Map != tree.Map)
+                return;
+
+            List<Thing> things = tree.Position.GetThingList(tree.Map);
+            for (int i = things.Count - 1; i >= 0; i--)
+            {
+                if (things[i] is not Pawn prey || prey == predator || !IsInTree(prey)
+                    || prey.CurJob?.targetA.Thing != tree
+                    || !Patch_AnimalFleeFromPredators.IsDangerousTreeClimber(predator, prey, tree))
+                    continue;
+
+                prey.jobs.EndCurrentJob(JobCondition.InterruptForced);
+                StartGroundEscape(prey, predator, false);
+            }
+        }
+
         public static void InvalidatePrey(Pawn prey, Map map)
         {
             PredationDecisionCache.InvalidatePrey(prey);
@@ -349,13 +383,15 @@ namespace ZoologyMod
             if (canShelter && climber != null && pawn.BodySize <= climber.maxBodySize
                 && !ranged && !treeReachableByThreat && !RememberedRangedThreat(pawn, state))
                 candidates.AddRange(index.Nearby(pawn.Position, 24).OfType<Plant>().Where(t => t.Growth >= climber.minTreeGrowth
-                    && !threats.Any(source => DirectClimbingThreat(source, pawn, t))));
+                    && !threats.Any(source => CanClimbTree(source, t))
+                    && PredatorInTree(pawn, t) == null));
             Thing best = null;
             float bestLength = float.MaxValue;
             foreach (Thing candidate in candidates.Where(t => t.Position.InHorDistOf(pawn.Position, 24f)
                 && SafeDestination(t.Position, threats, safeDestinationRanges))
                 .OrderBy(t => (t.Position - pawn.Position).LengthHorizontalSquared)
-                .Where(t => !(t is Plant tree) || UsableTree(pawn, tree)).Take(ZoologyTickLimiter.Refuges.MaxPathCandidates))
+                .Where(t => !(t is Plant tree) || UsableTree(pawn, tree)
+                    && PredatorInTree(pawn, tree) == null).Take(ZoologyTickLimiter.Refuges.MaxPathCandidates))
             {
                 IntVec3 delta = candidate.Position - pawn.Position;
                 // An eight-way path cannot use fewer than Chebyshev distance + 1 nodes.
@@ -438,7 +474,8 @@ namespace ZoologyMod
             if (wantsSleep)
             {
                 var beds = index.Nearby(pawn.Position, 16).Where(t => t is Building_AnimalBurrow b ? burrower && b.Accepts(pawn)
-                    : climber && t is Plant tree && AnimalDefense.UsableTree(pawn, tree));
+                    : climber && t is Plant tree && AnimalDefense.UsableTree(pawn, tree)
+                        && AnimalDefense.PredatorInTree(pawn, tree) == null);
                 foreach (Thing bed in beds.OrderBy(t => (t.Position - pawn.Position).LengthHorizontalSquared).Take(3))
                     if (!bed.IsForbidden(pawn) && pawn.CanReserveAndReach(bed, PathEndMode.OnCell, Danger.None,
                         bed is Building_AnimalBurrow ? int.MaxValue : 1, bed is Building_AnimalBurrow ? 0 : -1))
@@ -521,13 +558,34 @@ namespace ZoologyMod
             bool sleep = job.def.defName == "Zoology_SleepInTree";
             stay.initAction = () =>
             {
+                Plant tree = TargetA.Thing as Plant;
+                Pawn predator = AnimalDefense.PredatorInTree(pawn, tree);
+                if (predator != null)
+                {
+                    EndJobWith(JobCondition.InterruptForced);
+                    AnimalDefense.StartGroundEscape(pawn, predator, false);
+                    return;
+                }
+
                 AtHeight = true; asleep = sleep;
                 if (sleep) pawn.jobs.posture = PawnPosture.LayingOnGroundNormal;
                 pawn.pather.StopDead(); AnimalDefense.InvalidatePrey(pawn, Map);
+                AnimalDefense.EvictTreePrey(pawn, tree);
             };
             stay.tickAction = () =>
             {
-                if (sleep) pawn.needs?.rest?.TickResting(1f);
+                if (sleep)
+                {
+                    pawn.needs?.rest?.TickResting(1f);
+                    // Use the vanilla SleepZ fleck and keep it aligned with the elevated pawn.
+                    if (pawn.IsHashIntervalTick(100) && pawn.Position.ShouldSpawnMotesAt(Map))
+                    {
+                        FleckCreationData fleck = FleckMaker.GetDataThrowMetaIcon(
+                            pawn.Position, Map, FleckDefOf.SleepZ);
+                        fleck.spawnPosition += ForcedBodyOffset;
+                        Map.flecks.CreateFleck(fleck);
+                    }
+                }
                 if (!pawn.IsHashIntervalTick(60)) return;
                 bool hungry = pawn.needs?.food?.CurLevelPercentage < Building_AnimalBurrow.Settings.hungerExitThreshold;
                 // Ground melee actors cannot disturb a protected sleeper. Only query their full

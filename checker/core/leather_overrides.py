@@ -1,6 +1,6 @@
 """Source-aware leather overrides, independent of animal race patches.
 
-OriginalXML provides the baseline. OriginalPatches/CE provides the CE
+OriginalXML provides the baseline. OriginalXML/CEPatches provides the CE
 baseline; no undocumented numeric defaults are inferred when sources are absent.
 """
 from __future__ import annotations
@@ -66,12 +66,11 @@ def _rgb(value):
 
 
 def _source_priority(path):
-    # Current-version synchronized snapshots outrank legacy manual copies.
-    parts = [p.casefold() for p in path.parts]
-    is_sync = int('_leathers' in parts)
-    versions = [p.lstrip('v') for p in parts if re.fullmatch(r'v?1\.\d+', p)]
-    version = 300 if '1.7' in versions else (100 if versions else 200)
-    return (is_sync, version)
+    """Higher RimWorld major.minor source versions take priority, without a 1.7 cap."""
+    versions = [tuple(map(int, match.groups()))
+                for part in path.parts
+                if (match := re.fullmatch(r'v?(\d+)\.(\d+)', part, re.I))]
+    return max(versions, default=(0, 0))
 
 
 class LeatherReferences:
@@ -84,7 +83,6 @@ class LeatherReferences:
         self.include_ce = ce
         self.materials = {}  # name => (group, source node)
         self.parents = {}
-        parent_priority = {}
         self.duplicates = []
         self.ce_before = {}
         self.ce_available = False
@@ -93,6 +91,8 @@ class LeatherReferences:
 
     def _load(self):
         options = defaultdict(list)
+        other_sources = defaultdict(set)
+        parent_priority = {}
         if not self.originals.is_dir():
             raise ValueError('OriginalXML not found: synchronize material references before generating leathers')
         for path in sorted(self.originals.rglob('*.xml')):
@@ -110,7 +110,13 @@ class LeatherReferences:
                 name = thing.findtext('defName')
                 parent = thing.get('Name')
                 if name in self.names and self.expected_owner.get(name) not in ('Zoology', 'External'):
-                    options[name].append((group, path, copy.deepcopy(thing)))
+                    # A source snapshot may contain definitions from another
+                    # mod. Only the explicitly
+                    # declared owner is authorized to provide the baseline.
+                    if group == self.expected_owner[name]:
+                        options[name].append((group, path, copy.deepcopy(thing)))
+                    else:
+                        other_sources[name].add(group)
                 if parent and (parent == 'LeatherBase' or parent.startswith('Leather')):
                     for key in ([(group, parent), (None, parent)] if group == 'Core'
                                 else [(group, parent)]):
@@ -121,12 +127,9 @@ class LeatherReferences:
                         elif priority == parent_priority[key] and E.tostring(self.parents[key], method='c14n') != E.tostring(thing, method='c14n'):
                             raise ValueError(f'Conflicting original {parent} definitions for {group}')
         for name, entries in options.items():
-            # Prefer the auto-synced current-source snapshot over an older
-            # separately maintained copy. Cross-group ambiguity is reported.
+            # All entries here belong to the declared owner. Compare only
+            # top-ranked snapshots of this owner; older versions may differ.
             entries.sort(key=lambda e: _source_priority(e[1]), reverse=True)
-            if len({g for g, _, _ in entries}) > 1:
-                self.duplicates.append(name)
-                continue
             first_group, first_path, first_node = entries[0]
             if len(entries) > 1 and any(_source_priority(item[1]) == _source_priority(first_path)
                     and E.tostring(item[2], method='c14n') != E.tostring(first_node, method='c14n')
@@ -136,16 +139,36 @@ class LeatherReferences:
             self.materials[name] = (first_group, first_node)
         if self.duplicates:
             raise ValueError('Ambiguous original leather definitions: '+', '.join(sorted(self.duplicates)))
-        for name, owner in self.expected_owner.items():
-            if owner in (None, 'Zoology', 'External'):
+        missing_by_group = defaultdict(list)
+        mismatches = []
+        for name, owner in sorted(self.expected_owner.items()):
+            if owner in (None, 'Zoology', 'External') or name in self.materials:
                 continue
-            if name not in self.materials:
-                raise ValueError(f'Leathers: {name} ({owner}) not found in OriginalXML. '
-                                 'Synchronize reference XML before generating.')
-            actual = self.materials[name][0]
-            if actual != owner:
-                raise ValueError(f'Leathers: {name} declares Source mod {owner!r} '
-                                 f'but its source definition belongs to {actual!r}')
+            locations = sorted(other_sources.get(name, ()))
+            if locations:
+                mismatches.append(
+                    f'{name}: Source mod {owner!r}, but original ThingDef found '
+                    f'under {", ".join(locations)}')
+            else:
+                missing_by_group[owner].append(name)
+        if mismatches or missing_by_group:
+            details = list(mismatches[:6])
+            if len(mismatches) > 6:
+                details.append(f'... and {len(mismatches) - 6} more owner mismatches')
+            for owner, names in sorted(missing_by_group.items()):
+                listed = ', '.join(names[:6])
+                if len(names) > 6:
+                    listed += f' ... (+{len(names) - 6} more)'
+                details.append(
+                    f'OriginalXML/{owner}: missing {len(names)} material(s): {listed}')
+            count = len(mismatches) + sum(len(x) for x in missing_by_group.values())
+            raise ValueError(
+                f'Leathers: original material ownership/reference validation failed '
+                f'for {count} material(s):\n'
+                + '\n'.join(details)
+                + '\nVerify Source mod in the local workbook (download a '
+                  'fresh AnimalStats copy if stale). Run Reference Sync for the '
+                  'listed groups and apply reviewed changes before generating.')
         if not self.materials and not self.strict_ownership:
             raise ValueError('No original leather ThingDefs in OriginalXML. Run reference_sync_gui.py to import upstream leather XML before generating.')
         if self.include_ce:
@@ -155,7 +178,7 @@ class LeatherReferences:
         # Simulate the CE leather XML against copies of original material defs.
         # All source XML is used, not Zoology fallback definitions.
         if not self.patches.is_dir(): return
-        ce_root = self.patches/'CE'/'_Leathers'
+        ce_root = self.patches
         discovered = sorted(ce_root.rglob('*.xml')) if ce_root.is_dir() else []
         selected = {}
         for path in discovered:
@@ -168,7 +191,7 @@ class LeatherReferences:
         if not paths:
             if self.strict_ownership and self.materials:
                 raise ValueError('Leathers: CE material references are missing. '
-                                 'Synchronize OriginalPatches/CE/_Leathers or use --no-ce.')
+                                 'Run Reference Sync to populate OriginalXML/CEPatches (or use --no-ce).')
             return
         root = E.Element('Defs')
         for (_, parent), node in self.parents.items():
@@ -224,7 +247,9 @@ class LeatherReferences:
             parent = current.get('ParentName')
             if not parent or parent in seen: break
             seen.add(parent)
-            current = parents.get((group, parent)) or parents.get((None, parent))
+            current = parents.get((group, parent))
+            if current is None:
+                current = parents.get((None, parent))
         if base is not None and base is not thing:
             return _numeric(base.findtext(path))
         # Multiplicative stat factors have the exact neutral value 1 when
@@ -245,59 +270,116 @@ class LeatherReferences:
             if not parent or parent in seen:
                 break
             seen.add(parent)
-            current = self.parents.get((group, parent)) or self.parents.get((None, parent))
+            current = self.parents.get((group, parent))
+            if current is None:
+                current = self.parents.get((None, parent))
         return None
 
 
 def _conditional(root, name, path, value, original):
-    """Only patch existing ThingDefs; add missing subnodes via runtime guards."""
+    """Update an existing material even when its nested nodes are inherited.
+
+    Check the runtime XML structure, not the original snapshot's shape:
+    another mod may add a container between generation and patch execution.
+    """
     target = f'/Defs/ThingDef[defName="{name}"]'
-    # Missing entire ThingDef must not make an operation fail.
     outer = E.SubElement(root, 'Operation', Class='PatchOperationConditional')
     E.SubElement(outer, 'xpath').text = target
-    match = E.SubElement(outer, 'match', Class='PatchOperationSequence')
-    seq = E.SubElement(match, 'operations')
-    # Fields may be inherited and absent in the concrete ThingDef.
+    seq = E.SubElement(E.SubElement(outer, 'match', Class='PatchOperationSequence'),
+                       'operations')
     fragments = path.split('/')
     for depth in range(1, len(fragments)):
-        sub = '/'.join(fragments[:depth])
-        existing = original.find(sub)
-        if existing is not None: continue
-        # Root lacks a container: add it with the full remaining branch.
-        parent = '/'.join(fragments[:depth-1]); missing = '/'.join(fragments[depth-1:])
-        dest = target + ('/'+parent if parent else '')
-        op = E.SubElement(seq, 'li', Class='PatchOperationConditional')
-        E.SubElement(op, 'xpath').text = target+'/'+sub
-        no = E.SubElement(op, 'nomatch', Class='PatchOperationAdd')
-        E.SubElement(no, 'xpath').text = dest
-        val = E.SubElement(no, 'value')
-        at = val
-        for tag in fragments[depth-1:]: at = E.SubElement(at, tag)
-        at.text = str(value)
-        return
+        parent = '/'.join(fragments[:depth-1])
+        current = '/'.join(fragments[:depth])
+        cond = E.SubElement(seq, 'li', Class='PatchOperationConditional')
+        E.SubElement(cond, 'xpath').text = target + '/' + current
+        addition = E.SubElement(cond, 'nomatch', Class='PatchOperationAdd')
+        E.SubElement(addition, 'xpath').text = target + ('/' + parent if parent else '')
+        E.SubElement(E.SubElement(addition, 'value'), fragments[depth-1])
     cond = E.SubElement(seq, 'li', Class='PatchOperationConditional')
-    E.SubElement(cond, 'xpath').text = target+'/'+path
-    m = E.SubElement(cond, 'match', Class='PatchOperationReplace')
-    E.SubElement(m, 'xpath').text = target+'/'+path
-    E.SubElement(E.SubElement(m, 'value'), fragments[-1]).text = str(value)
-    no = E.SubElement(cond, 'nomatch', Class='PatchOperationAdd')
-    E.SubElement(no, 'xpath').text = target+'/'+ '/'.join(fragments[:-1])
-    E.SubElement(E.SubElement(no, 'value'), fragments[-1]).text = str(value)
+    E.SubElement(cond, 'xpath').text = target + '/' + path
+    match = E.SubElement(cond, 'match', Class='PatchOperationReplace')
+    E.SubElement(match, 'xpath').text = target + '/' + path
+    E.SubElement(E.SubElement(match, 'value'), fragments[-1]).text = str(value)
+    nomatch = E.SubElement(cond, 'nomatch', Class='PatchOperationAdd')
+    E.SubElement(nomatch, 'xpath').text = target + '/' + '/'.join(fragments[:-1])
+    E.SubElement(E.SubElement(nomatch, 'value'), fragments[-1]).text = str(value)
 
 
 def _emit(root):
     return E.tostring(root, encoding='utf-8', xml_declaration=True, pretty_print=True)
 
 
-def render_original_overrides(rows, original_xml, original_patches, *, ce=True, skip_vanilla=(), skip_ce=(), refs=None):
+
+def _odyssey_fallbacks(groups, rows, refs, consumers, *, ce):
+    """Define Odyssey-owned leathers only for mods that consume them without DLC.
+
+    Each mod contributes a guarded Add, so simultaneous consumers never add
+    duplicate ThingDefs. CE values come directly from the authoritative sheet.
+    """
+    from core.leather_generation import _write_thing_def
+    created = {}
+    for name, groups_using in sorted((consumers or {}).items()):
+        sheet = rows.get(name)
+        if sheet is None or sheet['Source mod'] != 'Odyssey':
+            continue
+        material = refs.materials.get(name)
+        if material is None:
+            raise ValueError(f'Odyssey fallback: original material {name} not synchronized')
+        source_def = material[1]
+        parent = source_def.get('ParentName')
+        if parent and parent != 'LeatherBase':
+            raise ValueError(f'Odyssey fallback {name}: unsupported parent {parent!r}; '
+                             'cannot create a Def without its DLC parent')
+        # Do not copy DLC-only textures, components or references: the source
+        # DLC is explicitly absent. Core LeatherBase supplies safe defaults.
+        stub = E.Element('ThingDef', ParentName='LeatherBase')
+        E.SubElement(stub, 'defName').text = name
+        for tag in ('label', 'description'):
+            value = source_def.findtext(tag)
+            if value:
+                E.SubElement(stub, tag).text = value
+        _write_thing_def(stub, rows)
+        for group in sorted(groups_using):
+            if group == 'Odyssey':
+                continue
+            if group not in groups:
+                raise ValueError(f'Odyssey fallback {name}: missing route for {group}')
+            outer = E.SubElement(groups[group], 'Operation', Class='PatchOperationFindMod')
+            E.SubElement(E.SubElement(outer, 'mods'), 'li').text = 'Odyssey'
+            operations = E.SubElement(E.SubElement(outer, 'nomatch',
+                                                  Class='PatchOperationSequence'),
+                                      'operations')
+            guard = E.SubElement(operations, 'li', Class='PatchOperationConditional')
+            E.SubElement(guard, 'xpath').text = f'/Defs/ThingDef[defName="{name}"]'
+            addition = E.SubElement(guard, 'nomatch', Class='PatchOperationAdd')
+            E.SubElement(addition, 'xpath').text = '/Defs'
+            E.SubElement(addition, 'value').append(copy.deepcopy(stub))
+            if ce:
+                ce_wrapper = E.SubElement(operations, 'li', Class='PatchOperationFindMod')
+                E.SubElement(E.SubElement(ce_wrapper, 'mods'), 'li').text = 'Combat Extended'
+                ce_ops = E.SubElement(E.SubElement(ce_wrapper, 'match',
+                                                  Class='PatchOperationSequence'),
+                                      'operations')
+                for field, column in CE_FIELDS.items():
+                    patch = E.Element('Patch')
+                    _conditional(patch, name, NUMERICS[field],
+                                 format(sheet[column], '.12g'), stub)
+                    for op in list(patch):
+                        op.tag = 'li'
+                        ce_ops.append(op)
+            created.setdefault(name, []).append(group)
+    return created
+
+
+def render_original_overrides(rows, original_xml, original_patches, *, ce=True, refs=None, consumers=None):
     """Return route-payload dict, CE payload, and comparison report.
 
-    The original source group decides the route. No Odyssey-only material is
-    patched when Odyssey is absent; the existing fallback owns that scenario.
+    The original source group decides the route; no missing ThingDefs are created.
     """
     refs = refs or LeatherReferences(original_xml, original_patches, rows, ce=ce)
     groups = {name: E.Element('Patch') for name in GROUP_ROUTES}
-    ce_root = E.Element('Patch')  # Retained for custom-def CE output compatibility.
+    ce_root = E.Element('Patch')
     ce_by_group = {name: E.Element('Patch') for name in GROUP_ROUTES}
     no_reference = []
     vanilla_changes = []
@@ -311,7 +393,6 @@ def render_original_overrides(rows, original_xml, original_patches, *, ce=True, 
             continue
         group, original = refs.materials[name]
         for field in NUMERICS:
-            if (name, 'vanilla', field) in skip_vanilla: continue
             old = refs.get_number(original, field)
             if old is None:
                 if refs.strict_ownership:
@@ -322,31 +403,28 @@ def render_original_overrides(rows, original_xml, original_patches, *, ce=True, 
             if not _equals(old, new):
                 _conditional(groups[group], name, NUMERICS[field], format(new,'.12g'), original)
                 vanilla_changes.append((name, field, old, new, group))
-        if (name, 'vanilla', 'Color hex') not in skip_vanilla:
-            old = refs.get_color(original)
-            if old is None and refs.strict_ownership:
-                raise ValueError(f'Leathers: cannot resolve original {name} stuffProps/color')
-            if old is not None and old != sheet['Color hex']:
-                _conditional(groups[group], name, 'stuffProps/color', _rgb(sheet['Color hex']), original)
-                # If graphicData has its own independent color, preserve it.
-                if _xml_color(original.findtext('graphicData/color')) == old:
-                    _conditional(groups[group], name, 'graphicData/color', _rgb(sheet['Color hex']), original)
-                vanilla_changes.append((name, 'Color hex', old, sheet['Color hex'], group))
+        old = refs.get_color(original)
+        if old is None and refs.strict_ownership:
+            raise ValueError(f'Leathers: cannot resolve original {name} stuffProps/color')
+        if old is not None and old != sheet['Color hex']:
+            _conditional(groups[group], name, 'stuffProps/color', _rgb(sheet['Color hex']), original)
+            # If graphicData has its own independent color, preserve it.
+            if _xml_color(original.findtext('graphicData/color')) == old:
+                _conditional(groups[group], name, 'graphicData/color', _rgb(sheet['Color hex']), original)
+            vanilla_changes.append((name, 'Color hex', old, sheet['Color hex'], group))
         if not ce:
             continue
         for field, col in CE_FIELDS.items():
-            if (name,'ce',field) in skip_ce: continue
             new = sheet[col]
             reference = refs.ce_before.get(name, {}).get(field)
             # If source CE patches aren't present, only force a value when
             # the desired CE value differs from the Sheet vanilla value.
             known = refs.ce_available and reference is not None
-            vanilla_touch = ((name, 'vanilla', field) in skip_vanilla or
-                             any(n == name and f == field for n, f, *_ in vanilla_changes))
+            vanilla_touch = any(n == name and f == field for n, f, *_ in vanilla_changes)
             if not known:
                 ce_unverified.append((name, field))
                 if refs.strict_ownership:
-                    raise ValueError(f'Leathers: cannot verify CE {field} for {name} against OriginalPatches')
+                    raise ValueError(f'Leathers: cannot verify CE {field} for {name} against OriginalXML/CEPatches')
             if (known and _equals(reference, new) and not vanilla_touch) or (
                 not known and _equals(sheet[field], new) and not vanilla_touch):
                 continue
@@ -364,7 +442,9 @@ def render_original_overrides(rows, original_xml, original_patches, *, ce=True, 
         for original_op in list(patch):
             original_op.tag = 'li'
             operations.append(original_op)
+    fallback_routes = _odyssey_fallbacks(groups, rows, refs, consumers, ce=ce)
     report = {
+        'odyssey_fallbacks': fallback_routes,
         'original_materials_indexed': len(refs.materials),
         'material_routes': {name: GROUP_ROUTES[group] for name, (group, _) in sorted(refs.materials.items())},
         'excluded_materials': {name: sheet.get('Source mod') for name, sheet in sorted(rows.items())

@@ -170,15 +170,9 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/manhunterOnTameFailChance</xpath>
-    <value>
-      <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/manhunterOnDamageChance</xpath>
     <value>
-      <manhunterOnDamageChance>0</manhunterOnDamageChance>
+      <manhunterOnDamageChance>0.3</manhunterOnDamageChance>
     </value>
   </Operation>
   <Operation Class="PatchOperationRemove">
@@ -223,7 +217,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_Coyote"]/race/maxPreyBodySize</xpath>
     <value>
-      <maxPreyBodySize>0.2</maxPreyBodySize>
+      <maxPreyBodySize>0.45</maxPreyBodySize>
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
@@ -594,15 +588,9 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/manhunterOnTameFailChance</xpath>
-    <value>
-      <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/manhunterOnDamageChance</xpath>
     <value>
-      <manhunterOnDamageChance>0</manhunterOnDamageChance>
+      <manhunterOnDamageChance>0.3</manhunterOnDamageChance>
     </value>
   </Operation>
   <Operation Class="PatchOperationRemove">
@@ -647,7 +635,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_ArcticCoyote"]/race/maxPreyBodySize</xpath>
     <value>
-      <maxPreyBodySize>0.2</maxPreyBodySize>
+      <maxPreyBodySize>0.45</maxPreyBodySize>
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
@@ -1023,19 +1011,19 @@
       <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/roamMtbDays</xpath>
     </match>
   </Operation>
-  <Operation Class="PatchOperationReplace">
+  <Operation Class="PatchOperationConditional"><xpath>/Defs/ThingDef[defName="Leather_Dog"]</xpath><match Class="PatchOperationSequence"><operations><li Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/leatherDef</xpath>
     <value>
       <leatherDef>Leather_Dog</leatherDef>
     </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
+  </li>
+  <li Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/useLeatherFrom</xpath>
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/useLeatherFrom</xpath>
     </match>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
+  </li>
+  </operations></match></Operation><Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_Hyena"]/race/manhunterOnTameFailChance</xpath>
     <value>
       <manhunterOnTameFailChance>0.1</manhunterOnTameFailChance>

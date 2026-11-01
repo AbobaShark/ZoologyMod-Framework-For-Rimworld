@@ -1,9 +1,11 @@
-"""Run from checker/: py -m unittest discover -s tests -p test_reference_sync_auto.py"""
+"""Test canonical Reference Sync paths, source version selection and atomic cleanup."""
+import io
 import json
-from pathlib import Path
 import tempfile
+import threading
 import unittest
-from unittest.mock import patch
+from pathlib import Path
+from unittest.mock import MagicMock, patch
 
 from tools import reference_sync_auto as rs
 
@@ -16,196 +18,295 @@ class AutoReferenceTests(unittest.TestCase):
         self.checker = self.root / 'checker'
         self.checker.mkdir()
         self.steam = self.root / 'SteamLibrary'
-        self.game = self.steam / 'steamapps' / 'common' / 'RimWorld'
-        (self.game / 'Data' / 'Core' / 'Defs').mkdir(parents=True)
-        self.workshop = self.steam / 'steamapps' / 'workshop' / 'content' / '294100'
+        self.game = self.steam / 'steamapps/common/RimWorld'
+        (self.game / 'Data/Core/Defs').mkdir(parents=True)
+        self.workshop = self.steam / 'steamapps/workshop/content/294100'
         self.workshop.mkdir(parents=True)
 
-    def source(self, rel, text, root=None):
-        p = (root or self.checker) / rel
-        p.parent.mkdir(parents=True, exist_ok=True)
-        p.write_text(text, encoding='utf8')
-        return p
+    def write(self, relative, content, base=None):
+        path = (base or self.checker) / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(content, encoding='utf-8')
+        return path
 
-    def spec(self, id='Core', root='OriginalXML/Core', **kw):
-        return {'id':id, 'reference_dirs':[root], **kw}
+    def cfg(self, group='Core', **other):
+        root = 'OriginalXML/CEPatches' if group == 'CombatExtended' else 'OriginalXML/' + group
+        return {'rimworld_version': 'auto',
+                'mods': [{'id': group, 'reference_dirs': [root], **other}]}
 
-    def test_steam_root_and_game_core(self):
-        old = '<Defs><ThingDef><defName>Chicken</defName><a>old</a></ThingDef></Defs>'
-        new = '<Defs><ThingDef><defName>Chicken</defName><a>new</a></ThingDef></Defs>'
-        p = self.source('OriginalXML/Core/Races_Animal_Birds.xml', old)
-        self.source('Defs/ThingDefs_Races/Races_Animal_Birds.xml', new, self.game/'Data'/'Core')
-        cfg = {'rimworld_version':'1.7','mods':[self.spec(game_dlc='Core')]}
-        result, warnings = rs.discover(cfg, steam=str(self.steam),github=False,checker_root=self.checker)
-        self.assertEqual([x['status'] for x in result], ['REPLACE'])
-        self.assertEqual(p.read_text(), old)  # preview must be read-only
-        backup = rs.apply(result, checker_root=self.checker)
-        self.assertEqual(p.read_text(), new)
-        self.assertEqual((backup/'OriginalXML/Core/Races_Animal_Birds.xml').read_text(), old)
-        self.assertTrue((backup/'report.json').is_file())
+    def test_game_version_selects_latest_compatible_not_all_versions(self):
+        self.write('Version.txt', '1.7.1234', self.game)
+        mod = self.workshop / '1136958577'
+        for number in range(9):
+            self.write(f'1.{number}/Defs/Animals.xml',
+                       f'<Defs><ThingDef><defName>Dino</defName><statBases>'
+                       f'<MarketValue>{number}</MarketValue></statBases></ThingDef></Defs>', mod)
+        cfg = self.cfg('Dinosauria', workshop_ids=['1136958577'])
+        preview, warnings = rs.discover(cfg, steam=str(self.steam), github=False,
+                                         checker_root=self.checker)
+        self.assertEqual([e['source_file'] for e in preview], ['1.7/Defs/Animals.xml'])
+        self.assertFalse([e for e in preview if e['status'] == 'DELETE'])
+        rs.apply(preview, checker_root=self.checker)
+        self.write('Version.txt', '1.8.10', self.game)
+        next_preview, _ = rs.discover(cfg, steam=str(self.steam), github=False,
+                                      checker_root=self.checker)
+        self.assertEqual({e['status'] for e in next_preview}, {'COPY', 'DELETE'})
+        self.assertIn('1.8/Defs/Animals.xml', next(e['source_file'] for e in next_preview
+                                                  if e['status'] == 'COPY'))
+        rs.apply(next_preview, checker_root=self.checker)
+        self.assertFalse((self.checker / 'OriginalXML/Dinosauria/1.7').exists())
+        self.assertTrue((self.checker / 'OriginalXML/Dinosauria/1.8/Defs/Animals.xml').is_file())
 
-    def test_workshop_id_without_mod_name(self):
-        target = '<Defs><ThingDef><defName>Wolf</defName></ThingDef></Defs>'
-        changed = '<Defs><ThingDef><defName>Wolf</defName><statBases/></ThingDef></Defs>'
-        self.source('OriginalXML/Example/Races_Wolf.xml', target)
-        self.source('Defs/Races_Wolf.xml', changed, self.workshop/'4321')
-        cfg = {'rimworld_version':'1.7','mods':[self.spec('Example','OriginalXML/Example',workshop_ids=['4321'])]}
-        result, _ = rs.discover(cfg,steam=str(self.workshop),github=False,checker_root=self.checker)
-        self.assertEqual(result[0]['status'], 'REPLACE')
-        self.assertEqual(result[0]['source_file'], 'Defs/Races_Wolf.xml')
+    def test_mod_without_current_version_uses_highest_older_version(self):
+        self.write('Version.txt', '1.8.0', self.game)
+        mod = self.workshop / '1055485938'
+        for number in range(7):
+            self.write(f'1.{number}/Defs/Megafauna.xml',
+                       '<Defs><ThingDef><defName>MegafaunaTest</defName></ThingDef></Defs>', mod)
+        cfg = self.cfg('Megafauna', workshop_ids=['1055485938'])
+        preview, _ = rs.discover(cfg, steam=str(self.steam), github=False,
+                                 checker_root=self.checker)
+        self.assertEqual([e['source_file'] for e in preview], ['1.6/Defs/Megafauna.xml'])
 
-    def test_no_matching_def_skip_not_overwrite(self):
-        self.source('OriginalXML/Core/Races_Cat.xml','<Defs><ThingDef><defName>Cat</defName></ThingDef></Defs>')
-        self.source('Defs/Races_Cat.xml','<Defs><ThingDef><defName>Steel</defName></ThingDef></Defs>', self.game/'Data'/'Core')
-        cfg={'mods':[self.spec(game_dlc='Core')]}
-        result,_=rs.discover(cfg,steam=str(self.game),github=False,checker_root=self.checker)
-        self.assertEqual(result[0]['status'],'MISSING')
+    def test_material_reference_has_no_extra_classification_directory(self):
+        xml = '<Defs><ThingDef Name="LeatherBase" Abstract="True"/></Defs>'
+        self.write('Defs/ThingDefs_Items/Leather.xml', xml, self.game / 'Data/Core')
+        cfg = self.cfg(game_dlc='Core')
+        preview, _ = rs.discover(cfg, steam=str(self.steam), github=False,
+                                 checker_root=self.checker)
+        self.assertEqual([e['destination'] for e in preview],
+                         ['OriginalXML/Core/Defs/ThingDefs_Items/Leather.xml'])
+        rs.apply(preview, checker_root=self.checker)
+        again, _ = rs.discover(cfg, steam=str(self.steam), github=False,
+                               checker_root=self.checker)
+        self.assertEqual([e['status'] for e in again], ['SKIP'])
 
-    def test_ambiguous_file_skip(self):
-        self.source('OriginalXML/Core/Races_Wolf.xml','<Defs><ThingDef><defName>Wolf</defName></ThingDef></Defs>')
-        self.source('Defs/One/Races_Wolf.xml','<Defs><ThingDef><defName>Wolf</defName><a>one</a></ThingDef></Defs>',self.game/'Data'/'Core')
-        self.source('Defs/Two/Races_Wolf.xml','<Defs><ThingDef><defName>Wolf</defName><a>two</a></ThingDef></Defs>',self.game/'Data'/'Core')
-        cfg={'mods':[self.spec(game_dlc='Core')]}
-        result,_=rs.discover(cfg,steam=str(self.game),github=False,checker_root=self.checker)
-        self.assertEqual(result[0]['status'],'MISSING')
-        self.assertIn('Ambiguous',result[0]['detail'])
+    def test_replacement_removes_obsolete_classification_folders(self):
+        xml = '<Defs><ThingDef Name="LeatherBase" Abstract="True"/></Defs>'
+        self.write('Defs/Leather.xml', xml, self.game / 'Data/Core')
+        stale = self.write('OriginalXML/Core/_Leathers/Defs/Leather.xml', xml)
+        cfg = self.cfg(game_dlc='Core')
+        preview, _ = rs.discover(cfg, steam=str(self.steam), github=False,
+                                 checker_root=self.checker)
+        self.assertEqual({e['status'] for e in preview}, {'COPY', 'DELETE'})
+        self.assertTrue(stale.is_file())
+        backup = rs.apply(preview, checker_root=self.checker)
+        self.assertFalse(stale.exists())
+        self.assertFalse((self.checker / 'OriginalXML/Core/_Leathers').exists())
+        self.assertTrue((backup / 'OriginalXML/Core/_Leathers/Defs/Leather.xml').is_file())
 
-    def test_git_preference(self):
-        old='<Defs><ThingDef><defName>Wolf</defName></ThingDef></Defs>'
-        self.source('OriginalXML/Example/Races_Wolf.xml',old)
-        self.source('Defs/Races_Wolf.xml','<Defs><ThingDef><defName>Wolf</defName><a>local</a></ThingDef></Defs>',self.workshop/'4321')
-        cfg={'mods':[self.spec('Example','OriginalXML/Example', workshop_ids=['4321'],github={'url':'https://github.com/owner/repo.git'})]}
+    def test_current_canonical_file_replaced_with_backup(self):
+        old = '<Defs><ThingDef><defName>Chicken</defName><label>old</label></ThingDef></Defs>'
+        new = '<Defs><ThingDef><defName>Chicken</defName><label>new</label></ThingDef></Defs>'
+        target = self.write('OriginalXML/Core/Defs/Birds.xml', old)
+        self.write('Defs/Birds.xml', new, self.game / 'Data/Core')
+        preview, _ = rs.discover(self.cfg(game_dlc='Core'), steam=str(self.steam),
+                                 github=False, checker_root=self.checker)
+        self.assertEqual([e['status'] for e in preview], ['REPLACE'])
+        backup = rs.apply(preview, checker_root=self.checker)
+        self.assertEqual(target.read_text(), new)
+        self.assertEqual((backup / 'OriginalXML/Core/Defs/Birds.xml').read_text(), old)
+
+    def test_installed_workshop_source_skips_github_entirely(self):
+        local_xml = ('<Defs><ThingDef><defName>Wolf</defName>'
+                     '<label>installed</label></ThingDef></Defs>')
+        workshop = self.workshop / '4321'
+        self.write('Defs/Wolf.xml', local_xml, workshop)
+        cfg = self.cfg('Example', workshop_ids=['4321'],
+                       github={'url': 'https://github.com/owner/repo.git'})
+        # Network access must not be attempted, even with github=True.
+        with patch.object(rs, 'GitSource',
+                          side_effect=AssertionError('Unexpected GitHub access')):
+            entries, warnings = rs.discover(cfg, steam=str(self.steam),
+                                            github=True, checker_root=self.checker)
+        self.assertEqual(len(entries), 1)
+        self.assertEqual(entries[0]['payload'], local_xml.encode())
+        self.assertEqual(entries[0]['provenance'], str(workshop.resolve()))
+
+    def test_accepts_steamapps_workshop_path_from_gui(self):
+        workshop_root = self.steam / 'steamapps/workshop'
+        games, workshops, mods = rs.steam_locations(str(workshop_root))
+        self.assertIn(self.workshop, workshops)
+        self.write('Defs/Races_Animal.xml',
+                   '<Defs><ThingDef><defName>TestAnimal</defName></ThingDef></Defs>',
+                   self.workshop / '1541721856')
+        cfg = self.cfg('AlphaAnimals', workshop_ids=['1541721856'],
+                       github={'url': 'https://github.com/juanosarg/AlphaAnimals.git'})
+        with patch.object(rs, 'GitSource',
+                          side_effect=AssertionError('Installed Workshop should not access GitHub')):
+            entries, warnings = rs.discover(
+                cfg, steam=str(workshop_root), github=True, checker_root=self.checker)
+        self.assertEqual(len(entries), 1)
+        self.assertTrue(entries[0]['provenance'].endswith('1541721856'))
+
+    def test_workshop_id_resolves_without_scanning_every_about_xml(self):
+        workshop = self.workshop / '1541721856'
+        self.write('Defs/Animals.xml',
+                   '<Defs><ThingDef><defName>TestAnimal</defName></ThingDef></Defs>',
+                   workshop)
+        for index in range(20):
+            self.write('About/About.xml', '<ModMetaData><name>Other</name></ModMetaData>',
+                       self.workshop / str(800000 + index))
+        with patch.object(rs, 'read_about',
+                          side_effect=AssertionError('Scanned unrelated About.xml')):
+            found, error = rs.find_local_mod(
+                {'id':'AlphaAnimals','workshop_ids':['1541721856']},
+                [], [self.workshop], [])
+        self.assertEqual(found, workshop)
+        self.assertIsNone(error)
+
+    def test_github_used_if_workshop_not_installed(self):
+        cfg = self.cfg('Example', workshop_ids=['missing'],
+                       github={'url': 'https://github.com/owner/repo.git'})
         class FakeGit:
-            files=['Defs/Races_Wolf.xml']
-            provenance='https://github.com/owner/repo.git@'+'a'*40
+            files = ['Defs/Wolf.xml']
+            provenance = 'fake github'
             def __init__(self, spec): pass
-            def read(self, rel):return b'<Defs><ThingDef><defName>Wolf</defName><a>github</a></ThingDef></Defs>'
-            def close(self):pass
-        with patch.object(rs,'GitSource',FakeGit):
-            result,_=rs.discover(cfg,steam=str(self.workshop), github=True,checker_root=self.checker)
-        self.assertIn('@'+'a'*40,result[0]['provenance'])
-        self.assertIn(b'github',result[0]['payload'])
-
-    def test_current_version_is_read_before_older_xml(self):
-        old = b'<Defs><ThingDef><defName>Hare</defName></ThingDef></Defs>'
-        class Versioned:
-            files = ['1.6/Defs/Races_Hare.xml', '1.7/Defs/Races_Hare.xml']
             def read(self, rel):
-                if rel.startswith('1.6/'):
-                    raise AssertionError('Older version need not be fetched')
-                return old
-        match, err = rs.choose_match(Versioned(), 'OriginalXML/Core/Races_Hare.xml',
-                                     old, version='1.7', kind='Defs')
-        self.assertIsNone(err)
-        self.assertEqual(match[0], '1.7/Defs/Races_Hare.xml')
-
-    def test_github_xml_failure_uses_local_source(self):
-        old = '<Defs><ThingDef><defName>Wolf</defName></ThingDef></Defs>'
-        self.source('OriginalXML/Example/Races_Wolf.xml', old)
-        self.source('Defs/Races_Wolf.xml',
-                    '<Defs><ThingDef><defName>Wolf</defName><v>local</v></ThingDef></Defs>',
-                    self.workshop / '4321')
-        cfg = {'mods': [self.spec('Example', 'OriginalXML/Example', workshop_ids=['4321'],
-                                  github={'url': 'https://github.com/owner/repo.git'})]}
-        class BrokenGit:
-            files = ['Defs/Races_Wolf.xml']
-            provenance = 'github'
-            read_error = 'GitHub XML download unavailable: timed out'
-            def __init__(self, spec): pass
-            def read(self, rel): raise OSError(self.read_error)
+                return b'<Defs><ThingDef><defName>Wolf</defName></ThingDef></Defs>'
             def close(self): pass
-        with patch.object(rs, 'GitSource', BrokenGit):
-            result, warnings = rs.discover(cfg, steam=str(self.steam), github=True,
-                                           checker_root=self.checker)
-        self.assertEqual(result[0]['status'], 'REPLACE')
-        self.assertIn(b'local', result[0]['payload'])
-        self.assertTrue(any('timed out' in warning for warning in warnings))
+        with patch.object(rs, 'GitSource', FakeGit):
+            entries, warnings = rs.discover(cfg, steam=str(self.steam),
+                                            github=True, checker_root=self.checker)
+        self.assertEqual(len(entries), 1)
+        self.assertEqual(entries[0]['provenance'], 'fake github')
 
-    def test_github_xml_fetch_is_bounded_cached_and_pinned(self):
-        from unittest.mock import MagicMock
-        src = object.__new__(rs.GitSource)
-        src._cache = {}
-        src._cache_size = 0
-        src.read_error = None
-        src.raw_base = 'https://raw.githubusercontent.com/owner/repo/'
-        src.revision = 'a' * 40
-        response = MagicMock()
-        response.__enter__.return_value.read.return_value = b'<Defs/>'
-        with patch.object(rs.urlrequest, 'urlopen', return_value=response) as remote:
-            self.assertEqual(src.read('1.7/Defs/Races.xml'), b'<Defs/>')
-            self.assertEqual(src.read('1.7/Defs/Races.xml'), b'<Defs/>')
-            self.assertEqual(remote.call_count, 1)
-            self.assertEqual(remote.call_args.args[0],
-                             'https://raw.githubusercontent.com/owner/repo/' +
-                             'a' * 40 + '/1.7/Defs/Races.xml')
-            self.assertEqual(remote.call_args.kwargs['timeout'], 12)
-        src._cache = {}
-        with patch.object(rs.urlrequest, 'urlopen', side_effect=TimeoutError('timed out')) as remote:
-            with self.assertRaises(OSError):
-                src.read('1.7/Defs/Other.xml')
-            with self.assertRaises(OSError):
-                src.read('1.7/Defs/Another.xml')
-            self.assertEqual(remote.call_count, 1)
+    def test_github_used_if_installed_source_has_no_definitions(self):
+        workshop = self.workshop / '4321'
+        self.write('Defs/NotDefs.xml', '<Other/>', workshop)
+        cfg = self.cfg('Example', workshop_ids=['4321'],
+                       github={'url': 'https://github.com/owner/repo.git'})
+        class FakeGit:
+            files = ['Defs/Wolf.xml']
+            provenance = 'fake github'
+            def __init__(self, spec): pass
+            def read(self, rel):
+                return b'<Defs><ThingDef><defName>Wolf</defName></ThingDef></Defs>'
+            def close(self): pass
+        with patch.object(rs, 'GitSource', FakeGit):
+            entries, warnings = rs.discover(cfg, steam=str(self.steam),
+                                            github=True, checker_root=self.checker)
+        self.assertEqual(len(entries), 1)
+        self.assertEqual(entries[0]['provenance'], 'fake github')
 
-    def test_no_stale_preview_apply(self):
-        old='<Defs><ThingDef><defName>Wolf</defName></ThingDef></Defs>'
-        self.source('OriginalXML/Core/Races_Wolf.xml',old)
-        self.source('Defs/Races_Wolf.xml','<Defs><ThingDef><defName>Wolf</defName><a>v2</a></ThingDef></Defs>',self.game/'Data'/'Core')
-        cfg={'mods':[self.spec(game_dlc='Core')]}
-        result,_=rs.discover(cfg,steam=str(self.steam),github=False,checker_root=self.checker)
-        target=self.checker/'OriginalXML/Core/Races_Wolf.xml'
-        target.write_text('changed since preview', encoding='utf8')
-        with self.assertRaisesRegex(RuntimeError,'changed since preview'):
-            rs.apply(result,checker_root=self.checker)
-        self.assertEqual(target.read_text(), 'changed since preview')
+    def test_missing_sources_never_delete_existing_references(self):
+        old = self.write('OriginalXML/Megafauna/Defs/Mammoth.xml',
+                         '<Defs><ThingDef><defName>Mammoth</defName></ThingDef></Defs>')
+        preview, warnings = rs.discover(
+            self.cfg('Megafauna', workshop_ids=['missing']),
+            steam=str(self.steam), github=False, checker_root=self.checker)
+        self.assertEqual(preview, [])
+        self.assertTrue(old.is_file())
 
-    def test_historical_megafauna_untouched(self):
-        self.source('OriginalXML/Megafauna/Races_Animal_Megafauna_v1.0-v1.1.xml','<Defs/>')
-        cfg={'mods':[self.spec('Megafauna','OriginalXML/Megafauna')]}
-        result,_=rs.discover(cfg,steam='',github=False,checker_root=self.checker)
-        self.assertEqual(result[0]['status'],'HISTORICAL')
+    def test_preview_checksum_guards_removals(self):
+        previous = self.write('OriginalXML/Core/Other.xml',
+                              '<Defs><ThingDef><defName>Old</defName></ThingDef></Defs>')
+        self.write('Defs/Birds.xml', '<Defs><ThingDef><defName>Chicken</defName></ThingDef></Defs>',
+                   self.game / 'Data/Core')
+        preview, _ = rs.discover(self.cfg(game_dlc='Core'), steam=str(self.steam),
+                                 github=False, checker_root=self.checker)
+        self.assertIn('DELETE', {e['status'] for e in preview})
+        previous.write_text('changed since preview')
+        with self.assertRaisesRegex(RuntimeError, 'changed since preview'):
+            rs.apply(preview, checker_root=self.checker)
+        self.assertEqual(previous.read_text(), 'changed since preview')
 
-    def test_version_selection(self):
-        old=b'<Defs><ThingDef><defName>Hare</defName></ThingDef></Defs>'
-        self.source('OriginalXML/Example/Races_Hare.xml',old.decode())
-        mod=self.workshop/'4321'
-        self.source('1.6/Defs/Races_Hare.xml','<Defs><ThingDef><defName>Hare</defName><v>1.6</v></ThingDef></Defs>',mod)
-        self.source('1.7/Defs/Races_Hare.xml','<Defs><ThingDef><defName>Hare</defName><v>1.7</v></ThingDef></Defs>',mod)
-        cfg={'rimworld_version':'1.7','mods':[self.spec('Example','OriginalXML/Example',workshop_ids=['4321'])]}
-        result,_=rs.discover(cfg,steam=str(self.steam),github=False,checker_root=self.checker)
-        self.assertEqual(result[0]['source_file'],'1.7/Defs/Races_Hare.xml')
-
-    def test_patch_reference_from_ce(self):
-        old = '<Patch><Operation Class="PatchOperationAdd"><xpath>a</xpath></Operation></Patch>'
-        new = '<Patch><Operation Class="PatchOperationAdd"><xpath>b</xpath></Operation></Patch>'
-        self.source('OriginalPatches/CE/Core/Races_Birds.xml',old)
-        self.source('Patches/Core/Races_Birds.xml',new,self.workshop/'1234')
-        cfg={'mods':[self.spec('CE','OriginalPatches/CE', workshop_ids=['1234'])]}
-        result,_=rs.discover(cfg,steam=str(self.steam),github=False,checker_root=self.checker)
-        self.assertEqual(result[0]['status'],'REPLACE')
-        self.assertEqual(result[0]['source_file'],'Patches/Core/Races_Birds.xml')
-
-    def test_megafauna_current_version_alias(self):
-        old = '<Defs><ThingDef><defName>Mammoth</defName></ThingDef></Defs>'
-        self.source('OriginalXML/Megafauna/Races_Animal_Megafauna_v1.4-.xml',old)
-        self.source('Defs/Races_Animal_Megafauna.xml','<Defs><ThingDef><defName>Mammoth</defName><v>latest</v></ThingDef></Defs>',self.workshop/'5678')
-        cfg={'mods':[self.spec('Megafauna','OriginalXML/Megafauna',workshop_ids=['5678'])]}
-        result,_=rs.discover(cfg,steam=str(self.steam),github=False,checker_root=self.checker)
-        self.assertEqual(result[0]['status'],'REPLACE')
-
-    def test_major_def_loss_is_refused(self):
-        self.source('OriginalXML/Core/Races_Birds.xml','<Defs><ThingDef><defName>A</defName></ThingDef><ThingDef><defName>B</defName></ThingDef></Defs>')
-        self.source('Defs/Races_Birds.xml','<Defs><ThingDef><defName>A</defName></ThingDef></Defs>',self.game/'Data'/'Core')
-        cfg={'mods':[self.spec(game_dlc='Core')]}
-        result,_=rs.discover(cfg,steam=str(self.steam),github=False,checker_root=self.checker)
-        self.assertEqual(result[0]['status'],'MISSING')
-
-    def test_xml_external_entities_rejected(self):
+    def test_xml_entities_and_path_escape_rejected(self):
         with self.assertRaises(ValueError):
-            rs.parse_xml(b'<!DOCTYPE foo [<!ENTITY x SYSTEM "file:///etc/passwd">]><Defs/>','Defs')
+            rs.parse_xml(b'<!DOCTYPE foo [<!ENTITY x SYSTEM "file:///etc/passwd">]><Defs/>',
+                         'Defs')
         with self.assertRaises(ValueError):
             rs.safe_inside(self.checker, 'OriginalXML/../../outside.xml')
 
+    def test_github_download_cached_and_bounded(self):
+        source = object.__new__(rs.GitSource)
+        source._cache = {}
+        source._cache_size = 0
+        source.read_error = None
+        source.raw_base = 'https://raw.githubusercontent.com/owner/repo/'
+        source.revision = 'a'*40
+        response = MagicMock()
+        response.__enter__.return_value.read.return_value = b'<Defs/>'
+        with patch.object(rs.urlrequest, 'urlopen', return_value=response) as mock:
+            source.read('1.8/Defs/Animals.xml')
+            source.read('1.8/Defs/Animals.xml')
+            self.assertEqual(mock.call_count, 1)
 
-if __name__=='__main__':
+
+    def test_github_index_uses_two_api_requests_and_no_git_clone(self):
+        sha = 'a' * 40
+        index = {'truncated': False, 'tree': [
+            {'path': '1.7/Defs/Races.xml', 'type': 'blob', 'size': 127},
+            {'path': 'Textures/Animal.png', 'type': 'blob', 'size': 500},
+            {'path': '1.7/Defs', 'type': 'tree'},
+        ]}
+        urls = []
+        def fake_open(request, timeout):
+            urls.append(request.full_url)
+            self.assertEqual(timeout, 12)
+            data = {'sha': sha} if '/commits/' in request.full_url else index
+            return io.BytesIO(json.dumps(data).encode('utf-8'))
+        with patch.object(rs.urlrequest, 'urlopen', side_effect=fake_open):
+            with patch('subprocess.run', side_effect=AssertionError('git invoked')):
+                source = rs.GitSource({'github': {
+                    'url': 'https://github.com/juanosarg/AlphaAnimals.git'}})
+        self.assertEqual(source.revision, sha)
+        self.assertEqual(source.files, ['1.7/Defs/Races.xml'])
+        self.assertEqual(len(urls), 2)
+        self.assertIn('/commits/HEAD', urls[0])
+        self.assertIn('/git/trees/' + sha, urls[1])
+
+    def test_parallel_xml_batch_reports_progress_and_finishes(self):
+        source = object.__new__(rs.GitSource)
+        source._cache = {}
+        source._cache_size = 0
+        source.read_error = None
+        source.provenance = 'fake github'
+        paths = [f'1.7/Defs/Animal_{i}.xml' for i in range(24)]
+        progress = []
+        with patch.object(source, '_fetch_raw', side_effect=lambda rel: rel.encode()):
+            found = source.read_many(paths, progress=progress.append)
+        self.assertEqual(len(found), 24)
+        self.assertEqual(set(found), set(paths))
+        self.assertEqual(len(source._cache), 24)
+        self.assertEqual(len(progress), 3)
+        self.assertIn('24/24', progress[-1])
+
+    def test_github_batch_failure_preserves_existing_references(self):
+        existing = self.write('OriginalXML/Example/Defs/Wolf.xml',
+                              '<Defs><ThingDef><defName>Wolf</defName></ThingDef></Defs>')
+        cfg = self.cfg('Example', workshop_ids=['missing'],
+                       github={'url': 'https://github.com/owner/repo.git'})
+        class BrokenGit:
+            files = ['Defs/Wolf.xml']
+            provenance = 'broken github'
+            read_error = 'network timeout'
+            def __init__(self, spec): pass
+            def read_many(self, paths, progress=None, cancelled=None):
+                raise OSError('network timeout')
+            def close(self): pass
+        with patch.object(rs, 'GitSource', BrokenGit):
+            entries, warnings = rs.discover(cfg, steam=str(self.steam),
+                                            github=True, checker_root=self.checker)
+        self.assertEqual(entries, [])
+        self.assertTrue(existing.is_file())
+        self.assertTrue(any('network timeout' in x for x in warnings))
+
+    def test_cancelled_parallel_download_exits_without_writing_xml(self):
+        source = object.__new__(rs.GitSource)
+        source._cache = {}
+        source._cache_size = 0
+        source.read_error = None
+        source.provenance = 'fake github'
+        cancelled = threading.Event()
+        def progress(message):
+            if '10/24' in message:
+                cancelled.set()
+        with patch.object(source, '_fetch_raw', side_effect=lambda rel: rel.encode()):
+            with self.assertRaises(InterruptedError):
+                source.read_many([f'1.7/Defs/Animal_{i}.xml' for i in range(24)],
+                                 progress=progress, cancelled=cancelled)
+
+
+if __name__ == '__main__':
     unittest.main()

@@ -1,51 +1,8 @@
 <?xml version='1.0' encoding='utf-8'?>
-<Patch>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/BiomeDef[defName="BorealForest"]/wildAnimals</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/BiomeDef[defName="BorealForest"]/wildAnimals</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/BiomeDef[defName="BorealForest"]</xpath>
-    <value>
-      <wildAnimals/>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/BiomeDef[defName="BorealForest"]/pollutionWildAnimals</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/BiomeDef[defName="BorealForest"]/pollutionWildAnimals</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/BiomeDef[defName="BorealForest"]</xpath>
-    <value>
-      <pollutionWildAnimals/>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/BiomeDef[defName="BorealForest"]/coastalWildAnimals</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/BiomeDef[defName="BorealForest"]/coastalWildAnimals</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/BiomeDef[defName="BorealForest"]</xpath>
-    <value>
-      <coastalWildAnimals/>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/BiomeDef[defName="BorealForest"]/allowedPackAnimals</xpath>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/BiomeDef[defName="BorealForest"]</xpath>
-      <value>
-        <allowedPackAnimals/>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
+<Patch><Operation Class="PatchOperationReplace"><xpath>/Defs/BiomeDef[defName="BorealForest"]/wildAnimals</xpath><value><wildAnimals/>
+    </value></Operation><Operation Class="PatchOperationReplace"><xpath>/Defs/BiomeDef[defName="BorealForest"]/pollutionWildAnimals</xpath><value><pollutionWildAnimals/>
+    </value></Operation><Operation Class="PatchOperationReplace"><xpath>/Defs/BiomeDef[defName="BorealForest"]/coastalWildAnimals</xpath><value><coastalWildAnimals/>
+    </value></Operation><Operation Class="PatchOperationAdd">
     <xpath>/Defs/BiomeDef[defName="BorealForest"]/wildAnimals</xpath>
     <value>
       <Bear_Grizzly>0.05</Bear_Grizzly>
@@ -130,15 +87,6 @@
       <xpath>/Defs/BiomeDef[defName="BorealForest"]/allowedPackAnimals</xpath>
       <value>
         <li>Bison</li>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/BiomeDef[defName="BorealForest"]/allowedPackAnimals/li[text()="Muffalo"]</xpath>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/BiomeDef[defName="BorealForest"]/allowedPackAnimals</xpath>
-      <value>
-        <li>Muffalo</li>
       </value>
     </nomatch>
   </Operation>

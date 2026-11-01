@@ -137,7 +137,7 @@
       <xpath>/Defs/ThingDef[@Name = "VAEWaste_BaseInsect"]/race/roamMtbDays</xpath>
     </match>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationConditional"><xpath>/Defs/ThingDef[defName="Leather_Chitin"]</xpath><match Class="PatchOperationSequence"><operations><li Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[@Name = "VAEWaste_BaseInsect"]/race/leatherDef</xpath>
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[@Name = "VAEWaste_BaseInsect"]/race/leatherDef</xpath>
@@ -151,14 +151,14 @@
         <leatherDef>Leather_Chitin</leatherDef>
       </value>
     </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
+  </li>
+  <li Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[@Name = "VAEWaste_BaseInsect"]/race/useLeatherFrom</xpath>
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[@Name = "VAEWaste_BaseInsect"]/race/useLeatherFrom</xpath>
     </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
+  </li>
+  </operations></match></Operation><Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[@Name = "VAEWaste_BaseInsect"]/race/manhunterOnTameFailChance</xpath>
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[@Name = "VAEWaste_BaseInsect"]/race/manhunterOnTameFailChance</xpath>
@@ -1820,7 +1820,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxafox"]/race/maxPreyBodySize</xpath>
     <value>
-      <maxPreyBodySize>0.2</maxPreyBodySize>
+      <maxPreyBodySize>0.4</maxPreyBodySize>
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
@@ -2671,30 +2671,30 @@
       <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxiguana"]/race/roamMtbDays</xpath>
     </match>
   </Operation>
-  <Operation Class="PatchOperationReplace">
+  <Operation Class="PatchOperationConditional"><xpath>/Defs/ThingDef[defName="VAEWaste_ToxicLeather"]</xpath><match Class="PatchOperationSequence"><operations><li Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxiguana"]/race/leatherDef</xpath>
     <value>
       <leatherDef>VAEWaste_ToxicLeather</leatherDef>
     </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
+  </li>
+  <li Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxiguana"]/race/useLeatherFrom</xpath>
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxiguana"]/race/useLeatherFrom</xpath>
     </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
+  </li>
+  </operations></match></Operation><Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxiguana"]/race/manhunterOnTameFailChance</xpath>
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxiguana"]/race/manhunterOnTameFailChance</xpath>
       <value>
-        <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
+        <manhunterOnTameFailChance>0.1</manhunterOnTameFailChance>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxiguana"]/race</xpath>
       <value>
-        <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
+        <manhunterOnTameFailChance>0.1</manhunterOnTameFailChance>
       </value>
     </nomatch>
   </Operation>
@@ -2703,13 +2703,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxiguana"]/race/manhunterOnDamageChance</xpath>
       <value>
-        <manhunterOnDamageChance>0</manhunterOnDamageChance>
+        <manhunterOnDamageChance>0.3</manhunterOnDamageChance>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxiguana"]/race</xpath>
       <value>
-        <manhunterOnDamageChance>0</manhunterOnDamageChance>
+        <manhunterOnDamageChance>0.3</manhunterOnDamageChance>
       </value>
     </nomatch>
   </Operation>
@@ -2927,6 +2927,12 @@
     <xpath>/Defs/PawnKindDef[defName = "VAEWaste_Toxiguana"]/ecoSystemWeight</xpath>
     <value>
       <ecoSystemWeight>0.15</ecoSystemWeight>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/PawnKindDef[defName = "VAEWaste_Toxiguana"]/canArriveManhunter</xpath>
+    <value>
+      <canArriveManhunter>true</canArriveManhunter>
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
@@ -3681,13 +3687,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxscorpion"]/race/manhunterOnDamageChance</xpath>
       <value>
-        <manhunterOnDamageChance>1</manhunterOnDamageChance>
+        <manhunterOnDamageChance>0.3</manhunterOnDamageChance>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxscorpion"]/race</xpath>
       <value>
-        <manhunterOnDamageChance>1</manhunterOnDamageChance>
+        <manhunterOnDamageChance>0.3</manhunterOnDamageChance>
       </value>
     </nomatch>
   </Operation>

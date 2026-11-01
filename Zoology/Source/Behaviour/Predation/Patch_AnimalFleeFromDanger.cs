@@ -1482,7 +1482,16 @@ namespace ZoologyMod
 
         private static bool ReachesElevatedPrey(Pawn threat, Pawn prey, Plant tree)
             => AnimalDefense.IsRanged(threat) || threat.Flying || threat.flight?.CanFlyNow == true
-                || AnimalDefense.DirectClimbingThreat(threat, prey, tree);
+                || AnimalDefense.DirectClimbingThreat(threat, prey, tree)
+                || (threat?.RaceProps?.predator == true && AnimalDefense.CanClimbTree(threat, tree));
+
+        // Reuse the ordinary prey/faction filter for immediate tree-occupancy checks.
+        // This is called only when a climber chooses or enters an occupied tree.
+        internal static bool IsDangerousTreeClimber(Pawn predator, Pawn prey, Plant tree)
+            => predator?.RaceProps?.predator == true && predator != prey && prey != null
+                && AnimalDefense.CanClimbTree(predator, tree)
+                && !AnimalHuntStrategy.HiddenFrom(predator, prey)
+                && IsRelevantRefugeThreat(predator, prey);
 
         private static bool IsRelevantRefugeThreat(Pawn threat, Pawn prey)
         {

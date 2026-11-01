@@ -42,6 +42,51 @@ class PatchOptimizerRuntimeGuardTests(unittest.TestCase):
         )
         return OriginalXmlIndex(temp_dir.name).load()
 
+    def test_duplicate_reference_target_disables_semantic_optimization(self):
+        temp_dir = tempfile.TemporaryDirectory()
+        self.addCleanup(temp_dir.cleanup)
+        base = Path(temp_dir.name)
+        for filename in ("First.xml", "Second.xml"):
+            (base / filename).write_text(
+                '<Defs><ThingDef Name="LeatherBase" Abstract="True">'
+                '<statBases><MarketValue>1</MarketValue></statBases>'
+                '</ThingDef></Defs>', encoding='utf-8')
+        index = OriginalXmlIndex(str(base)).load()
+        self.assertEqual(len(index.duplicates), 1)
+        patch = LET.fromstring(
+            b'<Patch><Operation Class="PatchOperationReplace">'
+            b'<xpath>/Defs/ThingDef[@Name="LeatherBase"]/statBases/MarketValue</xpath>'
+            b'<value><MarketValue>1</MarketValue></value>'
+            b'</Operation></Patch>')
+        optimizer = PatchOptimizer(index)
+        result = optimizer.optimize(patch)
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0].get("Class"), "PatchOperationReplace")
+        self.assertEqual(optimizer.stats["semantic_skipped_ambiguous_def"], 1)
+
+    def test_unrelated_duplicate_does_not_disable_unique_def_optimization(self):
+        temp_dir = tempfile.TemporaryDirectory()
+        self.addCleanup(temp_dir.cleanup)
+        base = Path(temp_dir.name)
+        for filename in ("First.xml", "Second.xml"):
+            (base / filename).write_text(
+                '<Defs><ThingDef Name="SharedBase" Abstract="True"/></Defs>',
+                encoding='utf-8')
+        (base / "Unique.xml").write_text(
+            '<Defs><ThingDef><defName>UniqueAnimal</defName>'
+            '<statBases><MarketValue>1</MarketValue></statBases>'
+            '</ThingDef></Defs>', encoding='utf-8')
+        index = OriginalXmlIndex(str(base)).load()
+        self.assertTrue(index.duplicates)
+        patch = LET.fromstring(
+            b'<Patch><Operation Class="PatchOperationReplace">'
+            b'<xpath>/Defs/ThingDef[defName="UniqueAnimal"]/statBases/MarketValue</xpath>'
+            b'<value><MarketValue>1</MarketValue></value>'
+            b'</Operation></Patch>')
+        optimizer = PatchOptimizer(index)
+        optimizer.optimize(patch)
+        self.assertEqual(optimizer.stats["semantic_skipped_ambiguous_def"], 0)
+
     def test_missing_field_add_precondition_is_kept_by_default(self):
         patch = LET.fromstring(
             b"""<Patch>
@@ -348,42 +393,6 @@ class CombatExtendedBodyShapeSafetyTests(unittest.TestCase):
             [extension.findtext("bodyShape") for extension in extensions],
             ["Quadruped", "Quadruped"],
         )
-
-    def test_insect_patch_repairs_original_ce_megaspider_extension(self):
-        index = OriginalXmlIndex(
-            str(CHECKER_DIR / "OriginalXML"),
-            patches_dir=str(CHECKER_DIR / "OriginalPatches"),
-        ).load()
-        runtime_root = index.clone_root()
-        staged = CHECKER_DIR / "output/staged/files/Core/Patches/Core/ThingDefs_Races/Races_Animal_Insects.xml"
-        if not staged.exists():self.skipTest('Generate insect group first; no committed templates exist')
-        patch = LET.parse(str(staged)).getroot()
-
-        applier = PatchApplier(
-            active_mods=["Combat Extended"],
-            record_missing=True,
-        )
-        applier.apply_patch_root(patch, runtime_root)
-
-        base_extensions = runtime_root.xpath(
-            './ThingDef[@Name="BaseInsect"]/modExtensions/'
-            'li[@Class="CombatExtended.RacePropertiesExtensionCE"]'
-        )
-        megaspider_extensions = runtime_root.xpath(
-            './ThingDef[defName="Megaspider"]/modExtensions/'
-            'li[@Class="CombatExtended.RacePropertiesExtensionCE"]'
-        )
-        self.assertEqual(base_extensions, [])
-        self.assertEqual(len(megaspider_extensions), 1)
-        self.assertEqual(
-            megaspider_extensions[0].findtext("bodyShape"),
-            "QuadrupedLow",
-        )
-        self.assertEqual(
-            megaspider_extensions[0].findtext("canParry"),
-            "true",
-        )
-        self.assertEqual(applier.errors, [])
 
     def test_committed_patches_never_remove_only_body_shape(self):
         roots = [

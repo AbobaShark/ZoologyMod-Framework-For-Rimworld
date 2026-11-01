@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using RimWorld;
 using Verse;
@@ -21,33 +20,51 @@ namespace ZoologyMod
             this.expiryInterval = -1;
         }
 
+        // Vanilla may issue Wait_Wander before asking for a wander root.
+        // Check eligibility first so unrelated animals retain their own wander AI.
+        protected override Job TryGiveJob(Pawn pawn)
+        {
+            if (!ChildcareUtility.IsChildcareEnabled
+                || pawn?.IsAnimal != true || !pawn.Spawned || pawn.Dead || pawn.Downed
+                || pawn.InMentalState || !pawn.Awake()
+                || !ChildcareUtility.IsAnimalChild(pawn)
+                || !ChildcareUtility.HasChildcareExtension(pawn))
+            {
+                return null;
+            }
+
+            if (!ChildcareUtility.TryGetBiologicalMother(pawn, out Pawn mother)
+                || mother == null || !mother.Spawned || mother.Map != pawn.Map)
+            {
+                return null;
+            }
+
+            // Juveniles keep their own area assignment. When it differs from
+            // the mother's, let the normal animal wander job giver take over.
+            if (ChildcareUtility.IsAnimalJuvenileLifeStage(pawn.ageTracker?.CurLifeStage))
+            {
+                Area juvenileArea = pawn.playerSettings?.AreaRestrictionInPawnCurrentMap;
+                Area motherArea = mother.playerSettings?.AreaRestrictionInPawnCurrentMap;
+                if (!object.ReferenceEquals(juvenileArea, motherArea)
+                    || (juvenileArea != null && !juvenileArea[mother.Position]))
+                {
+                    return null;
+                }
+            }
+
+            return TryConsumeScanBudget(pawn.Map) ? base.TryGiveJob(pawn) : null;
+        }
+
         protected override IntVec3 GetWanderRoot(Pawn pawn)
         {
-            try
+            if (!ChildcareUtility.TryGetBiologicalMother(pawn, out Pawn mother)
+                || mother == null || !mother.Spawned || mother.Map != pawn.Map)
             {
-                if (pawn == null || pawn.Map == null) return IntVec3.Invalid;
-                if (!TryConsumeScanBudget(pawn.Map)) return IntVec3.Invalid;
-                if (!ChildcareUtility.IsChildcareEnabled) return IntVec3.Invalid;
-                if (!pawn.IsAnimal) return IntVec3.Invalid;
-                if (pawn.Dead || pawn.Downed || !pawn.Spawned) return IntVec3.Invalid;
-
-                if (!ChildcareUtility.IsAnimalChild(pawn)) return IntVec3.Invalid;
-                if (!ChildcareUtility.HasChildcareExtension(pawn)) return IntVec3.Invalid;
-
-                if (pawn.InMentalState) return IntVec3.Invalid;
-                if (IsSleepingOrLyingDown(pawn)) return IntVec3.Invalid;
-
-                if (!ChildcareUtility.TryGetBiologicalMother(pawn, out Pawn mother)) return IntVec3.Invalid;
-                if (mother == null || mother.Dead || mother.Destroyed || !mother.Spawned) return IntVec3.Invalid;
-                if (mother.Map != pawn.Map) return IntVec3.Invalid;
-
-                Area ownArea = pawn.playerSettings?.EffectiveAreaRestrictionInPawnCurrentMap;
-                if (AnimalLifeStageUtility.IsAnimalJuvenileLifeStage(pawn.ageTracker?.CurLifeStage)
-                    && ownArea != null && !ownArea[mother.Position])
-                    return pawn.Position;
-                return mother.Position;
+                return IntVec3.Invalid;
             }
-            catch { return IntVec3.Invalid; }
+
+            Area ownArea = pawn.playerSettings?.EffectiveAreaRestrictionInPawnCurrentMap;
+            return ownArea != null && !ownArea[mother.Position] ? pawn.Position : mother.Position;
         }
 
         private static bool TryConsumeScanBudget(Map map)
@@ -75,32 +92,5 @@ namespace ZoologyMod
             return true;
         }
 
-        private static bool IsSleepingOrLyingDown(Pawn pawn)
-        {
-            try
-            {
-                if (pawn == null) return false;
-                if (!pawn.Awake()) return true;
-
-                var curJob = pawn?.jobs?.curJob;
-                if (curJob != null)
-                {
-                    var defName = curJob.def?.defName ?? "";
-                    if (!string.IsNullOrEmpty(defName) && defName.IndexOf("LayDown", StringComparison.OrdinalIgnoreCase) >= 0)
-                        return true;
-
-                    var driver = pawn.jobs.curDriver;
-                    if (driver != null)
-                    {
-                        var driverName = driver.GetType().Name ?? "";
-                        if (!string.IsNullOrEmpty(driverName) && driverName.IndexOf("LayDown", StringComparison.OrdinalIgnoreCase) >= 0)
-                            return true;
-                    }
-                }
-
-                return false;
-            }
-            catch { return false; }
-        }
     }
 }

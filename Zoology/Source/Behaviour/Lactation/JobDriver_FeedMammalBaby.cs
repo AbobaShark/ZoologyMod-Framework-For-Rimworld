@@ -28,9 +28,15 @@ namespace ZoologyMod
 
             Toil feed = Toils_Ingest.ChewIngestible(Deliveree, 1.5f, TargetIndex.A)
                 .FailOnCannotTouch(TargetIndex.B, PathEndMode.Touch);
-            feed.AddPreInitAction(() => PawnUtility.ForceWait(Deliveree,
-                UnityEngine.Mathf.RoundToInt(Food.def.ingestible.baseIngestTicks * 1.5f) + 1,
-                pawn, maintainPosture: true, maintainSleep: true));
+            feed.AddPreInitAction(() =>
+            {
+                // Feeding a baby with stored milk does not count as suckling
+                // for its biological mother; preserve her lactation here.
+                AnimalLactationUtility.MaintainKnownMotherLactationForBaby(Deliveree);
+                PawnUtility.ForceWait(Deliveree,
+                    UnityEngine.Mathf.RoundToInt(Food.def.ingestible.baseIngestTicks * 1.5f) + 1,
+                    pawn, maintainPosture: true, maintainSleep: true);
+            });
             feed.activeSkill = () => SkillDefOf.Animals;
             yield return feed;
             yield return Toils_Ingest.FinalizeIngest(Deliveree, TargetIndex.A);

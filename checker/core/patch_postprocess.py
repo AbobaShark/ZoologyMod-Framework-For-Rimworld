@@ -23,7 +23,7 @@ class PatchPostprocessor:
 
     def _index(self):
         if self.index is None:
-            self.index=OriginalXmlIndex(str(self.original_xml),str(self.original_patches)).load()
+            self.index=OriginalXmlIndex(str(self.original_xml),str(self.original_patches) if self.original_patches else None).load()
         return self.index
 
     def process(self, payload, *, destination):
@@ -36,8 +36,10 @@ class PatchPostprocessor:
         # otherwise allow only structural compaction, never closed-world edits.
         xpaths=[(node.text or '').strip() for node in root.xpath('//xpath') if (node.text or '').strip()]
         subjects=[parse_target(xpath) for xpath in xpaths]
+        duplicate_targets = {entry[0] for entry in index.duplicates}
         fully_covered=bool(subjects) and all(
-            subject is not None and index.has_def(*subject) for subject in subjects)
+            subject is not None and index.has_def(*subject)
+            and subject not in duplicate_targets for subject in subjects)
         if index.enabled and fully_covered and not (index.parse_errors or index.patch_errors):
             optimized=PatchOptimizer(index,preserve_missing_target_guards=True).optimize(root)
             if len(optimized)<=len(root):root=optimized

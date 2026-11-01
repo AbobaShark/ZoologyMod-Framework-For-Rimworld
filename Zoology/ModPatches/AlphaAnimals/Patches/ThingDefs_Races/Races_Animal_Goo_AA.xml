@@ -2222,13 +2222,13 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_TeratogenicOriginator"]/race/manhunterOnTameFailChance</xpath>
     <value>
-      <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
+      <manhunterOnTameFailChance>0.1</manhunterOnTameFailChance>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_TeratogenicOriginator"]/race/manhunterOnDamageChance</xpath>
     <value>
-      <manhunterOnDamageChance>0</manhunterOnDamageChance>
+      <manhunterOnDamageChance>0.3</manhunterOnDamageChance>
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
@@ -2426,6 +2426,12 @@
         <ecoSystemWeight>0.8</ecoSystemWeight>
       </value>
     </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/PawnKindDef[defName = "AA_TeratogenicOriginator"]/canArriveManhunter</xpath>
+    <value>
+      <canArriveManhunter>true</canArriveManhunter>
+    </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/PawnKindDef[defName = "AA_TeratogenicOriginator"]/wildGroupSize</xpath>

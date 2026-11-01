@@ -134,7 +134,7 @@
       <xpath>/Defs/ThingDef[@Name = "BaseInsect2"]/race/roamMtbDays</xpath>
     </match>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationConditional"><xpath>/Defs/ThingDef[defName="Leather_BlackChitin"]</xpath><match Class="PatchOperationSequence"><operations><li Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[@Name = "BaseInsect2"]/race/leatherDef</xpath>
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[@Name = "BaseInsect2"]/race/leatherDef</xpath>
@@ -148,18 +148,24 @@
         <leatherDef>Leather_BlackChitin</leatherDef>
       </value>
     </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
+  </li>
+  <li Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[@Name = "BaseInsect2"]/race/useLeatherFrom</xpath>
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[@Name = "BaseInsect2"]/race/useLeatherFrom</xpath>
     </match>
-  </Operation>
-  <Operation Class="PatchOperationRemove">
+  </li>
+  </operations></match></Operation><Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[@Name = "BaseInsect2"]/race/manhunterOnTameFailChance</xpath>
+    <value>
+      <manhunterOnTameFailChance>0.1</manhunterOnTameFailChance>
+    </value>
   </Operation>
-  <Operation Class="PatchOperationRemove">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[@Name = "BaseInsect2"]/race/manhunterOnDamageChance</xpath>
+    <value>
+      <manhunterOnDamageChance>0.3</manhunterOnDamageChance>
+    </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[@Name = "BaseInsect2"]/race/petness</xpath>
@@ -516,33 +522,15 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_BlackScarab"]/race/manhunterOnTameFailChance</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "AA_BlackScarab"]/race/manhunterOnTameFailChance</xpath>
-      <value>
-        <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_BlackScarab"]/race</xpath>
-      <value>
-        <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_BlackScarab"]/race/manhunterOnDamageChance</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "AA_BlackScarab"]/race/manhunterOnDamageChance</xpath>
-      <value>
-        <manhunterOnDamageChance>0</manhunterOnDamageChance>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_BlackScarab"]/race</xpath>
-      <value>
-        <manhunterOnDamageChance>0</manhunterOnDamageChance>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_BlackScarab"]/race/petness</xpath>
@@ -1032,33 +1020,15 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_BlackSpelopede"]/race/manhunterOnTameFailChance</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "AA_BlackSpelopede"]/race/manhunterOnTameFailChance</xpath>
-      <value>
-        <manhunterOnTameFailChance>0.1</manhunterOnTameFailChance>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_BlackSpelopede"]/race</xpath>
-      <value>
-        <manhunterOnTameFailChance>0.1</manhunterOnTameFailChance>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_BlackSpelopede"]/race/manhunterOnDamageChance</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "AA_BlackSpelopede"]/race/manhunterOnDamageChance</xpath>
-      <value>
-        <manhunterOnDamageChance>1</manhunterOnDamageChance>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_BlackSpelopede"]/race</xpath>
-      <value>
-        <manhunterOnDamageChance>1</manhunterOnDamageChance>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_BlackSpelopede"]/race/petness</xpath>
@@ -1541,33 +1511,15 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_BlackSpider"]/race/manhunterOnTameFailChance</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "AA_BlackSpider"]/race/manhunterOnTameFailChance</xpath>
-      <value>
-        <manhunterOnTameFailChance>0.1</manhunterOnTameFailChance>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_BlackSpider"]/race</xpath>
-      <value>
-        <manhunterOnTameFailChance>0.1</manhunterOnTameFailChance>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_BlackSpider"]/race/manhunterOnDamageChance</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "AA_BlackSpider"]/race/manhunterOnDamageChance</xpath>
-      <value>
-        <manhunterOnDamageChance>1</manhunterOnDamageChance>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_BlackSpider"]/race</xpath>
-      <value>
-        <manhunterOnDamageChance>1</manhunterOnDamageChance>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_BlackSpider"]/race/petness</xpath>
@@ -2032,33 +1984,15 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_MammothWorm"]/race/manhunterOnTameFailChance</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "AA_MammothWorm"]/race/manhunterOnTameFailChance</xpath>
-      <value>
-        <manhunterOnTameFailChance>0.1</manhunterOnTameFailChance>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_MammothWorm"]/race</xpath>
-      <value>
-        <manhunterOnTameFailChance>0.1</manhunterOnTameFailChance>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_MammothWorm"]/race/manhunterOnDamageChance</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "AA_MammothWorm"]/race/manhunterOnDamageChance</xpath>
-      <value>
-        <manhunterOnDamageChance>0.3</manhunterOnDamageChance>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_MammothWorm"]/race</xpath>
-      <value>
-        <manhunterOnDamageChance>0.3</manhunterOnDamageChance>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_MammothWorm"]/race/petness</xpath>
@@ -2498,17 +2432,11 @@
       <xpath>/Defs/ThingDef[defName = "AA_MegaLouse"]/race/useLeatherFrom</xpath>
     </match>
   </Operation>
-  <Operation Class="PatchOperationReplace">
+  <Operation Class="PatchOperationRemove">
     <xpath>/Defs/ThingDef[defName = "AA_MegaLouse"]/race/manhunterOnTameFailChance</xpath>
-    <value>
-      <manhunterOnTameFailChance>0.1</manhunterOnTameFailChance>
-    </value>
   </Operation>
-  <Operation Class="PatchOperationReplace">
+  <Operation Class="PatchOperationRemove">
     <xpath>/Defs/ThingDef[defName = "AA_MegaLouse"]/race/manhunterOnDamageChance</xpath>
-    <value>
-      <manhunterOnDamageChance>0.3</manhunterOnDamageChance>
-    </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_MegaLouse"]/race/petness</xpath>
@@ -2951,11 +2879,11 @@
       <xpath>/Defs/ThingDef[defName = "AA_Ravager"]/race/useLeatherFrom</xpath>
     </match>
   </Operation>
-  <Operation Class="PatchOperationReplace">
+  <Operation Class="PatchOperationRemove">
+    <xpath>/Defs/ThingDef[defName = "AA_Ravager"]/race/manhunterOnTameFailChance</xpath>
+  </Operation>
+  <Operation Class="PatchOperationRemove">
     <xpath>/Defs/ThingDef[defName = "AA_Ravager"]/race/manhunterOnDamageChance</xpath>
-    <value>
-      <manhunterOnDamageChance>1</manhunterOnDamageChance>
-    </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_Ravager"]/race/petness</xpath>
@@ -3396,33 +3324,15 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_Thermadon"]/race/manhunterOnTameFailChance</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "AA_Thermadon"]/race/manhunterOnTameFailChance</xpath>
-      <value>
-        <manhunterOnTameFailChance>0.1</manhunterOnTameFailChance>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_Thermadon"]/race</xpath>
-      <value>
-        <manhunterOnTameFailChance>0.1</manhunterOnTameFailChance>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_Thermadon"]/race/manhunterOnDamageChance</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "AA_Thermadon"]/race/manhunterOnDamageChance</xpath>
-      <value>
-        <manhunterOnDamageChance>1</manhunterOnDamageChance>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_Thermadon"]/race</xpath>
-      <value>
-        <manhunterOnDamageChance>1</manhunterOnDamageChance>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_Thermadon"]/race/petness</xpath>

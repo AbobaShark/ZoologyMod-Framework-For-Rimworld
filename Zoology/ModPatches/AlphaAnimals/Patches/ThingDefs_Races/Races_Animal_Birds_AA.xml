@@ -3017,19 +3017,19 @@
       <xpath>/Defs/ThingDef[defName = "AA_PedigreedRaptor"]/race/roamMtbDays</xpath>
     </match>
   </Operation>
-  <Operation Class="PatchOperationReplace">
+  <Operation Class="PatchOperationConditional"><xpath>/Defs/ThingDef[defName="Leather_Bird"]</xpath><match Class="PatchOperationSequence"><operations><li Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_PedigreedRaptor"]/race/leatherDef</xpath>
     <value>
       <leatherDef>Leather_Bird</leatherDef>
     </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
+  </li>
+  <li Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_PedigreedRaptor"]/race/useLeatherFrom</xpath>
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "AA_PedigreedRaptor"]/race/useLeatherFrom</xpath>
     </match>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
+  </li>
+  </operations></match></Operation><Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_PedigreedRaptor"]/race/manhunterOnTameFailChance</xpath>
     <value>
       <manhunterOnTameFailChance>0</manhunterOnTameFailChance>

@@ -348,6 +348,50 @@ namespace ZoologyMod
             return pup.needs.food.CurLevelPercentage < feedingThreshold;
         }
 
+        // Only called from existing hungry-baby food searches and handler feeding.
+        // A baby fed by handlers or another female does not reset its biological
+        // mother's naturally decaying lactation, so restore it when needed.
+        internal static void MaintainKnownMotherLactationForBaby(Pawn baby)
+        {
+            if (!LactationSettingsGate.Enabled() || baby == null || baby.Dead || !baby.Spawned
+                || !baby.IsMammal() || !IsAnimalBabyLifeStage(baby.ageTracker?.CurLifeStage)
+                || !ChildcareUtility.TryGetKnownBiologicalMother(baby, out Pawn mother)
+                || mother == null || mother.Dead || mother.Destroyed || !mother.Spawned
+                || mother.Map != baby.Map || mother.gender != Gender.Female
+                || !mother.IsMammal() || !IsCrossBreedCompatible(mother, baby)
+                || !IsPupFactionCompatible(mother, baby) || !MotherHasSufficientNutrition(mother))
+            {
+                return;
+            }
+
+            // Respect the vanilla malnutrition-stage removal rule. Do not keep
+            // re-adding lactation to a mother with severe malnutrition.
+            HediffSet health = mother.health?.hediffSet;
+            Hediff malnutrition = health?.GetFirstHediffOfDef(HediffDefOf.Malnutrition);
+            if (malnutrition != null && malnutrition.CurStageIndex >= 2)
+            {
+                return;
+            }
+
+            HediffDef lactDef = LactatingHediffDef;
+            if (health == null || lactDef == null)
+            {
+                return;
+            }
+
+            Hediff lactating = health.GetFirstHediffOfDef(lactDef);
+            if (lactating == null)
+            {
+                EnsureLactatingHediff(mother);
+            }
+            else if (lactating.Severity < 0.25f)
+            {
+                // Make the reset infrequent, while avoiding the imminent
+                // automatic removal for an otherwise eligible nursing mother.
+                lactating.Severity = 1f;
+            }
+        }
+
         private static IReadOnlyList<Pawn> GetMotherCandidates(Map map, int currentTick)
         {
             if (map?.mapPawns?.AllPawnsSpawned == null)
@@ -445,6 +489,10 @@ namespace ZoologyMod
         public static Pawn FindNearestReachableMotherForPup(Pawn pup)
         {
             if (pup == null || pup.Map == null || pup.Dead) return null;
+            if (ChildWantsSuckle(pup))
+            {
+                MaintainKnownMotherLactationForBaby(pup);
+            }
             Pawn nearest = null;
             float bestDistSqr = float.MaxValue;
             IntVec3 pupPosition = pup.Position;

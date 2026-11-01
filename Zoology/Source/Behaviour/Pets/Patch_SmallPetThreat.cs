@@ -251,7 +251,7 @@ namespace ZoologyMod
             RaceProperties raceProps = pawn.RaceProps;
             return raceProps?.Animal == true
                 && !pawn.Roamer
-                && raceProps.baseBodySize < smallPetThreshold;
+                && pawn.BodySize < smallPetThreshold;
         }
 
         private static void ClearSmallPetCandidates()
@@ -392,7 +392,19 @@ namespace ZoologyMod
 
             if (smallPetCandidateSetInitialized)
             {
-                return hasAnySmallPetCandidates && pawn != null && CandidateMembershipContains(pawn.thingIDNumber);
+                if (!hasAnySmallPetCandidates || pawn == null || !CandidateMembershipContains(pawn.thingIDNumber))
+                {
+                    return false;
+                }
+
+                // A juvenile may outgrow the size threshold without changing life stage.
+                if (IsSmallPetCandidate(pawn, playerFaction, cachedSmallPetThreshold))
+                {
+                    return true;
+                }
+
+                RemoveSmallPetCandidateId(pawn.thingIDNumber);
+                return false;
             }
 
             return IsSmallPetCandidate(pawn, playerFaction, cachedSmallPetThreshold);
@@ -600,7 +612,7 @@ namespace ZoologyMod
             EnsureSettingsSnapshot(currentTick);
             return cachedIgnoreSmallPetsEnabled
                 && cachedSmallPetThreshold >= 0f
-                && raceProps.baseBodySize < cachedSmallPetThreshold;
+                && pawn.BodySize < cachedSmallPetThreshold;
         }
 
         private static bool ShouldDisableThreatForSmallPet(Pawn targetPawn, IAttackTargetSearcher disabledFor, int currentTick)

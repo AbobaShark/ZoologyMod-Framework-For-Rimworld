@@ -283,7 +283,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Wolverine"]/race/maxPreyBodySize</xpath>
     <value>
-      <maxPreyBodySize>0.2</maxPreyBodySize>
+      <maxPreyBodySize>0.45</maxPreyBodySize>
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
@@ -847,13 +847,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Mink"]/race/maxPreyBodySize</xpath>
       <value>
-        <maxPreyBodySize>0.1</maxPreyBodySize>
+        <maxPreyBodySize>0.15</maxPreyBodySize>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Mink"]/race</xpath>
       <value>
-        <maxPreyBodySize>0.1</maxPreyBodySize>
+        <maxPreyBodySize>0.15</maxPreyBodySize>
       </value>
     </nomatch>
   </Operation>
@@ -1855,13 +1855,19 @@
       <xpath>/Defs/ThingDef[defName = "Otter"]/race/roamMtbDays</xpath>
     </match>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationConditional"><xpath>/Defs/ThingDef[defName="Leather_Otter"]</xpath><match Class="PatchOperationSequence"><operations><li Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Otter"]/race/leatherDef</xpath>
+    <value>
+      <leatherDef>Leather_Otter</leatherDef>
+    </value>
+  </li>
+  <li Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Otter"]/race/useLeatherFrom</xpath>
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Otter"]/race/useLeatherFrom</xpath>
     </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
+  </li>
+  </operations></match></Operation><Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Otter"]/race/manhunterOnTameFailChance</xpath>
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Otter"]/race/manhunterOnTameFailChance</xpath>

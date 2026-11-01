@@ -11,7 +11,7 @@ from core.xml_routing import plan, deploy, STATE_NAME
 
 
 LEATHER = 'ModPatches/Dinosauria/Patches/ThingDefs_Items/Items_Resource_Stuff_Leather_Generated.xml'
-STATIC = 'Core/Patches/Core/ThingDefs_Items/Items_Resource_Stuff_Leather.xml'
+STATIC = 'Core/Defs/ThingDefs_Items/Items_Resource_Stuff_Leather_Zoology.xml'
 
 
 def fixture(tmp_path):
@@ -21,7 +21,7 @@ def fixture(tmp_path):
     original.write_text('<Patch><Operation Class="PatchOperationAdd"><xpath>Defs</xpath></Operation></Patch>')
     retained = mod / STATIC
     retained.parent.mkdir(parents=True)
-    retained.write_text('<Patch/>')
+    retained.write_text('<Defs/>')
     old_sha = hashlib.sha256(original.read_bytes()).hexdigest()
     (mod / STATE_NAME).write_text(json.dumps({
         'schema': 1, 'files': {LEATHER: old_sha}, 'directories': [],
@@ -44,7 +44,7 @@ def test_cleanup_only_generated_material_xml(tmp_path):
     assert retained.exists()
 
 
-def test_cleanup_never_removes_static_leather_patch(tmp_path):
+def test_cleanup_never_removes_native_material_definitions(tmp_path):
     _, manifest, _, retained = fixture(tmp_path)
     data = json.loads(manifest.read_text())
     data['remove'] = [STATIC]

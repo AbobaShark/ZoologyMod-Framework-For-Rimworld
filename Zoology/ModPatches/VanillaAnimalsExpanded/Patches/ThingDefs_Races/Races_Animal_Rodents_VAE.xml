@@ -158,22 +158,28 @@
       <xpath>/Defs/ThingDef[defName = "AEXP_Beaver"]/race/roamMtbDays</xpath>
     </match>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationConditional"><xpath>/Defs/ThingDef[defName="Leather_Beaver"]</xpath><match Class="PatchOperationSequence"><operations><li Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "AEXP_Beaver"]/race/leatherDef</xpath>
+    <value>
+      <leatherDef>Leather_Beaver</leatherDef>
+    </value>
+  </li>
+  <li Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AEXP_Beaver"]/race/useLeatherFrom</xpath>
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "AEXP_Beaver"]/race/useLeatherFrom</xpath>
     </match>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
+  </li>
+  </operations></match></Operation><Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_Beaver"]/race/manhunterOnTameFailChance</xpath>
     <value>
-      <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
+      <manhunterOnTameFailChance>0.025</manhunterOnTameFailChance>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_Beaver"]/race/manhunterOnDamageChance</xpath>
     <value>
-      <manhunterOnDamageChance>0</manhunterOnDamageChance>
+      <manhunterOnDamageChance>0.1</manhunterOnDamageChance>
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
