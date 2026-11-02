@@ -79,9 +79,9 @@ namespace ZoologyMod
         }
         public void Register(Thing thing)
         {
-            if (thing is Plant plant && plant.def.plant.IsTree) Trees.Add(plant);
+            if (thing is Plant plant && plant.def.plant.IsTree && !plant.def.plant.isStump) Trees.Add(plant);
             if (thing is Building_AnimalBurrow burrow) Burrows.Add(burrow);
-            if (!(thing is Building_AnimalBurrow) && !(thing is Plant tree && tree.def.plant.IsTree)) return;
+            if (!(thing is Building_AnimalBurrow) && !(thing is Plant tree && tree.def.plant.IsTree && !tree.def.plant.isStump)) return;
             int key = Key(thing.Position);
             if (!buckets.TryGetValue(key, out var bucket)) buckets[key] = bucket = new HashSet<Thing>();
             bucket.Add(thing);
@@ -104,7 +104,7 @@ namespace ZoologyMod
     {
         static void Postfix(Thing __instance, Map map)
         {
-            if (__instance is Building_AnimalBurrow || (__instance is Plant && __instance.def.plant.IsTree))
+            if (__instance is Building_AnimalBurrow || (__instance is Plant && __instance.def.plant.IsTree && !__instance.def.plant.isStump))
                 map.GetComponent<AnimalRefugeMapComponent>().Register(__instance);
         }
     }
@@ -113,7 +113,7 @@ namespace ZoologyMod
     {
         static void Prefix(Thing __instance)
         {
-            if (__instance is Building_AnimalBurrow || (__instance is Plant && __instance.def.plant.IsTree))
+            if (__instance is Building_AnimalBurrow || (__instance is Plant && __instance.def.plant.IsTree && !__instance.def.plant.isStump))
                 __instance.Map?.GetComponent<AnimalRefugeMapComponent>().Remove(__instance);
         }
     }
@@ -197,7 +197,7 @@ namespace ZoologyMod
         {
             var ext = DefModExtensionCache<ModExtension_TreeClimber>.Get(pawn.def);
             return ext != null && pawn.BodySize <= ext.maxBodySize && tree?.Spawned == true && tree.Map == pawn.Map
-                && tree.def.plant.IsTree && tree.Growth >= ext.minTreeGrowth && !tree.IsBurning() && !tree.IsForbidden(pawn);
+                && tree.def.plant.IsTree && !tree.def.plant.isStump && tree.Growth >= ext.minTreeGrowth && !tree.IsBurning() && !tree.IsForbidden(pawn);
         }
         // Only inspect the tree's own cell, and only during refuge selection or ascent.
         // Coexisting non-predatory tree users are not disturbed.
