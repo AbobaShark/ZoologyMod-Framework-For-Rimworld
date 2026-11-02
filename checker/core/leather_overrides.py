@@ -13,6 +13,7 @@ import re
 from lxml import etree as E
 
 from core.rimworld_patch_apply import PatchApplier
+from core.material_colors import xml_color as _xml_color
 
 NUMERICS = {
     'MarketValue': 'statBases/MarketValue',
@@ -47,18 +48,6 @@ def _numeric(text):
 
 def _equals(actual, desired):
     return actual is not None and abs(actual - desired) <= 1e-9
-
-
-def _xml_color(text):
-    if not text: return None
-    s = str(text).strip().strip('()')
-    parts = [x.strip() for x in s.split(',')]
-    if len(parts) != 3: return None
-    try:
-        values = [int(x) for x in parts]
-    except ValueError: return None
-    if any(x < 0 or x > 255 for x in values): return None
-    return '#'+''.join(f'{x:02X}' for x in values)
 
 
 def _rgb(value):
@@ -258,12 +247,12 @@ class LeatherReferences:
             return 1.0
         return None
 
-    def get_color(self, thing):
+    def get_color(self, thing, *, path='stuffProps/color'):
         group = next((g for g, item in self.materials.values() if item is thing), None)
         current = thing
         seen = set()
         while current is not None:
-            color = _xml_color(current.findtext('stuffProps/color'))
+            color = _xml_color(current.findtext(path))
             if color is not None:
                 return color
             parent = current.get('ParentName')
@@ -404,14 +393,16 @@ def render_original_overrides(rows, original_xml, original_patches, *, ce=True, 
                 _conditional(groups[group], name, NUMERICS[field], format(new,'.12g'), original)
                 vanilla_changes.append((name, field, old, new, group))
         old = refs.get_color(original)
-        if old is None and refs.strict_ownership:
-            raise ValueError(f'Leathers: cannot resolve original {name} stuffProps/color')
-        if old is not None and old != sheet['Color hex']:
+        graphic = refs.get_color(original, path='graphicData/color')
+        if old is None and graphic is None and refs.strict_ownership:
+            raise ValueError(f'Leathers: cannot resolve original {name} material or graphic color')
+        # One sheet color must not overwrite an independently configured
+        # original color in the other channel.
+        if sheet['Color hex'] not in {old, graphic} and (old is not None or graphic is not None):
             _conditional(groups[group], name, 'stuffProps/color', _rgb(sheet['Color hex']), original)
-            # If graphicData has its own independent color, preserve it.
-            if _xml_color(original.findtext('graphicData/color')) == old:
+            if graphic is not None and (old is None or graphic == old):
                 _conditional(groups[group], name, 'graphicData/color', _rgb(sheet['Color hex']), original)
-            vanilla_changes.append((name, 'Color hex', old, sheet['Color hex'], group))
+            vanilla_changes.append((name, 'Color hex', old or graphic, sheet['Color hex'], group))
         if not ce:
             continue
         for field, col in CE_FIELDS.items():

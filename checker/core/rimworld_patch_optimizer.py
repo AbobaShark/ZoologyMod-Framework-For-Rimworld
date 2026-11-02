@@ -5,6 +5,7 @@ from collections import Counter
 from lxml import etree as LET
 
 from core.rimworld_patch_apply import PatchApplier
+from core.material_colors import xml_color
 from core.rimworld_original_xml import normalize_xpath, parse_target, rel_path_from_target, xpath_literal
 from core.rimworld_patch_defaults import PAWN_KIND_FIELD_DEFAULTS, scalar_values_equal
 
@@ -182,6 +183,11 @@ class PatchOptimizer:
                     ops_node.append(optimized)
             else:
                 copied.append(copy.deepcopy(child))
+        operations = copied.find("operations")
+        previous = node.find("operations")
+        if previous is not None and len(previous) and operations is not None and not len(operations):
+            # A wholly redundant nested patch must not leave an empty sequence.
+            return None
         return copied
 
     def _optimize_find_mod(self, node, sim_root, patched_sim_root=None):
@@ -192,7 +198,9 @@ class PatchOptimizer:
                     branch_sim = copy.deepcopy(patched_sim_root)
                 else:
                     branch_sim = copy.deepcopy(sim_root)
-                copied.append(self._optimize_sequence(child, branch_sim, preserve_conditionals=True))
+                optimized_sequence = self._optimize_sequence(child, branch_sim, preserve_conditionals=True)
+                if optimized_sequence is not None:
+                    copied.append(optimized_sequence)
             else:
                 copied.append(copy.deepcopy(child))
         if patched_sim_root is not None:
@@ -720,6 +728,11 @@ class PatchOptimizer:
         left_children = [child for child in left if isinstance(getattr(child, "tag", None), str)]
         right_children = [child for child in right if isinstance(getattr(child, "tag", None), str)]
         if not left_children and not right_children:
+            if left.tag == "color" and not left.attrib and not right.attrib:
+                old = xml_color(left.text)
+                new = xml_color(right.text)
+                if old is not None and new is not None:
+                    return old == new
             return scalar_values_equal(left.text or "", right.text or "") and dict(left.attrib) == dict(right.attrib)
         return self._canonical_xml(left) == self._canonical_xml(right)
 
