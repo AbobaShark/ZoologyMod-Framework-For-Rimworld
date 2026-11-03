@@ -1221,6 +1221,14 @@ namespace ZoologyMod
                     return;
                 }
 
+                // Vanilla followers do not flee from ambient threats. Apply the same
+                // rule before Zoology's additional predator, carrier and raider scans.
+                // Explicit damage/mental-state fleeing is handled outside this job giver.
+                if (ThinkNode_ConditionalShouldFollowMaster.ShouldFollowMaster(pawn))
+                {
+                    return;
+                }
+
                 // The refuge driver polls the same threat index and owns descent/hunger. Ground
                 // flee planning cannot improve a safe elevated animal and repeats expensive scans.
                 if (AnimalDefense.IsInTree(pawn)) { __result = null; return; }
@@ -2428,12 +2436,9 @@ namespace ZoologyMod
 
         private static bool CanAnimalFleeFromCarriers(Pawn pawn)
         {
-            if (pawn == null || !pawn.RaceProps.Animal || !pawn.Spawned || pawn.Map == null)
-            {
-                return false;
-            }
-
-            if (pawn.Dead || pawn.Downed || pawn.Destroyed || pawn.InMentalState || pawn.IsFighting())
+            // Carrier fear must respect master-follow, lord and non-interruptible
+            // job rules just like Zoology's other forced threat-flee paths.
+            if (!ZoologyFleeSafetyUtility.CanUseForcedThreatFlee(pawn) || pawn.Map == null || pawn.IsFighting())
             {
                 return false;
             }
