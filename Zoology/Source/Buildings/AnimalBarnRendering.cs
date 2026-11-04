@@ -19,9 +19,8 @@ namespace ZoologyMod
         // Six side storage bays with three stacks in each bay, as on a
         // vanilla shelf tile. The inventory itself remains authoritative.
         private static readonly Vector2[] FoodDisplayOffsets = CreateFoodDisplayOffsets();
-        // Visible interior of the 3 x 6 barn. The footprint discounts
-        // transparent margins; graphics wider than the opening are scaled
-        // uniformly in the cached visual layout only.
+        // Visible interior of the 3 x 6 barn. Only current pawn BodySize,
+        // never texture dimensions, determines each visual footprint.
         private const float DisplayHalfWidth = 1.38f;
         private const float DisplayHalfLength = 2.58f;
         private const float DisplaySpacing = 0.10f;
@@ -32,12 +31,10 @@ namespace ZoologyMod
         private readonly Vector2[] displayedAnimalOffsets = new Vector2[MaximumDisplayedAnimals];
         private readonly Vector2[] displayedAnimalFootprints = new Vector2[MaximumDisplayedAnimals];
         private readonly float[] displayedTileBodySizes = new float[DisplayTilesX * DisplayTilesZ];
-        private readonly float[] displayedAnimalScales = new float[MaximumDisplayedAnimals];
         private readonly Thing[] displayedFood = new Thing[MaximumFoodStacks];
         private readonly List<Pawn> displayCandidates = new List<Pawn>();
         private readonly HashSet<ThingDef> displayedSpecies = new HashSet<ThingDef>();
-        private readonly HashSet<(float bodySize, float width, float height)> failedDisplayPlacements
-            = new HashSet<(float, float, float)>();
+        private readonly HashSet<float> failedDisplayPlacements = new HashSet<float>();
         private int displayedAnimalCount;
         private int displayedFoodCount;
         private Graphic frontGraphic;
@@ -48,7 +45,6 @@ namespace ZoologyMod
             Array.Clear(displayedAnimals, 0, displayedAnimals.Length);
             Array.Clear(displayedFood, 0, displayedFood.Length);
             Array.Clear(displayedTileBodySizes, 0, displayedTileBodySizes.Length);
-            Array.Clear(displayedAnimalScales, 0, displayedAnimalScales.Length);
             displayedAnimalCount = displayedFoodCount = 0;
             displayCandidates.Clear();
             displayedSpecies.Clear();
@@ -98,26 +94,13 @@ namespace ZoologyMod
             if (float.IsNaN(sizeNow) || float.IsInfinity(sizeNow)) return false;
             sizeNow = Mathf.Max(0.01f, sizeNow);
 
-            PawnRenderer renderer = pawn.Drawer.renderer;
-            renderer.EnsureGraphicsInitialized();
-            Vector2 graphic = renderer.BodyGraphic?.drawSize ?? Vector2.one;
-            // Large drawSize does not imply a large body. Keep several
-            // camels visible by sizing their sprites to a useful portion
-            // of the barn opening, without changing nutrition or capacity.
-            float scale = Mathf.Min(1f, Mathf.Min(
-                DisplayHalfWidth * 1.40f / Mathf.Max(.01f, graphic.x),
-                DisplayHalfLength * .90f / Mathf.Max(.01f, graphic.y)));
-            Vector2 scaled = graphic * scale;
-            var placementKey = (sizeNow, scaled.x, scaled.y);
-            // Placement only adds occupied space during a refresh. Once a
-            // shape cannot fit, an identical body/graphic footprint cannot
-            // fit later either. Keep the same candidates, order and results
-            // without repeating the entire grid search for a full flock.
-            if (failedDisplayPlacements.Contains(placementKey)) return false;
-            // Use the scaled dimensions for collision and tile load,
-            // accounting for sprites' transparent texture margins.
-            Vector2 footprint = new Vector2(Mathf.Max(.3f, scaled.x * .67f),
-                Mathf.Max(.3f, scaled.y * .67f));
+            // A virtual footprint is derived solely from current BodySize.
+            // It is used for spatial packing, never to resize or clip the
+            // pawn's original render tree (including oversized graphics).
+            Vector2 footprint = BodySizeFootprint(sizeNow);
+            // Placement only adds occupants during a refresh. If this
+            // BodySize cannot fit now, it cannot fit later in the same pass.
+            if (failedDisplayPlacements.Contains(sizeNow)) return false;
 
             for (int n = 0; n < CandidatePositions.Length; n++)
             {
@@ -143,17 +126,29 @@ namespace ZoologyMod
                     continue;
 
                 ApplyDisplayTileBudget(center, footprint, sizeNow, true);
-                AddDisplayedAnimal(pawn, center, footprint, scale);
+                AddDisplayedAnimal(pawn, center, footprint);
                 return true;
             }
-            failedDisplayPlacements.Add(placementKey);
+            failedDisplayPlacements.Add(sizeNow);
             return false;
         }
 
-        // Distribute current BodySize across the tile footprint occupied
-        // by the sprite. No tile can hold more than 1.5 body-size units:
-        // an animal of size 3 therefore requires at least two tiles.
-        // Small sprites can share a tile if their graphics do not overlap.
+        // The virtual footprint area is proportional to current BodySize.
+        // It is independent of graphic drawSize, texture padding and age-
+        // dependent sprite art. Very large animals extend lengthwise within
+        // the 3 x 6 interior instead of being rejected for their width.
+        private static Vector2 BodySizeFootprint(float bodySize)
+        {
+            float tileArea = (DisplayHalfWidth * 2f / DisplayTilesX)
+                * (DisplayHalfLength * 2f / DisplayTilesZ);
+            float area = bodySize / BodySizePerTile * tileArea;
+            float width = Mathf.Min(DisplayHalfWidth * 2f, Mathf.Sqrt(area));
+            return new Vector2(width, area / width);
+        }
+
+        // Distribute current BodySize across the virtual footprint.
+        // No tile can hold more than 1.5 body-size units. Graphic dimensions
+        // never determine which pawns can be displayed.
         private bool ApplyDisplayTileBudget(
             Vector2 center, Vector2 size, float bodySize, bool commit)
         {
@@ -209,13 +204,12 @@ namespace ZoologyMod
         }
 
         private void AddDisplayedAnimal(Pawn pawn, Vector2 offset,
-            Vector2 footprint, float scale)
+            Vector2 footprint)
         {
             int index = displayedAnimalCount++;
             displayedAnimals[index] = pawn;
             displayedAnimalOffsets[index] = offset;
             displayedAnimalFootprints[index] = footprint;
-            displayedAnimalScales[index] = scale;
         }
 
         private static Vector2[] CreateFoodDisplayOffsets()
@@ -284,7 +278,7 @@ namespace ZoologyMod
             }
 
             // Do not hide otherwise valid residents at distant zoom. Their
-            // vanilla render trees and the fixed six-slot cache bound cost.
+            // vanilla render trees and the fixed 72-slot cache bound cost.
             for (int i = 0; i < displayedAnimalCount; i++)
             {
                 Pawn pawn = displayedAnimals[i];
@@ -298,9 +292,8 @@ namespace ZoologyMod
                 {
                     pawn = pawn,
                     matrix = Matrix4x4.TRS(
-                        position + pawn.ageTracker.CurLifeStage.bodyDrawOffset
-                            * displayedAnimalScales[i],
-                        Quaternion.identity, Vector3.one * displayedAnimalScales[i]),
+                        position + pawn.ageTracker.CurLifeStage.bodyDrawOffset,
+                        Quaternion.identity, Vector3.one),
                     facing = new Rot4((Rotation.AsInt + (i % 2 == 0 ? 1 : 3)) % 4),
                     rotDrawMode = renderer.CurRotDrawMode,
                     posture = pawn.GetPosture(),

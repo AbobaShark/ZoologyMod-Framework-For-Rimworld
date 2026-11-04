@@ -30,7 +30,7 @@ namespace ZoologyValidation
             if(releaseTraces++<5)Write("RELEASE_TRACE tick="+GenTicks.TicksGame+" barn="+__instance.ThingID+" method="+__originalMethod.Name+" "+Environment.StackTrace);
         }
         static void ReferencePlacementPrefix(Building_AnimalBarn __instance) {
-            ((HashSet<(float,float,float)>)placementCache.GetValue(__instance)).Clear();
+            ((HashSet<float>)placementCache.GetValue(__instance)).Clear();
         }
         public static bool PlacementEquivalent(Building_AnimalBarn barn) {
             placementCache=typeof(Building_AnimalBarn).GetField("failedDisplayPlacements",All);

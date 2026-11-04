@@ -8,7 +8,7 @@ The barn is now available in the Misc construction category, with a cow-equivale
 - Feeding uses `RaceProps.FoodLevelPercentageWantEat`, matching vanilla `JobGiver_GetFood`, instead of a fixed 0.35. Nursing runs under its own existing hungry-baby eligibility first. Each eligible item passes `FoodUtility.WillEat` and eater-specific finite positive `NutritionForEater`; `Thing.Ingested(NutritionWanted)` consumes real whole units and returns nutrition applied once through the ordinary need setter. Exceptions and zero-yield items do not stop the search for another real food stack. Short stacks can be followed by another eligible stack.
 - `releasedForService` remains transient and is never serialized. The native saved wait job now names its barn as target; the first service interval after map load reconstructs tracking from those jobs. Admission recognizes that saved job even before reconstruction. Persistent cooldown keys use full `ThingID` strings because numeric IDs are per def and can collide between species. No old unpublished-save compatibility path is retained.
 - XML disables `containedPawnsSelectable`. Vanilla Animals rows already use `CameraJumper.TryJumpAndSelect`, whose holder traversal chooses the barn. No selection Harmony patch was added. Cargo still explicitly selects an individual animal and opens its info card or unloads it.
-- Drawing uses each animal's **current Pawn.BodySize**, independently of storage capacity. In the 3 × 6 interior each tile has a visual budget of 1.5 BodySize: a size-3 animal needs at least two tiles, while sufficiently small animals can share a tile when their sprite footprints do not intersect. The cache checks geometric overlap and apportions BodySize by tile intersection. Up to 72 render slots provide a performance safety ceiling; there is no artificial six-animal or zoom-out cap. The existing 150-tick refresh prepares centered, deterministic positions and all 18 actual food stacks along the edges. Pawns render at native scale; graphics larger than the opening appear alone. No owner scan or simulation work runs during DrawAt.
+- Drawing uses each animal's **current Pawn.BodySize**, independently of storage capacity and texture dimensions. The 3 × 6 interior allows 1.5 BodySize per tile. Spatial overlap and tile load use virtual footprints proportional to current BodySize, with no dependence on `BodyGraphic.drawSize` or transparent margins. The original pawn render trees draw at native scale, without shrinking, clipping or a texture-driven restriction on the number of visible animals; large textures may visually extend beyond their virtual footprints. Up to 72 render slots provide a performance safety ceiling; there is no artificial six-animal or zoom-out cap. The 150-tick refresh prepares deterministic positions and all 18 actual food stacks along the edges. No owner scan or simulation work runs during DrawAt.
 - Every 150 ticks, actual static fires in the occupied footprint (or an attached fire) are checked. Only a flammable, currently burning barn exposes residents. The existing 1.7 `Fire.DoFireDamage` method supplies intensity-dependent damage, random rounding, outside body regions, flame damage workers and battle logs. No temporary Spawn or stored 'was burning' flag is used. The vanilla enclosing-container death path produces a corpse in the owner; destruction releases survivors.
 - The 3 × 6 shelter accepts Woody, Metallic and Stony stuff. Construction requires 180 selected material, 40 steel and 4500 work, and is available in the normal Misc tab. Earlier runtime checks confirmed differences in wood/granite durability, flammability and color; the revised recipe awaits an in-game construction check.
 - Current 1.7 builds reference installed `UnityStubs`; the 1.6 Unity references and 1.6 build behavior are unchanged. All new barn runtime code is under `RIMWORLD17`.
@@ -206,14 +206,13 @@ forbidden or unsuitable. The same filter, capacity and reachability
 checks as normal automatic barn handling are reused; no artificial
 pen marker is registered and no recurring work is introduced.
 
-## Multi-camel visual packing and barn commands
+## Body-size-based animal display and barn commands
 
-Oversized body-graphic dimensions no longer force a single representative
-animal into the entire barn interior. At cache refresh, a deterministic
-scale fits each sprite within a meaningful fraction of the opening;
-the same scale determines collision footprint and rendering. Original
-Pawn.BodySize still drives per-tile visual mass and the separate race
-baseBodySize still governs actual barn capacity. This uses the existing
-150-tick visual cache and does not add per-frame searches. The normal
-assign-loading and cancel-loading gizmos use the vanilla transporter
-load and cancel textures, respectively.
+Visual packing uses only each animal's current `Pawn.BodySize`: a virtual
+footprint proportional to that value determines positions and per-tile
+visual load. It never consults `BodyGraphic.drawSize`. The vanilla
+render tree draws at scale 1, so large original textures retain their
+map size and are neither fitted to the opening nor cropped. The separate
+race `baseBodySize` still governs actual barn capacity. The existing
+150-tick visual cache avoids per-frame searches. Assign-loading and
+cancel-loading gizmos use the vanilla transporter textures.

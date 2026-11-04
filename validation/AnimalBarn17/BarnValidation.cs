@@ -1080,7 +1080,7 @@ namespace ZoologyValidation
             FoodRendering(map);
             DrawCase(map,"cow and four chickens",new[]{"Cow","Chicken","Chicken","Chicken","Chicken"},5);
             DrawCase(map,"three adult cows",new[]{"Cow","Cow","Cow"},3);
-            DrawCase(map,"three adult camels",new[]{"Camel","Camel","Camel"},2);
+            DrawCase(map,"three adult camels",new[]{"Camel","Camel","Camel"},3);
             DrawCase(map,"two cows and two chickens",new[]{"Cow","Cow","Chicken","Chicken"},4);
             DrawCase(map,"twelve chickens",Enumerable.Repeat("Chicken",12).ToArray(),12);
             int adultPigs=DisplayedGroupCount(map,"Pig",4f,24);
@@ -1181,8 +1181,21 @@ namespace ZoologyValidation
                 && nonoverlap);
             Check("per-tile visual BodySize stays within 1.5",
                 tileLoads.Length==18 && tileLoads.All(load=>load>=0f && load<=1.5001f));
+            // The packer's virtual footprint must derive only from each
+            // pawn's current BodySize, not the race base or texture drawSize.
+            float tileArea=(2f*1.38f/3f)*(2f*2.58f/6f);
+            bool bodyOnly=true;
+            for(int i=0;i<count;i++)
+            {
+                float area=Mathf.Max(.01f,shown[i].BodySize)/1.5f*tileArea;
+                float width=Mathf.Min(2f*1.38f,Mathf.Sqrt(area));
+                if(Math.Abs(footprints[i].x-width)>.0001f
+                    || Math.Abs(footprints[i].y-area/width)>.0001f)
+                    bodyOnly=false;
+            }
+            Check("visual footprints use current pawn BodySize only",bodyOnly);
             Write("DISPLAY_CASE "+label+" drawn="+count+" bodySize="+b.OccupiedAnimalBodySize
-                +" native="+string.Join(",",shown.Take(count).Select(p=>p.def.defName+":"+p.Drawer.renderer.BodyGraphic.drawSize)));
+                +" current="+string.Join(",",shown.Take(count).Select(p=>p.def.defName+":"+p.BodySize)));
             Check("placement cache preserves "+label,BarnPerformance.PlacementEquivalent(b));
             b.Destroy();
         }
@@ -1192,6 +1205,8 @@ namespace ZoologyValidation
             var b=Barn(map);var p=Animal(map);Hold(b,p);Call(b,"RefreshDisplayedAnimals");
             Check("barn frame uses map mesh alongside normal adjacent columns",
                 b.def.drawerType==DrawerType.MapMeshAndRealTime);
+            Check("barn no longer has per-animal rendering scales",
+                typeof(Building_AnimalBarn).GetField("displayedAnimalScales",All)==null);
             // Vanilla supplies null to PlaceWorker.DrawGhost during placement.
             // Both Architect construction and Build Copy must use the same
             // null-safe draw path. Do not turn an unexecuted check into PASS.
@@ -1233,7 +1248,7 @@ namespace ZoologyValidation
             int drawn=(int)typeof(Building_AnimalBarn).GetField("displayedAnimalCount",All).GetValue(b);
             Check("body-size aware renderer displays residents within tile budget",
                 drawn>0 && drawn<=72);
-            Write("DISPLAY actualDrawCount="+drawn+" cowNativeSize="+p.Drawer.renderer.BodyGraphic.drawSize);
+            Write("DISPLAY actualDrawCount="+drawn+" cowCurrentBodySize="+p.BodySize);
             Write("DISPLAY " + string.Join(",",shown.Where(x=>x!=null).Select(x=>x.ThingID)));
             Check("mixed species visual sample",
                 shown.Where(x=>x!=null).Select(x=>x.def).Distinct().Count()>1);
