@@ -31,11 +31,16 @@ namespace ZoologyMod
                 return false;
             var hediffSet = pawn.health?.hediffSet;
             if (hediffSet == null) return false;
-            // Standard pregnancies and modded Hediff_Pregnant subclasses.
-            if (hediffSet.HasHediff(HediffDefOf.Pregnant)) return true;
+            // One list scan covers vanilla pregnancies and custom
+            // Hediff_Pregnant derivatives without duplicate health lookups.
             var hediffs = hediffSet.hediffs;
             for (int i = 0; i < hediffs.Count; i++)
-                if (hediffs[i] is Hediff_Pregnant) return true;
+            {
+                Hediff hediff = hediffs[i];
+                if (hediff.def == HediffDefOf.Pregnant
+                    || hediff is Hediff_Pregnant)
+                    return true;
+            }
             return false;
         }
     }
@@ -51,6 +56,7 @@ namespace ZoologyMod
         public override bool Matches(Thing thing)
         {
             return thing is Pawn pawn
+                && pawn.ageTracker?.CurLifeStage?.reproductive == true
                 && AnimalNursingFilterUtility.IsLactatingFemale(pawn);
         }
     }
