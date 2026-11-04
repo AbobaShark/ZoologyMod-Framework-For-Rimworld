@@ -216,56 +216,44 @@ normal layering.
 
 ## Pen/barn special filters, feed defaults, and animal corpses
 
-The vanilla pen-marker `ThingFilter` and Zoology barn `ThingFilter` now
-recognize five shared special filters: reproductive adults
-(`LifeStageDef.reproductive`, except lactating females), independent
-juveniles, milk-dependent young, lactating females, and non-lactating
-**adult** females. The final group requires a reproductive life stage
-and absence of the Zoology lactation hediff. It never matches female
-calves, piglets, chicks or other nonreproductive young. Both lactation
-checkboxes are hidden in both GUIs when the vanilla female checkbox is
-disabled. The native pen `AcceptsToPen` and barn acceptance use the
-same filter behavior without additional per-tick checks.
+The shared vanilla `ThingFilter` has six Zoology special filters:
+reproductive adults, independent juveniles, milk-dependent mammalian
+young, lactating adult females, pregnant adult females, and other adult
+females (neither lactating nor pregnant). Adults and sex are mandatory
+parent conditions: disabling "adults" excludes all adults including
+pregnant and lactating females. Both pregnancy and lactation exclusions
+apply if both statuses are present. The three female state filters
+appear only when adults and females are both selected, in pens and barns.
 
-A new barn defaults to only hay and kibble. Other eligible nutrition-giving
-items are selectable in its storage tab; corpses and fertilized hatching eggs
-are not selectable as feed. An actual corpse produced by a resident's death
-is dropped out of the barn using the normal `ThingOwner.TryDrop` operation
-on its next tick, and retries if no placement succeeds.
+The fixture checks the full category matrix for adult males, pregnant
+females, lactating females, ordinary adult females, nursing young and
+independent chicks, including vanilla pen filter acceptance and UI hiding.
+It explicitly changes an existing adult-only pig barn to "allow all"
+and verifies that a sow and suckling piglet become admissible and can
+both be queued for intake. Ordinary and manual barn Handling work
+givers are directly orderable by right click, avoiding reliance on
+vanilla pen-only commands.
 
-The fixture checks all three age groups, adult females with and without
-lactation, adult males, female calves and chicks. It verifies that excluding
-non-lactating adult females affects neither juvenile category, including
-in vanilla pens, and that lactating adults remain allowed when ordinary
-adults are excluded. It also checks dependent UI visibility, default
-hay/kibble, optional food, corpse rejection/drop and save/load persistence.
+Fresh barns default to hay and kibble; other compatible nutritional
+items can be enabled individually, but corpses and hatching eggs
+are never valid feed. A corpse from an animal dying inside is
+released intact from the ThingOwner at the next successful opportunity.
 
 ## Nursing-dependent young and nursery redistribution
 
-The special filters now distinguish adult reproductive animals, independent
-juveniles of any age (including chicks and reptile hatchlings), and
-milk-dependent mammalian infants as recognized by Zoology's existing
-lactation system. Lactating adult females are exempt from the general
-adult exclusion, but still obey the female and lactation-specific filters.
-The milk-young selection is saved and restored by the standard ThingFilter.
+A separate Handling work giver redistributes nursing mothers between
+enclosed vanilla pens and barns based on actual infant nutrition
+demand and species-compatible mothers. It cannot remove the last
+compatible mother from a litter. Planning snapshots are reused for
+250 ticks and run only when Handling work is requested.
 
-A separate Handling work giver uses the existing vanilla `RopeToPen`
-job and Zoology's barn intake/release drivers for pen-to-pen,
-pen-to-barn, barn-to-pen and barn-to-barn transfers. Its candidate
-locations and comparisons are built at most every 250 game ticks,
-only when a handler looks for work. A map-level pending assignment
-prevents simultaneous handlers from issuing contradictory moves.
-The plan considers actual milk-dependent offspring, current compatible
-mothers with sufficient nutrition and the offspring's real food drain.
-It never removes the last compatible mother while she is still needed.
-
-The fixture constructs two barns with ten piglets in each and two
-lactating mothers in the first. It checks that transferring one mother
-improves provision, that transferring the last compatible mother is
-rejected, and that a milk-only destination accepts lactating adults
-even when ordinary adults are excluded. It also verifies that once
-mothers are distributed, an immediate reverse transfer is rejected.
-Full multi-handler and pen-to-pen gameplay testing is still required.
+The destination must now explicitly allow adults, females and
+lactating females, as well as milk-dependent young if offspring
+are to be stored. A restricted nursery can disable "other adult
+females" rather than disabling the adult age category. The fixture
+checks that disabling adults excludes a nurse and that enabling
+adults while excluding other adult females permits that nurse,
+in addition to the two-barn nursing distribution test.
 
 ## Taming without any vanilla pen
 
@@ -287,3 +275,15 @@ barn admission condition. In-game: tame a cow on a home map with an
 available barn but no pen markers and confirm the tamer leads it inside
 without a no-pen message. Repeat with the barn full, forbidden, filtered
 against that cow, or disabled: the vanilla warning must still appear.
+
+## Visual packing and command icons
+
+The previously one-sprite-only branch for oversized body graphics
+has been removed. A bounded scale is stored alongside each visual
+pawn placement, keeping the rendered sprite and collision footprint
+consistent without modifying the pawn's actual BodySize or
+race-based barn capacity. The fixture asks for multiple visible
+camels, checks the 1.5 BodySize-per-tile budget, and retains a
+large-animal drawing check. The normal manual-load and cancel-load
+gizmos use the vanilla transporter icons; no custom art assets
+are required. Visual confirmation in RimWorld 1.7 remains required.
