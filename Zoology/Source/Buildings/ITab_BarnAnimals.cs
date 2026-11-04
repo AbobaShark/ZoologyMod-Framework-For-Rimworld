@@ -40,7 +40,7 @@ namespace ZoologyMod
             ThingFilterUI.DoThingFilterConfigWindow(rect, filterState,
                 barn.AnimalFilter, AnimalPenUtility.GetFixedAnimalFilter(),
                 openMask: 1,
-                forceHiddenFilters: AnimalFilterVisibility.HideLactationWhenFemalesExcluded(barn.AnimalFilter),
+                forceHiddenFilters: AnimalFilterVisibility.HiddenAdultFemaleFilters(barn.AnimalFilter),
                 map: barn.Map);
         }
     }
