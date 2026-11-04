@@ -381,6 +381,10 @@ namespace ZoologyValidation
                         "Zoology_BarnManualAdmit");
                     Check("barn handling orders available through right-click",
                         def.directOrderable && manual.directOrderable);
+                    var gizmos=pigBarn.GetGizmos().OfType<Command_Action>().ToArray();
+                    Check("normal barn commands use vanilla transporter icons",
+                        gizmos.Any(g=>g.icon==CompTransporter.LoadCommandTex)
+                        && gizmos.Any(g=>g.icon==CompTransporter.CancelLoadCommandTex));
                 }
                 finally { pigBarn.Destroy(); }
 
