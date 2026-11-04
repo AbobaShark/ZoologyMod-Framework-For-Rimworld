@@ -1191,6 +1191,7 @@ namespace ZoologyMod
             {
                 defaultLabel = "Zoology_BarnManualLoad".Translate(),
                 defaultDesc = "Zoology_BarnManualLoadDesc".Translate(),
+                icon = CompTransporter.LoadCommandTex,
                 action = ShowManualIntakeMenu
             };
 
@@ -1200,6 +1201,7 @@ namespace ZoologyMod
                 {
                     defaultLabel = "Zoology_BarnCancelManualLoad".Translate(),
                     defaultDesc = "Zoology_BarnCancelManualLoadDesc".Translate(),
+                    icon = CompTransporter.CancelLoadCommandTex,
                     action = () => manuallyRequestedAnimals.Clear()
                 };
             }
