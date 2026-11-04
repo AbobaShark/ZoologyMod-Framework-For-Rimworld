@@ -102,6 +102,20 @@ namespace ZoologyMod
                 SetFaction(Faction.OfPlayer);
             }
 
+            if (respawningAfterLoad)
+            {
+                // Older saved residents may still hold a flight animation
+                // after their map-based flight tracker stopped ticking.
+                for (int i = 0; i < contents.Count; i++)
+                {
+                    if (contents[i] is Pawn resident && !resident.Dead)
+                    {
+                        if (resident.Flying)
+                            resident.flight?.ForceLand();
+                        resident.Drawer.renderer.SetAnimation(null);
+                    }
+                }
+            }
             RefreshDisplayedAnimals();
             recoverServiceAfterLoad = respawningAfterLoad;
 
@@ -566,9 +580,16 @@ namespace ZoologyMod
 
             IntVec3 previousPosition = animal.Position;
             Map previousMap = animal.Map;
+            // Flight animation cannot advance inside a ThingOwner: ground
+            // flying birds before removing them from the actual map.
+            if (animal.Flying)
+                animal.flight?.ForceLand();
             animal.DeSpawn();
             if (contents.TryAdd(animal, false))
             {
+                // Stop any remaining in-world flight/job animation. This
+                // changes visual state only, not the animal's native graphic.
+                animal.Drawer.renderer.SetAnimation(null);
                 // A successful loading request is complete, even when the
                 // animal was queued for multiple barns before a worker arrived.
                 foreach (Building_AnimalBarn barn in AnimalBarnUtility.BarnsOnMap(previousMap))

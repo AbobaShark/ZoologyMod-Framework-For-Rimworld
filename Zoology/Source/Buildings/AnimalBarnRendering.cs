@@ -21,8 +21,14 @@ namespace ZoologyMod
         private static readonly Vector2[] FoodDisplayOffsets = CreateFoodDisplayOffsets();
         // Visible interior of the 3 x 6 barn. Only current pawn BodySize,
         // never texture dimensions, determines each visual footprint.
-        private const float DisplayHalfWidth = 1.38f;
-        private const float DisplayHalfLength = 2.58f;
+        // Inset the virtual placement area from the inner railings.
+        // The inset affects positions, never pawn texture size or scaling.
+        private const float DisplayHalfWidth = 1.15f;
+        private const float DisplayHalfLength = 2.40f;
+        // Reserve some of the next altitude layer for the foreground fence
+        // so every node belonging to one animal stays beneath that fence.
+        private const float DisplayForegroundDepthReserve = 0.08f;
+        private const float DisplayAnimalLayerStride = 0.065f;
         private const float DisplaySpacing = 0.10f;
         private const float DisplayStep = 0.23f;
         private static readonly Vector2[] CandidatePositions = CreateCandidatePositions();
@@ -30,6 +36,8 @@ namespace ZoologyMod
         private readonly Pawn[] displayedAnimals = new Pawn[MaximumDisplayedAnimals];
         private readonly Vector2[] displayedAnimalOffsets = new Vector2[MaximumDisplayedAnimals];
         private readonly Vector2[] displayedAnimalFootprints = new Vector2[MaximumDisplayedAnimals];
+        private readonly int[] displayedAnimalDepthRanks = new int[MaximumDisplayedAnimals];
+        private readonly float[] displayedAnimalWorldZ = new float[MaximumDisplayedAnimals];
         private readonly float[] displayedTileBodySizes = new float[DisplayTilesX * DisplayTilesZ];
         private readonly Thing[] displayedFood = new Thing[MaximumFoodStacks];
         private readonly List<Pawn> displayCandidates = new List<Pawn>();
@@ -86,6 +94,9 @@ namespace ZoologyMod
 
             // Positions were selected center-first. Do not recenter after
             // assigning tiles: that would invalidate local body-size budgets.
+            // Give whole render trees distinct depths, farthest animals
+            // first. Individual nodes within one pawn keep vanilla offsets.
+            RebuildDisplayedAnimalDepthRanks();
         }
 
         private bool TryPlaceDisplayedAnimal(Pawn pawn)
@@ -212,6 +223,43 @@ namespace ZoologyMod
             displayedAnimalFootprints[index] = footprint;
         }
 
+        private void RebuildDisplayedAnimalDepthRanks()
+        {
+            Quaternion rotation = Rotation.AsQuat;
+            for (int i = 0; i < displayedAnimalCount; i++)
+            {
+                Vector2 local = displayedAnimalOffsets[i];
+                displayedAnimalWorldZ[i] =
+                    (rotation * new Vector3(local.x, 0f, local.y)).z;
+            }
+
+            for (int i = 0; i < displayedAnimalCount; i++)
+            {
+                int rank = 0;
+                float z = displayedAnimalWorldZ[i];
+                for (int j = 0; j < displayedAnimalCount; j++)
+                {
+                    // Higher world Z is farther from the camera and draws
+                    // below animals closer to it. Ties remain deterministic.
+                    if (displayedAnimalWorldZ[j] > z + 0.0001f
+                        || Mathf.Abs(displayedAnimalWorldZ[j] - z) <= 0.0001f
+                            && j < i)
+                        rank++;
+                }
+                displayedAnimalDepthRanks[i] = rank;
+            }
+        }
+
+        private float DisplayedAnimalAltitude(int index)
+        {
+            float bottom = AltitudeLayer.BuildingBelowTop.AltitudeFor() + 0.005f;
+            float top = AltitudeLayer.BuildingOnTop.AltitudeFor()
+                - DisplayForegroundDepthReserve;
+            float stride = Mathf.Min(DisplayAnimalLayerStride,
+                Mathf.Max(0f, top - bottom) / Mathf.Max(1, displayedAnimalCount - 1));
+            return bottom + displayedAnimalDepthRanks[index] * stride;
+        }
+
         private static Vector2[] CreateFoodDisplayOffsets()
         {
             var result = new Vector2[MaximumFoodStacks];
@@ -287,7 +335,10 @@ namespace ZoologyMod
                 renderer.EnsureGraphicsInitialized();
                 Vector2 local = displayedAnimalOffsets[i];
                 Vector3 position = drawLoc + rotation * new Vector3(local.x, 0f, local.y);
-                position.y = AltitudeLayer.BuildingBelowTop.AltitudeFor();
+                // A whole pawn occupies one depth band. Without this,
+                // its head/body nodes can interleave with another pawn's
+                // nodes, leaving fragments of a hidden animal on top.
+                position.y = DisplayedAnimalAltitude(i);
                 var parms = new PawnDrawParms
                 {
                     pawn = pawn,

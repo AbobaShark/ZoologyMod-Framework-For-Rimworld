@@ -1083,6 +1083,11 @@ namespace ZoologyValidation
             DrawCase(map,"three adult camels",new[]{"Camel","Camel","Camel"},3);
             DrawCase(map,"two cows and two chickens",new[]{"Cow","Cow","Chicken","Chicken"},4);
             DrawCase(map,"twelve chickens",Enumerable.Repeat("Chicken",12).ToArray(),12);
+            var flyingBirdBarn=Barn(map);
+            var bird=Animal(map,"Chicken",1f);
+            Hold(flyingBirdBarn,bird);
+            Check("stored chicken is not in flight",!bird.Flying);
+            flyingBirdBarn.Destroy();
             int adultPigs=DisplayedGroupCount(map,"Pig",4f,24);
             int piglets=DisplayedGroupCount(map,"Pig",.1f,24);
             Check("smaller current-size piglets permit more visible residents",
@@ -1183,7 +1188,7 @@ namespace ZoologyValidation
                 tileLoads.Length==18 && tileLoads.All(load=>load>=0f && load<=1.5001f));
             // The packer's virtual footprint must derive only from each
             // pawn's current BodySize, not the race base or texture drawSize.
-            float tileArea=(2f*1.38f/3f)*(2f*2.58f/6f);
+            float tileArea=(2f*1.15f/3f)*(2f*2.40f/6f);
             bool bodyOnly=true;
             for(int i=0;i<count;i++)
             {
@@ -1194,6 +1199,15 @@ namespace ZoologyValidation
                     bodyOnly=false;
             }
             Check("visual footprints use current pawn BodySize only",bodyOnly);
+            Check("animal centers stay inside inset barn interior",
+                offsets.Take(count).All((p,i)=>
+                    Math.Abs(p.x)+footprints[i].x*.5f<=1.1501f
+                    && Math.Abs(p.y)+footprints[i].y*.5f<=2.4001f));
+            var ranks=(int[])typeof(Building_AnimalBarn)
+                .GetField("displayedAnimalDepthRanks",All).GetValue(b);
+            Check("every visible animal has a distinct whole-sprite depth",
+                ranks.Take(count).Distinct().Count()==count
+                && ranks.Take(count).All(r=>r>=0 && r<count));
             Write("DISPLAY_CASE "+label+" drawn="+count+" bodySize="+b.OccupiedAnimalBodySize
                 +" current="+string.Join(",",shown.Take(count).Select(p=>p.def.defName+":"+p.BodySize)));
             Check("placement cache preserves "+label,BarnPerformance.PlacementEquivalent(b));
