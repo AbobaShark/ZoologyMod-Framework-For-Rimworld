@@ -1200,9 +1200,9 @@ namespace ZoologyValidation
             }
             Check("visual footprints use current pawn BodySize only",bodyOnly);
             Check("animal centers stay inside inset barn interior",
-                offsets.Take(count).All((p,i)=>
-                    Math.Abs(p.x)+footprints[i].x*.5f<=1.1501f
-                    && Math.Abs(p.y)+footprints[i].y*.5f<=2.4001f));
+                Enumerable.Range(0,count).All(i=>
+                    Math.Abs(offsets[i].x)+footprints[i].x*.5f<=1.1501f
+                    && Math.Abs(offsets[i].y)+footprints[i].y*.5f<=2.4001f));
             var ranks=(int[])typeof(Building_AnimalBarn)
                 .GetField("displayedAnimalDepthRanks",All).GetValue(b);
             Check("every visible animal has a distinct whole-sprite depth",
