@@ -383,7 +383,7 @@ namespace ZoologyValidation
                         def.directOrderable && manual.directOrderable);
                     var gizmos=pigBarn.GetGizmos().OfType<Command_Action>().ToArray();
                     Check("normal barn commands use vanilla transporter icons",
-                        gizmos.Any(g=>g.icon==CompTransporter.LoadCommandTex)
+                        gizmos.Any(g=>g.icon==ContentFinder<Texture2D>.Get("UI/Commands/LoadTransporter"))
                         && gizmos.Any(g=>g.icon==CompTransporter.CancelLoadCommandTex));
                 }
                 finally { pigBarn.Destroy(); }
