@@ -17,6 +17,7 @@ from lxml import etree as E
 from core.animalstats_source import is_multisheet_source
 from core.static_stats import read_table
 from core.leather_overrides import GROUP_ROUTES, _conditional, _emit
+from core.material_colors import xml_color as _hex
 from core.rimworld_patch_apply import PatchApplier
 
 FIELDS = {
@@ -97,16 +98,6 @@ def _number(value):
         return result if math.isfinite(result) else None
     except (ValueError, TypeError):
         return None
-
-
-def _hex(value):
-    try:
-        values = [int(part) for part in str(value).strip(' ()').split(',')]
-    except ValueError:
-        return None
-    if len(values) != 3 or any(not 0 <= c <= 255 for c in values):
-        return None
-    return '#' + ''.join(f'{v:02X}' for v in values)
 
 
 def _rgb(hex_color):
@@ -336,13 +327,12 @@ def render_textile_outputs(source, entries, *, original_xml, original_patches, c
                 _conditional(vanilla_target, name, xpath, format(row[field], '.12g'), original)
                 vanilla.append((name, field, existing, row[field]))
         color = refs.color(name)
-        if color != row['Color hex']:
-            # If the source leaves color unspecified, write the explicit
-            # spreadsheet color; do not assume graphicData uses that color.
+        graphic = _hex(original.findtext('graphicData/color'))
+        if row['Color hex'] not in {color, graphic}:
             _conditional(vanilla_target, name, 'stuffProps/color', _rgb(row['Color hex']), original)
-            if color is not None and _hex(original.findtext('graphicData/color')) == color:
+            if graphic is not None and (color is None or graphic == color):
                 _conditional(vanilla_target, name, 'graphicData/color', _rgb(row['Color hex']), original)
-            vanilla.append((name, 'Color hex', color, row['Color hex']))
+            vanilla.append((name, 'Color hex', color or graphic, row['Color hex']))
         if ce:
             for field, column in CE_FIELDS.items():
                 baseline = refs.ce.get(name, {}).get(field)

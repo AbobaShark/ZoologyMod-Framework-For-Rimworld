@@ -130,7 +130,8 @@ namespace ZoologyMod
                 return false;
             }
 
-            return pawn.training.HasLearned(draftControl);
+            return pawn.training.HasLearned(draftControl)
+                && (pawn.def.GetModExtension<ModExtension_AnimalDraftRules>()?.CanDraft(pawn) ?? true);
         }
 
         internal static bool IsDraftControlActivePawn(Pawn pawn)
@@ -430,6 +431,12 @@ namespace ZoologyMod
                 return "ZoologyCannotDraftDormant".Translate();
             }
 
+            // An explicitly configured race may accept commands without a master.
+            if (pawn.def.GetModExtension<ModExtension_AnimalDraftRules>()?.CanDraftWithoutMaster(pawn) == true)
+            {
+                return true;
+            }
+
             if (pawn.playerSettings?.Master == null)
             {
                 return "NoMaster".Translate();
@@ -472,8 +479,13 @@ namespace ZoologyMod
                 return false;
             }
 
-            Pawn master = pawn.playerSettings.Master;
             Map map = pawn.MapHeld;
+            if (pawn.def.GetModExtension<ModExtension_AnimalDraftRules>()?.HasUnlimitedRange(pawn) == true)
+            {
+                return map != null && target.Cell.InBounds(map);
+            }
+
+            Pawn master = pawn.playerSettings.Master;
             if (master == null || map == null || master.MapHeld != map || !target.Cell.InBounds(map))
             {
                 return false;
@@ -514,6 +526,11 @@ namespace ZoologyMod
             if (IsDormant(pawn))
             {
                 return true;
+            }
+
+            if (pawn.def.GetModExtension<ModExtension_AnimalDraftRules>()?.CanDraftWithoutMaster(pawn) == true)
+            {
+                return false;
             }
 
             Pawn master = pawn.playerSettings.Master;
@@ -573,7 +590,8 @@ namespace ZoologyMod
                     continue;
                 }
 
-                if (!IsDraftControlDraftedPawn(pawn))
+                if (!IsDraftControlDraftedPawn(pawn)
+                    || pawn.def.GetModExtension<ModExtension_AnimalDraftRules>()?.CanDraftWithoutMaster(pawn) == true)
                 {
                     continue;
                 }
@@ -690,7 +708,8 @@ namespace ZoologyMod
                     for (int i = 0; i < selectedObjects.Count; i++)
                     {
                         Pawn selected = selectedObjects[i] as Pawn;
-                        if (!IsDraftControlActivePawn(selected))
+                        if (!IsDraftControlActivePawn(selected)
+                            || selected.def.GetModExtension<ModExtension_AnimalDraftRules>()?.HasUnlimitedRange(selected) == true)
                         {
                             continue;
                         }
@@ -1711,7 +1730,8 @@ namespace ZoologyMod
     {
         private static void Postfix(Pawn __instance)
         {
-            if (__instance == null || !AnimalDraftControlUtility.IsFeatureEnabledNow())
+            if (__instance == null || !AnimalDraftControlUtility.IsFeatureEnabledNow()
+                || __instance.def.GetModExtension<ModExtension_AnimalDraftRules>()?.HasUnlimitedRange(__instance) == true)
             {
                 return;
             }

@@ -140,6 +140,12 @@
       <gestationPeriodDays>12.5</gestationPeriodDays>
     </value>
   </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "AA_FrostboundBehemoth"]/race/herdAnimal</xpath>
+    <value>
+      <herdAnimal>false</herdAnimal>
+    </value>
+  </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_FrostboundBehemoth"]/race/herdMigrationAllowed</xpath>
     <match Class="PatchOperationReplace">
@@ -413,11 +419,8 @@
       </value>
     </nomatch>
   </Operation>
-  <Operation Class="PatchOperationReplace">
+  <Operation Class="PatchOperationRemove">
     <xpath>/Defs/PawnKindDef[defName = "AA_FrostboundBehemoth"]/wildGroupSize</xpath>
-    <value>
-      <wildGroupSize>2~6</wildGroupSize>
-    </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/PawnKindDef[defName = "AA_FrostboundBehemoth"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>
@@ -589,13 +592,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AA_GreatDevourer"]/race/herdAnimal</xpath>
       <value>
-        <herdAnimal>true</herdAnimal>
+        <herdAnimal>false</herdAnimal>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AA_GreatDevourer"]/race</xpath>
       <value>
-        <herdAnimal>true</herdAnimal>
+        <herdAnimal>false</herdAnimal>
       </value>
     </nomatch>
   </Operation>
@@ -622,18 +625,9 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_GreatDevourer"]/race/roamMtbDays</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "AA_GreatDevourer"]/race/roamMtbDays</xpath>
-      <value>
-        <roamMtbDays>2</roamMtbDays>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_GreatDevourer"]/race</xpath>
-      <value>
-        <roamMtbDays>2</roamMtbDays>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_GreatDevourer"]/race/useLeatherFrom</xpath>
@@ -897,18 +891,9 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/PawnKindDef[defName = "AA_GreatDevourer"]/wildGroupSize</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/PawnKindDef[defName = "AA_GreatDevourer"]/wildGroupSize</xpath>
-      <value>
-        <wildGroupSize>2~6</wildGroupSize>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/PawnKindDef[defName = "AA_GreatDevourer"]</xpath>
-      <value>
-        <wildGroupSize>2~6</wildGroupSize>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/PawnKindDef[defName = "AA_GreatDevourer"]/moveSpeedFactorByTerrainTag/li[key = 'Water']</xpath>

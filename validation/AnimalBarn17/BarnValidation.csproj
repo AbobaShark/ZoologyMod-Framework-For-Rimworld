@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <AssemblyName>ZoologyBarnValidation17</AssemblyName>
+    <GameRoot Condition="'$(GameRoot)' == ''">D:\SteamLibrary\steamapps\common\RimWorld</GameRoot>
+    <OutputPath>../../Zoology/Source/codex-build/barn-fixture/</OutputPath>
+    <IntermediateOutputPath>../../Zoology/Source/codex-build/barn-fixture-obj/</IntermediateOutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <DefaultItemExcludes>$(DefaultItemExcludes);obj/**;bin/**</DefaultItemExcludes>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Lib.Harmony" Version="2.4.1" />
+    <Reference Include="Assembly-CSharp"><HintPath>$(GameRoot)\Assembly-CSharp.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityStubs"><HintPath>$(GameRoot)\UnityStubs.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Waylith.UnityCompat"><HintPath>$(GameRoot)\Waylith.UnityCompat.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Waylith"><HintPath>$(GameRoot)\Waylith.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="ZoologyMod"><HintPath>../../Zoology/Source/codex-build/implementation/build17/ZoologyMod.dll</HintPath><Private>false</Private></Reference>
+  </ItemGroup>
+</Project>

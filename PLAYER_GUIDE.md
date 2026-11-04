@@ -61,6 +61,8 @@ Supported animals receive revised biome commonality and ecological placement. Zo
 
 The same ecological data also matter to Zoology's wild-reproduction capacity system: the game can have a biome that supports many animals in one season and substantially fewer in another.
 
+Wild population management also includes an independent, optional per-species cap (30 by default, configurable from 10 to 100). The cap counts wild animals of each race on the map, not owned animals. Wild breeding and routine wildlife spawning avoid species at capacity. Over-limit populations are encouraged to leave using the existing family-aware departure jobs; dependent young do not leave their mother behind. When the total ecosystem-weight limit is exceeded, departure favors species that contribute most to the excess instead of picking a uniformly random animal. Scripted and quest-related spawns are not rejected by the cap.
+
 ### Cross-breeding and related species
 
 Zoology adds selected cross-breeding relationships where the underlying animals are treated as compatible. In Core, the shipped patches include Arctic/Timber wolf compatibility and, when the relevant expanded-animal package is absent, Labrador/Husky compatibility.

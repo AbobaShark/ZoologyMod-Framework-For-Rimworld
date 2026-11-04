@@ -11,7 +11,7 @@ import subprocess
 import xml.etree.ElementTree as ET
 
 _DEFS = {'ThingDef', 'PawnKindDef', 'BiomeDef', 'LifeStageDef', 'HediffDef'}
-_EXCLUDE = {'photonozoa', 'kaliska'}
+_EXCLUDE = {'spectrobionta', 'kaliska'}
 _CE_HINT = re.compile(
     r'leather|wool|silk|stuff|resource|races?[_/]|animal|biome|egg|hatch|milk|shear|pawnkind',
     re.I,

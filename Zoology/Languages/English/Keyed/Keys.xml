@@ -122,8 +122,11 @@
 	<Zoology_EnableWildAnimalReproduction_Desc>Wild animals may reproduce according to this mod's rules.</Zoology_EnableWildAnimalReproduction_Desc>
 	<Zoology_LimitWildAnimalReproductionByEcosystem_Label>Pause wild-to-wild mating when the ecosystem is overloaded</Zoology_LimitWildAnimalReproductionByEcosystem_Label>
 	<Zoology_LimitWildAnimalReproductionByEcosystem_Desc>Wild animals will not mate with other wild animals when the map's current ecosystem weight reaches the configured share of the biome limit. Mating with player or faction animals is not blocked.</Zoology_LimitWildAnimalReproductionByEcosystem_Desc>
-	<Zoology_ForceWildAnimalsToLeaveOnEcosystemOverload_Label>Force random wild animals to leave an overloaded ecosystem</Zoology_ForceWildAnimalsToLeaveOnEcosystemOverload_Label>
-	<Zoology_ForceWildAnimalsToLeaveOnEcosystemOverload_Desc>When wild reproduction leaves the map above the configured ecosystem weight limit, a random wild animal will occasionally be ordered to leave the map. Childcare families leave together; egg-laying mothers currently guarding clutches are excluded.</Zoology_ForceWildAnimalsToLeaveOnEcosystemOverload_Desc>
+	<Zoology_ForceWildAnimalsToLeaveOnEcosystemOverload_Label>Force wild animals to leave an overloaded ecosystem</Zoology_ForceWildAnimalsToLeaveOnEcosystemOverload_Label>
+	<Zoology_ForceWildAnimalsToLeaveOnEcosystemOverload_Desc>When wild animal ecosystem weight exceeds its configured limit, animals from the most overrepresented species are prioritized for departure. Dependent young leave with their mother; mothers guarding egg clutches are excluded.</Zoology_ForceWildAnimalsToLeaveOnEcosystemOverload_Desc>
+	<Zoology_LimitWildAnimalsPerSpecies_Label>Limit wild animals of the same species on each map</Zoology_LimitWildAnimalsPerSpecies_Label>
+	<Zoology_LimitWildAnimalsPerSpecies_Desc>Cap the number of wild animals of each species, independently of ecosystem-weight rules. Overpopulated species leave the map together with their dependent young; wild breeding and ordinary wildlife arrivals avoid species at the limit. Does not restrict tamed animals, quest or scripted arrivals.</Zoology_LimitWildAnimalsPerSpecies_Desc>
+	<Zoology_WildAnimalSpeciesLimit_Label>Wild animals per species: {0} (range {1}-{2})</Zoology_WildAnimalSpeciesLimit_Label>
 	<Zoology_WildAnimalReproductionEcosystemLimit_Label>Ecosystem weight limit: {0:0.##}x vanilla limit (range {1:0.#}-{2:0.#})</Zoology_WildAnimalReproductionEcosystemLimit_Label>
 	<Zoology_ConfigureAnimalRoamers_Button>Configure animal roamers</Zoology_ConfigureAnimalRoamers_Button>
 
@@ -201,7 +204,7 @@
 	<Zoology_Dialog_RuntimeFeature_Configure>Configure {0} species</Zoology_Dialog_RuntimeFeature_Configure>
 
 	<Zoology_Dialog_FleeHumans_Title>Animals fleeing from humans</Zoology_Dialog_FleeHumans_Title>
-	<Zoology_Dialog_FleeHumans_Instruction>Click an animal to move it to the opposite list. By default, insectoids, photonozoa, thrumbo-like, no-flee, and carrier-flee animals stay on the right.</Zoology_Dialog_FleeHumans_Instruction>
+	<Zoology_Dialog_FleeHumans_Instruction>Click an animal to move it to the opposite list. By default, insectoids, spectrobionta, thrumbo-like, no-flee, and carrier-flee animals stay on the right.</Zoology_Dialog_FleeHumans_Instruction>
 	<Zoology_Dialog_FleeHumans_WillFlee>Will flee</Zoology_Dialog_FleeHumans_WillFlee>
 	<Zoology_Dialog_FleeHumans_WillNotFlee>Will not flee</Zoology_Dialog_FleeHumans_WillNotFlee>
 	<Zoology_Dialog_FleeHumans_Footer>Animals: flee {0}, do not flee {1}</Zoology_Dialog_FleeHumans_Footer>
@@ -280,4 +283,27 @@
 	<Zoology_OrphanedRaidAnimalsBecomeWild_Label>Orphaned NPC animals become wild</Zoology_OrphanedRaidAnimalsBecomeWild_Label>
 	<Zoology_OrphanedRaidAnimalsBecomeWild_Desc>When no eligible group member can replace a lost master, make the animal factionless and tamable instead of making it panic-flee from the map.</Zoology_OrphanedRaidAnimalsBecomeWild_Desc>
 	
+
+	<Zoology_EnableAnimalBarn_Label>Enable animal barns</Zoology_EnableAnimalBarn_Label>
+	<Zoology_EnableAnimalBarn_Desc>Allow construction and operation of animal barns. Disabling this option removes barns from the construction menu and unloads animals and feed from existing barns.</Zoology_EnableAnimalBarn_Desc>
+	<Zoology_AnimalBarnMaximumBodySize_Label>Maximum total animal body size: {0} (10–100)</Zoology_AnimalBarnMaximumBodySize_Label>
+	<Zoology_BarnPopulation>Animals: {0}</Zoology_BarnPopulation>
+	<Zoology_BarnBodySize>Total body size: {0} / {1}</Zoology_BarnBodySize>
+	<Zoology_BarnFoodStacks>Food stacks: {0} / {1}</Zoology_BarnFoodStacks>
+	<Zoology_BarnNoEligible>No eligible Roamers on this map</Zoology_BarnNoEligible>
+
+    <Zoology_BarnAnimalTab>Animals</Zoology_BarnAnimalTab>
+    <Zoology_BarnYoungWithoutMilk>Barn animals need nursing</Zoology_BarnYoungWithoutMilk>
+    <Zoology_BarnYoungWithoutMilkDesc>These newborn mammals are in barns without a compatible, lactating female able to nurse them:
+
+{0}
+
+Add a compatible lactating female to their barn or move the young to another barn. Without sufficient milk or suitable food they may starve.</Zoology_BarnYoungWithoutMilkDesc>
+
+    <Zoology_BarnManualLoad>Assign animal loading</Zoology_BarnManualLoad>
+    <Zoology_BarnManualLoadDesc>Choose a colony animal for a handler to rope into this barn. Manual loading overrides pen preference and this barn's animal filter, but still requires a suitable animal, a free space and a reachable entrance. Animals disallowed by the filter will be moved to another suitable location when available.</Zoology_BarnManualLoadDesc>
+    <Zoology_BarnCancelManualLoad>Cancel animal loading</Zoology_BarnCancelManualLoad>
+    <Zoology_BarnCancelManualLoadDesc>Cancel all pending manual animal-loading assignments for this barn.</Zoology_BarnCancelManualLoadDesc>
+    <Zoology_HideBarnAnimalsFromAnimalTab_Label>Hide barn animals in Animals tab</Zoology_HideBarnAnimalsFromAnimalTab_Label>
+    <Zoology_HideBarnAnimalsFromAnimalTab_Desc>Hide animals currently housed in Zoology barns from the Animals management tab. The animals remain available to auto-slaughter, medical care, and all other game systems. Visual option only.</Zoology_HideBarnAnimalsFromAnimalTab_Desc>
 </LanguageData>

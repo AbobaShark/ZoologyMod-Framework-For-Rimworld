@@ -8,11 +8,11 @@ namespace ZoologyMod
 {
     internal static class ZoologyCacheUtility
     {
-        private const string PhotonozoaPropertiesTypeName = "PhotonozoaProperties";
-        private const string PhotonozoaPropertiesSuffix = ".PhotonozoaProperties";
-        private const string PhotonozoaFactionDefName = "Photonozoa";
+        private const string SpectrobiontaPropertiesTypeName = "SpectrobiontaProperties";
+        private const string SpectrobiontaPropertiesSuffix = ".SpectrobiontaProperties";
+        private const string SpectrobiontaFactionDefName = "Spectrobionta";
 
-        private static readonly Dictionary<ThingDef, bool> photonozoaCache = new Dictionary<ThingDef, bool>();
+        private static readonly Dictionary<ThingDef, bool> spectrobiontaCache = new Dictionary<ThingDef, bool>();
         private static readonly Dictionary<ThingDef, bool> insectoidCache = new Dictionary<ThingDef, bool>();
         private static readonly Dictionary<ThingDef, bool> thrumboLikeCache = new Dictionary<ThingDef, bool>();
         private static readonly Dictionary<ThingDef, bool> noFleeExtensionCache = new Dictionary<ThingDef, bool>();
@@ -27,12 +27,12 @@ namespace ZoologyMod
         private static readonly Dictionary<PawnKindDef, bool> mammalPawnKindExtensionCache = new Dictionary<PawnKindDef, bool>();
         private static readonly Dictionary<OrderedDefPairKey, bool> crossbreedCache = new Dictionary<OrderedDefPairKey, bool>();
 
-        private static FactionDef photonozoaFactionDef;
-        private static bool photonozoaFactionResolved;
+        private static FactionDef spectrobiontaFactionDef;
+        private static bool spectrobiontaFactionResolved;
 
         public static void ClearCaches()
         {
-            photonozoaCache.Clear();
+            spectrobiontaCache.Clear();
             insectoidCache.Clear();
             thrumboLikeCache.Clear();
             noFleeExtensionCache.Clear();
@@ -47,40 +47,40 @@ namespace ZoologyMod
             mammalPawnKindExtensionCache.Clear();
             crossbreedCache.Clear();
 
-            photonozoaFactionDef = null;
-            photonozoaFactionResolved = false;
+            spectrobiontaFactionDef = null;
+            spectrobiontaFactionResolved = false;
         }
 
-        public static bool IsPhotonozoa(ThingDef def)
+        public static bool IsSpectrobionta(ThingDef def)
         {
             if (def == null)
             {
                 return false;
             }
 
-            if (photonozoaCache.TryGetValue(def, out bool cached))
+            if (spectrobiontaCache.TryGetValue(def, out bool cached))
             {
                 return cached;
             }
 
-            bool result = HasPhotonozoaExtension(def);
-            photonozoaCache[def] = result;
+            bool result = HasSpectrobiontaExtension(def);
+            spectrobiontaCache[def] = result;
             return result;
         }
 
-        public static bool IsPhotonozoaPairInTheirFaction(Pawn first, Pawn second)
+        public static bool IsSpectrobiontaPairInTheirFaction(Pawn first, Pawn second)
         {
             if (first?.Faction == null || second?.Faction == null)
             {
                 return false;
             }
 
-            if (!IsPhotonozoa(first.def) || !IsPhotonozoa(second.def))
+            if (!IsSpectrobionta(first.def) || !IsSpectrobionta(second.def))
             {
                 return false;
             }
 
-            FactionDef factionDef = GetPhotonozoaFactionDef();
+            FactionDef factionDef = GetSpectrobiontaFactionDef();
             return factionDef != null && first.Faction.def == factionDef && second.Faction.def == factionDef;
         }
 
@@ -104,7 +104,7 @@ namespace ZoologyMod
         public static bool IsExcludedFromHumanFleeByDefault(ThingDef def)
         {
             return IsInsectoid(def)
-                || IsPhotonozoa(def)
+                || IsSpectrobionta(def)
                 || IsThrumboLike(def)
                 || HasNoFleeExtension(def)
                 || HasFleeFromCarrierExtension(def);
@@ -336,22 +336,22 @@ namespace ZoologyMod
             return result;
         }
 
-        private static FactionDef GetPhotonozoaFactionDef()
+        private static FactionDef GetSpectrobiontaFactionDef()
         {
-            if (photonozoaFactionDef == null)
+            if (spectrobiontaFactionDef == null)
             {
-                photonozoaFactionDef = DefDatabase<FactionDef>.GetNamedSilentFail(PhotonozoaFactionDefName);
+                spectrobiontaFactionDef = DefDatabase<FactionDef>.GetNamedSilentFail(SpectrobiontaFactionDefName);
             }
 
-            if (!photonozoaFactionResolved && photonozoaFactionDef != null)
+            if (!spectrobiontaFactionResolved && spectrobiontaFactionDef != null)
             {
-                photonozoaFactionResolved = true;
+                spectrobiontaFactionResolved = true;
             }
 
-            return photonozoaFactionDef;
+            return spectrobiontaFactionDef;
         }
 
-        private static bool HasPhotonozoaExtension(ThingDef def)
+        private static bool HasSpectrobiontaExtension(ThingDef def)
         {
             List<DefModExtension> extensions = def.modExtensions;
             if (extensions == null)
@@ -368,13 +368,13 @@ namespace ZoologyMod
                 }
 
                 Type extensionType = extension.GetType();
-                if (extensionType.Name == PhotonozoaPropertiesTypeName)
+                if (extensionType.Name == SpectrobiontaPropertiesTypeName)
                 {
                     return true;
                 }
 
                 string fullName = extensionType.FullName;
-                if (fullName != null && fullName.EndsWith(PhotonozoaPropertiesSuffix, StringComparison.Ordinal))
+                if (fullName != null && fullName.EndsWith(SpectrobiontaPropertiesSuffix, StringComparison.Ordinal))
                 {
                     return true;
                 }

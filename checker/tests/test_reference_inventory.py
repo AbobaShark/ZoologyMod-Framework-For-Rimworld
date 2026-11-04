@@ -33,8 +33,8 @@ def test_empty_originalxml_imports_animals_biomes_eggs_materials_and_ce(tmp_path
     _write(game / 'Data/Core', 'Defs/ThingDefs_Items/Items_Resource_Stuff.xml',
            '<Defs><ThingDef Name="LeatherBase" Abstract="True"/>'
            '<ThingDef ParentName="LeatherBase"><defName>Leather_Light</defName></ThingDef></Defs>')
-    _write(game / 'Data/Core', 'Defs/ThingDefs_Races/Photonozoa.xml',
-           '<Defs><ThingDef><defName>Photonozoa</defName></ThingDef></Defs>')
+    _write(game / 'Data/Core', 'Defs/ThingDefs_Races/Spectrobionta.xml',
+           '<Defs><ThingDef><defName>Spectrobionta</defName></ThingDef></Defs>')
     _write(workshop / '1136958577', '1.6/Defs/ThingDefs_Races/Animals.xml',
            '<Defs><ThingDef><defName>OldDino</defName></ThingDef></Defs>')
     _write(workshop / '1136958577', '1.7/Defs/ThingDefs_Races/Animals.xml',
@@ -85,7 +85,7 @@ def test_empty_originalxml_imports_animals_biomes_eggs_materials_and_ce(tmp_path
     assert 'OriginalXML/Megafauna/1.6/Defs/ThingDefs_Races/Mega.xml' in destinations
     assert 'OriginalXML/AlphaBiomes/1.6/Defs/BiomeDefs/Custom.xml' in destinations
     assert 'OriginalXML/CEPatches/Patches/Core/Items_Resource_Stuff.xml' in destinations
-    assert not any('Photonozoa' in path or 'OldDino' in path for path in destinations)
+    assert not any('Spectrobionta' in path or 'OldDino' in path for path in destinations)
 
     sync.apply(result, checker_root=checker)
     second, _ = sync.discover({'mods': mods, 'rimworld_version': '1.7'},

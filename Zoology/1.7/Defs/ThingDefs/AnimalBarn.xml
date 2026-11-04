@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <ThingDef ParentName="BuildingBase">
+    <defName>Zoology_AnimalBarn</defName>
+    <label>animal barn</label>
+    <description>A covered shelter for colony livestock and stored feed. Animals retain their needs, growth, reproduction and products. Handlers bring animals inside and haulers replenish real food. The total animal capacity is configurable in the Zoology settings.</description>
+    <thingClass>ZoologyMod.Building_AnimalBarn, ZoologyMod</thingClass>
+    <containedPawnsSelectable>false</containedPawnsSelectable>
+    <drawerType>MapMeshAndRealTime</drawerType>
+    <inspectorTabs>
+      <li>ZoologyMod.ITab_BarnAnimals</li>
+      <li>RimWorld.ITab_BiosculpterNutritionStorage</li>
+      <li>ZoologyMod.ITab_BarnContents</li>
+    </inspectorTabs>
+    <graphicData>
+      <texPath>Things/Building/Zoology/AnimalBarn</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <drawSize>(3,6)</drawSize>
+    </graphicData>
+    <size>(3,6)</size>
+    <rotatable>true</rotatable>
+    <placeWorkers>
+      <li>ZoologyMod.PlaceWorker_AnimalBarnFront</li>
+    </placeWorkers>
+    <hasInteractionCell>true</hasInteractionCell>
+    <interactionCellOffset>(0,0,-4)</interactionCellOffset>
+    <passability>PassThroughOnly</passability>
+    <fillPercent>0.25</fillPercent>
+    <tickerType>Normal</tickerType>
+    <useHitPoints>true</useHitPoints>
+    <statBases>
+      <MaxHitPoints>500</MaxHitPoints>
+      <Flammability>1</Flammability>
+      <Beauty>0</Beauty>
+      <WorkToBuild>4500</WorkToBuild>
+      <Mass>90</Mass>
+    </statBases>
+    <costStuffCount>180</costStuffCount>
+    <costList>
+      <Steel>40</Steel>
+    </costList>
+    <stuffCategories>
+      <li>Woody</li>
+      <li>Metallic</li>
+      <li>Stony</li>
+    </stuffCategories>
+    <building>
+      <isInert>true</isInert>
+      <expandHomeArea>true</expandHomeArea>
+    </building>
+    <designationCategory>Misc</designationCategory>
+  </ThingDef>
+</Defs>
