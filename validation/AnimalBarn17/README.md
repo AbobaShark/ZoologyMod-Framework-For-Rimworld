@@ -266,3 +266,24 @@ rejected, and that a milk-only destination accepts lactating adults
 even when ordinary adults are excluded. It also verifies that once
 mothers are distributed, an immediate reverse transfer is rejected.
 Full multi-handler and pen-to-pen gameplay testing is still required.
+
+## Taming without any vanilla pen
+
+Vanilla `JobDriver_Tame.MakeNewToils` ends with a one-off
+`MessageTameNoSuitablePens` notification whenever it cannot lead a newly
+tamed roamer to a pen marker, independently of the persistent
+`Alert_AnimalPenNeeded`. The existing barn alert patch does not suppress
+this notification. A targeted Harmony postfix now wraps only the final
+taming toil: after success, a reachable accepting barn can be selected
+by the existing Zoology worker and the tamer immediately starts the
+ordinary barn rope job instead of emitting the false warning. Vanilla
+pen routing and its message remain unchanged when no valid barn is
+available; a closer suitable enclosed pen retains priority.
+
+The fixture verifies installation of the tame-job patch and that the
+wrapper preserves all earlier vanilla toils and the original final
+action when no eligible animal/job exists. It also checks the standard
+barn admission condition. In-game: tame a cow on a home map with an
+available barn but no pen markers and confirm the tamer leads it inside
+without a no-pen message. Repeat with the barn full, forbidden, filtered
+against that cow, or disabled: the vanilla warning must still appear.

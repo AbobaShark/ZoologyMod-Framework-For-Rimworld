@@ -209,3 +209,18 @@ mothers feeding a litter and immediately undoing deliberate nursery
 moves; other pen assignments and player orders are unchanged. The new
 work giver does not need the barn feature enabled for pen-to-pen
 transfers, but honors the global runtime patch and lactation toggles.
+
+## Taming notifications and barn destinations
+
+Vanilla taming has its own `JobDriver_Tame` final toil that emits
+`MessageTameNoSuitablePens` if it cannot assign an animal to a pen.
+This is **not** the same mechanism as the persistent
+`Alert_AnimalPenNeeded`, which Zoology already adjusts for barns.
+The new barn-only Harmony postfix attaches a fallback to that final
+toil, allowing the successful tamer to start an actual
+`Zoology_BarnAdmit` rope job when `WorkGiver_BarnAdmit.FindBarn`
+finds an accepting, accessible barn. It preserves vanilla pen routing
+when no barn is selected, including when every barn is full, disabled,
+forbidden or unsuitable. The same filter, capacity and reachability
+checks as normal automatic barn handling are reused; no artificial
+pen marker is registered and no recurring work is introduced.

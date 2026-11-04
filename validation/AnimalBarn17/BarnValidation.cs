@@ -109,7 +109,8 @@ namespace ZoologyValidation
                     TemperatureExposure(map); RotChecks(map); FireChecks(map);
                     Capacity(map); MixedRendering(map); FeedDistribution(map);
                     AnimalFiltersAndFeedDefaults(map);
-                    NursingBalance(map); IdeologyRanching(map);
+                    TamingWithoutPen(map); NursingBalance(map);
+                    IdeologyRanching(map);
                     PrepareSave(map);
                     phase = 1;
                     GameDataSaveLoader.SaveGame("ZoologyBarnValidation");
@@ -339,6 +340,65 @@ namespace ZoologyValidation
             {
                 barn.Destroy();
             }
+        }
+
+        static void TamingWithoutPen(Map map)
+        {
+            // Vanilla JobDriver_Tame's final instant toil directly emits
+            // MessageTameNoSuitablePens, independently of the persistent
+            // AnimalPenNeeded alert. Ensure our targeted Harmony wrapper
+            // changes only that step and keeps vanilla when no barn applies.
+            var target=AccessTools.Method(typeof(JobDriver_Tame),
+                "MakeNewToils");
+            Check("vanilla tame job completion exists",target!=null);
+            if(target==null) return;
+
+            var info=Harmony.GetPatchInfo(target);
+            Check("barn fallback registered on taming completion",
+                info?.Postfixes?.Any(p=>
+                    p.PatchMethod?.DeclaringType?.Name
+                    =="Patch_TamedAnimalCanGoDirectlyToBarn")==true);
+
+            Type patch=typeof(Building_AnimalBarn).Assembly.GetType(
+                "ZoologyMod.Patch_TamedAnimalCanGoDirectlyToBarn");
+            var wrap=patch?.GetMethod("WithBarnFallback",All);
+            Check("narrow tame final-toil wrapper is available",wrap!=null);
+            if(wrap==null) return;
+
+            bool originalRan=false;
+            bool previousRan=false;
+            var prior=new Toil {debugName="EarlierTameToil",
+                initAction=()=>previousRan=true};
+            Action previous=prior.initAction;
+            var final=new Toil {debugName="MakeNewToils",
+                initAction=()=>originalRan=true};
+            Action original=final.initAction;
+            var driver=new JobDriver_Tame();
+            var enumerated=(System.Collections.Generic.IEnumerable<Toil>)
+                wrap.Invoke(null,new object[]{
+                    new System.Collections.Generic.List<Toil>{prior,final},driver});
+            var result=enumerated.ToArray();
+            Check("tame fallback only wraps the final vanilla toil",
+                result.Length==2 && ReferenceEquals(result[0],prior)
+                && ReferenceEquals(result[1],final)
+                && ReferenceEquals(prior.initAction,previous)
+                && !ReferenceEquals(final.initAction,original));
+            prior.initAction();
+            final.initAction(); // No animal/job: vanilla path must run.
+            Check("tame fallback preserves previous toils and no-barn behavior",
+                previousRan && originalRan);
+
+            var barn=Barn(map);
+            var candidate=Animal(map,"Cow",4f);
+            try
+            {
+                Check("candidate for direct barn intake is accepted",
+                    barn.CanAcceptAnimal(candidate));
+                Check("barn fallback leaves vanilla pen-needed alert patched",
+                    typeof(Building_AnimalBarn).Assembly.GetType(
+                        "ZoologyMod.Patch_BarnCountsAsPenForVanillaAlert") != null);
+            }
+            finally { barn.Destroy(); }
         }
 
         static void NursingBalance(Map map)
