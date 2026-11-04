@@ -22,7 +22,7 @@ Reproducible fixture, raw latest results, comparison methodology, art prompt and
 - The Animals tab uses the same ThingFilter UI as vanilla pen markers. Admission observes selected species and male/female filters. A separate optional setting hides contained animals **only** from the vanilla Animals management tab. The original MapPawns roster and auto-slaughter remain unchanged; the visibility Harmony patch is installed only while that setting is enabled.
 - The Nutrition tab uses the unmodified vanilla biosculpter storage-filter interface and StorageSettings. The player's filter alone determines which edible items may be loaded; there is no extra per-species loading filter, and food may be stocked before animals arrive. The development food-loading menu also restricts choices to real haulable Item-category foods that currently fit the filter and available stack space.
 - A handler uses the vanilla rope-to-destination driver rather than a Goto order. An animal already in a valid pen stays there; when a pen is closer than a barn, the pen takes precedence. The barn work-giver's priority is synchronized with the vanilla pen rope work giver at startup.
-- A barn on a player-home map is recognized as player infrastructure even when spawned in debug mode without an owner. A suitable barn satisfies the vanilla **Animal pen needed** alert without changing the normal pen marker rules; no handlers, forbidden species, full barns or inaccessible entrances do not hide the warning. The vanilla right-click **Lead to pen** order falls back to the barn rope job if no closer suitable pen is available. A duplicate barn-only right-click command is not generated.
+- A barn on a player-home map is recognized as player infrastructure even when spawned in debug mode without an owner. A suitable barn satisfies the vanilla **Animal pen needed** alert without changing the normal pen marker rules; no handlers, forbidden species, full barns or inaccessible entrances do not hide the warning. The vanilla right-click **Lead to pen** order still falls back to a suitable barn. Barn intake and specifically queued barn loading are now also directly orderable through the vanilla work-giver context menu, so an animal waiting for a barn is not limited to an irrelevant «no suitable pens» command.
 - The **Assign animal loading** command queues specific, player-selected Roamers. An additional, higher-priority Handling work giver ropes these animals into that barn, bypassing pen preference and barn species filter. Safety and space constraints still apply. Manual requests survive saves and can be cancelled.
 - If a resident is now forbidden by the barn's species/sex ThingFilter, a higher-priority Handling work giver searches for an available enclosed vanilla pen, another accepting barn, a caravan hitching post, or an unenclosed pen as the final fallback. Only if an accessible destination exists does the handler go to the source barn, physically release the animal and queue a native rope job (or Zoology's existing barn rope job) for the same handler. Until a suitable destination exists, the animal stays contained; a full or forbidden alternative is not selected. No new Harmony patches or persistent relocation state are needed.
 - The native-style **Cargo** inspect tab replaces the temporary animal-inspection gizmo. As in the vanilla shuttle it displays pending manual loading orders on the left and the actual `ThingOwner` contents (animals and food) on the right, with vanilla info-card, selection and remove controls. Cancelling a pending row removes only its loading request; removing a contained animal releases it normally, without any admission cooldown. Stored food can also be dropped by stack count.
@@ -142,73 +142,54 @@ visual test with a nearby vanilla column.
 
 ## Shared pen/barn animal filters and feed presets
 
-Five 1.7 `SpecialThingFilterDef` workers extend the same vanilla
-`ThingFilter` that already powers pen markers and barn intake. Adults
-are any reproductive life stages (`LifeStageDef.reproductive == true`);
-independent juveniles are nonreproductive stages that do not require milk,
-and milk-dependent mammalian young have their own filter. The lactation
-filters have deliberately different scopes: lactating females can be
-admitted even when ordinary adults are excluded, while **non-lactating
-adult females** match only reproductive life stages without the Zoology
-lactation hediff. The latter filter never excludes female milk-dependent
-young or independent female juveniles. Both lactation filters default to
-allowed. When the vanilla female filter is unchecked, both options are
-hidden in pen and barn tabs; the original `ThingFilterUI` is retained.
-The existing `Zoology_AllowNonLactatingFemales` defName and saveKey are
-unchanged, so saved filter selections retain their meaning without any
-migration or extra state.
+Six 1.7 `SpecialThingFilterDef` workers extend the common vanilla
+`ThingFilter` used by pen markers and barn intake. Three age groups
+are mutually exclusive: all reproductive adult stages, independently
+feeding nonreproductive juveniles (including chicks and reptiles), and
+milk-dependent mammals identified by Zoology's actual lactation rules.
+**The adult filter always applies to adult animals**, even if they are
+pregnant or lactating; no hidden admission bypass remains.
 
-Checks run only on ordinary vanilla acceptance/hauling decisions and do
-not iterate all animals per tick. No new animal caches are introduced.
+When adults and females are both allowed, three more filters can restrict
+adult females: lactating, pregnant, and other (neither lactating nor pregnant).
+Pregnancy is checked using vanilla Hediff_Pregnant (including subclasses).
+A pregnant lactating female must pass both state filters. Switching off
+females or adults hides all three dependent checkboxes in both UIs,
+without changing saved selections; reopening the parent restores them.
+The existing nonlactating defName and saveKey remain stable while its
+new label and matching logic mean "other adult females." New pregnancy
+filters default allowed.
 
-New barns select only hay and kibble in their storage filter. The fixed
-parent filter is built once from actual nutritious non-drug item defs,
-excluding corpses and hatching eggs, so all other compatible foods remain
-manually selectable without presenting corpses as feed options. Existing
-saved storage selections are not reset.
+All checks occur only when the usual `ThingFilter` considers an animal:
+there are no additional population scans or animal ticks. Automatic
+admission and relocation both use these same filters. Existing
+`ThingFilter.SetAllowAll(parentFilter)` resets special-filter exclusions,
+including when an already-built adult-only barn becomes unrestricted.
 
-When a contained animal dies, the game generates a real corpse in the
-`ThingOwner`. The barn now removes it using the vanilla `TryDrop`
-operation to the outside interaction-cell vicinity on the next tick.
-A blocked placement is retried; corpses are never destroyed or counted
-as edible barn stock.
+New barns start with hay and kibble selected; other non-drug nutritious
+items remain manually selectable. Corpses and fertilized hatching eggs
+are excluded from the available-food list. Dead residents' real corpses
+are dropped out of the barn using vanilla TryDrop, retrying if blocked.
 
 ## Milk-dependent young and automatic nursing-mother allocation
 
-The age filter has three exclusive groups. `Zoology_AllowReproductiveAdults`
-matches reproductive life stages **except** lactating females, who retain
-their independent female/lactation filter even if the adult group is
-excluded. The non-lactating-female filter additionally restricts only
-non-lactating adults and never overrides the juvenile or milk-young filters. `Zoology_AllowMilkDependentYoung` matches mammalian infants
-identified by the same `AnimalLactationUtility.IsAnimalBaby` and
-`IsMammal` conditions used in Zoology nursing while the lactation
-feature is enabled. `Zoology_AllowJuveniles` includes all other
-nonreproductive animals, including young birds and reptiles regardless
-of their sprite/body size. None of these checks scans populations.
+`AnimalNursingBalance` supplements existing pen/barn handlers and
+lactation routines. During normal Handling job searches, it evaluates
+compatible nursing females against milk-dependent young in enclosed
+vanilla pens and enabled barns. Child demand comes from the real
+FoodFallPerTick; candidate mothers must be alive, actively lactating,
+able to feed, and species-compatible. It prioritizes reducing uncovered
+infant demand, then distributing nutrition demand among mothers, never
+leaving a formerly supported litter without its final compatible mother.
 
-`AnimalNursingBalance` supplements — rather than replaces — the
-existing pen/barn workers and actual milk-feeding routines. When a
-handler requests work, it examines the home map's enclosed vanilla
-pens and enabled barns. Nursery demand derives from each milk-dependent
-young animal's real `FoodFallPerTick`. Available mothers must be
-alive, actively lactating, adequately fed and compatible according
-to `AnimalLactationUtility.IsCrossBreedCompatible`. The comparison
-prioritizes reducing uncovered daily infant nutrition demand; once
-all groups have nursing support, it minimizes the combined nutrition
-demand per compatible mother, declining moves that would leave any
-previously supported young without nursing. It does not invent a
-fixed milk-output capacity or simulate additional milk consumption.
-
-The map-level work snapshot is built only during handling work searches
-and cached for 250 ticks, with a pending-transfer guard to prevent
-duplicate assignments. Normal job reservations and pathfinding still
-decide whether a handler can undertake the transfer; milk remains
-transferred by the original mechanisms. A narrow vanilla pen-balance
-Harmony postfix prevents headcount-driven balanced jobs from removing
-mothers feeding a litter and immediately undoing deliberate nursery
-moves; other pen assignments and player orders are unchanged. The new
-work giver does not need the barn feature enabled for pen-to-pen
-transfers, but honors the global runtime patch and lactation toggles.
+**No nursing exception overrides the adult filter.** To create a nursery,
+enable adults, females, milk-dependent young and lactating females,
+then disable "other adult females" and any other unwanted adult
+categories. Vanilla adult males are controlled by the sex filter.
+The map-level plan is cached for 250 ticks; only one assignment may
+be outstanding at once, and existing rope/admission jobs do the actual
+work. The separate pen-balancing patch prevents undoing maternal
+reassignments when nursing young are present.
 
 ## Taming notifications and barn destinations
 
@@ -224,3 +205,15 @@ when no barn is selected, including when every barn is full, disabled,
 forbidden or unsuitable. The same filter, capacity and reachability
 checks as normal automatic barn handling are reused; no artificial
 pen marker is registered and no recurring work is introduced.
+
+## Multi-camel visual packing and barn commands
+
+Oversized body-graphic dimensions no longer force a single representative
+animal into the entire barn interior. At cache refresh, a deterministic
+scale fits each sprite within a meaningful fraction of the opening;
+the same scale determines collision footprint and rendering. Original
+Pawn.BodySize still drives per-tile visual mass and the separate race
+baseBodySize still governs actual barn capacity. This uses the existing
+150-tick visual cache and does not add per-frame searches. The normal
+assign-loading and cancel-loading gizmos use the vanilla transporter
+load and cancel textures, respectively.
