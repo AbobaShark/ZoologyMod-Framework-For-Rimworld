@@ -31,6 +31,10 @@ namespace ZoologyMod
         private const float DisplayAnimalLayerStride = 0.065f;
         private const float DisplaySpacing = 0.10f;
         private const float DisplayStep = 0.23f;
+        // A reserve for the real unscaled sprite beyond its virtual
+        // BodySize footprint. Keep even tiny animals away from fence posts.
+        private const float DisplayAnchorFenceMarginX = 0.35f;
+        private const float DisplayAnchorFenceMarginZ = 0.45f;
         private static readonly Vector2[] CandidatePositions = CreateCandidatePositions();
 
         private readonly Pawn[] displayedAnimals = new Pawn[MaximumDisplayedAnimals];
@@ -92,8 +96,8 @@ namespace ZoologyMod
                 }
             }
 
-            // Positions were selected center-first. Do not recenter after
-            // assigning tiles: that would invalidate local body-size budgets.
+            // Candidate positions already cover the safe interior.
+            // Do not move placed animals: that would invalidate tile budgets.
             // Give whole render trees distinct depths, farthest animals
             // first. Individual nodes within one pawn keep vanilla offsets.
             RebuildDisplayedAnimalDepthRanks();
@@ -199,19 +203,67 @@ namespace ZoologyMod
         private static Vector2[] CreateCandidatePositions()
         {
             var positions = new List<Vector2>();
-            // A fixed small grid, ranked from the center outwards. It is
-            // created once, not for every animal or frame.
+            float safeX = DisplayHalfWidth - DisplayAnchorFenceMarginX;
+            float safeZ = DisplayHalfLength - DisplayAnchorFenceMarginZ;
             for (int z = -11; z <= 11; z++)
                 for (int x = -6; x <= 6; x++)
-                    positions.Add(new Vector2(x * DisplayStep, z * DisplayStep));
-            positions.Sort((a, b) =>
+                {
+                    Vector2 position = new Vector2(x * DisplayStep, z * DisplayStep);
+                    if (Mathf.Abs(position.x) <= safeX
+                        && Mathf.Abs(position.y) <= safeZ)
+                        positions.Add(position);
+                }
+
+            // Order once by farthest-point sampling: the first resident
+            // stays centered, subsequent ones occupy the unused interior
+            // rather than piling up around the center. Distance is measured
+            // relative to the usable width and length. The sum breaks ties
+            // in favor of the region most separated from all prior anchors.
+            int count = positions.Count;
+            var ordered = new Vector2[count];
+            var chosen = new bool[count];
+            var nearestDistance = new float[count];
+            var totalDistance = new float[count];
+            for (int i = 0; i < count; i++)
+                nearestDistance[i] = float.PositiveInfinity;
+
+            for (int n = 0; n < count; n++)
             {
-                int result = a.sqrMagnitude.CompareTo(b.sqrMagnitude);
-                if (result != 0) return result;
-                result = a.y.CompareTo(b.y);
-                return result != 0 ? result : a.x.CompareTo(b.x);
-            });
-            return positions.ToArray();
+                int best = -1;
+                float bestNearest = float.NegativeInfinity;
+                float bestTotal = float.NegativeInfinity;
+                for (int i = 0; i < count; i++)
+                {
+                    if (chosen[i]) continue;
+                    float nearest = n == 0 ? -positions[i].sqrMagnitude : nearestDistance[i];
+                    float total = totalDistance[i];
+                    if (best < 0 || nearest > bestNearest + 0.00001f
+                        || Mathf.Abs(nearest - bestNearest) <= 0.00001f
+                            && (total > bestTotal + 0.00001f
+                                || Mathf.Abs(total - bestTotal) <= 0.00001f
+                                    && positions[i].y > positions[best].y))
+                    {
+                        best = i;
+                        bestNearest = nearest;
+                        bestTotal = total;
+                    }
+                }
+
+                Vector2 selected = positions[best];
+                ordered[n] = selected;
+                chosen[best] = true;
+                for (int i = 0; i < count; i++)
+                {
+                    if (chosen[i]) continue;
+                    float dx = (positions[i].x - selected.x) / safeX;
+                    float dz = (positions[i].y - selected.y) / safeZ;
+                    float distance = dx * dx + dz * dz;
+                    if (distance < nearestDistance[i])
+                        nearestDistance[i] = distance;
+                    totalDistance[i] += distance;
+                }
+            }
+            return ordered;
         }
 
         private void AddDisplayedAnimal(Pawn pawn, Vector2 offset,

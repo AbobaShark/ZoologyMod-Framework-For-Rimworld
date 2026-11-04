@@ -1083,6 +1083,12 @@ namespace ZoologyValidation
             DrawCase(map,"three adult camels",new[]{"Camel","Camel","Camel"},3);
             DrawCase(map,"two cows and two chickens",new[]{"Cow","Cow","Chicken","Chicken"},4);
             DrawCase(map,"twelve chickens",Enumerable.Repeat("Chicken",12).ToArray(),12);
+            var positions=(Vector2[])typeof(Building_AnimalBarn)
+                .GetField("CandidatePositions",All).GetValue(null);
+            Check("display candidate grid has safe fence clearance",
+                positions.Length>=72 && positions[0]==Vector2.zero
+                && positions.All(p=>Math.Abs(p.x)<=.8001f
+                    && Math.Abs(p.y)<=1.9501f));
             var flyingBirdBarn=Barn(map);
             var bird=Animal(map,"Chicken",1f);
             Hold(flyingBirdBarn,bird);
@@ -1193,12 +1199,16 @@ namespace ZoologyValidation
             for(int i=0;i<count;i++)
             {
                 float area=Mathf.Max(.01f,shown[i].BodySize)/1.5f*tileArea;
-                float width=Mathf.Min(2f*1.38f,Mathf.Sqrt(area));
+                float width=Mathf.Min(2f*1.15f,Mathf.Sqrt(area));
                 if(Math.Abs(footprints[i].x-width)>.0001f
                     || Math.Abs(footprints[i].y-area/width)>.0001f)
                     bodyOnly=false;
             }
             Check("visual footprints use current pawn BodySize only",bodyOnly);
+            if(label=="twelve chickens")
+                Check("small flock uses both ends of the safe barn interior",
+                    offsets.Take(count).Min(p=>p.y)<-1.0f
+                    && offsets.Take(count).Max(p=>p.y)>1.0f);
             Check("animal centers stay inside inset barn interior",
                 Enumerable.Range(0,count).All(i=>
                     Math.Abs(offsets[i].x)+footprints[i].x*.5f<=1.1501f
