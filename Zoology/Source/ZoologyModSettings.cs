@@ -1014,14 +1014,10 @@ namespace ZoologyMod
 
         private void DrawLactationSettings(Listing_Standard list)
         {
-            if (EnableMammalLactation)
-            {
-                list.CheckboxLabeled("Zoology_EnableHandlerBabyFeeding_Label".Translate(), ref EnableHandlerBabyFeeding, "Zoology_EnableHandlerBabyFeeding_Desc".Translate());
-            }
-            else
-            {
-                EnableHandlerBabyFeeding = false;
-            }
+            bool previousGuiEnabled = GUI.enabled;
+            GUI.enabled = previousGuiEnabled && EnableMammalLactation;
+            list.CheckboxLabeled("Zoology_EnableHandlerBabyFeeding_Label".Translate(), ref EnableHandlerBabyFeeding, "Zoology_EnableHandlerBabyFeeding_Desc".Translate());
+            GUI.enabled = previousGuiEnabled;
 
             list.GapLine(12f);
             list.Label("Zoology_LactationAutoSlaughter_Label".Translate());
@@ -1233,7 +1229,6 @@ namespace ZoologyMod
 
             if (!EnableMammalLactation)
             {
-                EnableHandlerBabyFeeding = false;
                 AllowSlaughterLactating = ModConstants.DefaultAllowSlaughterLactating;
             }
 
@@ -1299,7 +1294,6 @@ namespace ZoologyMod
                 hash = hash * 31 + (EnablePredatorDefendCorpse ? 1 : 0);
                 hash = hash * 31 + (EnableScavengering ? 1 : 0);
                 hash = hash * 31 + (EnableMammalLactation ? 1 : 0);
-                hash = hash * 31 + (EnableHandlerBabyFeeding ? 1 : 0);
                 hash = hash * 31 + (EnableAnimalChildcare ? 1 : 0);
                 hash = hash * 31 + (EnableAnimalEggProtection ? 1 : 0);
                 hash = hash * 31 + (PreventFleeFromHumansWhileProtectingYoung ? 1 : 0);

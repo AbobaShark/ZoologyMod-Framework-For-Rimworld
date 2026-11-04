@@ -373,7 +373,7 @@ Food selection first checks the handler's inventory and then the map. The job de
 
 `JobDriver_FeedMammalBaby` derives from RimWorld's patient-feeding driver but removes the medical-rest requirement: animal babies can be fed where they are. The same WorkGiver is direct-orderable, so the player can force the feeding job.
 
-The feature is gated by both mammal lactation and the `EnableHandlerBabyFeeding` setting. Disabling mammal lactation also disables handler baby feeding.
+The feature is gated by both mammal lactation and the `EnableHandlerBabyFeeding` setting. The WorkGiver and its running JobDriver check this setting directly, so switching handler feeding takes effect without rebuilding unrelated Harmony patches. Disabling mammal lactation suspends handler feeding without clearing its saved setting; mother-to-young nursing remains independent of the handler-feeding toggle.
 
 ### Baby food suitability
 

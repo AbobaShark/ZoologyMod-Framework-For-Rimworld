@@ -374,7 +374,7 @@ The search excludes drugs, corpses, food dispensers and opportunistic plant harv
 
 Handler feeding provides suitable food when the mother is absent, inaccessible, no longer lactating or temporarily unable to nurse.
 
-The handler-feeding option is subordinate to the main Mammal lactation setting. Turning lactation off also turns handler baby feeding off.
+The handler-feeding option is subordinate to the main Mammal lactation setting. Turning lactation off suspends handler feeding but preserves the saved choice, which takes effect again when lactation is re-enabled. Switching handler feeding takes effect immediately and does not disable nursing by mothers.
 
 ## 9. Mammal babies use baby food rules
 
@@ -936,7 +936,7 @@ The scavenger species editor also exposes allowVeryRotten.
 | Enable wound licking | On | Animal self-tending. |
 | Enable ectothermic handling | On | Ectotherm species configurable. |
 
-Turning mammal lactation off also disables handler baby feeding and the lactation auto-slaughter option.
+Turning mammal lactation off suspends handler baby feeding (without clearing its saved checkbox) and disables the lactation auto-slaughter option.
 
 ### Combat
 
