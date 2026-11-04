@@ -12,17 +12,20 @@ namespace ZoologyMod
     {
         private static bool initialized;
         private static SpecialThingFilterDef females;
-        private static SpecialThingFilterDef lactating;
-        private static SpecialThingFilterDef nonLactating;
-        private static SpecialThingFilterDef[] hiddenLactationFilters;
+        private static SpecialThingFilterDef adults;
+        private static SpecialThingFilterDef[] adultFemaleFilters;
 
         private static void Initialize()
         {
             if (initialized) return;
             initialized = true;
-            lactating = DefDatabase<SpecialThingFilterDef>
+            adults = DefDatabase<SpecialThingFilterDef>
+                .GetNamedSilentFail("Zoology_AllowReproductiveAdults");
+            var lactating = DefDatabase<SpecialThingFilterDef>
                 .GetNamedSilentFail("Zoology_AllowLactatingFemales");
-            nonLactating = DefDatabase<SpecialThingFilterDef>
+            var pregnant = DefDatabase<SpecialThingFilterDef>
+                .GetNamedSilentFail("Zoology_AllowPregnantFemales");
+            var other = DefDatabase<SpecialThingFilterDef>
                 .GetNamedSilentFail("Zoology_AllowNonLactatingFemales");
             foreach (SpecialThingFilterDef def in DefDatabase<SpecialThingFilterDef>.AllDefsListForReading)
             {
@@ -32,24 +35,24 @@ namespace ZoologyMod
                     break;
                 }
             }
-            if (lactating != null && nonLactating != null)
-                hiddenLactationFilters = new[] { lactating, nonLactating };
+            if (lactating != null && pregnant != null && other != null)
+                adultFemaleFilters = new[] { lactating, pregnant, other };
         }
 
-        internal static IEnumerable<SpecialThingFilterDef> HideLactationWhenFemalesExcluded(
+        // Three adult-female selectors are subordinate to BOTH the
+        // general age and sex filters. Hidden selectors retain their
+        // stored selections but cannot override those parent filters.
+        internal static IEnumerable<SpecialThingFilterDef> HiddenAdultFemaleFilters(
             ThingFilter filter)
         {
             Initialize();
-            return filter != null && females != null
-                && hiddenLactationFilters != null
-                && !filter.Allows(females) ? hiddenLactationFilters : null;
+            return filter != null && adultFemaleFilters != null
+                && (adults != null && !filter.Allows(adults)
+                    || females != null && !filter.Allows(females))
+                ? adultFemaleFilters : null;
         }
     }
 
-    // The vanilla pen tab already uses ThingFilterUI. Preserve that GUI and
-    // its scroll state, but hide the dependent lactation option whenever
-    // its prerequisite "Females" filter is switched off. This replaces only
-    // one pen-tab GUI call; no pawn ticking or extra pen scanning is added.
     [HarmonyPatch(typeof(ITab_PenAnimals), "FillTab")]
     internal static class Patch_PenAnimalFilterDependentLactation
     {
@@ -73,7 +76,7 @@ namespace ZoologyMod
             ThingFilterUI.DoThingFilterConfigWindow(list, state, pen.AnimalFilter,
                 AnimalPenUtility.GetFixedAnimalFilter(),
                 openMask: 1,
-                forceHiddenFilters: AnimalFilterVisibility.HideLactationWhenFemalesExcluded(
+                forceHiddenFilters: AnimalFilterVisibility.HiddenAdultFemaleFilters(
                     pen.AnimalFilter),
                 map: pen.parent.Map);
             return false;
