@@ -175,12 +175,15 @@ namespace ZoologyValidation
             var barn=Barn(map);
             var adult=Animal(map,"Cow",4f,Gender.Female);
             var nonLactatingAdult=Animal(map,"Cow",4f,Gender.Female);
+            var pregnantAdult=Animal(map,"Cow",4f,Gender.Female);
+            pregnantAdult.health.AddHediff(HediffDefOf.Pregnant);
             var adultMale=Animal(map,"Cow",4f,Gender.Male);
             var young=Animal(map,"Cow",.1f,Gender.Female);
             var adultDef=SpecialThingFilterDef.Named("Zoology_AllowReproductiveAdults");
             var youngDef=SpecialThingFilterDef.Named("Zoology_AllowJuveniles");
             var milkDef=SpecialThingFilterDef.Named("Zoology_AllowMilkDependentYoung");
             var lactatingDef=SpecialThingFilterDef.Named("Zoology_AllowLactatingFemales");
+            var pregnantDef=SpecialThingFilterDef.Named("Zoology_AllowPregnantFemales");
             var nonLactatingDef=SpecialThingFilterDef.Named("Zoology_AllowNonLactatingFemales");
             var filter=barn.AnimalFilter;
             var foods=barn.GetStoreSettings().filter;
@@ -236,12 +239,14 @@ namespace ZoologyValidation
                 HediffDef lactation=AnimalLactationUtility.LactatingHediffDef;
                 Check("lactation special filter recognizes existing hediff",
                     lactation!=null);
-                Check("non-lactating filter matches adult females only",
+                Check("other adult females exclude pregnancy, nursing and young",
                     nonLactatingDef.Worker.Matches(nonLactatingAdult)
+                    && !nonLactatingDef.Worker.Matches(pregnantAdult)
                     && !nonLactatingDef.Worker.Matches(adultMale)
                     && !nonLactatingDef.Worker.Matches(young)
                     && !nonLactatingDef.Worker.Matches(chick)
-                    && !lactatingDef.Worker.Matches(nonLactatingAdult));
+                    && !lactatingDef.Worker.Matches(nonLactatingAdult)
+                    && pregnantDef.Worker.Matches(pregnantAdult));
                 if(lactation!=null)
                 {
                     adult.health.AddHediff(lactation);
@@ -253,11 +258,24 @@ namespace ZoologyValidation
                         && !nonLactatingDef.Worker.Matches(young)
                         && !nonLactatingDef.Worker.Matches(chick));
                     filter.SetAllow(adultDef,false);
-                    Check("excluding adults still permits nursing females and young",
-                        filter.Allows(adult) && !filter.Allows(nonLactatingAdult)
-                        && !filter.Allows(adultMale)
+                    Check("adults excluded consistently including pregnant and nursing",
+                        !filter.Allows(adult) && !filter.Allows(pregnantAdult)
+                        && !filter.Allows(nonLactatingAdult) && !filter.Allows(adultMale)
                         && filter.Allows(chick) && filter.Allows(young));
                     filter.SetAllow(adultDef,true);
+                    Check("pregnancy and lactation both allowed by default",
+                        filter.Allows(adult) && filter.Allows(pregnantAdult));
+                    filter.SetAllow(pregnantDef,false);
+                    Check("pregnancy filter rejects pregnant but not nursing-only",
+                        !filter.Allows(pregnantAdult) && filter.Allows(adult));
+                    filter.SetAllow(pregnantDef,true);
+                    adult.health.AddHediff(HediffDefOf.Pregnant);
+                    Check("pregnant and nursing requires both toggles",
+                        filter.Allows(adult));
+                    filter.SetAllow(pregnantDef,false);
+                    Check("pregnant nursing female rejected when pregnancy forbidden",
+                        !filter.Allows(adult));
+                    filter.SetAllow(pregnantDef,true);
                     filter.SetAllow(lactatingDef,false);
                     Check("excluding lactating females leaves other ages and adults",
                         !filter.Allows(adult) && filter.Allows(nonLactatingAdult)
@@ -265,9 +283,9 @@ namespace ZoologyValidation
                         && filter.Allows(young) && filter.Allows(chick));
                     filter.SetAllow(lactatingDef,true);
                     filter.SetAllow(nonLactatingDef,false);
-                    Check("excluding non-lactating adults preserves nursing females and young",
-                        filter.Allows(adult) && !filter.Allows(nonLactatingAdult)
-                        && filter.Allows(adultMale)
+                    Check("excluding other adults preserves pregnant and nursing females",
+                        filter.Allows(adult) && filter.Allows(pregnantAdult)
+                        && !filter.Allows(nonLactatingAdult) && filter.Allows(adultMale)
                         && filter.Allows(young) && filter.Allows(chick));
                     filter.SetAllow(nonLactatingDef,true);
                 }
@@ -280,18 +298,27 @@ namespace ZoologyValidation
                     Type ui=typeof(Building_AnimalBarn).Assembly.GetType(
                         "ZoologyMod.AnimalFilterVisibility");
                     MethodInfo helper=ui?.GetMethod(
-                        "HideLactationWhenFemalesExcluded",All);
+                        "HiddenAdultFemaleFilters",All);
                     filter.SetAllow(femaleDef,false);
                     var hidden=helper?.Invoke(null,new object[]{filter})
                         as System.Collections.Generic.IEnumerable<SpecialThingFilterDef>;
-                    Check("both lactation options hidden when females disabled",
+                    Check("all adult female options hidden when females disabled",
                         hidden!=null && hidden.Contains(lactatingDef)
+                        && hidden.Contains(pregnantDef)
                         && hidden.Contains(nonLactatingDef));
                     filter.SetAllow(femaleDef,true);
                     hidden=helper?.Invoke(null,new object[]{filter})
                         as System.Collections.Generic.IEnumerable<SpecialThingFilterDef>;
-                    Check("both lactation options visible when females enabled",
+                    Check("adult female options visible when sex and age permitted",
                         hidden==null);
+                    filter.SetAllow(adultDef,false);
+                    hidden=helper?.Invoke(null,new object[]{filter})
+                        as System.Collections.Generic.IEnumerable<SpecialThingFilterDef>;
+                    Check("adult female options hidden when adults disabled",
+                        hidden!=null && hidden.Contains(lactatingDef)
+                        && hidden.Contains(pregnantDef)
+                        && hidden.Contains(nonLactatingDef));
+                    filter.SetAllow(adultDef,true);
                 }
 
                 // The native pen marker must consume the same special filters.
@@ -310,13 +337,52 @@ namespace ZoologyValidation
                             : !pen.AcceptsToPen(young)));
                     pen.AnimalFilter.SetAllow(youngDef,true);
                     pen.AnimalFilter.SetAllow(nonLactatingDef,false);
-                    Check("vanilla pen excludes only non-lactating adult females",
+                    Check("vanilla pen excludes only other adult females",
                         pen.AcceptsToPen(adult)
+                        && pen.AcceptsToPen(pregnantAdult)
                         && !pen.AcceptsToPen(nonLactatingAdult)
                         && pen.AcceptsToPen(adultMale)
                         && pen.AcceptsToPen(young)
                         && pen.AcceptsToPen(chick));
+                    pen.AnimalFilter.SetAllow(adultDef,false);
+                    Check("vanilla pen rejects all adults regardless of pregnancy",
+                        !pen.AcceptsToPen(adult)
+                        && !pen.AcceptsToPen(pregnantAdult)
+                        && !pen.AcceptsToPen(nonLactatingAdult)
+                        && !pen.AcceptsToPen(adultMale)
+                        && pen.AcceptsToPen(young) && pen.AcceptsToPen(chick));
                 }
+
+                // Changing an existing adult-only pig barn to allow all must
+                // actually restore eligibility for nursing mothers and
+                // milk-dependent piglets, not just change UI checkmarks.
+                var pigBarn=Barn(map);
+                try
+                {
+                    var sow=Animal(map,"Pig",4f,Gender.Female);
+                    var piglet=Animal(map,"Pig",.1f,Gender.Female);
+                    if(lactation!=null) sow.health.AddHediff(lactation);
+                    var pigFilter=pigBarn.AnimalFilter;
+                    pigFilter.SetAllow(youngDef,false);
+                    pigFilter.SetAllow(milkDef,false);
+                    Check("adult-only pig barn initially excludes piglet",
+                        !pigFilter.Allows(piglet));
+                    pigFilter.SetAllowAll(AnimalPenUtility.GetFixedAnimalFilter());
+                    Check("reallow all restores piglet and nursing sow",
+                        pigFilter.Allows(piglet) && pigFilter.Allows(sow)
+                        && pigBarn.CanAcceptAnimal(piglet)
+                        && pigBarn.CanAcceptAnimal(sow));
+                    Check("can queue both for manual intake after allowance change",
+                        pigBarn.RequestManualIntake(piglet)
+                        && pigBarn.RequestManualIntake(sow));
+                    var def=DefDatabase<WorkGiverDef>.GetNamed(
+                        "Zoology_BarnAdmit");
+                    var manual=DefDatabase<WorkGiverDef>.GetNamed(
+                        "Zoology_BarnManualAdmit");
+                    Check("barn handling orders available through right-click",
+                        def.directOrderable && manual.directOrderable);
+                }
+                finally { pigBarn.Destroy(); }
 
                 // Killed residents become real corpses in the owner. They
                 // must be placed outside immediately after the next barn tick.
@@ -1005,6 +1071,7 @@ namespace ZoologyValidation
             FoodRendering(map);
             DrawCase(map,"cow and four chickens",new[]{"Cow","Chicken","Chicken","Chicken","Chicken"},5);
             DrawCase(map,"three adult cows",new[]{"Cow","Cow","Cow"},3);
+            DrawCase(map,"three adult camels",new[]{"Camel","Camel","Camel"},2);
             DrawCase(map,"two cows and two chickens",new[]{"Cow","Cow","Chicken","Chicken"},4);
             DrawCase(map,"twelve chickens",Enumerable.Repeat("Chicken",12).ToArray(),12);
             int adultPigs=DisplayedGroupCount(map,"Pig",4f,24);
@@ -1023,9 +1090,8 @@ namespace ZoologyValidation
                     .GetField("displayedAnimalCount",All).GetValue(giantBarn);
                 var visible=(Pawn[])typeof(Building_AnimalBarn)
                     .GetField("displayedAnimals",All).GetValue(giantBarn);
-                float graphicWidth=giant.Drawer.renderer.BodyGraphic.drawSize.x;
-                Check("oversized paraceratherium renders alone",
-                    graphicWidth<=2.76f || count==1 && visible[0]==giant);
+                Check("large animal graphic no longer hides other residents",
+                    count>=1 && visible.Take(count).Contains(giant));
                 giantBarn.Destroy();
             }
         }
