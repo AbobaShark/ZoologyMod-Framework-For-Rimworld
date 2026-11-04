@@ -31,7 +31,7 @@ namespace ZoologyMod
         private readonly Vector2[] displayedAnimalOffsets = new Vector2[MaximumDisplayedAnimals];
         private readonly Vector2[] displayedAnimalFootprints = new Vector2[MaximumDisplayedAnimals];
         private readonly float[] displayedTileBodySizes = new float[DisplayTilesX * DisplayTilesZ];
-        private bool oversizedAnimalDisplayed;
+        private readonly float[] displayedAnimalScales = new float[MaximumDisplayedAnimals];
         private readonly Thing[] displayedFood = new Thing[MaximumFoodStacks];
         private readonly List<Pawn> displayCandidates = new List<Pawn>();
         private readonly HashSet<ThingDef> displayedSpecies = new HashSet<ThingDef>();
@@ -47,7 +47,7 @@ namespace ZoologyMod
             Array.Clear(displayedAnimals, 0, displayedAnimals.Length);
             Array.Clear(displayedFood, 0, displayedFood.Length);
             Array.Clear(displayedTileBodySizes, 0, displayedTileBodySizes.Length);
-            oversizedAnimalDisplayed = false;
+            Array.Clear(displayedAnimalScales, 0, displayedAnimalScales.Length);
             displayedAnimalCount = displayedFoodCount = 0;
             displayCandidates.Clear();
             displayedSpecies.Clear();
@@ -93,8 +93,6 @@ namespace ZoologyMod
 
         private bool TryPlaceDisplayedAnimal(Pawn pawn)
         {
-            if (oversizedAnimalDisplayed) return false;
-
             float sizeNow = pawn.BodySize;
             if (float.IsNaN(sizeNow) || float.IsInfinity(sizeNow)) return false;
             sizeNow = Mathf.Max(0.01f, sizeNow);
@@ -102,31 +100,23 @@ namespace ZoologyMod
             PawnRenderer renderer = pawn.Drawer.renderer;
             renderer.EnsureGraphicsInitialized();
             Vector2 graphic = renderer.BodyGraphic?.drawSize ?? Vector2.one;
-            var placementKey = (sizeNow, graphic.x, graphic.y);
+            // Large drawSize does not imply a large body. Keep several
+            // camels visible by sizing their sprites to a useful portion
+            // of the barn opening, without changing nutrition or capacity.
+            float scale = Mathf.Min(1f, Mathf.Min(
+                DisplayHalfWidth * 1.40f / Mathf.Max(.01f, graphic.x),
+                DisplayHalfLength * .90f / Mathf.Max(.01f, graphic.y)));
+            Vector2 scaled = graphic * scale;
+            var placementKey = (sizeNow, scaled.x, scaled.y);
             // Placement only adds occupied space during a refresh. Once a
             // shape cannot fit, an identical body/graphic footprint cannot
             // fit later either. Keep the same candidates, order and results
             // without repeating the entire grid search for a full flock.
             if (failedDisplayPlacements.Contains(placementKey)) return false;
-            // Visual bounding footprint only: preserve the native graphic
-            // scale and allow for its transparent texture margins.
-            Vector2 footprint = new Vector2(Mathf.Max(.3f, graphic.x * .51f),
-                Mathf.Max(.3f, graphic.y * .51f));
-
-            if (graphic.x > DisplayHalfWidth * 2f || graphic.y > DisplayHalfLength * 2f)
-            {
-                // An animal larger than the opening gets the entire visible
-                // interior, rather than overlapping smaller sprites.
-                if (displayedAnimalCount > 0)
-                {
-                    failedDisplayPlacements.Add(placementKey);
-                    return false;
-                }
-                oversizedAnimalDisplayed = true;
-                AddDisplayedAnimal(pawn, Vector2.zero,
-                    new Vector2(DisplayHalfWidth * 2f, DisplayHalfLength * 2f));
-                return true;
-            }
+            // Use the scaled dimensions for collision and tile load,
+            // accounting for sprites' transparent texture margins.
+            Vector2 footprint = new Vector2(Mathf.Max(.3f, scaled.x * .67f),
+                Mathf.Max(.3f, scaled.y * .67f));
 
             for (int n = 0; n < CandidatePositions.Length; n++)
             {
@@ -152,7 +142,7 @@ namespace ZoologyMod
                     continue;
 
                 ApplyDisplayTileBudget(center, footprint, sizeNow, true);
-                AddDisplayedAnimal(pawn, center, footprint);
+                AddDisplayedAnimal(pawn, center, footprint, scale);
                 return true;
             }
             failedDisplayPlacements.Add(placementKey);
@@ -217,12 +207,14 @@ namespace ZoologyMod
             return positions.ToArray();
         }
 
-        private void AddDisplayedAnimal(Pawn pawn, Vector2 offset, Vector2 footprint)
+        private void AddDisplayedAnimal(Pawn pawn, Vector2 offset,
+            Vector2 footprint, float scale)
         {
             int index = displayedAnimalCount++;
             displayedAnimals[index] = pawn;
             displayedAnimalOffsets[index] = offset;
             displayedAnimalFootprints[index] = footprint;
+            displayedAnimalScales[index] = scale;
         }
 
         private static Vector2[] CreateFoodDisplayOffsets()
@@ -304,8 +296,10 @@ namespace ZoologyMod
                 var parms = new PawnDrawParms
                 {
                     pawn = pawn,
-                    matrix = Matrix4x4.TRS(position + pawn.ageTracker.CurLifeStage.bodyDrawOffset,
-                        Quaternion.identity, Vector3.one),
+                    matrix = Matrix4x4.TRS(
+                        position + pawn.ageTracker.CurLifeStage.bodyDrawOffset
+                            * displayedAnimalScales[i],
+                        Quaternion.identity, Vector3.one * displayedAnimalScales[i]),
                     facing = new Rot4((Rotation.AsInt + (i % 2 == 0 ? 1 : 3)) % 4),
                     rotDrawMode = renderer.CurRotDrawMode,
                     posture = pawn.GetPosture(),
