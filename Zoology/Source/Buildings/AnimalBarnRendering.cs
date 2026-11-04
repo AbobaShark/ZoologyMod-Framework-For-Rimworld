@@ -241,9 +241,8 @@ namespace ZoologyMod
                 {
                     // Higher world Z is farther from the camera and draws
                     // below animals closer to it. Ties remain deterministic.
-                    if (displayedAnimalWorldZ[j] > z + 0.0001f
-                        || Mathf.Abs(displayedAnimalWorldZ[j] - z) <= 0.0001f
-                            && j < i)
+                    if (displayedAnimalWorldZ[j] > z
+                        || displayedAnimalWorldZ[j] == z && j < i)
                         rank++;
                 }
                 displayedAnimalDepthRanks[i] = rank;
