@@ -23,6 +23,21 @@ namespace ZoologyMod
             return lactation != null
                 && pawn.health?.hediffSet?.HasHediff(lactation) == true;
         }
+
+        internal static bool IsPregnantFemale(Pawn pawn)
+        {
+            if (pawn?.gender != Gender.Female
+                || pawn.ageTracker?.CurLifeStage?.reproductive != true)
+                return false;
+            var hediffSet = pawn.health?.hediffSet;
+            if (hediffSet == null) return false;
+            // Standard pregnancies and modded Hediff_Pregnant subclasses.
+            if (hediffSet.HasHediff(HediffDefOf.Pregnant)) return true;
+            var hediffs = hediffSet.hediffs;
+            for (int i = 0; i < hediffs.Count; i++)
+                if (hediffs[i] is Hediff_Pregnant) return true;
+            return false;
+        }
     }
 
     // These checks run when vanilla ThingFilter considers a candidate,
@@ -40,6 +55,17 @@ namespace ZoologyMod
         }
     }
 
+    public sealed class SpecialThingFilterWorker_AllowPregnantFemales
+        : SpecialThingFilterWorker
+    {
+        public override bool CanEverMatch(ThingDef def) =>
+            def?.race?.Animal == true;
+
+        public override bool Matches(Thing thing) =>
+            thing is Pawn pawn
+            && AnimalNursingFilterUtility.IsPregnantFemale(pawn);
+    }
+
     public sealed class SpecialThingFilterWorker_AllowNonLactatingFemales
         : SpecialThingFilterWorker
     {
@@ -48,12 +74,12 @@ namespace ZoologyMod
 
         public override bool Matches(Thing thing)
         {
-            // This optional exclusion only concerns reproductive females.
-            // Female calves, piglets, chicks and independent juveniles must
-            // remain governed by their respective age-group filters.
+            // Other adult females are neither pregnant nor lactating.
+            // Young females are controlled by their own age groups.
             return thing is Pawn pawn && pawn.gender == Gender.Female
                 && pawn.ageTracker?.CurLifeStage?.reproductive == true
-                && !AnimalNursingFilterUtility.IsLactatingFemale(pawn);
+                && !AnimalNursingFilterUtility.IsLactatingFemale(pawn)
+                && !AnimalNursingFilterUtility.IsPregnantFemale(pawn);
         }
     }
 
@@ -65,10 +91,7 @@ namespace ZoologyMod
 
         public override bool Matches(Thing thing) =>
             thing is Pawn pawn
-            && pawn.ageTracker?.CurLifeStage?.reproductive == true
-            // Lactating females are admitted under their own filter even
-            // if ordinary adult animals are excluded.
-            && !AnimalNursingFilterUtility.IsLactatingFemale(pawn);
+            && pawn.ageTracker?.CurLifeStage?.reproductive == true;
     }
 
     public sealed class SpecialThingFilterWorker_AllowJuveniles
