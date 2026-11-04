@@ -116,7 +116,8 @@ namespace ZoologyMod
 
             AnimalEffectiveArea.SyncWithMother(__instance, mother);
             if (!mother.Spawned || __instance.Awake()
-                || (mother.Position - __instance.Position).LengthHorizontalSquared <= MaximumSleepingSeparationSquared)
+                || (mother.Position - __instance.Position).LengthHorizontalSquared <= MaximumSleepingSeparationSquared
+                || !ChildcareMotherReachability.CanFollow(__instance, mother))
             {
                 return;
             }

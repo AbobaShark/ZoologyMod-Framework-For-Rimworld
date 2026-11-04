@@ -52,7 +52,15 @@ namespace ZoologyMod
                 }
             }
 
-            return TryConsumeScanBudget(pawn.Map) ? base.TryGiveJob(pawn) : null;
+            // A mother across impassable doors or fences is not a viable wander root.
+            // Let the ordinary animal wander logic handle this child instead.
+            if (!TryConsumeScanBudget(pawn.Map)
+                || !ChildcareMotherReachability.CanFollow(pawn, mother))
+            {
+                return null;
+            }
+
+            return base.TryGiveJob(pawn);
         }
 
         protected override IntVec3 GetWanderRoot(Pawn pawn)
