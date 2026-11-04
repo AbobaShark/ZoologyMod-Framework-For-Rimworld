@@ -41,7 +41,6 @@ namespace ZoologyMod
         private StorageSettings nutritionSettings;
         private bool filtersInitialized;
         private List<Pawn> manuallyRequestedAnimals = new List<Pawn>();
-        private static UnityEngine.Texture2D manualLoadIcon;
         private readonly List<Pawn> newlyBorn = new List<Pawn>(8);
         private bool recoverServiceAfterLoad;
         private Dictionary<Pawn, int> releasedForService = new Dictionary<Pawn, int>();
@@ -1192,7 +1191,7 @@ namespace ZoologyMod
             {
                 defaultLabel = "Zoology_BarnManualLoad".Translate(),
                 defaultDesc = "Zoology_BarnManualLoadDesc".Translate(),
-                icon = manualLoadIcon ??= ContentFinder<UnityEngine.Texture2D>.Get("UI/Commands/LoadTransporter"),
+                icon = ContentFinder<UnityEngine.Texture2D>.Get("UI/Commands/LoadTransporter"),
                 action = ShowManualIntakeMenu
             };
 
