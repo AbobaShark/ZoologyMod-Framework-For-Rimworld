@@ -20,7 +20,8 @@ namespace ZoologyMod
         // vanilla shelf tile. The inventory itself remains authoritative.
         private static readonly Vector2[] FoodDisplayOffsets = CreateFoodDisplayOffsets();
         // Visible interior of the 3 x 6 barn. The footprint discounts
-        // transparent sprite margins; pawns are drawn at their native size.
+        // transparent margins; graphics wider than the opening are scaled
+        // uniformly in the cached visual layout only.
         private const float DisplayHalfWidth = 1.38f;
         private const float DisplayHalfLength = 2.58f;
         private const float DisplaySpacing = 0.10f;
