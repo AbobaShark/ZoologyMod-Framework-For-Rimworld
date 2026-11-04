@@ -536,7 +536,12 @@ namespace ZoologyValidation
                 dest.AnimalFilter.SetAllow(adult,false);
                 dest.AnimalFilter.SetAllow(juvenile,false);
                 dest.AnimalFilter.SetAllow(milk,true);
-                Check("lactating adult fits a milk-only barn's filters",
+                Check("milk-young-only barn excludes every adult nurse",
+                    !dest.AnimalFilter.Allows(first));
+                dest.AnimalFilter.SetAllow(adult,true);
+                dest.AnimalFilter.SetAllow(
+                    SpecialThingFilterDef.Named("Zoology_AllowNonLactatingFemales"),false);
+                Check("adult nurse admitted when only other adult females excluded",
                     dest.AnimalFilter.Allows(first)
                     && (bool)Call(dest,"CanAcceptTransferredResident",first));
 
