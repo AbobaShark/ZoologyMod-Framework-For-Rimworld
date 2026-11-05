@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Emit;
 using HarmonyLib;
 using RimWorld;
 using Verse;
@@ -658,6 +659,7 @@ namespace ZoologyMod
 
                 PatchAddHediffMethods(harmony);
                 PatchHediffSetAddMethods(harmony);
+                PatchPsilocapAmbientExposure(harmony);
             }
             catch (Exception e)
             {
@@ -733,6 +735,73 @@ namespace ZoologyMod
             {
                 Log.Error($"[Zoology] DrugsImmuneHarmonyInit failed to patch HediffSet Add/AddDirect: {e}");
             }
+        }
+
+        // Plant_Psilocap calls GetOrAddHediff(PsilocapHigh) and immediately
+        // dereferences its return value. A rejected AddHediff returns null,
+        // so the immune pawn must be excluded before that vanilla call.
+        private static void PatchPsilocapAmbientExposure(Harmony harmony)
+        {
+            MethodInfo target = AccessTools.Method(
+                typeof(Plant_Psilocap), "TickInterval", new[] { typeof(int) });
+            if (target == null)
+                return;
+
+            harmony.Patch(target, transpiler: new HarmonyMethod(
+                typeof(DrugsImmuneHarmonyInit).GetMethod(
+                    nameof(ExcludeImmunePawnsFromPsilocap),
+                    BindingFlags.Static | BindingFlags.NonPublic)));
+        }
+
+        private static IEnumerable<CodeInstruction> ExcludeImmunePawnsFromPsilocap(
+            IEnumerable<CodeInstruction> instructions, MethodBase original)
+        {
+            List<CodeInstruction> codes = instructions.ToList();
+            MethodInfo isFlesh = AccessTools.PropertyGetter(
+                typeof(RaceProperties), nameof(RaceProperties.IsFlesh));
+            MethodInfo eligible = AccessTools.Method(
+                typeof(DrugsImmuneHarmonyInit), nameof(CanReceiveAmbientPsilocap));
+            LocalVariableInfo pawnLocal = original.GetMethodBody()?.LocalVariables
+                .FirstOrDefault(v => v.LocalType == typeof(Pawn));
+
+            if (pawnLocal == null || isFlesh == null || eligible == null)
+            {
+                Log.Warning("[Zoology] Could not locate Psilocap target guard; plant immunity patch skipped.");
+                return codes;
+            }
+
+            int replacements = 0;
+            List<CodeInstruction> result = new List<CodeInstruction>(codes.Count + 2);
+            for (int i = 0; i < codes.Count; i++)
+            {
+                result.Add(codes[i]);
+                if (!codes[i].Calls(isFlesh))
+                    continue;
+
+                // Stack before injection: bool raceIsFlesh.
+                // Stack after injection: bool raceIsFleshAndNotDrugImmune.
+                result.Add(new CodeInstruction(OpCodes.Ldloc, pawnLocal.LocalIndex));
+                result.Add(new CodeInstruction(OpCodes.Call, eligible));
+                replacements++;
+            }
+
+            if (replacements != 1)
+            {
+                Log.Warning($"[Zoology] Expected one Psilocap flesh check, found {replacements}; patch skipped.");
+                return codes;
+            }
+
+            return result;
+        }
+
+        private static bool CanReceiveAmbientPsilocap(bool isFlesh, Pawn pawn)
+        {
+            if (!isFlesh)
+                return false;
+
+            ZoologyModSettings settings = ZoologyModSettings.Instance;
+            return settings != null && !settings.EnableDrugsImmunePatch
+                || pawn?.TryGetComp<CompDrugsImmune>() == null;
         }
 
         private static bool AddHediffDef_Prefix(Pawn_HealthTracker __instance, HediffDef def)
