@@ -780,7 +780,7 @@ namespace ZoologyMod
 
                 // Stack before injection: bool raceIsFlesh.
                 // Stack after injection: bool raceIsFleshAndNotDrugImmune.
-                result.Add(new CodeInstruction(OpCodes.Ldloc, pawnLocal.LocalIndex));
+                result.Add(CodeInstruction.LoadLocal(pawnLocal.LocalIndex));
                 result.Add(new CodeInstruction(OpCodes.Call, eligible));
                 replacements++;
             }
