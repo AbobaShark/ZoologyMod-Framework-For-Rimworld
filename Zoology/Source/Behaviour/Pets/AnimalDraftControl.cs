@@ -90,7 +90,10 @@ namespace ZoologyMod
 
             if (HasAnyDraftControlTrainable(raceDef))
             {
-                return true;
+                // A research-locked race must not replace the ordinary
+                // Attack Target training before Beastmastery is unlocked.
+                return raceDef.GetModExtension<ModExtension_AnimalDraftRules>()
+                    ?.IsDraftTrainingUnlocked() ?? true;
             }
 
             return HasSentienceCatalyst(pawn);
@@ -938,7 +941,9 @@ namespace ZoologyMod
 
             if (td == draftControl)
             {
-                if (!featureEnabled)
+                if (!featureEnabled
+                    || pawnDef?.GetModExtension<ModExtension_AnimalDraftRules>()
+                        ?.IsDraftTrainingUnlocked() == false)
                 {
                     visible = false;
                     __result = false;

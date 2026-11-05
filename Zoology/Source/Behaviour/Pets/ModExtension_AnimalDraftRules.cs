@@ -12,6 +12,24 @@ namespace ZoologyMod
         public string draftResearchDefName;
         public string draftHediffDefName;
 
+        // An optional unlock for training Beastmastery itself. Until this
+        // research is finished, keep Odyssey's ordinary Attack Target training
+        // available. Draft permission is still controlled independently above.
+        public string draftTrainingResearchDefName;
+        private ResearchProjectDef cachedDraftTrainingResearch;
+
+        public bool IsDraftTrainingUnlocked()
+        {
+            if (draftTrainingResearchDefName.NullOrEmpty())
+            {
+                return true;
+            }
+
+            cachedDraftTrainingResearch ??=
+                DefDatabase<ResearchProjectDef>.GetNamedSilentFail(draftTrainingResearchDefName);
+            return cachedDraftTrainingResearch?.IsFinished == true;
+        }
+
         // Each privilege can be unlocked by research OR a hediff independently.
         public string unlimitedRangeResearchDefName;
         public string unlimitedRangeHediffDefName;
