@@ -102,20 +102,13 @@ namespace ZoologyMod
                 return true;
             }
 
+            // A UI-selected pawn is not necessarily the actual attacker.
+            // Missing identity or equipped-weapon verbs must retain CE's own AP.
             Pawn caster = CEReflectionUtility.GetCasterPawn(verbInstance);
-            if (caster == null)
+            if (caster == null || caster.RaceProps?.Animal != true
+                || CEReflectionUtility.GetEquipmentSource(verbInstance) != null)
             {
-                try
-                {
-                    if (Find.Selector?.SingleSelectedThing is Pawn selectedPawn)
-                    {
-                        caster = selectedPawn;
-                    }
-                }
-                catch
-                {
-                    caster = null;
-                }
+                return true;
             }
 
             if (!CEReflectionUtility.TryGetVerbTool(verbInstance, out object toolObj))
