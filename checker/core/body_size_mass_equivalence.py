@@ -94,3 +94,67 @@ def body_size_equivalent_mass_kg(game_body_size):
 
 def body_size_midpoint_pairs():
     return _midpoint_bins()
+
+
+def mass_lookup_from_service_bands(table):
+    """Use the workbook's calculated mass bands as the authoritative inverse.
+
+    This prevents a later AnimalStats!AO formula change from silently leaving
+    Checker with obsolete representative masses. Standalone TSV inputs may
+    still use the built-in inverse when no service table was supplied.
+    """
+    required = ("BodySize (game)", "MassLower_kg", "MassUpper_kg",
+                "MassMidpoint_kg")
+    missing = set(required) - set(table.columns)
+    if missing:
+        raise ValueError("SERVICE_BodySizeMassBands missing columns: "
+                         + repr(sorted(missing)))
+
+    def number(raw, what):
+        try:
+            value = float(str(raw).strip().replace(",", "."))
+        except (TypeError, ValueError):
+            raise ValueError(f"SERVICE_BodySizeMassBands {what}: {raw!r}") from None
+        if not math.isfinite(value):
+            raise ValueError(f"SERVICE_BodySizeMassBands non-finite {what}")
+        return value
+
+    bands = []
+    for _, row in table.iterrows():
+        raw_size = row.get("BodySize (game)")
+        if raw_size is None or str(raw_size).strip() == "":
+            continue
+        size = number(raw_size, "BodySize")
+        lower = number(row.get("MassLower_kg"), f"{size} lower mass")
+        upper = number(row.get("MassUpper_kg"), f"{size} upper mass")
+        midpoint = number(row.get("MassMidpoint_kg"), f"{size} midpoint mass")
+        if (size < 0.05 or lower < 0 or upper <= lower or
+                not lower <= midpoint <= upper):
+            raise ValueError(f"SERVICE_BodySizeMassBands invalid interval for {size}")
+        bands.append((size, midpoint))
+    if len(bands) < 2:
+        raise ValueError("SERVICE_BodySizeMassBands has too few valid rows")
+    bands.sort()
+    if not math.isclose(bands[0][0], 0.05, abs_tol=1e-8):
+        raise ValueError("SERVICE_BodySizeMassBands lacks 0.05 minimum")
+    for left, right in zip(bands, bands[1:]):
+        if right[0] <= left[0] + 1e-8 or right[1] <= left[1]:
+            raise ValueError("SERVICE_BodySizeMassBands must be strictly increasing")
+    positions = tuple(size for size, _ in bands)
+
+    def mass_for_size(game_body_size):
+        size = float(game_body_size)
+        if not math.isfinite(size) or size < positions[0]:
+            raise ValueError(f"BodySize {size} outside source mass bands")
+        i = bisect_left(positions, size)
+        if i == len(positions):
+            raise ValueError(f"BodySize {size} outside source mass bands")
+        if abs(positions[i] - size) <= 1e-8:
+            return bands[i][1]
+        if i == 0:
+            raise ValueError(f"BodySize {size} outside source mass bands")
+        left, right = bands[i - 1], bands[i]
+        fraction = (size - left[0]) / (right[0] - left[0])
+        return left[1] + fraction * (right[1] - left[1])
+
+    return mass_for_size
