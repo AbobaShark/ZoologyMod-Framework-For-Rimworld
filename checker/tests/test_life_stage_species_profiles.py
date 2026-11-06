@@ -121,13 +121,22 @@ class SpeciesLifeStageProfilesTests(unittest.TestCase):
         self.assertEqual(cs, render_life_stage_attack_profiles_cs(args[0])[0])
 
     def test_tool_missing_in_one_mode_is_valid(self):
-        args = with_tools(sources(), [tool_record(-1, 0)])
+        args = with_tools(sources(), [
+            tool_record(-1, 0, factors=("", "", .3, 1.1, 0, .5))
+        ])
         cs, _ = render_life_stage_attack_profiles_cs(args[0])
         self.assertIn(b"vanillaToolIndex = -1", cs)
         self.assertIn(b"ceToolIndex = 0", cs)
-        args = with_tools(sources(), [tool_record(0, -1)])
+        args = with_tools(sources(), [
+            tool_record(0, -1, factors=(.4, 1.2, "", "", "", ""))
+        ])
         cs, _ = render_life_stage_attack_profiles_cs(args[0])
         self.assertIn(b"ceToolIndex = -1", cs)
+
+    def test_unmatched_mode_with_non_neutral_data_is_rejected(self):
+        args = with_tools(sources(), [tool_record(-1, 0)])
+        with self.assertRaisesRegex(ValueError, "non-neutral factor for attack absent"):
+            render_life_stage_attack_profiles_cs(args[0])
 
     def test_two_missing_indices_rejected(self):
         args = with_tools(sources(), [tool_record(-1, -1)])

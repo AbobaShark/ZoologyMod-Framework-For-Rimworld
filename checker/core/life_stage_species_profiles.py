@@ -155,8 +155,20 @@ def _tool_profiles(table, diagnostics):
             if not (label and linked and capacities) or capacities.lower() == "no":
                 raise ValueError(f"{name}/{stage}: missing label, linkedBodyPartsGroup or capacities")
             factors = []
-            for (source_field, field), value in zip(_TOOL_FIELDS, cells[5:]):
-                number_value = _required(value, f"{name}/{stage}/{label}/{source_field}",
+            for component, ((source_field, field), value) in enumerate(zip(_TOOL_FIELDS, cells[5:])):
+                # An attack absent from one mode has no components for that
+                # mode. Blank cells are legitimate only in that mode. Nonzero
+                # or nonunit ghost coefficients indicate inconsistent input.
+                mode_index = 0 if component < 2 else 1
+                context = f"{name}/{stage}/{label}/{source_field}"
+                if indexes[mode_index] < 0:
+                    if not _is_empty(value):
+                        redundant = _required(value, context, positive=False)
+                        if not math.isclose(redundant, 1, abs_tol=1e-10, rel_tol=0):
+                            raise ValueError(
+                                f"{context}: non-neutral factor for attack absent in this mode")
+                    continue
+                number_value = _required(value, context,
                                          positive=source_field.endswith("CooldownFactor"))
                 if not math.isclose(number_value, 1, abs_tol=1e-10, rel_tol=0):
                     factors.append((field, number_value))
