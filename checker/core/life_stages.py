@@ -73,7 +73,7 @@ def _number(value, stage, column):
     return number
 
 
-def parse_stages(table, source_mod=None):
+def parse_stages(table, source_mod=None, *, mass_lookup=None):
     """Validate every source/stage combination before writing any XML."""
     missing = REQUIRED_COLUMNS - set(table.columns)
     if missing:
@@ -136,11 +136,12 @@ def parse_stages(table, source_mod=None):
     if any(not math.isclose(size, base_size, rel_tol=1e-9, abs_tol=1e-9)
            for size in base_sizes[1:]):
         raise ValueError("Royal LifeStages must share one BaseBodySize")
-    adult_mass = body_size_equivalent_mass_kg(base_size)
+    mass_for_size = mass_lookup or body_size_equivalent_mass_kg
+    adult_mass = mass_for_size(base_size)
     for group in ROYAL_STAGES:
         stage = found[(ROYAL_SOURCE, frozenset(group))]
         size = base_size * stage["bodySizeFactor"]
-        mass = body_size_equivalent_mass_kg(size)
+        mass = mass_for_size(size)
         if not math.isclose(size, stage["StageBodySize"], rel_tol=1e-6, abs_tol=1e-6):
             raise ValueError(f"{group[0]} StageBodySize does not match game BodySize")
         if not math.isclose(mass, stage["BodySizeMassMid_kg"], rel_tol=1e-6, abs_tol=1e-5):
@@ -225,9 +226,9 @@ def _append_penetration(root, name, numbers):
         E.SubElement(entry, field).text = _number_xml(numbers[column])
 
 
-def render_life_stages(table, *, ce=False, source_mod="Core"):
+def render_life_stages(table, *, ce=False, source_mod="Core", mass_lookup=None):
     root = E.Element("Patch")
-    for group, numbers in parse_stages(table, source_mod):
+    for group, numbers in parse_stages(table, source_mod, mass_lookup=mass_lookup):
         for name in group:
             parent = _xpath((name,))
             temp = E.Element("Patch")
@@ -252,12 +253,12 @@ def render_life_stages(table, *, ce=False, source_mod="Core"):
                 _replace_stats(temp, parent, {field: numbers[column] for field, column in BASE_STATS.items()})
                 root.extend(temp)
     if ce and source_mod == "Core":
-        for group, numbers in parse_stages(table, source_mod):
+        for group, numbers in parse_stages(table, source_mod, mass_lookup=mass_lookup):
             for name in group:
                 _append_penetration(root, name, numbers)
     return E.tostring(root, encoding="utf-8", xml_declaration=True, pretty_print=True)
 
-def render_life_stage_combat_power(table, *, source_mod="Core"):
+def render_life_stage_combat_power(table, *, source_mod="Core", mass_lookup=None):
     root = E.Element("Patch")
     for group, numbers in parse_stages(table, source_mod):
         for name in group:
