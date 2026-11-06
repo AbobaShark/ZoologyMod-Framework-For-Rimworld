@@ -1,0 +1,38 @@
+name: Checker life-stage tests
+
+on:
+  push:
+    branches:
+      - feature/animal-life-stage-profiles
+    paths:
+      - 'checker/**'
+      - '.github/workflows/checker-life-stages.yml'
+  pull_request:
+    paths:
+      - 'checker/**'
+      - '.github/workflows/checker-life-stages.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  python-life-stages:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install Checker dependencies
+        run: python -m pip install -r checker/requirements.txt
+      - name: Test life-stage profiles and mass equivalence
+        working-directory: checker
+        run: |
+          python -m unittest -v \
+            tests.test_body_size_mass_equivalence \
+            tests.test_life_stage_species_profiles \
+            tests.test_life_stages \
+            tests.test_royal_life_stages
