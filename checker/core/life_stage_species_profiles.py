@@ -137,9 +137,12 @@ def _tool_profiles(table, diagnostics):
                 raise ValueError(f"{name}/{stage}: ToolRecordsV2 attack {ordinal} must have 11 fields")
             indexes = []
             for mode, value in zip(("Vanilla", "CE"), cells[:2]):
-                index = _required(value, f"{name}/{stage}/{mode} ToolIndex", positive=False)
-                if not index.is_integer():
-                    raise ValueError(f"{name}/{stage}: fractional {mode} ToolIndex")
+                try:
+                    index = float(str(value).strip().replace(",", "."))
+                except (ValueError, TypeError):
+                    raise ValueError(f"{name}/{stage}: invalid {mode} ToolIndex {value!r}") from None
+                if not math.isfinite(index) or not index.is_integer() or index < -1:
+                    raise ValueError(f"{name}/{stage}: invalid {mode} ToolIndex {value!r}")
                 indexes.append(int(index))
             if indexes == [-1, -1]:
                 raise ValueError(f"{name}/{stage}: attack absent in both modes")

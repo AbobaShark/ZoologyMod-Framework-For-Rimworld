@@ -1,49 +1,59 @@
-"""Checker reads AnimalStats stage outputs; it never estimates species attacks."""
+"""Regression tests for precomputed life-stage profiles and separate Tool indices."""
 import unittest
 
 import pandas as pd
 from lxml import etree as E
 
-from core.life_stages import STAGE_GROUPS, ROYAL_STAGES
+from core.life_stages import STAGE_GROUPS
 from core.life_stage_species_profiles import (
     render_species_life_stage_profiles, render_life_stage_attack_profiles_cs)
 from tests.test_life_stages import fixture
 
 
-def sources(base_size=1.0):
+def sources(base_size=1):
     animals = pd.DataFrame([{
         "XML name": "<li>TestAnimal</li>",
         "baseBodySize": base_size,
-        "baseHungerRate": 1.0,
+        "baseHungerRate": 1,
     }])
-    profile_rows = []
-    for i, group in enumerate(STAGE_GROUPS):
-        profile_rows.append({
-            "XML name": "<li>TestAnimal</li>",
-            "LifeStageDef": " or ".join(group),
-            "ExpectedBaseBodySize": base_size,
-            "ExpectedBaseHungerRate": 1.0,
-            "ExpectedBodySizeFactor": (1, 0.5, 0.2, 0.15)[i],
-            "HungerRateFactor": (1, 0.6, 0.3, 0.25)[i],
-            "FilthRate": (1, 0.5, 0.3, 0.2)[i],
-            "MeleeDodgeChance": (1, 1.2, 1.5, 1.7)[i],
-            "MeleeCritChance": (1, 0.9, 0.8, 0.75)[i],
-            "MeleeParryChance": (1, 0.85, 0.65, 0.6)[i],
-            "ArmorRating_Sharp": "",
-            "ArmorRating_Blunt": "",
-            "CombatPowerFactor": "",
-            "MarketValueFactor": "",
-            "CalculationStatus": "INCOMPLETE",
-        })
-    profiles = pd.DataFrame(profile_rows)
-    empty_attacks = pd.DataFrame(columns=[
-        "XML name", "LifeStageDef", "ToolIndex", "ToolLabel",
-        "LinkedBodyPartsGroup", "CalculationStatus",
-        "VanillaDamageFactor", "VanillaCooldownFactor",
-        "CEDamageFactor", "CECooldownFactor",
-        "CESharpPenetrationFactor", "CEBluntPenetrationFactor",
-    ])
-    return profiles, empty_attacks, animals, fixture()
+    profiles = pd.DataFrame([{
+        "XML name": "<li>TestAnimal</li>",
+        "LifeStageDef": " or ".join(group),
+        "ExpectedBaseBodySize": base_size,
+        "ExpectedBaseHungerRate": 1,
+        "ExpectedBodySizeFactor": (1, .5, .2, .15)[i],
+        "HungerRateFactor": (1, .6, .3, .25)[i],
+        "FilthRate": (1, .5, .3, .2)[i],
+        "MeleeDodgeChance": (1, 1.2, 1.5, 1.7)[i],
+        "MeleeCritChance": (1, .9, .8, .75)[i],
+        "MeleeParryChance": (1, .85, .65, .6)[i],
+        "ArmorRating_Sharp": "",
+        "ArmorRating_Blunt": "",
+        "ArmorRating_Sharp_CE": (1, .8, .5, .2)[i],
+        "ArmorRating_Blunt_CE": (1, .9, .6, .3)[i],
+        "CombatPowerFactor": (1, .8, .4, .2)[i],
+        "MarketValueFactor": (1, .75, .5, .25)[i],
+        "CalculationStatus": "READY",
+        "ToolStatus": "READY",
+        "ToolCount": 0,
+        "ToolRecordsV2": "",
+    } for i, group in enumerate(STAGE_GROUPS)])
+    return profiles, profiles, animals, fixture()
+
+
+def tool_record(v_index=1, ce_index=3, label="left claw", group="FrontLeftPaw",
+                capacities="Scratch", factors=(.4, 1.2, .3, 1.1, 0, .5)):
+    fields = (v_index, ce_index, label, group, capacities, *factors)
+    return "\t".join(str(field) for field in fields)
+
+
+def with_tools(args, records, stage_row=2):
+    args = list(args)
+    args[0] = args[0].copy()
+    args[0].at[stage_row, "ToolRecordsV2"] = "\n".join(records)
+    args[0].at[stage_row, "ToolCount"] = len(records)
+    args[1] = args[0]
+    return args
 
 
 def render(*args, ce=True):
@@ -56,207 +66,157 @@ def nodes(xml):
 
 
 class SpeciesLifeStageProfilesTests(unittest.TestCase):
-    def test_reads_exact_existing_sheet_values_without_recalculation(self):
-        rows = list(sources())
-        rows[0].loc[2, "HungerRateFactor"] = .137
-        xml, diagnostic = render(*rows)
-        baby = [x for x in nodes(xml)
-                if x.findtext("sourceStageDefName") == "AnimalBaby"]
+    def test_exact_animalstats_factor_and_eusocial_alternative(self):
+        args = list(sources())
+        args[0].at[2, "HungerRateFactor"] = .137
+        args[1] = args[0]
+        xml, info = render(*args)
+        baby = [n for n in nodes(xml) if n.findtext("sourceStageDefName") == "AnimalBaby"]
         self.assertEqual(len(baby), 1)
         self.assertEqual(float(baby[0].findtext("hungerRateFactor")), .137)
-        self.assertEqual(diagnostic["species_rows_incomplete"], 4)
+        stages = [node.findtext("sourceStageDefName") for node in nodes(xml)]
+        self.assertIn("EusocialInsectLarva", stages)
+        self.assertEqual(info.get("species_rows_incomplete", 0), 0)
 
-    def test_eusocial_alternative_stage_uses_same_read_data(self):
+    def test_ce_armor_is_separate_from_vanilla_armor(self):
         xml, _ = render(*sources())
-        stage_names = [x.findtext("sourceStageDefName") for x in nodes(xml)]
-        self.assertIn("AnimalBaby", stage_names)
-        self.assertIn("EusocialInsectLarva", stage_names)
-        self.assertIn("AnimalJuvenile", stage_names)
-        self.assertIn("EusocialInsectJuvenile", stage_names)
+        baby = [n for n in nodes(xml) if n.findtext("sourceStageDefName") == "AnimalBaby"][0]
+        ce_armor = baby.xpath("./statFactors/li[stat='ArmorRating_Sharp']/ceOnly")
+        self.assertEqual(len(ce_armor), 1)
+        self.assertEqual(ce_armor[0].text, "true")
+        self.assertEqual(baby.xpath("./statFactors/li[stat='ArmorRating_Sharp'][not(ceOnly)]"), [])
 
-    def test_zero_or_missing_ce_stat_remains_unmodified(self):
+    def test_ce_disabled_keeps_only_vanilla_stats(self):
+        xml, _ = render(*sources(), ce=False)
+        self.assertEqual(E.fromstring(xml).xpath(".//ceOnly"), [])
+        self.assertTrue(E.fromstring(xml).xpath(".//statFactors/li[stat='FilthRate']"))
+
+    def test_missing_nonapplicable_stats_remain_absent(self):
         args = list(sources(.05))
-        args[0].loc[2, "MeleeCritChance"] = ""
-        args[0].loc[2, "MeleeParryChance"] = ""
+        args[0] = args[0].copy()
+        args[0].at[2, "MeleeCritChance"] = ""
+        args[0].at[2, "MeleeParryChance"] = ""
+        args[1] = args[0]
         xml, _ = render(*args)
-        baby = [x for x in nodes(xml)
-                if x.findtext("sourceStageDefName") == "AnimalBaby"][0]
+        baby = [n for n in nodes(xml) if n.findtext("sourceStageDefName") == "AnimalBaby"][0]
         self.assertEqual(baby.xpath("./statFactors/li[stat='MeleeCritChance']"), [])
         self.assertEqual(baby.xpath("./statFactors/li[stat='MeleeParryChance']"), [])
 
-    def test_ce_disabled_never_emits_ce_only_chances(self):
-        xml, _ = render(*sources(), ce=False)
-        self.assertFalse(E.fromstring(xml).xpath(".//ceOnly"))
-        self.assertTrue(E.fromstring(xml).xpath(".//statFactors/li[stat='FilthRate']"))
+    def test_tool_has_distinct_indices_and_six_independent_factors(self):
+        args = with_tools(sources(), [
+            tool_record(1, 3),
+            tool_record(2, 4, "right claw", "FrontRightPaw", "Scratch",
+                        (.5, 1.3, .2, 1.4, .6, .9)),
+        ])
+        cs, info = render_life_stage_attack_profiles_cs(args[0])
+        self.assertIn(b"vanillaToolIndex = 1", cs)
+        self.assertIn(b"ceToolIndex = 3", cs)
+        self.assertIn(b"ceToolIndex = 4", cs)
+        self.assertIn(b"capacities = \"Scratch\"", cs)
+        self.assertIn(b"ceSharpPenetrationFactor = 0f", cs)
+        self.assertIn(b"ceBluntPenetrationFactor = 0.5f", cs)
+        self.assertIn(b"vanillaCooldownFactor = 1.2f", cs)
+        self.assertEqual(info["compiled_stage_keys"], 2)
+        self.assertEqual(info["attack_tools_ready"], 2)
+        self.assertEqual(cs, render_life_stage_attack_profiles_cs(args[0])[0])
 
-    def test_new_group_output_changes_stage_without_python_formula(self):
+    def test_tool_missing_in_one_mode_is_valid(self):
+        args = with_tools(sources(), [tool_record(-1, 0)])
+        cs, _ = render_life_stage_attack_profiles_cs(args[0])
+        self.assertIn(b"vanillaToolIndex = -1", cs)
+        self.assertIn(b"ceToolIndex = 0", cs)
+        args = with_tools(sources(), [tool_record(0, -1)])
+        cs, _ = render_life_stage_attack_profiles_cs(args[0])
+        self.assertIn(b"ceToolIndex = -1", cs)
+
+    def test_two_missing_indices_rejected(self):
+        args = with_tools(sources(), [tool_record(-1, -1)])
+        with self.assertRaisesRegex(ValueError, "absent in both modes"):
+            render_life_stage_attack_profiles_cs(args[0])
+
+    def test_duplicate_index_in_same_mode_rejected(self):
+        args = with_tools(sources(), [
+            tool_record(1, 3),
+            tool_record(1, 4, "right claw", "FrontRightPaw"),
+        ])
+        with self.assertRaisesRegex(ValueError, "duplicate Vanilla ToolIndex"):
+            render_life_stage_attack_profiles_cs(args[0])
+
+    def test_corrupt_formula_or_missing_factor_rejected(self):
+        args = with_tools(sources(), [tool_record(factors=(.2, 1, .3, 1, .4, "#REF!"))])
+        with self.assertRaisesRegex(ValueError, "source formula error"):
+            render_life_stage_attack_profiles_cs(args[0])
+        args = with_tools(sources(), [tool_record(factors=(.2, 0, .3, 1, .4, .5))])
+        with self.assertRaisesRegex(ValueError, "invalid positive"):
+            render_life_stage_attack_profiles_cs(args[0])
+
+    def test_incomplete_status_does_not_supply_neutral_attack(self):
+        args = list(sources())
+        args[0] = args[0].copy()
+        args[0].at[2, "CalculationStatus"] = "INCOMPLETE"
+        args[0].at[2, "ToolStatus"] = "INCOMPLETE"
+        args[1] = args[0]
+        xml, info = render(*args)
+        self.assertEqual(info["species_rows_incomplete"], 1)
+        self.assertNotIn(b"<sourceStageDefName>AnimalBaby</sourceStageDefName>", xml)
+        cs, report = render_life_stage_attack_profiles_cs(args[0])
+        self.assertEqual(report["attack_rows_incomplete"], 1)
+        self.assertNotIn(b"TestAnimal\\nAnimalBaby", cs)
+
+    def test_stale_baseline_is_rejected(self):
+        args = list(sources())
+        args[2].at[0, "baseBodySize"] = 1.25
+        with self.assertRaisesRegex(ValueError, "source baseline changed"):
+            render(*args)
+
+    def test_ready_scalar_requires_combat_and_market(self):
+        args = list(sources())
+        args[0] = args[0].copy()
+        args[0].at[2, "MarketValueFactor"] = ""
+        args[1] = args[0]
+        with self.assertRaisesRegex(ValueError, "missing outputs"):
+            render(*args)
+
+    def test_unknown_stage_rejected(self):
+        args = list(sources())
+        args[0] = args[0].copy()
+        args[0].at[2, "LifeStageDef"] = "UnknownInfant"
+        args[1] = args[0]
+        with self.assertRaisesRegex(ValueError, "unknown stage"):
+            render_life_stage_attack_profiles_cs(args[0])
+
+    def test_tool_count_must_match(self):
+        args = with_tools(sources(), [tool_record()])
+        args[0].at[2, "ToolCount"] = 2
+        with self.assertRaisesRegex(ValueError, "ToolRecordsV2 and ToolCount disagree"):
+            render_life_stage_attack_profiles_cs(args[0])
+
+    def test_group_parameter_changes_output_without_checker_physics(self):
         args = list(sources())
         first, _ = render(*args)
-        args[0].loc[2, "MeleeDodgeChance"] = 2.8
+        args[0] = args[0].copy()
+        args[0].at[2, "MeleeDodgeChance"] = 2.8
+        args[1] = args[0]
         second, _ = render(*args)
         self.assertNotEqual(first, second)
         self.assertIn(b"<factor>2.8</factor>", second)
 
-    def test_multiple_individual_tool_rows(self):
+    def test_absent_optional_mod_species_stays_declarative(self):
         args = list(sources())
-        args[1] = pd.DataFrame([
-            {"XML name": "<li>TestAnimal</li>", "LifeStageDef": "AnimalBaby",
-             "ToolIndex": 1, "ToolLabel": "left claw",
-             "LinkedBodyPartsGroup": "FrontLeftPaw", "CalculationStatus": "READY",
-             "VanillaDamageFactor": 0.4, "VanillaCooldownFactor": 1.25,
-             "CEDamageFactor": 0.3, "CECooldownFactor": 1.5,
-             "CESharpPenetrationFactor": 0.6, "CEBluntPenetrationFactor": 0.7},
-            {"XML name": "<li>TestAnimal</li>", "LifeStageDef": "AnimalBaby",
-             "ToolIndex": 2, "ToolLabel": "right claw",
-             "LinkedBodyPartsGroup": "FrontRightPaw", "CalculationStatus": "READY",
-             "VanillaDamageFactor": 0.5, "VanillaCooldownFactor": 1.15,
-             "CEDamageFactor": 0.25, "CECooldownFactor": 1.2,
-             "CESharpPenetrationFactor": 0.8, "CEBluntPenetrationFactor": 0.9},
-        ])
-        xml, info = render(*args)
-        baby = [x for x in nodes(xml)
-                if x.findtext("sourceStageDefName") == "AnimalBaby"][0]
-        tools = baby.xpath("./tools/li")
-        self.assertEqual([x.findtext("toolIndex") for x in tools], ["1", "2"])
-        self.assertEqual([x.findtext("vanillaDamageFactor") for x in tools], ["0.4", "0.5"])
-        self.assertEqual(info["attack_tools_ready"], 2)
-
-    def test_incomplete_attack_row_is_not_interpreted_as_neutral_coefficients(self):
-        args = list(sources())
-        args[1] = pd.DataFrame([{
-            "XML name": "<li>TestAnimal</li>",
-            "LifeStageDef": "AnimalBaby", "ToolIndex": 0,
-            "CalculationStatus": "INCOMPLETE", "VanillaDamageFactor": "",
-            "VanillaCooldownFactor": "", "CEDamageFactor": "",
-            "CECooldownFactor": "", "CESharpPenetrationFactor": "",
-            "CEBluntPenetrationFactor": "",
-        }])
-        xml, info = render(*args)
-        self.assertEqual(len(E.fromstring(xml).xpath(".//tools/li")), 0)
-        self.assertEqual(info["attack_rows_incomplete"], 1)
-
-    def test_ready_attack_with_missing_or_negative_factor_fails(self):
-        args = list(sources())
-        row = {
-            "XML name": "<li>TestAnimal</li>", "LifeStageDef": "AnimalBaby",
-            "ToolIndex": 0, "ToolLabel": "head", "CalculationStatus": "READY",
-            "VanillaDamageFactor": 1.0, "VanillaCooldownFactor": 1.0,
-            "CEDamageFactor": 1.0, "CECooldownFactor": 1.0,
-            "CESharpPenetrationFactor": 1.0, "CEBluntPenetrationFactor": "",
-        }
-        args[1] = pd.DataFrame([row])
-        with self.assertRaisesRegex(ValueError, "missing required numeric"):
-            render(*args)
-        row["CEBluntPenetrationFactor"] = -1
-        with self.assertRaisesRegex(ValueError, "invalid nonnegative"):
-            render(*args)
-
-    def test_stale_adult_baselines_are_rejected(self):
-        args = list(sources())
-        args[2].loc[0, "baseBodySize"] = 1.25
-        with self.assertRaisesRegex(ValueError, "source baseline changed"):
-            render(*args)
-
-    def test_ready_species_requires_armor_combat_and_market(self):
-        args = list(sources())
-        args[0].loc[1, "CalculationStatus"] = "READY"
-        with self.assertRaisesRegex(ValueError, "missing outputs"):
-            render(*args)
-
-    def test_regeneration_is_deterministic(self):
-        args = sources()
-        first, _ = render(*args)
-        second, _ = render(*args)
-        self.assertEqual(first, second)
-        self.assertNotIn(b"<sourceStageDefName>AnimalAdult</sourceStageDefName>", first)
-
-    def test_optional_missing_species_is_kept_in_xml_but_not_installed_by_game(self):
-        args = list(sources())
-        second = args[0].iloc[2].copy()
-        second["XML name"] = "<li>OptionalModAnimal</li>"
-        args[0] = pd.concat([args[0], pd.DataFrame([second])], ignore_index=True)
+        duplicate = args[0].iloc[2].copy()
+        duplicate["XML name"] = "<li>OptionalModAnimal</li>"
+        args[0] = pd.concat([args[0], pd.DataFrame([duplicate])], ignore_index=True)
+        args[1] = args[0]
         args[2] = pd.concat([args[2], pd.DataFrame([{
             "XML name": "<li>OptionalModAnimal</li>",
-            "baseBodySize": 1.0, "baseHungerRate": 1.0,
+            "baseBodySize": 1, "baseHungerRate": 1,
         }])], ignore_index=True)
         xml, _ = render(*args)
         self.assertIn(b"OptionalModAnimal", xml)
 
-
-    def test_compiled_attack_source_is_from_ready_rows_only(self):
-        attack = pd.DataFrame([
-            {"XML name": "<li>TestAnimal</li>", "LifeStageDef": "AnimalBaby",
-             "ToolIndex": 2, "ToolLabel": "right claw",
-             "LinkedBodyPartsGroup": "FrontRightPaw",
-             "CalculationStatus": "READY",
-             "VanillaDamageFactor": 0.4, "VanillaCooldownFactor": 1.2,
-             "CEDamageFactor": 0.35, "CECooldownFactor": 1.1,
-             "CESharpPenetrationFactor": 0.8, "CEBluntPenetrationFactor": 0.7},
-            {"XML name": "<li>TestAnimal</li>", "LifeStageDef": "AnimalJuvenile",
-             "ToolIndex": 0, "CalculationStatus": "INCOMPLETE",
-             "VanillaDamageFactor": "", "VanillaCooldownFactor": "",
-             "CEDamageFactor": "", "CECooldownFactor": "",
-             "CESharpPenetrationFactor": "", "CEBluntPenetrationFactor": ""},
-        ])
-        output, info = render_life_stage_attack_profiles_cs(attack)
-        self.assertTrue(output.startswith(b"// <auto-generated>"))
-        self.assertIn(b"vanillaDamageFactor = 0.4f", output)
-        self.assertIn(b"ceSharpPenetrationFactor = 0.8f", output)
-        self.assertIn(b"FrontRightPaw", output)
-        self.assertNotIn(b"AnimalJuvenile", output)
-        self.assertEqual(info["attack_rows_incomplete"], 1)
-        self.assertEqual(output, render_life_stage_attack_profiles_cs(attack)[0])
-        self.assertGreater(output.count(b"\n"), 10)
-
-
-    def test_one_core_attack_row_applies_to_animal_and_eusocial_source_stages(self):
-        args = list(sources())
-        args[1] = pd.DataFrame([{
-            "XML name": "<li>TestAnimal</li>",
-            "LifeStageDef": "AnimalBaby or EusocialInsectLarva",
-            "ToolIndex": 0, "ToolLabel": "head",
-            "LinkedBodyPartsGroup": "HeadAttackTool",
-            "CalculationStatus": "READY",
-            "VanillaDamageFactor": .1,
-            "VanillaCooldownFactor": .6,
-            "CEDamageFactor": .05,
-            "CECooldownFactor": .6,
-            "CESharpPenetrationFactor": 1,
-            "CEBluntPenetrationFactor": .01,
-        }])
-        xml, info = render(*args)
-        self.assertIn(b"<sourceStageDefName>AnimalBaby</sourceStageDefName>", xml)
-        self.assertIn(b"<sourceStageDefName>EusocialInsectLarva</sourceStageDefName>", xml)
-        cs, report = render_life_stage_attack_profiles_cs(args[1])
-        self.assertIn(b"TestAnimal\\\\nAnimalBaby", cs)
-        self.assertIn(b"TestAnimal\\\\nEusocialInsectLarva", cs)
-        self.assertEqual(report["compiled_stage_keys"], 2)
-        self.assertEqual(report["generated_cs_batches"], 1)
-
-    def test_zero_head_sharp_armor_penetration_ratio_is_representable(self):
-        args = list(sources())
-        args[1] = pd.DataFrame([{
-            "XML name": "<li>TestAnimal</li>", "LifeStageDef": "AnimalBaby",
-            "ToolIndex": 0, "ToolLabel": "head", "CalculationStatus": "READY",
-            "VanillaDamageFactor": .5, "VanillaCooldownFactor": .7,
-            "CEDamageFactor": .2, "CECooldownFactor": .8,
-            "CESharpPenetrationFactor": 0, "CEBluntPenetrationFactor": .1,
-        }])
-        cs, report = render_life_stage_attack_profiles_cs(args[1])
-        self.assertIn(b"ceSharpPenetrationFactor = 0f", cs)
-        self.assertEqual(report["attack_tools_ready"], 1)
-
-    def test_unrecognized_attack_stage_is_rejected(self):
-        args = list(sources())
-        args[1] = pd.DataFrame([{
-            "XML name": "<li>TestAnimal</li>", "LifeStageDef": "UnknownInfant",
-            "ToolIndex": 0, "ToolLabel": "head", "CalculationStatus": "READY",
-            "VanillaDamageFactor": 1, "VanillaCooldownFactor": 1,
-            "CEDamageFactor": 1, "CECooldownFactor": 1,
-            "CESharpPenetrationFactor": 1, "CEBluntPenetrationFactor": .1,
-        }])
-        with self.assertRaisesRegex(ValueError, "unknown source stage"):
-            render_life_stage_attack_profiles_cs(args[1])
+    def test_neutral_adult_has_no_specialized_stage(self):
+        xml, _ = render(*sources())
+        self.assertNotIn(b"<sourceStageDefName>AnimalAdult</sourceStageDefName>", xml)
 
 
 if __name__ == "__main__":
