@@ -258,10 +258,10 @@ def render_species_life_stage_profiles(species_profiles, attacks,
         body_factor = stage_body / expected_body
         health_factor = _required(row.get("StageHealthScaleFactor"),
                                   f"{label} row {number} stage health scale")
-        durability_factor = (_number(row.get("CEArmorDurabilityFactor"),
-                                     f"{label} row {number} CE armor durability",
-                                     positive=False)
-                             if ce else None)
+        durability_factor = (_required(row.get("CEArmorDurabilityFactor"),
+                                       f"{label} row {number} CE armor durability",
+                                       positive=False)
+                             if ce and status == "READY" else None)
         hunger = _required(row.get("HungerRateFactor"),
                            f"{label} row {number} stage hunger factor")
         stats = []

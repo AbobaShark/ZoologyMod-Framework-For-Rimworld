@@ -109,6 +109,14 @@ class SpeciesLifeStageProfilesTests(unittest.TestCase):
         baby_vanilla = [n for n in nodes(xml_vanilla) if n.findtext("sourceStageDefName") == "AnimalBaby"][0]
         self.assertIsNone(baby_vanilla.find("ceArmorDurabilityFactor"))
 
+    def test_missing_ce_armor_durability_is_not_silently_accepted(self):
+        args = list(sources())
+        args[0] = args[0].copy()
+        args[0].at[2, "CEArmorDurabilityFactor"] = ""
+        args[1] = args[0]
+        with self.assertRaisesRegex(ValueError, "missing required"):
+            render(*args)
+
     def test_negative_ce_armor_durability_is_invalid(self):
         args = list(sources())
         args[0] = args[0].copy()
