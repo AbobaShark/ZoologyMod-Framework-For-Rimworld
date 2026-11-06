@@ -67,14 +67,14 @@ class RouteAudit(unittest.TestCase):
         category_paths.extend((x['destination'],'biome_patch',x.get('requires')) for x in reg['biomes'])
         category_paths.extend((x['destination'],x['category'],x.get('requires')) for x in reg['shared_defs'])
         category_paths.extend((x['destination'],x['category'],x.get('requires')) for x in reg['outputs'])
-        self.assertEqual(len(category_paths), 148)
+        self.assertEqual(len(category_paths), 151)
         for dest, category, required in category_paths:
             with self.subTest(destination=dest):
                 self.assertNotIn(dest.lower(), seen)
                 seen.add(dest.lower())
                 self.assertEqual(route_dependency(self.mod,dest,preferred=required),required)
                 self.assertEqual(validate_target(self.mod,{'destination':dest,'category':category,'requires':required}).as_posix(),dest)
-        self.assertEqual(len(seen), 148)
+        self.assertEqual(len(seen), 151)
 
     def test_all_real_reproduction_paths_include_core_and_odyssey_hatchers(self):
         products=[e['destination'] for e in load_registry(CHECKER/'generation.json',self.mod)['outputs'] if e['pipeline_category']=='products']
@@ -126,14 +126,15 @@ class RouteAudit(unittest.TestCase):
              patch('core.pipeline.update_bionics',return_value=([],[])), \
              patch('core.pipeline.update_life_stages',return_value=([],[])), \
              patch('core.pipeline.render_life_stage_combat_power',return_value=b'<Patch/>'), \
+             patch('core.pipeline.render_life_stages',return_value=b'<Patch/>'), \
              patch('core.ce_bionics.render_ce_bionics',return_value=b'<Patch/>'):
             out=stage_pipeline('unused-source',root=self.root,registry_path=CHECKER/'generation.json',
                                output_dir=self.stage,categories=('bionics','life-stages'),ce=True)
         entries={x['destination']:x for x in json.loads(out.read_text())['files']}
-        self.assertEqual(len(entries),5)
+        self.assertEqual(len(entries),8)
         for dest, entry in entries.items():
             self.assertEqual(entry['requires'],route_dependency(self.mod,dest))
-        self.assertEqual(len(plan(out,self.root)[0]),5)
+        self.assertEqual(len(plan(out,self.root)[0]),8)
 
     def test_no_ce_does_not_stage_or_install_stale_ce_life_stage_xml(self):
         from core.xml_routing import deploy
@@ -149,11 +150,15 @@ class RouteAudit(unittest.TestCase):
             path.write_text('<Patch><existing/></Patch>',encoding='utf8')
         with (patch('core.pipeline.read_table',return_value=pd.DataFrame()),
               patch('core.pipeline.update_life_stages',return_value=([],[])),
+              patch('core.pipeline.render_life_stages',return_value=b'<Patch/>'),
               patch('core.pipeline.render_life_stage_combat_power',return_value=b'<Patch><fresh/></Patch>')):
             result=stage_pipeline('dummy',root=self.root,registry_path=CHECKER/'generation.json',
                     output_dir=self.stage,categories=('life-stages',),ce=False)
         manifest=json.loads(result.read_text())
-        self.assertEqual(set(manifest['generated_this_run']),set(paths[:2]))
+        self.assertEqual(set(manifest['generated_this_run']),set(paths[:2]) | {
+            'ModPatches/VanillaAnimalsExpandedRoyal/Patches/LifeStageDefs/LifeStages_VAER.xml',
+            'ModPatches/VanillaAnimalsExpandedRoyal/Patches/LifeStageDefs/CombatPowerFactors_VAER.xml',
+        })
         self.assertNotIn(paths[2],manifest['generated_this_run'])
         deploy(result,self.root,current_run_only=True)
         self.assertIn('existing',(self.mod/paths[2]).read_text())
@@ -186,7 +191,7 @@ class RoutingAuditExtensions(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             mod=Path(tmp)/'Zoology';mod.mkdir();write_loadfolders(mod)
             report=audit_routes(CHECKER/'generation.json',mod)
-            self.assertEqual(report['destinations'],148)
+            self.assertEqual(report['destinations'],151)
             self.assertEqual(len(report['missing_static']),19)
             with self.assertRaisesRegex(ValueError,'Missing installed static XML'):
                 audit_routes(CHECKER/'generation.json',mod,require_static_sources=True)

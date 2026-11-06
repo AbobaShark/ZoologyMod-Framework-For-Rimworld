@@ -46,3 +46,26 @@ The three Windows launchers are `START_REFERENCE_SYNC.bat`, `START_PATCH_GENERAT
 For every life stage in AnimalStats, `foodMaxFactor` is 1: `Need_Food.MaxLevel` already multiplies the pawn's actual `BodySize` by this factor. `BodySize` includes `bodySizeFactor`. A second age-dependent correction would change the amount of nutrition stored by a same-sized animal. `hungerRateFactor` remains an independent rate parameter.
 
 The 15 species requiring `AnimalBabyTiny` are declared once in `generation.json` under `baby_tiny_defs`, validated against animal group ownership, and patched after the generator builds `race/lifeStageAges`. The obsolete standalone baby XML and duplicate Overgrown Colossus meat patch were removed. CE output is guarded by `LoadFolders.xml`; `--no-ce` leaves installed CE-gated XML untouched but excludes it from that run's deployment. Regenerate with CE enabled when you intend to use CE.
+
+## Custom life-stage sources
+
+The `LifeStages` sheet now has a strict `Source mod` column, analogous to
+the leather source column. `Core` contains the shared vanilla and eusocial
+insect stages. `Vanilla Animals Expanded — Royal Animals` contains five
+independent Megachicken stages (`VAERoy_AnimalBaby`, `VAERoy_AnimalJuvenile`,
+`VAERoy_AnimalAdult`, `VAERoy_AnimalAdultIntermediate`,
+`VAERoy_AnimalAdultMax`), with body-size factors 0.2, 4, 13, 15 and 20.
+The five age breakpoints (0, 3, 8, 12 and 18 years) are owned by Royal
+Animals and must not be replaced with the ordinary three-stage animal model.
+
+Checker validates every source/stage row and generates three additional
+files: Royal base life-stage factors and combat power in the Royal-specific
+conditionally loaded folder, and Royal CE factors/penetration in the CE
+folder. The CE patch also tests for the actual Royal `LifeStageDef` before
+adding penetration definitions, so CE without Royal Animals is safe. The
+LoadFolders order intentionally puts CE **after** Royal Animals: CE damage
+must not be overwritten by the base Royal stage patch.
+
+An upstream Alpha Animals integration for Biomes! Islands defines three
+additional Fangsquid stages; that animal is not in Zoology's registered
+animal groups and is not yet a supported LifeStages output.

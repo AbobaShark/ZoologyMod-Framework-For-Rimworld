@@ -31,3 +31,10 @@ The upstream XML inventory is rebuilt from current game, Workshop, and optional 
 Run `py -m pytest -q tests` from `checker/` for unit tests. The registry preflight and tests do not replace in-game validation with RimWorld 1.7 and the actual loaded mod list.
 
 Life-stage baby overrides are now declared in `checker/generation.json` and generated in their owning race patches. `LifeStages.foodMaxFactor` is 1 for all stages: maximum nutrition is already proportional to the current pawn size, including `bodySizeFactor`.
+
+The `LifeStages` data source now declares `Source mod`; Checker owns separate
+Royal Animals base/combat/CE outputs for all five megachicken growth stages.
+The Megachicken `race/lifeStageAges` list is preserved from its source mod,
+including its five age thresholds. Royal-specific CE changes are additionally
+guarded against Royal Animals being absent. The CE folder loads after Royal
+Animals so its damage factors take precedence.

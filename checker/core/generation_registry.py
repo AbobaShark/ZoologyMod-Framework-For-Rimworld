@@ -39,6 +39,11 @@ def load_registry(path,mod):
             animal_names[name]=ident
         if dest.casefold() in seen: raise ValueError(f'Duplicate destination: {dest}')
         seen.add(dest.casefold())
+    for group in groups:
+        preserved=(group.get('overrides') or {}).get('preserve_life_stages',[])
+        if not isinstance(preserved,list) or len(preserved)!=len(set(preserved)) or any(
+                not isinstance(name,str) or name not in group['defs'] for name in preserved):
+            raise ValueError(f"{group['id']}: preserve_life_stages must be registered in the same group")
     tiny=obj.get('baby_tiny_defs',[])
     if not isinstance(tiny,list) or len(tiny)!=len(set(tiny)) or any(
             not isinstance(name,str) or not name or name not in animal_names for name in tiny):
@@ -78,6 +83,10 @@ def load_registry(path,mod):
     overlap=marker_names & {name.casefold() for name in biome_names}
     if overlap:raise ValueError(f'Biomes cannot be registered and reference-only: {sorted(overlap)}')
     required_ids={'bionics.vanilla','bionics.ce','life-stages.vanilla','life-stages.ce'}
+    royal_ids={'life-stages.royal','life-stages.royal.power','life-stages.royal.ce'}
+    found_ids={e['id'] for e in obj['outputs']}
+    if (found_ids & royal_ids) and not royal_ids <= found_ids:
+        raise ValueError('Royal life-stage outputs must have all three destinations')
     actual={e['id'] for e in obj['outputs']}
     if not required_ids <= actual or not any(e['pipeline_category']=='products' for e in obj['outputs']):
         raise ValueError('Missing required named static outputs')

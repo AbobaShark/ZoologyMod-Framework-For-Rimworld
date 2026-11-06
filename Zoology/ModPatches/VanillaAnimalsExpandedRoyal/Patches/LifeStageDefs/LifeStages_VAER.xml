@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalBaby&quot;]/*[self::bodySizeFactor or self::marketValueFactor or self::healthScaleFactor or self::hungerRateFactor or self::foodMaxFactor or self::meleeDamageFactor]</xpath>
+    <match Class="PatchOperationRemove"><xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalBaby&quot;]/*[self::bodySizeFactor or self::marketValueFactor or self::healthScaleFactor or self::hungerRateFactor or self::foodMaxFactor or self::meleeDamageFactor]</xpath></match>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalBaby&quot;]</xpath>
+    <value>
+      <bodySizeFactor>0.2</bodySizeFactor>
+      <marketValueFactor>0.2</marketValueFactor>
+      <healthScaleFactor>0.2</healthScaleFactor>
+      <hungerRateFactor>0.3</hungerRateFactor>
+      <foodMaxFactor>1</foodMaxFactor>
+      <meleeDamageFactor>0.35</meleeDamageFactor>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalBaby&quot;]/statFactors</xpath>
+    <match />
+    <nomatch Class="PatchOperationAdd"><xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalBaby&quot;]</xpath><value><statFactors /></value></nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalBaby&quot;]/statFactors/*[self::MoveSpeed or self::MeleeCooldownFactor or self::FilthRate or self::ArmorRating_Sharp or self::ArmorRating_Blunt or self::MeleeDodgeChance]</xpath>
+    <match Class="PatchOperationRemove"><xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalBaby&quot;]/statFactors/*[self::MoveSpeed or self::MeleeCooldownFactor or self::FilthRate or self::ArmorRating_Sharp or self::ArmorRating_Blunt or self::MeleeDodgeChance]</xpath></match>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalBaby&quot;]/statFactors</xpath>
+    <value>
+      <MoveSpeed>0.75</MoveSpeed>
+      <MeleeCooldownFactor>0.8</MeleeCooldownFactor>
+      <FilthRate>0.2</FilthRate>
+      <ArmorRating_Sharp>0.6</ArmorRating_Sharp>
+      <ArmorRating_Blunt>0.6</ArmorRating_Blunt>
+      <MeleeDodgeChance>1.3</MeleeDodgeChance>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalJuvenile&quot;]/*[self::bodySizeFactor or self::marketValueFactor or self::healthScaleFactor or self::hungerRateFactor or self::foodMaxFactor or self::meleeDamageFactor]</xpath>
+    <match Class="PatchOperationRemove"><xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalJuvenile&quot;]/*[self::bodySizeFactor or self::marketValueFactor or self::healthScaleFactor or self::hungerRateFactor or self::foodMaxFactor or self::meleeDamageFactor]</xpath></match>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalJuvenile&quot;]</xpath>
+    <value>
+      <bodySizeFactor>4</bodySizeFactor>
+      <marketValueFactor>4</marketValueFactor>
+      <healthScaleFactor>4</healthScaleFactor>
+      <hungerRateFactor>2.75</hungerRateFactor>
+      <foodMaxFactor>1</foodMaxFactor>
+      <meleeDamageFactor>2.35</meleeDamageFactor>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalJuvenile&quot;]/statFactors</xpath>
+    <match />
+    <nomatch Class="PatchOperationAdd"><xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalJuvenile&quot;]</xpath><value><statFactors /></value></nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalJuvenile&quot;]/statFactors/*[self::MoveSpeed or self::MeleeCooldownFactor or self::FilthRate or self::ArmorRating_Sharp or self::ArmorRating_Blunt or self::MeleeDodgeChance]</xpath>
+    <match Class="PatchOperationRemove"><xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalJuvenile&quot;]/statFactors/*[self::MoveSpeed or self::MeleeCooldownFactor or self::FilthRate or self::ArmorRating_Sharp or self::ArmorRating_Blunt or self::MeleeDodgeChance]</xpath></match>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalJuvenile&quot;]/statFactors</xpath>
+    <value>
+      <MoveSpeed>1.25</MoveSpeed>
+      <MeleeCooldownFactor>1.25</MeleeCooldownFactor>
+      <FilthRate>4</FilthRate>
+      <ArmorRating_Sharp>1.6</ArmorRating_Sharp>
+      <ArmorRating_Blunt>1.6</ArmorRating_Blunt>
+      <MeleeDodgeChance>0.8</MeleeDodgeChance>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalAdult&quot;]/*[self::bodySizeFactor or self::marketValueFactor or self::healthScaleFactor or self::hungerRateFactor or self::foodMaxFactor or self::meleeDamageFactor]</xpath>
+    <match Class="PatchOperationRemove"><xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalAdult&quot;]/*[self::bodySizeFactor or self::marketValueFactor or self::healthScaleFactor or self::hungerRateFactor or self::foodMaxFactor or self::meleeDamageFactor]</xpath></match>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalAdult&quot;]</xpath>
+    <value>
+      <bodySizeFactor>13</bodySizeFactor>
+      <marketValueFactor>13</marketValueFactor>
+      <healthScaleFactor>13</healthScaleFactor>
+      <hungerRateFactor>6.55</hungerRateFactor>
+      <foodMaxFactor>1</foodMaxFactor>
+      <meleeDamageFactor>4.9</meleeDamageFactor>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalAdult&quot;]/statFactors</xpath>
+    <match />
+    <nomatch Class="PatchOperationAdd"><xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalAdult&quot;]</xpath><value><statFactors /></value></nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalAdult&quot;]/statFactors/*[self::MoveSpeed or self::MeleeCooldownFactor or self::FilthRate or self::ArmorRating_Sharp or self::ArmorRating_Blunt or self::MeleeDodgeChance]</xpath>
+    <match Class="PatchOperationRemove"><xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalAdult&quot;]/statFactors/*[self::MoveSpeed or self::MeleeCooldownFactor or self::FilthRate or self::ArmorRating_Sharp or self::ArmorRating_Blunt or self::MeleeDodgeChance]</xpath></match>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalAdult&quot;]/statFactors</xpath>
+    <value>
+      <MoveSpeed>1.55</MoveSpeed>
+      <MeleeCooldownFactor>1.45</MeleeCooldownFactor>
+      <FilthRate>13</FilthRate>
+      <ArmorRating_Sharp>2.35</ArmorRating_Sharp>
+      <ArmorRating_Blunt>2.35</ArmorRating_Blunt>
+      <MeleeDodgeChance>0.65</MeleeDodgeChance>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalAdultIntermediate&quot;]/*[self::bodySizeFactor or self::marketValueFactor or self::healthScaleFactor or self::hungerRateFactor or self::foodMaxFactor or self::meleeDamageFactor]</xpath>
+    <match Class="PatchOperationRemove"><xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalAdultIntermediate&quot;]/*[self::bodySizeFactor or self::marketValueFactor or self::healthScaleFactor or self::hungerRateFactor or self::foodMaxFactor or self::meleeDamageFactor]</xpath></match>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalAdultIntermediate&quot;]</xpath>
+    <value>
+      <bodySizeFactor>15</bodySizeFactor>
+      <marketValueFactor>15</marketValueFactor>
+      <healthScaleFactor>15</healthScaleFactor>
+      <hungerRateFactor>7.3</hungerRateFactor>
+      <foodMaxFactor>1</foodMaxFactor>
+      <meleeDamageFactor>5.35</meleeDamageFactor>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalAdultIntermediate&quot;]/statFactors</xpath>
+    <match />
+    <nomatch Class="PatchOperationAdd"><xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalAdultIntermediate&quot;]</xpath><value><statFactors /></value></nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalAdultIntermediate&quot;]/statFactors/*[self::MoveSpeed or self::MeleeCooldownFactor or self::FilthRate or self::ArmorRating_Sharp or self::ArmorRating_Blunt or self::MeleeDodgeChance]</xpath>
+    <match Class="PatchOperationRemove"><xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalAdultIntermediate&quot;]/statFactors/*[self::MoveSpeed or self::MeleeCooldownFactor or self::FilthRate or self::ArmorRating_Sharp or self::ArmorRating_Blunt or self::MeleeDodgeChance]</xpath></match>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalAdultIntermediate&quot;]/statFactors</xpath>
+    <value>
+      <MoveSpeed>1.6</MoveSpeed>
+      <MeleeCooldownFactor>1.5</MeleeCooldownFactor>
+      <FilthRate>15</FilthRate>
+      <ArmorRating_Sharp>2.45</ArmorRating_Sharp>
+      <ArmorRating_Blunt>2.45</ArmorRating_Blunt>
+      <MeleeDodgeChance>0.65</MeleeDodgeChance>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalAdultMax&quot;]/*[self::bodySizeFactor or self::marketValueFactor or self::healthScaleFactor or self::hungerRateFactor or self::foodMaxFactor or self::meleeDamageFactor]</xpath>
+    <match Class="PatchOperationRemove"><xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalAdultMax&quot;]/*[self::bodySizeFactor or self::marketValueFactor or self::healthScaleFactor or self::hungerRateFactor or self::foodMaxFactor or self::meleeDamageFactor]</xpath></match>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalAdultMax&quot;]</xpath>
+    <value>
+      <bodySizeFactor>20</bodySizeFactor>
+      <marketValueFactor>20</marketValueFactor>
+      <healthScaleFactor>20</healthScaleFactor>
+      <hungerRateFactor>9</hungerRateFactor>
+      <foodMaxFactor>1</foodMaxFactor>
+      <meleeDamageFactor>6.4</meleeDamageFactor>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalAdultMax&quot;]/statFactors</xpath>
+    <match />
+    <nomatch Class="PatchOperationAdd"><xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalAdultMax&quot;]</xpath><value><statFactors /></value></nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalAdultMax&quot;]/statFactors/*[self::MoveSpeed or self::MeleeCooldownFactor or self::FilthRate or self::ArmorRating_Sharp or self::ArmorRating_Blunt or self::MeleeDodgeChance]</xpath>
+    <match Class="PatchOperationRemove"><xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalAdultMax&quot;]/statFactors/*[self::MoveSpeed or self::MeleeCooldownFactor or self::FilthRate or self::ArmorRating_Sharp or self::ArmorRating_Blunt or self::MeleeDodgeChance]</xpath></match>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalAdultMax&quot;]/statFactors</xpath>
+    <value>
+      <MoveSpeed>1.65</MoveSpeed>
+      <MeleeCooldownFactor>1.55</MeleeCooldownFactor>
+      <FilthRate>20</FilthRate>
+      <ArmorRating_Sharp>2.7</ArmorRating_Sharp>
+      <ArmorRating_Blunt>2.7</ArmorRating_Blunt>
+      <MeleeDodgeChance>0.6</MeleeDodgeChance>
+    </value>
+  </Operation>
+</Patch>

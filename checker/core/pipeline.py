@@ -16,7 +16,7 @@ from core.patch_engine import PatchGenerator
 from core.generation_registry import load_registry,target_entry,output_by_id,outputs_for
 from core.xml_routing import digest,find_project_root,route_dependency
 from core.static_stats import read_table,update_bionics,update_life_stages,SHEET_REQUIRED
-from core.life_stages import render_life_stage_combat_power
+from core.life_stages import render_life_stage_combat_power, render_life_stages, ROYAL_SOURCE
 from core.production_stats import render_reproduction
 from core.checker_config import ROOT
 from core.patch_postprocess import PatchPostprocessor
@@ -347,6 +347,23 @@ def stage_pipeline(source, *, root=None, registry_path=None, sheet_sources=None,
                 emit(e['destination'],e['category'],payload,e.get('requires'))
                 entry_by_dest[e['destination']]['pipeline_category']='life-stages'
                 results.append({'destination':e['destination'],'changes':[{'regenerated':'life-stages.power'}],'warnings':[]})
+                # Extra source-owned LifeStageDefs; do not co-mingle Royal
+                # operations with Core XML. CE-only output is guarded both by
+                # its CE load folder and by Royal-stage existence.
+                t=sheet_frame('LifeStages')
+                royal_outputs=[
+                    ('life-stages.royal',render_life_stages(t,source_mod=ROYAL_SOURCE)),
+                    ('life-stages.royal.power',render_life_stage_combat_power(t,source_mod=ROYAL_SOURCE)),
+                ]
+                if ce:
+                    royal_outputs.append(('life-stages.royal.ce',
+                                          render_life_stages(t,ce=True,source_mod=ROYAL_SOURCE)))
+                for ident,payload in royal_outputs:
+                    e=output_by_id(registry,ident)
+                    emit(e['destination'],e['category'],payload,e.get('requires'))
+                    entry_by_dest[e['destination']]['pipeline_category']='life-stages'
+                    results.append({'destination':e['destination'],
+                                    'changes':[{'regenerated':ident}],'warnings':[]})
             (temp/'static-report.json').write_text(json.dumps(results,indent=2,ensure_ascii=False)+'\n',encoding='utf8')
         if postprocessor is not None:
             (temp/'optimization-report.json').write_text(json.dumps(postprocessor.stats,indent=2,ensure_ascii=False)+'\n',encoding='utf8')

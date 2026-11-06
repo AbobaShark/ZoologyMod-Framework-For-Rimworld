@@ -5,7 +5,7 @@ import pandas as pd
 from lxml import etree as E
 
 from core.life_stages import (
-    REQUIRED_COLUMNS, STAGE_GROUPS, parse_stages,
+    REQUIRED_COLUMNS, STAGE_GROUPS, ROYAL_SOURCE, ROYAL_STAGES, parse_stages,
     render_life_stages, render_life_stage_combat_power,
 )
 
@@ -14,8 +14,9 @@ def fixture():
     labels = [' or '.join(group) for group in STAGE_GROUPS]
     rows = []
     for index, label in enumerate(labels):
-        row = {name: 1.0 for name in REQUIRED_COLUMNS if name != 'Life stage'}
+        row = {name: 1.0 for name in REQUIRED_COLUMNS if name not in ('Life stage','Source mod')}
         row['Life stage'] = label
+        row['Source mod'] = 'Core'
         row['bodySizeFactor'] = [1, .5, .2, .15][index]
         row['marketValueFactor'] = row['bodySizeFactor']
         row['healthScaleFactor'] = row['bodySizeFactor']
@@ -38,12 +39,21 @@ def fixture():
         if index == 0:
             row['meleeDamageFactor'] = 1.0
         rows.append(row)
+    for group, size in zip(ROYAL_STAGES, (.2,4,13,15,20)):
+        royal={name: 1.0 for name in REQUIRED_COLUMNS
+               if name not in ('Life stage','Source mod')}
+        royal.update({'Life stage':group[0],'Source mod':ROYAL_SOURCE,
+                      'bodySizeFactor':size,'marketValueFactor':size,
+                      'healthScaleFactor':size,'FilthRate':size,
+                      'ArmorPenetration_Blunt(CE)':size,'CombatPowerFactor':size,
+                      'foodMaxFactor':1.0})
+        rows.append(royal)
     return pd.DataFrame(rows)
 
 
-def starting_defs():
+def starting_defs(add_royal=False):
     root = E.Element('Defs')
-    for group in STAGE_GROUPS:
+    for group in (STAGE_GROUPS + ROYAL_STAGES if add_royal else STAGE_GROUPS):
         for name in group:
             node = E.SubElement(root, 'LifeStageDef')
             E.SubElement(node, 'defName').text = name
@@ -56,29 +66,36 @@ def starting_defs():
 
 
 def apply_patch(defs, output):
-    """Exercise the XML operation shapes used by the generator."""
-    for op in E.fromstring(output):
-        action = op
-        if op.get('Class') == 'PatchOperationConditional':
-            action = op.find('match' if defs.xpath(op.findtext('xpath')) else 'nomatch')
-            if action is None:
-                continue
-        kind = action.get('Class')
-        if kind == 'PatchOperationRemove':
-            for node in list(defs.xpath(action.findtext('xpath'))):
-                node.getparent().remove(node)
-        elif kind == 'PatchOperationAdd':
-            for node in list(defs.xpath(action.findtext('xpath'))):
-                for value in action.find('value'):
-                    node.append(copy.deepcopy(value))
-        elif kind is not None:
-            raise AssertionError('Unexpected operation ' + kind)
+    """Minimal fixture evaluator of the RimWorld XML patch operation shapes."""
+    def nodes(xpath):
+        return [defs] if xpath == 'Defs' else defs.xpath(xpath)
 
+    def execute(operation):
+        node=operation
+        if operation.get('Class')=='PatchOperationConditional':
+            node=operation.find('match' if nodes(operation.findtext('xpath')) else 'nomatch')
+            if node is None:
+                return
+        kind=node.get('Class')
+        if kind=='PatchOperationSequence':
+            for child in node.find('operations'):
+                execute(child)
+        elif kind=='PatchOperationRemove':
+            for match in list(nodes(node.findtext('xpath'))):
+                match.getparent().remove(match)
+        elif kind=='PatchOperationAdd':
+            for match in nodes(node.findtext('xpath')):
+                for value in node.find('value'):
+                    match.append(copy.deepcopy(value))
+        elif kind is not None:
+            raise AssertionError(f'Unsupported patch operation: {kind}')
+    for operation in E.fromstring(output):
+        execute(operation)
 
 class LifeStageGenerationTests(unittest.TestCase):
     def test_exact_factors_for_all_seven_stage_defs(self):
         table = fixture()
-        stages = parse_stages(table)
+        stages = parse_stages(table, 'Core')
         self.assertEqual(len(stages), 4)
         defs = starting_defs()
         apply_patch(defs, render_life_stages(table))
@@ -109,7 +126,7 @@ class LifeStageGenerationTests(unittest.TestCase):
         defs = starting_defs()
         apply_patch(defs, render_life_stages(table))
         apply_patch(defs, render_life_stages(table, ce=True))
-        for group, expected in parse_stages(table):
+        for group, expected in parse_stages(table, 'Core'):
             for name in group:
                 stage = defs.xpath(f'/Defs/LifeStageDef[defName="{name}"]')[0]
                 self.assertAlmostEqual(float(stage.findtext('meleeDamageFactor')), expected['meleeDamageFactor(CE)'])
@@ -124,7 +141,7 @@ class LifeStageGenerationTests(unittest.TestCase):
     def test_combat_power_is_from_extension_and_original_attributes_survive(self):
         defs=starting_defs()
         apply_patch(defs,render_life_stage_combat_power(fixture()))
-        for group, expected in parse_stages(fixture()):
+        for group, expected in parse_stages(fixture(), 'Core'):
             for name in group:
                 stage=defs.xpath(f'/Defs/LifeStageDef[defName="{name}"]')[0]
                 values=stage.xpath('modExtensions/li[@Class="ZoologyMod.LifeStageCombatPowerExtension, ZoologyMod"]/combatPowerFactor/text()')

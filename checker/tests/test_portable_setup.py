@@ -9,6 +9,7 @@ from lxml import etree as E
 import core.checker_config as checker_config
 from core.static_stats import update_bionics, update_life_stages
 from core.life_stages import REQUIRED_COLUMNS
+from tests.test_life_stages import fixture as full_life_stages_fixture
 from core.xml_routing import plan
 
 
@@ -83,24 +84,15 @@ class StaticStatsTests(unittest.TestCase):
         self.assertEqual(len(warnings),2)
 
     def test_life_stage_vanilla_changes_but_ce_only_uses_ce_column(self):
-        labels = [
-            'AnimalAdult or EusocialInsectAdult',
-            'AnimalJuvenile or EusocialInsectJuvenile',
-            'AnimalBaby or EusocialInsectLarva',
-            'AnimalBabyTiny',
-        ]
-        records = []
-        for label in labels:
-            record = {col: 1.0 for col in REQUIRED_COLUMNS if col != 'Life stage'}
-            record['Life stage'] = label
-            records.append(record)
-        records[1].update({
-            'meleeDamageFactor': .65, 'meleeDamageFactor(CE)': .45,
-            'MeleeAttackIntervalFactor': .9, 'MeleeAttackIntervalFactor(CE)': .8,
-            'MeleeCritChance': .9, 'MeleeParryChance': .9,
-            'foodMaxFactor': 1.2, 'FilthRate': .5,
-        })
-        df = pd.DataFrame(records)
+        df=full_life_stages_fixture()
+        df.loc[1,'meleeDamageFactor']=.65
+        df.loc[1,'meleeDamageFactor(CE)']=.45
+        df.loc[1,'MeleeAttackIntervalFactor']=.9
+        df.loc[1,'MeleeAttackIntervalFactor(CE)']=.8
+        df.loc[1,'MeleeCritChance']=.9
+        df.loc[1,'MeleeParryChance']=.9
+        df.loc[1,'foodMaxFactor']=1
+        df.loc[1,'FilthRate']=.5
         vanilla = E.ElementTree(E.fromstring('<Patch/>'))
         ce = E.ElementTree(E.fromstring('<Patch/>'))
         update_life_stages(vanilla, df)

@@ -820,3 +820,12 @@ Use Species overrides only for genuine species-level exceptions that should supe
 The service sheets are part of the production pipeline. They should not be treated as disposable scratch sheets: the checker-visible Animals/Animals CE outputs depend on the calculations they feed.
 
 For the actual generation commands, Google authorization, OriginalXML simulation and patch optimization, see CHECKER.md.
+
+### Life-stage source ownership
+
+Checker reads the `Source mod` column of `LifeStages` to distinguish the
+vanilla/eusocial Core life-stage factors from five growth stages in Vanilla
+Animals Expanded — Royal Animals. The Royal source retains its own native
+Megachicken age thresholds and graphics. Zoology regenerates only the
+stage-stat factors and stage combat-power extension, with CE-specific values
+loaded in the CE folder after Royal Animals.
