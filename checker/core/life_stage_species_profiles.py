@@ -224,8 +224,10 @@ def render_species_life_stage_profiles(species_profiles, attacks,
         market_value = _number(row.get("MarketValueFactor"),
                                f"{label} row {number} MarketValueFactor")
         if status == "READY" and (combat_power is None or market_value is None or
-                                  _number(row.get("ArmorRating_Sharp"), "sharp armor") is None or
-                                  _number(row.get("ArmorRating_Blunt"), "blunt armor") is None):
+                                  _number(row.get("ArmorRating_Sharp"), "sharp armor",
+                                          positive=False) is None or
+                                  _number(row.get("ArmorRating_Blunt"), "blunt armor",
+                                          positive=False) is None):
             raise ValueError(f"{label} row {number}: READY profile has missing outputs")
         if status == "INCOMPLETE":
             diagnostics["species_rows_incomplete"] += 1
