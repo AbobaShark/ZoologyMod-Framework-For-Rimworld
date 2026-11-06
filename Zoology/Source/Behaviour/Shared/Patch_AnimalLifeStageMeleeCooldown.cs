@@ -15,9 +15,10 @@ namespace ZoologyMod
             return settings == null || !settings.DisableAllRuntimePatches;
         }
 
-        private static void Postfix(Tool tool, Pawn attacker, ref float __result)
+        private static void Postfix(Tool tool, Pawn attacker, Thing equipment, ref float __result)
         {
-            if (tool == null || attacker == null || !attacker.RaceProps.Animal)
+            if (tool == null || attacker?.RaceProps?.Animal != true
+                || (equipment != null && equipment != attacker))
             {
                 return;
             }
@@ -36,8 +37,7 @@ namespace ZoologyMod
     }
 
 
-    // Only natural tools whose source Tool references match the profile are
-    // modified. Equipped weapons and hediff verbs are untouched.
+    // Apply only to natural attacks, never equipped weapons or hediff verbs.
     [HarmonyPatch(typeof(VerbProperties), nameof(VerbProperties.AdjustedMeleeDamageAmount),
         new Type[] { typeof(Tool), typeof(Pawn), typeof(Thing), typeof(HediffComp_VerbGiver) })]
     internal static class Patch_AnimalLifeStageToolDamage
@@ -48,8 +48,13 @@ namespace ZoologyMod
             return settings == null || !settings.DisableAllRuntimePatches;
         }
 
-        private static void Postfix(Tool tool, Pawn attacker, ref float __result)
+        private static void Postfix(Tool tool, Pawn attacker, Thing equipment,
+            HediffComp_VerbGiver hediffCompSource, ref float __result)
         {
+            if (attacker?.RaceProps?.Animal != true || hediffCompSource != null
+                || (equipment != null && equipment != attacker))
+                return;
+
             ZoologyLifeStageToolFactor factor;
             if (ZoologyLifeStageProfileInstaller.TryGetToolFactor(attacker, tool, out factor))
             {

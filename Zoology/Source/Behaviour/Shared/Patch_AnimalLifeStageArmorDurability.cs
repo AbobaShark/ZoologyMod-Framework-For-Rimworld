@@ -48,7 +48,7 @@ namespace ZoologyMod
             bool scaled = ZoologyLifeStageProfileInstaller.TryGetArmorDurabilityFactor(
                 pawn, out factor);
             Snapshot snapshot;
-            if (!scaled && !Snapshots.TryGetValue(__instance, out snapshot))
+            if (!Snapshots.TryGetValue(__instance, out snapshot) && !scaled)
                 return;
 
             float maximum = __result * (scaled ? factor : 1f);

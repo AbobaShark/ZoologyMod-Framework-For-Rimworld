@@ -206,9 +206,6 @@ namespace ZoologyMod
                         nameof(Patch_CompPawnSpawnOnWakeup_InsectCocoonBudget.Prefix)));
             }
 
-            if (!settings.EnableOverrideCEPenetration)
-                TryUnpatchHarmonyId("com.abobashark.zoology.mod.melee");
-
             if (!settings.EnableAnimalDamageReduction || settings.DisableAllRuntimePatches)
                 global::ZoologyMod.Patches.DamageReduction_AnimalTypes_PawnTakeDamage.EnsureUnpatched();
         }

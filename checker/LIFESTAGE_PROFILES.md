@@ -31,10 +31,17 @@ neutral ratio; if only one is missing, validation must not silently succeed.
 
 The C# installer clones only LifeStageDefs referenced by a race's
 lifeStageAges; unaffected fields from the original Def and its LifeStageAge
-are preserved. Tool identity is checked using label, body-part group and
-capacities during installation. Individual Tool objects are then cached by
-reference. No repeated lookup by attack name or AnimalStats calculation
-takes place during an attack.
+are preserved. LifeStageProfiles defines StageBodySize, StageHealthScaleFactor
+and CEArmorDurabilityFactor. The latter is calculated from the integument
+mass in SERVICE_LifeStageCalculations and installed through a lightweight
+CE-only CompArmorDurability getter patch; the shared CompProperties are
+not mutated. Tool identity is resolved against the loaded animal's actual natural attacks
+by body-part group, label and capacities; Vanilla/CE tool indices are used
+only as a tie-breaker. The installer emits one aggregate diagnostic for
+unresolvable attacks instead of per-attack startup spam. Tool objects are
+cached by reference. A CE verb returning a ToolCE copy is matched once
+and cached for subsequent requests. No biomechanical calculation occurs
+during an attack.
 
 ## Current generated artifacts
 

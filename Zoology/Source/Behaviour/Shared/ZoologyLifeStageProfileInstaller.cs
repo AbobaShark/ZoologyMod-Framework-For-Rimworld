@@ -657,7 +657,7 @@ namespace ZoologyMod
             bool label = !string.IsNullOrEmpty(entry.label)
                 && string.Equals(NormalizeToolLabel(entry.label),
                     NormalizeToolLabel(tool.label), StringComparison.OrdinalIgnoreCase);
-            bool capacities = MatchesCapacities(entry.capacities, tool.capacities);
+            bool capacities = MatchesCapacities(entry.capacities, tool);
             if (!group && !(label && capacities))
                 return 0;
             return (group ? 8 : 0) + (label ? 4 : 0) + (capacities ? 2 : 0);
@@ -671,14 +671,15 @@ namespace ZoologyMod
                 && first.linkedBodyPartsGroup == second.linkedBodyPartsGroup;
             bool label = string.Equals(NormalizeToolLabel(first.label),
                 NormalizeToolLabel(second.label), StringComparison.OrdinalIgnoreCase);
-            bool capacities = SameCapacities(first.capacities, second.capacities);
+            bool capacities = SameCapacities(first, second);
             if (!group && !(label && capacities))
                 return 0;
             return (group ? 8 : 0) + (label ? 4 : 0) + (capacities ? 2 : 0);
         }
 
-        private static bool MatchesCapacities(string expected, List<PawnCapacityDef> actual)
+        private static bool MatchesCapacities(string expected, Tool tool)
         {
+            var actual = tool?.capacities;
             if (string.IsNullOrEmpty(expected) || actual == null)
                 return false;
             var components = expected.Split(',');
@@ -702,8 +703,10 @@ namespace ZoologyMod
             return true;
         }
 
-        private static bool SameCapacities(List<PawnCapacityDef> first, List<PawnCapacityDef> second)
+        private static bool SameCapacities(Tool left, Tool right)
         {
+            var first = left?.capacities;
+            var second = right?.capacities;
             if (first == null || second == null || first.Count != second.Count)
                 return false;
             for (int i = 0; i < first.Count; i++)
