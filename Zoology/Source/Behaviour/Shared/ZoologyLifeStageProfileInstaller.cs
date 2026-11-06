@@ -275,11 +275,16 @@ namespace ZoologyMod
             }
 
             Dictionary<Tool, ZoologyLifeStageToolFactor> selectedTools = null;
-            if (profile.tools != null && animal.tools != null)
+            // Checker compiles exact per-Tool coefficients into this generated
+            // source file. The XML catalog controls which life stages exist,
+            // while the compiled registry owns the independent attack values.
+            var generatedTools = ZoologyGeneratedLifeStageAttacks.For(
+                profile.animalDefName, profile.sourceStageDefName);
+            if (generatedTools != null && animal.tools != null)
             {
-                for (int i = 0; i < profile.tools.Count; i++)
+                for (int i = 0; i < generatedTools.Count; i++)
                 {
-                    var entry = profile.tools[i];
+                    var entry = generatedTools[i];
                     if (entry == null || !entry.HasChanges()
                         || !IsValidToolFactor(entry)
                         || entry.toolIndex < 0 || entry.toolIndex >= animal.tools.Count)
