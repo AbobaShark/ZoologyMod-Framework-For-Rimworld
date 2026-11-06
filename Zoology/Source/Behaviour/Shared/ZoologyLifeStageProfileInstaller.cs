@@ -23,6 +23,7 @@ namespace ZoologyMod
             toolFactorsByStage = new Dictionary<LifeStageDef, Dictionary<Tool, ZoologyLifeStageToolFactor>>();
 
         private static bool applied;
+        private static int mappedNaturalTools;
 
         public static void ApplyOnce()
         {
@@ -85,8 +86,10 @@ namespace ZoologyMod
             }
 
             timer.Stop();
-            Log.Message("[Zoology] Installed " + installed + " species life stages in "
-                + timer.ElapsedMilliseconds + " ms (" + skipped + " invalid profiles skipped).");
+            Log.Message("[Zoology] Installed " + installed + " species life stages, "
+                + mappedNaturalTools + " individually mapped natural tools in "
+                + timer.ElapsedMilliseconds + " ms (" + skipped
+                + " invalid catalog entries; absent optional species and neutral stages are not errors).");
         }
 
         public static bool TryGetToolFactor(Pawn pawn, Tool tool, out ZoologyLifeStageToolFactor factor)
@@ -357,6 +360,7 @@ namespace ZoologyMod
             if (selectedTools != null)
             {
                 toolFactorsByStage.Add(replacement, selectedTools);
+                mappedNaturalTools += selectedTools.Count;
             }
             return true;
         }
