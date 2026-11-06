@@ -24,6 +24,9 @@ namespace ZoologyMod
 
         private static bool applied;
         private static int mappedNaturalTools;
+        private static bool nativeHashAllocatorAvailable = true;
+        private static HashSet<ushort> fallbackUsedHashes;
+        private static bool warnedFallbackHashes;
 
         public static void ApplyOnce()
         {
@@ -376,31 +379,90 @@ namespace ZoologyMod
 
         private static bool AssignShortHash(LifeStageDef stage)
         {
-            if (GiveShortHashMethod == null || TakenHashesField == null)
+            // Prefer the game's own allocator when its reflected contract is
+            // available. On versions with a different private implementation,
+            // use a deterministic, collision-checked hash over loaded stages.
+            if (nativeHashAllocatorAvailable
+                && GiveShortHashMethod != null && TakenHashesField != null)
             {
-                Log.Error("[Zoology] RimWorld's ShortHashGiver signature changed.");
-                return false;
-            }
-            try
-            {
-                var byType = TakenHashesField.GetValue(null)
-                    as Dictionary<Type, HashSet<ushort>>;
-                HashSet<ushort> taken;
-                if (byType == null || !byType.TryGetValue(typeof(LifeStageDef), out taken)
-                    || taken == null)
+                try
                 {
-                    Log.Error("[Zoology] LifeStageDef shortHash registry is unavailable.");
-                    return false;
+                    var perType = TakenHashesField.GetValue(null)
+                        as Dictionary<Type, HashSet<ushort>>;
+                    HashSet<ushort> taken;
+                    if (perType != null
+                        && perType.TryGetValue(typeof(LifeStageDef), out taken)
+                        && taken != null)
+                    {
+                        GiveShortHashMethod.Invoke(null,
+                            new object[] { stage, typeof(LifeStageDef), taken });
+                        if (stage.shortHash != 0 && taken.Contains(stage.shortHash))
+                        {
+                            return true;
+                        }
+                    }
                 }
-                GiveShortHashMethod.Invoke(null,
-                    new object[] { stage, typeof(LifeStageDef), taken });
-                return stage.shortHash != 0 && taken.Contains(stage.shortHash);
+                catch (Exception ex)
+                {
+                    Log.Warning("[Zoology] Native LifeStageDef shortHash allocator failed: "
+                        + ex.GetType().Name + "; using deterministic fallback.");
+                }
             }
-            catch (Exception ex)
+            nativeHashAllocatorAvailable = false;
+            return AssignFallbackShortHash(stage);
+        }
+
+        private static bool AssignFallbackShortHash(LifeStageDef stage)
+        {
+            if (fallbackUsedHashes == null)
             {
-                Log.Warning("[Zoology] Cannot assign short hash for " + stage.defName + ": " + ex);
-                return false;
+                fallbackUsedHashes = new HashSet<ushort>();
+                var loaded = DefDatabase<LifeStageDef>.AllDefsListForReading;
+                for (int i = 0; i < loaded.Count; i++)
+                {
+                    var other = loaded[i];
+                    if (other != null && other.shortHash != 0)
+                    {
+                        fallbackUsedHashes.Add(other.shortHash);
+                    }
+                }
             }
+
+            if (!warnedFallbackHashes)
+            {
+                warnedFallbackHashes = true;
+                Log.Warning("[Zoology] Using stable fallback short hashes for generated "
+                    + "LifeStageDefs. Check compatibility with the installed RimWorld version.");
+            }
+
+            // FNV-1a over UTF-16 code units is stable across .NET runtimes;
+            // string.GetHashCode is randomized and cannot be used for saved Defs.
+            uint hash = 2166136261u;
+            unchecked
+            {
+                string name = stage.defName ?? string.Empty;
+                for (int i = 0; i < name.Length; i++)
+                {
+                    hash = (hash ^ name[i]) * 16777619u;
+                }
+            }
+            ushort candidate = (ushort)(hash & 65535u);
+            if (candidate == 0)
+            {
+                candidate = 1;
+            }
+            for (int attempts = 0; attempts < ushort.MaxValue; attempts++)
+            {
+                if (fallbackUsedHashes.Add(candidate))
+                {
+                    stage.shortHash = candidate;
+                    return true;
+                }
+                candidate = candidate == ushort.MaxValue
+                    ? (ushort)1 : (ushort)(candidate + 1);
+            }
+            Log.Error("[Zoology] All LifeStageDef short hashes are taken.");
+            return false;
         }
 
         private static bool MatchesToolSignature(Tool tool, ZoologyLifeStageToolFactor entry)
