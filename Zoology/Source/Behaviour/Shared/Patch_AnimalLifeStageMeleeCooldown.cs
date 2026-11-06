@@ -5,18 +5,6 @@ using Verse;
 
 namespace ZoologyMod
 {
-    // Only configured animal melee attacks use this stat. No global tick hook.
-    [DefOf]
-    internal static class ZoologyLifeStageStatDefOf
-    {
-        public static StatDef Zoology_MeleeCooldownFactor;
-
-        static ZoologyLifeStageStatDefOf()
-        {
-            DefOfHelper.EnsureInitializedInCtor(typeof(ZoologyLifeStageStatDefOf));
-        }
-    }
-
     [HarmonyPatch(typeof(VerbProperties), nameof(VerbProperties.AdjustedCooldown),
         new Type[] { typeof(Tool), typeof(Pawn), typeof(Thing) })]
     internal static class Patch_AnimalLifeStageMeleeCooldown

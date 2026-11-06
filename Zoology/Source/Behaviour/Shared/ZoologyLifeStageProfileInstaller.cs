@@ -24,6 +24,12 @@ namespace ZoologyMod
 
         private static readonly Dictionary<LifeStageDef, ZoologyLifeStageArmorOffsets>
             armorOffsetsByStage = new Dictionary<LifeStageDef, ZoologyLifeStageArmorOffsets>();
+        private static readonly Dictionary<LifeStageDef, float> armorDurabilityByStage =
+            new Dictionary<LifeStageDef, float>();
+        private static readonly Dictionary<LifeStageDef, Dictionary<Tool, ZoologyLifeStageToolFactor>>
+            resolvedToolCopiesByStage = new Dictionary<LifeStageDef, Dictionary<Tool, ZoologyLifeStageToolFactor>>();
+        private static int unresolvedToolMappings;
+        private static readonly List<string> unresolvedToolExamples = new List<string>();
 
         private static bool applied;
         private static int mappedNaturalTools;
@@ -97,6 +103,12 @@ namespace ZoologyMod
             }
 
             timer.Stop();
+            if (unresolvedToolMappings > 0)
+            {
+                Log.Warning("[Zoology] " + unresolvedToolMappings
+                    + " natural attacks could not be identified unambiguously in the loaded animal defs. "
+                    + "Example species/stages: " + string.Join("; ", unresolvedToolExamples));
+            }
             Log.Message("[Zoology] Installed " + installed + " species life stages, "
                 + mappedNaturalTools + " individually mapped natural tools in "
                 + timer.ElapsedMilliseconds + " ms (" + skipped
@@ -106,16 +118,56 @@ namespace ZoologyMod
         public static bool TryGetToolFactor(Pawn pawn, Tool tool, out ZoologyLifeStageToolFactor factor)
         {
             factor = null;
-            if (pawn == null || tool == null || pawn.RaceProps?.Animal != true)
-            {
+            if (pawn?.RaceProps?.Animal != true || tool == null)
                 return false;
-            }
 
             var stage = pawn.ageTracker?.CurLifeStage;
-            Dictionary<Tool, ZoologyLifeStageToolFactor> byTool;
-            return stage != null
-                && toolFactorsByStage.TryGetValue(stage, out byTool)
-                && byTool.TryGetValue(tool, out factor);
+            Dictionary<Tool, ZoologyLifeStageToolFactor> mapped;
+            if (stage == null || !toolFactorsByStage.TryGetValue(stage, out mapped))
+                return false;
+
+            if (mapped.TryGetValue(tool, out factor))
+                return true;
+
+            // Some modded verbs construct a ToolCE copy instead of retaining
+            // the ThingDef.tools reference. Resolve once, then cache the copy
+            // so no string comparisons occur on subsequent attacks.
+            Dictionary<Tool, ZoologyLifeStageToolFactor> copies;
+            if (!resolvedToolCopiesByStage.TryGetValue(stage, out copies))
+            {
+                copies = new Dictionary<Tool, ZoologyLifeStageToolFactor>();
+                resolvedToolCopiesByStage.Add(stage, copies);
+            }
+            if (copies.TryGetValue(tool, out factor))
+                return factor != null;
+
+            int bestScore = 0;
+            int ties = 0;
+            ZoologyLifeStageToolFactor winner = null;
+            foreach (var mappedTool in mapped)
+            {
+                int score = CompareActualTools(tool, mappedTool.Key);
+                if (score > bestScore)
+                {
+                    bestScore = score;
+                    winner = mappedTool.Value;
+                    ties = 1;
+                }
+                else if (score == bestScore && score > 0)
+                {
+                    ties++;
+                }
+            }
+            factor = ties == 1 ? winner : null;
+            copies.Add(tool, factor);
+            return factor != null;
+        }
+
+        internal static bool TryGetArmorDurabilityFactor(Pawn pawn, out float factor)
+        {
+            factor = 1f;
+            var stage = pawn?.ageTracker?.CurLifeStage;
+            return stage != null && armorDurabilityByStage.TryGetValue(stage, out factor);
         }
 
         private static bool TryInstall(ZoologyLifeStageProfile profile)
@@ -211,6 +263,18 @@ namespace ZoologyMod
             replacement.modExtensions.Add(new ZoologyLifeStageOrigin { sourceStage = original });
 
             bool changed = false;
+            if (IsFinitePositive(profile.bodySizeFactor)
+                && Math.Abs(replacement.bodySizeFactor - profile.bodySizeFactor) > 0.000001f)
+            {
+                replacement.bodySizeFactor = profile.bodySizeFactor;
+                changed = true;
+            }
+            if (IsFinitePositive(profile.healthScaleFactor)
+                && Math.Abs(replacement.healthScaleFactor - profile.healthScaleFactor) > 0.000001f)
+            {
+                replacement.healthScaleFactor = profile.healthScaleFactor;
+                changed = true;
+            }
             if (IsFinitePositive(profile.combatPowerFactor))
             {
                 var existingCombat = replacement.GetModExtension<LifeStageCombatPowerExtension>();
@@ -339,6 +403,18 @@ namespace ZoologyMod
                 changed = true;
             }
 
+            if (hasCe && profile.ceArmorDurabilityFactor >= 0f)
+            {
+                if (!IsFinitePositive(profile.ceArmorDurabilityFactor))
+                {
+                    Log.Warning("[Zoology] Invalid CE armor durability factor for "
+                        + animal.defName + "/" + original.defName);
+                    return false;
+                }
+                if (Math.Abs(profile.ceArmorDurabilityFactor - 1f) > 0.000001f)
+                    changed = true;
+            }
+
             Dictionary<Tool, ZoologyLifeStageToolFactor> selectedTools = null;
             // Checker compiles exact per-Tool coefficients into this generated
             // source file. The XML catalog controls which life stages exist,
@@ -357,20 +433,15 @@ namespace ZoologyMod
 
                     int toolIndex = hasCe ? entry.ceToolIndex : entry.vanillaToolIndex;
                     if (toolIndex < 0)
+                        continue; // Attack does not exist in this combat mode.
+
+                    Tool tool = ResolveNaturalTool(animal.tools, entry, toolIndex, selectedTools);
+                    if (tool == null)
                     {
-                        continue; // Attack is absent in the selected mode.
-                    }
-                    if (toolIndex >= animal.tools.Count)
-                    {
-                        Log.Warning("[Zoology] " + animal.defName + "/" + original.defName
-                            + ": tool #" + toolIndex + " is out of range; skipping it.");
-                        continue;
-                    }
-                    Tool tool = animal.tools[toolIndex];
-                    if (!MatchesToolSignature(tool, entry))
-                    {
-                        Log.Warning("[Zoology] " + animal.defName + "/" + original.defName
-                            + ": tool #" + toolIndex + " differs from Checker; skipping it.");
+                        unresolvedToolMappings++;
+                        if (unresolvedToolExamples.Count < 12)
+                            unresolvedToolExamples.Add(animal.defName + "/" + original.defName
+                                + " [" + entry.label + ", " + entry.linkedBodyPartsGroup + "]");
                         continue;
                     }
                     if (!entry.HasChanges())
@@ -384,8 +455,7 @@ namespace ZoologyMod
                     }
                     if (selectedTools.ContainsKey(tool))
                     {
-                        Log.Warning("[Zoology] Duplicate tool modifier " + animal.defName
-                            + "/" + original.defName + " #" + toolIndex);
+                        unresolvedToolMappings++;
                         continue;
                     }
                     selectedTools.Add(tool, entry);
@@ -423,6 +493,11 @@ namespace ZoologyMod
             {
                 armorOffsetsByStage.Add(replacement,
                     new ZoologyLifeStageArmorOffsets(sharpOffset, bluntOffset));
+            }
+            if (hasCe && IsFinitePositive(profile.ceArmorDurabilityFactor)
+                && Math.Abs(profile.ceArmorDurabilityFactor - 1f) > 0.000001f)
+            {
+                armorDurabilityByStage.Add(replacement, profile.ceArmorDurabilityFactor);
             }
             if (selectedTools != null)
             {
@@ -541,40 +616,99 @@ namespace ZoologyMod
             return false;
         }
 
-        private static bool MatchesToolSignature(Tool tool, ZoologyLifeStageToolFactor entry)
+        // Match by meaningful attack identity, not by the index produced by a
+        // particular patch ordering. The recorded index is a last tie-breaker
+        // only after a biological signature match.
+        private static Tool ResolveNaturalTool(List<Tool> tools, ZoologyLifeStageToolFactor entry,
+            int preferredIndex, Dictionary<Tool, ZoologyLifeStageToolFactor> used)
         {
-            if (tool == null || entry == null)
+            Tool winner = null;
+            int best = 0;
+            int ties = 0;
+            for (int i = 0; i < tools.Count; i++)
             {
-                return false;
-            }
-            if (!string.IsNullOrEmpty(entry.label)
-                && !string.Equals(NormalizeToolLabel(entry.label), NormalizeToolLabel(tool.label),
-                    StringComparison.OrdinalIgnoreCase))
-            {
-                return false;
-            }
-            if (!string.IsNullOrEmpty(entry.linkedBodyPartsGroup)
-                && !string.Equals(entry.linkedBodyPartsGroup, tool.linkedBodyPartsGroup?.defName,
-                    StringComparison.Ordinal))
-            {
-                return false;
-            }
-            if (!string.IsNullOrEmpty(entry.capacities))
-            {
-                var expected = entry.capacities.Split(',');
-                if (tool.capacities == null || tool.capacities.Count != expected.Length)
+                var tool = tools[i];
+                if (tool == null || (used != null && used.ContainsKey(tool)))
+                    continue;
+                int score = MatchProfileToTool(tool, entry);
+                if (score <= 0)
+                    continue;
+                if (i == preferredIndex)
+                    score++;
+                if (score > best)
                 {
-                    return false;
+                    winner = tool;
+                    best = score;
+                    ties = 1;
                 }
-                for (int i = 0; i < expected.Length; i++)
+                else if (score == best)
                 {
-                    if (!string.Equals(expected[i].Trim(), tool.capacities[i]?.defName,
-                        StringComparison.OrdinalIgnoreCase))
+                    ties++;
+                }
+            }
+            return ties == 1 ? winner : null;
+        }
+
+        private static int MatchProfileToTool(Tool tool, ZoologyLifeStageToolFactor entry)
+        {
+            bool group = !string.IsNullOrEmpty(entry.linkedBodyPartsGroup)
+                && string.Equals(entry.linkedBodyPartsGroup,
+                    tool.linkedBodyPartsGroup?.defName, StringComparison.OrdinalIgnoreCase);
+            bool label = !string.IsNullOrEmpty(entry.label)
+                && string.Equals(NormalizeToolLabel(entry.label),
+                    NormalizeToolLabel(tool.label), StringComparison.OrdinalIgnoreCase);
+            bool capacities = MatchesCapacities(entry.capacities, tool.capacities);
+            if (!group && !(label && capacities))
+                return 0;
+            return (group ? 8 : 0) + (label ? 4 : 0) + (capacities ? 2 : 0);
+        }
+
+        private static int CompareActualTools(Tool first, Tool second)
+        {
+            if (first == null || second == null)
+                return 0;
+            bool group = first.linkedBodyPartsGroup != null
+                && first.linkedBodyPartsGroup == second.linkedBodyPartsGroup;
+            bool label = string.Equals(NormalizeToolLabel(first.label),
+                NormalizeToolLabel(second.label), StringComparison.OrdinalIgnoreCase);
+            bool capacities = SameCapacities(first.capacities, second.capacities);
+            if (!group && !(label && capacities))
+                return 0;
+            return (group ? 8 : 0) + (label ? 4 : 0) + (capacities ? 2 : 0);
+        }
+
+        private static bool MatchesCapacities(string expected, List<PawnCapacityDef> actual)
+        {
+            if (string.IsNullOrEmpty(expected) || actual == null)
+                return false;
+            var components = expected.Split(',');
+            if (components.Length != actual.Count)
+                return false;
+            for (int i = 0; i < components.Length; i++)
+            {
+                bool found = false;
+                for (int j = 0; j < actual.Count; j++)
+                {
+                    if (string.Equals(components[i].Trim(), actual[j]?.defName,
+                            StringComparison.OrdinalIgnoreCase))
                     {
-                        return false;
+                        found = true;
+                        break;
                     }
                 }
+                if (!found)
+                    return false;
             }
+            return true;
+        }
+
+        private static bool SameCapacities(List<PawnCapacityDef> first, List<PawnCapacityDef> second)
+        {
+            if (first == null || second == null || first.Count != second.Count)
+                return false;
+            for (int i = 0; i < first.Count; i++)
+                if (first[i] != null && !second.Contains(first[i]))
+                    return false;
             return true;
         }
 
