@@ -16,7 +16,7 @@ from core.generation_registry import load_registry,audit_routes
 from core.xml_routing import plan,deploy,find_project_root
 
 SHEETS=('Animals','Animals CE','Base stats','Groups','Bionics','LifeStages',
-        'LifeStageAttackProfiles','EggMilkWool','Venom profiles','Biomes',
+        'SERVICE_BodySizeMassBands','LifeStageAttackProfiles','EggMilkWool','Venom profiles','Biomes',
         'Leathers','Animal textiles')
 LABELS={'animals':'Animal patches (Vanilla + CE)','venom':'Venom, antivenoms and recipes',
         'biomes':'Biome animal populations','products':'Eggs, hatchers, milk and wool',
