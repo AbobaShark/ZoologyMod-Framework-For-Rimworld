@@ -97,6 +97,26 @@ class SpeciesLifeStageProfilesTests(unittest.TestCase):
         baby_without_ce = [n for n in nodes(xml_without_ce) if n.findtext("sourceStageDefName") == "AnimalBaby"][0]
         self.assertIsNone(baby_without_ce.find("ceArmorDurabilityFactor"))
 
+    def test_zero_ce_armor_durability_is_valid_after_sheet_rounding(self):
+        args = list(sources())
+        args[0] = args[0].copy()
+        args[0].at[2, "CEArmorDurabilityFactor"] = 0
+        args[1] = args[0]
+        xml, _ = render(*args)
+        baby = [n for n in nodes(xml) if n.findtext("sourceStageDefName") == "AnimalBaby"][0]
+        self.assertEqual(baby.findtext("ceArmorDurabilityFactor"), "0")
+        xml_vanilla, _ = render(*args, ce=False)
+        baby_vanilla = [n for n in nodes(xml_vanilla) if n.findtext("sourceStageDefName") == "AnimalBaby"][0]
+        self.assertIsNone(baby_vanilla.find("ceArmorDurabilityFactor"))
+
+    def test_negative_ce_armor_durability_is_invalid(self):
+        args = list(sources())
+        args[0] = args[0].copy()
+        args[0].at[2, "CEArmorDurabilityFactor"] = -0.5
+        args[1] = args[0]
+        with self.assertRaisesRegex(ValueError, "invalid nonnegative"):
+            render(*args)
+
     def test_species_body_and_health_factors_can_change_independently_of_core(self):
         args = list(sources())
         args[0] = args[0].copy()

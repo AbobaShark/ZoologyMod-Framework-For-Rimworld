@@ -32,10 +32,15 @@ neutral ratio; if only one is missing, validation must not silently succeed.
 The C# installer clones only LifeStageDefs referenced by a race's
 lifeStageAges; unaffected fields from the original Def and its LifeStageAge
 are preserved. LifeStageProfiles defines StageBodySize, StageHealthScaleFactor
-and CEArmorDurabilityFactor. The latter is calculated from the integument
-mass in SERVICE_LifeStageCalculations and installed through a lightweight
-CE-only CompArmorDurability getter patch; the shared CompProperties are
-not mutated. Tool identity is resolved against the loaded animal's actual natural attacks
+and CEArmorDurabilityFactor. The CE durability factor is recomputed by exactly the adult
+Animals CE!AC formula: MROUND(250*(BodySize+baseHealthScale),25),
+where baseHealthScale = MROUND(BodySize * Groups.HealthMultiplier
+* Base stats.Health Multiplier,0.05). Stage BodySize comes from
+LifeStageProfiles.StageBodySize; the result is divided by the species'
+adult Animals CE!AC value. This is not a skin-mass ratio and preserves
+zero durability when the original 25-unit rounding yields zero.
+A CE-only CompArmorDurability patch handles this value and avoids NaN
+in curDurabilityPercent; shared CompProperties are not mutated. Tool identity is resolved against the loaded animal's actual natural attacks
 by body-part group, label and capacities; Vanilla/CE tool indices are used
 only as a tie-breaker. The installer emits one aggregate diagnostic for
 unresolvable attacks instead of per-attack startup spam. Tool objects are

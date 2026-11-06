@@ -405,7 +405,7 @@ namespace ZoologyMod
 
             if (hasCe && profile.ceArmorDurabilityFactor >= 0f)
             {
-                if (!IsFinitePositive(profile.ceArmorDurabilityFactor))
+                if (!IsFiniteNonnegative(profile.ceArmorDurabilityFactor))
                 {
                     Log.Warning("[Zoology] Invalid CE armor durability factor for "
                         + animal.defName + "/" + original.defName);
@@ -494,7 +494,7 @@ namespace ZoologyMod
                 armorOffsetsByStage.Add(replacement,
                     new ZoologyLifeStageArmorOffsets(sharpOffset, bluntOffset));
             }
-            if (hasCe && IsFinitePositive(profile.ceArmorDurabilityFactor)
+            if (hasCe && IsFiniteNonnegative(profile.ceArmorDurabilityFactor)
                 && Math.Abs(profile.ceArmorDurabilityFactor - 1f) > 0.000001f)
             {
                 armorDurabilityByStage.Add(replacement, profile.ceArmorDurabilityFactor);

@@ -15,6 +15,7 @@ namespace ZoologyMod
         private sealed class Snapshot
         {
             public float maximum;
+            public bool initialized;
         }
 
         private static readonly ConditionalWeakTable<ThingComp, Snapshot> Snapshots =
@@ -52,7 +53,8 @@ namespace ZoologyMod
                 return;
 
             float maximum = __result * (scaled ? factor : 1f);
-            if (!(maximum > 0f) || float.IsNaN(maximum) || float.IsInfinity(maximum))
+            // A legitimate MROUND-to-25 in AnimalStats can produce zero.
+            if (maximum < 0f || float.IsNaN(maximum) || float.IsInfinity(maximum))
                 return;
 
             if (snapshot == null)
@@ -71,14 +73,55 @@ namespace ZoologyMod
             }
             else if (snapshot.maximum == 0f)
             {
-                // Legacy saves may contain the old unscaled adult maximum.
                 float current = (float)CurrentField.GetValue(__instance);
-                if (current > maximum)
+                if (snapshot.initialized && maximum > 0f)
+                {
+                    // Growing from a stage with no durable natural armor:
+                    // restore the initially full capacity of the new stage.
                     CurrentField.SetValue(__instance, maximum);
+                }
+                else if (current > maximum)
+                {
+                    // Handles new pawns and old saves with adult durability.
+                    CurrentField.SetValue(__instance, maximum);
+                }
             }
 
             snapshot.maximum = maximum;
+            snapshot.initialized = true;
             __result = maximum;
+        }
+    }
+
+    [HarmonyPatch]
+    internal static class Patch_AnimalLifeStageArmorDurabilityPercent
+    {
+        private static readonly Type CECompType =
+            AccessTools.TypeByName("CombatExtended.CompArmorDurability");
+
+        private static bool Prepare()
+        {
+            var settings = ZoologyModSettings.Instance;
+            return CEChecker.IsCEInstalled() && CECompType != null
+                && AccessTools.PropertyGetter(CECompType, "curDurabilityPercent") != null
+                && (settings == null || !settings.DisableAllRuntimePatches);
+        }
+
+        private static MethodBase TargetMethod()
+        {
+            return CECompType == null ? null
+                : AccessTools.PropertyGetter(CECompType, "curDurabilityPercent");
+        }
+
+        private static void Postfix(ThingComp __instance, ref float __result)
+        {
+            // CE divides curDurability by maxDurability in this getter.
+            // For an AnimalStats-derived maximum of exactly zero, 0/0 is NaN.
+            if (__instance?.parent is Pawn pawn && pawn.RaceProps?.Animal == true
+                && float.IsNaN(__result))
+            {
+                __result = 0f;
+            }
         }
     }
 }
