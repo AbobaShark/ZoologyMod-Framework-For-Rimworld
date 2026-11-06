@@ -1,9 +1,8 @@
-"""Generate species-specific LifeStageDef input data, never game-time formulas.
+"""Compile LifeStage profiles from numerical cells ALREADY evaluated by AnimalStats.
 
-The generated XML describes *corrections* to resolved vanilla/mod LifeStageDefs.
-Numerical values come from the same workbook that supplies the adult ThingDefs.
-Attack-specific factors are accepted only from explicitly calculated per-tool
-rows; missing age-specific biomechanical predictions are not fabricated.
+No age- or species-specific formula is evaluated in Checker. All numerical
+inputs, including separate tool physics, come from workbook/TSV/XLSX columns.
+Checker validates identities, types and baselines and serializes XML.
 """
 from __future__ import annotations
 
@@ -12,12 +11,9 @@ import re
 from collections import Counter, defaultdict
 from lxml import etree as E
 
-from core.body_size_mass_equivalence import body_size_equivalent_mass_kg
 from core.life_stages import STAGE_GROUPS, ROYAL_STAGES, parse_stages
 
 _XML_NAMES = re.compile(r"<li>\s*([^<>]+?)\s*</li>")
-_STEP = 0.05
-_HUNGER_DENOMINATOR = 4.82 * (100_000 ** 0.734)
 _TOOL_FIELDS = (
     ("VanillaDamageFactor", "vanillaDamageFactor"),
     ("VanillaCooldownFactor", "vanillaCooldownFactor"),
@@ -26,318 +22,269 @@ _TOOL_FIELDS = (
     ("CESharpPenetrationFactor", "ceSharpPenetrationFactor"),
     ("CEBluntPenetrationFactor", "ceBluntPenetrationFactor"),
 )
+_STAT_FIELDS = (
+    ("FilthRate", "FilthRate", False),
+    ("MeleeDodgeChance", "MeleeDodgeChance", True),
+    ("MeleeCritChance", "MeleeCritChance", True),
+    ("MeleeParryChance", "MeleeParryChance", True),
+    ("ArmorRating_Sharp", "ArmorRating_Sharp", False),
+    ("ArmorRating_Blunt", "ArmorRating_Blunt", False),
+)
+_ERRORS = ("#REF!", "#N/A", "#DIV/0!", "#VALUE!", "#NUM!", "#NAME?", "#ERROR!")
 
 
-def _value(row, column, what):
-    if column not in row:
-        raise ValueError(f"{what}: missing column {column!r}")
-    return row[column]
-
-
-def _number(value, what, *, zero=False):
-    try:
-        result = float(str(value).strip().replace(",", "."))
-    except (ValueError, TypeError):
-        raise ValueError(f"{what}: missing/non-numeric: {value!r}") from None
-    if not math.isfinite(result) or (result < 0 if zero else result <= 0):
-        raise ValueError(f"{what}: expected finite {'non-negative' if zero else 'positive'} number: {value!r}")
-    return result
-
-
-def _optional_number(row, column):
-    value = row.get(column)
-    if value is None or str(value).strip().lower() in ("", "no", "none", "nan"):
-        return None
-    return _number(value, column, zero=True)
-
-
-def _mround_nonnegative(value, step=_STEP):
-    return math.floor(value / step + 0.5 + 1e-12) * step
-
-
-def _as_float(value):
-    return format(value, ".12g")
-
-
-def _xml_names(text):
-    raw = str(text or "").strip()
-    if not raw:
+def _xml_names(value):
+    source = str(value or "").strip()
+    if not source:
         return []
-    names = _XML_NAMES.findall(raw)
-    if not names or _XML_NAMES.sub("", raw).strip(" ,;\r\n\t"):
-        raise ValueError(f"Invalid Animals XML name: {raw!r}")
+    names = _XML_NAMES.findall(source)
+    if not names or _XML_NAMES.sub("", source).strip(" ,;\r\n\t"):
+        raise ValueError(f"Invalid AnimalStats XML name {source!r}")
     return names
 
 
-def _source_rows(frame, key, label):
-    if frame is None:
-        raise ValueError(f"Missing required AnimalStats sheet: {label}")
-    if key not in frame.columns:
-        raise ValueError(f"{label}: missing {key} column")
-    result = {}
-    for _, row in frame.iterrows():
-        value = str(row.get(key, "")).strip()
-        if not value:
-            continue
-        if value in result:
-            raise ValueError(f"{label}: duplicate lookup key {key}={value!r}")
-        result[value] = row.to_dict()
-    return result
+def _is_empty(value):
+    return value is None or str(value).strip().lower() in ("", "none", "nan", "no")
 
 
-def _hunger_for_body_size(body_size, physiology, ectothermic):
-    """Exactly Animals!AQ's body-size formula, including game quantization."""
-    s = float(body_size)
-    if not math.isfinite(s) or s <= 0:
-        raise ValueError(f"Invalid life-stage BodySize: {s}")
-    if ectothermic:
-        amount = 0.196 * (s * 100_000) ** 0.889
-    elif str(physiology) == "Bird":
-        amount = 10.5 * (s * 100_000) ** 0.681
-    else:
-        amount = 4.82 * (s * 100_000) ** 0.734
-    threshold = 2.0 if s < 3.5 else (1.5 if abs(s - 3.5) < 1e-10 else 1.25)
-    allometric_correction = 1 + 0.132282374779864 / (
-        s ** 0.994035016789033 + 0.00905238001496948)
-    return max(0.01, _mround_nonnegative(amount / _HUNGER_DENOMINATOR / threshold * allometric_correction))
+def _number(value, context, *, positive=True):
+    if _is_empty(value):
+        return None
+    if str(value).lstrip().startswith(_ERRORS):
+        raise ValueError(f"{context}: source formula error: {value!r}")
+    try:
+        number = float(str(value).strip().replace(",", "."))
+    except (ValueError, TypeError):
+        raise ValueError(f"{context}: expected numeric cell, got {value!r}") from None
+    if not math.isfinite(number) or (number <= 0 if positive else number < 0):
+        raise ValueError(f"{context}: invalid {'positive' if positive else 'nonnegative'} number {value!r}")
+    return number
 
 
-def _validate_adult_ce_stats(ce_row, group, mass, species):
-    """Detect stale CE source values after a workbook group/mass change."""
-    for stat, group_col, exponent in (
-        ("MeleeDodgeChance", "meleeDodgeChanceMultiplier", -0.165),
-        ("MeleeCritChance", "meleeCritChanceMultiplier", 0.165),
-        ("MeleeParryChance", "meleeParryChanceMultiplier", 0.165),
-    ):
-        actual = _optional_number(ce_row, stat)
-        coefficient = _optional_number(group, group_col)
-        if actual is None or coefficient is None:
-            continue
-        expected = _mround_nonnegative(coefficient * mass ** exponent)
-        if not math.isclose(actual, expected, rel_tol=0, abs_tol=1e-7):
-            raise ValueError(
-                f"{species}: Animals CE {stat}={actual} differs from the "
-                f"adult mass/group formula ({expected}); recalculate source")
+def _required(value, context, *, positive=True):
+    number = _number(value, context, positive=positive)
+    if number is None:
+        raise ValueError(f"{context}: missing required numeric cell")
+    return number
 
 
-def _has_spreadsheet_error(row):
-    return any(str(value).strip().startswith(
-        ("#REF!", "#N/A", "#DIV/0!", "#VALUE!", "#NUM!", "#NAME?", "#ERROR!"))
-        for value in row.values())
+def _text_number(value):
+    return format(value, ".12g")
 
 
-def _age_stat_factors(ce_row, group, mass, diagnostics):
-    entries = []
-    if ce_row is None or mass is None:
-        return entries
-    for name, header, group_col, exponent in (
-        ("MeleeDodgeChance", "MeleeDodgeChance", "meleeDodgeChanceMultiplier", -0.165),
-        ("MeleeCritChance", "MeleeCritChance", "meleeCritChanceMultiplier", 0.165),
-        ("MeleeParryChance", "MeleeParryChance", "meleeParryChanceMultiplier", 0.165),
-    ):
-        base = _optional_number(ce_row, header)
-        group_coefficient = _optional_number(group, group_col)
-        if base is None or group_coefficient is None:
-            continue
-        predicted = _mround_nonnegative(group_coefficient * mass ** exponent)
-        if base == 0:
-            if predicted != 0:
-                diagnostics["zero_base_nonzero_age_stat"] += 1
-            continue
-        factor = predicted / base
-        if not math.isfinite(factor) or factor < 0:
-            raise ValueError(f"Invalid age-scaled {name}: {factor}")
-        if abs(factor - 1) > 1e-9:
-            entries.append((name, factor, True))
-    return entries
+def _adult_rows(animals):
+    if animals is None or not {"XML name", "baseBodySize", "baseHungerRate"}.issubset(animals.columns):
+        raise ValueError("Animals must provide adult XML names, baseBodySize and baseHungerRate")
+    rows = {}
+    for _, record in animals.iterrows():
+        names = _xml_names(record.get("XML name", ""))
+        for name in names:
+            if name in rows:
+                raise ValueError(f"Animals duplicates XML name {name!r}")
+            rows[name] = record.to_dict()
+    return rows
 
 
-def _attack_rows(frame):
-    if frame is None:
-        return {}
-    required = {"XML name", "LifeStageDef", "ToolIndex"}
-    missing = required - set(frame.columns)
-    if missing:
-        raise ValueError(f"LifeStageAttackProfiles: missing columns {sorted(missing)}")
-    entries = defaultdict(list)
-    indices = set()
-    for row_number, (_, record) in enumerate(frame.iterrows(), start=2):
-        row = record.to_dict()
-        species = _xml_names(row.get("XML name"))
-        if len(species) != 1:
-            raise ValueError(f"LifeStageAttackProfiles row {row_number}: exactly one XML name required")
-        stage = str(row.get("LifeStageDef", "")).strip()
-        try:
-            index = int(str(row.get("ToolIndex", "")).strip())
-        except ValueError:
-            raise ValueError(f"LifeStageAttackProfiles row {row_number}: invalid ToolIndex") from None
-        if index < 0 or not stage:
-            raise ValueError(f"LifeStageAttackProfiles row {row_number}: empty stage or negative ToolIndex")
-        key = (species[0], stage, index)
-        if key in indices:
-            raise ValueError(f"LifeStageAttackProfiles: duplicate {key}")
-        indices.add(key)
-        factors = []
-        for column, output in _TOOL_FIELDS:
-            val = row.get(column)
-            if val is None or str(val).strip().lower() in ("", "no", "none", "nan"):
-                val = 1
-            factor = _number(val, f"LifeStageAttackProfiles row {row_number}/{column}")
-            if abs(factor - 1) > 1e-9:
-                factors.append((output, factor))
-        if not factors:
-            continue
-        entries[(species[0], stage)].append({
-            "index": index,
-            "label": str(row.get("ToolLabel", "")).strip(),
-            "linked": str(row.get("LinkedBodyPartsGroup", "")).strip(),
-            "factors": factors,
-        })
-    return entries
+def _tool_profiles(table, diagnostics):
+    """Strict, individually addressed Tool rows.
 
-
-def render_species_life_stage_profiles(animals, animals_ce, base_stats, groups, life_stages,
-                                       attack_profiles=None, *, mass_lookup=None):
-    """Return (XML bytes, diagnostic counts).
-
-    'LifeStageAttackProfiles' is optional; it must contain genuine, previously
-    calculated per-tool corrections. It is not inferred from adult attack DPS.
+    A non-ready row is never interpreted as six neutral coefficients. A READY
+    row must provide all six factors, making missing physics unrepresentable.
     """
+    output = defaultdict(list)
+    if table is None:
+        diagnostics["attack_sheet_missing"] += 1
+        return output
+    required = {"XML name", "LifeStageDef", "ToolIndex", "CalculationStatus",
+                *(column for column, _ in _TOOL_FIELDS)}
+    missing = required - set(table.columns)
+    if missing:
+        raise ValueError("LifeStageAttackProfiles missing columns: "
+                         + repr(sorted(missing)))
+    encountered = set()
+    for number, (_, record) in enumerate(table.iterrows(), start=2):
+        row = record.to_dict()
+        if _is_empty(row.get("XML name")):
+            continue
+        names = _xml_names(row.get("XML name"))
+        if len(names) != 1:
+            raise ValueError(f"LifeStageAttackProfiles row {number}: one XML name required")
+        name = names[0]
+        stage = str(row.get("LifeStageDef", "")).strip()
+        status = str(row.get("CalculationStatus", "")).strip().upper()
+        if status not in ("READY", "INCOMPLETE", "INVALID"):
+            raise ValueError(f"LifeStageAttackProfiles row {number}: invalid CalculationStatus {status!r}")
+        if status != "READY":
+            diagnostics["attack_rows_incomplete"] += 1
+            continue
+        raw_index = row.get("ToolIndex")
+        if _is_empty(raw_index):
+            raise ValueError(f"LifeStageAttackProfiles row {number}: no ToolIndex")
+        try:
+            index_number = float(str(raw_index).replace(",", "."))
+        except ValueError:
+            raise ValueError(f"LifeStageAttackProfiles row {number}: invalid ToolIndex") from None
+        if index_number < 0 or not index_number.is_integer():
+            raise ValueError(f"LifeStageAttackProfiles row {number}: non-integer ToolIndex")
+        index = int(index_number)
+        if not stage:
+            raise ValueError(f"LifeStageAttackProfiles row {number}: missing source LifeStageDef")
+        key = (name, stage, index)
+        if key in encountered:
+            raise ValueError(f"LifeStageAttackProfiles duplicate tool {key!r}")
+        encountered.add(key)
+        label = str(row.get("ToolLabel", "")).strip()
+        linked = str(row.get("LinkedBodyPartsGroup", "")).strip()
+        if not label and not linked:
+            raise ValueError(f"LifeStageAttackProfiles row {number}: tool identity guard missing")
+        factors = []
+        for column, field in _TOOL_FIELDS:
+            value = _required(row.get(column), f"{name}/{stage}/{index}/{column}")
+            if not math.isclose(value, 1.0, abs_tol=1e-10, rel_tol=0):
+                factors.append((field, value))
+        if factors:
+            output[(name, stage)].append((index, label, linked, factors))
+            diagnostics["attack_tools_ready"] += 1
+    return output
+
+
+def render_species_life_stage_profiles(species_profiles, attacks,
+                                       animals, life_stages, *, ce=True,
+                                       mass_lookup=None):
+    """Render XML from *evaluated* LifeStageSpeciesProfiles/AttackProfiles.
+
+    Missing biomechanical outputs remain absent: no universal power law or
+    adult-times-BodySize pseudo-mass is introduced in Checker.
+    """
+    if species_profiles is None:
+        raise ValueError("LifeStageSpeciesProfiles source is required")
+    required = {"XML name", "LifeStageDef", "ExpectedBaseBodySize",
+                "ExpectedBaseHungerRate", "ExpectedBodySizeFactor",
+                "HungerRateFactor", "CalculationStatus"}
+    missing = required - set(species_profiles.columns)
+    if missing:
+        raise ValueError(f"LifeStageSpeciesProfiles missing columns: {sorted(missing)}")
+    adults = _adult_rows(animals)
     stage_inputs = parse_stages(life_stages, mass_lookup=mass_lookup)
-    base_by_latin = _source_rows(base_stats, "Species", "Base stats")
-    groups_by_name = _source_rows(groups, "Name", "Groups")
-    ce_by_name = {}
-    if animals_ce is not None:
-        for _, record in animals_ce.iterrows():
-            row = record.to_dict()
-            for name in _xml_names(row.get("XML name", "")):
-                if name in ce_by_name:
-                    raise ValueError("Animals CE: duplicated XML name " + name)
-                ce_by_name[name] = row
-    attacks = _attack_rows(attack_profiles)
+    stage_groups = {}
+    for names, stage_values in stage_inputs:
+        label = " or ".join(names)
+        stage_groups[label] = (names, stage_values)
+    diagnostics = Counter()
+    tool_profiles = _tool_profiles(attacks, diagnostics)
+    rendered = set()
     root = E.Element("Defs")
     catalog = E.SubElement(root, "ZoologyLifeStageProfileCatalogDef",
                            Class="ZoologyMod.ZoologyLifeStageProfileCatalogDef, ZoologyMod")
     E.SubElement(catalog, "defName").text = "Zoology_GeneratedLifeStageProfiles"
-    E.SubElement(catalog, "label").text = "Zoology generated life-stage profiles"
+    E.SubElement(catalog, "label").text = "Zoology calculated animal life stages"
     stage_nodes = E.SubElement(catalog, "stages")
-    diagnostics = Counter()
-    rendered_keys = set()
-    unresolved_species = []
 
-    for _, record in animals.iterrows():
-        animal = record.to_dict()
-        names = _xml_names(animal.get("XML name", ""))
-        if not names:
+    for number, (_, record) in enumerate(species_profiles.iterrows(), start=2):
+        row = record.to_dict()
+        if _is_empty(row.get("XML name")):
             continue
-        latin = str(animal.get("Latin name", "")).strip()
-        if latin not in base_by_latin:
-            raise ValueError("Animals: species absent from Base stats: " + latin)
-        raw_group = str(base_by_latin[latin].get("Skill group", "")).strip()
-        group = groups_by_name.get(raw_group)
-        if group is None:
-            raise ValueError(f"{latin}: group {raw_group!r} not found")
-        # A broken imported formula must never be turned into a fabricated
-        # stage value. Preserve the unmodified original stage for this race.
-        # Report the source error in the staged generation diagnostics.
-        if _has_spreadsheet_error(animal) or _has_spreadsheet_error(base_by_latin[latin]) or any(
-            _has_spreadsheet_error(ce_by_name[name])
-            for name in names if name in ce_by_name
-        ):
-            unresolved_species.extend(names)
-            diagnostics["unresolved_source_rows"] += 1
+        names = _xml_names(row["XML name"])
+        label = str(row.get("LifeStageDef", "")).strip()
+        if label not in stage_groups:
+            raise ValueError(f"LifeStageSpeciesProfiles row {number}: unknown LifeStageDef {label!r}")
+        sources, common = stage_groups[label]
+        status = str(row.get("CalculationStatus", "")).strip().upper()
+        if status == "SOURCE ERROR":
+            diagnostics["species_rows_invalid_source"] += 1
             continue
-        body_size = _number(_value(animal, "baseBodySize", latin), f"{latin} baseBodySize")
-        adult_mass = _number(_value(base_by_latin[latin], "Body mass (kg)", latin),
-                             f"{latin} adult mass (kg)")
-        base_hunger = _number(_value(animal, "baseHungerRate", latin), f"{latin} baseHungerRate")
+        if status not in ("READY", "INCOMPLETE"):
+            raise ValueError(f"LifeStageSpeciesProfiles row {number}: invalid status {status!r}")
+        expected_body = _required(row.get("ExpectedBaseBodySize"),
+                                  f"{label} row {number} adult BodySize")
+        expected_hunger = _required(row.get("ExpectedBaseHungerRate"),
+                                    f"{label} row {number} adult hunger")
+        expected_stage_size = _required(row.get("ExpectedBodySizeFactor"),
+                                        f"{label} row {number} stage factor")
+        if not math.isclose(expected_stage_size, common["bodySizeFactor"], abs_tol=1e-7):
+            raise ValueError(f"{label} row {number}: stage factor differs from LifeStages")
+        hunger = _required(row.get("HungerRateFactor"),
+                           f"{label} row {number} stage hunger factor")
+        stats = []
+        for column, stat_name, ce_only in _STAT_FIELDS:
+            if ce_only and not ce:
+                continue
+            value = _number(row.get(column), f"{label} row {number} {column}",
+                            positive=False)
+            if value is not None and not math.isclose(value, 1, abs_tol=1e-10):
+                stats.append((stat_name, value, ce_only))
+        combat_power = _number(row.get("CombatPowerFactor"),
+                               f"{label} row {number} CombatPowerFactor")
+        market_value = _number(row.get("MarketValueFactor"),
+                               f"{label} row {number} MarketValueFactor")
+        if status == "READY" and (combat_power is None or market_value is None or
+                                  _number(row.get("ArmorRating_Sharp"), "sharp armor") is None or
+                                  _number(row.get("ArmorRating_Blunt"), "blunt armor") is None):
+            raise ValueError(f"{label} row {number}: READY profile has missing outputs")
+        if status == "INCOMPLETE":
+            diagnostics["species_rows_incomplete"] += 1
         for name in names:
-            ce_row = ce_by_name.get(name)
-            if animals_ce is not None and ce_row is None:
-                raise ValueError("Animals CE lacks species: " + name)
-            if ce_row is not None:
-                _validate_adult_ce_stats(ce_row, group, adult_mass, name)
-        adult_filth = _number(_value(animal, "FilthRate", latin), f"{latin} adult FilthRate", zero=True)
-        group_filth = _number(_value(group, "filthMultiplier", raw_group), f"{raw_group} filthMultiplier", zero=True)
-        physiology = str(group.get("Physiology", "")).strip()
-        ectothermic = str(animal.get("Ectothermic", "")).strip().lower() in ("true", "1", "yes")
-        base_expected_hunger = _hunger_for_body_size(body_size, physiology, ectothermic)
-        if abs(base_expected_hunger - base_hunger) > 0.00001:
-            raise ValueError(f"{latin}: Animals!AQ={base_hunger} does not match model "
-                             f"({base_expected_hunger}); update source workbook first")
-        expected_filth = math.ceil(body_size * group_filth - 1e-10)
-        if abs(expected_filth - adult_filth) > 0.00001:
-            raise ValueError(f"{latin}: Animals!K={adult_filth} differs from group "
-                             f"filth model ({expected_filth})")
-        is_royal = "VAERoy_Megachicken" in names
-        for group_stages, stage in stage_inputs:
-            royal_stage = group_stages[0].startswith("VAERoy_")
-            if royal_stage != is_royal:
+            adult = adults.get(name)
+            if adult is None:
+                raise ValueError(f"LifeStageSpeciesProfiles unknown species {name!r}")
+            for field, wanted in (("baseBodySize", expected_body),
+                                  ("baseHungerRate", expected_hunger)):
+                original = _required(adult.get(field), f"{name}/{field}")
+                if not math.isclose(original, wanted, abs_tol=1e-4):
+                    raise ValueError(f"{name}/{field}: source baseline changed")
+            if name == "VAERoy_Megachicken" and not sources[0].startswith("VAERoy_"):
                 continue
-            factor = stage["bodySizeFactor"]
-            if abs(factor - 1) <= 1e-9:
+            if name != "VAERoy_Megachicken" and sources[0].startswith("VAERoy_"):
                 continue
-            game_stage_size = body_size * factor
-            hunger_factor = _hunger_for_body_size(game_stage_size, physiology, ectothermic) / base_hunger
-            stage_filth = math.ceil(game_stage_size * group_filth - 1e-10)
-            filth_factor = None
-            if adult_filth:
-                filth_factor = stage_filth / adult_filth
-            elif stage_filth:
-                diagnostics["zero_base_nonzero_age_filth"] += 1
-
-            mass = None
-            try:
-                mass = (mass_lookup or body_size_equivalent_mass_kg)(game_stage_size)
-            except ValueError:
-                diagnostics["mass_below_or_above_mapped_bins"] += 1
-
-            for name in names:
-                ce_row = ce_by_name.get(name)
-                if animals_ce is not None and ce_row is None:
-                    raise ValueError("Animals CE lacks species: " + name)
-                stats = []
-                if filth_factor is not None and abs(filth_factor - 1) > 1e-9:
-                    stats.append(("FilthRate", filth_factor, False))
-                stats.extend(_age_stat_factors(ce_row, group, mass, diagnostics))
-                for source_stage in group_stages:
-                    profile_key = (name, source_stage)
-                    if profile_key in rendered_keys:
-                        raise ValueError("Duplicate age profile " + repr(profile_key))
-                    rendered_keys.add(profile_key)
-                    entry = E.SubElement(stage_nodes, "li")
-                    E.SubElement(entry, "animalDefName").text = name
-                    E.SubElement(entry, "sourceStageDefName").text = source_stage
-                    E.SubElement(entry, "expectedBaseBodySize").text = _as_float(body_size)
-                    E.SubElement(entry, "expectedBaseHungerRate").text = _as_float(base_hunger)
-                    E.SubElement(entry, "expectedBodySizeFactor").text = _as_float(factor)
-                    E.SubElement(entry, "hungerRateFactor").text = _as_float(hunger_factor)
-                    if stats:
-                        items = E.SubElement(entry, "statFactors")
-                        for stat_name, value, ce_only in stats:
-                            item = E.SubElement(items, "li")
-                            E.SubElement(item, "stat").text = stat_name
-                            E.SubElement(item, "factor").text = _as_float(value)
-                            if ce_only:
-                                E.SubElement(item, "ceOnly").text = "true"
-                    attack_entries = attacks.get(profile_key)
-                    if attack_entries:
-                        tool_list = E.SubElement(entry, "tools")
-                        for a in sorted(attack_entries, key=lambda x: x["index"]):
-                            tool = E.SubElement(tool_list, "li")
-                            E.SubElement(tool, "toolIndex").text = str(a["index"])
-                            if a["label"]:
-                                E.SubElement(tool, "label").text = a["label"]
-                            if a["linked"]:
-                                E.SubElement(tool, "linkedBodyPartsGroup").text = a["linked"]
-                            for field, value in a["factors"]:
-                                E.SubElement(tool, field).text = _as_float(value)
-                    diagnostics["profiles"] += 1
-    unknown_attacks = set(attacks) - rendered_keys
-    if unknown_attacks:
-        raise ValueError("Unmatched LifeStageAttackProfiles keys: " + repr(sorted(unknown_attacks)[:15]))
-    xml = E.tostring(root, encoding="utf-8", xml_declaration=True, pretty_print=True)
-    summary = dict(diagnostics)
-    if unresolved_species:
-        summary["unresolved_species"] = sorted(set(unresolved_species))
-    return xml, summary
+            for source in sources:
+                key = (name, source)
+                if key in rendered:
+                    raise ValueError(f"Duplicate life stage {key!r}")
+                rendered.add(key)
+                tools = tool_profiles.get(key, [])
+                changed = (not math.isclose(hunger, 1, abs_tol=1e-10)
+                           or bool(stats) or bool(tools)
+                           or combat_power is not None and not math.isclose(combat_power, 1)
+                           or market_value is not None and not math.isclose(market_value, 1))
+                if not changed:
+                    diagnostics["neutral_stages_omitted"] += 1
+                    continue
+                node = E.SubElement(stage_nodes, "li")
+                for tag, value in (
+                    ("animalDefName", name), ("sourceStageDefName", source),
+                    ("expectedBaseBodySize", _text_number(expected_body)),
+                    ("expectedBaseHungerRate", _text_number(expected_hunger)),
+                    ("expectedBodySizeFactor", _text_number(expected_stage_size)),
+                    ("hungerRateFactor", _text_number(hunger)),
+                ):
+                    E.SubElement(node, tag).text = value
+                if market_value is not None:
+                    E.SubElement(node, "marketValueFactor").text = _text_number(market_value)
+                if combat_power is not None:
+                    E.SubElement(node, "combatPowerFactor").text = _text_number(combat_power)
+                if stats:
+                    stat_list = E.SubElement(node, "statFactors")
+                    for stat_name, number, is_ce in stats:
+                        stat = E.SubElement(stat_list, "li")
+                        E.SubElement(stat, "stat").text = stat_name
+                        E.SubElement(stat, "factor").text = _text_number(number)
+                        if is_ce:
+                            E.SubElement(stat, "ceOnly").text = "true"
+                if tools:
+                    tools_node = E.SubElement(node, "tools")
+                    for index, tool_label, group, factors in sorted(tools):
+                        tool_node = E.SubElement(tools_node, "li")
+                        E.SubElement(tool_node, "toolIndex").text = str(index)
+                        if tool_label:
+                            E.SubElement(tool_node, "label").text = tool_label
+                        if group:
+                            E.SubElement(tool_node, "linkedBodyPartsGroup").text = group
+                        for output, value in factors:
+                            E.SubElement(tool_node, output).text = _text_number(value)
+                diagnostics["profiles"] += 1
+    unconsumed = set(tool_profiles) - rendered
+    if unconsumed:
+        raise ValueError("Unmatched READY attack profile stages: "
+                         + repr(sorted(unconsumed)[:15]))
+    return (E.tostring(root, encoding="utf-8", xml_declaration=True, pretty_print=True),
+            dict(diagnostics))
