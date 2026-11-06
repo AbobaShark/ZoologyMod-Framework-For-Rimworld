@@ -110,7 +110,7 @@ class SpeciesLifeStageProfilesTests(unittest.TestCase):
                 if x.findtext("sourceStageDefName") == "AnimalBaby"][0]
         tools = baby.xpath("./tools/li")
         self.assertEqual([x.findtext("toolIndex") for x in tools], ["1", "2"])
-        self.assertEqual([x.findtext("vanillaDamageFactor") for x in tools], [".4", ".5"])
+        self.assertEqual([x.findtext("vanillaDamageFactor") for x in tools], ["0.4", "0.5"])
         self.assertEqual(info["attack_tools_ready"], 2)
 
     def test_incomplete_attack_row_is_not_interpreted_as_neutral_coefficients(self):
