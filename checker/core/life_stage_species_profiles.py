@@ -307,7 +307,7 @@ def render_life_stage_attack_profiles_cs(attack_profiles):
         "            {",
     ]
     for (species, stage), tools in sorted(grouped.items()):
-        name = json.dumps(species + "\\n" + stage, ensure_ascii=True)
+        name = json.dumps(species + "\n" + stage, ensure_ascii=True)
         lines.append(f"                {{ {name}, new List<ZoologyLifeStageToolFactor>")
         lines.append("                    {")
         for index, label, group, factors in sorted(tools):
@@ -336,4 +336,4 @@ def render_life_stage_attack_profiles_cs(attack_profiles):
         "}",
         "",
     ])
-    return "\\n".join(lines).encode("utf-8"), dict(diagnostics)
+    return "\n".join(lines).encode("utf-8"), dict(diagnostics)
