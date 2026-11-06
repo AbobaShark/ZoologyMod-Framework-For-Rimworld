@@ -143,7 +143,9 @@ def _tool_profiles(table, diagnostics):
             raise ValueError(f"LifeStageAttackProfiles row {number}: tool identity guard missing")
         factors = []
         for column, field in _TOOL_FIELDS:
-            value = _required(row.get(column), f"{name}/{stage}/{index}/{column}")
+            positive = column in ("VanillaCooldownFactor", "CECooldownFactor")
+            value = _required(row.get(column), f"{name}/{stage}/{index}/{column}",
+                              positive=positive)
             if not math.isclose(value, 1.0, abs_tol=1e-10, rel_tol=0):
                 factors.append((field, value))
         if factors:
