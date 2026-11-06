@@ -25,7 +25,7 @@ _TOOL_FIELDS = (
 )
 _STAT_FIELDS = (
     ("FilthRate", "FilthRate", False),
-    ("MeleeDodgeChance", "MeleeDodgeChance", True),
+    ("MeleeDodgeChance", "MeleeDodgeChance", False),
     ("MeleeCritChance", "MeleeCritChance", True),
     ("MeleeParryChance", "MeleeParryChance", True),
     ("ArmorRating_Sharp", "ArmorRating_Sharp", False),
