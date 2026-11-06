@@ -67,14 +67,14 @@ class RouteAudit(unittest.TestCase):
         category_paths.extend((x['destination'],'biome_patch',x.get('requires')) for x in reg['biomes'])
         category_paths.extend((x['destination'],x['category'],x.get('requires')) for x in reg['shared_defs'])
         category_paths.extend((x['destination'],x['category'],x.get('requires')) for x in reg['outputs'])
-        self.assertEqual(len(category_paths), 151)
+        self.assertEqual(len(category_paths), 152)
         for dest, category, required in category_paths:
             with self.subTest(destination=dest):
                 self.assertNotIn(dest.lower(), seen)
                 seen.add(dest.lower())
                 self.assertEqual(route_dependency(self.mod,dest,preferred=required),required)
                 self.assertEqual(validate_target(self.mod,{'destination':dest,'category':category,'requires':required}).as_posix(),dest)
-        self.assertEqual(len(seen), 151)
+        self.assertEqual(len(seen), 152)
 
     def test_all_real_reproduction_paths_include_core_and_odyssey_hatchers(self):
         products=[e['destination'] for e in load_registry(CHECKER/'generation.json',self.mod)['outputs'] if e['pipeline_category']=='products']
