@@ -829,3 +829,22 @@ Animals Expanded — Royal Animals. The Royal source retains its own native
 Megachicken age thresholds and graphics. Zoology regenerates only the
 stage-stat factors and stage combat-power extension, with CE-specific values
 loaded in the CE folder after Royal Animals.
+
+### Life-stage allometry and engine application
+
+The game `BodySize` is not physical mass. `AnimalStats!Animals!AO`
+converts physical mass to a rounded, piecewise `baseBodySize`; for Royal
+Megachicken, the five growth-stage body sizes are inverted to corresponding
+body-mass range midpoints using `SERVICE_BodySizeMassBands`. Hirt's
+terrestrial maximum-running-speed curve is applied to the *mapped* masses;
+bodySizeFactor is never substituted for a physical mass multiplier.
+
+Shared Core LifeStageDefs cannot carry species-specific empirical mass
+curves: their stat scaling is relative to `bodySizeFactor` and avoids any
+assumed 70 kg adult. Vanilla `PriceUtility.PawnQualityPriceFactor`
+handles marketValueFactor as its own life-stage multiplier, separate from
+health and capacities. Engine cooldown does not read the nonexistent pawn
+`MeleeCooldownFactor` stat: Zoology declares `Zoology_MeleeCooldownFactor`
+and applies it to real natural melee-tool cooldowns via a Harmony postfix.
+CE armor penetration already includes the stage melee-damage multiplier
+raised to 0.75 and age-specific AP factors compensate it explicitly.

@@ -20,7 +20,7 @@ py rimworld_patch_generator.py --preview
 
 ## Sources, caches and generated XML
 
-`generation.json` defines 148 XML destinations: 81 animal groups, 29 biome patches, 3 shared Def outputs and 35 other outputs. `reference_sources.auto.json` defines upstream reference groups and paths. CE references reside under `OriginalXML/CEPatches/`.
+`generation.json` defines 151 XML destinations: 81 animal groups, 29 biome patches, 3 shared Def outputs and 38 other outputs. `reference_sources.auto.json` defines upstream reference groups and paths. CE references reside under `OriginalXML/CEPatches/`.
 
 `checker.local.json` stores ignored per-machine preferences and data sources. Reference Sync stores only preference overrides, not a redundant copy of versioned source paths. Read-only Google Sheets authentication uses local credentials; see the linked source guide.
 
@@ -39,4 +39,19 @@ including its five age thresholds. Royal-specific CE changes are additionally
 guarded against Royal Animals being absent. The CE folder loads after Royal
 Animals so its damage factors take precedence.
 
-Royal Megachicken age-speed multipliers are calibrated against Hirt et al. (2017) running-speed allometry using `LifeStages.BaseBodyMass_kg` from the speculative Megachicken mass in `Base stats`. The values are relative ratios, not km/h, and are verified in Checker before generation. Shared Core stages are explicitly not calibrated to an arbitrary animal mass.
+Royal Megachicken age-speed multipliers use the inverse mass-bin midpoint
+mapping of the actual Animals!AO game BodySize formula, not mass ×
+bodySizeFactor. The `SERVICE_BodySizeMassBands` tab documents mass
+intervals and the exceptional non-monotonic mapping around 2000 kg. New
+`LifeStages` columns `BaseBodySize`, `StageBodySize`,
+`BodySizeMassMid_kg` and `BaseMassMid_kg` make the source and
+calculation explicit. Checker validates game sizes, corresponding masses,
+and Hirt-based speed ratios before writing XML.
+
+The source-specific marketValueFactor is now modeled from CombatPower
+and BodySize terms of the Animals pricing formula; Core shared stages
+use relative combat-power utility and no absolute adult-reference mass.
+The genuine melee attack interval is modified by a Zoology-owned StatDef
+and one Harmony postfix on VerbProperties.AdjustedCooldown. CE age AP
+factors compensate for CE's inherent melee-damage^0.75 multiplier so
+penetration is not scaled twice. CE crit/parry age stat factors are `MROUND(bodySizeFactor^0.165, 0.05)` for all supported stages, independent of adult mass and checked before generation. They multiply CE stat inputs (not CE's opponent-dependent final probabilities); a base stat of zero stays zero.

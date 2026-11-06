@@ -70,8 +70,76 @@ An upstream Alpha Animals integration for Biomes! Islands defines three
 additional Fangsquid stages; that animal is not in Zoology's registered
 animal groups and is not yet a supported LifeStages output.
 
-### Running-speed model for Royal Megachicken
+### BodySize and life-stage speed
 
-The five Royal `SpeedFactor` values now follow the terrestrial-running maximum-speed model of Hirt et al. (2017), DOI: https://doi.org/10.1038/s41559-017-0241-4: `v(M) = 25.5 × M^0.26 × (1-exp(-22 × M^-0.6))` (kg, km/h). Checker uses the **ratio** `v(BaseBodyMass_kg × bodySizeFactor)/v(BaseBodyMass_kg)`, rounded to three decimals, for `LifeStages.SpeedFactor`. `BaseBodyMass_kg` is read from `Base stats` (Megachicken, presently 5 kg); this is an explicitly **speculative model input** for the fictional species, not an empirically measured mass. The model predicts an optimum near 89 kg and decreases above that mass. Checker validates the tabulated factor against the fitted equation and refuses inconsistent or missing reference-mass data.
+RimWorld's `baseBodySize` is **not a mass multiplier**. The `Animals!AO`
+mapping assigns a rounded game BodySize from body mass in kilograms using
+several distinct power-law intervals and different MROUND steps.
+`SERVICE_BodySizeMassBands` lists the exact *inverse* mass intervals of
+that existing mapping; where more than one disjoint mass interval gives one
+BodySize, it records the width-weighted midpoint of those intervals.
+When an age stage has a BodySize that no adult could obtain from the
+rounded mapping (e.g. 0.06 or 3.9), a midpoint is interpolated between the
+closest attainable game sizes.
 
-Core stages are shared between many different animal species. A single age-specific `LifeStageDef.statFactors.MoveSpeed` cannot exactly represent the mass-specific Hirt curve for both small and large species. Their existing Core multipliers remain a coarse size-scaling approximation; they are not claimed to be physically exact for every species. Do not replace these with an arbitrary fixed reference mass; accurate mass-specific juvenile speeds would require a separately designed per-species solution. Hirt predicts maximum sprint performance, not the typical game walking speed, so only stage ratios are transferred.
+For Royal Megachicken, `LifeStages.BaseBodySize` reads the actual game
+`Animals!AO` value (0.3 at present), `StageBodySize=BaseBodySize *
+bodySizeFactor`, and `BodySizeMassMid_kg` uses the inverse map.
+`BaseMassMid_kg` is the inverse mass midpoint of the unscaled 0.3 BodySize,
+not an arbitrary 70 kg reference. The dimensionless age-speed multiplier is
+`v(BodySizeMassMid_kg)/v(BaseMassMid_kg)` with Hirt et al. (2017),
+doi:10.1038/s41559-017-0241-4,
+`v(M)=25.5 M^0.26 (1-exp(-22 M^-0.6))` (M in kg).
+This is an empirical maximum running-speed curve applied as a proxy for
+game movement, **not** an experimentally validated juvenile walking curve.
+Checker independently checks all mapped masses, game BodySizes and speeds.
+
+At the current game sizes 0.06, 1.2, 3.9, 4.5, and 6.0, the representative
+masses are about 0.103, 98, 1,955, 3,357 and 7,532 kg, respectively.
+The corresponding stage speeds are 0.370, 1.658, 0.995, 0.855 and 0.670.
+The underlying AnimalStats!Animals!AO formula has a discontinuity near
+2000 kg; bins may overlap or be disjoint. This is exposed explicitly in
+the service tab instead of hiding the ambiguity.
+
+Core LifeStageDefs are shared by very different animal masses, locomotion
+types and body sizes. Their `SpeedFactor` retains a dimensionless relative
+game-size approximation `bodySizeFactor^0.17` (rounded to 0.05);
+**no fixed human/70 kg reference mass** is introduced. A single static
+LifeStageDef cannot express the exact species-specific Hirt curve.
+
+### Market value, melee interval and CE penetration
+
+Vanilla `PriceUtility.PawnQualityPriceFactor` applies
+`LifeStageDef.marketValueFactor` separately from health and capacity
+modifiers; age does **not** automatically multiply the price by BodySize.
+Core age prices use the same dimensionless approximate relative combat-
+potential factor as Zoology's combat-power extension. Royal prices are
+reconstructed from the actual Megachicken `Animals!H` pricing equation:
+the source's combat-power and game-BodySize terms vary by stage; fixed
+value contributions are preserved. These are modeled price ratios, not
+guarantees of actual market value with injuries or trade modifiers.
+
+`MeleeCooldownFactor` is **not** a vanilla/CE pawn StatDef.
+Zoology declares `Zoology_MeleeCooldownFactor` and applies its
+life-stage stat factor to `VerbProperties.AdjustedCooldown(Tool,Pawn,Thing)`
+through one postfix on attack cooldown calculation, for vanilla and CE.
+Unlike the old unrecognized XML stat, this changes the real interval.
+Disabling all Zoology runtime patches disables that postfix.
+
+For Combat Extended, Zoology's armor penetration hook multiplies the
+natural tool AP by `MeleeDamageFactor^0.75` **and** the extra age AP
+factor. The sheet therefore writes extra factors as
+`bodySizeFactor^(1/3) / meleeDamageFactor(CE)^0.75` (sharp) and
+`bodySizeFactor^(2/3) / meleeDamageFactor(CE)^0.75` (blunt);
+the resulting total ratios are exactly the specified relative game-size
+geometric proxies without double-counting damage. They are explicit
+geometric assumptions, not empirically fitted penetration laws.
+CE crit/parry **stat** factors follow the shared relative-BodySize
+proxy `MROUND(bodySizeFactor^0.165, 0.05)`, complementing the reciprocal
+`MeleeDodgeChance` size heuristic. No adult mass or 70 kg reference is
+introduced. This is a dimensionless game-balance approximation, not an
+empirically established universal biological law. CE still computes final
+crit/parry probabilities from comparative stats, skill and other modifiers;
+when a species has zero base Crit/Parry stat, multiplication does not
+create a nonzero chance. Dodge remains a
+size-relative heuristic rather than a direct mass-derived estimate.

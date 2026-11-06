@@ -8,6 +8,7 @@ from __future__ import annotations
 import math
 from lxml import etree as E
 from core.locomotion_allometry import age_speed_factor
+from core.body_size_mass_equivalence import body_size_equivalent_mass_kg
 
 STAGE_GROUPS = (
     ("AnimalAdult", "EusocialInsectAdult"),
@@ -32,14 +33,14 @@ BASE_FIELDS = (
 )
 BASE_STATS = {
     "MoveSpeed": "SpeedFactor",
-    "MeleeCooldownFactor": "MeleeAttackIntervalFactor",
+    "Zoology_MeleeCooldownFactor": "MeleeAttackIntervalFactor",
     "FilthRate": "FilthRate",
     "ArmorRating_Sharp": "ArmorRating_Sharp",
     "ArmorRating_Blunt": "ArmorRating_Blunt",
     "MeleeDodgeChance": "MeleeDodgeChance",
 }
 CE_STATS = {
-    "MeleeCooldownFactor": "MeleeAttackIntervalFactor(CE)",
+    "Zoology_MeleeCooldownFactor": "MeleeAttackIntervalFactor(CE)",
     "MeleeCritChance": "MeleeCritChance",
     "MeleeParryChance": "MeleeParryChance",
 }
@@ -48,9 +49,15 @@ CE_PENETRATION = {
     "meleePenetrationBluntFactor": "ArmorPenetration_Blunt(CE)",
 }
 COMBAT_POWER_EXTENSION = "ZoologyMod.LifeStageCombatPowerExtension, ZoologyMod"
+# CE melee chance scaling, dimensionless and independent of adult mass.
+# Same magnitude as the existing inverse-size dodge power; heuristic, not a
+# measured universal probability law. Stat factors affect CE's stat inputs,
+# not the independently applied base comparative chance.
+CE_MELEE_CHANCE_BODY_SIZE_EXPONENT = 0.165
+CE_MELEE_CHANCE_ROUNDING_STEP = 0.05
 
 REQUIRED_COLUMNS = (
-    {"Life stage", "Source mod", "BaseBodyMass_kg", *BASE_FIELDS, *BASE_STATS.values(), "CombatPowerFactor",
+    {"Life stage", "Source mod", "BaseBodySize", "StageBodySize", "BodySizeMassMid_kg", "BaseMassMid_kg", *BASE_FIELDS, *BASE_STATS.values(), "CombatPowerFactor",
      "meleeDamageFactor(CE)", *CE_STATS.values(), *CE_PENETRATION.values()}
 )
 
@@ -89,9 +96,11 @@ def parse_stages(table, source_mod=None):
             raise ValueError(f"Duplicate LifeStages source/stage: {owner!r} / {title!r}")
         found[key] = {column: _number(record.get(column), title, column)
                       for column in REQUIRED_COLUMNS
-                      if column not in ("Life stage", "Source mod", "BaseBodyMass_kg")}
+                      if column not in ("Life stage", "Source mod", "BaseBodySize",
+                                        "StageBodySize", "BodySizeMassMid_kg", "BaseMassMid_kg")}
         if owner == ROYAL_SOURCE:
-            found[key]["BaseBodyMass_kg"] = _number(record.get("BaseBodyMass_kg"), title, "BaseBodyMass_kg")
+            for col in ("BaseBodySize", "StageBodySize", "BodySizeMassMid_kg", "BaseMassMid_kg"):
+                found[key][col] = _number(record.get(col), title, col)
     if set(found) != expected:
         missing_groups = sorted((owner, sorted(group))
                                 for owner, group in expected - set(found))
@@ -100,26 +109,49 @@ def parse_stages(table, source_mod=None):
     wrong = {key: value for key, value in adult.items() if abs(value - 1) > 1e-7}
     if wrong:
         raise ValueError(f"Adult Core LifeStages baseline must be 1: {wrong}")
+    # Reject workbook regressions that silently neutralize CE age chance
+    # factors. Relative BodySize scaling does not use the fictional mass of a
+    # species or impose a 70 kg reference individual.
+    for owner, groups in SOURCE_STAGES.items():
+        for group in groups:
+            stage = found[(owner, frozenset(group))]
+            size_factor = stage["bodySizeFactor"]
+            scaled = round((size_factor ** CE_MELEE_CHANCE_BODY_SIZE_EXPONENT)
+                           / CE_MELEE_CHANCE_ROUNDING_STEP) * CE_MELEE_CHANCE_ROUNDING_STEP
+            for stat in ("MeleeCritChance", "MeleeParryChance"):
+                if not math.isclose(stage[stat], scaled, abs_tol=1e-7):
+                    raise ValueError(
+                        f"{group[0]} {stat} {stage[stat]} differs from "
+                        f"BodySize-relative factor {scaled}")
     sizes = [found[(ROYAL_SOURCE, frozenset(group))]["bodySizeFactor"]
              for group in ROYAL_STAGES]
     if any(right <= left for left, right in zip(sizes, sizes[1:])):
         raise ValueError("Royal megachicken bodySizeFactors must strictly increase with age")
-    # Hirt et al. (2017) is an external, empirically fitted running model;
-    # the fictional Megachicken's input mass remains an explicit (and
-    # speculative) model input sourced from Base stats, never a hidden constant.
-    royal_masses = [found[(ROYAL_SOURCE, frozenset(group))]["BaseBodyMass_kg"]
-                    for group in ROYAL_STAGES]
-    reference_mass = royal_masses[0]
-    if any(not math.isclose(mass, reference_mass, rel_tol=1e-9, abs_tol=1e-9)
-           for mass in royal_masses[1:]):
-        raise ValueError("Royal LifeStages must share one BaseBodyMass_kg")
+    # The sheet's baseBodySize is an in-game size, NOT a physical mass.
+    # Invert the actual piecewise mass->BodySize intervals; the 70 kg
+    # calibration knot is never used as a reference animal for stage stats.
+    base_sizes = [found[(ROYAL_SOURCE, frozenset(group))]["BaseBodySize"]
+                  for group in ROYAL_STAGES]
+    base_size = base_sizes[0]
+    if any(not math.isclose(size, base_size, rel_tol=1e-9, abs_tol=1e-9)
+           for size in base_sizes[1:]):
+        raise ValueError("Royal LifeStages must share one BaseBodySize")
+    adult_mass = body_size_equivalent_mass_kg(base_size)
     for group in ROYAL_STAGES:
-        factors = found[(ROYAL_SOURCE, frozenset(group))]
-        expected_speed = age_speed_factor(factors["bodySizeFactor"], reference_mass)
-        if not math.isclose(factors["SpeedFactor"], expected_speed, abs_tol=1e-6):
+        stage = found[(ROYAL_SOURCE, frozenset(group))]
+        size = base_size * stage["bodySizeFactor"]
+        mass = body_size_equivalent_mass_kg(size)
+        if not math.isclose(size, stage["StageBodySize"], rel_tol=1e-6, abs_tol=1e-6):
+            raise ValueError(f"{group[0]} StageBodySize does not match game BodySize")
+        if not math.isclose(mass, stage["BodySizeMassMid_kg"], rel_tol=1e-6, abs_tol=1e-5):
+            raise ValueError(f"{group[0]} physical mass-bin midpoint differs from source mapping")
+        if not math.isclose(adult_mass, stage["BaseMassMid_kg"], rel_tol=1e-6, abs_tol=1e-5):
+            raise ValueError(f"{group[0]} BaseMassMid_kg differs from the actual size bin")
+        expected_speed = age_speed_factor(stage["bodySizeFactor"], base_size)
+        if not math.isclose(stage["SpeedFactor"], expected_speed, abs_tol=1e-6):
             raise ValueError(
-                f"{group[0]} SpeedFactor {factors['SpeedFactor']} differs from "
-                f"Hirt running allometry {expected_speed} (reference mass {reference_mass} kg)")
+                f"{group[0]} SpeedFactor {stage['SpeedFactor']} differs from "
+                f"Hirt running allometry {expected_speed} at game BodySize {size}")
     sources = SOURCE_STAGES if source_mod is None else {source_mod: SOURCE_STAGES[source_mod]}
     return [(group, found[(owner, frozenset(group))])
             for owner, groups in sources.items() for group in groups]
@@ -138,16 +170,26 @@ def _operation(root, cls, xpath):
     return op
 
 
+def _noop_operation(parent, field):
+    # RimWorld PatchOperationConditional returns failure for an absent branch.
+    # A *successful* no-op is PatchOperationAdd to the existing Defs root
+    # with an empty value, avoiding XML load errors for optional elements.
+    branch = E.SubElement(parent, field, Class="PatchOperationAdd")
+    E.SubElement(branch, "xpath").text = "Defs"
+    E.SubElement(branch, "value")
+
+
 def _remove_existing(root, xpath):
     op = _operation(root, "PatchOperationConditional", xpath)
     match = E.SubElement(op, "match", Class="PatchOperationRemove")
     E.SubElement(match, "xpath").text = xpath
+    _noop_operation(op, "nomatch")
 
 
 def _ensure_container(root, parent, tag):
     xpath = parent + "/" + tag
     op = _operation(root, "PatchOperationConditional", xpath)
-    E.SubElement(op, "match")
+    _noop_operation(op, "match")
     nomatch = E.SubElement(op, "nomatch", Class="PatchOperationAdd")
     E.SubElement(nomatch, "xpath").text = parent
     E.SubElement(E.SubElement(nomatch, "value"), tag)
@@ -197,6 +239,7 @@ def render_life_stages(table, *, ce=False, source_mod="Core"):
                     # penetration Def or target an absent Royal stage in that case.
                     _append_penetration(temp, name, numbers)
                     guard = _operation(root, "PatchOperationConditional", parent)
+                    _noop_operation(guard, "nomatch")
                     ops = E.SubElement(E.SubElement(guard, "match",
                                       Class="PatchOperationSequence"), "operations")
                     for op in temp:

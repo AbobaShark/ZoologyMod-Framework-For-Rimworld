@@ -4,6 +4,7 @@ import unittest
 import pandas as pd
 from lxml import etree as E
 from core.locomotion_allometry import age_speed_factor
+from core.body_size_mass_equivalence import body_size_equivalent_mass_kg
 
 from core.life_stages import (
     REQUIRED_COLUMNS, STAGE_GROUPS, ROYAL_SOURCE, ROYAL_STAGES, parse_stages,
@@ -19,7 +20,7 @@ def fixture():
         row['Life stage'] = label
         row['Source mod'] = 'Core'
         row['bodySizeFactor'] = [1, .5, .2, .15][index]
-        row['marketValueFactor'] = row['bodySizeFactor']
+        row['marketValueFactor'] = [1, .6, .3, .25][index]
         row['healthScaleFactor'] = row['bodySizeFactor']
         row['hungerRateFactor'] = [1, .6, .3, .25][index]
         row['foodMaxFactor'] = 1.0
@@ -44,12 +45,17 @@ def fixture():
         royal={name: 1.0 for name in REQUIRED_COLUMNS
                if name not in ('Life stage','Source mod')}
         royal.update({'Life stage':group[0],'Source mod':ROYAL_SOURCE,
-                      'bodySizeFactor':size,'marketValueFactor':size,
+                      'bodySizeFactor':size,'marketValueFactor':max(.8,size**.35),
                       'healthScaleFactor':size,'FilthRate':size,
                       'ArmorPenetration_Blunt(CE)':size,'CombatPowerFactor':size,
                       'foodMaxFactor':1.0,
-                      'BaseBodyMass_kg':5.0,
-                      'SpeedFactor':age_speed_factor(size,5.0)})
+                      'BaseBodySize':.3,
+                      'StageBodySize':.3*size,
+                      'BodySizeMassMid_kg':body_size_equivalent_mass_kg(.3*size),
+                      'BaseMassMid_kg':body_size_equivalent_mass_kg(.3),
+                      'SpeedFactor':age_speed_factor(size,.3),
+                      'MeleeCritChance':round(size**.165/.05)*.05,
+                      'MeleeParryChance':round(size**.165/.05)*.05})
         rows.append(royal)
     return pd.DataFrame(rows)
 
@@ -152,6 +158,58 @@ class LifeStageGenerationTests(unittest.TestCase):
                 self.assertAlmostEqual(float(values[0]),expected['CombatPowerFactor'])
         apply_patch(defs,render_life_stage_combat_power(fixture()))
         self.assertEqual(len(defs.xpath('/Defs/LifeStageDef[defName="AnimalBaby"]/modExtensions/li')),1)
+
+    def test_conditional_branches_are_valid_and_noop_is_successful(self):
+        """Missing optional fields and existing containers must not log patch failures."""
+        table=fixture()
+        for payload in (render_life_stages(table),
+                        render_life_stages(table,ce=True),
+                        render_life_stages(table,ce=True,source_mod=ROYAL_SOURCE),
+                        render_life_stage_combat_power(table)):
+            root=E.fromstring(payload)
+            for op in root.xpath('./Operation[@Class="PatchOperationConditional"]'):
+                for attr in ('match','nomatch'):
+                    branch=op.find(attr)
+                    self.assertIsNotNone(branch)
+                    self.assertIn(branch.get('Class'),
+                                  ('PatchOperationRemove','PatchOperationAdd',
+                                   'PatchOperationSequence'))
+                    if branch.get('Class')=='PatchOperationAdd':
+                        self.assertIsNotNone(branch.find('value'))
+        defs=starting_defs(add_royal=True)
+        apply_patch(defs,render_life_stages(table,source_mod=ROYAL_SOURCE))
+        apply_patch(defs,render_life_stages(table,source_mod=ROYAL_SOURCE))
+        for group,_ in parse_stages(table,ROYAL_SOURCE):
+            name=group[0]
+            stage=defs.xpath(f'/Defs/LifeStageDef[defName="{name}"]')[0]
+            self.assertEqual(len(stage.findall('statFactors')),1)
+            self.assertEqual(len(stage.findall('marketValueFactor')),1)
+
+    def test_ce_melee_chances_scale_with_relative_body_size(self):
+        table = fixture()
+        for owner, stage_groups in (('Core', STAGE_GROUPS),
+                                    (ROYAL_SOURCE, ROYAL_STAGES)):
+            for group, stage in parse_stages(table, owner):
+                b = stage['bodySizeFactor']
+                expected = round(b ** 0.165 / 0.05) * 0.05
+                self.assertAlmostEqual(stage['MeleeCritChance'], expected)
+                self.assertAlmostEqual(stage['MeleeParryChance'], expected)
+        table.loc[8, 'MeleeCritChance'] = 1
+        with self.assertRaisesRegex(ValueError, 'MeleeCritChance'):
+            render_life_stages(table, ce=True, source_mod=ROYAL_SOURCE)
+        table = fixture()
+        table.loc[2, 'MeleeParryChance'] = 1
+        with self.assertRaisesRegex(ValueError, 'MeleeParryChance'):
+            render_life_stages(table, ce=True)
+
+    def test_melee_cooldown_stat_is_zoology_owned(self):
+        table=fixture()
+        for payload in (render_life_stages(table),
+                        render_life_stages(table,ce=True),
+                        render_life_stages(table,source_mod=ROYAL_SOURCE)):
+            doc=E.fromstring(payload)
+            self.assertTrue(doc.xpath('.//Zoology_MeleeCooldownFactor'))
+            self.assertFalse(doc.xpath('.//MeleeCooldownFactor'))
 
     def test_no_missing_or_nonnumeric_columns_are_silently_accepted(self):
         df=fixture()

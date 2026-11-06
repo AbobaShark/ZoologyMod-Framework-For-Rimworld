@@ -1,182 +1,167 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Patch>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalBaby&quot;]</xpath>
+    <xpath>/Defs/LifeStageDef[defName="VAERoy_AnimalBaby"]</xpath>
+    <nomatch Class="PatchOperationAdd"><xpath>Defs</xpath><value /></nomatch>
     <match Class="PatchOperationSequence"><operations>
   <li Class="PatchOperationConditional">
-    <xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalBaby&quot;]/*[self::meleeDamageFactor]</xpath>
-    <match Class="PatchOperationRemove"><xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalBaby&quot;]/*[self::meleeDamageFactor]</xpath></match>
+    <xpath>/Defs/LifeStageDef[defName="VAERoy_AnimalBaby"]/*[self::meleeDamageFactor]</xpath>
+    <match Class="PatchOperationRemove"><xpath>/Defs/LifeStageDef[defName="VAERoy_AnimalBaby"]/*[self::meleeDamageFactor]</xpath></match>
+    <nomatch Class="PatchOperationAdd"><xpath>Defs</xpath><value /></nomatch>
   </li>
   <li Class="PatchOperationAdd">
-    <xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalBaby&quot;]</xpath>
-    <value>
-      <meleeDamageFactor>0.35</meleeDamageFactor>
-    </value>
+    <xpath>/Defs/LifeStageDef[defName="VAERoy_AnimalBaby"]</xpath>
+    <value><meleeDamageFactor>0.35</meleeDamageFactor></value>
   </li>
   <li Class="PatchOperationConditional">
-    <xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalBaby&quot;]/statFactors</xpath>
-    <match />
-    <nomatch Class="PatchOperationAdd"><xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalBaby&quot;]</xpath><value><statFactors /></value></nomatch>
+    <xpath>/Defs/LifeStageDef[defName="VAERoy_AnimalBaby"]/statFactors</xpath>
+    <match Class="PatchOperationAdd"><xpath>Defs</xpath><value /></match>
+    <nomatch Class="PatchOperationAdd"><xpath>/Defs/LifeStageDef[defName="VAERoy_AnimalBaby"]</xpath><value><statFactors /></value></nomatch>
   </li>
   <li Class="PatchOperationConditional">
-    <xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalBaby&quot;]/statFactors/*[self::MeleeCooldownFactor or self::MeleeCritChance or self::MeleeParryChance]</xpath>
-    <match Class="PatchOperationRemove"><xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalBaby&quot;]/statFactors/*[self::MeleeCooldownFactor or self::MeleeCritChance or self::MeleeParryChance]</xpath></match>
+    <xpath>/Defs/LifeStageDef[defName="VAERoy_AnimalBaby"]/statFactors/*[self::Zoology_MeleeCooldownFactor or self::MeleeCritChance or self::MeleeParryChance]</xpath>
+    <match Class="PatchOperationRemove"><xpath>/Defs/LifeStageDef[defName="VAERoy_AnimalBaby"]/statFactors/*[self::Zoology_MeleeCooldownFactor or self::MeleeCritChance or self::MeleeParryChance]</xpath></match>
+    <nomatch Class="PatchOperationAdd"><xpath>Defs</xpath><value /></nomatch>
   </li>
   <li Class="PatchOperationAdd">
-    <xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalBaby&quot;]/statFactors</xpath>
-    <value>
-      <MeleeCooldownFactor>0.8</MeleeCooldownFactor>
-      <MeleeCritChance>0.75</MeleeCritChance>
-      <MeleeParryChance>0.75</MeleeParryChance>
-    </value>
+    <xpath>/Defs/LifeStageDef[defName="VAERoy_AnimalBaby"]/statFactors</xpath>
+    <value><Zoology_MeleeCooldownFactor>0.8</Zoology_MeleeCooldownFactor><MeleeCritChance>0.75</MeleeCritChance><MeleeParryChance>0.75</MeleeParryChance></value>
   </li>
   <li Class="PatchOperationAdd">
     <xpath>Defs</xpath>
-    <value><LifeStagePenetrationDef Class="ZoologyMod.LifeStagePenetrationDef, ZoologyMod"><defName>VAERoy_AnimalBaby</defName><meleePenetrationSharpFactor>0.6</meleePenetrationSharpFactor><meleePenetrationBluntFactor>0.2</meleePenetrationBluntFactor></LifeStagePenetrationDef></value>
+    <value><LifeStagePenetrationDef Class="ZoologyMod.LifeStagePenetrationDef, ZoologyMod"><defName>VAERoy_AnimalBaby</defName><meleePenetrationSharpFactor>1.2852</meleePenetrationSharpFactor><meleePenetrationBluntFactor>0.7516</meleePenetrationBluntFactor></LifeStagePenetrationDef></value>
   </li>
     </operations></match>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalJuvenile&quot;]</xpath>
+    <xpath>/Defs/LifeStageDef[defName="VAERoy_AnimalJuvenile"]</xpath>
+    <nomatch Class="PatchOperationAdd"><xpath>Defs</xpath><value /></nomatch>
     <match Class="PatchOperationSequence"><operations>
   <li Class="PatchOperationConditional">
-    <xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalJuvenile&quot;]/*[self::meleeDamageFactor]</xpath>
-    <match Class="PatchOperationRemove"><xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalJuvenile&quot;]/*[self::meleeDamageFactor]</xpath></match>
+    <xpath>/Defs/LifeStageDef[defName="VAERoy_AnimalJuvenile"]/*[self::meleeDamageFactor]</xpath>
+    <match Class="PatchOperationRemove"><xpath>/Defs/LifeStageDef[defName="VAERoy_AnimalJuvenile"]/*[self::meleeDamageFactor]</xpath></match>
+    <nomatch Class="PatchOperationAdd"><xpath>Defs</xpath><value /></nomatch>
   </li>
   <li Class="PatchOperationAdd">
-    <xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalJuvenile&quot;]</xpath>
-    <value>
-      <meleeDamageFactor>2.35</meleeDamageFactor>
-    </value>
+    <xpath>/Defs/LifeStageDef[defName="VAERoy_AnimalJuvenile"]</xpath>
+    <value><meleeDamageFactor>2.35</meleeDamageFactor></value>
   </li>
   <li Class="PatchOperationConditional">
-    <xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalJuvenile&quot;]/statFactors</xpath>
-    <match />
-    <nomatch Class="PatchOperationAdd"><xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalJuvenile&quot;]</xpath><value><statFactors /></value></nomatch>
+    <xpath>/Defs/LifeStageDef[defName="VAERoy_AnimalJuvenile"]/statFactors</xpath>
+    <match Class="PatchOperationAdd"><xpath>Defs</xpath><value /></match>
+    <nomatch Class="PatchOperationAdd"><xpath>/Defs/LifeStageDef[defName="VAERoy_AnimalJuvenile"]</xpath><value><statFactors /></value></nomatch>
   </li>
   <li Class="PatchOperationConditional">
-    <xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalJuvenile&quot;]/statFactors/*[self::MeleeCooldownFactor or self::MeleeCritChance or self::MeleeParryChance]</xpath>
-    <match Class="PatchOperationRemove"><xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalJuvenile&quot;]/statFactors/*[self::MeleeCooldownFactor or self::MeleeCritChance or self::MeleeParryChance]</xpath></match>
+    <xpath>/Defs/LifeStageDef[defName="VAERoy_AnimalJuvenile"]/statFactors/*[self::Zoology_MeleeCooldownFactor or self::MeleeCritChance or self::MeleeParryChance]</xpath>
+    <match Class="PatchOperationRemove"><xpath>/Defs/LifeStageDef[defName="VAERoy_AnimalJuvenile"]/statFactors/*[self::Zoology_MeleeCooldownFactor or self::MeleeCritChance or self::MeleeParryChance]</xpath></match>
+    <nomatch Class="PatchOperationAdd"><xpath>Defs</xpath><value /></nomatch>
   </li>
   <li Class="PatchOperationAdd">
-    <xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalJuvenile&quot;]/statFactors</xpath>
-    <value>
-      <MeleeCooldownFactor>1.25</MeleeCooldownFactor>
-      <MeleeCritChance>1.25</MeleeCritChance>
-      <MeleeParryChance>1.25</MeleeParryChance>
-    </value>
+    <xpath>/Defs/LifeStageDef[defName="VAERoy_AnimalJuvenile"]/statFactors</xpath>
+    <value><Zoology_MeleeCooldownFactor>1.25</Zoology_MeleeCooldownFactor><MeleeCritChance>1.25</MeleeCritChance><MeleeParryChance>1.25</MeleeParryChance></value>
   </li>
   <li Class="PatchOperationAdd">
     <xpath>Defs</xpath>
-    <value><LifeStagePenetrationDef Class="ZoologyMod.LifeStagePenetrationDef, ZoologyMod"><defName>VAERoy_AnimalJuvenile</defName><meleePenetrationSharpFactor>1.6</meleePenetrationSharpFactor><meleePenetrationBluntFactor>4</meleePenetrationBluntFactor></LifeStagePenetrationDef></value>
+    <value><LifeStagePenetrationDef Class="ZoologyMod.LifeStagePenetrationDef, ZoologyMod"><defName>VAERoy_AnimalJuvenile</defName><meleePenetrationSharpFactor>0.8363</meleePenetrationSharpFactor><meleePenetrationBluntFactor>1.3276</meleePenetrationBluntFactor></LifeStagePenetrationDef></value>
   </li>
     </operations></match>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalAdult&quot;]</xpath>
+    <xpath>/Defs/LifeStageDef[defName="VAERoy_AnimalAdult"]</xpath>
+    <nomatch Class="PatchOperationAdd"><xpath>Defs</xpath><value /></nomatch>
     <match Class="PatchOperationSequence"><operations>
   <li Class="PatchOperationConditional">
-    <xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalAdult&quot;]/*[self::meleeDamageFactor]</xpath>
-    <match Class="PatchOperationRemove"><xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalAdult&quot;]/*[self::meleeDamageFactor]</xpath></match>
+    <xpath>/Defs/LifeStageDef[defName="VAERoy_AnimalAdult"]/*[self::meleeDamageFactor]</xpath>
+    <match Class="PatchOperationRemove"><xpath>/Defs/LifeStageDef[defName="VAERoy_AnimalAdult"]/*[self::meleeDamageFactor]</xpath></match>
+    <nomatch Class="PatchOperationAdd"><xpath>Defs</xpath><value /></nomatch>
   </li>
   <li Class="PatchOperationAdd">
-    <xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalAdult&quot;]</xpath>
-    <value>
-      <meleeDamageFactor>4.9</meleeDamageFactor>
-    </value>
+    <xpath>/Defs/LifeStageDef[defName="VAERoy_AnimalAdult"]</xpath>
+    <value><meleeDamageFactor>4.9</meleeDamageFactor></value>
   </li>
   <li Class="PatchOperationConditional">
-    <xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalAdult&quot;]/statFactors</xpath>
-    <match />
-    <nomatch Class="PatchOperationAdd"><xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalAdult&quot;]</xpath><value><statFactors /></value></nomatch>
+    <xpath>/Defs/LifeStageDef[defName="VAERoy_AnimalAdult"]/statFactors</xpath>
+    <match Class="PatchOperationAdd"><xpath>Defs</xpath><value /></match>
+    <nomatch Class="PatchOperationAdd"><xpath>/Defs/LifeStageDef[defName="VAERoy_AnimalAdult"]</xpath><value><statFactors /></value></nomatch>
   </li>
   <li Class="PatchOperationConditional">
-    <xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalAdult&quot;]/statFactors/*[self::MeleeCooldownFactor or self::MeleeCritChance or self::MeleeParryChance]</xpath>
-    <match Class="PatchOperationRemove"><xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalAdult&quot;]/statFactors/*[self::MeleeCooldownFactor or self::MeleeCritChance or self::MeleeParryChance]</xpath></match>
+    <xpath>/Defs/LifeStageDef[defName="VAERoy_AnimalAdult"]/statFactors/*[self::Zoology_MeleeCooldownFactor or self::MeleeCritChance or self::MeleeParryChance]</xpath>
+    <match Class="PatchOperationRemove"><xpath>/Defs/LifeStageDef[defName="VAERoy_AnimalAdult"]/statFactors/*[self::Zoology_MeleeCooldownFactor or self::MeleeCritChance or self::MeleeParryChance]</xpath></match>
+    <nomatch Class="PatchOperationAdd"><xpath>Defs</xpath><value /></nomatch>
   </li>
   <li Class="PatchOperationAdd">
-    <xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalAdult&quot;]/statFactors</xpath>
-    <value>
-      <MeleeCooldownFactor>1.45</MeleeCooldownFactor>
-      <MeleeCritChance>1.55</MeleeCritChance>
-      <MeleeParryChance>1.55</MeleeParryChance>
-    </value>
+    <xpath>/Defs/LifeStageDef[defName="VAERoy_AnimalAdult"]/statFactors</xpath>
+    <value><Zoology_MeleeCooldownFactor>1.45</Zoology_MeleeCooldownFactor><MeleeCritChance>1.55</MeleeCritChance><MeleeParryChance>1.55</MeleeParryChance></value>
   </li>
   <li Class="PatchOperationAdd">
     <xpath>Defs</xpath>
-    <value><LifeStagePenetrationDef Class="ZoologyMod.LifeStagePenetrationDef, ZoologyMod"><defName>VAERoy_AnimalAdult</defName><meleePenetrationSharpFactor>2.35</meleePenetrationSharpFactor><meleePenetrationBluntFactor>13</meleePenetrationBluntFactor></LifeStagePenetrationDef></value>
+    <value><LifeStagePenetrationDef Class="ZoologyMod.LifeStagePenetrationDef, ZoologyMod"><defName>VAERoy_AnimalAdult</defName><meleePenetrationSharpFactor>0.7139</meleePenetrationSharpFactor><meleePenetrationBluntFactor>1.6787</meleePenetrationBluntFactor></LifeStagePenetrationDef></value>
   </li>
     </operations></match>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalAdultIntermediate&quot;]</xpath>
+    <xpath>/Defs/LifeStageDef[defName="VAERoy_AnimalAdultIntermediate"]</xpath>
+    <nomatch Class="PatchOperationAdd"><xpath>Defs</xpath><value /></nomatch>
     <match Class="PatchOperationSequence"><operations>
   <li Class="PatchOperationConditional">
-    <xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalAdultIntermediate&quot;]/*[self::meleeDamageFactor]</xpath>
-    <match Class="PatchOperationRemove"><xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalAdultIntermediate&quot;]/*[self::meleeDamageFactor]</xpath></match>
+    <xpath>/Defs/LifeStageDef[defName="VAERoy_AnimalAdultIntermediate"]/*[self::meleeDamageFactor]</xpath>
+    <match Class="PatchOperationRemove"><xpath>/Defs/LifeStageDef[defName="VAERoy_AnimalAdultIntermediate"]/*[self::meleeDamageFactor]</xpath></match>
+    <nomatch Class="PatchOperationAdd"><xpath>Defs</xpath><value /></nomatch>
   </li>
   <li Class="PatchOperationAdd">
-    <xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalAdultIntermediate&quot;]</xpath>
-    <value>
-      <meleeDamageFactor>5.35</meleeDamageFactor>
-    </value>
+    <xpath>/Defs/LifeStageDef[defName="VAERoy_AnimalAdultIntermediate"]</xpath>
+    <value><meleeDamageFactor>5.35</meleeDamageFactor></value>
   </li>
   <li Class="PatchOperationConditional">
-    <xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalAdultIntermediate&quot;]/statFactors</xpath>
-    <match />
-    <nomatch Class="PatchOperationAdd"><xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalAdultIntermediate&quot;]</xpath><value><statFactors /></value></nomatch>
+    <xpath>/Defs/LifeStageDef[defName="VAERoy_AnimalAdultIntermediate"]/statFactors</xpath>
+    <match Class="PatchOperationAdd"><xpath>Defs</xpath><value /></match>
+    <nomatch Class="PatchOperationAdd"><xpath>/Defs/LifeStageDef[defName="VAERoy_AnimalAdultIntermediate"]</xpath><value><statFactors /></value></nomatch>
   </li>
   <li Class="PatchOperationConditional">
-    <xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalAdultIntermediate&quot;]/statFactors/*[self::MeleeCooldownFactor or self::MeleeCritChance or self::MeleeParryChance]</xpath>
-    <match Class="PatchOperationRemove"><xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalAdultIntermediate&quot;]/statFactors/*[self::MeleeCooldownFactor or self::MeleeCritChance or self::MeleeParryChance]</xpath></match>
+    <xpath>/Defs/LifeStageDef[defName="VAERoy_AnimalAdultIntermediate"]/statFactors/*[self::Zoology_MeleeCooldownFactor or self::MeleeCritChance or self::MeleeParryChance]</xpath>
+    <match Class="PatchOperationRemove"><xpath>/Defs/LifeStageDef[defName="VAERoy_AnimalAdultIntermediate"]/statFactors/*[self::Zoology_MeleeCooldownFactor or self::MeleeCritChance or self::MeleeParryChance]</xpath></match>
+    <nomatch Class="PatchOperationAdd"><xpath>Defs</xpath><value /></nomatch>
   </li>
   <li Class="PatchOperationAdd">
-    <xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalAdultIntermediate&quot;]/statFactors</xpath>
-    <value>
-      <MeleeCooldownFactor>1.5</MeleeCooldownFactor>
-      <MeleeCritChance>1.55</MeleeCritChance>
-      <MeleeParryChance>1.55</MeleeParryChance>
-    </value>
+    <xpath>/Defs/LifeStageDef[defName="VAERoy_AnimalAdultIntermediate"]/statFactors</xpath>
+    <value><Zoology_MeleeCooldownFactor>1.5</Zoology_MeleeCooldownFactor><MeleeCritChance>1.55</MeleeCritChance><MeleeParryChance>1.55</MeleeParryChance></value>
   </li>
   <li Class="PatchOperationAdd">
     <xpath>Defs</xpath>
-    <value><LifeStagePenetrationDef Class="ZoologyMod.LifeStagePenetrationDef, ZoologyMod"><defName>VAERoy_AnimalAdultIntermediate</defName><meleePenetrationSharpFactor>2.45</meleePenetrationSharpFactor><meleePenetrationBluntFactor>15</meleePenetrationBluntFactor></LifeStagePenetrationDef></value>
+    <value><LifeStagePenetrationDef Class="ZoologyMod.LifeStagePenetrationDef, ZoologyMod"><defName>VAERoy_AnimalAdultIntermediate</defName><meleePenetrationSharpFactor>0.7011</meleePenetrationSharpFactor><meleePenetrationBluntFactor>1.729</meleePenetrationBluntFactor></LifeStagePenetrationDef></value>
   </li>
     </operations></match>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalAdultMax&quot;]</xpath>
+    <xpath>/Defs/LifeStageDef[defName="VAERoy_AnimalAdultMax"]</xpath>
+    <nomatch Class="PatchOperationAdd"><xpath>Defs</xpath><value /></nomatch>
     <match Class="PatchOperationSequence"><operations>
   <li Class="PatchOperationConditional">
-    <xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalAdultMax&quot;]/*[self::meleeDamageFactor]</xpath>
-    <match Class="PatchOperationRemove"><xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalAdultMax&quot;]/*[self::meleeDamageFactor]</xpath></match>
+    <xpath>/Defs/LifeStageDef[defName="VAERoy_AnimalAdultMax"]/*[self::meleeDamageFactor]</xpath>
+    <match Class="PatchOperationRemove"><xpath>/Defs/LifeStageDef[defName="VAERoy_AnimalAdultMax"]/*[self::meleeDamageFactor]</xpath></match>
+    <nomatch Class="PatchOperationAdd"><xpath>Defs</xpath><value /></nomatch>
   </li>
   <li Class="PatchOperationAdd">
-    <xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalAdultMax&quot;]</xpath>
-    <value>
-      <meleeDamageFactor>6.4</meleeDamageFactor>
-    </value>
+    <xpath>/Defs/LifeStageDef[defName="VAERoy_AnimalAdultMax"]</xpath>
+    <value><meleeDamageFactor>6.4</meleeDamageFactor></value>
   </li>
   <li Class="PatchOperationConditional">
-    <xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalAdultMax&quot;]/statFactors</xpath>
-    <match />
-    <nomatch Class="PatchOperationAdd"><xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalAdultMax&quot;]</xpath><value><statFactors /></value></nomatch>
+    <xpath>/Defs/LifeStageDef[defName="VAERoy_AnimalAdultMax"]/statFactors</xpath>
+    <match Class="PatchOperationAdd"><xpath>Defs</xpath><value /></match>
+    <nomatch Class="PatchOperationAdd"><xpath>/Defs/LifeStageDef[defName="VAERoy_AnimalAdultMax"]</xpath><value><statFactors /></value></nomatch>
   </li>
   <li Class="PatchOperationConditional">
-    <xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalAdultMax&quot;]/statFactors/*[self::MeleeCooldownFactor or self::MeleeCritChance or self::MeleeParryChance]</xpath>
-    <match Class="PatchOperationRemove"><xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalAdultMax&quot;]/statFactors/*[self::MeleeCooldownFactor or self::MeleeCritChance or self::MeleeParryChance]</xpath></match>
+    <xpath>/Defs/LifeStageDef[defName="VAERoy_AnimalAdultMax"]/statFactors/*[self::Zoology_MeleeCooldownFactor or self::MeleeCritChance or self::MeleeParryChance]</xpath>
+    <match Class="PatchOperationRemove"><xpath>/Defs/LifeStageDef[defName="VAERoy_AnimalAdultMax"]/statFactors/*[self::Zoology_MeleeCooldownFactor or self::MeleeCritChance or self::MeleeParryChance]</xpath></match>
+    <nomatch Class="PatchOperationAdd"><xpath>Defs</xpath><value /></nomatch>
   </li>
   <li Class="PatchOperationAdd">
-    <xpath>/Defs/LifeStageDef[defName=&quot;VAERoy_AnimalAdultMax&quot;]/statFactors</xpath>
-    <value>
-      <MeleeCooldownFactor>1.55</MeleeCooldownFactor>
-      <MeleeCritChance>1.65</MeleeCritChance>
-      <MeleeParryChance>1.65</MeleeParryChance>
-    </value>
+    <xpath>/Defs/LifeStageDef[defName="VAERoy_AnimalAdultMax"]/statFactors</xpath>
+    <value><Zoology_MeleeCooldownFactor>1.55</Zoology_MeleeCooldownFactor><MeleeCritChance>1.65</MeleeCritChance><MeleeParryChance>1.65</MeleeParryChance></value>
   </li>
   <li Class="PatchOperationAdd">
     <xpath>Defs</xpath>
-    <value><LifeStagePenetrationDef Class="ZoologyMod.LifeStagePenetrationDef, ZoologyMod"><defName>VAERoy_AnimalAdultMax</defName><meleePenetrationSharpFactor>2.7</meleePenetrationSharpFactor><meleePenetrationBluntFactor>20</meleePenetrationBluntFactor></LifeStagePenetrationDef></value>
+    <value><LifeStagePenetrationDef Class="ZoologyMod.LifeStagePenetrationDef, ZoologyMod"><defName>VAERoy_AnimalAdultMax</defName><meleePenetrationSharpFactor>0.6746</meleePenetrationSharpFactor><meleePenetrationBluntFactor>1.8311</meleePenetrationBluntFactor></LifeStagePenetrationDef></value>
   </li>
     </operations></match>
   </Operation>
