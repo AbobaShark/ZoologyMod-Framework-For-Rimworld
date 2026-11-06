@@ -3,6 +3,7 @@ import copy
 import unittest
 import pandas as pd
 from lxml import etree as E
+from core.locomotion_allometry import age_speed_factor
 
 from core.life_stages import (
     REQUIRED_COLUMNS, STAGE_GROUPS, ROYAL_SOURCE, ROYAL_STAGES, parse_stages,
@@ -46,7 +47,9 @@ def fixture():
                       'bodySizeFactor':size,'marketValueFactor':size,
                       'healthScaleFactor':size,'FilthRate':size,
                       'ArmorPenetration_Blunt(CE)':size,'CombatPowerFactor':size,
-                      'foodMaxFactor':1.0})
+                      'foodMaxFactor':1.0,
+                      'BaseBodyMass_kg':5.0,
+                      'SpeedFactor':age_speed_factor(size,5.0)})
         rows.append(royal)
     return pd.DataFrame(rows)
 

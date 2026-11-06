@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import math
 from lxml import etree as E
+from core.locomotion_allometry import age_speed_factor
 
 STAGE_GROUPS = (
     ("AnimalAdult", "EusocialInsectAdult"),
@@ -49,7 +50,7 @@ CE_PENETRATION = {
 COMBAT_POWER_EXTENSION = "ZoologyMod.LifeStageCombatPowerExtension, ZoologyMod"
 
 REQUIRED_COLUMNS = (
-    {"Life stage", "Source mod", *BASE_FIELDS, *BASE_STATS.values(), "CombatPowerFactor",
+    {"Life stage", "Source mod", "BaseBodyMass_kg", *BASE_FIELDS, *BASE_STATS.values(), "CombatPowerFactor",
      "meleeDamageFactor(CE)", *CE_STATS.values(), *CE_PENETRATION.values()}
 )
 
@@ -88,7 +89,9 @@ def parse_stages(table, source_mod=None):
             raise ValueError(f"Duplicate LifeStages source/stage: {owner!r} / {title!r}")
         found[key] = {column: _number(record.get(column), title, column)
                       for column in REQUIRED_COLUMNS
-                      if column not in ("Life stage", "Source mod")}
+                      if column not in ("Life stage", "Source mod", "BaseBodyMass_kg")}
+        if owner == ROYAL_SOURCE:
+            found[key]["BaseBodyMass_kg"] = _number(record.get("BaseBodyMass_kg"), title, "BaseBodyMass_kg")
     if set(found) != expected:
         missing_groups = sorted((owner, sorted(group))
                                 for owner, group in expected - set(found))
@@ -101,6 +104,22 @@ def parse_stages(table, source_mod=None):
              for group in ROYAL_STAGES]
     if any(right <= left for left, right in zip(sizes, sizes[1:])):
         raise ValueError("Royal megachicken bodySizeFactors must strictly increase with age")
+    # Hirt et al. (2017) is an external, empirically fitted running model;
+    # the fictional Megachicken's input mass remains an explicit (and
+    # speculative) model input sourced from Base stats, never a hidden constant.
+    royal_masses = [found[(ROYAL_SOURCE, frozenset(group))]["BaseBodyMass_kg"]
+                    for group in ROYAL_STAGES]
+    reference_mass = royal_masses[0]
+    if any(not math.isclose(mass, reference_mass, rel_tol=1e-9, abs_tol=1e-9)
+           for mass in royal_masses[1:]):
+        raise ValueError("Royal LifeStages must share one BaseBodyMass_kg")
+    for group in ROYAL_STAGES:
+        factors = found[(ROYAL_SOURCE, frozenset(group))]
+        expected_speed = age_speed_factor(factors["bodySizeFactor"], reference_mass)
+        if not math.isclose(factors["SpeedFactor"], expected_speed, abs_tol=1e-6):
+            raise ValueError(
+                f"{group[0]} SpeedFactor {factors['SpeedFactor']} differs from "
+                f"Hirt running allometry {expected_speed} (reference mass {reference_mass} kg)")
     sources = SOURCE_STAGES if source_mod is None else {source_mod: SOURCE_STAGES[source_mod]}
     return [(group, found[(owner, frozenset(group))])
             for owner, groups in sources.items() for group in groups]

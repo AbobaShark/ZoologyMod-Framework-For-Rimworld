@@ -69,3 +69,9 @@ must not be overwritten by the base Royal stage patch.
 An upstream Alpha Animals integration for Biomes! Islands defines three
 additional Fangsquid stages; that animal is not in Zoology's registered
 animal groups and is not yet a supported LifeStages output.
+
+### Running-speed model for Royal Megachicken
+
+The five Royal `SpeedFactor` values now follow the terrestrial-running maximum-speed model of Hirt et al. (2017), DOI: https://doi.org/10.1038/s41559-017-0241-4: `v(M) = 25.5 × M^0.26 × (1-exp(-22 × M^-0.6))` (kg, km/h). Checker uses the **ratio** `v(BaseBodyMass_kg × bodySizeFactor)/v(BaseBodyMass_kg)`, rounded to three decimals, for `LifeStages.SpeedFactor`. `BaseBodyMass_kg` is read from `Base stats` (Megachicken, presently 5 kg); this is an explicitly **speculative model input** for the fictional species, not an empirically measured mass. The model predicts an optimum near 89 kg and decreases above that mass. Checker validates the tabulated factor against the fitted equation and refuses inconsistent or missing reference-mass data.
+
+Core stages are shared between many different animal species. A single age-specific `LifeStageDef.statFactors.MoveSpeed` cannot exactly represent the mass-specific Hirt curve for both small and large species. Their existing Core multipliers remain a coarse size-scaling approximation; they are not claimed to be physically exact for every species. Do not replace these with an arbitrary fixed reference mass; accurate mass-specific juvenile speeds would require a separately designed per-species solution. Hirt predicts maximum sprint performance, not the typical game walking speed, so only stage ratios are transferred.

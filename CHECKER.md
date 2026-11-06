@@ -38,3 +38,5 @@ The Megachicken `race/lifeStageAges` list is preserved from its source mod,
 including its five age thresholds. Royal-specific CE changes are additionally
 guarded against Royal Animals being absent. The CE folder loads after Royal
 Animals so its damage factors take precedence.
+
+Royal Megachicken age-speed multipliers are calibrated against Hirt et al. (2017) running-speed allometry using `LifeStages.BaseBodyMass_kg` from the speculative Megachicken mass in `Base stats`. The values are relative ratios, not km/h, and are verified in Checker before generation. Shared Core stages are explicitly not calibrated to an arbitrary animal mass.
