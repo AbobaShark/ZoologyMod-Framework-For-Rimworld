@@ -12,8 +12,12 @@ namespace ZoologyMod
     {
         private static readonly MethodInfo MemberwiseCloneMethod = typeof(object).GetMethod(
             "MemberwiseClone", BindingFlags.Instance | BindingFlags.NonPublic);
+        // RimWorld's allocator takes the already-allocated hash set as its third argument.
         private static readonly MethodInfo GiveShortHashMethod = typeof(ShortHashGiver).GetMethod(
-            "GiveShortHash", BindingFlags.Static | BindingFlags.NonPublic);
+            "GiveShortHash", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public,
+            null, new[] { typeof(Def), typeof(Type), typeof(HashSet<ushort>) }, null);
+        private static readonly FieldInfo TakenHashesField = typeof(ShortHashGiver).GetField(
+            "takenHashesPerDeftype", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
 
         private static readonly Dictionary<LifeStageDef, Dictionary<Tool, ZoologyLifeStageToolFactor>>
             toolFactorsByStage = new Dictionary<LifeStageDef, Dictionary<Tool, ZoologyLifeStageToolFactor>>();
@@ -302,8 +306,21 @@ namespace ZoologyMod
             copiedAge.def = replacement;
             copiedAges[stageIndex] = copiedAge;
 
+            // Do not expose a new Def to a race unless it has a valid hash.
+            int nextIndex = DefDatabase<LifeStageDef>.AllDefsListForReading.Count;
+            if (nextIndex >= ushort.MaxValue)
+            {
+                Log.Warning("[Zoology] LifeStageDef database index capacity exhausted.");
+                return false;
+            }
+            replacement.index = (ushort)nextIndex;
+            if (!AssignShortHash(replacement))
+            {
+                Log.Error("[Zoology] Cannot register life-stage shortHash for " + generatedName
+                    + "; retaining the original stage.");
+                return false;
+            }
             DefDatabase<LifeStageDef>.Add(replacement);
-            AssignShortHash(replacement);
             animal.race.lifeStageAges = copiedAges;
             if (selectedTools != null)
             {
@@ -321,19 +338,32 @@ namespace ZoologyMod
             return (T)MemberwiseCloneMethod.Invoke(source, null);
         }
 
-        private static void AssignShortHash(LifeStageDef stage)
+        private static bool AssignShortHash(LifeStageDef stage)
         {
-            if (GiveShortHashMethod == null)
+            if (GiveShortHashMethod == null || TakenHashesField == null)
             {
-                return;
+                Log.Error("[Zoology] RimWorld's ShortHashGiver signature changed.");
+                return false;
             }
             try
             {
-                GiveShortHashMethod.Invoke(null, new object[] { stage, typeof(LifeStageDef) });
+                var byType = TakenHashesField.GetValue(null)
+                    as Dictionary<Type, HashSet<ushort>>;
+                HashSet<ushort> taken;
+                if (byType == null || !byType.TryGetValue(typeof(LifeStageDef), out taken)
+                    || taken == null)
+                {
+                    Log.Error("[Zoology] LifeStageDef shortHash registry is unavailable.");
+                    return false;
+                }
+                GiveShortHashMethod.Invoke(null,
+                    new object[] { stage, typeof(LifeStageDef), taken });
+                return stage.shortHash != 0 && taken.Contains(stage.shortHash);
             }
             catch (Exception ex)
             {
-                Log.Warning("[Zoology] Cannot assign short hash for " + stage.defName + ": " + ex.Message);
+                Log.Warning("[Zoology] Cannot assign short hash for " + stage.defName + ": " + ex);
+                return false;
             }
         }
 
