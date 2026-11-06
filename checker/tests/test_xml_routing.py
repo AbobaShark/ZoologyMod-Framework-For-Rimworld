@@ -121,9 +121,9 @@ class RoutingTests(unittest.TestCase):
         from core.xml_routing import plan
         source = self.staging/'attacks.cs'
         source.write_text(
-            LIFE_STAGE_ATTACK_CSHARP_HEADER + '\\n'
-            'namespace ZoologyMod { internal static class '
-            'ZoologyGeneratedLifeStageAttacks { } }\\n', encoding='utf8')
+            LIFE_STAGE_ATTACK_CSHARP_HEADER + '\n'
+            + 'namespace ZoologyMod { internal static class '
+            'ZoologyGeneratedLifeStageAttacks { } }\n', encoding='utf8')
         target = 'Source/Behaviour/Shared/ZoologyLifeStageAttackProfiles_Generated.cs'
         self.manifest.write_text(json.dumps({
             'schema': 1,
@@ -182,8 +182,8 @@ class RoutingTests(unittest.TestCase):
     def test_generated_attack_source_cannot_escape_approved_cs_destination(self):
         from core.xml_routing import plan
         (self.staging/'attacks.cs').write_text(
-            LIFE_STAGE_ATTACK_CSHARP_HEADER + '\\n'
-            'namespace ZoologyMod { internal static class '
+            LIFE_STAGE_ATTACK_CSHARP_HEADER + '\n'
+            + 'namespace ZoologyMod { internal static class '
             'ZoologyGeneratedLifeStageAttacks {} }')
         self.manifest.write_text(json.dumps({
             'schema': 1,
