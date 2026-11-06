@@ -185,22 +185,13 @@ class LifeStageGenerationTests(unittest.TestCase):
             self.assertEqual(len(stage.findall('statFactors')),1)
             self.assertEqual(len(stage.findall('marketValueFactor')),1)
 
-    def test_ce_melee_chances_scale_with_relative_body_size(self):
+    def test_ce_melee_chances_are_not_recomputed_by_checker(self):
         table = fixture()
-        for owner, stage_groups in (('Core', STAGE_GROUPS),
-                                    (ROYAL_SOURCE, ROYAL_STAGES)):
-            for group, stage in parse_stages(table, owner):
-                b = stage['bodySizeFactor']
-                expected = round(b ** 0.165 / 0.05) * 0.05
-                self.assertAlmostEqual(stage['MeleeCritChance'], expected)
-                self.assertAlmostEqual(stage['MeleeParryChance'], expected)
-        table.loc[8, 'MeleeCritChance'] = 1
-        with self.assertRaisesRegex(ValueError, 'MeleeCritChance'):
-            render_life_stages(table, ce=True, source_mod=ROYAL_SOURCE)
-        table = fixture()
-        table.loc[2, 'MeleeParryChance'] = 1
-        with self.assertRaisesRegex(ValueError, 'MeleeParryChance'):
-            render_life_stages(table, ce=True)
+        table.loc[2, 'MeleeCritChance'] = 0.123
+        table.loc[2, 'MeleeParryChance'] = 1.87
+        root = E.fromstring(render_life_stages(table, ce=True))
+        self.assertIn("0.123", E.tostring(root, encoding="unicode"))
+        self.assertIn("1.87", E.tostring(root, encoding="unicode"))
 
     def test_melee_cooldown_stat_is_zoology_owned(self):
         table=fixture()
