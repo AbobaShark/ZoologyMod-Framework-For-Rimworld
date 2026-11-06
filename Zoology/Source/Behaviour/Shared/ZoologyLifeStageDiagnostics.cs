@@ -1,5 +1,6 @@
 using System;
 using System.Text;
+using HarmonyLib;
 using LudeonTK;
 using RimWorld;
 using Verse;
@@ -91,6 +92,9 @@ namespace ZoologyMod
                 }
             }
 
+            if (CEChecker.IsCEInstalled())
+                AppendCeArmorDurability(pawn, output);
+
             output.Append("Natural attacks (CE active: ")
                 .Append(CEChecker.IsCEInstalled()).AppendLine("):");
             var tools = pawn.def.tools;
@@ -129,6 +133,47 @@ namespace ZoologyMod
             }
 
             Log.Message(output.ToString());
+        }
+
+        // Debug-only inspection of CE's live comp; no assembly reference or
+        // ongoing pawn scan. Calling maxDurability invokes our life-stage patch.
+        private static void AppendCeArmorDurability(Pawn pawn, StringBuilder output)
+        {
+            var ceCompType = AccessTools.TypeByName("CombatExtended.CompArmorDurability");
+            var comps = pawn.AllComps;
+            if (ceCompType == null || comps == null)
+                return;
+
+            for (int i = 0; i < comps.Count; i++)
+            {
+                var comp = comps[i];
+                if (comp == null || !ceCompType.IsInstanceOfType(comp))
+                    continue;
+
+                try
+                {
+                    var maxGetter = AccessTools.PropertyGetter(ceCompType, "maxDurability");
+                    var currentField = AccessTools.Field(ceCompType, "curDurability");
+                    if (maxGetter == null || currentField == null)
+                        return;
+
+                    float max = (float)maxGetter.Invoke(comp, null);
+                    float current = (float)currentField.GetValue(comp);
+                    float stageFactor;
+                    bool mapped = ZoologyLifeStageProfileInstaller.TryGetArmorDurabilityFactor(
+                        pawn, out stageFactor);
+                    output.Append("CE natural armor durability: ")
+                        .Append(current).Append(" / ").Append(max)
+                        .Append("; AnimalStats stage factor: ")
+                        .Append(mapped ? stageFactor.ToString("0.######") : "unmodified")
+                        .AppendLine();
+                }
+                catch (Exception ex)
+                {
+                    output.Append("CE natural armor durability unavailable: ")
+                        .Append(ex.GetType().Name).AppendLine();
+                }
+            }
         }
     }
 }
