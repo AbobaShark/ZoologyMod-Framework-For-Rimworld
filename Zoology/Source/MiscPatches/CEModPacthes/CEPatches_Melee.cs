@@ -145,7 +145,10 @@ namespace ZoologyMod
             if (ZoologyLifeStageProfileInstaller.TryGetToolFactor(
                 caster, toolObj as Tool, out toolFactor))
             {
-                extFactor *= isSharp ? toolFactor.ceSharpPenetrationFactor
+                // Individual tool factors are the total stage/adult AP ratio.
+                // Replace the old generic life-stage AP factor, never multiply
+                // both factors (which would count age scaling twice).
+                extFactor = isSharp ? toolFactor.ceSharpPenetrationFactor
                     : toolFactor.ceBluntPenetrationFactor;
             }
 
