@@ -192,6 +192,11 @@ def render_species_life_stage_profiles(species_profiles, attacks,
         stage_groups[label] = (names, stage_values)
     diagnostics = Counter()
     tool_profiles = _tool_profiles(species_profiles, diagnostics)
+    diagnostics["species_rows_total"] = 0
+    diagnostics["species_rows_ready"] = 0
+    diagnostics["species_rows_incomplete"] = 0
+    diagnostics["species_rows_invalid_source"] = 0
+    diagnostics["incomplete_examples"] = []
     rendered = set()
     root = E.Element("Defs")
     catalog = E.SubElement(root, "ZoologyLifeStageProfileCatalogDef",
@@ -204,6 +209,7 @@ def render_species_life_stage_profiles(species_profiles, attacks,
         row = record.to_dict()
         if _is_empty(row.get("XML name")):
             continue
+        diagnostics["species_rows_total"] += 1
         names = _xml_names(row["XML name"])
         label = str(row.get("LifeStageDef", "")).strip()
         if label not in stage_groups:
@@ -212,6 +218,10 @@ def render_species_life_stage_profiles(species_profiles, attacks,
         status = str(row.get("CalculationStatus", "")).strip().upper()
         if status == "SOURCE ERROR":
             diagnostics["species_rows_invalid_source"] += 1
+            if len(diagnostics["incomplete_examples"]) < 24:
+                diagnostics["incomplete_examples"].append(
+                    {"row": number, "animal": names, "stage": label,
+                     "reason": "SOURCE ERROR"})
             continue
         if status not in ("READY", "INCOMPLETE"):
             raise ValueError(f"LifeStageProfiles row {number}: invalid status {status!r}")
@@ -241,7 +251,12 @@ def render_species_life_stage_profiles(species_profiles, attacks,
             raise ValueError(f"{label} row {number}: READY profile has missing outputs")
         if status == "INCOMPLETE":
             diagnostics["species_rows_incomplete"] += 1
+            if len(diagnostics["incomplete_examples"]) < 24:
+                diagnostics["incomplete_examples"].append(
+                    {"row": number, "animal": names, "stage": label,
+                     "reason": "INCOMPLETE in AnimalStats; not installed"})
             continue
+        diagnostics["species_rows_ready"] += 1
         for name in names:
             adult = adults.get(name)
             if adult is None:
@@ -298,6 +313,8 @@ def render_species_life_stage_profiles(species_profiles, attacks,
     if unconsumed:
         raise ValueError("Unmatched READY attack profile stages: "
                          + repr(sorted(unconsumed)[:15]))
+    if diagnostics["species_rows_ready"] == 0 or diagnostics["profiles"] == 0:
+        raise ValueError("LifeStageProfiles produced no READY specialized stages")
     return (E.tostring(root, encoding="utf-8", xml_declaration=True, pretty_print=True),
             dict(diagnostics))
 
