@@ -199,7 +199,8 @@ def render_species_life_stage_profiles(species_profiles, attacks,
         raise ValueError("LifeStageProfiles source is required")
     required = {"XML name", "LifeStageDef", "ExpectedBaseBodySize",
                 "ExpectedBaseHungerRate", "ExpectedBodySizeFactor",
-                "HungerRateFactor", "CalculationStatus"}
+                "HungerRateFactor", "CalculationStatus",
+                "StageBodySize", "StageHealthScaleFactor", "CEArmorDurabilityFactor"}
     missing = required - set(species_profiles.columns)
     if missing:
         raise ValueError(f"LifeStageProfiles missing columns: {sorted(missing)}")
@@ -252,6 +253,14 @@ def render_species_life_stage_profiles(species_profiles, attacks,
                                         f"{label} row {number} stage factor")
         if not math.isclose(expected_stage_size, common["bodySizeFactor"], abs_tol=1e-7):
             raise ValueError(f"{label} row {number}: stage factor differs from LifeStages")
+        stage_body = _required(row.get("StageBodySize"),
+                               f"{label} row {number} effective stage BodySize")
+        body_factor = stage_body / expected_body
+        health_factor = _required(row.get("StageHealthScaleFactor"),
+                                  f"{label} row {number} stage health scale")
+        durability_factor = (_number(row.get("CEArmorDurabilityFactor"),
+                                     f"{label} row {number} CE armor durability")
+                             if ce else None)
         hunger = _required(row.get("HungerRateFactor"),
                            f"{label} row {number} stage hunger factor")
         stats = []
@@ -313,7 +322,10 @@ def render_species_life_stage_profiles(species_profiles, attacks,
                     raise ValueError(f"Duplicate life stage {key!r}")
                 rendered.add(key)
                 tools = tool_profiles.get(key, [])
-                changed = (not math.isclose(hunger, 1, abs_tol=1e-10)
+                changed = (not math.isclose(body_factor, common["bodySizeFactor"], abs_tol=1e-7)
+                           or not math.isclose(health_factor, common["healthScaleFactor"], abs_tol=1e-7)
+                           or durability_factor is not None and not math.isclose(durability_factor, 1, abs_tol=1e-10)
+                           or not math.isclose(hunger, 1, abs_tol=1e-10)
                            or bool(stats) or bool(offsets) or bool(tools)
                            or combat_power is not None and not math.isclose(combat_power, 1)
                            or market_value is not None and not math.isclose(market_value, 1))
@@ -326,9 +338,13 @@ def render_species_life_stage_profiles(species_profiles, attacks,
                     ("expectedBaseBodySize", _text_number(expected_body)),
                     ("expectedBaseHungerRate", _text_number(expected_hunger)),
                     ("expectedBodySizeFactor", _text_number(expected_stage_size)),
+                    ("bodySizeFactor", _text_number(body_factor)),
+                    ("healthScaleFactor", _text_number(health_factor)),
                     ("hungerRateFactor", _text_number(hunger)),
                 ):
                     E.SubElement(node, tag).text = value
+                if durability_factor is not None:
+                    E.SubElement(node, "ceArmorDurabilityFactor").text = _text_number(durability_factor)
                 if market_value is not None:
                     E.SubElement(node, "marketValueFactor").text = _text_number(market_value)
                 if combat_power is not None:

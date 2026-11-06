@@ -22,6 +22,9 @@ def sources(base_size=1):
         "ExpectedBaseBodySize": base_size,
         "ExpectedBaseHungerRate": 1,
         "ExpectedBodySizeFactor": (1, .5, .2, .15)[i],
+        "StageBodySize": base_size * (1, .5, .2, .15)[i],
+        "StageHealthScaleFactor": (1, .5, .2, .15)[i],
+        "CEArmorDurabilityFactor": (1, .5, .2, .15)[i],
         "HungerRateFactor": (1, .6, .3, .25)[i],
         "FilthRate": (1, .5, .3, .2)[i],
         "MeleeDodgeChance": (1, 1.2, 1.5, 1.7)[i],
@@ -85,6 +88,26 @@ class SpeciesLifeStageProfilesTests(unittest.TestCase):
         self.assertEqual(len(ce_armor), 1)
         self.assertEqual(ce_armor[0].text, "true")
         self.assertEqual(baby.xpath("./statFactors/li[stat='ArmorRating_Sharp'][not(ceOnly)]"), [])
+
+    def test_ce_armor_durability_comes_from_animalstats(self):
+        xml, _ = render(*sources())
+        baby = [n for n in nodes(xml) if n.findtext("sourceStageDefName") == "AnimalBaby"][0]
+        self.assertEqual(baby.findtext("ceArmorDurabilityFactor"), "0.2")
+        xml_without_ce, _ = render(*sources(), ce=False)
+        baby_without_ce = [n for n in nodes(xml_without_ce) if n.findtext("sourceStageDefName") == "AnimalBaby"][0]
+        self.assertIsNone(baby_without_ce.find("ceArmorDurabilityFactor"))
+
+    def test_species_body_and_health_factors_can_change_independently_of_core(self):
+        args = list(sources())
+        args[0] = args[0].copy()
+        args[0].at[2, "StageBodySize"] = .1
+        args[0].at[2, "StageHealthScaleFactor"] = .1
+        args[1] = args[0]
+        xml, _ = render(*args)
+        baby = [n for n in nodes(xml) if n.findtext("sourceStageDefName") == "AnimalBaby"][0]
+        self.assertEqual(baby.findtext("expectedBodySizeFactor"), "0.2")
+        self.assertEqual(baby.findtext("bodySizeFactor"), "0.1")
+        self.assertEqual(baby.findtext("healthScaleFactor"), "0.1")
 
     def test_ce_disabled_keeps_only_vanilla_stats(self):
         xml, _ = render(*sources(), ce=False)
