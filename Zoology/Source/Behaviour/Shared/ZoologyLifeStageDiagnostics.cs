@@ -128,11 +128,45 @@ namespace ZoologyMod
                     {
                         output.Append(" :: no individual stage modifier");
                     }
+                    AppendLiveMeleeValues(pawn, tool, output);
                     output.AppendLine();
                 }
             }
 
             Log.Message(output.ToString());
+        }
+
+        // Exercises the same VerbProperties overloads patched by Zoology.
+        // This is called only from a manual debug action, never during ticks.
+        private static void AppendLiveMeleeValues(Pawn pawn, Tool tool, StringBuilder output)
+        {
+            if (tool?.capacities == null)
+                return;
+
+            var maneuvers = DefDatabase<ManeuverDef>.AllDefsListForReading;
+            for (int i = 0; i < maneuvers.Count; i++)
+            {
+                var maneuver = maneuvers[i];
+                if (maneuver?.verb == null || maneuver.requiredCapacity == null
+                    || !tool.capacities.Contains(maneuver.requiredCapacity))
+                    continue;
+
+                try
+                {
+                    float damage = maneuver.verb.AdjustedMeleeDamageAmount(
+                        tool, pawn, null, null);
+                    float cooldown = maneuver.verb.AdjustedCooldown(tool, pawn, null);
+                    output.Append(" :: live damage ").Append(damage.ToString("0.###"))
+                        .Append(", live cooldown ").Append(cooldown.ToString("0.###"))
+                        .Append(" s");
+                }
+                catch (Exception ex)
+                {
+                    output.Append(" :: live melee unavailable: ")
+                        .Append(ex.GetType().Name);
+                }
+                break;
+            }
         }
 
         // Debug-only inspection of CE's live comp; no assembly reference or
