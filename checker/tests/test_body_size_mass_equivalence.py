@@ -1,8 +1,9 @@
 """Regression anchors from AnimalStats!SERVICE_BodySizeMassBands (Nov 2026)."""
 import unittest
+import pandas as pd
 from core.body_size_mass_equivalence import (
     body_size_equivalent_mass_kg, body_size_midpoint_pairs,
-    mass_ranges_for_body_size,
+    mass_ranges_for_body_size, mass_lookup_from_service_bands,
 )
 
 
@@ -50,6 +51,42 @@ class BodySizeMassEquivalenceTests(unittest.TestCase):
         ranges = mass_ranges_for_body_size(.05)
         self.assertEqual(len(ranges), 1)
         self.assertEqual(ranges[0][0], 0.0)
+
+
+    def test_service_band_values_override_embedded_inverse(self):
+        rows = []
+        for size, mass in body_size_midpoint_pairs():
+            intervals = mass_ranges_for_body_size(size)
+            rows.append({
+                "BodySize (game)": size,
+                "MassLower_kg": min(lo for lo, _ in intervals),
+                "MassUpper_kg": max(hi for _, hi in intervals),
+                "MassMidpoint_kg": mass,
+            })
+        frame = pd.DataFrame(rows)
+        lookup = mass_lookup_from_service_bands(frame)
+        for size in (.05, .07, .2, 1., 1.4, 4.55, 7.):
+            with self.subTest(size=size):
+                self.assertAlmostEqual(lookup(size),
+                                       body_size_equivalent_mass_kg(size),
+                                       places=6)
+        # The service table, not a stale Python coefficient, determines mass.
+        frame.loc[frame["BodySize (game)"] == .2, "MassMidpoint_kg"] *= 1.1
+        updated = mass_lookup_from_service_bands(frame)
+        self.assertAlmostEqual(updated(.2),
+                               body_size_equivalent_mass_kg(.2) * 1.1)
+
+    def test_service_band_invalid_bounds_fail_closed(self):
+        frame = pd.DataFrame([
+            {"BodySize (game)": .05, "MassLower_kg": 0,
+             "MassUpper_kg": .2, "MassMidpoint_kg": .1},
+            {"BodySize (game)": .1, "MassLower_kg": .2,
+             "MassUpper_kg": .5, "MassMidpoint_kg": .4},
+        ])
+        mass_lookup_from_service_bands(frame)
+        frame.loc[1, "MassMidpoint_kg"] = 4.0
+        with self.assertRaisesRegex(ValueError, "invalid interval"):
+            mass_lookup_from_service_bands(frame)
 
 
 if __name__ == "__main__":
