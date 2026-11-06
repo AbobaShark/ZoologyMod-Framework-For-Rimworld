@@ -266,7 +266,8 @@ def render_species_life_stage_profiles(species_profiles, attacks,
             if len(diagnostics["incomplete_examples"]) < 24:
                 diagnostics["incomplete_examples"].append(
                     {"row": number, "animal": names, "stage": label,
-                     "reason": "INCOMPLETE in AnimalStats; not installed"})
+                     "reason": str(row.get("MissingToolDiagnostics") or
+                                   "INCOMPLETE in AnimalStats; not installed").strip()})
             continue
         diagnostics["species_rows_ready"] += 1
         for name in names:
