@@ -93,7 +93,10 @@ namespace ZoologyMod
             }
 
             if (CEChecker.IsCEInstalled())
+            {
                 AppendCeArmorDurability(pawn, output);
+                AppendCePenetrationHookStatus(output);
+            }
 
             output.Append("Natural attacks (CE active: ")
                 .Append(CEChecker.IsCEInstalled()).AppendLine("):");
@@ -166,6 +169,38 @@ namespace ZoologyMod
                         .Append(ex.GetType().Name);
                 }
                 break;
+            }
+        }
+
+        // Verifies the actual combat path, not just the CE PawnCombat stat
+        // display. The displayed AP uses its own StatWorker and a distinct patch.
+        private static void AppendCePenetrationHookStatus(StringBuilder output)
+        {
+            var ceVerbType = AccessTools.TypeByName("CombatExtended.Verb_MeleeAttackCE");
+            if (ceVerbType == null)
+            {
+                output.AppendLine("CE combat penetration: verb type unavailable");
+                return;
+            }
+
+            foreach (var property in new[] { "ArmorPenetrationSharp", "ArmorPenetrationBlunt" })
+            {
+                var getter = AccessTools.PropertyGetter(ceVerbType, property);
+                var patchInfo = getter == null ? null : Harmony.GetPatchInfo(getter);
+                bool zoologyActive = false;
+                if (patchInfo != null)
+                {
+                    foreach (var postfix in patchInfo.Postfixes)
+                    {
+                        if (postfix.owner == "com.abobashark.zoology.mod.melee")
+                        {
+                            zoologyActive = true;
+                            break;
+                        }
+                    }
+                }
+                output.Append("CE combat ").Append(property)
+                    .Append(" Zoology postfix active: ").Append(zoologyActive).AppendLine();
             }
         }
 
