@@ -58,6 +58,22 @@ combat getters and CE stat panel are distinct code paths. The status
 panel and both explanation paths use CE's original skill/stat factors
 with the generated per-Tool CE penetration ratios; no ToolCE is mutated.
 
+### Remaining age-size parity exception
+
+Core MoveSpeed still uses the common LifeStages.SpeedFactor =
+MROUND(bodySizeFactor^0.17,0.05). It is *not* the same operation as
+recalculating a species' Base stats speed model and the Animals/Animals CE
+movement mapping at the reduced StageMass_kg. For Warg juvenile, the
+current CE stage speed is 6.6 * 0.9 = 5.94, whereas evaluating Warg's
+existing Base stats!M mass-speed formula at 30.399549 kg and then
+applying the same Animals CE!W mapping gives 6.10. This discrepancy is
+not silently treated as parity. Base stats!M contains empirical fixed
+speeds as well as distinct species formula families; there is no
+validated model for replacing every fixed-speed datum with a
+mass-dependent speed, so no invented species-independent coefficients
+are installed by Checker. Combat Power still uses the common age
+speed factor as long as this exception remains.
+
 ## Current generated artifacts
 
 - Zoology/Core/Defs/Misc/LifeStageProfiles_Generated.xml: numerical scalars,
