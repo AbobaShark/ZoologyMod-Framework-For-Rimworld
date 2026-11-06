@@ -48,6 +48,16 @@ cached by reference. A CE verb returning a ToolCE copy is matched once
 and cached for subsequent requests. No biomechanical calculation occurs
 during an attack.
 
+For species stages, `StageHealthScaleFactor` is evaluated using the
+same body-size formula as `Animals!AP`:
+`MROUND(StageBodySize * Groups.HealthMultiplier *
+Base stats.Health Multiplier,0.05) / Animals.baseHealthScale`.
+For tiny stages whose rounded health would be zero, the unrounded
+numerator is used to retain finite positive health. The two CE AP
+combat getters and CE stat panel are distinct code paths. The status
+panel and both explanation paths use CE's original skill/stat factors
+with the generated per-Tool CE penetration ratios; no ToolCE is mutated.
+
 ## Current generated artifacts
 
 - Zoology/Core/Defs/Misc/LifeStageProfiles_Generated.xml: numerical scalars,
