@@ -23,8 +23,10 @@ The new workbook tabs are:
   `ThingDef.tools` entry and source stage, with six independent
   `Stage / Adult` coefficients. Each coefficient is calculated by the sheet
   from an adult and a stage prediction. A row with missing predictions is
-  `INCOMPLETE`; negative, nonfinite or zero coefficients are invalid.
-  `READY` rows require all six calculated positive coefficients.
+  `INCOMPLETE`; negative and nonfinite coefficients are invalid. Damage and AP may be
+  zero when the modeled attack produces no damage or penetration; cooldown
+  factors must remain strictly positive. `READY` rows require all six
+  calculated, physically valid coefficients.
 
 Both tabs are read automatically from the main Google Sheets/XLSX source.
 When using separate TSV inputs, provide
