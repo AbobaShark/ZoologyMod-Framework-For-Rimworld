@@ -379,15 +379,14 @@ def stage_pipeline(source, *, root=None, registry_path=None, sheet_sources=None,
                 # Species-specific corrections are evaluated by Checker only.
                 # The runtime clones only stages actually present in the
                 # installed animal race.lifestageAges, never per-pawn.
-                source_attacks = sheets.get('LifeStageAttackProfiles')
-                attack_table = sheet_frame('LifeStageAttackProfiles') if source_attacks else None
+                # Profiles are native AnimalStats calculations, not Python models.
+                # Use the workbook tab automatically, or a named TSV override.
                 payload, diagnostics = render_species_life_stage_profiles(
+                    sheet_frame('LifeStageSpeciesProfiles'),
+                    sheet_frame('LifeStageAttackProfiles'),
                     sheet_frame('Animals'),
-                    sheet_frame('Animals CE') if ce else None,
-                    sheet_frame('Base stats'),
-                    sheet_frame('Groups'),
                     t,
-                    attack_table,
+                    ce=ce,
                     mass_lookup=mass_lookup,
                 )
                 e=output_by_id(registry,'life-stages.species')
