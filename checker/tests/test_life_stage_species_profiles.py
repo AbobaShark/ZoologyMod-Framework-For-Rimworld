@@ -209,5 +209,55 @@ class SpeciesLifeStageProfilesTests(unittest.TestCase):
         self.assertGreater(output.count(b"\n"), 10)
 
 
+    def test_one_core_attack_row_applies_to_animal_and_eusocial_source_stages(self):
+        args = list(sources())
+        args[1] = pd.DataFrame([{
+            "XML name": "<li>TestAnimal</li>",
+            "LifeStageDef": "AnimalBaby or EusocialInsectLarva",
+            "ToolIndex": 0, "ToolLabel": "head",
+            "LinkedBodyPartsGroup": "HeadAttackTool",
+            "CalculationStatus": "READY",
+            "VanillaDamageFactor": .1,
+            "VanillaCooldownFactor": .6,
+            "CEDamageFactor": .05,
+            "CECooldownFactor": .6,
+            "CESharpPenetrationFactor": 1,
+            "CEBluntPenetrationFactor": .01,
+        }])
+        xml, info = render(*args)
+        self.assertIn(b"<sourceStageDefName>AnimalBaby</sourceStageDefName>", xml)
+        self.assertIn(b"<sourceStageDefName>EusocialInsectLarva</sourceStageDefName>", xml)
+        cs, report = render_life_stage_attack_profiles_cs(args[1])
+        self.assertIn(b"TestAnimal\\\\nAnimalBaby", cs)
+        self.assertIn(b"TestAnimal\\\\nEusocialInsectLarva", cs)
+        self.assertEqual(report["compiled_stage_keys"], 2)
+        self.assertEqual(report["generated_cs_batches"], 1)
+
+    def test_zero_head_sharp_armor_penetration_ratio_is_representable(self):
+        args = list(sources())
+        args[1] = pd.DataFrame([{
+            "XML name": "<li>TestAnimal</li>", "LifeStageDef": "AnimalBaby",
+            "ToolIndex": 0, "ToolLabel": "head", "CalculationStatus": "READY",
+            "VanillaDamageFactor": .5, "VanillaCooldownFactor": .7,
+            "CEDamageFactor": .2, "CECooldownFactor": .8,
+            "CESharpPenetrationFactor": 0, "CEBluntPenetrationFactor": .1,
+        }])
+        cs, report = render_life_stage_attack_profiles_cs(args[1])
+        self.assertIn(b"ceSharpPenetrationFactor = 0f", cs)
+        self.assertEqual(report["attack_tools_ready"], 1)
+
+    def test_unrecognized_attack_stage_is_rejected(self):
+        args = list(sources())
+        args[1] = pd.DataFrame([{
+            "XML name": "<li>TestAnimal</li>", "LifeStageDef": "UnknownInfant",
+            "ToolIndex": 0, "ToolLabel": "head", "CalculationStatus": "READY",
+            "VanillaDamageFactor": 1, "VanillaCooldownFactor": 1,
+            "CEDamageFactor": 1, "CECooldownFactor": 1,
+            "CESharpPenetrationFactor": 1, "CEBluntPenetrationFactor": .1,
+        }])
+        with self.assertRaisesRegex(ValueError, "unknown source stage"):
+            render_life_stage_attack_profiles_cs(args[1])
+
+
 if __name__ == "__main__":
     unittest.main()
