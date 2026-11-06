@@ -18,6 +18,8 @@ from core.xml_routing import digest,find_project_root,route_dependency
 from core.static_stats import read_table,update_bionics,update_life_stages,SHEET_REQUIRED
 from core.life_stages import render_life_stage_combat_power, render_life_stages, ROYAL_SOURCE
 from core.life_stage_species_profiles import render_species_life_stage_profiles
+from core.body_size_mass_equivalence import mass_lookup_from_service_bands
+from core.animalstats_source import is_multisheet_source
 from core.production_stats import render_reproduction
 from core.checker_config import ROOT
 from core.patch_postprocess import PatchPostprocessor
@@ -338,13 +340,21 @@ def stage_pipeline(source, *, root=None, registry_path=None, sheet_sources=None,
                     emit(dest,e['category'],payload,e.get('requires'))
                     entry_by_dest[dest]['pipeline_category']='bionics'
             if 'life-stages' in cats:
+                # A native workbook owns its mass equivalence data. This
+                # refreshes automatically when the Animals!AO model changes.
+                # Separate TSV sources can provide this tab explicitly.
+                has_mass_bands = bool(sheets.get('SERVICE_BodySizeMassBands')) or (
+                    source is not None and is_multisheet_source(source))
+                mass_lookup = (mass_lookup_from_service_bands(
+                    sheet_frame('SERVICE_BodySizeMassBands'))
+                    if has_mass_bands else None)
                 e=output_by_id(registry,'life-stages.vanilla')
-                results.append(static('LifeStages',e['destination'],e['category'],lambda tree,table:update_life_stages(tree,table,False)))
+                results.append(static('LifeStages',e['destination'],e['category'],lambda tree,table:update_life_stages(tree,table,False,mass_lookup=mass_lookup)))
                 if ce:
                     e=output_by_id(registry,'life-stages.ce')
-                    results.append(static('LifeStages',e['destination'],e['category'],lambda tree,table:update_life_stages(tree,table,True)))
+                    results.append(static('LifeStages',e['destination'],e['category'],lambda tree,table:update_life_stages(tree,table,True,mass_lookup=mass_lookup)))
                 e=output_by_id(registry,'life-stages.power')
-                payload=render_life_stage_combat_power(sheet_frame('LifeStages'))
+                payload=render_life_stage_combat_power(sheet_frame('LifeStages'),mass_lookup=mass_lookup)
                 emit(e['destination'],e['category'],payload,e.get('requires'))
                 entry_by_dest[e['destination']]['pipeline_category']='life-stages'
                 results.append({'destination':e['destination'],'changes':[{'regenerated':'life-stages.power'}],'warnings':[]})
@@ -353,12 +363,12 @@ def stage_pipeline(source, *, root=None, registry_path=None, sheet_sources=None,
                 # its CE load folder and by Royal-stage existence.
                 t=sheet_frame('LifeStages')
                 royal_outputs=[
-                    ('life-stages.royal',render_life_stages(t,source_mod=ROYAL_SOURCE)),
-                    ('life-stages.royal.power',render_life_stage_combat_power(t,source_mod=ROYAL_SOURCE)),
+                    ('life-stages.royal',render_life_stages(t,source_mod=ROYAL_SOURCE,mass_lookup=mass_lookup)),
+                    ('life-stages.royal.power',render_life_stage_combat_power(t,source_mod=ROYAL_SOURCE,mass_lookup=mass_lookup)),
                 ]
                 if ce:
                     royal_outputs.append(('life-stages.royal.ce',
-                                          render_life_stages(t,ce=True,source_mod=ROYAL_SOURCE)))
+                                          render_life_stages(t,ce=True,source_mod=ROYAL_SOURCE,mass_lookup=mass_lookup)))
                 for ident,payload in royal_outputs:
                     e=output_by_id(registry,ident)
                     emit(e['destination'],e['category'],payload,e.get('requires'))
@@ -378,6 +388,7 @@ def stage_pipeline(source, *, root=None, registry_path=None, sheet_sources=None,
                     sheet_frame('Groups'),
                     t,
                     attack_table,
+                    mass_lookup=mass_lookup,
                 )
                 e=output_by_id(registry,'life-stages.species')
                 emit(e['destination'],e['category'],payload,e.get('requires'))
