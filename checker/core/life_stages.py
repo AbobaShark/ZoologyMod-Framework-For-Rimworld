@@ -260,7 +260,7 @@ def render_life_stages(table, *, ce=False, source_mod="Core", mass_lookup=None):
 
 def render_life_stage_combat_power(table, *, source_mod="Core", mass_lookup=None):
     root = E.Element("Patch")
-    for group, numbers in parse_stages(table, source_mod):
+    for group, numbers in parse_stages(table, source_mod, mass_lookup=mass_lookup):
         for name in group:
             parent = _xpath((name,))
             extension_path = parent + '/modExtensions/li[@Class="' + COMBAT_POWER_EXTENSION + '"]'
