@@ -79,13 +79,13 @@ def update_bionics(tree,table):
     return changes,warnings
 
 
-def update_life_stages(tree, table, ce=False):
+def update_life_stages(tree, table, ce=False, *, mass_lookup=None):
     """Regenerate all life-stage factors from the table, not the installed XML.
 
     The caller's element tree is replaced atomically so stale values or invalid
     PatchOperation XPaths cannot survive a generation pass.
     """
-    updated = E.fromstring(render_life_stages(table, ce=ce))
+    updated = E.fromstring(render_life_stages(table, ce=ce, mass_lookup=mass_lookup))
     before = E.tostring(tree.getroot(), encoding='utf-8')
     after = E.tostring(updated, encoding='utf-8')
     tree._setroot(updated)
