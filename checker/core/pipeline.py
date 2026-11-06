@@ -16,6 +16,7 @@ from core.patch_engine import PatchGenerator
 from core.generation_registry import load_registry,target_entry,output_by_id,outputs_for
 from core.xml_routing import digest,find_project_root,route_dependency
 from core.static_stats import read_table,update_bionics,update_life_stages,SHEET_REQUIRED
+from core.life_stages import render_life_stage_combat_power
 from core.production_stats import render_reproduction
 from core.checker_config import ROOT
 from core.patch_postprocess import PatchPostprocessor
@@ -94,6 +95,7 @@ def stage_pipeline(source, *, root=None, registry_path=None, sheet_sources=None,
     if not (mod/'LoadFolders.xml').is_file():raise ValueError(f'Not a Zoology project root: {root}')
     registry=load_registry(registry_path or ROOT/'generation.json',mod)
     registered_outputs={entry['destination']:entry for entry in registry['outputs']}
+    life_stage_destinations={entry['destination'] for entry in registry['outputs'] if entry['pipeline_category']=='life-stages'}
     animal_group_destinations={group['destination'] for group in registry['groups']}
     declared_routes={entry['destination']:(section,entry) for section in ('groups','biomes','shared_defs','outputs') for entry in registry[section]}
     cats=set(categories)
@@ -137,7 +139,7 @@ def stage_pipeline(source, *, root=None, registry_path=None, sheet_sources=None,
             expected_category = 'biome_patch' if declared_section=='biomes' else ('animal_patch' if declared_section=='groups' else declared['category'])
             if expected_category!=category or declared.get('requires')!=requires:
                 raise ValueError(f'Output category or requirement differs from generation.json: {dest}')
-            if postprocessor is not None and category.endswith('patch') and dest not in animal_group_destinations:
+            if postprocessor is not None and category.endswith('patch') and dest not in animal_group_destinations and dest not in life_stage_destinations:
                 if postprocessor.index is None and generator is not None:
                     postprocessor.index=getattr(generator,'_original_xml_index',None)
                 data=postprocessor.process(data,destination=dest)
@@ -335,6 +337,11 @@ def stage_pipeline(source, *, root=None, registry_path=None, sheet_sources=None,
                 if ce:
                     e=output_by_id(registry,'life-stages.ce')
                     results.append(static('LifeStages',e['destination'],e['category'],lambda tree,table:update_life_stages(tree,table,True)))
+                e=output_by_id(registry,'life-stages.power')
+                payload=render_life_stage_combat_power(sheet_frame('LifeStages'))
+                emit(e['destination'],e['category'],payload,e.get('requires'))
+                entry_by_dest[e['destination']]['pipeline_category']='life-stages'
+                results.append({'destination':e['destination'],'changes':[{'regenerated':'life-stages.power'}],'warnings':[]})
             (temp/'static-report.json').write_text(json.dumps(results,indent=2,ensure_ascii=False)+'\n',encoding='utf8')
         if postprocessor is not None:
             (temp/'optimization-report.json').write_text(json.dumps(postprocessor.stats,indent=2,ensure_ascii=False)+'\n',encoding='utf8')

@@ -1,7 +1,7 @@
-"""Stage spreadsheet-driven bionic damage and LifeStageDef factors for review.
+"""Stage bionic values and regenerate LifeStage XML from AnimalStats.
 
-This tool does not modify the mod. It never infers missing spreadsheet cells,
-CE bionic mechanics or hand-edited LifeStage rules.
+Never infer missing table entries; the staged files are installed only by the
+validated deployment pipeline.
 """
 from __future__ import annotations
 import argparse
@@ -12,19 +12,11 @@ import pandas as pd
 from lxml import etree as E
 from core.animalstats_source import is_multisheet_source, read_google_sheet, read_excel_cached
 from core.xml_routing import find_project_root, digest
+from core.life_stages import REQUIRED_COLUMNS, render_life_stages
 import core.checker_config as checker_config
 
-LIFE_ROWS={
- 'AnimalAdult':0,'EusocialInsectAdult':0,
- 'AnimalJuvenile':1,'EusocialInsectJuvenile':1,
- 'AnimalBaby':2,'EusocialInsectLarva':2,'AnimalBabyTiny':3,
-}
-LIFE_BASE={'bodySizeFactor':'bodySizeFactor','marketValueFactor':'marketValueFactor',
- 'healthScaleFactor':'healthScaleFactor','hungerRateFactor':'hungerRateFactor',
- 'meleeDamageFactor':'meleeDamageFactor'}
 SHEET_REQUIRED={'Bionics':('Weapon','Damage','Attack interval'),
-                'LifeStages':('Life stage','bodySizeFactor','meleeDamageFactor')}
-
+                'LifeStages':tuple(sorted(REQUIRED_COLUMNS))}
 
 def read_table(source,sheet):
     if not is_multisheet_source(source):
@@ -87,38 +79,14 @@ def update_bionics(tree,table):
     return changes,warnings
 
 
-def update_life_stages(tree,table,ce=False):
-    rows={}
-    for _,record in table.iterrows():
-        key=str(record.get('Life stage','')).strip()
-        for stage in LIFE_ROWS:
-            if re.search(r'(?<![A-Za-z])'+re.escape(stage)+r'(?![A-Za-z])',key):
-                if stage in rows: raise ValueError(f'Duplicate LifeStages row for {stage}')
-                rows[stage]=record
-    if not rows: raise ValueError('No recognized LifeStages rows')
-    changes=[]; warnings=[]
-    # Only modify operations targeting exactly the same stage group for a
-    # spreadsheet column. Do not rewrite arbitrary hand-authored XML/XPaths.
-    for operation in tree.getroot().findall('Operation'):
-        xpath=operation.findtext('xpath') or ''
-        fields={'meleeDamageFactor':'meleeDamageFactor(CE)'} if ce else LIFE_BASE
-        match=re.search(r'/('+ '|'.join(re.escape(x) for x in fields)+r')\s*$',xpath)
-        if not match: continue
-        field=match[1]; names=set(re.findall(r'defName\s*=\s*[\"\']([A-Za-z]+)[\"\']',xpath))
-        if not names or any(name not in rows for name in names): continue
-        values=[text_value(rows[name].get(fields[field],'')) for name in names]
-        if any(v is None for v in values):
-            warnings.append(f'LifeStages {field} {sorted(names)}: empty source cell; original retained')
-            continue
-        if len(set(values))!=1:
-            raise ValueError(f'LifeStages {field} {sorted(names)}: grouped XML uses different spreadsheet values {values}')
-        expected=values[0]
-        for node in operation.xpath('./match/value/* | ./nomatch/value/*'):
-            if node.tag!=field: continue
-            old=text_value(node.text)
-            if old is None or abs(old-expected)>1e-7:
-                changes.append({'stages':sorted(names),'field':field,'old':node.text,'new':display_number(expected)})
-                node.text=display_number(expected)
-    return changes,warnings
+def update_life_stages(tree, table, ce=False):
+    """Regenerate all life-stage factors from the table, not the installed XML.
 
-
+    The caller's element tree is replaced atomically so stale values or invalid
+    PatchOperation XPaths cannot survive a generation pass.
+    """
+    updated = E.fromstring(render_life_stages(table, ce=ce))
+    before = E.tostring(tree.getroot(), encoding='utf-8')
+    after = E.tostring(updated, encoding='utf-8')
+    tree._setroot(updated)
+    return ([{'regenerated': 'life-stages.ce' if ce else 'life-stages.vanilla'}] if before != after else []), []

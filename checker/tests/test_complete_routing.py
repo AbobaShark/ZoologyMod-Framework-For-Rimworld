@@ -67,14 +67,14 @@ class RouteAudit(unittest.TestCase):
         category_paths.extend((x['destination'],'biome_patch',x.get('requires')) for x in reg['biomes'])
         category_paths.extend((x['destination'],x['category'],x.get('requires')) for x in reg['shared_defs'])
         category_paths.extend((x['destination'],x['category'],x.get('requires')) for x in reg['outputs'])
-        self.assertEqual(len(category_paths), 147)
+        self.assertEqual(len(category_paths), 148)
         for dest, category, required in category_paths:
             with self.subTest(destination=dest):
                 self.assertNotIn(dest.lower(), seen)
                 seen.add(dest.lower())
                 self.assertEqual(route_dependency(self.mod,dest,preferred=required),required)
                 self.assertEqual(validate_target(self.mod,{'destination':dest,'category':category,'requires':required}).as_posix(),dest)
-        self.assertEqual(len(seen), 147)
+        self.assertEqual(len(seen), 148)
 
     def test_all_real_reproduction_paths_include_core_and_odyssey_hatchers(self):
         products=[e['destination'] for e in load_registry(CHECKER/'generation.json',self.mod)['outputs'] if e['pipeline_category']=='products']
@@ -117,6 +117,7 @@ class RouteAudit(unittest.TestCase):
     def test_static_categories_include_the_ce_outputs(self):
         names=['Core/Defs/HediffDefs/BionicAnimalVariants.xml',
                'Core/Patches/Core/LifeStageDefs/LifeStages.xml',
+               'Core/Patches/Core/LifeStageDefs/CombatPowerFactors.xml',
                'ModPatches/CombatExtended/Patches/LifeStageDefs/LifeStages_CE.xml']
         for dest in names:
             f=self.mod/dest; f.parent.mkdir(parents=True,exist_ok=True)
@@ -124,14 +125,15 @@ class RouteAudit(unittest.TestCase):
         with patch('core.pipeline.read_table',return_value=pd.DataFrame()), \
              patch('core.pipeline.update_bionics',return_value=([],[])), \
              patch('core.pipeline.update_life_stages',return_value=([],[])), \
+             patch('core.pipeline.render_life_stage_combat_power',return_value=b'<Patch/>'), \
              patch('core.ce_bionics.render_ce_bionics',return_value=b'<Patch/>'):
             out=stage_pipeline('unused-source',root=self.root,registry_path=CHECKER/'generation.json',
                                output_dir=self.stage,categories=('bionics','life-stages'),ce=True)
         entries={x['destination']:x for x in json.loads(out.read_text())['files']}
-        self.assertEqual(len(entries),4)
+        self.assertEqual(len(entries),5)
         for dest, entry in entries.items():
             self.assertEqual(entry['requires'],route_dependency(self.mod,dest))
-        self.assertEqual(len(plan(out,self.root)[0]),4)
+        self.assertEqual(len(plan(out,self.root)[0]),5)
 
     def test_partial_generation_keeps_staged_reproduction_when_static_changed(self):
         product='DLC/Odyssey/Patches/Misc/CompProperties_EggLayer_Odyssey.xml'
@@ -160,8 +162,8 @@ class RoutingAuditExtensions(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             mod=Path(tmp)/'Zoology';mod.mkdir();write_loadfolders(mod)
             report=audit_routes(CHECKER/'generation.json',mod)
-            self.assertEqual(report['destinations'],147)
-            self.assertEqual(len(report['missing_static']),18)
+            self.assertEqual(report['destinations'],148)
+            self.assertEqual(len(report['missing_static']),19)
             with self.assertRaisesRegex(ValueError,'Missing installed static XML'):
                 audit_routes(CHECKER/'generation.json',mod,require_static_sources=True)
 

@@ -7,7 +7,7 @@ Checker builds and validates Zoology's generated XML. The maintained documentati
 From `checker/`:
 
 - `START_REFERENCE_SYNC.bat` or `py reference_sync_gui.py`: preview and import upstream XML into the local `OriginalXML/` reference cache.
-- `START_PATCH_GENERATOR.bat` or `py rimworld_patch_generator.py`: generate patches into ignored `output/staged/`, then preview and explicitly deploy.
+- `START_PATCH_GENERATOR.bat` or `py rimworld_patch_generator.py`: generate patches into ignored `output/staged/`, then validate and automatically install generated XML (disable with `--stage-only` or the GUI checkbox).
 - `START_DEF_GENERATOR.bat` or `py rimworld_xml_generator.py`: independent ThingDef generator.
 
 To use the Patch Generator CLI:
@@ -20,11 +20,11 @@ py rimworld_patch_generator.py --preview
 
 ## Sources, caches and generated XML
 
-`generation.json` defines 147 XML destinations: 81 animal groups, 29 biome patches, 3 shared Def outputs and 34 other outputs. `reference_sources.auto.json` defines upstream reference groups and paths. CE references reside under `OriginalXML/CEPatches/`.
+`generation.json` defines 148 XML destinations: 81 animal groups, 29 biome patches, 3 shared Def outputs and 35 other outputs. `reference_sources.auto.json` defines upstream reference groups and paths. CE references reside under `OriginalXML/CEPatches/`.
 
 `checker.local.json` stores ignored per-machine preferences and data sources. Reference Sync stores only preference overrides, not a redundant copy of versioned source paths. Read-only Google Sheets authentication uses local credentials; see the linked source guide.
 
-`OriginalXML/` and `output/staged/` are gitignored local reference and staging directories. Reference Sync and patch generation never run implicitly as part of the other. Generated XML must be reviewed before deployment.
+`OriginalXML/` and `output/staged/` are gitignored local reference and staging directories. Reference Sync and patch generation never run implicitly as part of the other. Generated XML is verified and installed by default. Use `--stage-only` for manual review and a later `--deploy --yes`.
 
 The upstream XML inventory is rebuilt from current game, Workshop, and optional GitHub files without relying on historical reference filenames. Source files retain their original relative paths under `OriginalXML/<owner>/`, without synthetic material or Defs directories; CE patches are stored under `OriginalXML/CEPatches/`. The target RimWorld version comes from the installed game's `Version.txt`. For each mod, Reference Sync selects its newest compatible version folder (or the latest available when the game version is unknown). The previous material-only sync and startup legacy-cleanup code have been removed.
 

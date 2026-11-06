@@ -1,0 +1,150 @@
+"""Life-stage XML must be fully table-driven and safe to apply repeatedly."""
+import copy
+import unittest
+import pandas as pd
+from lxml import etree as E
+
+from core.life_stages import (
+    REQUIRED_COLUMNS, STAGE_GROUPS, parse_stages,
+    render_life_stages, render_life_stage_combat_power,
+)
+
+
+def fixture():
+    labels = [' or '.join(group) for group in STAGE_GROUPS]
+    rows = []
+    for index, label in enumerate(labels):
+        row = {name: 1.0 for name in REQUIRED_COLUMNS if name != 'Life stage'}
+        row['Life stage'] = label
+        row['bodySizeFactor'] = [1, .5, .2, .15][index]
+        row['marketValueFactor'] = row['bodySizeFactor']
+        row['healthScaleFactor'] = row['bodySizeFactor']
+        row['hungerRateFactor'] = [1, .6, .3, .25][index]
+        row['foodMaxFactor'] = row['hungerRateFactor'] / row['bodySizeFactor']
+        row['meleeDamageFactor'] = [.99, .65, .35, .3][index]
+        row['meleeDamageFactor(CE)'] = [1, .65, .35, .3][index]
+        row['MeleeAttackIntervalFactor'] = [1, .9, .8, .75][index]
+        row['MeleeAttackIntervalFactor(CE)'] = [1, .9, .8, .75][index]
+        row['SpeedFactor'] = [1, .9, .75, .7][index]
+        row['FilthRate'] = row['bodySizeFactor']
+        row['ArmorRating_Sharp'] = [1, .8, .6, .55][index]
+        row['ArmorRating_Blunt'] = row['ArmorRating_Sharp']
+        row['ArmorPenetration_Sharp(CE)'] = row['ArmorRating_Sharp']
+        row['ArmorPenetration_Blunt(CE)'] = row['bodySizeFactor']
+        row['MeleeDodgeChance'] = [1, 1.1, 1.3, 1.35][index]
+        row['MeleeCritChance'] = [1, .9, .75, .75][index]
+        row['MeleeParryChance'] = row['MeleeCritChance']
+        row['CombatPowerFactor'] = [1, .6, .3, .25][index]
+        if index == 0:
+            row['meleeDamageFactor'] = 1.0
+        rows.append(row)
+    return pd.DataFrame(rows)
+
+
+def starting_defs():
+    root = E.Element('Defs')
+    for group in STAGE_GROUPS:
+        for name in group:
+            node = E.SubElement(root, 'LifeStageDef')
+            E.SubElement(node, 'defName').text = name
+            E.SubElement(node, 'meleeDamageFactor').text = '999'
+            if name.endswith('Juvenile') or name == 'AnimalBaby':
+                stat = E.SubElement(node, 'statFactors')
+                E.SubElement(stat, 'MoveSpeed').text = '999'
+                E.SubElement(stat, 'OtherModStat').text = '7'
+    return root
+
+
+def apply_patch(defs, output):
+    """Exercise the XML operation shapes used by the generator."""
+    for op in E.fromstring(output):
+        action = op
+        if op.get('Class') == 'PatchOperationConditional':
+            action = op.find('match' if defs.xpath(op.findtext('xpath')) else 'nomatch')
+            if action is None:
+                continue
+        kind = action.get('Class')
+        if kind == 'PatchOperationRemove':
+            for node in list(defs.xpath(action.findtext('xpath'))):
+                node.getparent().remove(node)
+        elif kind == 'PatchOperationAdd':
+            for node in list(defs.xpath(action.findtext('xpath'))):
+                for value in action.find('value'):
+                    node.append(copy.deepcopy(value))
+        elif kind is not None:
+            raise AssertionError('Unexpected operation ' + kind)
+
+
+class LifeStageGenerationTests(unittest.TestCase):
+    def test_exact_factors_for_all_seven_stage_defs(self):
+        table = fixture()
+        stages = parse_stages(table)
+        self.assertEqual(len(stages), 4)
+        defs = starting_defs()
+        apply_patch(defs, render_life_stages(table))
+        for group, expected in stages:
+            for name in group:
+                nodes = defs.xpath(f'/Defs/LifeStageDef[defName="{name}"]')
+                self.assertEqual(len(nodes), 1)
+                node = nodes[0]
+                for scalar in ('bodySizeFactor', 'marketValueFactor', 'healthScaleFactor',
+                               'hungerRateFactor', 'foodMaxFactor', 'meleeDamageFactor'):
+                    self.assertEqual(len(node.findall(scalar)), 1)
+                    self.assertAlmostEqual(float(node.findtext(scalar)), expected[scalar])
+                for stat, column in (
+                    ('MoveSpeed','SpeedFactor'),('MeleeCooldownFactor','MeleeAttackIntervalFactor'),
+                    ('FilthRate','FilthRate'),('ArmorRating_Sharp','ArmorRating_Sharp'),
+                    ('ArmorRating_Blunt','ArmorRating_Blunt'),('MeleeDodgeChance','MeleeDodgeChance')):
+                    found = node.findall('statFactors/' + stat)
+                    self.assertEqual(len(found), 1)
+                    self.assertAlmostEqual(float(found[0].text), expected[column])
+                self.assertIsNone(node.find('statFactors/MeleeCritChance'))
+        # Reapplying must not duplicate any managed factor or erase other mods' factors.
+        apply_patch(defs, render_life_stages(table))
+        self.assertEqual(len(defs.xpath('/Defs/LifeStageDef[defName="AnimalBaby"]/statFactors/MoveSpeed')),1)
+        self.assertEqual(defs.xpath('/Defs/LifeStageDef[defName="AnimalBaby"]/statFactors/OtherModStat/text()'),['7'])
+
+    def test_ce_only_factors_and_penetration(self):
+        table = fixture()
+        defs = starting_defs()
+        apply_patch(defs, render_life_stages(table))
+        apply_patch(defs, render_life_stages(table, ce=True))
+        for group, expected in parse_stages(table):
+            for name in group:
+                stage = defs.xpath(f'/Defs/LifeStageDef[defName="{name}"]')[0]
+                self.assertAlmostEqual(float(stage.findtext('meleeDamageFactor')), expected['meleeDamageFactor(CE)'])
+                for stat, col in [('MeleeCooldownFactor','MeleeAttackIntervalFactor(CE)'),
+                                  ('MeleeCritChance','MeleeCritChance'),('MeleeParryChance','MeleeParryChance')]:
+                    self.assertAlmostEqual(float(stage.findtext('statFactors/'+stat)), expected[col])
+                pen=defs.xpath(f'/Defs/LifeStagePenetrationDef[defName="{name}"]')
+                self.assertEqual(len(pen),1)
+                self.assertAlmostEqual(float(pen[0].findtext('meleePenetrationSharpFactor')),expected['ArmorPenetration_Sharp(CE)'])
+                self.assertAlmostEqual(float(pen[0].findtext('meleePenetrationBluntFactor')),expected['ArmorPenetration_Blunt(CE)'])
+
+    def test_combat_power_is_from_extension_and_original_attributes_survive(self):
+        defs=starting_defs()
+        apply_patch(defs,render_life_stage_combat_power(fixture()))
+        for group, expected in parse_stages(fixture()):
+            for name in group:
+                stage=defs.xpath(f'/Defs/LifeStageDef[defName="{name}"]')[0]
+                values=stage.xpath('modExtensions/li[@Class="ZoologyMod.LifeStageCombatPowerExtension, ZoologyMod"]/combatPowerFactor/text()')
+                self.assertEqual(len(values),1)
+                self.assertAlmostEqual(float(values[0]),expected['CombatPowerFactor'])
+        apply_patch(defs,render_life_stage_combat_power(fixture()))
+        self.assertEqual(len(defs.xpath('/Defs/LifeStageDef[defName="AnimalBaby"]/modExtensions/li')),1)
+
+    def test_no_missing_or_nonnumeric_columns_are_silently_accepted(self):
+        df=fixture()
+        with self.assertRaisesRegex(ValueError,'missing columns'):
+            parse_stages(df.drop(columns=['FilthRate']))
+        df.loc[1,'foodMaxFactor']='No'
+        with self.assertRaisesRegex(ValueError,'foodMaxFactor'):
+            render_life_stages(df)
+        df=fixture()
+        df.loc[0,'CombatPowerFactor']=.8
+        with self.assertRaisesRegex(ValueError,'baseline'):
+            render_life_stage_combat_power(df)
+
+
+if __name__ == '__main__':
+    unittest.main()

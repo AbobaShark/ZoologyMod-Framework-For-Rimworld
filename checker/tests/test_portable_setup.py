@@ -8,6 +8,7 @@ import pandas as pd
 from lxml import etree as E
 import core.checker_config as checker_config
 from core.static_stats import update_bionics, update_life_stages
+from core.life_stages import REQUIRED_COLUMNS
 from core.xml_routing import plan
 
 
@@ -82,17 +83,36 @@ class StaticStatsTests(unittest.TestCase):
         self.assertEqual(len(warnings),2)
 
     def test_life_stage_vanilla_changes_but_ce_only_uses_ce_column(self):
-        xml='''<Patch><Operation Class="PatchOperationConditional">
-        <xpath>/Defs/LifeStageDef[defName="AnimalJuvenile" or defName="EusocialInsectJuvenile"]/meleeDamageFactor</xpath>
-        <match Class="PatchOperationReplace"><xpath>unused</xpath><value><meleeDamageFactor>0.5</meleeDamageFactor></value></match>
-        <nomatch Class="PatchOperationAdd"><xpath>unused</xpath><value><meleeDamageFactor>0.5</meleeDamageFactor></value></nomatch>
-        </Operation></Patch>'''
-        df=pd.DataFrame([{'Life stage':'AnimalJuvenile or EusocialInsectJuvenile',
-                 'meleeDamageFactor':'0.65','meleeDamageFactor(CE)':'0.45'}])
-        vanilla=E.ElementTree(E.fromstring(xml)); ce=E.ElementTree(E.fromstring(xml))
-        update_life_stages(vanilla,df)
-        update_life_stages(ce,df,ce=True)
-        self.assertEqual([x.text for x in vanilla.xpath('//value/meleeDamageFactor')],['0.65','0.65'])
-        self.assertEqual([x.text for x in ce.xpath('//value/meleeDamageFactor')],['0.45','0.45'])
+        labels = [
+            'AnimalAdult or EusocialInsectAdult',
+            'AnimalJuvenile or EusocialInsectJuvenile',
+            'AnimalBaby or EusocialInsectLarva',
+            'AnimalBabyTiny',
+        ]
+        records = []
+        for label in labels:
+            record = {col: 1.0 for col in REQUIRED_COLUMNS if col != 'Life stage'}
+            record['Life stage'] = label
+            records.append(record)
+        records[1].update({
+            'meleeDamageFactor': .65, 'meleeDamageFactor(CE)': .45,
+            'MeleeAttackIntervalFactor': .9, 'MeleeAttackIntervalFactor(CE)': .8,
+            'MeleeCritChance': .9, 'MeleeParryChance': .9,
+            'foodMaxFactor': 1.2, 'FilthRate': .5,
+        })
+        df = pd.DataFrame(records)
+        vanilla = E.ElementTree(E.fromstring('<Patch/>'))
+        ce = E.ElementTree(E.fromstring('<Patch/>'))
+        update_life_stages(vanilla, df)
+        update_life_stages(ce, df, ce=True)
+        self.assertIn('0.65', vanilla.xpath('//value/meleeDamageFactor/text()'))
+        self.assertIn('0.45', ce.xpath('//value/meleeDamageFactor/text()'))
+        self.assertIn('0.9', vanilla.xpath('//value/MeleeCooldownFactor/text()'))
+        self.assertIn('0.8', ce.xpath('//value/MeleeCooldownFactor/text()'))
+        self.assertIn('0.5', vanilla.xpath('//value/FilthRate/text()'))
+        self.assertIn('0.9', ce.xpath('//value/MeleeCritChance/text()'))
+        self.assertFalse(vanilla.xpath('//value/MeleeCritChance'))
+        self.assertFalse(ce.xpath('//value/FilthRate'))
+
 
 if __name__=='__main__': unittest.main()

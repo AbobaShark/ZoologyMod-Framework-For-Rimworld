@@ -1,32 +1,218 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version="1.0" encoding="utf-8"?>
 <Patch>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/LifeStageDef[defName='AnimalJuvenile" or defName="EusocialInsectJuvenile' or defName='AnimalBaby" or defName="EusocialInsectLarva' or defName="AnimalBabyTiny"]/*[self::bodySizeFactor or self::marketValueFactor or self::healthScaleFactor or self::hungerRateFactor or self::foodMaxFactor or self::meleeDamageFactor or self::statFactors]</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/LifeStageDef[defName='AnimalJuvenile" or defName="EusocialInsectJuvenile' or defName='AnimalBaby" or defName="EusocialInsectLarva' or defName="AnimalBabyTiny"]/*[self::bodySizeFactor or self::marketValueFactor or self::healthScaleFactor or self::hungerRateFactor or self::foodMaxFactor or self::meleeDamageFactor or self::statFactors]</xpath>
-    </match>
+    <xpath>/Defs/LifeStageDef[defName="AnimalAdult"]/*[self::bodySizeFactor or self::marketValueFactor or self::healthScaleFactor or self::hungerRateFactor or self::foodMaxFactor or self::meleeDamageFactor]</xpath>
+    <match Class="PatchOperationRemove"><xpath>/Defs/LifeStageDef[defName="AnimalAdult"]/*[self::bodySizeFactor or self::marketValueFactor or self::healthScaleFactor or self::hungerRateFactor or self::foodMaxFactor or self::meleeDamageFactor]</xpath></match>
   </Operation>
   <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/LifeStageDef[ defName="AnimalJuvenile" or defName="EusocialInsectJuvenile" ]</xpath>
+    <xpath>/Defs/LifeStageDef[defName="AnimalAdult"]</xpath>
+    <value>
+      <bodySizeFactor>1</bodySizeFactor>
+      <marketValueFactor>1</marketValueFactor>
+      <healthScaleFactor>1</healthScaleFactor>
+      <hungerRateFactor>1</hungerRateFactor>
+      <foodMaxFactor>1</foodMaxFactor>
+      <meleeDamageFactor>1</meleeDamageFactor>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/LifeStageDef[defName="AnimalAdult"]/statFactors</xpath>
+    <match />
+    <nomatch Class="PatchOperationAdd"><xpath>/Defs/LifeStageDef[defName="AnimalAdult"]</xpath><value><statFactors /></value></nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/LifeStageDef[defName="AnimalAdult"]/statFactors/*[self::MoveSpeed or self::MeleeCooldownFactor or self::FilthRate or self::ArmorRating_Sharp or self::ArmorRating_Blunt or self::MeleeDodgeChance]</xpath>
+    <match Class="PatchOperationRemove"><xpath>/Defs/LifeStageDef[defName="AnimalAdult"]/statFactors/*[self::MoveSpeed or self::MeleeCooldownFactor or self::FilthRate or self::ArmorRating_Sharp or self::ArmorRating_Blunt or self::MeleeDodgeChance]</xpath></match>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/LifeStageDef[defName="AnimalAdult"]/statFactors</xpath>
+    <value>
+      <MoveSpeed>1</MoveSpeed>
+      <MeleeCooldownFactor>1</MeleeCooldownFactor>
+      <FilthRate>1</FilthRate>
+      <ArmorRating_Sharp>1</ArmorRating_Sharp>
+      <ArmorRating_Blunt>1</ArmorRating_Blunt>
+      <MeleeDodgeChance>1</MeleeDodgeChance>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/LifeStageDef[defName="EusocialInsectAdult"]/*[self::bodySizeFactor or self::marketValueFactor or self::healthScaleFactor or self::hungerRateFactor or self::foodMaxFactor or self::meleeDamageFactor]</xpath>
+    <match Class="PatchOperationRemove"><xpath>/Defs/LifeStageDef[defName="EusocialInsectAdult"]/*[self::bodySizeFactor or self::marketValueFactor or self::healthScaleFactor or self::hungerRateFactor or self::foodMaxFactor or self::meleeDamageFactor]</xpath></match>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/LifeStageDef[defName="EusocialInsectAdult"]</xpath>
+    <value>
+      <bodySizeFactor>1</bodySizeFactor>
+      <marketValueFactor>1</marketValueFactor>
+      <healthScaleFactor>1</healthScaleFactor>
+      <hungerRateFactor>1</hungerRateFactor>
+      <foodMaxFactor>1</foodMaxFactor>
+      <meleeDamageFactor>1</meleeDamageFactor>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/LifeStageDef[defName="EusocialInsectAdult"]/statFactors</xpath>
+    <match />
+    <nomatch Class="PatchOperationAdd"><xpath>/Defs/LifeStageDef[defName="EusocialInsectAdult"]</xpath><value><statFactors /></value></nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/LifeStageDef[defName="EusocialInsectAdult"]/statFactors/*[self::MoveSpeed or self::MeleeCooldownFactor or self::FilthRate or self::ArmorRating_Sharp or self::ArmorRating_Blunt or self::MeleeDodgeChance]</xpath>
+    <match Class="PatchOperationRemove"><xpath>/Defs/LifeStageDef[defName="EusocialInsectAdult"]/statFactors/*[self::MoveSpeed or self::MeleeCooldownFactor or self::FilthRate or self::ArmorRating_Sharp or self::ArmorRating_Blunt or self::MeleeDodgeChance]</xpath></match>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/LifeStageDef[defName="EusocialInsectAdult"]/statFactors</xpath>
+    <value>
+      <MoveSpeed>1</MoveSpeed>
+      <MeleeCooldownFactor>1</MeleeCooldownFactor>
+      <FilthRate>1</FilthRate>
+      <ArmorRating_Sharp>1</ArmorRating_Sharp>
+      <ArmorRating_Blunt>1</ArmorRating_Blunt>
+      <MeleeDodgeChance>1</MeleeDodgeChance>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/LifeStageDef[defName="AnimalJuvenile"]/*[self::bodySizeFactor or self::marketValueFactor or self::healthScaleFactor or self::hungerRateFactor or self::foodMaxFactor or self::meleeDamageFactor]</xpath>
+    <match Class="PatchOperationRemove"><xpath>/Defs/LifeStageDef[defName="AnimalJuvenile"]/*[self::bodySizeFactor or self::marketValueFactor or self::healthScaleFactor or self::hungerRateFactor or self::foodMaxFactor or self::meleeDamageFactor]</xpath></match>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/LifeStageDef[defName="AnimalJuvenile"]</xpath>
     <value>
       <bodySizeFactor>0.5</bodySizeFactor>
       <marketValueFactor>0.5</marketValueFactor>
       <healthScaleFactor>0.5</healthScaleFactor>
       <hungerRateFactor>0.6</hungerRateFactor>
+      <foodMaxFactor>1.2</foodMaxFactor>
       <meleeDamageFactor>0.65</meleeDamageFactor>
-      <statFactors/>
     </value>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/LifeStageDef[defName="AnimalJuvenile"]/statFactors</xpath>
+    <match />
+    <nomatch Class="PatchOperationAdd"><xpath>/Defs/LifeStageDef[defName="AnimalJuvenile"]</xpath><value><statFactors /></value></nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/LifeStageDef[defName="AnimalJuvenile"]/statFactors/*[self::MoveSpeed or self::MeleeCooldownFactor or self::FilthRate or self::ArmorRating_Sharp or self::ArmorRating_Blunt or self::MeleeDodgeChance]</xpath>
+    <match Class="PatchOperationRemove"><xpath>/Defs/LifeStageDef[defName="AnimalJuvenile"]/statFactors/*[self::MoveSpeed or self::MeleeCooldownFactor or self::FilthRate or self::ArmorRating_Sharp or self::ArmorRating_Blunt or self::MeleeDodgeChance]</xpath></match>
+  </Operation>
   <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/LifeStageDef[ defName="AnimalBaby" or defName="EusocialInsectLarva" ]</xpath>
+    <xpath>/Defs/LifeStageDef[defName="AnimalJuvenile"]/statFactors</xpath>
+    <value>
+      <MoveSpeed>0.9</MoveSpeed>
+      <MeleeCooldownFactor>0.9</MeleeCooldownFactor>
+      <FilthRate>0.5</FilthRate>
+      <ArmorRating_Sharp>0.8</ArmorRating_Sharp>
+      <ArmorRating_Blunt>0.8</ArmorRating_Blunt>
+      <MeleeDodgeChance>1.1</MeleeDodgeChance>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/LifeStageDef[defName="EusocialInsectJuvenile"]/*[self::bodySizeFactor or self::marketValueFactor or self::healthScaleFactor or self::hungerRateFactor or self::foodMaxFactor or self::meleeDamageFactor]</xpath>
+    <match Class="PatchOperationRemove"><xpath>/Defs/LifeStageDef[defName="EusocialInsectJuvenile"]/*[self::bodySizeFactor or self::marketValueFactor or self::healthScaleFactor or self::hungerRateFactor or self::foodMaxFactor or self::meleeDamageFactor]</xpath></match>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/LifeStageDef[defName="EusocialInsectJuvenile"]</xpath>
+    <value>
+      <bodySizeFactor>0.5</bodySizeFactor>
+      <marketValueFactor>0.5</marketValueFactor>
+      <healthScaleFactor>0.5</healthScaleFactor>
+      <hungerRateFactor>0.6</hungerRateFactor>
+      <foodMaxFactor>1.2</foodMaxFactor>
+      <meleeDamageFactor>0.65</meleeDamageFactor>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/LifeStageDef[defName="EusocialInsectJuvenile"]/statFactors</xpath>
+    <match />
+    <nomatch Class="PatchOperationAdd"><xpath>/Defs/LifeStageDef[defName="EusocialInsectJuvenile"]</xpath><value><statFactors /></value></nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/LifeStageDef[defName="EusocialInsectJuvenile"]/statFactors/*[self::MoveSpeed or self::MeleeCooldownFactor or self::FilthRate or self::ArmorRating_Sharp or self::ArmorRating_Blunt or self::MeleeDodgeChance]</xpath>
+    <match Class="PatchOperationRemove"><xpath>/Defs/LifeStageDef[defName="EusocialInsectJuvenile"]/statFactors/*[self::MoveSpeed or self::MeleeCooldownFactor or self::FilthRate or self::ArmorRating_Sharp or self::ArmorRating_Blunt or self::MeleeDodgeChance]</xpath></match>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/LifeStageDef[defName="EusocialInsectJuvenile"]/statFactors</xpath>
+    <value>
+      <MoveSpeed>0.9</MoveSpeed>
+      <MeleeCooldownFactor>0.9</MeleeCooldownFactor>
+      <FilthRate>0.5</FilthRate>
+      <ArmorRating_Sharp>0.8</ArmorRating_Sharp>
+      <ArmorRating_Blunt>0.8</ArmorRating_Blunt>
+      <MeleeDodgeChance>1.1</MeleeDodgeChance>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/LifeStageDef[defName="AnimalBaby"]/*[self::bodySizeFactor or self::marketValueFactor or self::healthScaleFactor or self::hungerRateFactor or self::foodMaxFactor or self::meleeDamageFactor]</xpath>
+    <match Class="PatchOperationRemove"><xpath>/Defs/LifeStageDef[defName="AnimalBaby"]/*[self::bodySizeFactor or self::marketValueFactor or self::healthScaleFactor or self::hungerRateFactor or self::foodMaxFactor or self::meleeDamageFactor]</xpath></match>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/LifeStageDef[defName="AnimalBaby"]</xpath>
     <value>
       <bodySizeFactor>0.2</bodySizeFactor>
       <marketValueFactor>0.2</marketValueFactor>
       <healthScaleFactor>0.2</healthScaleFactor>
       <hungerRateFactor>0.3</hungerRateFactor>
+      <foodMaxFactor>1.5</foodMaxFactor>
       <meleeDamageFactor>0.35</meleeDamageFactor>
-      <statFactors/>
     </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/LifeStageDef[defName="AnimalBaby"]/statFactors</xpath>
+    <match />
+    <nomatch Class="PatchOperationAdd"><xpath>/Defs/LifeStageDef[defName="AnimalBaby"]</xpath><value><statFactors /></value></nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/LifeStageDef[defName="AnimalBaby"]/statFactors/*[self::MoveSpeed or self::MeleeCooldownFactor or self::FilthRate or self::ArmorRating_Sharp or self::ArmorRating_Blunt or self::MeleeDodgeChance]</xpath>
+    <match Class="PatchOperationRemove"><xpath>/Defs/LifeStageDef[defName="AnimalBaby"]/statFactors/*[self::MoveSpeed or self::MeleeCooldownFactor or self::FilthRate or self::ArmorRating_Sharp or self::ArmorRating_Blunt or self::MeleeDodgeChance]</xpath></match>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/LifeStageDef[defName="AnimalBaby"]/statFactors</xpath>
+    <value>
+      <MoveSpeed>0.75</MoveSpeed>
+      <MeleeCooldownFactor>0.8</MeleeCooldownFactor>
+      <FilthRate>0.2</FilthRate>
+      <ArmorRating_Sharp>0.6</ArmorRating_Sharp>
+      <ArmorRating_Blunt>0.6</ArmorRating_Blunt>
+      <MeleeDodgeChance>1.3</MeleeDodgeChance>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/LifeStageDef[defName="EusocialInsectLarva"]/*[self::bodySizeFactor or self::marketValueFactor or self::healthScaleFactor or self::hungerRateFactor or self::foodMaxFactor or self::meleeDamageFactor]</xpath>
+    <match Class="PatchOperationRemove"><xpath>/Defs/LifeStageDef[defName="EusocialInsectLarva"]/*[self::bodySizeFactor or self::marketValueFactor or self::healthScaleFactor or self::hungerRateFactor or self::foodMaxFactor or self::meleeDamageFactor]</xpath></match>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/LifeStageDef[defName="EusocialInsectLarva"]</xpath>
+    <value>
+      <bodySizeFactor>0.2</bodySizeFactor>
+      <marketValueFactor>0.2</marketValueFactor>
+      <healthScaleFactor>0.2</healthScaleFactor>
+      <hungerRateFactor>0.3</hungerRateFactor>
+      <foodMaxFactor>1.5</foodMaxFactor>
+      <meleeDamageFactor>0.35</meleeDamageFactor>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/LifeStageDef[defName="EusocialInsectLarva"]/statFactors</xpath>
+    <match />
+    <nomatch Class="PatchOperationAdd"><xpath>/Defs/LifeStageDef[defName="EusocialInsectLarva"]</xpath><value><statFactors /></value></nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/LifeStageDef[defName="EusocialInsectLarva"]/statFactors/*[self::MoveSpeed or self::MeleeCooldownFactor or self::FilthRate or self::ArmorRating_Sharp or self::ArmorRating_Blunt or self::MeleeDodgeChance]</xpath>
+    <match Class="PatchOperationRemove"><xpath>/Defs/LifeStageDef[defName="EusocialInsectLarva"]/statFactors/*[self::MoveSpeed or self::MeleeCooldownFactor or self::FilthRate or self::ArmorRating_Sharp or self::ArmorRating_Blunt or self::MeleeDodgeChance]</xpath></match>
+  </Operation>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/LifeStageDef[defName="EusocialInsectLarva"]/statFactors</xpath>
+    <value>
+      <MoveSpeed>0.75</MoveSpeed>
+      <MeleeCooldownFactor>0.8</MeleeCooldownFactor>
+      <FilthRate>0.2</FilthRate>
+      <ArmorRating_Sharp>0.6</ArmorRating_Sharp>
+      <ArmorRating_Blunt>0.6</ArmorRating_Blunt>
+      <MeleeDodgeChance>1.3</MeleeDodgeChance>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/LifeStageDef[defName="AnimalBabyTiny"]/*[self::bodySizeFactor or self::marketValueFactor or self::healthScaleFactor or self::hungerRateFactor or self::foodMaxFactor or self::meleeDamageFactor]</xpath>
+    <match Class="PatchOperationRemove"><xpath>/Defs/LifeStageDef[defName="AnimalBabyTiny"]/*[self::bodySizeFactor or self::marketValueFactor or self::healthScaleFactor or self::hungerRateFactor or self::foodMaxFactor or self::meleeDamageFactor]</xpath></match>
   </Operation>
   <Operation Class="PatchOperationAdd">
     <xpath>/Defs/LifeStageDef[defName="AnimalBabyTiny"]</xpath>
@@ -35,38 +221,28 @@
       <marketValueFactor>0.15</marketValueFactor>
       <healthScaleFactor>0.15</healthScaleFactor>
       <hungerRateFactor>0.25</hungerRateFactor>
+      <foodMaxFactor>1.66666666667</foodMaxFactor>
       <meleeDamageFactor>0.3</meleeDamageFactor>
-      <statFactors/>
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/LifeStageDef[defName='AnimalJuvenile" or defName="EusocialInsectJuvenile' or defName='AnimalBaby" or defName="EusocialInsectLarva' or defName="AnimalBabyTiny"]/statFactors/*[self::MoveSpeed or self::ArmorRating_Sharp or self::ArmorRating_Blunt]</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/LifeStageDef[defName='AnimalJuvenile" or defName="EusocialInsectJuvenile' or defName='AnimalBaby" or defName="EusocialInsectLarva' or defName="AnimalBabyTiny"]/statFactors/*[self::MoveSpeed or self::ArmorRating_Sharp or self::ArmorRating_Blunt]</xpath>
-    </match>
+    <xpath>/Defs/LifeStageDef[defName="AnimalBabyTiny"]/statFactors</xpath>
+    <match />
+    <nomatch Class="PatchOperationAdd"><xpath>/Defs/LifeStageDef[defName="AnimalBabyTiny"]</xpath><value><statFactors /></value></nomatch>
   </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/LifeStageDef[ defName="AnimalJuvenile" or defName="EusocialInsectJuvenile" ]/statFactors</xpath>
-    <value>
-      <MoveSpeed>0.85</MoveSpeed>
-      <ArmorRating_Sharp>0.7</ArmorRating_Sharp>
-      <ArmorRating_Blunt>0.7</ArmorRating_Blunt>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/LifeStageDef[ defName="AnimalBaby" or defName="EusocialInsectLarva" ]/statFactors</xpath>
-    <value>
-      <MoveSpeed>0.6</MoveSpeed>
-      <ArmorRating_Sharp>0.35</ArmorRating_Sharp>
-      <ArmorRating_Blunt>0.35</ArmorRating_Blunt>
-    </value>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/LifeStageDef[defName="AnimalBabyTiny"]/statFactors/*[self::MoveSpeed or self::MeleeCooldownFactor or self::FilthRate or self::ArmorRating_Sharp or self::ArmorRating_Blunt or self::MeleeDodgeChance]</xpath>
+    <match Class="PatchOperationRemove"><xpath>/Defs/LifeStageDef[defName="AnimalBabyTiny"]/statFactors/*[self::MoveSpeed or self::MeleeCooldownFactor or self::FilthRate or self::ArmorRating_Sharp or self::ArmorRating_Blunt or self::MeleeDodgeChance]</xpath></match>
   </Operation>
   <Operation Class="PatchOperationAdd">
     <xpath>/Defs/LifeStageDef[defName="AnimalBabyTiny"]/statFactors</xpath>
     <value>
-      <MoveSpeed>0.45</MoveSpeed>
-      <ArmorRating_Sharp>0.2</ArmorRating_Sharp>
-      <ArmorRating_Blunt>0.2</ArmorRating_Blunt>
+      <MoveSpeed>0.7</MoveSpeed>
+      <MeleeCooldownFactor>0.75</MeleeCooldownFactor>
+      <FilthRate>0.15</FilthRate>
+      <ArmorRating_Sharp>0.55</ArmorRating_Sharp>
+      <ArmorRating_Blunt>0.55</ArmorRating_Blunt>
+      <MeleeDodgeChance>1.35</MeleeDodgeChance>
     </value>
   </Operation>
 </Patch>
