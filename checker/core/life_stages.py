@@ -128,8 +128,8 @@ def parse_stages(table, source_mod=None):
     if any(right <= left for left, right in zip(sizes, sizes[1:])):
         raise ValueError("Royal megachicken bodySizeFactors must strictly increase with age")
     # The sheet's baseBodySize is an in-game size, NOT a physical mass.
-    # Invert the actual piecewise mass->BodySize intervals; the 70 kg
-    # calibration knot is never used as a reference animal for stage stats.
+    # Invert the smooth mass->BodySize relation with its size-based rounding.
+    # This does not treat BodySize as a physical-mass multiplier.
     base_sizes = [found[(ROYAL_SOURCE, frozenset(group))]["BaseBodySize"]
                   for group in ROYAL_STAGES]
     base_size = base_sizes[0]

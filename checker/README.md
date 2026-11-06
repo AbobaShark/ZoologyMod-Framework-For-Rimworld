@@ -74,18 +74,19 @@ animal groups and is not yet a supported LifeStages output.
 
 RimWorld's `baseBodySize` is **not a mass multiplier**. The `Animals!AO`
 mapping assigns a rounded game BodySize from body mass in kilograms using
-several distinct power-law intervals and different MROUND steps.
-`SERVICE_BodySizeMassBands` lists the exact *inverse* mass intervals of
-that existing mapping; where more than one disjoint mass interval gives one
-BodySize, it records the width-weighted midpoint of those intervals.
+one smooth monotonic function, normalized to 60 kg -> 1 and 4500 kg -> 5.
+The MROUND step depends on the unrounded BodySize (0.05 up to 1, 0.1 up to
+2, 0.25 up to 5, and 0.5 above 5). `SERVICE_BodySizeMassBands` lists the
+inverse mass intervals of the rounded mapping. Each attainable size has
+one contiguous mass interval; its representative mass is the midpoint.
 When an age stage has a BodySize that no adult could obtain from the
 rounded mapping (e.g. 0.06 or 3.9), a midpoint is interpolated between the
 closest attainable game sizes.
 
 For Royal Megachicken, `LifeStages.BaseBodySize` reads the actual game
-`Animals!AO` value (0.3 at present), `StageBodySize=BaseBodySize *
+`Animals!AO` value (0.35 for the current 5 kg Megachicken), `StageBodySize=BaseBodySize *
 bodySizeFactor`, and `BodySizeMassMid_kg` uses the inverse map.
-`BaseMassMid_kg` is the inverse mass midpoint of the unscaled 0.3 BodySize,
+`BaseMassMid_kg` is the inverse mass midpoint of the unscaled 0.35 BodySize,
 not an arbitrary 70 kg reference. The dimensionless age-speed multiplier is
 `v(BodySizeMassMid_kg)/v(BaseMassMid_kg)` with Hirt et al. (2017),
 doi:10.1038/s41559-017-0241-4,

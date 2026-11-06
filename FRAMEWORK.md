@@ -833,7 +833,8 @@ loaded in the CE folder after Royal Animals.
 ### Life-stage allometry and engine application
 
 The game `BodySize` is not physical mass. `AnimalStats!Animals!AO`
-converts physical mass to a rounded, piecewise `baseBodySize`; for Royal
+converts physical mass to a rounded, smooth monotonic `baseBodySize`
+(60 kg -> 1, 4500 kg -> 5); for Royal
 Megachicken, the five growth-stage body sizes are inverted to corresponding
 body-mass range midpoints using `SERVICE_BodySizeMassBands`. Hirt's
 terrestrial maximum-running-speed curve is applied to the *mapped* masses;
