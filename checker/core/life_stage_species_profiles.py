@@ -115,6 +115,9 @@ def _tool_profiles(table, diagnostics):
         status = str(row.get("CalculationStatus", "")).strip().upper()
         if status not in ("READY", "INCOMPLETE", "INVALID"):
             raise ValueError(f"LifeStageAttackProfiles row {number}: invalid CalculationStatus {status!r}")
+        if status == "INVALID":
+            raise ValueError(
+                f"LifeStageAttackProfiles row {number}: invalid calculated attack factors")
         if status != "READY":
             diagnostics["attack_rows_incomplete"] += 1
             continue
