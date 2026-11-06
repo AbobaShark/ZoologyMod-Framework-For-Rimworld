@@ -285,23 +285,31 @@ namespace ZoologyMod
                 for (int i = 0; i < generatedTools.Count; i++)
                 {
                     var entry = generatedTools[i];
-                    if (entry == null || !entry.HasChanges()
-                        || !IsValidToolFactor(entry)
-                        || entry.toolIndex < 0 || entry.toolIndex >= animal.tools.Count)
+                    if (entry == null || !IsValidToolFactor(entry))
                     {
                         continue;
                     }
 
-                    Tool tool = animal.tools[entry.toolIndex];
-                    if (tool == null
-                        || !string.IsNullOrEmpty(entry.label)
-                            && !string.Equals(entry.label, tool.label, StringComparison.OrdinalIgnoreCase)
-                        || !string.IsNullOrEmpty(entry.linkedBodyPartsGroup)
-                            && !string.Equals(entry.linkedBodyPartsGroup,
-                                tool.linkedBodyPartsGroup?.defName, StringComparison.Ordinal))
+                    int toolIndex = hasCe ? entry.ceToolIndex : entry.vanillaToolIndex;
+                    if (toolIndex < 0)
+                    {
+                        continue; // Attack is absent in the selected mode.
+                    }
+                    if (toolIndex >= animal.tools.Count)
                     {
                         Log.Warning("[Zoology] " + animal.defName + "/" + original.defName
-                            + ": tool #" + entry.toolIndex + " differs from Checker; skipping that tool.");
+                            + ": tool #" + toolIndex + " is out of range; skipping it.");
+                        continue;
+                    }
+                    Tool tool = animal.tools[toolIndex];
+                    if (!MatchesToolSignature(tool, entry))
+                    {
+                        Log.Warning("[Zoology] " + animal.defName + "/" + original.defName
+                            + ": tool #" + toolIndex + " differs from Checker; skipping it.");
+                        continue;
+                    }
+                    if (!entry.HasChanges())
+                    {
                         continue;
                     }
 
@@ -312,7 +320,7 @@ namespace ZoologyMod
                     if (selectedTools.ContainsKey(tool))
                     {
                         Log.Warning("[Zoology] Duplicate tool modifier " + animal.defName
-                            + "/" + original.defName + " #" + entry.toolIndex);
+                            + "/" + original.defName + " #" + toolIndex);
                         continue;
                     }
                     selectedTools.Add(tool, entry);
@@ -389,6 +397,50 @@ namespace ZoologyMod
                 Log.Warning("[Zoology] Cannot assign short hash for " + stage.defName + ": " + ex);
                 return false;
             }
+        }
+
+        private static bool MatchesToolSignature(Tool tool, ZoologyLifeStageToolFactor entry)
+        {
+            if (tool == null || entry == null)
+            {
+                return false;
+            }
+            if (!string.IsNullOrEmpty(entry.label)
+                && !string.Equals(NormalizeToolLabel(entry.label), NormalizeToolLabel(tool.label),
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+            if (!string.IsNullOrEmpty(entry.linkedBodyPartsGroup)
+                && !string.Equals(entry.linkedBodyPartsGroup, tool.linkedBodyPartsGroup?.defName,
+                    StringComparison.Ordinal))
+            {
+                return false;
+            }
+            if (!string.IsNullOrEmpty(entry.capacities))
+            {
+                var expected = entry.capacities.Split(',');
+                if (tool.capacities == null || tool.capacities.Count != expected.Length)
+                {
+                    return false;
+                }
+                for (int i = 0; i < expected.Length; i++)
+                {
+                    if (!string.Equals(expected[i].Trim(), tool.capacities[i]?.defName,
+                        StringComparison.OrdinalIgnoreCase))
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        private static string NormalizeToolLabel(string value)
+        {
+            return string.IsNullOrWhiteSpace(value) ? string.Empty
+                : string.Join(" ", value.Split(
+                    new[] { ' ', '\t', '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries));
         }
 
         private static bool IsFiniteNonnegative(float value)

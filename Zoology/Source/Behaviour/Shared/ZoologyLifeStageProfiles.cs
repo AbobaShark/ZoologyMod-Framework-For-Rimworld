@@ -37,12 +37,14 @@ namespace ZoologyMod
     }
 
     // Six independent absolute stage/adult ratios, calculated by AnimalStats.
-    // Each record changes one tool, not ThingDef.tools as a whole. The index
-    // is zero-based in the *post-patch* ThingDef.tools list. The optional label
+    // Each record changes one tool, not ThingDef.tools as a whole. The mode-specific indices
+    // are zero-based in the *post-patch* ThingDef.tools list. The optional label
     // and linked body-part group are consistency checks against other mods.
     public sealed class ZoologyLifeStageToolFactor
     {
-        public int toolIndex = -1;
+        public int vanillaToolIndex = -1;
+        public int ceToolIndex = -1;
+        public string capacities;
         public string label;
         public string linkedBodyPartsGroup;
         public float vanillaDamageFactor = 1f;
