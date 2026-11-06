@@ -17,6 +17,39 @@ class RoutingTests(unittest.TestCase):
         entry = {'source': 'patch.xml', 'destination': destination, 'category': category, 'requires': dependency, **extra}
         self.manifest.write_text(json.dumps({'schema': 1, 'files': [entry]}))
 
+    def test_current_run_only_never_redeploys_retained_older_xml(self):
+        old=self.mod/'Core/Patches/Animals/old.xml'
+        old.parent.mkdir(parents=True)
+        old.write_text('<Patch><manual/></Patch>',encoding='utf8')
+        (self.staging/'new.xml').write_text('<Patch><new/></Patch>',encoding='utf8')
+        self.manifest.write_text(json.dumps({
+            'schema':1,'prune':False,'generated_this_run':['Core/Patches/Animals/new.xml'],
+            'files':[
+                {'source':'patch.xml','destination':'Core/Patches/Animals/old.xml','category':'animal_patch'},
+                {'source':'new.xml','destination':'Core/Patches/Animals/new.xml','category':'animal_patch'},
+            ],
+        }))
+        expected,_=__import__('core.xml_routing',fromlist=['plan']).plan(
+            self.manifest,self.root,current_run_only=True)
+        self.assertEqual([(kind,key) for kind,_,_,key in expected],
+                         [('copy','Core/Patches/Animals/new.xml')])
+        deploy(self.manifest,self.root,current_run_only=True)
+        self.assertIn('manual',old.read_text())
+        self.assertIn('new',(self.mod/'Core/Patches/Animals/new.xml').read_text())
+        self.assertEqual(deploy(self.manifest,self.root,current_run_only=True)[0][0],'skip')
+
+    def test_current_run_only_rejects_unmarked_old_manifests(self):
+        self.manifest_for('Core/Patches/Animals/old.xml')
+        with self.assertRaisesRegex(ValueError,'generated_this_run'):
+            deploy(self.manifest,self.root,current_run_only=True)
+        self.assertFalse((self.mod/'Core/Patches/Animals/old.xml').exists())
+
+    def test_current_run_only_cannot_hide_bad_destinations(self):
+        self.manifest.write_text(json.dumps({
+            'schema':1,'generated_this_run':['Core/Patches/not-listed.xml'],'files':[]}))
+        with self.assertRaisesRegex(ValueError,'undeclared destination'):
+            deploy(self.manifest,self.root,current_run_only=True)
+
     def test_dry_run_and_repeat_and_owned_stale_cleanup(self):
         target = self.mod/'Core/Patches/Animals/a.xml'
         self.manifest_for('Core/Patches/Animals/a.xml')

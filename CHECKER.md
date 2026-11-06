@@ -29,3 +29,5 @@ py rimworld_patch_generator.py --preview
 The upstream XML inventory is rebuilt from current game, Workshop, and optional GitHub files without relying on historical reference filenames. Source files retain their original relative paths under `OriginalXML/<owner>/`, without synthetic material or Defs directories; CE patches are stored under `OriginalXML/CEPatches/`. The target RimWorld version comes from the installed game's `Version.txt`. For each mod, Reference Sync selects its newest compatible version folder (or the latest available when the game version is unknown). The previous material-only sync and startup legacy-cleanup code have been removed.
 
 Run `py -m pytest -q tests` from `checker/` for unit tests. The registry preflight and tests do not replace in-game validation with RimWorld 1.7 and the actual loaded mod list.
+
+Life-stage baby overrides are now declared in `checker/generation.json` and generated in their owning race patches. `LifeStages.foodMaxFactor` is 1 for all stages: maximum nutrition is already proportional to the current pawn size, including `bodySizeFactor`.

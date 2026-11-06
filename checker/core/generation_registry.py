@@ -39,6 +39,10 @@ def load_registry(path,mod):
             animal_names[name]=ident
         if dest.casefold() in seen: raise ValueError(f'Duplicate destination: {dest}')
         seen.add(dest.casefold())
+    tiny=obj.get('baby_tiny_defs',[])
+    if not isinstance(tiny,list) or len(tiny)!=len(set(tiny)) or any(
+            not isinstance(name,str) or not name or name not in animal_names for name in tiny):
+        raise ValueError('baby_tiny_defs must contain unique registered animal DefNames')
     for section in ('biomes','shared_defs','outputs'):
         if not isinstance(obj.get(section),list): raise ValueError(f'Missing registry section {section}')
         for entry in obj[section]:

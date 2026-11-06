@@ -20,7 +20,7 @@ def fixture():
         row['marketValueFactor'] = row['bodySizeFactor']
         row['healthScaleFactor'] = row['bodySizeFactor']
         row['hungerRateFactor'] = [1, .6, .3, .25][index]
-        row['foodMaxFactor'] = row['hungerRateFactor'] / row['bodySizeFactor']
+        row['foodMaxFactor'] = 1.0
         row['meleeDamageFactor'] = [.99, .65, .35, .3][index]
         row['meleeDamageFactor(CE)'] = [1, .65, .35, .3][index]
         row['MeleeAttackIntervalFactor'] = [1, .9, .8, .75][index]

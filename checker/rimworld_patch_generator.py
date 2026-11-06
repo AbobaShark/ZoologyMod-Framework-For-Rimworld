@@ -178,9 +178,9 @@ class PatchGeneratorApp(tk.Tk):
 
     def _preview(self):
         try:
-            ops,_=plan(STAGE/'generation-manifest.json',find_project_root(ROOT))
+            ops,_=plan(STAGE/'generation-manifest.json',find_project_root(ROOT),current_run_only=True)
             counts={k:sum(o[0]==k for o in ops) for k in ('copy','replace','skip','delete','rmdir')}
-            self._note('Validated deployment plan: '+str(counts))
+            self._note('Validated current-generation deployment plan: '+str(counts))
             for action,_,_,dest in ops:
                 if action!='skip':self._note(f' {action.upper()}: {dest}')
         except Exception as e:messagebox.showerror('Preview failed',str(e))
@@ -189,11 +189,11 @@ class PatchGeneratorApp(tk.Tk):
         if self.busy:return
         try:
             root=find_project_root(ROOT);path=STAGE/'generation-manifest.json'
-            ops,_=plan(path,root)
+            ops,_=plan(path,root,current_run_only=True)
             changes=[op for op in ops if op[0]!='skip']
             if not messagebox.askyesno('Deploy XML',f'Apply {len(changes)} changes to Zoology? Includes {sum(op[0]=="delete" for op in changes)} deletions.\n\nStaged checksums and destination paths will be revalidated. Existing XML may be overwritten.'):
                 return
-            deploy(path,root);self._note(f'Deployed {len(changes)} modifications successfully')
+            deploy(path,root,current_run_only=True);self._note(f'Deployed {len(changes)} current-generation modifications successfully')
         except Exception as e:messagebox.showerror('Deployment failed',str(e))
 
 # The GUI and command-line interface share the same staging and routing engine.
@@ -215,6 +215,7 @@ def cli_main(argv=None):
     p.add_argument('--preview',action='store_true',help='Validate staged manifest and print deployment plan')
     p.add_argument('--deploy',action='store_true',help='Deploy validated staged files to Zoology')
     p.add_argument('--yes',action='store_true',help='Required confirmation for --deploy')
+    p.add_argument('--all-staged',action='store_true',help='Explicitly include retained previous-generation XML in --preview or --deploy')
     autodeploy=p.add_mutually_exclusive_group()
     autodeploy.add_argument('--auto-deploy',dest='auto_deploy',action='store_true',help='Install generated files after a successful staging pass')
     autodeploy.add_argument('--stage-only',dest='auto_deploy',action='store_false',help='Keep generated XML in staging for manual review')
@@ -223,6 +224,8 @@ def cli_main(argv=None):
     # Validate potentially destructive actions before inspecting the project.
     if args.preview and args.deploy:
         p.error('--preview and --deploy conflict')
+    if args.all_staged and not (args.preview or args.deploy):
+        p.error('--all-staged requires --preview or --deploy')
     if args.deploy and not args.yes:
         p.error('--deploy requires --yes')
     cfg=load('patch_generator')
@@ -236,7 +239,7 @@ def cli_main(argv=None):
         print('Routing and static sources verified:', result)
         return
     if args.preview or args.deploy:
-        deploy(output,root,dry_run=not args.deploy)
+        deploy(output,root,dry_run=not args.deploy,current_run_only=not args.all_staged)
         return
     overrides=dict(cfg.get('sheet_sources',{}))
     for pair in args.sheet:
@@ -257,7 +260,7 @@ def cli_main(argv=None):
        venom_source=cfg.get('venom_profiles_source') or None,
        preserve_runtime_preconditions=cfg.get('preserve_runtime_preconditions',True))
     if cfg.get('auto_deploy',True) if args.auto_deploy is None else args.auto_deploy:
-        ops=deploy(STAGE/'generation-manifest.json',root)
+        ops=deploy(STAGE/'generation-manifest.json',root,current_run_only=True)
         print('Generated and installed:',result,'XML changes:',sum(action!='skip' for action,*_ in ops))
     else:
         print('Generated files staged, not deployed:',result)

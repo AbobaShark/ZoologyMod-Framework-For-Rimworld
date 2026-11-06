@@ -135,6 +135,30 @@ class RouteAudit(unittest.TestCase):
             self.assertEqual(entry['requires'],route_dependency(self.mod,dest))
         self.assertEqual(len(plan(out,self.root)[0]),5)
 
+    def test_no_ce_does_not_stage_or_install_stale_ce_life_stage_xml(self):
+        from core.xml_routing import deploy
+        from unittest.mock import patch
+        paths=[
+            'Core/Patches/Core/LifeStageDefs/LifeStages.xml',
+            'Core/Patches/Core/LifeStageDefs/CombatPowerFactors.xml',
+            'ModPatches/CombatExtended/Patches/LifeStageDefs/LifeStages_CE.xml',
+        ]
+        for destination in paths:
+            path=self.mod/destination
+            path.parent.mkdir(parents=True,exist_ok=True)
+            path.write_text('<Patch><existing/></Patch>',encoding='utf8')
+        with (patch('core.pipeline.read_table',return_value=pd.DataFrame()),
+              patch('core.pipeline.update_life_stages',return_value=([],[])),
+              patch('core.pipeline.render_life_stage_combat_power',return_value=b'<Patch><fresh/></Patch>')):
+            result=stage_pipeline('dummy',root=self.root,registry_path=CHECKER/'generation.json',
+                    output_dir=self.stage,categories=('life-stages',),ce=False)
+        manifest=json.loads(result.read_text())
+        self.assertEqual(set(manifest['generated_this_run']),set(paths[:2]))
+        self.assertNotIn(paths[2],manifest['generated_this_run'])
+        deploy(result,self.root,current_run_only=True)
+        self.assertIn('existing',(self.mod/paths[2]).read_text())
+        self.assertIn('fresh',(self.mod/paths[1]).read_text())
+
     def test_partial_generation_keeps_staged_reproduction_when_static_changed(self):
         product='DLC/Odyssey/Patches/Misc/CompProperties_EggLayer_Odyssey.xml'
         p=self.mod/product;p.parent.mkdir(parents=True,exist_ok=True);p.write_text('<Patch/>')

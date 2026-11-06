@@ -97,7 +97,7 @@ def validate_target(mod, entry):
     return target
 
 
-def plan(manifest_path, root):
+def plan(manifest_path, root, *, current_run_only=False):
     root = Path(root).resolve(); mod = root/'Zoology'
     manifest_path = Path(manifest_path).resolve()
     data = json.loads(manifest_path.read_text(encoding='utf-8'))
@@ -106,7 +106,17 @@ def plan(manifest_path, root):
     state = json.loads(state_path.read_text(encoding='utf-8')) if state_path.exists() else {'schema': 1, 'files': {}}
     if state.get('schema') != 1 or not isinstance(state.get('files'), dict): raise ValueError('Invalid ownership state')
     operations, desired = [], {}
-    for entry in data['files']:
+    if current_run_only:
+        selected=data.get('generated_this_run')
+        if not isinstance(selected,list) or len(selected)!=len(set(selected)):
+            raise ValueError('Current-run deployment requires a valid generated_this_run manifest list')
+        all_destinations={entry['destination'] for entry in data['files']}
+        if not set(selected).issubset(all_destinations):
+            raise ValueError('generated_this_run lists an undeclared destination')
+        entries=[entry for entry in data['files'] if entry['destination'] in selected]
+    else:
+        entries=data['files']
+    for entry in entries:
         rel = validate_target(mod, entry)
         key = rel.as_posix()
         if key.casefold() in {s.casefold() for s in desired}: raise ValueError(f'Duplicate destination: {key}')
@@ -182,9 +192,9 @@ def plan(manifest_path, root):
     return operations, desired
 
 
-def deploy(manifest_path, root, dry_run=False):
+def deploy(manifest_path, root, dry_run=False, *, current_run_only=False):
     root = Path(root).resolve(); mod = root/'Zoology'
-    operations, desired = plan(manifest_path, root)
+    operations, desired = plan(manifest_path, root, current_run_only=current_run_only)
     for action, source, target, _ in operations:
         print(f'[{action.upper()}] {source or ""} -> {target}')
     if dry_run: return operations

@@ -90,7 +90,7 @@ class UnifiedEntryPointTests(unittest.TestCase):
              patch.object(entry, 'find_project_root', return_value=Path('/tmp/project')):
             with contextlib.redirect_stdout(io.StringIO()):
                 entry.main(['--source', 'gsheet:test', '--category', 'life-stages'])
-            deploy.assert_called_once_with(entry.STAGE/'generation-manifest.json', Path('/tmp/project'))
+            deploy.assert_called_once_with(entry.STAGE/'generation-manifest.json', Path('/tmp/project'),current_run_only=True)
             deploy.reset_mock()
             with contextlib.redirect_stdout(io.StringIO()):
                 entry.main(['--source', 'gsheet:test', '--category', 'life-stages', '--stage-only'])
@@ -102,7 +102,7 @@ class UnifiedEntryPointTests(unittest.TestCase):
              patch.object(entry, 'find_project_root', return_value=Path('/tmp/project')):
             entry.main(['--preview'])
             deploy.assert_called_once_with(entry.ROOT/'output/staged/generation-manifest.json',
-                                           Path('/tmp/project'), dry_run=True)
+                                           Path('/tmp/project'), dry_run=True, current_run_only=True)
             stage.assert_not_called()
 
     def test_deploy_requires_confirmation_flag(self):
@@ -115,7 +115,14 @@ class UnifiedEntryPointTests(unittest.TestCase):
             deploy.assert_not_called()
             entry.main(['--deploy', '--yes'])
             deploy.assert_called_once_with(entry.ROOT/'output/staged/generation-manifest.json',
-                                           Path('/tmp/project'), dry_run=False)
+                                           Path('/tmp/project'), dry_run=False, current_run_only=True)
+
+    def test_deploy_all_staged_is_explicit_opt_in(self):
+        with patch.object(entry, 'deploy') as deploy, patch.object(entry, 'load',return_value={}), \
+             patch.object(entry,'find_project_root',return_value=Path('/tmp/project')):
+            entry.main(['--preview','--all-staged'])
+            deploy.assert_called_once_with(entry.ROOT/'output/staged/generation-manifest.json',
+                                           Path('/tmp/project'),dry_run=True,current_run_only=False)
 
     def test_check_audits_all_routes_without_generating_or_deploying(self):
         result = {'destinations':147, 'missing_static':[]}

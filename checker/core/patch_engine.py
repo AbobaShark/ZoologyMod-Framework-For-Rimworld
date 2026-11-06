@@ -2072,6 +2072,18 @@ class PatchGenerator:
                 original_root = LET.parse(template_path, parser).getroot()
 
             new_root = self._build_patch_root(original_root, patched_defnames, patched_abstracts)
+            baby_tiny=set(self._group_overrides.get('baby_tiny_defs',()))
+            if not baby_tiny.issubset(patched_defnames):
+                raise ValueError(f'Unregistered AnimalBabyTiny overrides: {sorted(baby_tiny-patched_defnames)}')
+            # Apply after all race/lifeStageAges replacements in this group.
+            # The old standalone baby patches omitted /race and matched nothing.
+            for name in sorted(baby_tiny):
+                xpath=f'/Defs/ThingDef[defName="{name}"]/race/lifeStageAges/li/def[text()="AnimalBaby"]'
+                op=LET.SubElement(new_root, 'Operation', Class='PatchOperationConditional')
+                LET.SubElement(op, 'xpath').text=xpath
+                match=LET.SubElement(op, 'match', Class='PatchOperationReplace')
+                LET.SubElement(match, 'xpath').text=xpath
+                LET.SubElement(LET.SubElement(match, 'value'), 'def').text='AnimalBabyTiny'
             return self._write_patch_root(new_root, output_path)
         except Exception:
             traceback.print_exc()

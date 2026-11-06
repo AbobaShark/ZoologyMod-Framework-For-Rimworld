@@ -97,6 +97,7 @@ def stage_pipeline(source, *, root=None, registry_path=None, sheet_sources=None,
     registered_outputs={entry['destination']:entry for entry in registry['outputs']}
     life_stage_destinations={entry['destination'] for entry in registry['outputs'] if entry['pipeline_category']=='life-stages'}
     animal_group_destinations={group['destination'] for group in registry['groups']}
+    baby_tiny_defnames=set(registry.get('baby_tiny_defs',()))
     declared_routes={entry['destination']:(section,entry) for section in ('groups','biomes','shared_defs','outputs') for entry in registry[section]}
     cats=set(categories)
     if cats-set(CATEGORIES):raise ValueError(f'Unknown categories: {cats-set(CATEGORIES)}')
@@ -123,6 +124,7 @@ def stage_pipeline(source, *, root=None, registry_path=None, sheet_sources=None,
         if not p.is_file() or digest(p)!=e.get('sha256'):raise ValueError(f'Staged file changed externally: {p}')
     entry_by_dest={}
     remove_generated=set()
+    generated_this_run=set()
     postprocessor=PatchPostprocessor(original_xml=original_xml or ROOT/'OriginalXML',
         original_patches=(original_patches or ROOT/'OriginalXML/CEPatches') if ce else None,
         preserve_guards=preserve_runtime_preconditions) if optimize else None
@@ -154,6 +156,7 @@ def stage_pipeline(source, *, root=None, registry_path=None, sheet_sources=None,
             entry['sha256']=hashlib.sha256(data).hexdigest()
             destfile=temp/entry['source'];destfile.parent.mkdir(parents=True,exist_ok=True)
             destfile.write_bytes(data);entry_by_dest[dest]=entry
+            generated_this_run.add(dest)
 
         # Preserve categories not selected; remove all previously selected category entries.
         active_groups={g['destination'] for g in _check_selected(registry,groups)} if 'animals' in cats else set()
@@ -195,7 +198,9 @@ def stage_pipeline(source, *, root=None, registry_path=None, sheet_sources=None,
                     missing=set(group['defs'])-known
                     if missing:raise ValueError(f'{group["id"]}: missing in Animals: {sorted(missing)}')
                     path=temp/'work'/group['id'];path.parent.mkdir(parents=True,exist_ok=True)
-                    if not generator.generate_patch_from_definitions(str(path),group['defs'],patched_abstracts=group['abstracts'],group_overrides=group.get('overrides')):
+                    overrides=dict(group.get('overrides') or {})
+                    overrides['baby_tiny_defs']=[name for name in group['defs'] if name in baby_tiny_defnames]
+                    if not generator.generate_patch_from_definitions(str(path),group['defs'],patched_abstracts=group['abstracts'],group_overrides=overrides):
                         raise RuntimeError(f'Generation failed for {group["id"]}')
                     e=group
                     emit(e['destination'],'animal_patch',path.read_bytes(),e.get('requires'))
@@ -346,7 +351,8 @@ def stage_pipeline(source, *, root=None, registry_path=None, sheet_sources=None,
         if postprocessor is not None:
             (temp/'optimization-report.json').write_text(json.dumps(postprocessor.stats,indent=2,ensure_ascii=False)+'\n',encoding='utf8')
         # A full run should be self contained, but partial generation never purges unrelated outputs.
-        data={'schema':1,'prune':False,'files':sorted(entry_by_dest.values(),key=lambda x:x['destination']),
+        data={'schema':1,'prune':False,'generated_this_run':sorted(generated_this_run),
+              'files':sorted(entry_by_dest.values(),key=lambda x:x['destination']),
               'remove':sorted(remove_generated)}
         (temp/'generation-manifest.json').write_text(json.dumps(data,indent=2,ensure_ascii=False)+'\n',encoding='utf8')
         # Final route/collision/integrity checks without requiring generated files inside Zoology.
