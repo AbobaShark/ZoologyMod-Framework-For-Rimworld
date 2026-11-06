@@ -197,6 +197,25 @@ namespace ZoologyMod
             replacement.modExtensions.Add(new ZoologyLifeStageOrigin { sourceStage = original });
 
             bool changed = false;
+            if (IsFinitePositive(profile.combatPowerFactor))
+            {
+                var existingCombat = replacement.GetModExtension<LifeStageCombatPowerExtension>();
+                if (existingCombat == null
+                    || Math.Abs(existingCombat.combatPowerFactor - profile.combatPowerFactor) > 0.000001f)
+                {
+                    // Clone the extension instead of modifying the source Def's
+                    // shared instance (MemberwiseClone does not deep-copy it).
+                    if (existingCombat != null)
+                    {
+                        replacement.modExtensions.Remove(existingCombat);
+                    }
+                    replacement.modExtensions.Add(new LifeStageCombatPowerExtension
+                    {
+                        combatPowerFactor = profile.combatPowerFactor
+                    });
+                    changed = true;
+                }
+            }
             if (IsFinitePositive(profile.hungerRateFactor)
                 && Math.Abs(replacement.hungerRateFactor - profile.hungerRateFactor) > 0.000001f)
             {
