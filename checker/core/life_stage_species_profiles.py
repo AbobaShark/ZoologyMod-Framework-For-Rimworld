@@ -133,10 +133,19 @@ def _tool_profiles(table, diagnostics):
         index = int(index_number)
         if not stage:
             raise ValueError(f"LifeStageAttackProfiles row {number}: missing source LifeStageDef")
-        key = (name, stage, index)
-        if key in encountered:
-            raise ValueError(f"LifeStageAttackProfiles duplicate tool {key!r}")
-        encountered.add(key)
+        source_stages = tuple(part.strip() for part in stage.split(" or "))
+        legal_groups = (*STAGE_GROUPS, *ROYAL_STAGES)
+        if (not source_stages or
+                not any(set(source_stages) == set(group) for group in legal_groups) and
+                not (len(source_stages) == 1 and
+                     any(source_stages[0] in group for group in legal_groups))):
+            raise ValueError(
+                f"LifeStageAttackProfiles row {number}: unknown source stage {stage!r}")
+        for source_stage in source_stages:
+            key = (name, source_stage, index)
+            if key in encountered:
+                raise ValueError(f"LifeStageAttackProfiles duplicate tool {key!r}")
+            encountered.add(key)
         label = str(row.get("ToolLabel", "")).strip()
         linked = str(row.get("LinkedBodyPartsGroup", "")).strip()
         if not label and not linked:
@@ -149,7 +158,8 @@ def _tool_profiles(table, diagnostics):
             if not math.isclose(value, 1.0, abs_tol=1e-10, rel_tol=0):
                 factors.append((field, value))
         if factors:
-            output[(name, stage)].append((index, label, linked, factors))
+            for source_stage in source_stages:
+                output[(name, source_stage)].append((index, label, linked, factors))
             diagnostics["attack_tools_ready"] += 1
     return output
 
