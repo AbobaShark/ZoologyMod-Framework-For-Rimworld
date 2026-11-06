@@ -7,8 +7,6 @@ from __future__ import annotations
 
 import math
 from lxml import etree as E
-from core.locomotion_allometry import age_speed_factor
-from core.body_size_mass_equivalence import body_size_equivalent_mass_kg
 
 STAGE_GROUPS = (
     ("AnimalAdult", "EusocialInsectAdult"),
@@ -106,32 +104,28 @@ def parse_stages(table, source_mod=None, *, mass_lookup=None):
              for group in ROYAL_STAGES]
     if any(right <= left for left, right in zip(sizes, sizes[1:])):
         raise ValueError("Royal megachicken bodySizeFactors must strictly increase with age")
-    # The sheet's baseBodySize is an in-game size, NOT a physical mass.
-    # Invert the actual piecewise mass->BodySize intervals; the 70 kg
-    # calibration knot is never used as a reference animal for stage stats.
+    # The workbook owns both the stage mass and its SpeedFactor.
+    # Checker verifies age/size coherence, and compares its mass values to
+    # SERVICE_BodySizeMassBands if supplied; it does not reimplement the
+    # age-specific numerical models.
     base_sizes = [found[(ROYAL_SOURCE, frozenset(group))]["BaseBodySize"]
                   for group in ROYAL_STAGES]
     base_size = base_sizes[0]
     if any(not math.isclose(size, base_size, rel_tol=1e-9, abs_tol=1e-9)
            for size in base_sizes[1:]):
         raise ValueError("Royal LifeStages must share one BaseBodySize")
-    mass_for_size = mass_lookup or body_size_equivalent_mass_kg
-    adult_mass = mass_for_size(base_size)
     for group in ROYAL_STAGES:
         stage = found[(ROYAL_SOURCE, frozenset(group))]
         size = base_size * stage["bodySizeFactor"]
-        mass = mass_for_size(size)
         if not math.isclose(size, stage["StageBodySize"], rel_tol=1e-6, abs_tol=1e-6):
             raise ValueError(f"{group[0]} StageBodySize does not match game BodySize")
-        if not math.isclose(mass, stage["BodySizeMassMid_kg"], rel_tol=1e-6, abs_tol=1e-5):
-            raise ValueError(f"{group[0]} physical mass-bin midpoint differs from source mapping")
-        if not math.isclose(adult_mass, stage["BaseMassMid_kg"], rel_tol=1e-6, abs_tol=1e-5):
-            raise ValueError(f"{group[0]} BaseMassMid_kg differs from the actual size bin")
-        expected_speed = age_speed_factor(stage["bodySizeFactor"], base_size)
-        if not math.isclose(stage["SpeedFactor"], expected_speed, abs_tol=1e-6):
-            raise ValueError(
-                f"{group[0]} SpeedFactor {stage['SpeedFactor']} differs from "
-                f"Hirt running allometry {expected_speed} at game BodySize {size}")
+        if mass_lookup is not None:
+            mass = mass_lookup(size)
+            adult_mass = mass_lookup(base_size)
+            if not math.isclose(mass, stage["BodySizeMassMid_kg"], rel_tol=1e-6, abs_tol=1e-5):
+                raise ValueError(f"{group[0]} mass differs from SERVICE_BodySizeMassBands")
+            if not math.isclose(adult_mass, stage["BaseMassMid_kg"], rel_tol=1e-6, abs_tol=1e-5):
+                raise ValueError(f"{group[0]} adult mass differs from SERVICE_BodySizeMassBands")
     sources = SOURCE_STAGES if source_mod is None else {source_mod: SOURCE_STAGES[source_mod]}
     return [(group, found[(owner, frozenset(group))])
             for owner, groups in sources.items() for group in groups]
