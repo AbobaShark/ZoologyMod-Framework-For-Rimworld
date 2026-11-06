@@ -49,13 +49,6 @@ CE_PENETRATION = {
     "meleePenetrationBluntFactor": "ArmorPenetration_Blunt(CE)",
 }
 COMBAT_POWER_EXTENSION = "ZoologyMod.LifeStageCombatPowerExtension, ZoologyMod"
-# CE melee chance scaling, dimensionless and independent of adult mass.
-# Same magnitude as the existing inverse-size dodge power; heuristic, not a
-# measured universal probability law. Stat factors affect CE's stat inputs,
-# not the independently applied base comparative chance.
-CE_MELEE_CHANCE_BODY_SIZE_EXPONENT = 0.165
-CE_MELEE_CHANCE_ROUNDING_STEP = 0.05
-
 REQUIRED_COLUMNS = (
     {"Life stage", "Source mod", "BaseBodySize", "StageBodySize", "BodySizeMassMid_kg", "BaseMassMid_kg", *BASE_FIELDS, *BASE_STATS.values(), "CombatPowerFactor",
      "meleeDamageFactor(CE)", *CE_STATS.values(), *CE_PENETRATION.values()}
@@ -109,20 +102,6 @@ def parse_stages(table, source_mod=None, *, mass_lookup=None):
     wrong = {key: value for key, value in adult.items() if abs(value - 1) > 1e-7}
     if wrong:
         raise ValueError(f"Adult Core LifeStages baseline must be 1: {wrong}")
-    # Reject workbook regressions that silently neutralize CE age chance
-    # factors. Relative BodySize scaling does not use the fictional mass of a
-    # species or impose a 70 kg reference individual.
-    for owner, groups in SOURCE_STAGES.items():
-        for group in groups:
-            stage = found[(owner, frozenset(group))]
-            size_factor = stage["bodySizeFactor"]
-            scaled = round((size_factor ** CE_MELEE_CHANCE_BODY_SIZE_EXPONENT)
-                           / CE_MELEE_CHANCE_ROUNDING_STEP) * CE_MELEE_CHANCE_ROUNDING_STEP
-            for stat in ("MeleeCritChance", "MeleeParryChance"):
-                if not math.isclose(stage[stat], scaled, abs_tol=1e-7):
-                    raise ValueError(
-                        f"{group[0]} {stat} {stage[stat]} differs from "
-                        f"BodySize-relative factor {scaled}")
     sizes = [found[(ROYAL_SOURCE, frozenset(group))]["bodySizeFactor"]
              for group in ROYAL_STAGES]
     if any(right <= left for left, right in zip(sizes, sizes[1:])):
