@@ -41,18 +41,47 @@ namespace ZoologyMod
             }
 
             StatDef stat = ZoologyLifeStageStatDefOf.Zoology_MeleeCooldownFactor;
-            if (stat == null)
+            if (stat != null)
             {
-                return;
+                // Common stage factor; individual tool corrections follow.
+                float factor = attacker.GetStatValue(stat);
+                if (factor > 0f && !float.IsInfinity(factor) && !float.IsNaN(factor))
+                {
+                    __result *= factor;
+                }
             }
 
-            // StatWorker.GetValueUnfinalized multiplies this special stat by
-            // stage.statFactors. CE calls VerbProperties.AdjustedCooldownTicks
-            // too, so both vanilla and CE share this correctly applied factor.
-            float factor = attacker.GetStatValue(stat);
-            if (factor > 0f && !float.IsInfinity(factor) && !float.IsNaN(factor))
+            ZoologyLifeStageToolFactor toolFactor;
+            if (ZoologyLifeStageProfileInstaller.TryGetToolFactor(attacker, tool, out toolFactor))
             {
-                __result *= factor;
+                __result *= CEChecker.IsCEInstalled()
+                    ? toolFactor.ceCooldownFactor
+                    : toolFactor.vanillaCooldownFactor;
+            }
+        }
+    }
+
+
+    // Only natural tools whose source Tool references match the profile are
+    // modified. Equipped weapons and hediff verbs are untouched.
+    [HarmonyPatch(typeof(VerbProperties), nameof(VerbProperties.AdjustedMeleeDamageAmount),
+        new Type[] { typeof(Tool), typeof(Pawn), typeof(Thing), typeof(HediffComp_VerbGiver) })]
+    internal static class Patch_AnimalLifeStageToolDamage
+    {
+        private static bool Prepare()
+        {
+            var settings = ZoologyModSettings.Instance;
+            return settings == null || !settings.DisableAllRuntimePatches;
+        }
+
+        private static void Postfix(Tool tool, Pawn attacker, ref float __result)
+        {
+            ZoologyLifeStageToolFactor factor;
+            if (ZoologyLifeStageProfileInstaller.TryGetToolFactor(attacker, tool, out factor))
+            {
+                __result *= CEChecker.IsCEInstalled()
+                    ? factor.ceDamageFactor
+                    : factor.vanillaDamageFactor;
             }
         }
     }

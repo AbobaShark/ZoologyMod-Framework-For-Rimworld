@@ -17,6 +17,7 @@ from core.generation_registry import load_registry,target_entry,output_by_id,out
 from core.xml_routing import digest,find_project_root,route_dependency
 from core.static_stats import read_table,update_bionics,update_life_stages,SHEET_REQUIRED
 from core.life_stages import render_life_stage_combat_power, render_life_stages, ROYAL_SOURCE
+from core.life_stage_species_profiles import render_species_life_stage_profiles
 from core.production_stats import render_reproduction
 from core.checker_config import ROOT
 from core.patch_postprocess import PatchPostprocessor
@@ -364,6 +365,26 @@ def stage_pipeline(source, *, root=None, registry_path=None, sheet_sources=None,
                     entry_by_dest[e['destination']]['pipeline_category']='life-stages'
                     results.append({'destination':e['destination'],
                                     'changes':[{'regenerated':ident}],'warnings':[]})
+
+                # Species-specific corrections are evaluated by Checker only.
+                # The runtime clones only stages actually present in the
+                # installed animal race.lifestageAges, never per-pawn.
+                source_attacks = sheets.get('LifeStageAttackProfiles')
+                attack_table = sheet_frame('LifeStageAttackProfiles') if source_attacks else None
+                payload, diagnostics = render_species_life_stage_profiles(
+                    sheet_frame('Animals'),
+                    sheet_frame('Animals CE') if ce else None,
+                    sheet_frame('Base stats'),
+                    sheet_frame('Groups'),
+                    t,
+                    attack_table,
+                )
+                e=output_by_id(registry,'life-stages.species')
+                emit(e['destination'],e['category'],payload,e.get('requires'))
+                entry_by_dest[e['destination']]['pipeline_category']='life-stages'
+                results.append({'destination':e['destination'],
+                                'changes':[{'regenerated':'life-stages.species',
+                                            'diagnostics':diagnostics}],'warnings':[]})
             (temp/'static-report.json').write_text(json.dumps(results,indent=2,ensure_ascii=False)+'\n',encoding='utf8')
         if postprocessor is not None:
             (temp/'optimization-report.json').write_text(json.dumps(postprocessor.stats,indent=2,ensure_ascii=False)+'\n',encoding='utf8')

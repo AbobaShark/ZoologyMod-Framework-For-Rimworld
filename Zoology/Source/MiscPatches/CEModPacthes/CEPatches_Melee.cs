@@ -146,6 +146,16 @@ namespace ZoologyMod
                 extFactor = 1f;
             }
 
+            // One tool may have a different stage AP correction from the
+            // next. The shared LifeStagePenetrationDef remains the fallback.
+            ZoologyLifeStageToolFactor toolFactor;
+            if (ZoologyLifeStageProfileInstaller.TryGetToolFactor(
+                caster, toolObj as Tool, out toolFactor))
+            {
+                extFactor *= isSharp ? toolFactor.ceSharpPenetrationFactor
+                    : toolFactor.ceBluntPenetrationFactor;
+            }
+
             float statPow = CEReflectionUtility.GetMeleeDamageFactorStatPow(caster);
             float skillMult = CEReflectionUtility.GetPenetrationSkillMultiplier(verbInstance);
             float equipmentMult = CEReflectionUtility.GetEquipmentPenetrationFactor(CEReflectionUtility.GetEquipmentSource(verbInstance));

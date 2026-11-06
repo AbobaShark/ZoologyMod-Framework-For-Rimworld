@@ -15,6 +15,7 @@ namespace ZoologyMod
         public static bool IsAnimalInfantLifeStage(LifeStageDef stage)
         {
             if (stage == null) return false;
+            stage = stage.GetModExtension<ZoologyLifeStageOrigin>()?.sourceStage ?? stage;
 
             var baby = animalBabyLifeStageDef ?? (animalBabyLifeStageDef = DefDatabase<LifeStageDef>.GetNamedSilentFail("AnimalBaby"));
             if (stage == baby || string.Equals(stage.defName, "AnimalBaby", StringComparison.OrdinalIgnoreCase))
@@ -37,6 +38,7 @@ namespace ZoologyMod
         public static bool IsAnimalJuvenileLifeStage(LifeStageDef stage)
         {
             if (stage == null) return false;
+            stage = stage.GetModExtension<ZoologyLifeStageOrigin>()?.sourceStage ?? stage;
 
             var juvenile = animalJuvenileLifeStageDef ?? (animalJuvenileLifeStageDef = DefDatabase<LifeStageDef>.GetNamedSilentFail("AnimalJuvenile"));
             if (stage == juvenile || string.Equals(stage.defName, "AnimalJuvenile", StringComparison.OrdinalIgnoreCase))

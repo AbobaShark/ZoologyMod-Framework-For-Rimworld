@@ -21,6 +21,9 @@ namespace ZoologyMod
 
             var stage = pawn.ageTracker?.CurLifeStage;
             if (stage == null) return null;
+            // Runtime specialization changes defName; AP definitions still
+            // belong to the original LifeStageDef until tool AP is migrated.
+            stage = stage.GetModExtension<ZoologyLifeStageOrigin>()?.sourceStage ?? stage;
 
             var all = DefDatabase<LifeStagePenetrationDef>.AllDefsListForReading;
             if (all.Count == 0)

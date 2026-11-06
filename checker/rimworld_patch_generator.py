@@ -15,10 +15,12 @@ from core.pipeline import stage_pipeline,CATEGORIES,STAGE
 from core.generation_registry import load_registry,audit_routes
 from core.xml_routing import plan,deploy,find_project_root
 
-SHEETS=('Animals','Animals CE','Bionics','LifeStages','EggMilkWool','Venom profiles','Biomes','Leathers','Animal textiles')
+SHEETS=('Animals','Animals CE','Base stats','Groups','Bionics','LifeStages',
+        'LifeStageAttackProfiles','EggMilkWool','Venom profiles','Biomes',
+        'Leathers','Animal textiles')
 LABELS={'animals':'Animal patches (Vanilla + CE)','venom':'Venom, antivenoms and recipes',
         'biomes':'Biome animal populations','products':'Eggs, hatchers, milk and wool',
-        'bionics':'Bionic implants (Vanilla + CE)','life-stages':'Life-stage factors (Vanilla + CE)',
+        'bionics':'Bionic implants (Vanilla + CE)','life-stages':'Life-stage factors and species profiles (Vanilla + CE)',
         'leathers':'Leather stats and custom defs (Vanilla + CE)',
         'textiles':'Wool and animal silk (Vanilla + CE)'}
 

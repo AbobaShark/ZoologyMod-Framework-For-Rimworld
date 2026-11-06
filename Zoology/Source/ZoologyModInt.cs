@@ -33,6 +33,7 @@ namespace ZoologyMod
             {
                 Settings?.CleanupInvalidAnimalOverrides();
                 Settings?.ApplyRuntimeDefOverrides();
+                ZoologyLifeStageProfileInstaller.ApplyOnce();
 #if RIMWORLD17
                 AnimalBarnWorkPriority.MatchVanillaPens();
 #endif
