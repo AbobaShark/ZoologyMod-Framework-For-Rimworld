@@ -2,6 +2,7 @@
 """Zoology Patch Generator: table-driven generation from an explicit group registry."""
 from __future__ import annotations
 import argparse
+import json
 import sys
 import queue
 import threading
