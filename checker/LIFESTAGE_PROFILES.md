@@ -1,126 +1,129 @@
-# Species-specific life stages — development status
+# AnimalStats-owned species-specific life stages
 
-This feature is **experimental** and remains on
-`feature/animal-life-stage-profiles`. It has not been built against the
-RimWorld **1.7 / .NET 10** game assemblies or Combat Extended DLLs.
-Do not merge to `main` until those builds and in-game regression tests pass.
+**Status: experimental feature branch.** All changes are in
+`feature/animal-life-stage-profiles`; do not merge into `main` until the
+biomechanical attack and economic inputs are complete and RimWorld 1.7 / CE
+runtime tests pass.
 
-## Source of calculations
+## Numerical authority
 
-The Checker `life-stages` category generates
-`Zoology/Core/Defs/Misc/LifeStageProfiles_Generated.xml`. It reads the
-same Animals, Animals CE, Base stats, Groups, and LifeStages values as the
-ordinary animal generator. Species-specific values are calculated during
-Checker generation, never in a pawn tick.
+All species-specific numbers are calculated in the **AnimalStats spreadsheet**.
+Checker **does not** implement its own life-stage hunger, CE chance, armor,
+damage, cooldown, penetration, or combat-power model.
 
-When input is Google Sheets or XLSX, Checker reads the calculated
-`SERVICE_BodySizeMassBands` table and uses its mass-bin midpoints. The
-optional `--sheet SERVICE_BodySizeMassBands=<path.tsv>` supplies that table
-for separate TSV inputs. If no service table is supplied to a TSV-only
-source, Checker's built-in inverse of the current Animals!AO formula is used:
-60 kg normalization, the workbook's continuous response, and dynamic
-MROUND steps 0.05/0.1/0.25/0.5. The service table takes precedence when
-present; no game-time spreadsheet calculation occurs.
+The new workbook tabs are:
 
-The physical mass of a stage comes from the **new BodySize's equivalent
-mass bin**, not adult mass times `bodySizeFactor`. For example, the current
-Megachicken base BodySize 0.35 at its maximum stage factor 20 yields
-BodySize 7.0 and a central-equivalent mass about 11,630 kg. These values
-change when the source sheet changes. BodySize below 0.05 has no identified
-inverse and must not be assigned a fabricated physical mass.
+- **LifeStageSpeciesProfiles** — every species and original LifeStageDef group,
+  calculated stage/adult hunger, FilthRate, CE Dodge/Crit/Parry and placeholder
+  outputs for ArmorRating, CombatPower and MarketValue. `CalculationStatus`
+  is `INCOMPLETE` until all required physical/economic predictions exist.
+  Fully calculated individual fields may be used even if other fields remain
+  incomplete; uncalculated fields remain neutral at the parent Def.
+- **LifeStageAttackProfiles** — one row per explicitly identified
+  `ThingDef.tools` entry and source stage, with six independent
+  `Stage / Adult` coefficients. Each coefficient is calculated by the sheet
+  from an adult and a stage prediction. A row with missing predictions is
+  `INCOMPLETE`; negative, nonfinite or zero coefficients are invalid.
+  `READY` rows require all six calculated positive coefficients.
 
-## Current numeric coverage
+Both tabs are read automatically from the main Google Sheets/XLSX source.
+When using separate TSV inputs, provide
+`--sheet LifeStageSpeciesProfiles=...tsv` and
+`--sheet LifeStageAttackProfiles=...tsv`. The existing GUI also exposes
+these paths.
 
-- Hunger: Animals!AQ model, including physiology/ectothermy and quantization;
-  source-adult baseline is checked.
-- FilthRate: Animals!K model, normalized to adult value.
-- CE Dodge, Crit and Parry: group coefficients from Groups!BH:BJ, actual
-  physical mass-bin midpoint for the stage, exponent -0.165/+0.165 and
-  0.05 rounding, normalized by adult Animals CE!X:Z. All accessible adult
-  source rows are checked against their Base stats masses and coefficients.
-- Missing optional species definitions and unused stage definitions are
-  ignored by the game installer; only original life-stage references present
-  on a race can be replaced.
-- For stage sizes below 0.05 or a zero adult CE chance, the relevant
-  mass-derived ratio cannot be inferred and is not generated.
+Do not populate missing attack fields with generic scaling exponents. The
+workbook's full head/leg/horn/bite/forelimb force, energy, contact geometry,
+cycle, damage-cap and CE AP models must be evaluated at the **stage mass and
+geometrically corresponding anatomy** before those rows can be marked READY.
 
-**Not implemented:** independently recalculated stage ArmorRating_Sharp/
-Blunt, CombatPowerFactor, and full Animals!H MarketValue. Existing
-general source-stage values remain for these fields. No claim of corrected
-price or battle strength should be made.
+## Physical mass and common life stages
 
-## Individual natural attacks
+`LifeStages` contains universal body-size and health-scale factors plus
+general speed where appropriate, including the existing separately calculated
+Royal Megachicken speed factors. General damage, cooldown, AP, hunger, filth,
+armor, CE Dodge/Crit/Parry, CombatPower and MarketValue factors are neutral
+(1): species-specific outputs belong in the new tabs.
 
-`LifeStageAttackProfiles` is an optional supplementary source.
-Each row addresses **one actual Tool** by a zero-based `ToolIndex` in
-the final `ThingDef.tools` list, with optional `ToolLabel` and
-`LinkedBodyPartsGroup` verification. Multiple paired natural attacks
-require separate indices.
+The stage size is `adult BaseBodySize * stage bodySizeFactor`. That is a
+**game BodySize, not a mass ratio**. Stage physical mass comes from the
+`SERVICE_BodySizeMassBands` interpolation. As of the current workbook,
+VAERoy_Megachicken's maximum stage is BodySize 7.0, about 11,630 kg
+equivalent central mass. The model does not assign an invented physical mass
+to stages below 0.05. Adult stage 1.0 uses the actual adult physical mass from
+Base stats rather than the representative midpoint of the BodySize interval.
 
-The six independently supported factor columns are:
+Only original stages genuinely referenced by `race.lifeStageAges` are
+specialized. A generated stage is a clone of the original loaded Def and
+inherits the source's other attributes (including minAge, reproduction,
+graphics, sounds, and unrelated mod extensions). The copied LifeStageAge
+still retains its source age bounds.
 
-- `VanillaDamageFactor` and `CEDamageFactor`;
-- `VanillaCooldownFactor` and `CECooldownFactor`;
-- `CESharpPenetrationFactor` and `CEBluntPenetrationFactor`.
+## Generated outputs and compile workflow
 
-Each value is a **residual factor relative to the existing generic stage
-adjustment**, not an absolute attack output. Example: if the stage already
-multiplies vanilla damage by 0.35 and a validated attack model predicts
-0.42 of adult damage, the per-tool factor is `0.42 / 0.35 = 1.2`.
-The same normalization must be performed independently for cooldown and
-both CE AP components. Values must be positive, finite, and matched to
-the correct source stage and tool; omitted values mean unity.
+Checker stages and atomically deploys both:
 
-The game resolves actual Tool references at Def startup and stores them
-in dictionaries keyed by stage and Tool, so later lookups are O(1).
-The source `ThingDef.tools` list is not replaced.
+- `Zoology/Core/Defs/Misc/LifeStageProfiles_Generated.xml`, containing
+  species-stage calculated scalar/stat factors.
+- `Zoology/Source/Behaviour/Shared/ZoologyLifeStageAttackProfiles_Generated.cs`,
+  containing a compiled dictionary of individual READY Tool coefficients.
 
-**Important:** the production workbook currently has no
-`LifeStageAttackProfiles` tab. Checker accepts externally calculated
-corrections but does **not** derive age-specific head, leg, horn, bite,
-and forelimb force/energy/contact-area/CE penetration from the complete
-biomechanical sheet models. Those calculations must be developed and
-validated before any attack corrections can be considered complete.
-Do not fill this table with guessed age exponents.
+The C# source is a **strictly whitelisted** generated destination in
+`checker/generation.json` and the same checksum-backed staging/deploy
+mechanism as the XML. Mod compilation is deliberately **not** performed by
+Checker. The existing user build process compiles the generated .cs into
+ZoologyMod.
 
-## Runtime installer and compatibility
+At Def initialization, the generic Zoology installer resolves actual
+`ThingDef.tools` indices and checks the Tool's label and linked body-part
+group. It then caches stage/Tool-reference pairs. Normal attacks only do
+O(1) lookups; neither the spreadsheet nor biomechanical formulas are used
+at game time.
 
-`ZoologyLifeStageProfileInstaller.ApplyOnce()` runs after Def loading.
-It clones the original stage, copies mutable stat factor and mod-extension
-lists, attaches `ZoologyLifeStageOrigin`, and replaces only its matching
-`LifeStageAge.def` reference. Source stages, age boundaries, reproductive
-attributes, graphics and sounds remain untouched. New names follow
-`ZoologyStage_<ThingDefName>_<originalStageName>`.
+The six per-tool coefficients are **absolute stage/adult ratios**:
 
-The installer checks adult BodySize, hunger and original stage size factor;
-it now requires successful short-hash allocation before adding a cloned
-Def to `DefDatabase`. This code has **not** been validated against the
-actual 1.7 managed assemblies; its reflection signature and save behavior
-need direct in-game testing. Third-party code that compares
-`LifeStageDef` references rather than developmental stage may need an
-origin-compatibility adjustment. The CE AP override must never use the UI
-selected pawn as a substitute for the real attacker, or modify an equipped
-weapon's AP.
+1. Vanilla damage
+2. Vanilla cooldown
+3. CE damage
+4. CE cooldown
+5. CE sharp AP
+6. CE blunt AP
 
-Re-run Checker, deploy the XML through its validated staging mechanism, and
-**restart RimWorld** to load changes. An edited Python generator by itself
-does **not** update the currently committed generated XML.
+The old generic `meleeDamageFactor` and cooldown/AP age multipliers are
+neutral, preventing double application. The existing generic C# applies
+per-tool damage and cooldown; the CE AP patch uses the specific AP factor
+**instead of** the source-stage AP factor. Unrelated weapons and non-target
+tools must retain their normal CE/vanilla handling.
 
-## Checks
+## Remaining work
+
+The production AnimalStats workbook has only the schema and scalar/CE chance
+formulas in the new tabs. **It does not yet calculate ontogenetic attacks,
+armor, CombatPower or the full price model.** The starter polar-bear head
+attack row is deliberately INCOMPLETE; it must not be exported as ready
+attack data. All stage outputs from the biomechanical model are required
+before individual attack scaling can be claimed to work for a species.
+
+The current checked-in XML was refreshed from the evaluated workbook scalar
+cells. The common life-stage patch XMLs were neutralized to match LifeStages.
+These files should be regenerated by the updated Checker and compared before
+any merge.
+
+The C# and RimWorld 1.7 integration have **not** been compiled against real
+game DLLs here. Verify dynamic Def registration and short hashes, old saves,
+Royal stages, CE-on and CE-off attack paths, feeding/lactation, compatibility
+with third-party Tool patches and actual per-attack CPU costs.
+
+## Tests
 
 ```bash
 cd checker
-python -m unittest tests.test_body_size_mass_equivalence
-python -m unittest tests.test_life_stage_species_profiles
-python -m unittest tests.test_life_stages tests.test_royal_life_stages
+python -m unittest -v \
+  tests.test_body_size_mass_equivalence \
+  tests.test_life_stage_species_profiles \
+  tests.test_life_stages tests.test_royal_life_stages \
+  tests.test_xml_routing tests.test_complete_routing
 ```
 
-The mass-inverse unit tests were locally executed against regression
-anchors read from the live workbook. The full repository test suite and C#
-build have not been executed in this environment.
-
-Before `main` integration, verify all of the following on RimWorld 1.7
-with CE both enabled and disabled: generated LifeStageDef hashes/indexes,
-old-save load/reload, every Royal stage, matching natural Tool identity,
-cooldown/damage/AP not being applied twice, infant feeding/lactation,
-third-party stage and tool edits, and startup/per-attack CPU cost.
+The GitHub Actions workflow is committed, but recent jobs failed without
+running any steps (no successful Python or C# build is claimed).
