@@ -26,6 +26,7 @@ namespace ZoologyMod
         public float combatPowerFactor = -1f;
 
         public List<ZoologyLifeStageStatFactor> statFactors;
+        public List<ZoologyLifeStageStatOffset> statOffsets;
         public List<ZoologyLifeStageToolFactor> tools;
     }
 
@@ -33,6 +34,16 @@ namespace ZoologyMod
     {
         public string stat;
         public float factor = 1f;
+        public bool ceOnly;
+    }
+
+    // Calculated absolute armor additions, used when an adult armor base is zero.
+    // LifeStageDef supports statFactors only; these additions are applied by a
+    // lightweight, CE-aware StatPart without changing ThingDef.statBases.
+    public sealed class ZoologyLifeStageStatOffset
+    {
+        public string stat;
+        public float offset;
         public bool ceOnly;
     }
 

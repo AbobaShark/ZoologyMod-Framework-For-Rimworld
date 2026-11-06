@@ -22,6 +22,9 @@ namespace ZoologyMod
         private static readonly Dictionary<LifeStageDef, Dictionary<Tool, ZoologyLifeStageToolFactor>>
             toolFactorsByStage = new Dictionary<LifeStageDef, Dictionary<Tool, ZoologyLifeStageToolFactor>>();
 
+        private static readonly Dictionary<LifeStageDef, ZoologyLifeStageArmorOffsets>
+            armorOffsetsByStage = new Dictionary<LifeStageDef, ZoologyLifeStageArmorOffsets>();
+
         private static bool applied;
         private static int mappedNaturalTools;
         private static bool nativeHashAllocatorAvailable = true;
@@ -86,6 +89,11 @@ namespace ZoologyMod
                             + key.Replace('\n', '/') + ": " + ex);
                     }
                 }
+            }
+
+            if (armorOffsetsByStage.Count != 0)
+            {
+                ZoologyLifeStageArmorStatPart.Install();
             }
 
             timer.Stop();
@@ -280,6 +288,57 @@ namespace ZoologyMod
                 }
             }
 
+            // Absolute values are emitted only if the adult's corresponding
+            // armor was zero. A multiplier cannot express 0 -> positive.
+            // Select the numerical source matching the current combat mode.
+            float sharpOffset = 0f;
+            float bluntOffset = 0f;
+            if (profile.statOffsets != null)
+            {
+                var seenArmor = new HashSet<string>(StringComparer.Ordinal);
+                foreach (var entry in profile.statOffsets)
+                {
+                    if (entry == null || string.IsNullOrEmpty(entry.stat)
+                        || !IsFiniteNonnegative(entry.offset))
+                    {
+                        Log.Warning("[Zoology] Invalid absolute life-stage armor offset for "
+                            + animal.defName + "/" + original.defName + "; skipping stage.");
+                        return false;
+                    }
+                    if (entry.ceOnly != hasCe)
+                    {
+                        continue;
+                    }
+                    if (!seenArmor.Add(entry.stat))
+                    {
+                        Log.Warning("[Zoology] Duplicate absolute life-stage armor offset for "
+                            + animal.defName + "/" + original.defName);
+                        return false;
+                    }
+                    if (entry.stat == "ArmorRating_Sharp")
+                    {
+                        if (DefDatabase<StatDef>.GetNamedSilentFail(entry.stat) == null)
+                            return false;
+                        sharpOffset = entry.offset;
+                    }
+                    else if (entry.stat == "ArmorRating_Blunt")
+                    {
+                        if (DefDatabase<StatDef>.GetNamedSilentFail(entry.stat) == null)
+                            return false;
+                        bluntOffset = entry.offset;
+                    }
+                    else
+                    {
+                        Log.Warning("[Zoology] Unsupported absolute armor stat: " + entry.stat);
+                        return false;
+                    }
+                }
+            }
+            if (sharpOffset > 0f || bluntOffset > 0f)
+            {
+                changed = true;
+            }
+
             Dictionary<Tool, ZoologyLifeStageToolFactor> selectedTools = null;
             // Checker compiles exact per-Tool coefficients into this generated
             // source file. The XML catalog controls which life stages exist,
@@ -360,12 +419,29 @@ namespace ZoologyMod
             }
             DefDatabase<LifeStageDef>.Add(replacement);
             animal.race.lifeStageAges = copiedAges;
+            if (sharpOffset > 0f || bluntOffset > 0f)
+            {
+                armorOffsetsByStage.Add(replacement,
+                    new ZoologyLifeStageArmorOffsets(sharpOffset, bluntOffset));
+            }
             if (selectedTools != null)
             {
                 toolFactorsByStage.Add(replacement, selectedTools);
                 mappedNaturalTools += selectedTools.Count;
             }
             return true;
+        }
+
+        internal static bool TryGetArmorOffset(LifeStageDef stage, bool sharp, out float value)
+        {
+            value = 0f;
+            ZoologyLifeStageArmorOffsets entry;
+            if (stage == null || !armorOffsetsByStage.TryGetValue(stage, out entry))
+            {
+                return false;
+            }
+            value = sharp ? entry.sharp : entry.blunt;
+            return value > 0f;
         }
 
         private static T ShallowClone<T>(T source) where T : class

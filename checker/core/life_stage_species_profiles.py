@@ -34,6 +34,12 @@ _STAT_FIELDS = (
     ("ArmorRating_Sharp_CE", "ArmorRating_Sharp", True),
     ("ArmorRating_Blunt_CE", "ArmorRating_Blunt", True),
 )
+_STAT_OFFSET_FIELDS = (
+    ("ArmorRating_Sharp_Offset", "ArmorRating_Sharp", False),
+    ("ArmorRating_Blunt_Offset", "ArmorRating_Blunt", False),
+    ("ArmorRating_Sharp_CE_Offset", "ArmorRating_Sharp", True),
+    ("ArmorRating_Blunt_CE_Offset", "ArmorRating_Blunt", True),
+)
 _ERRORS = ("#REF!", "#N/A", "#DIV/0!", "#VALUE!", "#NUM!", "#NAME?", "#ERROR!")
 
 
@@ -256,6 +262,23 @@ def render_species_life_stage_profiles(species_profiles, attacks,
                             positive=False)
             if value is not None and not math.isclose(value, 1, abs_tol=1e-10):
                 stats.append((stat_name, value, ce_only))
+        offsets = []
+        for column, stat_name, ce_only in _STAT_OFFSET_FIELDS:
+            if ce_only and not ce:
+                continue
+            offset = _number(row.get(column), f"{label} row {number} {column}",
+                             positive=False)
+            if offset is None or offset == 0:
+                continue
+            factor_column = column.removesuffix("_Offset")
+            factor = _number(row.get(factor_column),
+                             f"{label} row {number} {factor_column}",
+                             positive=False)
+            if factor is None or not math.isclose(factor, 1, abs_tol=1e-10, rel_tol=0):
+                raise ValueError(
+                    f"{label} row {number}: {column} requires neutral {factor_column}"
+                )
+            offsets.append((stat_name, offset, ce_only))
         combat_power = _number(row.get("CombatPowerFactor"),
                                f"{label} row {number} CombatPowerFactor")
         market_value = _number(row.get("MarketValueFactor"),
@@ -291,7 +314,7 @@ def render_species_life_stage_profiles(species_profiles, attacks,
                 rendered.add(key)
                 tools = tool_profiles.get(key, [])
                 changed = (not math.isclose(hunger, 1, abs_tol=1e-10)
-                           or bool(stats) or bool(tools)
+                           or bool(stats) or bool(offsets) or bool(tools)
                            or combat_power is not None and not math.isclose(combat_power, 1)
                            or market_value is not None and not math.isclose(market_value, 1))
                 if not changed:
@@ -318,6 +341,14 @@ def render_species_life_stage_profiles(species_profiles, attacks,
                         E.SubElement(stat, "factor").text = _text_number(number)
                         if is_ce:
                             E.SubElement(stat, "ceOnly").text = "true"
+                if offsets:
+                    offset_list = E.SubElement(node, "statOffsets")
+                    for stat_name, number, is_ce in offsets:
+                        offset_entry = E.SubElement(offset_list, "li")
+                        E.SubElement(offset_entry, "stat").text = stat_name
+                        E.SubElement(offset_entry, "offset").text = _text_number(number)
+                        if is_ce:
+                            E.SubElement(offset_entry, "ceOnly").text = "true"
                 # Attack data are compiled into a generated C# registry.
                 # An attack-only profile still produces a specialized stage.
                 if tools:

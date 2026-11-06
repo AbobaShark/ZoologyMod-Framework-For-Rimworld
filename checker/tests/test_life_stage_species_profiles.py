@@ -102,6 +102,40 @@ class SpeciesLifeStageProfilesTests(unittest.TestCase):
         self.assertEqual(baby.xpath("./statFactors/li[stat='MeleeCritChance']"), [])
         self.assertEqual(baby.xpath("./statFactors/li[stat='MeleeParryChance']"), [])
 
+    def test_zero_adult_armor_uses_absolute_ce_offset(self):
+        args = list(sources())
+        args[0] = args[0].copy()
+        args[0]["ArmorRating_Sharp_CE_Offset"] = ""
+        args[0]["ArmorRating_Blunt_CE_Offset"] = ""
+        args[0].at[2, "ArmorRating_Sharp_CE"] = 1
+        args[0].at[2, "ArmorRating_Blunt_CE"] = 1
+        args[0].at[2, "ArmorRating_Sharp_CE_Offset"] = .02
+        args[0].at[2, "ArmorRating_Blunt_CE_Offset"] = .05
+        args[1] = args[0]
+        xml, _ = render(*args)
+        baby = [n for n in nodes(xml) if n.findtext("sourceStageDefName") == "AnimalBaby"][0]
+        self.assertEqual([n.findtext("offset") for n in baby.xpath("./statOffsets/li")],
+                         ["0.02", "0.05"])
+        self.assertEqual([n.findtext("ceOnly") for n in baby.xpath("./statOffsets/li")],
+                         ["true", "true"])
+        self.assertFalse(baby.xpath("./statFactors/li[stat='ArmorRating_Sharp']"))
+        xml_without_ce, _ = render(*args, ce=False)
+        baby_without_ce = [n for n in nodes(xml_without_ce)
+                           if n.findtext("sourceStageDefName") == "AnimalBaby"][0]
+        self.assertEqual(baby_without_ce.xpath("./statOffsets/li"), [])
+
+    def test_armor_offset_rejects_non_neutral_factor_and_bad_formula(self):
+        args = list(sources())
+        args[0] = args[0].copy()
+        args[0].at[2, "ArmorRating_Sharp_CE_Offset"] = .02
+        args[1] = args[0]
+        with self.assertRaisesRegex(ValueError, "requires neutral"):
+            render(*args)
+        args[0].at[2, "ArmorRating_Sharp_CE"] = 1
+        args[0].at[2, "ArmorRating_Sharp_CE_Offset"] = "#REF!"
+        with self.assertRaisesRegex(ValueError, "source formula error"):
+            render(*args)
+
     def test_tool_has_distinct_indices_and_six_independent_factors(self):
         args = with_tools(sources(), [
             tool_record(1, 3),

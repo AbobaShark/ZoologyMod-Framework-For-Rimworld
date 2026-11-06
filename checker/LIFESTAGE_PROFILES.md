@@ -100,10 +100,10 @@ Recommended validation matrix (use actual species installed by your mod list):
 - Ectothermic animal, e.g. iguana or tortoise: stage modifiers and stat
   availability, without making up CE-only stats.
 - Megachicken from Vanilla Animals Expanded Royal, if installed:
-  VAERoy baby and juvenile profiles are READY; three older stages still
-  report INCOMPLETE because their adult CE armor reference is zero while
-  the stage CE armor is positive. Test the original stages there, but do not
-  misinterpret their unchanged armor as validated age-specific armor.
+  all five stages are READY. The three older stages have positive CE armor
+  despite a zero adult baseline; calculated armor additions are installed
+  through ZoologyLifeStageArmorStatPart, while their independent Tool ratios
+  remain in the generated C# registry.
 
 Expected startup log: "Installed N species life stages, M individually
 mapped natural tools". N depends on installed optional mods and actual
