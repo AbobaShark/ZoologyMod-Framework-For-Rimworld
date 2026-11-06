@@ -36,7 +36,14 @@ def sources(base_size=1.0):
             "CalculationStatus": "INCOMPLETE",
         })
     profiles = pd.DataFrame(profile_rows)
-    return profiles, pd.DataFrame(), animals, fixture()
+    empty_attacks = pd.DataFrame(columns=[
+        "XML name", "LifeStageDef", "ToolIndex", "ToolLabel",
+        "LinkedBodyPartsGroup", "CalculationStatus",
+        "VanillaDamageFactor", "VanillaCooldownFactor",
+        "CEDamageFactor", "CECooldownFactor",
+        "CESharpPenetrationFactor", "CEBluntPenetrationFactor",
+    ])
+    return profiles, empty_attacks, animals, fixture()
 
 
 def render(*args, ce=True):
