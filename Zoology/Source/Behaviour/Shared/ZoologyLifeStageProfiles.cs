@@ -23,6 +23,7 @@ namespace ZoologyMod
         // Negative means "retain the source LifeStageDef's field".
         public float hungerRateFactor = -1f;
         public float marketValueFactor = -1f;
+        public float combatPowerFactor = -1f;
 
         public List<ZoologyLifeStageStatFactor> statFactors;
         public List<ZoologyLifeStageToolFactor> tools;
@@ -35,6 +36,7 @@ namespace ZoologyMod
         public bool ceOnly;
     }
 
+    // Six independent absolute stage/adult ratios, calculated by AnimalStats.
     // Each record changes one tool, not ThingDef.tools as a whole. The index
     // is zero-based in the *post-patch* ThingDef.tools list. The optional label
     // and linked body-part group are consistency checks against other mods.
