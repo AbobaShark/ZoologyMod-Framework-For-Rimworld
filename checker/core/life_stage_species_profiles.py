@@ -197,13 +197,13 @@ def _attack_rows(frame):
 
 
 def render_species_life_stage_profiles(animals, animals_ce, base_stats, groups, life_stages,
-                                       attack_profiles=None):
+                                       attack_profiles=None, *, mass_lookup=None):
     """Return (XML bytes, diagnostic counts).
 
     'LifeStageAttackProfiles' is optional; it must contain genuine, previously
     calculated per-tool corrections. It is not inferred from adult attack DPS.
     """
-    stage_inputs = parse_stages(life_stages)
+    stage_inputs = parse_stages(life_stages, mass_lookup=mass_lookup)
     base_by_latin = _source_rows(base_stats, "Species", "Base stats")
     groups_by_name = _source_rows(groups, "Name", "Groups")
     ce_by_name = {}
@@ -288,7 +288,7 @@ def render_species_life_stage_profiles(animals, animals_ce, base_stats, groups, 
 
             mass = None
             try:
-                mass = body_size_equivalent_mass_kg(game_stage_size)
+                mass = (mass_lookup or body_size_equivalent_mass_kg)(game_stage_size)
             except ValueError:
                 diagnostics["mass_below_or_above_mapped_bins"] += 1
 
