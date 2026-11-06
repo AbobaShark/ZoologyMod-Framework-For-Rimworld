@@ -102,6 +102,30 @@ def _hunger_for_body_size(body_size, physiology, ectothermic):
     return max(0.01, _mround_nonnegative(amount / _HUNGER_DENOMINATOR / threshold * allometric_correction))
 
 
+def _validate_adult_ce_stats(ce_row, group, mass, species):
+    """Detect stale CE source values after a workbook group/mass change."""
+    for stat, group_col, exponent in (
+        ("MeleeDodgeChance", "meleeDodgeChanceMultiplier", -0.165),
+        ("MeleeCritChance", "meleeCritChanceMultiplier", 0.165),
+        ("MeleeParryChance", "meleeParryChanceMultiplier", 0.165),
+    ):
+        actual = _optional_number(ce_row, stat)
+        coefficient = _optional_number(group, group_col)
+        if actual is None or coefficient is None:
+            continue
+        expected = _mround_nonnegative(coefficient * mass ** exponent)
+        if not math.isclose(actual, expected, rel_tol=0, abs_tol=1e-7):
+            raise ValueError(
+                f"{species}: Animals CE {stat}={actual} differs from the "
+                f"adult mass/group formula ({expected}); recalculate source")
+
+
+def _has_spreadsheet_error(row):
+    return any(str(value).strip().startswith(
+        ("#REF!", "#N/A", "#DIV/0!", "#VALUE!", "#NUM!", "#NAME?", "#ERROR!"))
+        for value in row.values())
+
+
 def _age_stat_factors(ce_row, group, mass, diagnostics):
     entries = []
     if ce_row is None or mass is None:
@@ -216,14 +240,23 @@ def render_species_life_stage_profiles(animals, animals_ce, base_stats, groups, 
         # A broken imported formula must never be turned into a fabricated
         # stage value. Preserve the unmodified original stage for this race.
         # Report the source error in the staged generation diagnostics.
-        if any("#REF!" in str(animal.get(col, "")) or
-               "#N/A" in str(animal.get(col, ""))
-               for col in ("baseBodySize", "baseHungerRate", "FilthRate")):
+        if _has_spreadsheet_error(animal) or _has_spreadsheet_error(base_by_latin[latin]) or any(
+            _has_spreadsheet_error(ce_by_name[name])
+            for name in names if name in ce_by_name
+        ):
             unresolved_species.extend(names)
             diagnostics["unresolved_source_rows"] += 1
             continue
         body_size = _number(_value(animal, "baseBodySize", latin), f"{latin} baseBodySize")
+        adult_mass = _number(_value(base_by_latin[latin], "Body mass (kg)", latin),
+                             f"{latin} adult mass (kg)")
         base_hunger = _number(_value(animal, "baseHungerRate", latin), f"{latin} baseHungerRate")
+        for name in names:
+            ce_row = ce_by_name.get(name)
+            if animals_ce is not None and ce_row is None:
+                raise ValueError("Animals CE lacks species: " + name)
+            if ce_row is not None:
+                _validate_adult_ce_stats(ce_row, group, adult_mass, name)
         adult_filth = _number(_value(animal, "FilthRate", latin), f"{latin} adult FilthRate", zero=True)
         group_filth = _number(_value(group, "filthMultiplier", raw_group), f"{raw_group} filthMultiplier", zero=True)
         physiology = str(group.get("Physiology", "")).strip()
