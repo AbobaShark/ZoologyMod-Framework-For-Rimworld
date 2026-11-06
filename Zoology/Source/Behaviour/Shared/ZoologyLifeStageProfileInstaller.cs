@@ -403,12 +403,12 @@ namespace ZoologyMod
 
         private static bool IsValidToolFactor(ZoologyLifeStageToolFactor factor)
         {
-            return IsFinitePositive(factor.vanillaDamageFactor)
+            return IsFiniteNonnegative(factor.vanillaDamageFactor)
                 && IsFinitePositive(factor.vanillaCooldownFactor)
-                && IsFinitePositive(factor.ceDamageFactor)
+                && IsFiniteNonnegative(factor.ceDamageFactor)
                 && IsFinitePositive(factor.ceCooldownFactor)
-                && IsFinitePositive(factor.ceSharpPenetrationFactor)
-                && IsFinitePositive(factor.ceBluntPenetrationFactor);
+                && IsFiniteNonnegative(factor.ceSharpPenetrationFactor)
+                && IsFiniteNonnegative(factor.ceBluntPenetrationFactor);
         }
     }
 }
