@@ -34,23 +34,9 @@ namespace ZoologyMod
                 return;
             }
 
-            var stage = attacker.ageTracker?.CurLifeStage;
-            if (stage == null)
-            {
-                return;
-            }
-
-            StatDef stat = ZoologyLifeStageStatDefOf.Zoology_MeleeCooldownFactor;
-            if (stat != null)
-            {
-                // Common stage factor; individual tool corrections follow.
-                float factor = attacker.GetStatValue(stat);
-                if (factor > 0f && !float.IsInfinity(factor) && !float.IsNaN(factor))
-                {
-                    __result *= factor;
-                }
-            }
-
+            // Never apply a blanket cooldown to all natural or equipped tools.
+            // Species/tool coefficients are absolute stage-to-adult ratios,
+            // not residual multipliers on a second generic age factor.
             ZoologyLifeStageToolFactor toolFactor;
             if (ZoologyLifeStageProfileInstaller.TryGetToolFactor(attacker, tool, out toolFactor))
             {
