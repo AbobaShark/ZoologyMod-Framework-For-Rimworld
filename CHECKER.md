@@ -42,7 +42,7 @@ Animals so its damage factors take precedence.
 Royal Megachicken age-speed multipliers use the inverse mass-bin midpoint
 mapping of the actual Animals!AO game BodySize formula, not mass ×
 bodySizeFactor. The `SERVICE_BodySizeMassBands` tab documents mass
-intervals and the exceptional non-monotonic mapping around 2000 kg. New
+intervals of the new monotonic model (60 kg -> 1, 4500 kg -> 5).
 `LifeStages` columns `BaseBodySize`, `StageBodySize`,
 `BodySizeMassMid_kg` and `BaseMassMid_kg` make the source and
 calculation explicit. Checker validates game sizes, corresponding masses,

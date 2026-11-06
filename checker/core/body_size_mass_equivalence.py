@@ -1,95 +1,126 @@
-"""Inverse of the current Animals!AO mass-to-game-BodySize model.
+"""Convert real mass into game BodySize and invert its quantized bands.
 
-The conversion uses the same 60 kg normalization, continuous response and
-piecewise MROUND increments as the AnimalStats workbook. For every attainable
-game BodySize the representative mass is the midpoint of its preimage mass
-interval(s); non-attainable sizes interpolate between adjacent midpoints.
-No mass is guessed below the minimum 0.05 game BodySize.
+The game BodySize is a dimensionless gameplay scale, not a mass multiplier.
+The smooth forward mapping is anchored at 60 kg -> 1 and 4500 kg -> 5.
+Quantization gives one contiguous mass interval per attainable game size.
+For unattainable intermediate sizes used by life stages, interpolate the
+midpoints of the neighboring attainable bands.
 """
 from __future__ import annotations
+
 from bisect import bisect_left
 from functools import lru_cache
 import math
 
-_BETA = (math.log(5) - 0.47 * math.log(75)) / math.log(38)
-_RAW_BANDS = ((0.0, 1.0, 0.05), (1.0, 2.0, 0.1),
-              (2.0, 5.0, 0.25), (5.0, math.inf, 0.5))
+MASS_REFERENCE_KG = 60.0
+MASS_EXPONENT = 0.47
+# Normalization B(4500 kg) = 5 with B(60 kg) = 1.
+MASS_TRANSITION_EXPONENT = (
+    math.log(5) - MASS_EXPONENT * math.log(75)
+) / math.log(38)
+
+# Raw BodySize bounds and game quantization step. These are size-based
+# rounding intervals, not arbitrary physical-mass bands.
+_SIZE_ROUNDING = (
+    (0.0, 1.0, 0.05),
+    (1.0, 2.0, 0.1),
+    (2.0, 5.0, 0.25),
+    (5.0, math.inf, 0.5),
+)
 
 
-def _raw_size(mass_kg):
-    if mass_kg <= 0:
+def _raw_body_size(mass_kg):
+    x = mass_kg / MASS_REFERENCE_KG
+    return x ** MASS_EXPONENT * ((1 + x) / 2) ** MASS_TRANSITION_EXPONENT
+
+
+def body_size_for_mass_kg(mass_kg):
+    """The same positive-mass -> rounded BodySize model as Animals!AO."""
+    mass = float(mass_kg)
+    if not math.isfinite(mass) or mass <= 0:
+        raise ValueError("Physical mass must be finite and positive")
+    raw = _raw_body_size(mass)
+    step = next(step for lower, upper, step in _SIZE_ROUNDING if raw <= upper)
+    # Google Sheets MROUND rounds positive half-way cases away from zero.
+    return max(0.05, math.floor(raw / step + 0.5) * step)
+
+
+def _mass_at_raw_body_size(size):
+    """Invert strictly increasing raw size by bisection, without mass knots."""
+    if size <= 0:
         return 0.0
-    x = mass_kg / 60.0
-    return x ** 0.47 * ((1.0 + x) / 2.0) ** _BETA
-
-
-def _inverse_raw(raw):
-    if raw <= 0:
-        return 0.0
-    lo, hi = 0.0, 60.0
-    while _raw_size(hi) < raw:
-        hi *= 2
-    for _ in range(72):
-        mid = (lo + hi) / 2
-        if _raw_size(mid) < raw:
-            lo = mid
+    lower, upper = 0.0, MASS_REFERENCE_KG
+    while _raw_body_size(upper) < size:
+        upper *= 2
+    for _ in range(90):
+        midpoint = (lower + upper) / 2
+        if _raw_body_size(midpoint) < size:
+            lower = midpoint
         else:
-            hi = mid
-    return (lo + hi) / 2
+            upper = midpoint
+    return (lower + upper) / 2
 
 
 def mass_ranges_for_body_size(game_size):
-    """Mass intervals whose Animals!AO formula rounds to this BodySize."""
+    """All mass intervals mapping to a particular rounded game BodySize."""
     target = float(game_size)
-    if not math.isfinite(target) or target < 0.05:
-        raise ValueError('Game BodySize must be finite and at least 0.05')
-    out = []
-    for band_lo, band_hi, step in _RAW_BANDS:
+    if not math.isfinite(target) or target <= 0:
+        raise ValueError("Game BodySize must be finite and positive")
+    intervals = []
+    for raw_lower, raw_upper, step in _SIZE_ROUNDING:
         if abs(target / step - round(target / step)) > 1e-7:
             continue
-        # 0 <= raw < 0.025 rounds to zero, then MAX(0.05, ...)
-        # also maps to 0.05, so it belongs in this special preimage.
-        lower = 0.0 if target == 0.05 else max(0.0, target-step/2)
-        upper = target+step/2
-        lower = max(lower, band_lo)
-        upper = min(upper, band_hi)
-        if upper > lower + 1e-12:
-            out.append((_inverse_raw(lower), _inverse_raw(upper)))
-    return tuple(out)
+        left = max(raw_lower, target - step / 2)
+        right = min(raw_upper, target + step / 2)
+        if math.isclose(target, 0.05, abs_tol=1e-9):
+            # MAX(0.05, ...) also collects raw values below 0.025.
+            left = 0.0
+        if right <= left:
+            continue
+        mass_lower = _mass_at_raw_body_size(left)
+        mass_upper = _mass_at_raw_body_size(right)
+        # At the step changes (1, 2, 5) adjacent raw intervals can map to
+        # the same rounded BodySize. Their union is still one mass interval.
+        if intervals and mass_lower <= intervals[-1][1] + 1e-8 * max(1, mass_lower):
+            intervals[-1] = (intervals[-1][0], mass_upper)
+        else:
+            intervals.append((mass_lower, mass_upper))
+    return tuple(intervals)
 
 
 @lru_cache(maxsize=1)
 def _midpoint_bins():
     bins = []
+    # Covers all currently supported species and Royal stage game BodySizes.
     for i in range(1, 401):
         size = round(i * 0.05, 8)
         intervals = mass_ranges_for_body_size(size)
         if not intervals:
             continue
-        width = sum(hi - lo for lo, hi in intervals)
-        midpoint = sum((lo + hi) / 2 * (hi - lo)
-                       for lo, hi in intervals) / width
+        width = sum(upper - lower for lower, upper in intervals)
+        midpoint = sum((lower + upper) / 2 * (upper - lower)
+                       for lower, upper in intervals) / width
         bins.append((size, midpoint))
     return tuple(bins)
 
 
 def body_size_equivalent_mass_kg(game_body_size):
-    """Mean mass-bin midpoint; interpolate if the game size is unattainable."""
+    """Representative mass-bin midpoint, interpolated for unavailable sizes."""
     size = float(game_body_size)
-    if not math.isfinite(size) or size < 0.05:
-        raise ValueError(f'BodySize {size} outside calibrated source bins')
+    if not math.isfinite(size) or size <= 0:
+        raise ValueError("Game BodySize must be finite and positive")
     pairs = _midpoint_bins()
     positions = [x for x, _ in pairs]
     i = bisect_left(positions, size)
-    if i == len(pairs):
-        raise ValueError(f'BodySize {size} outside calibrated source bins')
+    if i == len(pairs) or (i == 0 and size < positions[0]):
+        raise ValueError(f"BodySize {size} outside calibrated source bins")
     if abs(positions[i] - size) <= 1e-8:
         return pairs[i][1]
     if i == 0:
-        raise ValueError(f'BodySize {size} outside calibrated source bins')
+        return pairs[0][1]
     left, right = pairs[i - 1], pairs[i]
-    fraction = (size - left[0]) / (right[0] - left[0])
-    return left[1] + fraction * (right[1] - left[1])
+    portion = (size - left[0]) / (right[0] - left[0])
+    return left[1] + portion * (right[1] - left[1])
 
 
 def body_size_midpoint_pairs():

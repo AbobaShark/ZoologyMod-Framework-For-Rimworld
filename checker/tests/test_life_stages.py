@@ -49,11 +49,11 @@ def fixture():
                       'healthScaleFactor':size,'FilthRate':size,
                       'ArmorPenetration_Blunt(CE)':size,'CombatPowerFactor':size,
                       'foodMaxFactor':1.0,
-                      'BaseBodySize':.3,
-                      'StageBodySize':.3*size,
-                      'BodySizeMassMid_kg':body_size_equivalent_mass_kg(.3*size),
-                      'BaseMassMid_kg':body_size_equivalent_mass_kg(.3),
-                      'SpeedFactor':age_speed_factor(size,.3),
+                      'BaseBodySize':.35,
+                      'StageBodySize':.35*size,
+                      'BodySizeMassMid_kg':body_size_equivalent_mass_kg(.35*size),
+                      'BaseMassMid_kg':body_size_equivalent_mass_kg(.35),
+                      'SpeedFactor':age_speed_factor(size,.35),
                       'MeleeCritChance':round(size**.165/.05)*.05,
                       'MeleeParryChance':round(size**.165/.05)*.05})
         rows.append(royal)

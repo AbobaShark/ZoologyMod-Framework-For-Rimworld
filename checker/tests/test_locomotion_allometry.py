@@ -12,6 +12,7 @@ from core.locomotion_allometry import (
 )
 from core.body_size_mass_equivalence import (
     body_size_equivalent_mass_kg, mass_ranges_for_body_size,
+    body_size_for_mass_kg, body_size_midpoint_pairs,
 )
 from core.life_stages import ROYAL_SOURCE, ROYAL_STAGES, parse_stages
 from tests.test_life_stages import fixture
@@ -27,34 +28,47 @@ class RunningAllometryTests(unittest.TestCase):
         self.assertAlmostEqual(v(90),63.43,places=2)
 
     def test_royal_factors_match_the_hirt_equation(self):
-        expected=[.370,1.658,.995,.855,.670]
-        self.assertEqual([age_speed_factor(size,.3)
+        expected=[.434,1.569,.812,.716,.561]
+        self.assertEqual([age_speed_factor(size,.35)
                           for size in (.2,4,13,15,20)],expected)
         stages=parse_stages(fixture(),ROYAL_SOURCE)
         self.assertEqual([value['SpeedFactor'] for _,value in stages],expected)
-        self.assertEqual([value['BaseBodySize'] for _,value in stages],[.3]*5)
+        self.assertEqual([value['BaseBodySize'] for _,value in stages],[.35]*5)
+
+    def test_smooth_forward_map_has_expected_anchors(self):
+        for mass, expected in ((.268115,.1), (5,.35), (60,1), (187.5,1.6),
+                               (221.8,1.7), (316.9,1.9), (4500,5)):
+            self.assertAlmostEqual(body_size_for_mass_kg(mass),expected,places=7)
+        masses=[.01*1.01**i for i in range(1600)]
+        sizes=[body_size_for_mass_kg(mass) for mass in masses]
+        self.assertTrue(all(a<=b for a,b in zip(sizes,sizes[1:])))
 
     def test_body_size_quantization_maps_large_royal_to_tonnes(self):
-        self.assertAlmostEqual(body_size_equivalent_mass_kg(.3),4.747281,places=4)
-        self.assertAlmostEqual(body_size_equivalent_mass_kg(.3*4),98.010198,places=4)
-        self.assertAlmostEqual(body_size_equivalent_mass_kg(.3*13),1954.978512,places=3)
-        self.assertAlmostEqual(body_size_equivalent_mass_kg(.3*15),3356.519895,places=3)
-        self.assertAlmostEqual(body_size_equivalent_mass_kg(.3*20),7531.794925,places=3)
+        self.assertEqual(len(body_size_midpoint_pairs()),72)
+        self.assertAlmostEqual(body_size_equivalent_mass_kg(.35),5.5783300835,places=4)
+        self.assertAlmostEqual(body_size_equivalent_mass_kg(.35*4),139.3873199482,places=3)
+        self.assertAlmostEqual(body_size_equivalent_mass_kg(.35*13),3464.5139746103,places=3)
+        self.assertAlmostEqual(body_size_equivalent_mass_kg(.35*15),5294.4578993420,places=3)
+        self.assertAlmostEqual(body_size_equivalent_mass_kg(.35*20),11630.0328076394,places=3)
         self.assertEqual(mass_ranges_for_body_size(3.9),())
-        self.assertEqual(len(mass_ranges_for_body_size(4.0)),2)
+        self.assertEqual(len(mass_ranges_for_body_size(4.0)),1)
+        self.assertTrue(all(len(mass_ranges_for_body_size(s))==1
+                            for s,_ in body_size_midpoint_pairs()))
 
     def test_largest_royal_is_slower_after_mass_bin_inversion(self):
-        self.assertLess(age_speed_factor(20,.3),age_speed_factor(15,.3))
-        self.assertLess(age_speed_factor(15,.3),age_speed_factor(13,.3))
-        self.assertNotAlmostEqual(age_speed_factor(20,.3),
+        self.assertLess(age_speed_factor(20,.35),age_speed_factor(15,.35))
+        self.assertLess(age_speed_factor(15,.35),age_speed_factor(13,.35))
+        self.assertNotAlmostEqual(age_speed_factor(20,.35),
                                   maximum_running_speed_kmh(100)/maximum_running_speed_kmh(5),
                                   places=2)
 
     def test_checker_rejects_manually_inconsistent_speed_or_mass(self):
         table=fixture()
         table.loc[8,'SpeedFactor']=1.99
-        with self.assertRaisesRegex(ValueError,'Hirt running allometry'):
-            parse_stages(table)
+        # Checker consumes the workbook's computed speed. It deliberately
+        # does not reimplement or reject the spreadsheet's Hirt model.
+        parsed=parse_stages(table,ROYAL_SOURCE)
+        self.assertAlmostEqual(parsed[-1][1]['SpeedFactor'],1.99)
         table=fixture()
         table.loc[5,'BaseBodySize']=.7
         with self.assertRaisesRegex(ValueError,'share one BaseBodySize'):
