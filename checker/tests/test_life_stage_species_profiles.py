@@ -199,7 +199,7 @@ class SpeciesLifeStageProfilesTests(unittest.TestCase):
         self.assertNotIn(b"AnimalJuvenile", output)
         self.assertEqual(info["attack_rows_incomplete"], 1)
         self.assertEqual(output, render_life_stage_attack_profiles_cs(attack)[0])
-        self.assertGreater(output.count(b"\\n"), 10)
+        self.assertGreater(output.count(b"\n"), 10)
 
 
 if __name__ == "__main__":
