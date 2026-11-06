@@ -148,7 +148,7 @@ class SpeciesLifeStageProfilesTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "missing required numeric"):
             render(*args)
         row["CEBluntPenetrationFactor"] = -1
-        with self.assertRaisesRegex(ValueError, "invalid positive"):
+        with self.assertRaisesRegex(ValueError, "invalid nonnegative"):
             render(*args)
 
     def test_stale_adult_baselines_are_rejected(self):
