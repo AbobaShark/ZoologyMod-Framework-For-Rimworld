@@ -8,9 +8,7886 @@ namespace ZoologyMod
     internal static class ZoologyGeneratedLifeStageAttacks
     {
         private static readonly Dictionary<string, List<ZoologyLifeStageToolFactor>> Values =
-            new Dictionary<string, List<ZoologyLifeStageToolFactor>>(StringComparer.Ordinal)
+            new Dictionary<string, List<ZoologyLifeStageToolFactor>>(StringComparer.Ordinal);
+
+        static ZoologyGeneratedLifeStageAttacks()
+        {
+            AddBatch0(Values);
+            AddBatch1(Values);
+            AddBatch2(Values);
+            AddBatch3(Values);
+            AddBatch4(Values);
+            AddBatch5(Values);
+            AddBatch6(Values);
+            AddBatch7(Values);
+            AddBatch8(Values);
+            AddBatch9(Values);
+            AddBatch10(Values);
+            AddBatch11(Values);
+            AddBatch12(Values);
+            AddBatch13(Values);
+            AddBatch14(Values);
+            AddBatch15(Values);
+            AddBatch16(Values);
+            AddBatch17(Values);
+            AddBatch18(Values);
+            AddBatch19(Values);
+            AddBatch20(Values);
+            AddBatch21(Values);
+            AddBatch22(Values);
+            AddBatch23(Values);
+            AddBatch24(Values);
+            AddBatch25(Values);
+            AddBatch26(Values);
+            AddBatch27(Values);
+            AddBatch28(Values);
+            AddBatch29(Values);
+            AddBatch30(Values);
+        }
+
+        private static void AddBatch0(Dictionary<string, List<ZoologyLifeStageToolFactor>> target)
+        {
+            target.Add("AA_AcanthamoebaGiganteaHuge\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
             {
-            };
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.1f, vanillaCooldownFactor = 0.549019608f, ceDamageFactor = 0.0199004975f, ceCooldownFactor = 0.545454545f, ceBluntPenetrationFactor = 0.0125162973f },
+            });
+            target.Add("AA_AcanthamoebaGiganteaHuge\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.1f, vanillaCooldownFactor = 0.490196078f, ceDamageFactor = 0.00995024876f, ceCooldownFactor = 0.494071146f, ceBluntPenetrationFactor = 0.00495436767f },
+            });
+            target.Add("AA_AcanthamoebaGiganteaHuge\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.764705882f, ceDamageFactor = 0.258706468f, ceCooldownFactor = 0.76284585f, ceBluntPenetrationFactor = 0.221642764f },
+            });
+            target.Add("AA_AcanthamoebaGiganteaHuge\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.764705882f, ceDamageFactor = 0.258706468f, ceCooldownFactor = 0.76284585f, ceBluntPenetrationFactor = 0.221642764f },
+            });
+            target.Add("AA_AcanthamoebaGiganteaHuge\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.1f, vanillaCooldownFactor = 0.549019608f, ceDamageFactor = 0.0199004975f, ceCooldownFactor = 0.545454545f, ceBluntPenetrationFactor = 0.0125162973f },
+            });
+            target.Add("AA_AcanthamoebaGiganteaLarge\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.594594595f, ceDamageFactor = 0.00476190476f, ceCooldownFactor = 0.580645161f, ceBluntPenetrationFactor = 0.00601503759f },
+            });
+            target.Add("AA_AcanthamoebaGiganteaLarge\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.540540541f, ceDamageFactor = 0.00476190476f, ceCooldownFactor = 0.52688172f, ceBluntPenetrationFactor = 0.0030075188f },
+            });
+            target.Add("AA_AcanthamoebaGiganteaLarge\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.783783784f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.790322581f, ceBluntPenetrationFactor = 0.126315789f },
+            });
+            target.Add("AA_AcanthamoebaGiganteaLarge\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.783783784f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.790322581f, ceBluntPenetrationFactor = 0.126315789f },
+            });
+            target.Add("AA_AcanthamoebaGiganteaLarge\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.594594595f, ceDamageFactor = 0.00476190476f, ceCooldownFactor = 0.580645161f, ceBluntPenetrationFactor = 0.00601503759f },
+            });
+            target.Add("AA_AcanthamoebaGiganteaSmall\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.64516129f, ceDamageFactor = 0.02f, ceCooldownFactor = 0.590909091f, ceBluntPenetrationFactor = 0.00740740741f },
+            });
+            target.Add("AA_AcanthamoebaGiganteaSmall\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.64516129f, ceDamageFactor = 0.02f, ceCooldownFactor = 0.545454545f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AA_AcanthamoebaGiganteaSmall\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.774193548f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.792207792f, ceBluntPenetrationFactor = 0.103703704f },
+            });
+            target.Add("AA_AcanthamoebaGiganteaSmall\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.774193548f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.792207792f, ceBluntPenetrationFactor = 0.103703704f },
+            });
+            target.Add("AA_AcanthamoebaGiganteaSmall\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.64516129f, ceDamageFactor = 0.02f, ceCooldownFactor = 0.590909091f, ceBluntPenetrationFactor = 0.00740740741f },
+            });
+            target.Add("AA_Aerofleet\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.615384615f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AA_Aerofleet\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.561538462f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AA_Aerofleet\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.807692308f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.807692308f, ceBluntPenetrationFactor = 0.115384615f },
+            });
+            target.Add("AA_Aerofleet\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.807692308f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.807692308f, ceBluntPenetrationFactor = 0.115384615f },
+            });
+            target.Add("AA_Aerofleet\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.615384615f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AA_Agaripawn\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.625f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.596273292f, ceBluntPenetrationFactor = 0.00492610837f },
+            });
+            target.Add("AA_Agaripawn\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.625f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.540372671f, ceBluntPenetrationFactor = 0.00492610837f },
+            });
+            target.Add("AA_Agaripawn\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8125f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.801242236f, ceBluntPenetrationFactor = 0.118226601f },
+            });
+            target.Add("AA_Agaripawn\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8125f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.801242236f, ceBluntPenetrationFactor = 0.118226601f },
+            });
+            target.Add("AA_Agaripawn\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.625f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.596273292f, ceBluntPenetrationFactor = 0.00492610837f },
+            });
+            target.Add("AA_Agaripod\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0754716981f, vanillaCooldownFactor = 0.506666667f, ceDamageFactor = 0.0709677419f, ceCooldownFactor = 0.502673797f, ceBluntPenetrationFactor = 0.053332336f },
+            });
+            target.Add("AA_Agaripod\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0377358491f, vanillaCooldownFactor = 0.453333333f, ceDamageFactor = 0.0338709677f, ceCooldownFactor = 0.451871658f, ceBluntPenetrationFactor = 0.0230383724f },
+            });
+            target.Add("AA_Agaripod\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.509433962f, vanillaCooldownFactor = 0.733333333f, ceDamageFactor = 0.430645161f, ceCooldownFactor = 0.732620321f, ceBluntPenetrationFactor = 0.39172713f },
+            });
+            target.Add("AA_Agaripod\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.509433962f, vanillaCooldownFactor = 0.733333333f, ceDamageFactor = 0.430645161f, ceCooldownFactor = 0.732620321f, ceBluntPenetrationFactor = 0.39172713f },
+            });
+            target.Add("AA_Agaripod\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0754716981f, vanillaCooldownFactor = 0.506666667f, ceDamageFactor = 0.0709677419f, ceCooldownFactor = 0.502673797f, ceBluntPenetrationFactor = 0.053332336f },
+            });
+            target.Add("AA_AngelMoth\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.571428571f, ceDamageFactor = 0.00714285714f, ceCooldownFactor = 0.579545455f, ceBluntPenetrationFactor = 0.00696055684f },
+            });
+            target.Add("AA_AngelMoth\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.571428571f, ceDamageFactor = 0.00714285714f, ceCooldownFactor = 0.534090909f, ceBluntPenetrationFactor = 0.00232018561f },
+            });
+            target.Add("AA_AngelMoth\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.784090909f, ceBluntPenetrationFactor = 0.11136891f },
+            });
+            target.Add("AA_AngelMoth\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.784090909f, ceBluntPenetrationFactor = 0.11136891f },
+            });
+            target.Add("AA_AngelMoth\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.571428571f, ceDamageFactor = 0.00714285714f, ceCooldownFactor = 0.579545455f, ceBluntPenetrationFactor = 0.00696055684f },
+            });
+            target.Add("AA_AngelMothLarva\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", ceCooldownFactor = 0.78021978f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AA_AngelMothLarva\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", ceCooldownFactor = 0.78021978f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AA_AnimaColossus\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.130434783f, vanillaCooldownFactor = 0.5375f, ceDamageFactor = 0.107728337f, ceCooldownFactor = 0.5325f, ceBluntPenetrationFactor = 0.083660747f },
+            });
+            target.Add("AA_AnimaColossus\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0724637681f, vanillaCooldownFactor = 0.475f, ceDamageFactor = 0.056206089f, ceCooldownFactor = 0.475f, ceBluntPenetrationFactor = 0.0409660014f },
+            });
+            target.Add("AA_AnimaColossus\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.550724638f, vanillaCooldownFactor = 0.7875f, ceDamageFactor = 0.470725995f, ceCooldownFactor = 0.785f, ceBluntPenetrationFactor = 0.433129027f },
+            });
+            target.Add("AA_AnimaColossus\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.550724638f, vanillaCooldownFactor = 0.7875f, ceDamageFactor = 0.470725995f, ceCooldownFactor = 0.785f, ceBluntPenetrationFactor = 0.433129027f },
+            });
+            target.Add("AA_AnimaColossus\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.130434783f, vanillaCooldownFactor = 0.5375f, ceDamageFactor = 0.107728337f, ceCooldownFactor = 0.5325f, ceBluntPenetrationFactor = 0.083660747f },
+            });
+            target.Add("AA_Animalisk\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.111111111f, vanillaCooldownFactor = 0.551020408f, ceDamageFactor = 0.0163934426f, ceCooldownFactor = 0.550607287f, ceBluntPenetrationFactor = 0.0118806143f },
+            });
+            target.Add("AA_Animalisk\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.111111111f, vanillaCooldownFactor = 0.510204082f, ceDamageFactor = 0.00546448087f, ceCooldownFactor = 0.497975709f, ceBluntPenetrationFactor = 0.00463633729f },
+            });
+            target.Add("AA_Animalisk\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.775510204f, ceDamageFactor = 0.240437158f, ceCooldownFactor = 0.761133603f, ceBluntPenetrationFactor = 0.206606781f },
+            });
+            target.Add("AA_Animalisk\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.775510204f, ceDamageFactor = 0.240437158f, ceCooldownFactor = 0.761133603f, ceBluntPenetrationFactor = 0.206606781f },
+            });
+            target.Add("AA_Animalisk\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.111111111f, vanillaCooldownFactor = 0.551020408f, ceDamageFactor = 0.0163934426f, ceCooldownFactor = 0.550607287f, ceBluntPenetrationFactor = 0.0118806143f },
+            });
+            target.Add("AA_AnimusVox\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.689655172f, ceDamageFactor = 0.0333333333f, ceCooldownFactor = 0.593103448f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AA_AnimusVox\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.689655172f, ceDamageFactor = 0.0333333333f, ceCooldownFactor = 0.544827586f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AA_AnimusVox\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.793103448f, ceDamageFactor = 0.166666667f, ceCooldownFactor = 0.786206897f, ceBluntPenetrationFactor = 0.0945945946f },
+            });
+            target.Add("AA_AnimusVox\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.793103448f, ceDamageFactor = 0.166666667f, ceCooldownFactor = 0.786206897f, ceBluntPenetrationFactor = 0.0945945946f },
+            });
+            target.Add("AA_AnimusVox\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.689655172f, ceDamageFactor = 0.0333333333f, ceCooldownFactor = 0.593103448f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AA_ArcticLion\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.111111111f, vanillaCooldownFactor = 0.551020408f, ceDamageFactor = 0.0163934426f, ceCooldownFactor = 0.550607287f, ceBluntPenetrationFactor = 0.0118806143f },
+            });
+            target.Add("AA_ArcticLion\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.111111111f, vanillaCooldownFactor = 0.510204082f, ceDamageFactor = 0.00546448087f, ceCooldownFactor = 0.497975709f, ceBluntPenetrationFactor = 0.00463633729f },
+            });
+            target.Add("AA_ArcticLion\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.775510204f, ceDamageFactor = 0.240437158f, ceCooldownFactor = 0.761133603f, ceBluntPenetrationFactor = 0.206606781f },
+            });
+            target.Add("AA_ArcticLion\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.775510204f, ceDamageFactor = 0.240437158f, ceCooldownFactor = 0.761133603f, ceBluntPenetrationFactor = 0.206606781f },
+            });
+            target.Add("AA_ArcticLion\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.111111111f, vanillaCooldownFactor = 0.551020408f, ceDamageFactor = 0.0163934426f, ceCooldownFactor = 0.550607287f, ceBluntPenetrationFactor = 0.0118806143f },
+            });
+            target.Add("AA_Atispec\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0784313725f, vanillaCooldownFactor = 0.506849315f, ceDamageFactor = 0.0661016949f, ceCooldownFactor = 0.50273224f, ceBluntPenetrationFactor = 0.0484470086f },
+            });
+            target.Add("AA_Atispec\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0392156863f, vanillaCooldownFactor = 0.452054795f, ceDamageFactor = 0.0305084746f, ceCooldownFactor = 0.453551913f, ceBluntPenetrationFactor = 0.0205484865f },
+            });
+            target.Add("AA_Atispec\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.490196078f, vanillaCooldownFactor = 0.739726027f, ceDamageFactor = 0.415254237f, ceCooldownFactor = 0.732240437f, ceBluntPenetrationFactor = 0.377538924f },
+            });
+            target.Add("AA_Atispec\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.490196078f, vanillaCooldownFactor = 0.739726027f, ceDamageFactor = 0.415254237f, ceCooldownFactor = 0.732240437f, ceBluntPenetrationFactor = 0.377538924f },
+            });
+            target.Add("AA_Atispec\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0784313725f, vanillaCooldownFactor = 0.506849315f, ceDamageFactor = 0.0661016949f, ceCooldownFactor = 0.50273224f, ceBluntPenetrationFactor = 0.0484470086f },
+            });
+            target.Add("AA_AuroraSylph\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.58974359f, ceDamageFactor = 0.0172413793f, ceCooldownFactor = 0.576530612f, ceBluntPenetrationFactor = 0.00721649485f },
+            });
+            target.Add("AA_AuroraSylph\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.538461538f, ceDamageFactor = 0.00344827586f, ceCooldownFactor = 0.525510204f, ceBluntPenetrationFactor = 0.00309278351f },
+            });
+        }
+
+        private static void AddBatch1(Dictionary<string, List<ZoologyLifeStageToolFactor>> target)
+        {
+            target.Add("AA_AuroraSylph\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.794871795f, ceDamageFactor = 0.172413793f, ceCooldownFactor = 0.785714286f, ceBluntPenetrationFactor = 0.139175258f },
+            });
+            target.Add("AA_AuroraSylph\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.794871795f, ceDamageFactor = 0.172413793f, ceCooldownFactor = 0.785714286f, ceBluntPenetrationFactor = 0.139175258f },
+            });
+            target.Add("AA_AuroraSylph\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.58974359f, ceDamageFactor = 0.0172413793f, ceCooldownFactor = 0.576530612f, ceBluntPenetrationFactor = 0.00721649485f },
+            });
+            target.Add("AA_Barbslinger\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.575f, ceDamageFactor = 0.0161290323f, ceCooldownFactor = 0.567839196f, ceBluntPenetrationFactor = 0.0067114094f },
+            });
+            target.Add("AA_Barbslinger\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.525f, ceDamageFactor = 0.00322580645f, ceCooldownFactor = 0.51758794f, ceBluntPenetrationFactor = 0.00287631831f },
+            });
+            target.Add("AA_Barbslinger\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.775f, ceDamageFactor = 0.161290323f, ceCooldownFactor = 0.773869347f, ceBluntPenetrationFactor = 0.129434324f },
+            });
+            target.Add("AA_Barbslinger\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.775f, ceDamageFactor = 0.161290323f, ceCooldownFactor = 0.773869347f, ceBluntPenetrationFactor = 0.129434324f },
+            });
+            target.Add("AA_Barbslinger\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.575f, ceDamageFactor = 0.0161290323f, ceCooldownFactor = 0.567839196f, ceBluntPenetrationFactor = 0.0067114094f },
+            });
+            target.Add("AA_BedBug\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.583333333f, ceDamageFactor = 0.00606060606f, ceCooldownFactor = 0.577777778f, ceBluntPenetrationFactor = 0.00589390963f },
+            });
+            target.Add("AA_BedBug\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.555555556f, ceDamageFactor = 0.00606060606f, ceCooldownFactor = 0.527777778f, ceBluntPenetrationFactor = 0.00196463654f },
+            });
+            target.Add("AA_BedBug\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.777777778f, ceDamageFactor = 0.151515152f, ceCooldownFactor = 0.783333333f, ceBluntPenetrationFactor = 0.115913556f },
+            });
+            target.Add("AA_BedBug\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.777777778f, ceDamageFactor = 0.151515152f, ceCooldownFactor = 0.783333333f, ceBluntPenetrationFactor = 0.115913556f },
+            });
+            target.Add("AA_BedBug\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.583333333f, ceDamageFactor = 0.00606060606f, ceCooldownFactor = 0.577777778f, ceBluntPenetrationFactor = 0.00589390963f },
+            });
+            target.Add("AA_Behemoth\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.123076923f, vanillaCooldownFactor = 0.5125f, ceDamageFactor = 0.0972222222f, ceCooldownFactor = 0.515f, ceBluntPenetrationFactor = 0.0750783253f },
+            });
+            target.Add("AA_Behemoth\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0615384615f, vanillaCooldownFactor = 0.4625f, ceDamageFactor = 0.0492424242f, ceCooldownFactor = 0.46f, ceBluntPenetrationFactor = 0.0349188265f },
+            });
+            target.Add("AA_Behemoth\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.538461538f, vanillaCooldownFactor = 0.7625f, ceDamageFactor = 0.45959596f, ceCooldownFactor = 0.7575f, ceBluntPenetrationFactor = 0.42187411f },
+            });
+            target.Add("AA_Behemoth\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.538461538f, vanillaCooldownFactor = 0.7625f, ceDamageFactor = 0.45959596f, ceCooldownFactor = 0.7575f, ceBluntPenetrationFactor = 0.42187411f },
+            });
+            target.Add("AA_Behemoth\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.123076923f, vanillaCooldownFactor = 0.5125f, ceDamageFactor = 0.0972222222f, ceCooldownFactor = 0.515f, ceBluntPenetrationFactor = 0.0750783253f },
+            });
+            target.Add("AA_BlackScarab\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.666666667f, ceDamageFactor = 0.025f, ceCooldownFactor = 0.586666667f, ceBluntPenetrationFactor = 0.00970873786f },
+            });
+            target.Add("AA_BlackScarab\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.666666667f, ceDamageFactor = 0.025f, ceCooldownFactor = 0.546666667f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AA_BlackScarab\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.125f, ceCooldownFactor = 0.786666667f, ceBluntPenetrationFactor = 0.0970873786f },
+            });
+            target.Add("AA_BlackScarab\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.125f, ceCooldownFactor = 0.786666667f, ceBluntPenetrationFactor = 0.0970873786f },
+            });
+            target.Add("AA_BlackScarab\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.666666667f, ceDamageFactor = 0.025f, ceCooldownFactor = 0.586666667f, ceBluntPenetrationFactor = 0.00970873786f },
+            });
+            target.Add("AA_BlackSpelopede\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.2f, vanillaCooldownFactor = 0.558139535f, ceDamageFactor = 0.0102040816f, ceCooldownFactor = 0.558139535f, ceBluntPenetrationFactor = 0.00698486612f },
+            });
+            target.Add("AA_BlackSpelopede\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.2f, vanillaCooldownFactor = 0.511627907f, ceDamageFactor = 0.00204081633f, ceCooldownFactor = 0.506976744f, ceBluntPenetrationFactor = 0.00291036088f },
+            });
+            target.Add("AA_BlackSpelopede\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.2f, vanillaCooldownFactor = 0.76744186f, ceDamageFactor = 0.163265306f, ceCooldownFactor = 0.762790698f, ceBluntPenetrationFactor = 0.134458673f },
+            });
+            target.Add("AA_BlackSpelopede\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.2f, vanillaCooldownFactor = 0.76744186f, ceDamageFactor = 0.163265306f, ceCooldownFactor = 0.762790698f, ceBluntPenetrationFactor = 0.134458673f },
+            });
+            target.Add("AA_BlackSpelopede\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.2f, vanillaCooldownFactor = 0.558139535f, ceDamageFactor = 0.0102040816f, ceCooldownFactor = 0.558139535f, ceBluntPenetrationFactor = 0.00698486612f },
+            });
+            target.Add("AA_BlackSpider\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.111111111f, vanillaCooldownFactor = 0.551020408f, ceDamageFactor = 0.0163934426f, ceCooldownFactor = 0.550607287f, ceBluntPenetrationFactor = 0.0118806143f },
+            });
+            target.Add("AA_BlackSpider\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.111111111f, vanillaCooldownFactor = 0.510204082f, ceDamageFactor = 0.00546448087f, ceCooldownFactor = 0.497975709f, ceBluntPenetrationFactor = 0.00463633729f },
+            });
+            target.Add("AA_BlackSpider\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.775510204f, ceDamageFactor = 0.240437158f, ceCooldownFactor = 0.761133603f, ceBluntPenetrationFactor = 0.206606781f },
+            });
+            target.Add("AA_BlackSpider\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.775510204f, ceDamageFactor = 0.240437158f, ceCooldownFactor = 0.761133603f, ceBluntPenetrationFactor = 0.206606781f },
+            });
+            target.Add("AA_BlackSpider\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.111111111f, vanillaCooldownFactor = 0.551020408f, ceDamageFactor = 0.0163934426f, ceCooldownFactor = 0.550607287f, ceBluntPenetrationFactor = 0.0118806143f },
+            });
+            target.Add("AA_Blizzarisk\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.125f, vanillaCooldownFactor = 0.5625f, ceDamageFactor = 0.018404908f, ceCooldownFactor = 0.554166667f, ceBluntPenetrationFactor = 0.0112322431f },
+            });
+            target.Add("AA_Blizzarisk\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.125f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.00613496933f, ceCooldownFactor = 0.504166667f, ceBluntPenetrationFactor = 0.0042946812f },
+            });
+            target.Add("AA_Blizzarisk\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.770833333f, ceDamageFactor = 0.239263804f, ceCooldownFactor = 0.766666667f, ceBluntPenetrationFactor = 0.202510737f },
+            });
+            target.Add("AA_Blizzarisk\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.770833333f, ceDamageFactor = 0.239263804f, ceCooldownFactor = 0.766666667f, ceBluntPenetrationFactor = 0.202510737f },
+            });
+            target.Add("AA_Blizzarisk\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.125f, vanillaCooldownFactor = 0.5625f, ceDamageFactor = 0.018404908f, ceCooldownFactor = 0.554166667f, ceBluntPenetrationFactor = 0.0112322431f },
+            });
+            target.Add("AA_BlizzariskClutchMother\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0588235294f, vanillaCooldownFactor = 0.533333333f, ceDamageFactor = 0.037037037f, ceCooldownFactor = 0.531772575f, ceBluntPenetrationFactor = 0.0251970721f },
+            });
+            target.Add("AA_BlizzariskClutchMother\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0588235294f, vanillaCooldownFactor = 0.483333333f, ceDamageFactor = 0.0170940171f, ceCooldownFactor = 0.481605351f, ceBluntPenetrationFactor = 0.0098536036f },
+            });
+            target.Add("AA_BlizzariskClutchMother\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.352941176f, vanillaCooldownFactor = 0.75f, ceDamageFactor = 0.347578348f, ceCooldownFactor = 0.752508361f, ceBluntPenetrationFactor = 0.310106982f },
+            });
+            target.Add("AA_BlizzariskClutchMother\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.352941176f, vanillaCooldownFactor = 0.75f, ceDamageFactor = 0.347578348f, ceCooldownFactor = 0.752508361f, ceBluntPenetrationFactor = 0.310106982f },
+            });
+            target.Add("AA_BlizzariskClutchMother\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0588235294f, vanillaCooldownFactor = 0.533333333f, ceDamageFactor = 0.037037037f, ceCooldownFactor = 0.531772575f, ceBluntPenetrationFactor = 0.0251970721f },
+            });
+            target.Add("AA_BloodShrimp\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.58974359f, ceDamageFactor = 0.0172413793f, ceCooldownFactor = 0.576530612f, ceBluntPenetrationFactor = 0.00721649485f },
+            });
+            target.Add("AA_BloodShrimp\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.538461538f, ceDamageFactor = 0.00344827586f, ceCooldownFactor = 0.525510204f, ceBluntPenetrationFactor = 0.00309278351f },
+            });
+            target.Add("AA_BloodShrimp\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.794871795f, ceDamageFactor = 0.172413793f, ceCooldownFactor = 0.785714286f, ceBluntPenetrationFactor = 0.139175258f },
+            });
+            target.Add("AA_BloodShrimp\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.794871795f, ceDamageFactor = 0.172413793f, ceCooldownFactor = 0.785714286f, ceBluntPenetrationFactor = 0.139175258f },
+            });
+            target.Add("AA_BloodShrimp\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.58974359f, ceDamageFactor = 0.0172413793f, ceCooldownFactor = 0.576530612f, ceBluntPenetrationFactor = 0.00721649485f },
+            });
+            target.Add("AA_Bobeene\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.08f, vanillaCooldownFactor = 0.537037037f, ceDamageFactor = 0.024291498f, ceCooldownFactor = 0.537313433f, ceBluntPenetrationFactor = 0.0145318663f },
+            });
+            target.Add("AA_Bobeene\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.08f, vanillaCooldownFactor = 0.481481481f, ceDamageFactor = 0.00809716599f, ceCooldownFactor = 0.485074627f, ceBluntPenetrationFactor = 0.00581274652f },
+            });
+            target.Add("AA_Bobeene\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.28f, vanillaCooldownFactor = 0.740740741f, ceDamageFactor = 0.271255061f, ceCooldownFactor = 0.75f, ceBluntPenetrationFactor = 0.233547851f },
+            });
+            target.Add("AA_Bobeene\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.28f, vanillaCooldownFactor = 0.740740741f, ceDamageFactor = 0.271255061f, ceCooldownFactor = 0.75f, ceBluntPenetrationFactor = 0.233547851f },
+            });
+            target.Add("AA_Bobeene\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.08f, vanillaCooldownFactor = 0.537037037f, ceDamageFactor = 0.024291498f, ceCooldownFactor = 0.537313433f, ceBluntPenetrationFactor = 0.0145318663f },
+            });
+            target.Add("AA_BoulderMit\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0754716981f, vanillaCooldownFactor = 0.506666667f, ceDamageFactor = 0.0709677419f, ceCooldownFactor = 0.502673797f, ceBluntPenetrationFactor = 0.053332336f },
+            });
+            target.Add("AA_BoulderMit\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0377358491f, vanillaCooldownFactor = 0.453333333f, ceDamageFactor = 0.0338709677f, ceCooldownFactor = 0.451871658f, ceBluntPenetrationFactor = 0.0230383724f },
+            });
+            target.Add("AA_BoulderMit\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.509433962f, vanillaCooldownFactor = 0.733333333f, ceDamageFactor = 0.430645161f, ceCooldownFactor = 0.732620321f, ceBluntPenetrationFactor = 0.39172713f },
+            });
+            target.Add("AA_BoulderMit\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.509433962f, vanillaCooldownFactor = 0.733333333f, ceDamageFactor = 0.430645161f, ceCooldownFactor = 0.732620321f, ceBluntPenetrationFactor = 0.39172713f },
+            });
+            target.Add("AA_BoulderMit\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0754716981f, vanillaCooldownFactor = 0.506666667f, ceDamageFactor = 0.0709677419f, ceCooldownFactor = 0.502673797f, ceBluntPenetrationFactor = 0.053332336f },
+            });
+            target.Add("AA_Bumbledrone\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.64516129f, ceDamageFactor = 0.02f, ceCooldownFactor = 0.590909091f, ceBluntPenetrationFactor = 0.00740740741f },
+            });
+            target.Add("AA_Bumbledrone\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.64516129f, ceDamageFactor = 0.02f, ceCooldownFactor = 0.545454545f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AA_Bumbledrone\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.774193548f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.792207792f, ceBluntPenetrationFactor = 0.103703704f },
+            });
+            target.Add("AA_Bumbledrone\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.774193548f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.792207792f, ceBluntPenetrationFactor = 0.103703704f },
+            });
+            target.Add("AA_Bumbledrone\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.64516129f, ceDamageFactor = 0.02f, ceCooldownFactor = 0.590909091f, ceBluntPenetrationFactor = 0.00740740741f },
+            });
+            target.Add("AA_BumbledroneHierophant\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.625f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.596273292f, ceBluntPenetrationFactor = 0.00492610837f },
+            });
+        }
+
+        private static void AddBatch2(Dictionary<string, List<ZoologyLifeStageToolFactor>> target)
+        {
+            target.Add("AA_BumbledroneHierophant\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.625f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.540372671f, ceBluntPenetrationFactor = 0.00492610837f },
+            });
+            target.Add("AA_BumbledroneHierophant\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8125f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.801242236f, ceBluntPenetrationFactor = 0.118226601f },
+            });
+            target.Add("AA_BumbledroneHierophant\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8125f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.801242236f, ceBluntPenetrationFactor = 0.118226601f },
+            });
+            target.Add("AA_BumbledroneHierophant\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.625f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.596273292f, ceBluntPenetrationFactor = 0.00492610837f },
+            });
+            target.Add("AA_BumbledroneQueen\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.571428571f, ceDamageFactor = 0.00714285714f, ceCooldownFactor = 0.579545455f, ceBluntPenetrationFactor = 0.00696055684f },
+            });
+            target.Add("AA_BumbledroneQueen\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.571428571f, ceDamageFactor = 0.00714285714f, ceCooldownFactor = 0.534090909f, ceBluntPenetrationFactor = 0.00232018561f },
+            });
+            target.Add("AA_BumbledroneQueen\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.784090909f, ceBluntPenetrationFactor = 0.11136891f },
+            });
+            target.Add("AA_BumbledroneQueen\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.784090909f, ceBluntPenetrationFactor = 0.11136891f },
+            });
+            target.Add("AA_BumbledroneQueen\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.571428571f, ceDamageFactor = 0.00714285714f, ceCooldownFactor = 0.579545455f, ceBluntPenetrationFactor = 0.00696055684f },
+            });
+            target.Add("AA_Cactipine\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.689655172f, ceDamageFactor = 0.0333333333f, ceCooldownFactor = 0.593103448f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AA_Cactipine\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.689655172f, ceDamageFactor = 0.0333333333f, ceCooldownFactor = 0.544827586f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AA_Cactipine\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.793103448f, ceDamageFactor = 0.166666667f, ceCooldownFactor = 0.786206897f, ceBluntPenetrationFactor = 0.0945945946f },
+            });
+            target.Add("AA_Cactipine\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.793103448f, ceDamageFactor = 0.166666667f, ceCooldownFactor = 0.786206897f, ceBluntPenetrationFactor = 0.0945945946f },
+            });
+            target.Add("AA_Cactipine\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.689655172f, ceDamageFactor = 0.0333333333f, ceCooldownFactor = 0.593103448f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AA_ChameleonYak\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0666666667f, vanillaCooldownFactor = 0.526315789f, ceDamageFactor = 0.0271186441f, ceCooldownFactor = 0.526501767f, ceBluntPenetrationFactor = 0.0168855535f },
+            });
+            target.Add("AA_ChameleonYak\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0666666667f, vanillaCooldownFactor = 0.473684211f, ceDamageFactor = 0.0101694915f, ceCooldownFactor = 0.477031802f, ceBluntPenetrationFactor = 0.0066518847f },
+            });
+            target.Add("AA_ChameleonYak\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.266666667f, vanillaCooldownFactor = 0.736842105f, ceDamageFactor = 0.284745763f, ceCooldownFactor = 0.738515901f, ceBluntPenetrationFactor = 0.249019273f },
+            });
+            target.Add("AA_ChameleonYak\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.266666667f, vanillaCooldownFactor = 0.736842105f, ceDamageFactor = 0.284745763f, ceCooldownFactor = 0.738515901f, ceBluntPenetrationFactor = 0.249019273f },
+            });
+            target.Add("AA_ChameleonYak\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0666666667f, vanillaCooldownFactor = 0.526315789f, ceDamageFactor = 0.0271186441f, ceCooldownFactor = 0.526501767f, ceBluntPenetrationFactor = 0.0168855535f },
+            });
+            target.Add("AA_ChemfuelMyrmidon\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.125f, vanillaCooldownFactor = 0.5625f, ceDamageFactor = 0.018404908f, ceCooldownFactor = 0.554166667f, ceBluntPenetrationFactor = 0.0112322431f },
+            });
+            target.Add("AA_ChemfuelMyrmidon\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.125f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.00613496933f, ceCooldownFactor = 0.504166667f, ceBluntPenetrationFactor = 0.0042946812f },
+            });
+            target.Add("AA_ChemfuelMyrmidon\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.770833333f, ceDamageFactor = 0.239263804f, ceCooldownFactor = 0.766666667f, ceBluntPenetrationFactor = 0.202510737f },
+            });
+            target.Add("AA_ChemfuelMyrmidon\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.770833333f, ceDamageFactor = 0.239263804f, ceCooldownFactor = 0.766666667f, ceBluntPenetrationFactor = 0.202510737f },
+            });
+            target.Add("AA_ChemfuelMyrmidon\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.125f, vanillaCooldownFactor = 0.5625f, ceDamageFactor = 0.018404908f, ceCooldownFactor = 0.554166667f, ceBluntPenetrationFactor = 0.0112322431f },
+            });
+            target.Add("AA_Cinderlisk\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.117647059f, vanillaCooldownFactor = 0.551020408f, ceDamageFactor = 0.0173410405f, ceCooldownFactor = 0.545081967f, ceBluntPenetrationFactor = 0.0104776579f },
+            });
+            target.Add("AA_Cinderlisk\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.117647059f, vanillaCooldownFactor = 0.489795918f, ceDamageFactor = 0.00578034682f, ceCooldownFactor = 0.495901639f, ceBluntPenetrationFactor = 0.00400616333f },
+            });
+            target.Add("AA_Cinderlisk\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.235294118f, vanillaCooldownFactor = 0.755102041f, ceDamageFactor = 0.225433526f, ceCooldownFactor = 0.754098361f, ceBluntPenetrationFactor = 0.188906009f },
+            });
+            target.Add("AA_Cinderlisk\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.235294118f, vanillaCooldownFactor = 0.755102041f, ceDamageFactor = 0.225433526f, ceCooldownFactor = 0.754098361f, ceBluntPenetrationFactor = 0.188906009f },
+            });
+            target.Add("AA_Cinderlisk\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.117647059f, vanillaCooldownFactor = 0.551020408f, ceDamageFactor = 0.0173410405f, ceCooldownFactor = 0.545081967f, ceBluntPenetrationFactor = 0.0104776579f },
+            });
+            target.Add("AA_ColossalAerofleet\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.181818182f, vanillaCooldownFactor = 0.568181818f, ceDamageFactor = 0.00884955752f, ceCooldownFactor = 0.554054054f, ceBluntPenetrationFactor = 0.00743678731f },
+            });
+            target.Add("AA_ColossalAerofleet\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.181818182f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.00884955752f, ceCooldownFactor = 0.504504505f, ceBluntPenetrationFactor = 0.00297471492f },
+            });
+            target.Add("AA_ColossalAerofleet\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.181818182f, vanillaCooldownFactor = 0.772727273f, ceDamageFactor = 0.17699115f, ceCooldownFactor = 0.756756757f, ceBluntPenetrationFactor = 0.144273674f },
+            });
+            target.Add("AA_ColossalAerofleet\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.181818182f, vanillaCooldownFactor = 0.772727273f, ceDamageFactor = 0.17699115f, ceCooldownFactor = 0.756756757f, ceBluntPenetrationFactor = 0.144273674f },
+            });
+            target.Add("AA_ColossalAerofleet\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.181818182f, vanillaCooldownFactor = 0.568181818f, ceDamageFactor = 0.00884955752f, ceCooldownFactor = 0.554054054f, ceBluntPenetrationFactor = 0.00743678731f },
+            });
+            target.Add("AA_CrepuscularBeetle\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0588235294f, vanillaCooldownFactor = 0.533333333f, ceDamageFactor = 0.037037037f, ceCooldownFactor = 0.531772575f, ceBluntPenetrationFactor = 0.0251970721f },
+            });
+            target.Add("AA_CrepuscularBeetle\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0588235294f, vanillaCooldownFactor = 0.483333333f, ceDamageFactor = 0.0170940171f, ceCooldownFactor = 0.481605351f, ceBluntPenetrationFactor = 0.0098536036f },
+            });
+            target.Add("AA_CrepuscularBeetle\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.352941176f, vanillaCooldownFactor = 0.75f, ceDamageFactor = 0.347578348f, ceCooldownFactor = 0.752508361f, ceBluntPenetrationFactor = 0.310106982f },
+            });
+            target.Add("AA_CrepuscularBeetle\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.352941176f, vanillaCooldownFactor = 0.75f, ceDamageFactor = 0.347578348f, ceCooldownFactor = 0.752508361f, ceBluntPenetrationFactor = 0.310106982f },
+            });
+            target.Add("AA_CrepuscularBeetle\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0588235294f, vanillaCooldownFactor = 0.533333333f, ceDamageFactor = 0.037037037f, ceCooldownFactor = 0.531772575f, ceBluntPenetrationFactor = 0.0251970721f },
+            });
+            target.Add("AA_CrescendoAnole\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.594594595f, ceDamageFactor = 0.00476190476f, ceCooldownFactor = 0.580645161f, ceBluntPenetrationFactor = 0.00601503759f },
+            });
+            target.Add("AA_CrescendoAnole\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.540540541f, ceDamageFactor = 0.00476190476f, ceCooldownFactor = 0.52688172f, ceBluntPenetrationFactor = 0.0030075188f },
+            });
+            target.Add("AA_CrescendoAnole\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.783783784f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.790322581f, ceBluntPenetrationFactor = 0.126315789f },
+            });
+            target.Add("AA_CrescendoAnole\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.783783784f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.790322581f, ceBluntPenetrationFactor = 0.126315789f },
+            });
+            target.Add("AA_CrescendoAnole\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.594594595f, ceDamageFactor = 0.00476190476f, ceCooldownFactor = 0.580645161f, ceBluntPenetrationFactor = 0.00601503759f },
+            });
+            target.Add("AA_CrystallineCaracal\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.625f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.596273292f, ceBluntPenetrationFactor = 0.00492610837f },
+            });
+            target.Add("AA_CrystallineCaracal\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.625f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.540372671f, ceBluntPenetrationFactor = 0.00492610837f },
+            });
+            target.Add("AA_CrystallineCaracal\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8125f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.801242236f, ceBluntPenetrationFactor = 0.118226601f },
+            });
+            target.Add("AA_CrystallineCaracal\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8125f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.801242236f, ceBluntPenetrationFactor = 0.118226601f },
+            });
+            target.Add("AA_CrystallineCaracal\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.625f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.596273292f, ceBluntPenetrationFactor = 0.00492610837f },
+            });
+            target.Add("AA_CrystalMit\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.64516129f, ceDamageFactor = 0.02f, ceCooldownFactor = 0.590909091f, ceBluntPenetrationFactor = 0.00740740741f },
+            });
+            target.Add("AA_CrystalMit\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.64516129f, ceDamageFactor = 0.02f, ceCooldownFactor = 0.545454545f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AA_CrystalMit\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.774193548f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.792207792f, ceBluntPenetrationFactor = 0.103703704f },
+            });
+            target.Add("AA_CrystalMit\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.774193548f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.792207792f, ceBluntPenetrationFactor = 0.103703704f },
+            });
+            target.Add("AA_CrystalMit\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.64516129f, ceDamageFactor = 0.02f, ceCooldownFactor = 0.590909091f, ceBluntPenetrationFactor = 0.00740740741f },
+            });
+            target.Add("AA_Darkbeast\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.111111111f, vanillaCooldownFactor = 0.551020408f, ceDamageFactor = 0.0163934426f, ceCooldownFactor = 0.550607287f, ceBluntPenetrationFactor = 0.0118806143f },
+            });
+            target.Add("AA_Darkbeast\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.111111111f, vanillaCooldownFactor = 0.510204082f, ceDamageFactor = 0.00546448087f, ceCooldownFactor = 0.497975709f, ceBluntPenetrationFactor = 0.00463633729f },
+            });
+            target.Add("AA_Darkbeast\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.775510204f, ceDamageFactor = 0.240437158f, ceCooldownFactor = 0.761133603f, ceBluntPenetrationFactor = 0.206606781f },
+            });
+            target.Add("AA_Darkbeast\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.775510204f, ceDamageFactor = 0.240437158f, ceCooldownFactor = 0.761133603f, ceBluntPenetrationFactor = 0.206606781f },
+            });
+            target.Add("AA_Darkbeast\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.111111111f, vanillaCooldownFactor = 0.551020408f, ceDamageFactor = 0.0163934426f, ceCooldownFactor = 0.550607287f, ceBluntPenetrationFactor = 0.0118806143f },
+            });
+            target.Add("AA_DarkVandal\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.153846154f, vanillaCooldownFactor = 0.543478261f, ceDamageFactor = 0.0153846154f, ceCooldownFactor = 0.548245614f, ceBluntPenetrationFactor = 0.00809199319f },
+            });
+            target.Add("AA_DarkVandal\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.153846154f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.00769230769f, ceCooldownFactor = 0.5f, ceBluntPenetrationFactor = 0.00298126065f },
+            });
+            target.Add("AA_DarkVandal\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.153846154f, vanillaCooldownFactor = 0.739130435f, ceDamageFactor = 0.184615385f, ceCooldownFactor = 0.754385965f, ceBluntPenetrationFactor = 0.152896082f },
+            });
+            target.Add("AA_DarkVandal\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.153846154f, vanillaCooldownFactor = 0.739130435f, ceDamageFactor = 0.184615385f, ceCooldownFactor = 0.754385965f, ceBluntPenetrationFactor = 0.152896082f },
+            });
+            target.Add("AA_DarkVandal\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.153846154f, vanillaCooldownFactor = 0.543478261f, ceDamageFactor = 0.0153846154f, ceCooldownFactor = 0.548245614f, ceBluntPenetrationFactor = 0.00809199319f },
+            });
+        }
+
+        private static void AddBatch3(Dictionary<string, List<ZoologyLifeStageToolFactor>> target)
+        {
+            target.Add("AA_DecayDrake\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.58974359f, ceDamageFactor = 0.0172413793f, ceCooldownFactor = 0.576530612f, ceBluntPenetrationFactor = 0.00721649485f },
+            });
+            target.Add("AA_DecayDrake\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.538461538f, ceDamageFactor = 0.00344827586f, ceCooldownFactor = 0.525510204f, ceBluntPenetrationFactor = 0.00309278351f },
+            });
+            target.Add("AA_DecayDrake\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.794871795f, ceDamageFactor = 0.172413793f, ceCooldownFactor = 0.785714286f, ceBluntPenetrationFactor = 0.139175258f },
+            });
+            target.Add("AA_DecayDrake\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.794871795f, ceDamageFactor = 0.172413793f, ceCooldownFactor = 0.785714286f, ceBluntPenetrationFactor = 0.139175258f },
+            });
+            target.Add("AA_DecayDrake\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.58974359f, ceDamageFactor = 0.0172413793f, ceCooldownFactor = 0.576530612f, ceBluntPenetrationFactor = 0.00721649485f },
+            });
+            target.Add("AA_DesertAve\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.166666667f, vanillaCooldownFactor = 0.555555556f, ceDamageFactor = 0.0161290323f, ceCooldownFactor = 0.553097345f, ceBluntPenetrationFactor = 0.00847835788f },
+            });
+            target.Add("AA_DesertAve\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.166666667f, vanillaCooldownFactor = 0.511111111f, ceDamageFactor = 0.00806451613f, ceCooldownFactor = 0.504424779f, ceBluntPenetrationFactor = 0.00312360553f },
+            });
+            target.Add("AA_DesertAve\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.166666667f, vanillaCooldownFactor = 0.755555556f, ceDamageFactor = 0.193548387f, ceCooldownFactor = 0.761061947f, ceBluntPenetrationFactor = 0.160196341f },
+            });
+            target.Add("AA_DesertAve\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.166666667f, vanillaCooldownFactor = 0.755555556f, ceDamageFactor = 0.193548387f, ceCooldownFactor = 0.761061947f, ceBluntPenetrationFactor = 0.160196341f },
+            });
+            target.Add("AA_DesertAve\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.166666667f, vanillaCooldownFactor = 0.555555556f, ceDamageFactor = 0.0161290323f, ceCooldownFactor = 0.553097345f, ceBluntPenetrationFactor = 0.00847835788f },
+            });
+            target.Add("AA_DevilSheep\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.564102564f, ceDamageFactor = 0.0185185185f, ceCooldownFactor = 0.567010309f, ceBluntPenetrationFactor = 0.00558659218f },
+            });
+            target.Add("AA_DevilSheep\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.512820513f, ceDamageFactor = 0.0037037037f, ceCooldownFactor = 0.515463918f, ceBluntPenetrationFactor = 0.00223463687f },
+            });
+            target.Add("AA_DevilSheep\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.148148148f, ceCooldownFactor = 0.768041237f, ceBluntPenetrationFactor = 0.110614525f },
+            });
+            target.Add("AA_DevilSheep\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.148148148f, ceCooldownFactor = 0.768041237f, ceBluntPenetrationFactor = 0.110614525f },
+            });
+            target.Add("AA_DevilSheep\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.564102564f, ceDamageFactor = 0.0185185185f, ceCooldownFactor = 0.567010309f, ceBluntPenetrationFactor = 0.00558659218f },
+            });
+            target.Add("AA_Drainer\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.615384615f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AA_Drainer\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.561538462f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AA_Drainer\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.807692308f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.807692308f, ceBluntPenetrationFactor = 0.115384615f },
+            });
+            target.Add("AA_Drainer\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.807692308f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.807692308f, ceBluntPenetrationFactor = 0.115384615f },
+            });
+            target.Add("AA_Drainer\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.615384615f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AA_DrainerLarva\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", ceCooldownFactor = 0.78021978f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AA_DrainerLarva\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", ceCooldownFactor = 0.78021978f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AA_Dunealisk\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.125f, vanillaCooldownFactor = 0.5625f, ceDamageFactor = 0.018404908f, ceCooldownFactor = 0.554166667f, ceBluntPenetrationFactor = 0.0112322431f },
+            });
+            target.Add("AA_Dunealisk\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.125f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.00613496933f, ceCooldownFactor = 0.504166667f, ceBluntPenetrationFactor = 0.0042946812f },
+            });
+            target.Add("AA_Dunealisk\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.770833333f, ceDamageFactor = 0.239263804f, ceCooldownFactor = 0.766666667f, ceBluntPenetrationFactor = 0.202510737f },
+            });
+            target.Add("AA_Dunealisk\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.770833333f, ceDamageFactor = 0.239263804f, ceCooldownFactor = 0.766666667f, ceBluntPenetrationFactor = 0.202510737f },
+            });
+            target.Add("AA_Dunealisk\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.125f, vanillaCooldownFactor = 0.5625f, ceDamageFactor = 0.018404908f, ceCooldownFactor = 0.554166667f, ceBluntPenetrationFactor = 0.0112322431f },
+            });
+            target.Add("AA_DunealiskClutchMother\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0588235294f, vanillaCooldownFactor = 0.533333333f, ceDamageFactor = 0.037037037f, ceCooldownFactor = 0.531772575f, ceBluntPenetrationFactor = 0.0251970721f },
+            });
+            target.Add("AA_DunealiskClutchMother\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0588235294f, vanillaCooldownFactor = 0.483333333f, ceDamageFactor = 0.0170940171f, ceCooldownFactor = 0.481605351f, ceBluntPenetrationFactor = 0.0098536036f },
+            });
+            target.Add("AA_DunealiskClutchMother\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.352941176f, vanillaCooldownFactor = 0.75f, ceDamageFactor = 0.347578348f, ceCooldownFactor = 0.752508361f, ceBluntPenetrationFactor = 0.310106982f },
+            });
+            target.Add("AA_DunealiskClutchMother\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.352941176f, vanillaCooldownFactor = 0.75f, ceDamageFactor = 0.347578348f, ceCooldownFactor = 0.752508361f, ceBluntPenetrationFactor = 0.310106982f },
+            });
+            target.Add("AA_DunealiskClutchMother\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0588235294f, vanillaCooldownFactor = 0.533333333f, ceDamageFactor = 0.037037037f, ceCooldownFactor = 0.531772575f, ceBluntPenetrationFactor = 0.0251970721f },
+            });
+            target.Add("AA_DuskProwler\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.56097561f, ceDamageFactor = 0.012987013f, ceCooldownFactor = 0.567961165f, ceBluntPenetrationFactor = 0.00678733032f },
+            });
+            target.Add("AA_DuskProwler\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.512195122f, ceDamageFactor = 0.0025974026f, ceCooldownFactor = 0.514563107f, ceBluntPenetrationFactor = 0.00301659125f },
+            });
+            target.Add("AA_DuskProwler\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.780487805f, ceDamageFactor = 0.168831169f, ceCooldownFactor = 0.77184466f, ceBluntPenetrationFactor = 0.134992459f },
+            });
+            target.Add("AA_DuskProwler\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.780487805f, ceDamageFactor = 0.168831169f, ceCooldownFactor = 0.77184466f, ceBluntPenetrationFactor = 0.134992459f },
+            });
+            target.Add("AA_DuskProwler\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.56097561f, ceDamageFactor = 0.012987013f, ceCooldownFactor = 0.567961165f, ceBluntPenetrationFactor = 0.00678733032f },
+            });
+            target.Add("AA_DuskRat\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", ceCooldownFactor = 0.845238095f },
+            });
+            target.Add("AA_DuskRat\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", ceCooldownFactor = 0.845238095f },
+            });
+            target.Add("AA_EmpressButterfly\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.571428571f, ceDamageFactor = 0.00714285714f, ceCooldownFactor = 0.579545455f, ceBluntPenetrationFactor = 0.00696055684f },
+            });
+            target.Add("AA_EmpressButterfly\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.571428571f, ceDamageFactor = 0.00714285714f, ceCooldownFactor = 0.534090909f, ceBluntPenetrationFactor = 0.00232018561f },
+            });
+            target.Add("AA_EmpressButterfly\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.784090909f, ceBluntPenetrationFactor = 0.11136891f },
+            });
+            target.Add("AA_EmpressButterfly\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.784090909f, ceBluntPenetrationFactor = 0.11136891f },
+            });
+            target.Add("AA_EmpressButterfly\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.571428571f, ceDamageFactor = 0.00714285714f, ceCooldownFactor = 0.579545455f, ceBluntPenetrationFactor = 0.00696055684f },
+            });
+            target.Add("AA_EmpressButterflyLarva\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", ceCooldownFactor = 0.78021978f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AA_EmpressButterflyLarva\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", ceCooldownFactor = 0.78021978f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AA_EngorgedTentacularAberration\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.125f, vanillaCooldownFactor = 0.5125f, ceDamageFactor = 0.0993548387f, ceCooldownFactor = 0.515f, ceBluntPenetrationFactor = 0.076945531f },
+            });
+            target.Add("AA_EngorgedTentacularAberration\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0625f, vanillaCooldownFactor = 0.4625f, ceDamageFactor = 0.0503225806f, ceCooldownFactor = 0.46f, ceBluntPenetrationFactor = 0.0357872614f },
+            });
+            target.Add("AA_EngorgedTentacularAberration\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.546875f, vanillaCooldownFactor = 0.7625f, ceDamageFactor = 0.469677419f, ceCooldownFactor = 0.7575f, ceBluntPenetrationFactor = 0.432366163f },
+            });
+            target.Add("AA_EngorgedTentacularAberration\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.546875f, vanillaCooldownFactor = 0.7625f, ceDamageFactor = 0.469677419f, ceCooldownFactor = 0.7575f, ceBluntPenetrationFactor = 0.432366163f },
+            });
+            target.Add("AA_EngorgedTentacularAberration\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.125f, vanillaCooldownFactor = 0.5125f, ceDamageFactor = 0.0993548387f, ceCooldownFactor = 0.515f, ceBluntPenetrationFactor = 0.076945531f },
+            });
+            target.Add("AA_Erin\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.166666667f, vanillaCooldownFactor = 0.555555556f, ceDamageFactor = 0.0165289256f, ceCooldownFactor = 0.555555556f, ceBluntPenetrationFactor = 0.00869167429f },
+            });
+            target.Add("AA_Erin\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.166666667f, vanillaCooldownFactor = 0.511111111f, ceDamageFactor = 0.00826446281f, ceCooldownFactor = 0.506666667f, ceBluntPenetrationFactor = 0.00320219579f },
+            });
+            target.Add("AA_Erin\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.166666667f, vanillaCooldownFactor = 0.755555556f, ceDamageFactor = 0.198347107f, ceCooldownFactor = 0.764444444f, ceBluntPenetrationFactor = 0.164226898f },
+            });
+            target.Add("AA_Erin\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.166666667f, vanillaCooldownFactor = 0.755555556f, ceDamageFactor = 0.198347107f, ceCooldownFactor = 0.764444444f, ceBluntPenetrationFactor = 0.164226898f },
+            });
+            target.Add("AA_Erin\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.166666667f, vanillaCooldownFactor = 0.555555556f, ceDamageFactor = 0.0165289256f, ceCooldownFactor = 0.555555556f, ceBluntPenetrationFactor = 0.00869167429f },
+            });
+            target.Add("AA_Eyeling\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.666666667f, ceDamageFactor = 0.0285714286f, ceCooldownFactor = 0.590604027f, ceBluntPenetrationFactor = 0.0103092784f },
+            });
+            target.Add("AA_Eyeling\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.666666667f, ceDamageFactor = 0.0285714286f, ceCooldownFactor = 0.55033557f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AA_Eyeling\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.791946309f, ceBluntPenetrationFactor = 0.103092784f },
+            });
+            target.Add("AA_Eyeling\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.791946309f, ceBluntPenetrationFactor = 0.103092784f },
+            });
+            target.Add("AA_Eyeling\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.666666667f, ceDamageFactor = 0.0285714286f, ceCooldownFactor = 0.590604027f, ceBluntPenetrationFactor = 0.0103092784f },
+            });
+            target.Add("AA_Feralisk\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.125f, vanillaCooldownFactor = 0.5625f, ceDamageFactor = 0.018404908f, ceCooldownFactor = 0.554166667f, ceBluntPenetrationFactor = 0.0112322431f },
+            });
+            target.Add("AA_Feralisk\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.125f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.00613496933f, ceCooldownFactor = 0.504166667f, ceBluntPenetrationFactor = 0.0042946812f },
+            });
+            target.Add("AA_Feralisk\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.770833333f, ceDamageFactor = 0.239263804f, ceCooldownFactor = 0.766666667f, ceBluntPenetrationFactor = 0.202510737f },
+            });
+        }
+
+        private static void AddBatch4(Dictionary<string, List<ZoologyLifeStageToolFactor>> target)
+        {
+            target.Add("AA_Feralisk\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.770833333f, ceDamageFactor = 0.239263804f, ceCooldownFactor = 0.766666667f, ceBluntPenetrationFactor = 0.202510737f },
+            });
+            target.Add("AA_Feralisk\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.125f, vanillaCooldownFactor = 0.5625f, ceDamageFactor = 0.018404908f, ceCooldownFactor = 0.554166667f, ceBluntPenetrationFactor = 0.0112322431f },
+            });
+            target.Add("AA_FeraliskClutchMother\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0588235294f, vanillaCooldownFactor = 0.533333333f, ceDamageFactor = 0.037037037f, ceCooldownFactor = 0.531772575f, ceBluntPenetrationFactor = 0.0251970721f },
+            });
+            target.Add("AA_FeraliskClutchMother\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0588235294f, vanillaCooldownFactor = 0.483333333f, ceDamageFactor = 0.0170940171f, ceCooldownFactor = 0.481605351f, ceBluntPenetrationFactor = 0.0098536036f },
+            });
+            target.Add("AA_FeraliskClutchMother\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.352941176f, vanillaCooldownFactor = 0.75f, ceDamageFactor = 0.347578348f, ceCooldownFactor = 0.752508361f, ceBluntPenetrationFactor = 0.310106982f },
+            });
+            target.Add("AA_FeraliskClutchMother\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.352941176f, vanillaCooldownFactor = 0.75f, ceDamageFactor = 0.347578348f, ceCooldownFactor = 0.752508361f, ceBluntPenetrationFactor = 0.310106982f },
+            });
+            target.Add("AA_FeraliskClutchMother\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0588235294f, vanillaCooldownFactor = 0.533333333f, ceDamageFactor = 0.037037037f, ceCooldownFactor = 0.531772575f, ceBluntPenetrationFactor = 0.0251970721f },
+            });
+            target.Add("AA_FireWasp\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.64516129f, ceDamageFactor = 0.02f, ceCooldownFactor = 0.590909091f, ceBluntPenetrationFactor = 0.00740740741f },
+            });
+            target.Add("AA_FireWasp\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.64516129f, ceDamageFactor = 0.02f, ceCooldownFactor = 0.545454545f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AA_FireWasp\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.774193548f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.792207792f, ceBluntPenetrationFactor = 0.103703704f },
+            });
+            target.Add("AA_FireWasp\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.774193548f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.792207792f, ceBluntPenetrationFactor = 0.103703704f },
+            });
+            target.Add("AA_FireWasp\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.64516129f, ceDamageFactor = 0.02f, ceCooldownFactor = 0.590909091f, ceBluntPenetrationFactor = 0.00740740741f },
+            });
+            target.Add("AA_FissionMouse\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", ceCooldownFactor = 0.806818182f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AA_FissionMouse\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", ceCooldownFactor = 0.806818182f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AA_FissionMouseSecond\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", ceCooldownFactor = 0.825581395f },
+            });
+            target.Add("AA_FissionMouseSecond\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", ceCooldownFactor = 0.825581395f },
+            });
+            target.Add("AA_FissionMouseThird\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", ceCooldownFactor = 0.845238095f },
+            });
+            target.Add("AA_FissionMouseThird\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", ceCooldownFactor = 0.845238095f },
+            });
+            target.Add("AA_FlamingoPhoenix\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.833333333f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.601694915f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AA_FlamingoPhoenix\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.833333333f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.805084746f, ceBluntPenetrationFactor = 0.0909090909f },
+            });
+            target.Add("AA_FlamingoPhoenix\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.833333333f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.805084746f, ceBluntPenetrationFactor = 0.0909090909f },
+            });
+            target.Add("AA_FlamingoPhoenix\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.833333333f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.601694915f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AA_FrostAve\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.142857143f, vanillaCooldownFactor = 0.565217391f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.551724138f, ceBluntPenetrationFactor = 0.0090054816f },
+            });
+            target.Add("AA_FrostAve\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.142857143f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.00714285714f, ceCooldownFactor = 0.504310345f, ceBluntPenetrationFactor = 0.0035238841f },
+            });
+            target.Add("AA_FrostAve\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.214285714f, vanillaCooldownFactor = 0.760869565f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.75862069f, ceBluntPenetrationFactor = 0.170712608f },
+            });
+            target.Add("AA_FrostAve\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.214285714f, vanillaCooldownFactor = 0.760869565f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.75862069f, ceBluntPenetrationFactor = 0.170712608f },
+            });
+            target.Add("AA_FrostAve\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.142857143f, vanillaCooldownFactor = 0.565217391f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.551724138f, ceBluntPenetrationFactor = 0.0090054816f },
+            });
+            target.Add("AA_FrostboundBehemoth\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0540540541f, vanillaCooldownFactor = 0.516129032f, ceDamageFactor = 0.0341207349f, ceCooldownFactor = 0.516233766f, ceBluntPenetrationFactor = 0.0229722793f },
+            });
+            target.Add("AA_FrostboundBehemoth\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0540540541f, vanillaCooldownFactor = 0.467741935f, ceDamageFactor = 0.0157480315f, ceCooldownFactor = 0.467532468f, ceBluntPenetrationFactor = 0.0089835729f },
+            });
+            target.Add("AA_FrostboundBehemoth\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.324324324f, vanillaCooldownFactor = 0.725806452f, ceDamageFactor = 0.320209974f, ceCooldownFactor = 0.730519481f, ceBluntPenetrationFactor = 0.282725873f },
+            });
+            target.Add("AA_FrostboundBehemoth\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.324324324f, vanillaCooldownFactor = 0.725806452f, ceDamageFactor = 0.320209974f, ceCooldownFactor = 0.730519481f, ceBluntPenetrationFactor = 0.282725873f },
+            });
+            target.Add("AA_FrostboundBehemoth\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0540540541f, vanillaCooldownFactor = 0.516129032f, ceDamageFactor = 0.0341207349f, ceCooldownFactor = 0.516233766f, ceBluntPenetrationFactor = 0.0229722793f },
+            });
+            target.Add("AA_Frostling\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.547619048f, ceDamageFactor = 0.012345679f, ceCooldownFactor = 0.5625f, ceBluntPenetrationFactor = 0.00645624103f },
+            });
+            target.Add("AA_Frostling\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.0024691358f, ceCooldownFactor = 0.509615385f, ceBluntPenetrationFactor = 0.00286944046f },
+            });
+            target.Add("AA_Frostling\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.761904762f, ceDamageFactor = 0.160493827f, ceCooldownFactor = 0.764423077f, ceBluntPenetrationFactor = 0.128407461f },
+            });
+            target.Add("AA_Frostling\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.761904762f, ceDamageFactor = 0.160493827f, ceCooldownFactor = 0.764423077f, ceBluntPenetrationFactor = 0.128407461f },
+            });
+            target.Add("AA_Frostling\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.547619048f, ceDamageFactor = 0.012345679f, ceCooldownFactor = 0.5625f, ceBluntPenetrationFactor = 0.00645624103f },
+            });
+            target.Add("AA_FrostLynx\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.571428571f, ceDamageFactor = 0.0113636364f, ceCooldownFactor = 0.568720379f, ceBluntPenetrationFactor = 0.00785854617f },
+            });
+            target.Add("AA_FrostLynx\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.523809524f, ceDamageFactor = 0.00227272727f, ceCooldownFactor = 0.516587678f, ceBluntPenetrationFactor = 0.00327439424f },
+            });
+            target.Add("AA_FrostLynx\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.785714286f, ceDamageFactor = 0.181818182f, ceCooldownFactor = 0.777251185f, ceBluntPenetrationFactor = 0.151277014f },
+            });
+            target.Add("AA_FrostLynx\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.785714286f, ceDamageFactor = 0.181818182f, ceCooldownFactor = 0.777251185f, ceBluntPenetrationFactor = 0.151277014f },
+            });
+            target.Add("AA_FrostLynx\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.571428571f, ceDamageFactor = 0.0113636364f, ceCooldownFactor = 0.568720379f, ceBluntPenetrationFactor = 0.00785854617f },
+            });
+            target.Add("AA_Frostmite\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.571428571f, ceDamageFactor = 0.00714285714f, ceCooldownFactor = 0.579545455f, ceBluntPenetrationFactor = 0.00696055684f },
+            });
+            target.Add("AA_Frostmite\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.571428571f, ceDamageFactor = 0.00714285714f, ceCooldownFactor = 0.534090909f, ceBluntPenetrationFactor = 0.00232018561f },
+            });
+            target.Add("AA_Frostmite\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.784090909f, ceBluntPenetrationFactor = 0.11136891f },
+            });
+            target.Add("AA_Frostmite\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.784090909f, ceBluntPenetrationFactor = 0.11136891f },
+            });
+            target.Add("AA_Frostmite\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.571428571f, ceDamageFactor = 0.00714285714f, ceCooldownFactor = 0.579545455f, ceBluntPenetrationFactor = 0.00696055684f },
+            });
+            target.Add("AA_FungalHusk\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.58974359f, ceDamageFactor = 0.0172413793f, ceCooldownFactor = 0.576530612f, ceBluntPenetrationFactor = 0.00721649485f },
+            });
+            target.Add("AA_FungalHusk\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.538461538f, ceDamageFactor = 0.00344827586f, ceCooldownFactor = 0.525510204f, ceBluntPenetrationFactor = 0.00309278351f },
+            });
+            target.Add("AA_FungalHusk\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.794871795f, ceDamageFactor = 0.172413793f, ceCooldownFactor = 0.785714286f, ceBluntPenetrationFactor = 0.139175258f },
+            });
+            target.Add("AA_FungalHusk\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.794871795f, ceDamageFactor = 0.172413793f, ceCooldownFactor = 0.785714286f, ceBluntPenetrationFactor = 0.139175258f },
+            });
+            target.Add("AA_FungalHusk\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.58974359f, ceDamageFactor = 0.0172413793f, ceCooldownFactor = 0.576530612f, ceBluntPenetrationFactor = 0.00721649485f },
+            });
+            target.Add("AA_Gallatross\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.150684932f, vanillaCooldownFactor = 0.55f, ceDamageFactor = 0.116304348f, ceCooldownFactor = 0.5475f, ceBluntPenetrationFactor = 0.0913389626f },
+            });
+            target.Add("AA_Gallatross\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0821917808f, vanillaCooldownFactor = 0.4875f, ceDamageFactor = 0.0630434783f, ceCooldownFactor = 0.49f, ceBluntPenetrationFactor = 0.0461278649f },
+            });
+            target.Add("AA_Gallatross\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.561643836f, vanillaCooldownFactor = 0.8125f, ceDamageFactor = 0.477173913f, ceCooldownFactor = 0.8125f, ceBluntPenetrationFactor = 0.440096502f },
+            });
+            target.Add("AA_Gallatross\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.561643836f, vanillaCooldownFactor = 0.8125f, ceDamageFactor = 0.477173913f, ceCooldownFactor = 0.8125f, ceBluntPenetrationFactor = 0.440096502f },
+            });
+            target.Add("AA_Gallatross\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.150684932f, vanillaCooldownFactor = 0.55f, ceDamageFactor = 0.116304348f, ceCooldownFactor = 0.5475f, ceBluntPenetrationFactor = 0.0913389626f },
+            });
+            target.Add("AA_GallatrossMoribund\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.150684932f, vanillaCooldownFactor = 0.55f, ceDamageFactor = 0.116304348f, ceCooldownFactor = 0.5475f, ceBluntPenetrationFactor = 0.0913389626f },
+            });
+            target.Add("AA_GallatrossMoribund\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0821917808f, vanillaCooldownFactor = 0.4875f, ceDamageFactor = 0.0630434783f, ceCooldownFactor = 0.49f, ceBluntPenetrationFactor = 0.0461278649f },
+            });
+            target.Add("AA_GallatrossMoribund\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.561643836f, vanillaCooldownFactor = 0.8125f, ceDamageFactor = 0.477173913f, ceCooldownFactor = 0.8125f, ceBluntPenetrationFactor = 0.440096502f },
+            });
+            target.Add("AA_GallatrossMoribund\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.561643836f, vanillaCooldownFactor = 0.8125f, ceDamageFactor = 0.477173913f, ceCooldownFactor = 0.8125f, ceBluntPenetrationFactor = 0.440096502f },
+            });
+            target.Add("AA_GallatrossMoribund\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.150684932f, vanillaCooldownFactor = 0.55f, ceDamageFactor = 0.116304348f, ceCooldownFactor = 0.5475f, ceBluntPenetrationFactor = 0.0913389626f },
+            });
+            target.Add("AA_Genix\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.153846154f, vanillaCooldownFactor = 0.555555556f, ceDamageFactor = 0.0157480315f, ceCooldownFactor = 0.550660793f, ceBluntPenetrationFactor = 0.0082788671f },
+            });
+            target.Add("AA_Genix\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.153846154f, vanillaCooldownFactor = 0.511111111f, ceDamageFactor = 0.00787401575f, ceCooldownFactor = 0.502202643f, ceBluntPenetrationFactor = 0.00305010893f },
+            });
+        }
+
+        private static void AddBatch5(Dictionary<string, List<ZoologyLifeStageToolFactor>> target)
+        {
+            target.Add("AA_Genix\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.153846154f, vanillaCooldownFactor = 0.755555556f, ceDamageFactor = 0.188976378f, ceCooldownFactor = 0.757709251f, ceBluntPenetrationFactor = 0.156427015f },
+            });
+            target.Add("AA_Genix\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.153846154f, vanillaCooldownFactor = 0.755555556f, ceDamageFactor = 0.188976378f, ceCooldownFactor = 0.757709251f, ceBluntPenetrationFactor = 0.156427015f },
+            });
+            target.Add("AA_Genix\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.153846154f, vanillaCooldownFactor = 0.555555556f, ceDamageFactor = 0.0157480315f, ceCooldownFactor = 0.550660793f, ceBluntPenetrationFactor = 0.0082788671f },
+            });
+            target.Add("AA_GiantCrownedSilkie\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.125f, vanillaCooldownFactor = 0.5625f, ceDamageFactor = 0.018404908f, ceCooldownFactor = 0.554166667f, ceBluntPenetrationFactor = 0.0112322431f },
+            });
+            target.Add("AA_GiantCrownedSilkie\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.125f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.00613496933f, ceCooldownFactor = 0.504166667f, ceBluntPenetrationFactor = 0.0042946812f },
+            });
+            target.Add("AA_GiantCrownedSilkie\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.770833333f, ceDamageFactor = 0.239263804f, ceCooldownFactor = 0.766666667f, ceBluntPenetrationFactor = 0.202510737f },
+            });
+            target.Add("AA_GiantCrownedSilkie\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.770833333f, ceDamageFactor = 0.239263804f, ceCooldownFactor = 0.766666667f, ceBluntPenetrationFactor = 0.202510737f },
+            });
+            target.Add("AA_GiantCrownedSilkie\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.125f, vanillaCooldownFactor = 0.5625f, ceDamageFactor = 0.018404908f, ceCooldownFactor = 0.554166667f, ceBluntPenetrationFactor = 0.0112322431f },
+            });
+            target.Add("AA_Gigantelope\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0625f, vanillaCooldownFactor = 0.534482759f, ceDamageFactor = 0.0317460317f, ceCooldownFactor = 0.532871972f, ceBluntPenetrationFactor = 0.0213878327f },
+            });
+            target.Add("AA_Gigantelope\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0625f, vanillaCooldownFactor = 0.482758621f, ceDamageFactor = 0.0126984127f, ceCooldownFactor = 0.484429066f, ceBluntPenetrationFactor = 0.00839670469f },
+            });
+            target.Add("AA_Gigantelope\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.3125f, vanillaCooldownFactor = 0.74137931f, ceDamageFactor = 0.326984127f, ceCooldownFactor = 0.750865052f, ceBluntPenetrationFactor = 0.288498099f },
+            });
+            target.Add("AA_Gigantelope\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.3125f, vanillaCooldownFactor = 0.74137931f, ceDamageFactor = 0.326984127f, ceCooldownFactor = 0.750865052f, ceBluntPenetrationFactor = 0.288498099f },
+            });
+            target.Add("AA_Gigantelope\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0625f, vanillaCooldownFactor = 0.534482759f, ceDamageFactor = 0.0317460317f, ceCooldownFactor = 0.532871972f, ceBluntPenetrationFactor = 0.0213878327f },
+            });
+            target.Add("AA_GreatDevourer\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0588235294f, vanillaCooldownFactor = 0.533333333f, ceDamageFactor = 0.037037037f, ceCooldownFactor = 0.531772575f, ceBluntPenetrationFactor = 0.0251970721f },
+            });
+            target.Add("AA_GreatDevourer\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0588235294f, vanillaCooldownFactor = 0.483333333f, ceDamageFactor = 0.0170940171f, ceCooldownFactor = 0.481605351f, ceBluntPenetrationFactor = 0.0098536036f },
+            });
+            target.Add("AA_GreatDevourer\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.352941176f, vanillaCooldownFactor = 0.75f, ceDamageFactor = 0.347578348f, ceCooldownFactor = 0.752508361f, ceBluntPenetrationFactor = 0.310106982f },
+            });
+            target.Add("AA_GreatDevourer\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.352941176f, vanillaCooldownFactor = 0.75f, ceDamageFactor = 0.347578348f, ceCooldownFactor = 0.752508361f, ceBluntPenetrationFactor = 0.310106982f },
+            });
+            target.Add("AA_GreatDevourer\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0588235294f, vanillaCooldownFactor = 0.533333333f, ceDamageFactor = 0.037037037f, ceCooldownFactor = 0.531772575f, ceBluntPenetrationFactor = 0.0251970721f },
+            });
+            target.Add("AA_GreenGoo\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.578947368f, ceDamageFactor = 0.02f, ceCooldownFactor = 0.572916667f, ceBluntPenetrationFactor = 0.00609756098f },
+            });
+            target.Add("AA_GreenGoo\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.526315789f, ceDamageFactor = 0.004f, ceCooldownFactor = 0.520833333f, ceBluntPenetrationFactor = 0.00243902439f },
+            });
+            target.Add("AA_GreenGoo\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.789473684f, ceDamageFactor = 0.16f, ceCooldownFactor = 0.776041667f, ceBluntPenetrationFactor = 0.120731707f },
+            });
+            target.Add("AA_GreenGoo\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.789473684f, ceDamageFactor = 0.16f, ceCooldownFactor = 0.776041667f, ceBluntPenetrationFactor = 0.120731707f },
+            });
+            target.Add("AA_GreenGoo\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.578947368f, ceDamageFactor = 0.02f, ceCooldownFactor = 0.572916667f, ceBluntPenetrationFactor = 0.00609756098f },
+            });
+            target.Add("AA_GreyCoatedMouflon\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.547619048f, ceDamageFactor = 0.012345679f, ceCooldownFactor = 0.5625f, ceBluntPenetrationFactor = 0.00645624103f },
+            });
+            target.Add("AA_GreyCoatedMouflon\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.0024691358f, ceCooldownFactor = 0.509615385f, ceBluntPenetrationFactor = 0.00286944046f },
+            });
+            target.Add("AA_GreyCoatedMouflon\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.761904762f, ceDamageFactor = 0.160493827f, ceCooldownFactor = 0.764423077f, ceBluntPenetrationFactor = 0.128407461f },
+            });
+            target.Add("AA_GreyCoatedMouflon\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.761904762f, ceDamageFactor = 0.160493827f, ceCooldownFactor = 0.764423077f, ceBluntPenetrationFactor = 0.128407461f },
+            });
+            target.Add("AA_GreyCoatedMouflon\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.547619048f, ceDamageFactor = 0.012345679f, ceCooldownFactor = 0.5625f, ceBluntPenetrationFactor = 0.00645624103f },
+            });
+            target.Add("AA_Groundrunner\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.133333333f, vanillaCooldownFactor = 0.553191489f, ceDamageFactor = 0.0131578947f, ceCooldownFactor = 0.555084746f, ceBluntPenetrationFactor = 0.010007148f },
+            });
+            target.Add("AA_Groundrunner\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.133333333f, vanillaCooldownFactor = 0.510638298f, ceDamageFactor = 0.00657894737f, ceCooldownFactor = 0.504237288f, ceBluntPenetrationFactor = 0.00393137956f },
+            });
+            target.Add("AA_Groundrunner\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.2f, vanillaCooldownFactor = 0.765957447f, ceDamageFactor = 0.217105263f, ceCooldownFactor = 0.762711864f, ceBluntPenetrationFactor = 0.185847034f },
+            });
+            target.Add("AA_Groundrunner\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.2f, vanillaCooldownFactor = 0.765957447f, ceDamageFactor = 0.217105263f, ceCooldownFactor = 0.762711864f, ceBluntPenetrationFactor = 0.185847034f },
+            });
+            target.Add("AA_Groundrunner\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.133333333f, vanillaCooldownFactor = 0.553191489f, ceDamageFactor = 0.0131578947f, ceCooldownFactor = 0.555084746f, ceBluntPenetrationFactor = 0.010007148f },
+            });
+            target.Add("AA_Helixien\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0625f, vanillaCooldownFactor = 0.534482759f, ceDamageFactor = 0.0317460317f, ceCooldownFactor = 0.532871972f, ceBluntPenetrationFactor = 0.0213878327f },
+            });
+            target.Add("AA_Helixien\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0625f, vanillaCooldownFactor = 0.482758621f, ceDamageFactor = 0.0126984127f, ceCooldownFactor = 0.484429066f, ceBluntPenetrationFactor = 0.00839670469f },
+            });
+            target.Add("AA_Helixien\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.3125f, vanillaCooldownFactor = 0.74137931f, ceDamageFactor = 0.326984127f, ceCooldownFactor = 0.750865052f, ceBluntPenetrationFactor = 0.288498099f },
+            });
+            target.Add("AA_Helixien\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.3125f, vanillaCooldownFactor = 0.74137931f, ceDamageFactor = 0.326984127f, ceCooldownFactor = 0.750865052f, ceBluntPenetrationFactor = 0.288498099f },
+            });
+            target.Add("AA_Helixien\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0625f, vanillaCooldownFactor = 0.534482759f, ceDamageFactor = 0.0317460317f, ceCooldownFactor = 0.532871972f, ceBluntPenetrationFactor = 0.0213878327f },
+            });
+            target.Add("AA_InfectedAerofleet\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.615384615f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AA_InfectedAerofleet\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.561538462f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AA_InfectedAerofleet\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.807692308f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.807692308f, ceBluntPenetrationFactor = 0.115384615f },
+            });
+            target.Add("AA_InfectedAerofleet\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.807692308f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.807692308f, ceBluntPenetrationFactor = 0.115384615f },
+            });
+            target.Add("AA_InfectedAerofleet\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.615384615f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AA_IronhuskBeetle\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.064516129f, vanillaCooldownFactor = 0.543859649f, ceDamageFactor = 0.0326797386f, ceCooldownFactor = 0.538461538f, ceBluntPenetrationFactor = 0.0221565731f },
+            });
+            target.Add("AA_IronhuskBeetle\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.064516129f, vanillaCooldownFactor = 0.49122807f, ceDamageFactor = 0.0130718954f, ceCooldownFactor = 0.48951049f, ceBluntPenetrationFactor = 0.00869850648f },
+            });
+            target.Add("AA_IronhuskBeetle\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.322580645f, vanillaCooldownFactor = 0.754385965f, ceDamageFactor = 0.336601307f, ceCooldownFactor = 0.758741259f, ceBluntPenetrationFactor = 0.298867553f },
+            });
+            target.Add("AA_IronhuskBeetle\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.322580645f, vanillaCooldownFactor = 0.754385965f, ceDamageFactor = 0.336601307f, ceCooldownFactor = 0.758741259f, ceBluntPenetrationFactor = 0.298867553f },
+            });
+            target.Add("AA_IronhuskBeetle\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.064516129f, vanillaCooldownFactor = 0.543859649f, ceDamageFactor = 0.0326797386f, ceCooldownFactor = 0.538461538f, ceBluntPenetrationFactor = 0.0221565731f },
+            });
+            target.Add("AA_Junglelisk\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.111111111f, vanillaCooldownFactor = 0.551020408f, ceDamageFactor = 0.0163934426f, ceCooldownFactor = 0.550607287f, ceBluntPenetrationFactor = 0.0118806143f },
+            });
+            target.Add("AA_Junglelisk\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.111111111f, vanillaCooldownFactor = 0.510204082f, ceDamageFactor = 0.00546448087f, ceCooldownFactor = 0.497975709f, ceBluntPenetrationFactor = 0.00463633729f },
+            });
+            target.Add("AA_Junglelisk\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.775510204f, ceDamageFactor = 0.240437158f, ceCooldownFactor = 0.761133603f, ceBluntPenetrationFactor = 0.206606781f },
+            });
+            target.Add("AA_Junglelisk\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.775510204f, ceDamageFactor = 0.240437158f, ceCooldownFactor = 0.761133603f, ceBluntPenetrationFactor = 0.206606781f },
+            });
+            target.Add("AA_Junglelisk\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.111111111f, vanillaCooldownFactor = 0.551020408f, ceDamageFactor = 0.0163934426f, ceCooldownFactor = 0.550607287f, ceBluntPenetrationFactor = 0.0118806143f },
+            });
+            target.Add("AA_LarvalAtispec\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.689655172f, ceDamageFactor = 0.0333333333f, ceCooldownFactor = 0.593103448f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AA_LarvalAtispec\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.689655172f, ceDamageFactor = 0.0333333333f, ceCooldownFactor = 0.544827586f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AA_LarvalAtispec\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.793103448f, ceDamageFactor = 0.166666667f, ceCooldownFactor = 0.786206897f, ceBluntPenetrationFactor = 0.0945945946f },
+            });
+            target.Add("AA_LarvalAtispec\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.793103448f, ceDamageFactor = 0.166666667f, ceCooldownFactor = 0.786206897f, ceBluntPenetrationFactor = 0.0945945946f },
+            });
+            target.Add("AA_LarvalAtispec\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.689655172f, ceDamageFactor = 0.0333333333f, ceCooldownFactor = 0.593103448f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AA_Lockjaw\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0588235294f, vanillaCooldownFactor = 0.533333333f, ceDamageFactor = 0.037037037f, ceCooldownFactor = 0.531772575f, ceBluntPenetrationFactor = 0.0251970721f },
+            });
+            target.Add("AA_Lockjaw\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0588235294f, vanillaCooldownFactor = 0.483333333f, ceDamageFactor = 0.0170940171f, ceCooldownFactor = 0.481605351f, ceBluntPenetrationFactor = 0.0098536036f },
+            });
+            target.Add("AA_Lockjaw\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.352941176f, vanillaCooldownFactor = 0.75f, ceDamageFactor = 0.347578348f, ceCooldownFactor = 0.752508361f, ceBluntPenetrationFactor = 0.310106982f },
+            });
+            target.Add("AA_Lockjaw\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.352941176f, vanillaCooldownFactor = 0.75f, ceDamageFactor = 0.347578348f, ceCooldownFactor = 0.752508361f, ceBluntPenetrationFactor = 0.310106982f },
+            });
+            target.Add("AA_Lockjaw\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0588235294f, vanillaCooldownFactor = 0.533333333f, ceDamageFactor = 0.037037037f, ceCooldownFactor = 0.531772575f, ceBluntPenetrationFactor = 0.0251970721f },
+            });
+            target.Add("AA_LuciferBug\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.689655172f, ceDamageFactor = 0.0333333333f, ceCooldownFactor = 0.593103448f, ceBluntPenetrationFactor = 0f },
+            });
+        }
+
+        private static void AddBatch6(Dictionary<string, List<ZoologyLifeStageToolFactor>> target)
+        {
+            target.Add("AA_LuciferBug\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.689655172f, ceDamageFactor = 0.0333333333f, ceCooldownFactor = 0.544827586f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AA_LuciferBug\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.793103448f, ceDamageFactor = 0.166666667f, ceCooldownFactor = 0.786206897f, ceBluntPenetrationFactor = 0.0945945946f },
+            });
+            target.Add("AA_LuciferBug\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.793103448f, ceDamageFactor = 0.166666667f, ceCooldownFactor = 0.786206897f, ceBluntPenetrationFactor = 0.0945945946f },
+            });
+            target.Add("AA_LuciferBug\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.689655172f, ceDamageFactor = 0.0333333333f, ceCooldownFactor = 0.593103448f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AA_MammothWorm\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0754716981f, vanillaCooldownFactor = 0.506666667f, ceDamageFactor = 0.0709677419f, ceCooldownFactor = 0.502673797f, ceBluntPenetrationFactor = 0.053332336f },
+            });
+            target.Add("AA_MammothWorm\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0377358491f, vanillaCooldownFactor = 0.453333333f, ceDamageFactor = 0.0338709677f, ceCooldownFactor = 0.451871658f, ceBluntPenetrationFactor = 0.0230383724f },
+            });
+            target.Add("AA_MammothWorm\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.509433962f, vanillaCooldownFactor = 0.733333333f, ceDamageFactor = 0.430645161f, ceCooldownFactor = 0.732620321f, ceBluntPenetrationFactor = 0.39172713f },
+            });
+            target.Add("AA_MammothWorm\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.509433962f, vanillaCooldownFactor = 0.733333333f, ceDamageFactor = 0.430645161f, ceCooldownFactor = 0.732620321f, ceBluntPenetrationFactor = 0.39172713f },
+            });
+            target.Add("AA_MammothWorm\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0754716981f, vanillaCooldownFactor = 0.506666667f, ceDamageFactor = 0.0709677419f, ceCooldownFactor = 0.502673797f, ceBluntPenetrationFactor = 0.053332336f },
+            });
+            target.Add("AA_Mantrap\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.583333333f, ceDamageFactor = 0.00606060606f, ceCooldownFactor = 0.577777778f, ceBluntPenetrationFactor = 0.00589390963f },
+            });
+            target.Add("AA_Mantrap\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.555555556f, ceDamageFactor = 0.00606060606f, ceCooldownFactor = 0.527777778f, ceBluntPenetrationFactor = 0.00196463654f },
+            });
+            target.Add("AA_Mantrap\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.777777778f, ceDamageFactor = 0.151515152f, ceCooldownFactor = 0.783333333f, ceBluntPenetrationFactor = 0.115913556f },
+            });
+            target.Add("AA_Mantrap\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.777777778f, ceDamageFactor = 0.151515152f, ceCooldownFactor = 0.783333333f, ceBluntPenetrationFactor = 0.115913556f },
+            });
+            target.Add("AA_Mantrap\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.583333333f, ceDamageFactor = 0.00606060606f, ceCooldownFactor = 0.577777778f, ceBluntPenetrationFactor = 0.00589390963f },
+            });
+            target.Add("AA_MatureFleshbeast\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.125f, vanillaCooldownFactor = 0.5125f, ceDamageFactor = 0.0993548387f, ceCooldownFactor = 0.515f, ceBluntPenetrationFactor = 0.076945531f },
+            });
+            target.Add("AA_MatureFleshbeast\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0625f, vanillaCooldownFactor = 0.4625f, ceDamageFactor = 0.0503225806f, ceCooldownFactor = 0.46f, ceBluntPenetrationFactor = 0.0357872614f },
+            });
+            target.Add("AA_MatureFleshbeast\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.546875f, vanillaCooldownFactor = 0.7625f, ceDamageFactor = 0.469677419f, ceCooldownFactor = 0.7575f, ceBluntPenetrationFactor = 0.432366163f },
+            });
+            target.Add("AA_MatureFleshbeast\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.546875f, vanillaCooldownFactor = 0.7625f, ceDamageFactor = 0.469677419f, ceCooldownFactor = 0.7575f, ceBluntPenetrationFactor = 0.432366163f },
+            });
+            target.Add("AA_MatureFleshbeast\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.125f, vanillaCooldownFactor = 0.5125f, ceDamageFactor = 0.0993548387f, ceCooldownFactor = 0.515f, ceBluntPenetrationFactor = 0.076945531f },
+            });
+            target.Add("AA_MeadowAve\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.142857143f, vanillaCooldownFactor = 0.565217391f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.551724138f, ceBluntPenetrationFactor = 0.0090054816f },
+            });
+            target.Add("AA_MeadowAve\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.142857143f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.00714285714f, ceCooldownFactor = 0.504310345f, ceBluntPenetrationFactor = 0.0035238841f },
+            });
+            target.Add("AA_MeadowAve\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.214285714f, vanillaCooldownFactor = 0.760869565f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.75862069f, ceBluntPenetrationFactor = 0.170712608f },
+            });
+            target.Add("AA_MeadowAve\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.214285714f, vanillaCooldownFactor = 0.760869565f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.75862069f, ceBluntPenetrationFactor = 0.170712608f },
+            });
+            target.Add("AA_MeadowAve\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.142857143f, vanillaCooldownFactor = 0.565217391f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.551724138f, ceBluntPenetrationFactor = 0.0090054816f },
+            });
+            target.Add("AA_MegaLouse\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.578947368f, ceDamageFactor = 0.00434782609f, ceCooldownFactor = 0.571428571f, ceBluntPenetrationFactor = 0.00538358008f },
+            });
+            target.Add("AA_MegaLouse\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.526315789f, ceDamageFactor = 0.00434782609f, ceCooldownFactor = 0.518518519f, ceBluntPenetrationFactor = 0.00269179004f },
+            });
+            target.Add("AA_MegaLouse\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.763157895f, ceDamageFactor = 0.130434783f, ceCooldownFactor = 0.777777778f, ceBluntPenetrationFactor = 0.113055182f },
+            });
+            target.Add("AA_MegaLouse\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.763157895f, ceDamageFactor = 0.130434783f, ceCooldownFactor = 0.777777778f, ceBluntPenetrationFactor = 0.113055182f },
+            });
+            target.Add("AA_MegaLouse\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.578947368f, ceDamageFactor = 0.00434782609f, ceCooldownFactor = 0.571428571f, ceBluntPenetrationFactor = 0.00538358008f },
+            });
+            target.Add("AA_Metallovore\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.567567568f, ceDamageFactor = 0.00540540541f, ceCooldownFactor = 0.579234973f, ceBluntPenetrationFactor = 0.00681431005f },
+            });
+            target.Add("AA_Metallovore\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.540540541f, ceDamageFactor = 0.00540540541f, ceCooldownFactor = 0.530054645f, ceBluntPenetrationFactor = 0.00340715503f },
+            });
+            target.Add("AA_Metallovore\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.783783784f, ceDamageFactor = 0.162162162f, ceCooldownFactor = 0.786885246f, ceBluntPenetrationFactor = 0.119250426f },
+            });
+            target.Add("AA_Metallovore\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.783783784f, ceDamageFactor = 0.162162162f, ceCooldownFactor = 0.786885246f, ceBluntPenetrationFactor = 0.119250426f },
+            });
+            target.Add("AA_Metallovore\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.567567568f, ceDamageFactor = 0.00540540541f, ceCooldownFactor = 0.579234973f, ceBluntPenetrationFactor = 0.00681431005f },
+            });
+            target.Add("AA_Mime\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.58974359f, ceDamageFactor = 0.0172413793f, ceCooldownFactor = 0.576530612f, ceBluntPenetrationFactor = 0.00721649485f },
+            });
+            target.Add("AA_Mime\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.538461538f, ceDamageFactor = 0.00344827586f, ceCooldownFactor = 0.525510204f, ceBluntPenetrationFactor = 0.00309278351f },
+            });
+            target.Add("AA_Mime\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.794871795f, ceDamageFactor = 0.172413793f, ceCooldownFactor = 0.785714286f, ceBluntPenetrationFactor = 0.139175258f },
+            });
+            target.Add("AA_Mime\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.794871795f, ceDamageFactor = 0.172413793f, ceCooldownFactor = 0.785714286f, ceBluntPenetrationFactor = 0.139175258f },
+            });
+            target.Add("AA_Mime\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.58974359f, ceDamageFactor = 0.0172413793f, ceCooldownFactor = 0.576530612f, ceBluntPenetrationFactor = 0.00721649485f },
+            });
+            target.Add("AA_Murkling\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.606060606f, ceDamageFactor = 0.0105263158f, ceCooldownFactor = 0.586826347f, ceBluntPenetrationFactor = 0.00722021661f },
+            });
+            target.Add("AA_Murkling\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.606060606f, ceDamageFactor = 0.0105263158f, ceCooldownFactor = 0.538922156f, ceBluntPenetrationFactor = 0.0036101083f },
+            });
+            target.Add("AA_Murkling\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.787878788f, ceDamageFactor = 0.157894737f, ceCooldownFactor = 0.790419162f, ceBluntPenetrationFactor = 0.111913357f },
+            });
+            target.Add("AA_Murkling\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.787878788f, ceDamageFactor = 0.157894737f, ceCooldownFactor = 0.790419162f, ceBluntPenetrationFactor = 0.111913357f },
+            });
+            target.Add("AA_Murkling\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.606060606f, ceDamageFactor = 0.0105263158f, ceCooldownFactor = 0.586826347f, ceBluntPenetrationFactor = 0.00722021661f },
+            });
+            target.Add("AA_MycoidColossus\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.130434783f, vanillaCooldownFactor = 0.5375f, ceDamageFactor = 0.107728337f, ceCooldownFactor = 0.5325f, ceBluntPenetrationFactor = 0.083660747f },
+            });
+            target.Add("AA_MycoidColossus\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0724637681f, vanillaCooldownFactor = 0.475f, ceDamageFactor = 0.056206089f, ceCooldownFactor = 0.475f, ceBluntPenetrationFactor = 0.0409660014f },
+            });
+            target.Add("AA_MycoidColossus\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.550724638f, vanillaCooldownFactor = 0.7875f, ceDamageFactor = 0.470725995f, ceCooldownFactor = 0.785f, ceBluntPenetrationFactor = 0.433129027f },
+            });
+            target.Add("AA_MycoidColossus\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.550724638f, vanillaCooldownFactor = 0.7875f, ceDamageFactor = 0.470725995f, ceCooldownFactor = 0.785f, ceBluntPenetrationFactor = 0.433129027f },
+            });
+            target.Add("AA_MycoidColossus\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.130434783f, vanillaCooldownFactor = 0.5375f, ceDamageFactor = 0.107728337f, ceCooldownFactor = 0.5325f, ceBluntPenetrationFactor = 0.083660747f },
+            });
+            target.Add("AA_Needlepost\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.571428571f, ceDamageFactor = 0.00714285714f, ceCooldownFactor = 0.579545455f, ceBluntPenetrationFactor = 0.00696055684f },
+            });
+            target.Add("AA_Needlepost\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.571428571f, ceDamageFactor = 0.00714285714f, ceCooldownFactor = 0.534090909f, ceBluntPenetrationFactor = 0.00232018561f },
+            });
+            target.Add("AA_Needlepost\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.784090909f, ceBluntPenetrationFactor = 0.11136891f },
+            });
+            target.Add("AA_Needlepost\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.784090909f, ceBluntPenetrationFactor = 0.11136891f },
+            });
+            target.Add("AA_Needlepost\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.571428571f, ceDamageFactor = 0.00714285714f, ceCooldownFactor = 0.579545455f, ceBluntPenetrationFactor = 0.00696055684f },
+            });
+            target.Add("AA_Needleroll\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.571428571f, ceDamageFactor = 0.00714285714f, ceCooldownFactor = 0.579545455f, ceBluntPenetrationFactor = 0.00696055684f },
+            });
+            target.Add("AA_Needleroll\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.571428571f, ceDamageFactor = 0.00714285714f, ceCooldownFactor = 0.534090909f, ceBluntPenetrationFactor = 0.00232018561f },
+            });
+            target.Add("AA_Needleroll\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.784090909f, ceBluntPenetrationFactor = 0.11136891f },
+            });
+            target.Add("AA_Needleroll\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.784090909f, ceBluntPenetrationFactor = 0.11136891f },
+            });
+            target.Add("AA_Needleroll\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.571428571f, ceDamageFactor = 0.00714285714f, ceCooldownFactor = 0.579545455f, ceBluntPenetrationFactor = 0.00696055684f },
+            });
+            target.Add("AA_NightAve\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.142857143f, vanillaCooldownFactor = 0.565217391f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.551724138f, ceBluntPenetrationFactor = 0.0090054816f },
+            });
+            target.Add("AA_NightAve\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.142857143f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.00714285714f, ceCooldownFactor = 0.504310345f, ceBluntPenetrationFactor = 0.0035238841f },
+            });
+            target.Add("AA_NightAve\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.214285714f, vanillaCooldownFactor = 0.760869565f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.75862069f, ceBluntPenetrationFactor = 0.170712608f },
+            });
+            target.Add("AA_NightAve\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.214285714f, vanillaCooldownFactor = 0.760869565f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.75862069f, ceBluntPenetrationFactor = 0.170712608f },
+            });
+            target.Add("AA_NightAve\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.142857143f, vanillaCooldownFactor = 0.565217391f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.551724138f, ceBluntPenetrationFactor = 0.0090054816f },
+            });
+        }
+
+        private static void AddBatch7(Dictionary<string, List<ZoologyLifeStageToolFactor>> target)
+        {
+            target.Add("AA_Nightling\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.285714286f, vanillaCooldownFactor = 0.575f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.579207921f, ceBluntPenetrationFactor = 0.00758213985f },
+            });
+            target.Add("AA_Nightling\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.285714286f, vanillaCooldownFactor = 0.525f, ceDamageFactor = 0.00285714286f, ceCooldownFactor = 0.524752475f, ceBluntPenetrationFactor = 0.00336983993f },
+            });
+            target.Add("AA_Nightling\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.285714286f, vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.185714286f, ceCooldownFactor = 0.787128713f, ceBluntPenetrationFactor = 0.150800337f },
+            });
+            target.Add("AA_Nightling\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.285714286f, vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.185714286f, ceCooldownFactor = 0.787128713f, ceBluntPenetrationFactor = 0.150800337f },
+            });
+            target.Add("AA_Nightling\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.285714286f, vanillaCooldownFactor = 0.575f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.579207921f, ceBluntPenetrationFactor = 0.00758213985f },
+            });
+            target.Add("AA_NightMule\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0909090909f, vanillaCooldownFactor = 0.538461538f, ceDamageFactor = 0.0183486239f, ceCooldownFactor = 0.532818533f, ceBluntPenetrationFactor = 0.0114613181f },
+            });
+            target.Add("AA_NightMule\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0909090909f, vanillaCooldownFactor = 0.480769231f, ceDamageFactor = 0.00917431193f, ceCooldownFactor = 0.482625483f, ceBluntPenetrationFactor = 0.00453677173f },
+            });
+            target.Add("AA_NightMule\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.227272727f, vanillaCooldownFactor = 0.75f, ceDamageFactor = 0.23853211f, ceCooldownFactor = 0.745173745f, ceBluntPenetrationFactor = 0.20296084f },
+            });
+            target.Add("AA_NightMule\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.227272727f, vanillaCooldownFactor = 0.75f, ceDamageFactor = 0.23853211f, ceCooldownFactor = 0.745173745f, ceBluntPenetrationFactor = 0.20296084f },
+            });
+            target.Add("AA_NightMule\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0909090909f, vanillaCooldownFactor = 0.538461538f, ceDamageFactor = 0.0183486239f, ceCooldownFactor = 0.532818533f, ceBluntPenetrationFactor = 0.0114613181f },
+            });
+            target.Add("AA_NightRam\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.181818182f, vanillaCooldownFactor = 0.568181818f, ceDamageFactor = 0.00884955752f, ceCooldownFactor = 0.554054054f, ceBluntPenetrationFactor = 0.00743678731f },
+            });
+            target.Add("AA_NightRam\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.181818182f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.00884955752f, ceCooldownFactor = 0.504504505f, ceBluntPenetrationFactor = 0.00297471492f },
+            });
+            target.Add("AA_NightRam\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.181818182f, vanillaCooldownFactor = 0.772727273f, ceDamageFactor = 0.17699115f, ceCooldownFactor = 0.756756757f, ceBluntPenetrationFactor = 0.144273674f },
+            });
+            target.Add("AA_NightRam\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.181818182f, vanillaCooldownFactor = 0.772727273f, ceDamageFactor = 0.17699115f, ceCooldownFactor = 0.756756757f, ceBluntPenetrationFactor = 0.144273674f },
+            });
+            target.Add("AA_NightRam\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.181818182f, vanillaCooldownFactor = 0.568181818f, ceDamageFactor = 0.00884955752f, ceCooldownFactor = 0.554054054f, ceBluntPenetrationFactor = 0.00743678731f },
+            });
+            target.Add("AA_OcularJelly\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.625f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.596273292f, ceBluntPenetrationFactor = 0.00492610837f },
+            });
+            target.Add("AA_OcularJelly\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.625f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.540372671f, ceBluntPenetrationFactor = 0.00492610837f },
+            });
+            target.Add("AA_OcularJelly\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8125f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.801242236f, ceBluntPenetrationFactor = 0.118226601f },
+            });
+            target.Add("AA_OcularJelly\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8125f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.801242236f, ceBluntPenetrationFactor = 0.118226601f },
+            });
+            target.Add("AA_OcularJelly\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.625f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.596273292f, ceBluntPenetrationFactor = 0.00492610837f },
+            });
+            target.Add("AA_OcularNightling\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.285714286f, vanillaCooldownFactor = 0.575f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.579207921f, ceBluntPenetrationFactor = 0.00758213985f },
+            });
+            target.Add("AA_OcularNightling\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.285714286f, vanillaCooldownFactor = 0.525f, ceDamageFactor = 0.00285714286f, ceCooldownFactor = 0.524752475f, ceBluntPenetrationFactor = 0.00336983993f },
+            });
+            target.Add("AA_OcularNightling\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.285714286f, vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.185714286f, ceCooldownFactor = 0.787128713f, ceBluntPenetrationFactor = 0.150800337f },
+            });
+            target.Add("AA_OcularNightling\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.285714286f, vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.185714286f, ceCooldownFactor = 0.787128713f, ceBluntPenetrationFactor = 0.150800337f },
+            });
+            target.Add("AA_OcularNightling\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.285714286f, vanillaCooldownFactor = 0.575f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.579207921f, ceBluntPenetrationFactor = 0.00758213985f },
+            });
+            target.Add("AA_OvergrownColossus\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.130434783f, vanillaCooldownFactor = 0.5375f, ceDamageFactor = 0.107728337f, ceCooldownFactor = 0.5325f, ceBluntPenetrationFactor = 0.083660747f },
+            });
+            target.Add("AA_OvergrownColossus\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0724637681f, vanillaCooldownFactor = 0.475f, ceDamageFactor = 0.056206089f, ceCooldownFactor = 0.475f, ceBluntPenetrationFactor = 0.0409660014f },
+            });
+            target.Add("AA_OvergrownColossus\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.550724638f, vanillaCooldownFactor = 0.7875f, ceDamageFactor = 0.470725995f, ceCooldownFactor = 0.785f, ceBluntPenetrationFactor = 0.433129027f },
+            });
+            target.Add("AA_OvergrownColossus\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.550724638f, vanillaCooldownFactor = 0.7875f, ceDamageFactor = 0.470725995f, ceCooldownFactor = 0.785f, ceBluntPenetrationFactor = 0.433129027f },
+            });
+            target.Add("AA_OvergrownColossus\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.130434783f, vanillaCooldownFactor = 0.5375f, ceDamageFactor = 0.107728337f, ceCooldownFactor = 0.5325f, ceBluntPenetrationFactor = 0.083660747f },
+            });
+            target.Add("AA_PebbleMit\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.606060606f, ceDamageFactor = 0.0105263158f, ceCooldownFactor = 0.586826347f, ceBluntPenetrationFactor = 0.00722021661f },
+            });
+            target.Add("AA_PebbleMit\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.606060606f, ceDamageFactor = 0.0105263158f, ceCooldownFactor = 0.538922156f, ceBluntPenetrationFactor = 0.0036101083f },
+            });
+            target.Add("AA_PebbleMit\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.787878788f, ceDamageFactor = 0.157894737f, ceCooldownFactor = 0.790419162f, ceBluntPenetrationFactor = 0.111913357f },
+            });
+            target.Add("AA_PebbleMit\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.787878788f, ceDamageFactor = 0.157894737f, ceCooldownFactor = 0.790419162f, ceBluntPenetrationFactor = 0.111913357f },
+            });
+            target.Add("AA_PebbleMit\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.606060606f, ceDamageFactor = 0.0105263158f, ceCooldownFactor = 0.586826347f, ceBluntPenetrationFactor = 0.00722021661f },
+            });
+            target.Add("AA_PedigreedRaptor\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.625f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.596273292f, ceBluntPenetrationFactor = 0.00492610837f },
+            });
+            target.Add("AA_PedigreedRaptor\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.625f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.540372671f, ceBluntPenetrationFactor = 0.00492610837f },
+            });
+            target.Add("AA_PedigreedRaptor\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8125f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.801242236f, ceBluntPenetrationFactor = 0.118226601f },
+            });
+            target.Add("AA_PedigreedRaptor\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8125f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.801242236f, ceBluntPenetrationFactor = 0.118226601f },
+            });
+            target.Add("AA_PedigreedRaptor\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.625f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.596273292f, ceBluntPenetrationFactor = 0.00492610837f },
+            });
+            target.Add("AA_PhoenixOwlcat\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.608f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AA_PhoenixOwlcat\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.8f, ceBluntPenetrationFactor = 0.105263158f },
+            });
+            target.Add("AA_PhoenixOwlcat\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.8f, ceBluntPenetrationFactor = 0.105263158f },
+            });
+            target.Add("AA_PhoenixOwlcat\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.608f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AA_Plasmorph\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.625f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.596273292f, ceBluntPenetrationFactor = 0.00492610837f },
+            });
+            target.Add("AA_Plasmorph\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.625f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.540372671f, ceBluntPenetrationFactor = 0.00492610837f },
+            });
+            target.Add("AA_Plasmorph\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8125f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.801242236f, ceBluntPenetrationFactor = 0.118226601f },
+            });
+            target.Add("AA_Plasmorph\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8125f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.801242236f, ceBluntPenetrationFactor = 0.118226601f },
+            });
+            target.Add("AA_Plasmorph\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.625f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.596273292f, ceBluntPenetrationFactor = 0.00492610837f },
+            });
+            target.Add("AA_Radyak\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.1f, vanillaCooldownFactor = 0.549019608f, ceDamageFactor = 0.0199004975f, ceCooldownFactor = 0.545454545f, ceBluntPenetrationFactor = 0.0125162973f },
+            });
+            target.Add("AA_Radyak\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.1f, vanillaCooldownFactor = 0.490196078f, ceDamageFactor = 0.00995024876f, ceCooldownFactor = 0.494071146f, ceBluntPenetrationFactor = 0.00495436767f },
+            });
+            target.Add("AA_Radyak\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.764705882f, ceDamageFactor = 0.258706468f, ceCooldownFactor = 0.76284585f, ceBluntPenetrationFactor = 0.221642764f },
+            });
+            target.Add("AA_Radyak\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.764705882f, ceDamageFactor = 0.258706468f, ceCooldownFactor = 0.76284585f, ceBluntPenetrationFactor = 0.221642764f },
+            });
+            target.Add("AA_Radyak\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.1f, vanillaCooldownFactor = 0.549019608f, ceDamageFactor = 0.0199004975f, ceCooldownFactor = 0.545454545f, ceBluntPenetrationFactor = 0.0125162973f },
+            });
+            target.Add("AA_RaptorShrimp\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.117647059f, vanillaCooldownFactor = 0.551020408f, ceDamageFactor = 0.0173410405f, ceCooldownFactor = 0.545081967f, ceBluntPenetrationFactor = 0.0104776579f },
+            });
+            target.Add("AA_RaptorShrimp\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.117647059f, vanillaCooldownFactor = 0.489795918f, ceDamageFactor = 0.00578034682f, ceCooldownFactor = 0.495901639f, ceBluntPenetrationFactor = 0.00400616333f },
+            });
+            target.Add("AA_RaptorShrimp\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.235294118f, vanillaCooldownFactor = 0.755102041f, ceDamageFactor = 0.225433526f, ceCooldownFactor = 0.754098361f, ceBluntPenetrationFactor = 0.188906009f },
+            });
+            target.Add("AA_RaptorShrimp\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.235294118f, vanillaCooldownFactor = 0.755102041f, ceDamageFactor = 0.225433526f, ceCooldownFactor = 0.754098361f, ceBluntPenetrationFactor = 0.188906009f },
+            });
+            target.Add("AA_RaptorShrimp\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.117647059f, vanillaCooldownFactor = 0.551020408f, ceDamageFactor = 0.0173410405f, ceCooldownFactor = 0.545081967f, ceBluntPenetrationFactor = 0.0104776579f },
+            });
+            target.Add("AA_Ravager\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.117647059f, vanillaCooldownFactor = 0.551020408f, ceDamageFactor = 0.0173410405f, ceCooldownFactor = 0.545081967f, ceBluntPenetrationFactor = 0.0104776579f },
+            });
+            target.Add("AA_Ravager\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.117647059f, vanillaCooldownFactor = 0.489795918f, ceDamageFactor = 0.00578034682f, ceCooldownFactor = 0.495901639f, ceBluntPenetrationFactor = 0.00400616333f },
+            });
+            target.Add("AA_Ravager\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.235294118f, vanillaCooldownFactor = 0.755102041f, ceDamageFactor = 0.225433526f, ceCooldownFactor = 0.754098361f, ceBluntPenetrationFactor = 0.188906009f },
+            });
+            target.Add("AA_Ravager\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.235294118f, vanillaCooldownFactor = 0.755102041f, ceDamageFactor = 0.225433526f, ceCooldownFactor = 0.754098361f, ceBluntPenetrationFactor = 0.188906009f },
+            });
+            target.Add("AA_Ravager\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.117647059f, vanillaCooldownFactor = 0.551020408f, ceDamageFactor = 0.0173410405f, ceCooldownFactor = 0.545081967f, ceBluntPenetrationFactor = 0.0104776579f },
+            });
+        }
+
+        private static void AddBatch8(Dictionary<string, List<ZoologyLifeStageToolFactor>> target)
+        {
+            target.Add("AA_RayHound\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.58974359f, ceDamageFactor = 0.0172413793f, ceCooldownFactor = 0.576530612f, ceBluntPenetrationFactor = 0.00721649485f },
+            });
+            target.Add("AA_RayHound\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.538461538f, ceDamageFactor = 0.00344827586f, ceCooldownFactor = 0.525510204f, ceBluntPenetrationFactor = 0.00309278351f },
+            });
+            target.Add("AA_RayHound\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.794871795f, ceDamageFactor = 0.172413793f, ceCooldownFactor = 0.785714286f, ceBluntPenetrationFactor = 0.139175258f },
+            });
+            target.Add("AA_RayHound\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.794871795f, ceDamageFactor = 0.172413793f, ceCooldownFactor = 0.785714286f, ceBluntPenetrationFactor = 0.139175258f },
+            });
+            target.Add("AA_RayHound\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.58974359f, ceDamageFactor = 0.0172413793f, ceCooldownFactor = 0.576530612f, ceBluntPenetrationFactor = 0.00721649485f },
+            });
+            target.Add("AA_Razorjack\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.547619048f, ceDamageFactor = 0.012345679f, ceCooldownFactor = 0.5625f, ceBluntPenetrationFactor = 0.00645624103f },
+            });
+            target.Add("AA_Razorjack\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.0024691358f, ceCooldownFactor = 0.509615385f, ceBluntPenetrationFactor = 0.00286944046f },
+            });
+            target.Add("AA_Razorjack\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.761904762f, ceDamageFactor = 0.160493827f, ceCooldownFactor = 0.764423077f, ceBluntPenetrationFactor = 0.128407461f },
+            });
+            target.Add("AA_Razorjack\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.761904762f, ceDamageFactor = 0.160493827f, ceCooldownFactor = 0.764423077f, ceBluntPenetrationFactor = 0.128407461f },
+            });
+            target.Add("AA_Razorjack\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.547619048f, ceDamageFactor = 0.012345679f, ceCooldownFactor = 0.5625f, ceBluntPenetrationFactor = 0.00645624103f },
+            });
+            target.Add("AA_RedGoo\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.578947368f, ceDamageFactor = 0.02f, ceCooldownFactor = 0.572916667f, ceBluntPenetrationFactor = 0.00609756098f },
+            });
+            target.Add("AA_RedGoo\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.526315789f, ceDamageFactor = 0.004f, ceCooldownFactor = 0.520833333f, ceBluntPenetrationFactor = 0.00243902439f },
+            });
+            target.Add("AA_RedGoo\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.789473684f, ceDamageFactor = 0.16f, ceCooldownFactor = 0.776041667f, ceBluntPenetrationFactor = 0.120731707f },
+            });
+            target.Add("AA_RedGoo\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.789473684f, ceDamageFactor = 0.16f, ceCooldownFactor = 0.776041667f, ceBluntPenetrationFactor = 0.120731707f },
+            });
+            target.Add("AA_RedGoo\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.578947368f, ceDamageFactor = 0.02f, ceCooldownFactor = 0.572916667f, ceBluntPenetrationFactor = 0.00609756098f },
+            });
+            target.Add("AA_RedSpore\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.133333333f, vanillaCooldownFactor = 0.553191489f, ceDamageFactor = 0.0131578947f, ceCooldownFactor = 0.555084746f, ceBluntPenetrationFactor = 0.010007148f },
+            });
+            target.Add("AA_RedSpore\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.133333333f, vanillaCooldownFactor = 0.510638298f, ceDamageFactor = 0.00657894737f, ceCooldownFactor = 0.504237288f, ceBluntPenetrationFactor = 0.00393137956f },
+            });
+            target.Add("AA_RedSpore\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.2f, vanillaCooldownFactor = 0.765957447f, ceDamageFactor = 0.217105263f, ceCooldownFactor = 0.762711864f, ceBluntPenetrationFactor = 0.185847034f },
+            });
+            target.Add("AA_RedSpore\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.2f, vanillaCooldownFactor = 0.765957447f, ceDamageFactor = 0.217105263f, ceCooldownFactor = 0.762711864f, ceBluntPenetrationFactor = 0.185847034f },
+            });
+            target.Add("AA_RedSpore\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.133333333f, vanillaCooldownFactor = 0.553191489f, ceDamageFactor = 0.0131578947f, ceCooldownFactor = 0.555084746f, ceBluntPenetrationFactor = 0.010007148f },
+            });
+            target.Add("AA_RipperHound\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.285714286f, vanillaCooldownFactor = 0.56097561f, ceDamageFactor = 0.0135135135f, ceCooldownFactor = 0.573529412f, ceBluntPenetrationFactor = 0.00715990453f },
+            });
+            target.Add("AA_RipperHound\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.285714286f, vanillaCooldownFactor = 0.512195122f, ceDamageFactor = 0.0027027027f, ceCooldownFactor = 0.519607843f, ceBluntPenetrationFactor = 0.00318217979f },
+            });
+            target.Add("AA_RipperHound\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.285714286f, vanillaCooldownFactor = 0.780487805f, ceDamageFactor = 0.175675676f, ceCooldownFactor = 0.779411765f, ceBluntPenetrationFactor = 0.142402546f },
+            });
+            target.Add("AA_RipperHound\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.285714286f, vanillaCooldownFactor = 0.780487805f, ceDamageFactor = 0.175675676f, ceCooldownFactor = 0.779411765f, ceBluntPenetrationFactor = 0.142402546f },
+            });
+            target.Add("AA_RipperHound\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.285714286f, vanillaCooldownFactor = 0.56097561f, ceDamageFactor = 0.0135135135f, ceCooldownFactor = 0.573529412f, ceBluntPenetrationFactor = 0.00715990453f },
+            });
+            target.Add("AA_RoughPlatedMonitor\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.547619048f, ceDamageFactor = 0.012345679f, ceCooldownFactor = 0.5625f, ceBluntPenetrationFactor = 0.00645624103f },
+            });
+            target.Add("AA_RoughPlatedMonitor\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.0024691358f, ceCooldownFactor = 0.509615385f, ceBluntPenetrationFactor = 0.00286944046f },
+            });
+            target.Add("AA_RoughPlatedMonitor\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.761904762f, ceDamageFactor = 0.160493827f, ceCooldownFactor = 0.764423077f, ceBluntPenetrationFactor = 0.128407461f },
+            });
+            target.Add("AA_RoughPlatedMonitor\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.761904762f, ceDamageFactor = 0.160493827f, ceCooldownFactor = 0.764423077f, ceBluntPenetrationFactor = 0.128407461f },
+            });
+            target.Add("AA_RoughPlatedMonitor\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.547619048f, ceDamageFactor = 0.012345679f, ceCooldownFactor = 0.5625f, ceBluntPenetrationFactor = 0.00645624103f },
+            });
+            target.Add("AA_RoyalAve\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.142857143f, vanillaCooldownFactor = 0.565217391f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.551724138f, ceBluntPenetrationFactor = 0.0090054816f },
+            });
+            target.Add("AA_RoyalAve\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.142857143f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.00714285714f, ceCooldownFactor = 0.504310345f, ceBluntPenetrationFactor = 0.0035238841f },
+            });
+            target.Add("AA_RoyalAve\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.214285714f, vanillaCooldownFactor = 0.760869565f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.75862069f, ceBluntPenetrationFactor = 0.170712608f },
+            });
+            target.Add("AA_RoyalAve\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.214285714f, vanillaCooldownFactor = 0.760869565f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.75862069f, ceBluntPenetrationFactor = 0.170712608f },
+            });
+            target.Add("AA_RoyalAve\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.142857143f, vanillaCooldownFactor = 0.565217391f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.551724138f, ceBluntPenetrationFactor = 0.0090054816f },
+            });
+            target.Add("AA_SandLion\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.111111111f, vanillaCooldownFactor = 0.551020408f, ceDamageFactor = 0.0163934426f, ceCooldownFactor = 0.550607287f, ceBluntPenetrationFactor = 0.0118806143f },
+            });
+            target.Add("AA_SandLion\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.111111111f, vanillaCooldownFactor = 0.510204082f, ceDamageFactor = 0.00546448087f, ceCooldownFactor = 0.497975709f, ceBluntPenetrationFactor = 0.00463633729f },
+            });
+            target.Add("AA_SandLion\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.775510204f, ceDamageFactor = 0.240437158f, ceCooldownFactor = 0.761133603f, ceBluntPenetrationFactor = 0.206606781f },
+            });
+            target.Add("AA_SandLion\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.775510204f, ceDamageFactor = 0.240437158f, ceCooldownFactor = 0.761133603f, ceBluntPenetrationFactor = 0.206606781f },
+            });
+            target.Add("AA_SandLion\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.111111111f, vanillaCooldownFactor = 0.551020408f, ceDamageFactor = 0.0163934426f, ceCooldownFactor = 0.550607287f, ceBluntPenetrationFactor = 0.0118806143f },
+            });
+            target.Add("AA_SandProwler\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.142857143f, vanillaCooldownFactor = 0.565217391f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.551724138f, ceBluntPenetrationFactor = 0.0090054816f },
+            });
+            target.Add("AA_SandProwler\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.142857143f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.00714285714f, ceCooldownFactor = 0.504310345f, ceBluntPenetrationFactor = 0.0035238841f },
+            });
+            target.Add("AA_SandProwler\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.214285714f, vanillaCooldownFactor = 0.760869565f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.75862069f, ceBluntPenetrationFactor = 0.170712608f },
+            });
+            target.Add("AA_SandProwler\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.214285714f, vanillaCooldownFactor = 0.760869565f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.75862069f, ceBluntPenetrationFactor = 0.170712608f },
+            });
+            target.Add("AA_SandProwler\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.142857143f, vanillaCooldownFactor = 0.565217391f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.551724138f, ceBluntPenetrationFactor = 0.0090054816f },
+            });
+            target.Add("AA_SandSquid\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.142857143f, vanillaCooldownFactor = 0.565217391f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.551724138f, ceBluntPenetrationFactor = 0.0090054816f },
+            });
+            target.Add("AA_SandSquid\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.142857143f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.00714285714f, ceCooldownFactor = 0.504310345f, ceBluntPenetrationFactor = 0.0035238841f },
+            });
+            target.Add("AA_SandSquid\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.214285714f, vanillaCooldownFactor = 0.760869565f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.75862069f, ceBluntPenetrationFactor = 0.170712608f },
+            });
+            target.Add("AA_SandSquid\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.214285714f, vanillaCooldownFactor = 0.760869565f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.75862069f, ceBluntPenetrationFactor = 0.170712608f },
+            });
+            target.Add("AA_SandSquid\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.142857143f, vanillaCooldownFactor = 0.565217391f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.551724138f, ceBluntPenetrationFactor = 0.0090054816f },
+            });
+            target.Add("AA_ShadowCharger\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.1f, vanillaCooldownFactor = 0.549019608f, ceDamageFactor = 0.0199004975f, ceCooldownFactor = 0.545454545f, ceBluntPenetrationFactor = 0.0125162973f },
+            });
+            target.Add("AA_ShadowCharger\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.1f, vanillaCooldownFactor = 0.490196078f, ceDamageFactor = 0.00995024876f, ceCooldownFactor = 0.494071146f, ceBluntPenetrationFactor = 0.00495436767f },
+            });
+            target.Add("AA_ShadowCharger\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.764705882f, ceDamageFactor = 0.258706468f, ceCooldownFactor = 0.76284585f, ceBluntPenetrationFactor = 0.221642764f },
+            });
+            target.Add("AA_ShadowCharger\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.764705882f, ceDamageFactor = 0.258706468f, ceCooldownFactor = 0.76284585f, ceBluntPenetrationFactor = 0.221642764f },
+            });
+            target.Add("AA_ShadowCharger\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.1f, vanillaCooldownFactor = 0.549019608f, ceDamageFactor = 0.0199004975f, ceCooldownFactor = 0.545454545f, ceBluntPenetrationFactor = 0.0125162973f },
+            });
+            target.Add("AA_ShockGoat\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.285714286f, vanillaCooldownFactor = 0.56097561f, ceDamageFactor = 0.0135135135f, ceCooldownFactor = 0.573529412f, ceBluntPenetrationFactor = 0.00715990453f },
+            });
+            target.Add("AA_ShockGoat\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.285714286f, vanillaCooldownFactor = 0.512195122f, ceDamageFactor = 0.0027027027f, ceCooldownFactor = 0.519607843f, ceBluntPenetrationFactor = 0.00318217979f },
+            });
+            target.Add("AA_ShockGoat\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.285714286f, vanillaCooldownFactor = 0.780487805f, ceDamageFactor = 0.175675676f, ceCooldownFactor = 0.779411765f, ceBluntPenetrationFactor = 0.142402546f },
+            });
+            target.Add("AA_ShockGoat\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.285714286f, vanillaCooldownFactor = 0.780487805f, ceDamageFactor = 0.175675676f, ceCooldownFactor = 0.779411765f, ceBluntPenetrationFactor = 0.142402546f },
+            });
+            target.Add("AA_ShockGoat\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.285714286f, vanillaCooldownFactor = 0.56097561f, ceDamageFactor = 0.0135135135f, ceCooldownFactor = 0.573529412f, ceBluntPenetrationFactor = 0.00715990453f },
+            });
+            target.Add("AA_Skiphound\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.567567568f, ceDamageFactor = 0.00540540541f, ceCooldownFactor = 0.579234973f, ceBluntPenetrationFactor = 0.00681431005f },
+            });
+            target.Add("AA_Skiphound\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.540540541f, ceDamageFactor = 0.00540540541f, ceCooldownFactor = 0.530054645f, ceBluntPenetrationFactor = 0.00340715503f },
+            });
+            target.Add("AA_Skiphound\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.783783784f, ceDamageFactor = 0.162162162f, ceCooldownFactor = 0.786885246f, ceBluntPenetrationFactor = 0.119250426f },
+            });
+            target.Add("AA_Skiphound\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.783783784f, ceDamageFactor = 0.162162162f, ceCooldownFactor = 0.786885246f, ceBluntPenetrationFactor = 0.119250426f },
+            });
+        }
+
+        private static void AddBatch9(Dictionary<string, List<ZoologyLifeStageToolFactor>> target)
+        {
+            target.Add("AA_Skiphound\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.567567568f, ceDamageFactor = 0.00540540541f, ceCooldownFactor = 0.579234973f, ceBluntPenetrationFactor = 0.00681431005f },
+            });
+            target.Add("AA_Skyeel\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.689655172f, ceDamageFactor = 0.0333333333f, ceCooldownFactor = 0.593103448f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AA_Skyeel\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.689655172f, ceDamageFactor = 0.0333333333f, ceCooldownFactor = 0.544827586f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AA_Skyeel\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.793103448f, ceDamageFactor = 0.166666667f, ceCooldownFactor = 0.786206897f, ceBluntPenetrationFactor = 0.0945945946f },
+            });
+            target.Add("AA_Skyeel\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.793103448f, ceDamageFactor = 0.166666667f, ceCooldownFactor = 0.786206897f, ceBluntPenetrationFactor = 0.0945945946f },
+            });
+            target.Add("AA_Skyeel\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.689655172f, ceDamageFactor = 0.0333333333f, ceCooldownFactor = 0.593103448f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AA_Slurrypede\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0754716981f, vanillaCooldownFactor = 0.506666667f, ceDamageFactor = 0.0709677419f, ceCooldownFactor = 0.502673797f, ceBluntPenetrationFactor = 0.053332336f },
+            });
+            target.Add("AA_Slurrypede\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0377358491f, vanillaCooldownFactor = 0.453333333f, ceDamageFactor = 0.0338709677f, ceCooldownFactor = 0.451871658f, ceBluntPenetrationFactor = 0.0230383724f },
+            });
+            target.Add("AA_Slurrypede\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.509433962f, vanillaCooldownFactor = 0.733333333f, ceDamageFactor = 0.430645161f, ceCooldownFactor = 0.732620321f, ceBluntPenetrationFactor = 0.39172713f },
+            });
+            target.Add("AA_Slurrypede\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.509433962f, vanillaCooldownFactor = 0.733333333f, ceDamageFactor = 0.430645161f, ceCooldownFactor = 0.732620321f, ceBluntPenetrationFactor = 0.39172713f },
+            });
+            target.Add("AA_Slurrypede\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0754716981f, vanillaCooldownFactor = 0.506666667f, ceDamageFactor = 0.0709677419f, ceCooldownFactor = 0.502673797f, ceBluntPenetrationFactor = 0.053332336f },
+            });
+            target.Add("AA_SpinedGow\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0869565217f, vanillaCooldownFactor = 0.557692308f, ceDamageFactor = 0.0265486726f, ceCooldownFactor = 0.551724138f, ceBluntPenetrationFactor = 0.0160808638f },
+            });
+            target.Add("AA_SpinedGow\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0869565217f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.00884955752f, ceCooldownFactor = 0.498084291f, ceBluntPenetrationFactor = 0.00643234551f },
+            });
+            target.Add("AA_SpinedGow\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.304347826f, vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.296460177f, ceCooldownFactor = 0.770114943f, ceBluntPenetrationFactor = 0.258442453f },
+            });
+            target.Add("AA_SpinedGow\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.304347826f, vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.296460177f, ceCooldownFactor = 0.770114943f, ceBluntPenetrationFactor = 0.258442453f },
+            });
+            target.Add("AA_SpinedGow\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0869565217f, vanillaCooldownFactor = 0.557692308f, ceDamageFactor = 0.0265486726f, ceCooldownFactor = 0.551724138f, ceBluntPenetrationFactor = 0.0160808638f },
+            });
+            target.Add("AA_SummitCrab\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.193181818f, vanillaCooldownFactor = 0.6125f, ceDamageFactor = 0.148825065f, ceCooldownFactor = 0.6075f, ceBluntPenetrationFactor = 0.120239575f },
+            });
+            target.Add("AA_SummitCrab\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.113636364f, vanillaCooldownFactor = 0.5375f, ceDamageFactor = 0.0861618799f, ceCooldownFactor = 0.54f, ceBluntPenetrationFactor = 0.0658078126f },
+            });
+            target.Add("AA_SummitCrab\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.579545455f, vanillaCooldownFactor = 0.9125f, ceDamageFactor = 0.505657093f, ceCooldownFactor = 0.9075f, ceBluntPenetrationFactor = 0.468301503f },
+            });
+            target.Add("AA_SummitCrab\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.579545455f, vanillaCooldownFactor = 0.9125f, ceDamageFactor = 0.505657093f, ceCooldownFactor = 0.9075f, ceBluntPenetrationFactor = 0.468301503f },
+            });
+            target.Add("AA_SummitCrab\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.193181818f, vanillaCooldownFactor = 0.6125f, ceDamageFactor = 0.148825065f, ceCooldownFactor = 0.6075f, ceBluntPenetrationFactor = 0.120239575f },
+            });
+            target.Add("AA_Swarmling\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.59375f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AA_Swarmling\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.78125f, ceBluntPenetrationFactor = 0.0909090909f },
+            });
+            target.Add("AA_Swarmling\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.78125f, ceBluntPenetrationFactor = 0.0909090909f },
+            });
+            target.Add("AA_Swarmling\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.59375f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AA_TarGuzzler\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.142857143f, vanillaCooldownFactor = 0.565217391f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.551724138f, ceBluntPenetrationFactor = 0.0090054816f },
+            });
+            target.Add("AA_TarGuzzler\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.142857143f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.00714285714f, ceCooldownFactor = 0.504310345f, ceBluntPenetrationFactor = 0.0035238841f },
+            });
+            target.Add("AA_TarGuzzler\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.214285714f, vanillaCooldownFactor = 0.760869565f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.75862069f, ceBluntPenetrationFactor = 0.170712608f },
+            });
+            target.Add("AA_TarGuzzler\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.214285714f, vanillaCooldownFactor = 0.760869565f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.75862069f, ceBluntPenetrationFactor = 0.170712608f },
+            });
+            target.Add("AA_TarGuzzler\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.142857143f, vanillaCooldownFactor = 0.565217391f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.551724138f, ceBluntPenetrationFactor = 0.0090054816f },
+            });
+            target.Add("AA_TeratogenicOriginator\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.08f, vanillaCooldownFactor = 0.537037037f, ceDamageFactor = 0.024291498f, ceCooldownFactor = 0.537313433f, ceBluntPenetrationFactor = 0.0145318663f },
+            });
+            target.Add("AA_TeratogenicOriginator\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.08f, vanillaCooldownFactor = 0.481481481f, ceDamageFactor = 0.00809716599f, ceCooldownFactor = 0.485074627f, ceBluntPenetrationFactor = 0.00581274652f },
+            });
+            target.Add("AA_TeratogenicOriginator\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.28f, vanillaCooldownFactor = 0.740740741f, ceDamageFactor = 0.271255061f, ceCooldownFactor = 0.75f, ceBluntPenetrationFactor = 0.233547851f },
+            });
+            target.Add("AA_TeratogenicOriginator\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.28f, vanillaCooldownFactor = 0.740740741f, ceDamageFactor = 0.271255061f, ceCooldownFactor = 0.75f, ceBluntPenetrationFactor = 0.233547851f },
+            });
+            target.Add("AA_TeratogenicOriginator\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.08f, vanillaCooldownFactor = 0.537037037f, ceDamageFactor = 0.024291498f, ceCooldownFactor = 0.537313433f, ceBluntPenetrationFactor = 0.0145318663f },
+            });
+            target.Add("AA_Terramorph\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.583333333f, ceDamageFactor = 0.00606060606f, ceCooldownFactor = 0.577777778f, ceBluntPenetrationFactor = 0.00589390963f },
+            });
+            target.Add("AA_Terramorph\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.555555556f, ceDamageFactor = 0.00606060606f, ceCooldownFactor = 0.527777778f, ceBluntPenetrationFactor = 0.00196463654f },
+            });
+            target.Add("AA_Terramorph\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.777777778f, ceDamageFactor = 0.151515152f, ceCooldownFactor = 0.783333333f, ceBluntPenetrationFactor = 0.115913556f },
+            });
+            target.Add("AA_Terramorph\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.777777778f, ceDamageFactor = 0.151515152f, ceCooldownFactor = 0.783333333f, ceBluntPenetrationFactor = 0.115913556f },
+            });
+            target.Add("AA_Terramorph\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.583333333f, ceDamageFactor = 0.00606060606f, ceCooldownFactor = 0.577777778f, ceBluntPenetrationFactor = 0.00589390963f },
+            });
+            target.Add("AA_TetraSlug\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0909090909f, vanillaCooldownFactor = 0.513157895f, ceDamageFactor = 0.0803709428f, ceCooldownFactor = 0.50656168f, ceBluntPenetrationFactor = 0.0606103822f },
+            });
+            target.Add("AA_TetraSlug\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0363636364f, vanillaCooldownFactor = 0.447368421f, ceDamageFactor = 0.0370942813f, ceCooldownFactor = 0.45144357f, ceBluntPenetrationFactor = 0.0255989732f },
+            });
+            target.Add("AA_TetraSlug\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.527272727f, vanillaCooldownFactor = 0.736842105f, ceDamageFactor = 0.442040185f, ceCooldownFactor = 0.734908136f, ceBluntPenetrationFactor = 0.40337992f },
+            });
+            target.Add("AA_TetraSlug\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.527272727f, vanillaCooldownFactor = 0.736842105f, ceDamageFactor = 0.442040185f, ceCooldownFactor = 0.734908136f, ceBluntPenetrationFactor = 0.40337992f },
+            });
+            target.Add("AA_TetraSlug\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0909090909f, vanillaCooldownFactor = 0.513157895f, ceDamageFactor = 0.0803709428f, ceCooldownFactor = 0.50656168f, ceBluntPenetrationFactor = 0.0606103822f },
+            });
+            target.Add("AA_Thermadon\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.105263158f, vanillaCooldownFactor = 0.54f, ceDamageFactor = 0.0155440415f, ceCooldownFactor = 0.544f, ceBluntPenetrationFactor = 0.0112390351f },
+            });
+            target.Add("AA_Thermadon\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.105263158f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.00518134715f, ceCooldownFactor = 0.492f, ceBluntPenetrationFactor = 0.00438596491f },
+            });
+            target.Add("AA_Thermadon\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.210526316f, vanillaCooldownFactor = 0.76f, ceDamageFactor = 0.227979275f, ceCooldownFactor = 0.752f, ceBluntPenetrationFactor = 0.195449561f },
+            });
+            target.Add("AA_Thermadon\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.210526316f, vanillaCooldownFactor = 0.76f, ceDamageFactor = 0.227979275f, ceCooldownFactor = 0.752f, ceBluntPenetrationFactor = 0.195449561f },
+            });
+            target.Add("AA_Thermadon\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.105263158f, vanillaCooldownFactor = 0.54f, ceDamageFactor = 0.0155440415f, ceCooldownFactor = 0.544f, ceBluntPenetrationFactor = 0.0112390351f },
+            });
+            target.Add("AA_Thunderbeast\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.111111111f, vanillaCooldownFactor = 0.551020408f, ceDamageFactor = 0.0163934426f, ceCooldownFactor = 0.550607287f, ceBluntPenetrationFactor = 0.0118806143f },
+            });
+            target.Add("AA_Thunderbeast\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.111111111f, vanillaCooldownFactor = 0.510204082f, ceDamageFactor = 0.00546448087f, ceCooldownFactor = 0.497975709f, ceBluntPenetrationFactor = 0.00463633729f },
+            });
+            target.Add("AA_Thunderbeast\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.775510204f, ceDamageFactor = 0.240437158f, ceCooldownFactor = 0.761133603f, ceBluntPenetrationFactor = 0.206606781f },
+            });
+            target.Add("AA_Thunderbeast\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.775510204f, ceDamageFactor = 0.240437158f, ceCooldownFactor = 0.761133603f, ceBluntPenetrationFactor = 0.206606781f },
+            });
+            target.Add("AA_Thunderbeast\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.111111111f, vanillaCooldownFactor = 0.551020408f, ceDamageFactor = 0.0163934426f, ceCooldownFactor = 0.550607287f, ceBluntPenetrationFactor = 0.0118806143f },
+            });
+            target.Add("AA_Thunderox\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0689655172f, vanillaCooldownFactor = 0.535714286f, ceDamageFactor = 0.0276816609f, ceCooldownFactor = 0.53024911f, ceBluntPenetrationFactor = 0.0173076923f },
+            });
+            target.Add("AA_Thunderox\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0689655172f, vanillaCooldownFactor = 0.482142857f, ceDamageFactor = 0.0103806228f, ceCooldownFactor = 0.480427046f, ceBluntPenetrationFactor = 0.00681818182f },
+            });
+            target.Add("AA_Thunderox\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.275862069f, vanillaCooldownFactor = 0.75f, ceDamageFactor = 0.290657439f, ceCooldownFactor = 0.743772242f, ceBluntPenetrationFactor = 0.255244755f },
+            });
+            target.Add("AA_Thunderox\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.275862069f, vanillaCooldownFactor = 0.75f, ceDamageFactor = 0.290657439f, ceCooldownFactor = 0.743772242f, ceBluntPenetrationFactor = 0.255244755f },
+            });
+            target.Add("AA_Thunderox\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0689655172f, vanillaCooldownFactor = 0.535714286f, ceDamageFactor = 0.0276816609f, ceCooldownFactor = 0.53024911f, ceBluntPenetrationFactor = 0.0173076923f },
+            });
+            target.Add("AA_UnblinkingEye\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.130434783f, vanillaCooldownFactor = 0.5375f, ceDamageFactor = 0.107728337f, ceCooldownFactor = 0.5325f, ceBluntPenetrationFactor = 0.083660747f },
+            });
+            target.Add("AA_UnblinkingEye\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0724637681f, vanillaCooldownFactor = 0.475f, ceDamageFactor = 0.056206089f, ceCooldownFactor = 0.475f, ceBluntPenetrationFactor = 0.0409660014f },
+            });
+            target.Add("AA_UnblinkingEye\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.550724638f, vanillaCooldownFactor = 0.7875f, ceDamageFactor = 0.470725995f, ceCooldownFactor = 0.785f, ceBluntPenetrationFactor = 0.433129027f },
+            });
+            target.Add("AA_UnblinkingEye\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.550724638f, vanillaCooldownFactor = 0.7875f, ceDamageFactor = 0.470725995f, ceCooldownFactor = 0.785f, ceBluntPenetrationFactor = 0.433129027f },
+            });
+        }
+
+        private static void AddBatch10(Dictionary<string, List<ZoologyLifeStageToolFactor>> target)
+        {
+            target.Add("AA_UnblinkingEye\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.130434783f, vanillaCooldownFactor = 0.5375f, ceDamageFactor = 0.107728337f, ceCooldownFactor = 0.5325f, ceBluntPenetrationFactor = 0.083660747f },
+            });
+            target.Add("AA_Wildpawn\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.625f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.596273292f, ceBluntPenetrationFactor = 0.00492610837f },
+            });
+            target.Add("AA_Wildpawn\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.625f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.540372671f, ceBluntPenetrationFactor = 0.00492610837f },
+            });
+            target.Add("AA_Wildpawn\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8125f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.801242236f, ceBluntPenetrationFactor = 0.118226601f },
+            });
+            target.Add("AA_Wildpawn\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8125f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.801242236f, ceBluntPenetrationFactor = 0.118226601f },
+            });
+            target.Add("AA_Wildpawn\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.625f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.596273292f, ceBluntPenetrationFactor = 0.00492610837f },
+            });
+            target.Add("AA_Wildpod\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0754716981f, vanillaCooldownFactor = 0.506666667f, ceDamageFactor = 0.0709677419f, ceCooldownFactor = 0.502673797f, ceBluntPenetrationFactor = 0.053332336f },
+            });
+            target.Add("AA_Wildpod\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0377358491f, vanillaCooldownFactor = 0.453333333f, ceDamageFactor = 0.0338709677f, ceCooldownFactor = 0.451871658f, ceBluntPenetrationFactor = 0.0230383724f },
+            });
+            target.Add("AA_Wildpod\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.509433962f, vanillaCooldownFactor = 0.733333333f, ceDamageFactor = 0.430645161f, ceCooldownFactor = 0.732620321f, ceBluntPenetrationFactor = 0.39172713f },
+            });
+            target.Add("AA_Wildpod\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.509433962f, vanillaCooldownFactor = 0.733333333f, ceDamageFactor = 0.430645161f, ceCooldownFactor = 0.732620321f, ceBluntPenetrationFactor = 0.39172713f },
+            });
+            target.Add("AA_Wildpod\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0754716981f, vanillaCooldownFactor = 0.506666667f, ceDamageFactor = 0.0709677419f, ceCooldownFactor = 0.502673797f, ceBluntPenetrationFactor = 0.053332336f },
+            });
+            target.Add("AA_WindBeast\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.111111111f, vanillaCooldownFactor = 0.551020408f, ceDamageFactor = 0.0163934426f, ceCooldownFactor = 0.550607287f, ceBluntPenetrationFactor = 0.0118806143f },
+            });
+            target.Add("AA_WindBeast\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.111111111f, vanillaCooldownFactor = 0.510204082f, ceDamageFactor = 0.00546448087f, ceCooldownFactor = 0.497975709f, ceBluntPenetrationFactor = 0.00463633729f },
+            });
+            target.Add("AA_WindBeast\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.775510204f, ceDamageFactor = 0.240437158f, ceCooldownFactor = 0.761133603f, ceBluntPenetrationFactor = 0.206606781f },
+            });
+            target.Add("AA_WindBeast\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.775510204f, ceDamageFactor = 0.240437158f, ceCooldownFactor = 0.761133603f, ceBluntPenetrationFactor = 0.206606781f },
+            });
+            target.Add("AA_WindBeast\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.111111111f, vanillaCooldownFactor = 0.551020408f, ceDamageFactor = 0.0163934426f, ceCooldownFactor = 0.550607287f, ceBluntPenetrationFactor = 0.0118806143f },
+            });
+            target.Add("AEXP_AfricanWildDog\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.606060606f, ceDamageFactor = 0.0105263158f, ceCooldownFactor = 0.586826347f, ceBluntPenetrationFactor = 0.00714285714f },
+            });
+            target.Add("AEXP_AfricanWildDog\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.606060606f, ceDamageFactor = 0.0105263158f, ceCooldownFactor = 0.538922156f, ceBluntPenetrationFactor = 0.00357142857f },
+            });
+            target.Add("AEXP_AfricanWildDog\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.787878788f, ceDamageFactor = 0.157894737f, ceCooldownFactor = 0.790419162f, ceBluntPenetrationFactor = 0.110714286f },
+            });
+            target.Add("AEXP_AfricanWildDog\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.787878788f, ceDamageFactor = 0.157894737f, ceCooldownFactor = 0.790419162f, ceBluntPenetrationFactor = 0.110714286f },
+            });
+            target.Add("AEXP_AfricanWildDog\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.606060606f, ceDamageFactor = 0.0105263158f, ceCooldownFactor = 0.586826347f, ceBluntPenetrationFactor = 0.00714285714f },
+            });
+            target.Add("AEXP_Alligator\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.166666667f, vanillaCooldownFactor = 0.555555556f, ceDamageFactor = 0.0165289256f, ceCooldownFactor = 0.555555556f, ceBluntPenetrationFactor = 0.00875576037f },
+            });
+            target.Add("AEXP_Alligator\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.166666667f, vanillaCooldownFactor = 0.511111111f, ceDamageFactor = 0.00826446281f, ceCooldownFactor = 0.506666667f, ceBluntPenetrationFactor = 0.00322580645f },
+            });
+            target.Add("AEXP_Alligator\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.166666667f, vanillaCooldownFactor = 0.755555556f, ceDamageFactor = 0.198347107f, ceCooldownFactor = 0.764444444f, ceBluntPenetrationFactor = 0.165437788f },
+            });
+            target.Add("AEXP_Alligator\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.166666667f, vanillaCooldownFactor = 0.755555556f, ceDamageFactor = 0.198347107f, ceCooldownFactor = 0.764444444f, ceBluntPenetrationFactor = 0.165437788f },
+            });
+            target.Add("AEXP_Alligator\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.166666667f, vanillaCooldownFactor = 0.555555556f, ceDamageFactor = 0.0165289256f, ceCooldownFactor = 0.555555556f, ceBluntPenetrationFactor = 0.00875576037f },
+            });
+            target.Add("AEXP_Anaconda\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.567567568f, ceDamageFactor = 0.00512820513f, ceCooldownFactor = 0.576086957f, ceBluntPenetrationFactor = 0.00648298217f },
+            });
+            target.Add("AEXP_Anaconda\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.540540541f, ceDamageFactor = 0.00512820513f, ceCooldownFactor = 0.527173913f, ceBluntPenetrationFactor = 0.00324149109f },
+            });
+            target.Add("AEXP_Anaconda\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.783783784f, ceDamageFactor = 0.153846154f, ceCooldownFactor = 0.782608696f, ceBluntPenetrationFactor = 0.113452188f },
+            });
+            target.Add("AEXP_Anaconda\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.783783784f, ceDamageFactor = 0.153846154f, ceCooldownFactor = 0.782608696f, ceBluntPenetrationFactor = 0.113452188f },
+            });
+            target.Add("AEXP_Anaconda\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.567567568f, ceDamageFactor = 0.00512820513f, ceCooldownFactor = 0.576086957f, ceBluntPenetrationFactor = 0.00648298217f },
+            });
+            target.Add("AEXP_ArcticCoyote\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.666666667f, ceDamageFactor = 0.0285714286f, ceCooldownFactor = 0.590604027f, ceBluntPenetrationFactor = 0.0103092784f },
+            });
+            target.Add("AEXP_ArcticCoyote\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.666666667f, ceDamageFactor = 0.0285714286f, ceCooldownFactor = 0.55033557f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_ArcticCoyote\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.791946309f, ceBluntPenetrationFactor = 0.103092784f },
+            });
+            target.Add("AEXP_ArcticCoyote\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.791946309f, ceBluntPenetrationFactor = 0.103092784f },
+            });
+            target.Add("AEXP_ArcticCoyote\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.666666667f, ceDamageFactor = 0.0285714286f, ceCooldownFactor = 0.590604027f, ceBluntPenetrationFactor = 0.0103092784f },
+            });
+            target.Add("AEXP_Badger\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.714285714f, ceDamageFactor = 0.04f, ceCooldownFactor = 0.605633803f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_Badger\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.714285714f, ceDamageFactor = 0.04f, ceCooldownFactor = 0.556338028f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_Badger\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.821428571f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.802816901f, ceBluntPenetrationFactor = 0.112903226f },
+            });
+            target.Add("AEXP_Badger\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.821428571f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.802816901f, ceBluntPenetrationFactor = 0.112903226f },
+            });
+            target.Add("AEXP_Badger\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.714285714f, ceDamageFactor = 0.04f, ceCooldownFactor = 0.605633803f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_Beagle\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.625f, ceDamageFactor = 0.0153846154f, ceCooldownFactor = 0.591194969f, ceBluntPenetrationFactor = 0.00571428571f },
+            });
+            target.Add("AEXP_Beagle\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.625f, ceDamageFactor = 0.0153846154f, ceCooldownFactor = 0.540880503f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_Beagle\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.78125f, ceDamageFactor = 0.153846154f, ceCooldownFactor = 0.786163522f, ceBluntPenetrationFactor = 0.108571429f },
+            });
+            target.Add("AEXP_Beagle\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.78125f, ceDamageFactor = 0.153846154f, ceCooldownFactor = 0.786163522f, ceBluntPenetrationFactor = 0.108571429f },
+            });
+            target.Add("AEXP_Beagle\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.625f, ceDamageFactor = 0.0153846154f, ceCooldownFactor = 0.591194969f, ceBluntPenetrationFactor = 0.00571428571f },
+            });
+            target.Add("AEXP_Beaver\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.606060606f, ceDamageFactor = 0.0117647059f, ceCooldownFactor = 0.585365854f, ceBluntPenetrationFactor = 0.00420168067f },
+            });
+            target.Add("AEXP_Beaver\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.606060606f, ceDamageFactor = 0.0117647059f, ceCooldownFactor = 0.530487805f, ceBluntPenetrationFactor = 0.00420168067f },
+            });
+            target.Add("AEXP_Beaver\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.787878788f, ceDamageFactor = 0.117647059f, ceCooldownFactor = 0.786585366f, ceBluntPenetrationFactor = 0.100840336f },
+            });
+            target.Add("AEXP_Beaver\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.787878788f, ceDamageFactor = 0.117647059f, ceCooldownFactor = 0.786585366f, ceBluntPenetrationFactor = 0.100840336f },
+            });
+            target.Add("AEXP_Beaver\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.606060606f, ceDamageFactor = 0.0117647059f, ceCooldownFactor = 0.585365854f, ceBluntPenetrationFactor = 0.00420168067f },
+            });
+            target.Add("AEXP_BlackBear\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.547619048f, ceDamageFactor = 0.0120481928f, ceCooldownFactor = 0.5625f, ceBluntPenetrationFactor = 0.0063246662f },
+            });
+            target.Add("AEXP_BlackBear\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.00240963855f, ceCooldownFactor = 0.509615385f, ceBluntPenetrationFactor = 0.00281096275f },
+            });
+            target.Add("AEXP_BlackBear\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.761904762f, ceDamageFactor = 0.156626506f, ceCooldownFactor = 0.764423077f, ceBluntPenetrationFactor = 0.125790583f },
+            });
+            target.Add("AEXP_BlackBear\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.761904762f, ceDamageFactor = 0.156626506f, ceCooldownFactor = 0.764423077f, ceBluntPenetrationFactor = 0.125790583f },
+            });
+            target.Add("AEXP_BlackBear\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.547619048f, ceDamageFactor = 0.0120481928f, ceCooldownFactor = 0.5625f, ceBluntPenetrationFactor = 0.0063246662f },
+            });
+            target.Add("AEXP_BlackFootedFerret\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", ceCooldownFactor = 0.82f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_BlackFootedFerret\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", ceCooldownFactor = 0.82f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_BlackRhino\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0571428571f, vanillaCooldownFactor = 0.524590164f, ceDamageFactor = 0.0354223433f, ceCooldownFactor = 0.523026316f, ceBluntPenetrationFactor = 0.0239978549f },
+            });
+            target.Add("AEXP_BlackRhino\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0571428571f, vanillaCooldownFactor = 0.475409836f, ceDamageFactor = 0.0163487738f, ceCooldownFactor = 0.473684211f, ceBluntPenetrationFactor = 0.00938463601f },
+            });
+            target.Add("AEXP_BlackRhino\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.342857143f, vanillaCooldownFactor = 0.737704918f, ceDamageFactor = 0.332425068f, ceCooldownFactor = 0.740131579f, ceBluntPenetrationFactor = 0.295347902f },
+            });
+            target.Add("AEXP_BlackRhino\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.342857143f, vanillaCooldownFactor = 0.737704918f, ceDamageFactor = 0.332425068f, ceCooldownFactor = 0.740131579f, ceBluntPenetrationFactor = 0.295347902f },
+            });
+            target.Add("AEXP_BlackRhino\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0571428571f, vanillaCooldownFactor = 0.524590164f, ceDamageFactor = 0.0354223433f, ceCooldownFactor = 0.523026316f, ceBluntPenetrationFactor = 0.0239978549f },
+            });
+            target.Add("AEXP_Bonobo\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.583333333f, ceDamageFactor = 0.00606060606f, ceCooldownFactor = 0.577777778f, ceBluntPenetrationFactor = 0.00588235294f },
+            });
+        }
+
+        private static void AddBatch11(Dictionary<string, List<ZoologyLifeStageToolFactor>> target)
+        {
+            target.Add("AEXP_Bonobo\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.555555556f, ceDamageFactor = 0.00606060606f, ceCooldownFactor = 0.527777778f, ceBluntPenetrationFactor = 0.00196078431f },
+            });
+            target.Add("AEXP_Bonobo\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.777777778f, ceDamageFactor = 0.151515152f, ceCooldownFactor = 0.783333333f, ceBluntPenetrationFactor = 0.115686275f },
+            });
+            target.Add("AEXP_Bonobo\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.777777778f, ceDamageFactor = 0.151515152f, ceCooldownFactor = 0.783333333f, ceBluntPenetrationFactor = 0.115686275f },
+            });
+            target.Add("AEXP_Bonobo\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.583333333f, ceDamageFactor = 0.00606060606f, ceCooldownFactor = 0.577777778f, ceBluntPenetrationFactor = 0.00588235294f },
+            });
+            target.Add("AEXP_Boombat\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.588235294f, ceDamageFactor = 0.0105263158f, ceCooldownFactor = 0.583333333f, ceBluntPenetrationFactor = 0.00704225352f },
+            });
+            target.Add("AEXP_Boombat\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.588235294f, ceDamageFactor = 0.0105263158f, ceCooldownFactor = 0.535714286f, ceBluntPenetrationFactor = 0.00352112676f },
+            });
+            target.Add("AEXP_Boombat\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.764705882f, ceDamageFactor = 0.157894737f, ceCooldownFactor = 0.785714286f, ceBluntPenetrationFactor = 0.10915493f },
+            });
+            target.Add("AEXP_Boombat\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.764705882f, ceDamageFactor = 0.157894737f, ceCooldownFactor = 0.785714286f, ceBluntPenetrationFactor = 0.10915493f },
+            });
+            target.Add("AEXP_Boombat\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.588235294f, ceDamageFactor = 0.0105263158f, ceCooldownFactor = 0.583333333f, ceBluntPenetrationFactor = 0.00704225352f },
+            });
+            target.Add("AEXP_Camel\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0740740741f, vanillaCooldownFactor = 0.545454545f, ceDamageFactor = 0.0299625468f, ceCooldownFactor = 0.54379562f, ceBluntPenetrationFactor = 0.0188823193f },
+            });
+            target.Add("AEXP_Camel\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0740740741f, vanillaCooldownFactor = 0.490909091f, ceDamageFactor = 0.0112359551f, ceCooldownFactor = 0.49270073f, ceBluntPenetrationFactor = 0.00743848941f },
+            });
+            target.Add("AEXP_Camel\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.296296296f, vanillaCooldownFactor = 0.763636364f, ceDamageFactor = 0.314606742f, ceCooldownFactor = 0.762773723f, ceBluntPenetrationFactor = 0.278466527f },
+            });
+            target.Add("AEXP_Camel\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.296296296f, vanillaCooldownFactor = 0.763636364f, ceDamageFactor = 0.314606742f, ceCooldownFactor = 0.762773723f, ceBluntPenetrationFactor = 0.278466527f },
+            });
+            target.Add("AEXP_Camel\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0740740741f, vanillaCooldownFactor = 0.545454545f, ceDamageFactor = 0.0299625468f, ceCooldownFactor = 0.54379562f, ceBluntPenetrationFactor = 0.0188823193f },
+            });
+            target.Add("AEXP_CatAbyssinian\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.833333333f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.62295082f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_CatAbyssinian\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.833333333f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.819672131f, ceBluntPenetrationFactor = 0.133333333f },
+            });
+            target.Add("AEXP_CatAbyssinian\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.833333333f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.819672131f, ceBluntPenetrationFactor = 0.133333333f },
+            });
+            target.Add("AEXP_CatAbyssinian\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.833333333f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.62295082f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_CatBengal\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.615384615f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_CatBengal\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.561538462f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_CatBengal\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.807692308f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.807692308f, ceBluntPenetrationFactor = 0.115384615f },
+            });
+            target.Add("AEXP_CatBengal\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.807692308f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.807692308f, ceBluntPenetrationFactor = 0.115384615f },
+            });
+            target.Add("AEXP_CatBengal\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.615384615f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_CatBritishShorthair\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.615384615f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_CatBritishShorthair\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.561538462f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_CatBritishShorthair\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.807692308f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.807692308f, ceBluntPenetrationFactor = 0.115384615f },
+            });
+            target.Add("AEXP_CatBritishShorthair\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.807692308f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.807692308f, ceBluntPenetrationFactor = 0.115384615f },
+            });
+            target.Add("AEXP_CatBritishShorthair\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.615384615f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_CatMaineCoon\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.740740741f, ceDamageFactor = 0.0666666667f, ceCooldownFactor = 0.597014925f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_CatMaineCoon\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.740740741f, ceDamageFactor = 0.0666666667f, ceCooldownFactor = 0.544776119f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_CatMaineCoon\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.777777778f, ceDamageFactor = 0.0666666667f, ceCooldownFactor = 0.78358209f, ceBluntPenetrationFactor = 0.0882352941f },
+            });
+            target.Add("AEXP_CatMaineCoon\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.777777778f, ceDamageFactor = 0.0666666667f, ceCooldownFactor = 0.78358209f, ceBluntPenetrationFactor = 0.0882352941f },
+            });
+            target.Add("AEXP_CatMaineCoon\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.740740741f, ceDamageFactor = 0.0666666667f, ceCooldownFactor = 0.597014925f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_CatMunchkin\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.603174603f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_CatMunchkin\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.793650794f, ceBluntPenetrationFactor = 0.105263158f },
+            });
+            target.Add("AEXP_CatMunchkin\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.793650794f, ceBluntPenetrationFactor = 0.105263158f },
+            });
+            target.Add("AEXP_CatMunchkin\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.603174603f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_CatNorwegianForest\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.610687023f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_CatNorwegianForest\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.557251908f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_CatNorwegianForest\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.807692308f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.801526718f, ceBluntPenetrationFactor = 0.107142857f },
+            });
+            target.Add("AEXP_CatNorwegianForest\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.807692308f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.801526718f, ceBluntPenetrationFactor = 0.107142857f },
+            });
+            target.Add("AEXP_CatNorwegianForest\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.610687023f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_CatPersian\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.59375f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_CatPersian\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.78125f, ceBluntPenetrationFactor = 0.0909090909f },
+            });
+            target.Add("AEXP_CatPersian\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.78125f, ceBluntPenetrationFactor = 0.0909090909f },
+            });
+            target.Add("AEXP_CatPersian\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.59375f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_CatSiamese\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.620155039f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_CatSiamese\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.565891473f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_CatSiamese\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.807692308f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.813953488f, ceBluntPenetrationFactor = 0.125f },
+            });
+            target.Add("AEXP_CatSiamese\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.807692308f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.813953488f, ceBluntPenetrationFactor = 0.125f },
+            });
+            target.Add("AEXP_CatSiamese\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.620155039f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_CatSomali\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.612903226f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_CatSomali\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.806451613f, ceBluntPenetrationFactor = 0.125f },
+            });
+            target.Add("AEXP_CatSomali\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.806451613f, ceBluntPenetrationFactor = 0.125f },
+            });
+            target.Add("AEXP_CatSomali\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.612903226f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_CatSphynx\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.620155039f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_CatSphynx\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.565891473f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_CatSphynx\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.807692308f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.813953488f, ceBluntPenetrationFactor = 0.125f },
+            });
+            target.Add("AEXP_CatSphynx\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.807692308f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.813953488f, ceBluntPenetrationFactor = 0.125f },
+            });
+            target.Add("AEXP_CatSphynx\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.620155039f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_Cheetah\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.583333333f, ceDamageFactor = 0.00588235294f, ceCooldownFactor = 0.574585635f, ceBluntPenetrationFactor = 0.00564971751f },
+            });
+            target.Add("AEXP_Cheetah\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.555555556f, ceDamageFactor = 0.00588235294f, ceCooldownFactor = 0.524861878f, ceBluntPenetrationFactor = 0.00188323917f },
+            });
+            target.Add("AEXP_Cheetah\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.777777778f, ceDamageFactor = 0.147058824f, ceCooldownFactor = 0.779005525f, ceBluntPenetrationFactor = 0.111111111f },
+            });
+            target.Add("AEXP_Cheetah\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.777777778f, ceDamageFactor = 0.147058824f, ceCooldownFactor = 0.779005525f, ceBluntPenetrationFactor = 0.111111111f },
+            });
+        }
+
+        private static void AddBatch12(Dictionary<string, List<ZoologyLifeStageToolFactor>> target)
+        {
+            target.Add("AEXP_Cheetah\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.583333333f, ceDamageFactor = 0.00588235294f, ceCooldownFactor = 0.574585635f, ceBluntPenetrationFactor = 0.00564971751f },
+            });
+            target.Add("AEXP_Chihuahua\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.612903226f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_Chihuahua\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.806451613f, ceBluntPenetrationFactor = 0.117647059f },
+            });
+            target.Add("AEXP_Chihuahua\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.806451613f, ceBluntPenetrationFactor = 0.117647059f },
+            });
+            target.Add("AEXP_Chihuahua\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.612903226f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_Corgi\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.666666667f, ceDamageFactor = 0.025f, ceCooldownFactor = 0.590604027f, ceBluntPenetrationFactor = 0.01f },
+            });
+            target.Add("AEXP_Corgi\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.666666667f, ceDamageFactor = 0.025f, ceCooldownFactor = 0.55033557f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_Corgi\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.125f, ceCooldownFactor = 0.791946309f, ceBluntPenetrationFactor = 0.1f },
+            });
+            target.Add("AEXP_Corgi\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.125f, ceCooldownFactor = 0.791946309f, ceBluntPenetrationFactor = 0.1f },
+            });
+            target.Add("AEXP_Corgi\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.666666667f, ceDamageFactor = 0.025f, ceCooldownFactor = 0.590604027f, ceBluntPenetrationFactor = 0.01f },
+            });
+            target.Add("AEXP_Coyote\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.689655172f, ceDamageFactor = 0.0333333333f, ceCooldownFactor = 0.589041096f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_Coyote\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.689655172f, ceDamageFactor = 0.0333333333f, ceCooldownFactor = 0.54109589f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_Coyote\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.793103448f, ceDamageFactor = 0.166666667f, ceCooldownFactor = 0.780821918f, ceBluntPenetrationFactor = 0.0843373494f },
+            });
+            target.Add("AEXP_Coyote\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.793103448f, ceDamageFactor = 0.166666667f, ceCooldownFactor = 0.780821918f, ceBluntPenetrationFactor = 0.0843373494f },
+            });
+            target.Add("AEXP_Coyote\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.689655172f, ceDamageFactor = 0.0333333333f, ceCooldownFactor = 0.589041096f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_Crocodile\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.111111111f, vanillaCooldownFactor = 0.551020408f, ceDamageFactor = 0.0169491525f, ceCooldownFactor = 0.542857143f, ceBluntPenetrationFactor = 0.0102286402f },
+            });
+            target.Add("AEXP_Crocodile\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.111111111f, vanillaCooldownFactor = 0.489795918f, ceDamageFactor = 0.00564971751f, ceCooldownFactor = 0.493877551f, ceBluntPenetrationFactor = 0.00391095066f },
+            });
+            target.Add("AEXP_Crocodile\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.755102041f, ceDamageFactor = 0.220338983f, ceCooldownFactor = 0.751020408f, ceBluntPenetrationFactor = 0.184416366f },
+            });
+            target.Add("AEXP_Crocodile\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.755102041f, ceDamageFactor = 0.220338983f, ceCooldownFactor = 0.751020408f, ceBluntPenetrationFactor = 0.184416366f },
+            });
+            target.Add("AEXP_Crocodile\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.111111111f, vanillaCooldownFactor = 0.551020408f, ceDamageFactor = 0.0169491525f, ceCooldownFactor = 0.542857143f, ceBluntPenetrationFactor = 0.0102286402f },
+            });
+            target.Add("AEXP_DesertTortoise\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.583333333f, ceDamageFactor = 0.00571428571f, ceCooldownFactor = 0.571428571f, ceBluntPenetrationFactor = 0.00539568345f },
+            });
+            target.Add("AEXP_DesertTortoise\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.555555556f, ceDamageFactor = 0.00571428571f, ceCooldownFactor = 0.521978022f, ceBluntPenetrationFactor = 0.00179856115f },
+            });
+            target.Add("AEXP_DesertTortoise\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.777777778f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.774725275f, ceBluntPenetrationFactor = 0.106115108f },
+            });
+            target.Add("AEXP_DesertTortoise\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.777777778f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.774725275f, ceBluntPenetrationFactor = 0.106115108f },
+            });
+            target.Add("AEXP_DesertTortoise\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.583333333f, ceDamageFactor = 0.00571428571f, ceCooldownFactor = 0.571428571f, ceBluntPenetrationFactor = 0.00539568345f },
+            });
+            target.Add("AEXP_FrenchBulldog\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.666666667f, ceDamageFactor = 0.025f, ceCooldownFactor = 0.582781457f, ceBluntPenetrationFactor = 0.00925925926f },
+            });
+            target.Add("AEXP_FrenchBulldog\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.666666667f, ceDamageFactor = 0.025f, ceCooldownFactor = 0.543046358f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_FrenchBulldog\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.125f, ceCooldownFactor = 0.781456954f, ceBluntPenetrationFactor = 0.0925925926f },
+            });
+            target.Add("AEXP_FrenchBulldog\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.125f, ceCooldownFactor = 0.781456954f, ceBluntPenetrationFactor = 0.0925925926f },
+            });
+            target.Add("AEXP_FrenchBulldog\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.666666667f, ceDamageFactor = 0.025f, ceCooldownFactor = 0.582781457f, ceBluntPenetrationFactor = 0.00925925926f },
+            });
+            target.Add("AEXP_GermanShepherd\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.571428571f, ceDamageFactor = 0.00689655172f, ceCooldownFactor = 0.576271186f, ceBluntPenetrationFactor = 0.00674157303f },
+            });
+            target.Add("AEXP_GermanShepherd\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.571428571f, ceDamageFactor = 0.00689655172f, ceCooldownFactor = 0.531073446f, ceBluntPenetrationFactor = 0.00224719101f },
+            });
+            target.Add("AEXP_GermanShepherd\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.137931034f, ceCooldownFactor = 0.779661017f, ceBluntPenetrationFactor = 0.107865169f },
+            });
+            target.Add("AEXP_GermanShepherd\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.137931034f, ceCooldownFactor = 0.779661017f, ceBluntPenetrationFactor = 0.107865169f },
+            });
+            target.Add("AEXP_GermanShepherd\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.571428571f, ceDamageFactor = 0.00689655172f, ceCooldownFactor = 0.576271186f, ceBluntPenetrationFactor = 0.00674157303f },
+            });
+            target.Add("AEXP_GilaMonster\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", ceCooldownFactor = 0.788888889f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_GilaMonster\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", ceCooldownFactor = 0.788888889f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_Giraffe\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0588235294f, vanillaCooldownFactor = 0.533333333f, ceDamageFactor = 0.0368271955f, ceCooldownFactor = 0.53f, ceBluntPenetrationFactor = 0.0250665173f },
+            });
+            target.Add("AEXP_Giraffe\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0588235294f, vanillaCooldownFactor = 0.483333333f, ceDamageFactor = 0.0169971671f, ceCooldownFactor = 0.48f, ceBluntPenetrationFactor = 0.00980254866f },
+            });
+            target.Add("AEXP_Giraffe\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.352941176f, vanillaCooldownFactor = 0.75f, ceDamageFactor = 0.345609065f, ceCooldownFactor = 0.75f, ceBluntPenetrationFactor = 0.30850021f },
+            });
+            target.Add("AEXP_Giraffe\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.352941176f, vanillaCooldownFactor = 0.75f, ceDamageFactor = 0.345609065f, ceCooldownFactor = 0.75f, ceBluntPenetrationFactor = 0.30850021f },
+            });
+            target.Add("AEXP_Giraffe\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0588235294f, vanillaCooldownFactor = 0.533333333f, ceDamageFactor = 0.0368271955f, ceCooldownFactor = 0.53f, ceBluntPenetrationFactor = 0.0250665173f },
+            });
+            target.Add("AEXP_Gorilla\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.558139535f, ceDamageFactor = 0.0107526882f, ceCooldownFactor = 0.563380282f, ceBluntPenetrationFactor = 0.00734394125f },
+            });
+            target.Add("AEXP_Gorilla\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.511627907f, ceDamageFactor = 0.00215053763f, ceCooldownFactor = 0.511737089f, ceBluntPenetrationFactor = 0.00305997552f },
+            });
+            target.Add("AEXP_Gorilla\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.76744186f, ceDamageFactor = 0.172043011f, ceCooldownFactor = 0.769953052f, ceBluntPenetrationFactor = 0.141370869f },
+            });
+            target.Add("AEXP_Gorilla\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.76744186f, ceDamageFactor = 0.172043011f, ceCooldownFactor = 0.769953052f, ceBluntPenetrationFactor = 0.141370869f },
+            });
+            target.Add("AEXP_Gorilla\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.558139535f, ceDamageFactor = 0.0107526882f, ceCooldownFactor = 0.563380282f, ceBluntPenetrationFactor = 0.00734394125f },
+            });
+            target.Add("AEXP_GreatDane\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.578947368f, ceDamageFactor = 0.0196078431f, ceCooldownFactor = 0.572916667f, ceBluntPenetrationFactor = 0.00604594921f },
+            });
+            target.Add("AEXP_GreatDane\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.526315789f, ceDamageFactor = 0.00392156863f, ceCooldownFactor = 0.520833333f, ceBluntPenetrationFactor = 0.00241837969f },
+            });
+            target.Add("AEXP_GreatDane\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.789473684f, ceDamageFactor = 0.156862745f, ceCooldownFactor = 0.776041667f, ceBluntPenetrationFactor = 0.119709794f },
+            });
+            target.Add("AEXP_GreatDane\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.789473684f, ceDamageFactor = 0.156862745f, ceCooldownFactor = 0.776041667f, ceBluntPenetrationFactor = 0.119709794f },
+            });
+            target.Add("AEXP_GreatDane\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.578947368f, ceDamageFactor = 0.0196078431f, ceCooldownFactor = 0.572916667f, ceBluntPenetrationFactor = 0.00604594921f },
+            });
+            target.Add("AEXP_Hedgehog\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", ceCooldownFactor = 0.828282828f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_Hedgehog\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", ceCooldownFactor = 0.828282828f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_Hippopotamus\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0526315789f, vanillaCooldownFactor = 0.523809524f, ceDamageFactor = 0.04f, ceCooldownFactor = 0.523961661f, ceBluntPenetrationFactor = 0.0281295665f },
+            });
+            target.Add("AEXP_Hippopotamus\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0526315789f, vanillaCooldownFactor = 0.476190476f, ceDamageFactor = 0.0175f, ceCooldownFactor = 0.47284345f, ceBluntPenetrationFactor = 0.0112031174f },
+            });
+            target.Add("AEXP_Hippopotamus\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.368421053f, vanillaCooldownFactor = 0.746031746f, ceDamageFactor = 0.355f, ceCooldownFactor = 0.744408946f, ceBluntPenetrationFactor = 0.317705796f },
+            });
+            target.Add("AEXP_Hippopotamus\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.368421053f, vanillaCooldownFactor = 0.746031746f, ceDamageFactor = 0.355f, ceCooldownFactor = 0.744408946f, ceBluntPenetrationFactor = 0.317705796f },
+            });
+            target.Add("AEXP_Hippopotamus\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0526315789f, vanillaCooldownFactor = 0.523809524f, ceDamageFactor = 0.04f, ceCooldownFactor = 0.523961661f, ceBluntPenetrationFactor = 0.0281295665f },
+            });
+            target.Add("AEXP_Hyena\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.564102564f, ceDamageFactor = 0.0185185185f, ceCooldownFactor = 0.567010309f, ceBluntPenetrationFactor = 0.00561797753f },
+            });
+            target.Add("AEXP_Hyena\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.512820513f, ceDamageFactor = 0.0037037037f, ceCooldownFactor = 0.515463918f, ceBluntPenetrationFactor = 0.00224719101f },
+            });
+            target.Add("AEXP_Hyena\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.148148148f, ceCooldownFactor = 0.768041237f, ceBluntPenetrationFactor = 0.111235955f },
+            });
+            target.Add("AEXP_Hyena\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.148148148f, ceCooldownFactor = 0.768041237f, ceBluntPenetrationFactor = 0.111235955f },
+            });
+            target.Add("AEXP_Hyena\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.564102564f, ceDamageFactor = 0.0185185185f, ceCooldownFactor = 0.567010309f, ceBluntPenetrationFactor = 0.00561797753f },
+            });
+        }
+
+        private static void AddBatch13(Dictionary<string, List<ZoologyLifeStageToolFactor>> target)
+        {
+            target.Add("AEXP_IndianElephant\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0784313725f, vanillaCooldownFactor = 0.506849315f, ceDamageFactor = 0.0672413793f, ceCooldownFactor = 0.506887052f, ceBluntPenetrationFactor = 0.0493399871f },
+            });
+            target.Add("AEXP_IndianElephant\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0392156863f, vanillaCooldownFactor = 0.452054795f, ceDamageFactor = 0.0310344828f, ceCooldownFactor = 0.457300275f, ceBluntPenetrationFactor = 0.0209272376f },
+            });
+            target.Add("AEXP_IndianElephant\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.490196078f, vanillaCooldownFactor = 0.739726027f, ceDamageFactor = 0.422413793f, ceCooldownFactor = 0.738292011f, ceBluntPenetrationFactor = 0.384497746f },
+            });
+            target.Add("AEXP_IndianElephant\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.490196078f, vanillaCooldownFactor = 0.739726027f, ceDamageFactor = 0.422413793f, ceCooldownFactor = 0.738292011f, ceBluntPenetrationFactor = 0.384497746f },
+            });
+            target.Add("AEXP_IndianElephant\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0784313725f, vanillaCooldownFactor = 0.506849315f, ceDamageFactor = 0.0672413793f, ceCooldownFactor = 0.506887052f, ceBluntPenetrationFactor = 0.0493399871f },
+            });
+            target.Add("AEXP_Jaguar\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.285714286f, vanillaCooldownFactor = 0.56097561f, ceDamageFactor = 0.0138888889f, ceCooldownFactor = 0.573529412f, ceBluntPenetrationFactor = 0.00731112916f },
+            });
+            target.Add("AEXP_Jaguar\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.285714286f, vanillaCooldownFactor = 0.512195122f, ceDamageFactor = 0.00277777778f, ceCooldownFactor = 0.519607843f, ceBluntPenetrationFactor = 0.00324939074f },
+            });
+            target.Add("AEXP_Jaguar\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.285714286f, vanillaCooldownFactor = 0.780487805f, ceDamageFactor = 0.180555556f, ceCooldownFactor = 0.779411765f, ceBluntPenetrationFactor = 0.145410236f },
+            });
+            target.Add("AEXP_Jaguar\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.285714286f, vanillaCooldownFactor = 0.780487805f, ceDamageFactor = 0.180555556f, ceCooldownFactor = 0.779411765f, ceBluntPenetrationFactor = 0.145410236f },
+            });
+            target.Add("AEXP_Jaguar\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.285714286f, vanillaCooldownFactor = 0.56097561f, ceDamageFactor = 0.0138888889f, ceCooldownFactor = 0.573529412f, ceBluntPenetrationFactor = 0.00731112916f },
+            });
+            target.Add("AEXP_Kangaroo\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.567567568f, ceDamageFactor = 0.00526315789f, ceCooldownFactor = 0.576086957f, ceBluntPenetrationFactor = 0.00663349917f },
+            });
+            target.Add("AEXP_Kangaroo\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.540540541f, ceDamageFactor = 0.00526315789f, ceCooldownFactor = 0.527173913f, ceBluntPenetrationFactor = 0.00331674959f },
+            });
+            target.Add("AEXP_Kangaroo\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.783783784f, ceDamageFactor = 0.157894737f, ceCooldownFactor = 0.782608696f, ceBluntPenetrationFactor = 0.116086235f },
+            });
+            target.Add("AEXP_Kangaroo\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.783783784f, ceDamageFactor = 0.157894737f, ceCooldownFactor = 0.782608696f, ceBluntPenetrationFactor = 0.116086235f },
+            });
+            target.Add("AEXP_Kangaroo\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.567567568f, ceDamageFactor = 0.00526315789f, ceCooldownFactor = 0.576086957f, ceBluntPenetrationFactor = 0.00663349917f },
+            });
+            target.Add("AEXP_Koala\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.689655172f, ceDamageFactor = 0.04f, ceCooldownFactor = 0.601398601f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_Koala\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.689655172f, ceDamageFactor = 0.04f, ceCooldownFactor = 0.552447552f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_Koala\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.793103448f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.797202797f, ceBluntPenetrationFactor = 0.104477612f },
+            });
+            target.Add("AEXP_Koala\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.793103448f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.797202797f, ceBluntPenetrationFactor = 0.104477612f },
+            });
+            target.Add("AEXP_Koala\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.689655172f, ceDamageFactor = 0.04f, ceCooldownFactor = 0.601398601f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_Lemur\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.869565217f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.617391304f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_Lemur\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.869565217f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.826086957f, ceBluntPenetrationFactor = 0.125f },
+            });
+            target.Add("AEXP_Lemur\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.869565217f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.826086957f, ceBluntPenetrationFactor = 0.125f },
+            });
+            target.Add("AEXP_Lemur\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.869565217f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.617391304f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_Lion\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.153846154f, vanillaCooldownFactor = 0.555555556f, ceDamageFactor = 0.016f, ceCooldownFactor = 0.553097345f, ceBluntPenetrationFactor = 0.00843694494f },
+            });
+            target.Add("AEXP_Lion\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.153846154f, vanillaCooldownFactor = 0.511111111f, ceDamageFactor = 0.008f, ceCooldownFactor = 0.504424779f, ceBluntPenetrationFactor = 0.00310834813f },
+            });
+            target.Add("AEXP_Lion\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.153846154f, vanillaCooldownFactor = 0.755555556f, ceDamageFactor = 0.192f, ceCooldownFactor = 0.761061947f, ceBluntPenetrationFactor = 0.159413854f },
+            });
+            target.Add("AEXP_Lion\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.153846154f, vanillaCooldownFactor = 0.755555556f, ceDamageFactor = 0.192f, ceCooldownFactor = 0.761061947f, ceBluntPenetrationFactor = 0.159413854f },
+            });
+            target.Add("AEXP_Lion\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.153846154f, vanillaCooldownFactor = 0.555555556f, ceDamageFactor = 0.016f, ceCooldownFactor = 0.553097345f, ceBluntPenetrationFactor = 0.00843694494f },
+            });
+            target.Add("AEXP_Mandrill\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.625f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.596273292f, ceBluntPenetrationFactor = 0.00485436893f },
+            });
+            target.Add("AEXP_Mandrill\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.625f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.540372671f, ceBluntPenetrationFactor = 0.00485436893f },
+            });
+            target.Add("AEXP_Mandrill\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8125f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.801242236f, ceBluntPenetrationFactor = 0.116504854f },
+            });
+            target.Add("AEXP_Mandrill\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8125f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.801242236f, ceBluntPenetrationFactor = 0.116504854f },
+            });
+            target.Add("AEXP_Mandrill\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.625f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.596273292f, ceBluntPenetrationFactor = 0.00485436893f },
+            });
+            target.Add("AEXP_Megascorpion\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.689655172f, ceDamageFactor = 0.0333333333f, ceCooldownFactor = 0.593103448f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_Megascorpion\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.689655172f, ceDamageFactor = 0.0333333333f, ceCooldownFactor = 0.544827586f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_Megascorpion\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.793103448f, ceDamageFactor = 0.166666667f, ceCooldownFactor = 0.786206897f, ceBluntPenetrationFactor = 0.0945945946f },
+            });
+            target.Add("AEXP_Megascorpion\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.793103448f, ceDamageFactor = 0.166666667f, ceCooldownFactor = 0.786206897f, ceBluntPenetrationFactor = 0.0945945946f },
+            });
+            target.Add("AEXP_Megascorpion\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.689655172f, ceDamageFactor = 0.0333333333f, ceCooldownFactor = 0.593103448f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_MegaWolverine\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0512820513f, vanillaCooldownFactor = 0.53125f, ceDamageFactor = 0.0475059382f, ceCooldownFactor = 0.526645768f, ceBluntPenetrationFactor = 0.0334983308f },
+            });
+            target.Add("AEXP_MegaWolverine\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0512820513f, vanillaCooldownFactor = 0.46875f, ceDamageFactor = 0.0213776722f, ceCooldownFactor = 0.476489028f, ceBluntPenetrationFactor = 0.0134684011f },
+            });
+            target.Add("AEXP_MegaWolverine\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.41025641f, vanillaCooldownFactor = 0.75f, ceDamageFactor = 0.387173397f, ceCooldownFactor = 0.752351097f, ceBluntPenetrationFactor = 0.348451709f },
+            });
+            target.Add("AEXP_MegaWolverine\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.41025641f, vanillaCooldownFactor = 0.75f, ceDamageFactor = 0.387173397f, ceCooldownFactor = 0.752351097f, ceBluntPenetrationFactor = 0.348451709f },
+            });
+            target.Add("AEXP_MegaWolverine\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0512820513f, vanillaCooldownFactor = 0.53125f, ceDamageFactor = 0.0475059382f, ceCooldownFactor = 0.526645768f, ceBluntPenetrationFactor = 0.0334983308f },
+            });
+            target.Add("AEXP_Moa\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.285714286f, vanillaCooldownFactor = 0.575f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.559405941f, ceBluntPenetrationFactor = 0.0059473237f },
+            });
+            target.Add("AEXP_Moa\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.285714286f, vanillaCooldownFactor = 0.525f, ceDamageFactor = 0.00285714286f, ceCooldownFactor = 0.50990099f, ceBluntPenetrationFactor = 0.00254885302f },
+            });
+            target.Add("AEXP_Moa\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.285714286f, vanillaCooldownFactor = 0.775f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.762376238f, ceBluntPenetrationFactor = 0.114698386f },
+            });
+            target.Add("AEXP_Moa\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.285714286f, vanillaCooldownFactor = 0.775f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.762376238f, ceBluntPenetrationFactor = 0.114698386f },
+            });
+            target.Add("AEXP_Moa\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.285714286f, vanillaCooldownFactor = 0.575f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.559405941f, ceBluntPenetrationFactor = 0.0059473237f },
+            });
+            target.Add("AEXP_Moose\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0869565217f, vanillaCooldownFactor = 0.547169811f, ceDamageFactor = 0.0260869565f, ceCooldownFactor = 0.547528517f, ceBluntPenetrationFactor = 0.0157303371f },
+            });
+            target.Add("AEXP_Moose\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0869565217f, vanillaCooldownFactor = 0.490566038f, ceDamageFactor = 0.00869565217f, ceCooldownFactor = 0.494296578f, ceBluntPenetrationFactor = 0.00629213483f },
+            });
+            target.Add("AEXP_Moose\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.304347826f, vanillaCooldownFactor = 0.754716981f, ceDamageFactor = 0.291304348f, ceCooldownFactor = 0.764258555f, ceBluntPenetrationFactor = 0.252808989f },
+            });
+            target.Add("AEXP_Moose\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.304347826f, vanillaCooldownFactor = 0.754716981f, ceDamageFactor = 0.291304348f, ceCooldownFactor = 0.764258555f, ceBluntPenetrationFactor = 0.252808989f },
+            });
+            target.Add("AEXP_Moose\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0869565217f, vanillaCooldownFactor = 0.547169811f, ceDamageFactor = 0.0260869565f, ceCooldownFactor = 0.547528517f, ceBluntPenetrationFactor = 0.0157303371f },
+            });
+            target.Add("AEXP_Muskox\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.111111111f, vanillaCooldownFactor = 0.551020408f, ceDamageFactor = 0.0169491525f, ceCooldownFactor = 0.542857143f, ceBluntPenetrationFactor = 0.0102132773f },
+            });
+            target.Add("AEXP_Muskox\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.111111111f, vanillaCooldownFactor = 0.489795918f, ceDamageFactor = 0.00564971751f, ceCooldownFactor = 0.493877551f, ceBluntPenetrationFactor = 0.0039050766f },
+            });
+            target.Add("AEXP_Muskox\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.755102041f, ceDamageFactor = 0.220338983f, ceCooldownFactor = 0.751020408f, ceBluntPenetrationFactor = 0.184139381f },
+            });
+            target.Add("AEXP_Muskox\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.755102041f, ceDamageFactor = 0.220338983f, ceCooldownFactor = 0.751020408f, ceBluntPenetrationFactor = 0.184139381f },
+            });
+            target.Add("AEXP_Muskox\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.111111111f, vanillaCooldownFactor = 0.551020408f, ceDamageFactor = 0.0169491525f, ceCooldownFactor = 0.542857143f, ceBluntPenetrationFactor = 0.0102132773f },
+            });
+            target.Add("AEXP_Otter\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.606060606f, ceDamageFactor = 0.0105263158f, ceCooldownFactor = 0.586826347f, ceBluntPenetrationFactor = 0.00735294118f },
+            });
+            target.Add("AEXP_Otter\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.606060606f, ceDamageFactor = 0.0105263158f, ceCooldownFactor = 0.538922156f, ceBluntPenetrationFactor = 0.00367647059f },
+            });
+            target.Add("AEXP_Otter\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.787878788f, ceDamageFactor = 0.157894737f, ceCooldownFactor = 0.790419162f, ceBluntPenetrationFactor = 0.113970588f },
+            });
+            target.Add("AEXP_Otter\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.787878788f, ceDamageFactor = 0.157894737f, ceCooldownFactor = 0.790419162f, ceBluntPenetrationFactor = 0.113970588f },
+            });
+            target.Add("AEXP_Otter\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.606060606f, ceDamageFactor = 0.0105263158f, ceCooldownFactor = 0.586826347f, ceBluntPenetrationFactor = 0.00735294118f },
+            });
+        }
+
+        private static void AddBatch14(Dictionary<string, List<ZoologyLifeStageToolFactor>> target)
+        {
+            target.Add("AEXP_Panda\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.571428571f, ceDamageFactor = 0.0114942529f, ceCooldownFactor = 0.568720379f, ceBluntPenetrationFactor = 0.00792602378f },
+            });
+            target.Add("AEXP_Panda\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.523809524f, ceDamageFactor = 0.00229885057f, ceCooldownFactor = 0.516587678f, ceBluntPenetrationFactor = 0.00330250991f },
+            });
+            target.Add("AEXP_Panda\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.785714286f, ceDamageFactor = 0.183908046f, ceCooldownFactor = 0.777251185f, ceBluntPenetrationFactor = 0.152575958f },
+            });
+            target.Add("AEXP_Panda\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.785714286f, ceDamageFactor = 0.183908046f, ceCooldownFactor = 0.777251185f, ceBluntPenetrationFactor = 0.152575958f },
+            });
+            target.Add("AEXP_Panda\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.571428571f, ceDamageFactor = 0.0114942529f, ceCooldownFactor = 0.568720379f, ceBluntPenetrationFactor = 0.00792602378f },
+            });
+            target.Add("AEXP_Pangolin\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.666666667f, ceDamageFactor = 0.0285714286f, ceCooldownFactor = 0.590604027f, ceBluntPenetrationFactor = 0.0103092784f },
+            });
+            target.Add("AEXP_Pangolin\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.666666667f, ceDamageFactor = 0.0285714286f, ceCooldownFactor = 0.55033557f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_Pangolin\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.791946309f, ceBluntPenetrationFactor = 0.103092784f },
+            });
+            target.Add("AEXP_Pangolin\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.791946309f, ceBluntPenetrationFactor = 0.103092784f },
+            });
+            target.Add("AEXP_Pangolin\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.666666667f, ceDamageFactor = 0.0285714286f, ceCooldownFactor = 0.590604027f, ceBluntPenetrationFactor = 0.0103092784f },
+            });
+            target.Add("AEXP_Penguin\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.571428571f, ceDamageFactor = 0.00769230769f, ceCooldownFactor = 0.586206897f, ceBluntPenetrationFactor = 0.0075f },
+            });
+            target.Add("AEXP_Penguin\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.571428571f, ceDamageFactor = 0.00769230769f, ceCooldownFactor = 0.540229885f, ceBluntPenetrationFactor = 0.0025f },
+            });
+            target.Add("AEXP_Penguin\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.153846154f, ceCooldownFactor = 0.793103448f, ceBluntPenetrationFactor = 0.12f },
+            });
+            target.Add("AEXP_Penguin\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.153846154f, ceCooldownFactor = 0.793103448f, ceBluntPenetrationFactor = 0.12f },
+            });
+            target.Add("AEXP_Penguin\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.571428571f, ceDamageFactor = 0.00769230769f, ceCooldownFactor = 0.586206897f, ceBluntPenetrationFactor = 0.0075f },
+            });
+            target.Add("AEXP_Platypus\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.952380952f, ceCooldownFactor = 0.796116505f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_Platypus\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.952380952f, ceCooldownFactor = 0.796116505f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_Poodle\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.625f, ceDamageFactor = 0.0133333333f, ceCooldownFactor = 0.592592593f, ceBluntPenetrationFactor = 0.00458715596f },
+            });
+            target.Add("AEXP_Poodle\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.625f, ceDamageFactor = 0.0133333333f, ceCooldownFactor = 0.537037037f, ceBluntPenetrationFactor = 0.00458715596f },
+            });
+            target.Add("AEXP_Poodle\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8125f, ceDamageFactor = 0.133333333f, ceCooldownFactor = 0.796296296f, ceBluntPenetrationFactor = 0.110091743f },
+            });
+            target.Add("AEXP_Poodle\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8125f, ceDamageFactor = 0.133333333f, ceCooldownFactor = 0.796296296f, ceBluntPenetrationFactor = 0.110091743f },
+            });
+            target.Add("AEXP_Poodle\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.625f, ceDamageFactor = 0.0133333333f, ceCooldownFactor = 0.592592593f, ceBluntPenetrationFactor = 0.00458715596f },
+            });
+            target.Add("AEXP_Porcupine\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.666666667f, ceDamageFactor = 0.0285714286f, ceCooldownFactor = 0.594594595f, ceBluntPenetrationFactor = 0.0107526882f },
+            });
+            target.Add("AEXP_Porcupine\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.666666667f, ceDamageFactor = 0.0285714286f, ceCooldownFactor = 0.554054054f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_Porcupine\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.797297297f, ceBluntPenetrationFactor = 0.107526882f },
+            });
+            target.Add("AEXP_Porcupine\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.797297297f, ceBluntPenetrationFactor = 0.107526882f },
+            });
+            target.Add("AEXP_Porcupine\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.666666667f, ceDamageFactor = 0.0285714286f, ceCooldownFactor = 0.594594595f, ceBluntPenetrationFactor = 0.0107526882f },
+            });
+            target.Add("AEXP_Pug\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.689655172f, ceDamageFactor = 0.04f, ceCooldownFactor = 0.601398601f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_Pug\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.689655172f, ceDamageFactor = 0.04f, ceCooldownFactor = 0.552447552f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_Pug\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.793103448f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.797202797f, ceBluntPenetrationFactor = 0.107692308f },
+            });
+            target.Add("AEXP_Pug\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.793103448f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.797202797f, ceBluntPenetrationFactor = 0.107692308f },
+            });
+            target.Add("AEXP_Pug\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.689655172f, ceDamageFactor = 0.04f, ceCooldownFactor = 0.601398601f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_Quagga\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.111111111f, vanillaCooldownFactor = 0.551020408f, ceDamageFactor = 0.0171428571f, ceCooldownFactor = 0.542857143f, ceBluntPenetrationFactor = 0.0103437785f },
+            });
+            target.Add("AEXP_Quagga\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.111111111f, vanillaCooldownFactor = 0.489795918f, ceDamageFactor = 0.00571428571f, ceCooldownFactor = 0.493877551f, ceBluntPenetrationFactor = 0.00395497414f },
+            });
+            target.Add("AEXP_Quagga\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.755102041f, ceDamageFactor = 0.222857143f, ceCooldownFactor = 0.751020408f, ceBluntPenetrationFactor = 0.186492242f },
+            });
+            target.Add("AEXP_Quagga\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.755102041f, ceDamageFactor = 0.222857143f, ceCooldownFactor = 0.751020408f, ceBluntPenetrationFactor = 0.186492242f },
+            });
+            target.Add("AEXP_Quagga\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.111111111f, vanillaCooldownFactor = 0.551020408f, ceDamageFactor = 0.0171428571f, ceCooldownFactor = 0.542857143f, ceBluntPenetrationFactor = 0.0103437785f },
+            });
+            target.Add("AEXP_Rattlesnake\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", ceCooldownFactor = 0.863157895f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_Rattlesnake\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", ceCooldownFactor = 0.863157895f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_RedPanda\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.620155039f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_RedPanda\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.565891473f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_RedPanda\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.807692308f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.813953488f, ceBluntPenetrationFactor = 0.125f },
+            });
+            target.Add("AEXP_RedPanda\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.807692308f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.813953488f, ceBluntPenetrationFactor = 0.125f },
+            });
+            target.Add("AEXP_RedPanda\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.620155039f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_RockhopperPenguin\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.833333333f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.601694915f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_RockhopperPenguin\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.833333333f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.805084746f, ceBluntPenetrationFactor = 0.1f },
+            });
+            target.Add("AEXP_RockhopperPenguin\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.833333333f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.805084746f, ceBluntPenetrationFactor = 0.1f },
+            });
+            target.Add("AEXP_RockhopperPenguin\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.833333333f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.601694915f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_Rottweiler\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.583333333f, ceDamageFactor = 0.00571428571f, ceCooldownFactor = 0.574585635f, ceBluntPenetrationFactor = 0.00550458716f },
+            });
+            target.Add("AEXP_Rottweiler\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.555555556f, ceDamageFactor = 0.00571428571f, ceCooldownFactor = 0.524861878f, ceBluntPenetrationFactor = 0.00183486239f },
+            });
+            target.Add("AEXP_Rottweiler\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.777777778f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.779005525f, ceBluntPenetrationFactor = 0.108256881f },
+            });
+            target.Add("AEXP_Rottweiler\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.777777778f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.779005525f, ceBluntPenetrationFactor = 0.108256881f },
+            });
+            target.Add("AEXP_Rottweiler\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.583333333f, ceDamageFactor = 0.00571428571f, ceCooldownFactor = 0.574585635f, ceBluntPenetrationFactor = 0.00550458716f },
+            });
+            target.Add("AEXP_Seal\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.58974359f, ceDamageFactor = 0.0169491525f, ceCooldownFactor = 0.573604061f, ceBluntPenetrationFactor = 0.00710659898f },
+            });
+            target.Add("AEXP_Seal\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.538461538f, ceDamageFactor = 0.00338983051f, ceCooldownFactor = 0.52284264f, ceBluntPenetrationFactor = 0.00304568528f },
+            });
+            target.Add("AEXP_Seal\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.794871795f, ceDamageFactor = 0.169491525f, ceCooldownFactor = 0.781725888f, ceBluntPenetrationFactor = 0.137055838f },
+            });
+            target.Add("AEXP_Seal\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.794871795f, ceDamageFactor = 0.169491525f, ceCooldownFactor = 0.781725888f, ceBluntPenetrationFactor = 0.137055838f },
+            });
+            target.Add("AEXP_Seal\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.58974359f, ceDamageFactor = 0.0169491525f, ceCooldownFactor = 0.573604061f, ceBluntPenetrationFactor = 0.00710659898f },
+            });
+            target.Add("AEXP_Shih-Tzu\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.714285714f, ceDamageFactor = 0.05f, ceCooldownFactor = 0.592857143f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_Shih-Tzu\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.714285714f, ceDamageFactor = 0.05f, ceCooldownFactor = 0.542857143f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_Shih-Tzu\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.785714286f, ceDamageFactor = 0.25f, ceCooldownFactor = 0.785714286f, ceBluntPenetrationFactor = 0.0943396226f },
+            });
+            target.Add("AEXP_Shih-Tzu\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.785714286f, ceDamageFactor = 0.25f, ceCooldownFactor = 0.785714286f, ceBluntPenetrationFactor = 0.0943396226f },
+            });
+            target.Add("AEXP_Shih-Tzu\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.714285714f, ceDamageFactor = 0.05f, ceCooldownFactor = 0.592857143f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_Tapir\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.125f, vanillaCooldownFactor = 0.541666667f, ceDamageFactor = 0.0128205128f, ceCooldownFactor = 0.550420168f, ceBluntPenetrationFactor = 0.00968523002f },
+            });
+        }
+
+        private static void AddBatch15(Dictionary<string, List<ZoologyLifeStageToolFactor>> target)
+        {
+            target.Add("AEXP_Tapir\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.125f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.00641025641f, ceCooldownFactor = 0.5f, ceBluntPenetrationFactor = 0.0038049118f },
+            });
+            target.Add("AEXP_Tapir\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.1875f, vanillaCooldownFactor = 0.75f, ceDamageFactor = 0.211538462f, ceCooldownFactor = 0.756302521f, ceBluntPenetrationFactor = 0.179868558f },
+            });
+            target.Add("AEXP_Tapir\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.1875f, vanillaCooldownFactor = 0.75f, ceDamageFactor = 0.211538462f, ceCooldownFactor = 0.756302521f, ceBluntPenetrationFactor = 0.179868558f },
+            });
+            target.Add("AEXP_Tapir\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.125f, vanillaCooldownFactor = 0.541666667f, ceDamageFactor = 0.0128205128f, ceCooldownFactor = 0.550420168f, ceBluntPenetrationFactor = 0.00968523002f },
+            });
+            target.Add("AEXP_TasmanianDevil\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.740740741f, ceDamageFactor = 0.05f, ceCooldownFactor = 0.605839416f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_TasmanianDevil\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.740740741f, ceDamageFactor = 0.05f, ceCooldownFactor = 0.554744526f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_TasmanianDevil\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.814814815f, ceDamageFactor = 0.25f, ceCooldownFactor = 0.802919708f, ceBluntPenetrationFactor = 0.111111111f },
+            });
+            target.Add("AEXP_TasmanianDevil\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.814814815f, ceDamageFactor = 0.25f, ceCooldownFactor = 0.802919708f, ceBluntPenetrationFactor = 0.111111111f },
+            });
+            target.Add("AEXP_TasmanianDevil\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.740740741f, ceDamageFactor = 0.05f, ceCooldownFactor = 0.605839416f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_Thylacine\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.64516129f, ceDamageFactor = 0.0181818182f, ceCooldownFactor = 0.598726115f, ceBluntPenetrationFactor = 0.00636942675f },
+            });
+            target.Add("AEXP_Thylacine\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.64516129f, ceDamageFactor = 0.0181818182f, ceCooldownFactor = 0.547770701f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_Thylacine\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.806451613f, ceDamageFactor = 0.181818182f, ceCooldownFactor = 0.796178344f, ceBluntPenetrationFactor = 0.121019108f },
+            });
+            target.Add("AEXP_Thylacine\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.806451613f, ceDamageFactor = 0.181818182f, ceCooldownFactor = 0.796178344f, ceBluntPenetrationFactor = 0.121019108f },
+            });
+            target.Add("AEXP_Thylacine\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.64516129f, ceDamageFactor = 0.0181818182f, ceCooldownFactor = 0.598726115f, ceBluntPenetrationFactor = 0.00636942675f },
+            });
+            target.Add("AEXP_Tiger\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.153846154f, vanillaCooldownFactor = 0.565217391f, ceDamageFactor = 0.015037594f, ceCooldownFactor = 0.558951965f, ceBluntPenetrationFactor = 0.00947672023f },
+            });
+            target.Add("AEXP_Tiger\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.153846154f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.00751879699f, ceCooldownFactor = 0.510917031f, ceBluntPenetrationFactor = 0.00370828183f },
+            });
+            target.Add("AEXP_Tiger\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.230769231f, vanillaCooldownFactor = 0.760869565f, ceDamageFactor = 0.210526316f, ceCooldownFactor = 0.768558952f, ceBluntPenetrationFactor = 0.179645653f },
+            });
+            target.Add("AEXP_Tiger\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.230769231f, vanillaCooldownFactor = 0.760869565f, ceDamageFactor = 0.210526316f, ceCooldownFactor = 0.768558952f, ceBluntPenetrationFactor = 0.179645653f },
+            });
+            target.Add("AEXP_Tiger\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.153846154f, vanillaCooldownFactor = 0.565217391f, ceDamageFactor = 0.015037594f, ceCooldownFactor = 0.558951965f, ceBluntPenetrationFactor = 0.00947672023f },
+            });
+            target.Add("AEXP_Walrus\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0588235294f, vanillaCooldownFactor = 0.533333333f, ceDamageFactor = 0.0368271955f, ceCooldownFactor = 0.53f, ceBluntPenetrationFactor = 0.0250034921f },
+            });
+            target.Add("AEXP_Walrus\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0588235294f, vanillaCooldownFactor = 0.483333333f, ceDamageFactor = 0.0169971671f, ceCooldownFactor = 0.48f, ceBluntPenetrationFactor = 0.00977790194f },
+            });
+            target.Add("AEXP_Walrus\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.352941176f, vanillaCooldownFactor = 0.75f, ceDamageFactor = 0.345609065f, ceCooldownFactor = 0.75f, ceBluntPenetrationFactor = 0.307724543f },
+            });
+            target.Add("AEXP_Walrus\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.352941176f, vanillaCooldownFactor = 0.75f, ceDamageFactor = 0.345609065f, ceCooldownFactor = 0.75f, ceBluntPenetrationFactor = 0.307724543f },
+            });
+            target.Add("AEXP_Walrus\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0588235294f, vanillaCooldownFactor = 0.533333333f, ceDamageFactor = 0.0368271955f, ceCooldownFactor = 0.53f, ceBluntPenetrationFactor = 0.0250034921f },
+            });
+            target.Add("AEXP_WelshTerrier\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.606060606f, ceDamageFactor = 0.0111111111f, ceCooldownFactor = 0.590361446f, ceBluntPenetrationFactor = 0.00763358779f },
+            });
+            target.Add("AEXP_WelshTerrier\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.606060606f, ceDamageFactor = 0.0111111111f, ceCooldownFactor = 0.542168675f, ceBluntPenetrationFactor = 0.00381679389f },
+            });
+            target.Add("AEXP_WelshTerrier\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.787878788f, ceDamageFactor = 0.166666667f, ceCooldownFactor = 0.795180723f, ceBluntPenetrationFactor = 0.118320611f },
+            });
+            target.Add("AEXP_WelshTerrier\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.787878788f, ceDamageFactor = 0.166666667f, ceCooldownFactor = 0.795180723f, ceBluntPenetrationFactor = 0.118320611f },
+            });
+            target.Add("AEXP_WelshTerrier\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.606060606f, ceDamageFactor = 0.0111111111f, ceCooldownFactor = 0.590361446f, ceBluntPenetrationFactor = 0.00763358779f },
+            });
+            target.Add("AEXP_Wildebeest\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.133333333f, vanillaCooldownFactor = 0.553191489f, ceDamageFactor = 0.0136986301f, ceCooldownFactor = 0.547008547f, ceBluntPenetrationFactor = 0.00860456416f },
+            });
+            target.Add("AEXP_Wildebeest\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.133333333f, vanillaCooldownFactor = 0.489361702f, ceDamageFactor = 0.00684931507f, ceCooldownFactor = 0.5f, ceBluntPenetrationFactor = 0.00336700337f },
+            });
+            target.Add("AEXP_Wildebeest\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.2f, vanillaCooldownFactor = 0.744680851f, ceDamageFactor = 0.191780822f, ceCooldownFactor = 0.752136752f, ceBluntPenetrationFactor = 0.163112608f },
+            });
+            target.Add("AEXP_Wildebeest\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.2f, vanillaCooldownFactor = 0.744680851f, ceDamageFactor = 0.191780822f, ceCooldownFactor = 0.752136752f, ceBluntPenetrationFactor = 0.163112608f },
+            });
+            target.Add("AEXP_Wildebeest\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.133333333f, vanillaCooldownFactor = 0.553191489f, ceDamageFactor = 0.0136986301f, ceCooldownFactor = 0.547008547f, ceBluntPenetrationFactor = 0.00860456416f },
+            });
+            target.Add("AEXP_WildGoose\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.608f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_WildGoose\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.8f, ceBluntPenetrationFactor = 0.111111111f },
+            });
+            target.Add("AEXP_WildGoose\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.8f, ceBluntPenetrationFactor = 0.111111111f },
+            });
+            target.Add("AEXP_WildGoose\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.608f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("AEXP_Zebra\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.105263158f, vanillaCooldownFactor = 0.54f, ceDamageFactor = 0.0157068063f, ceCooldownFactor = 0.544f, ceBluntPenetrationFactor = 0.0113604877f },
+            });
+            target.Add("AEXP_Zebra\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.105263158f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.00523560209f, ceCooldownFactor = 0.492f, ceBluntPenetrationFactor = 0.00443336104f },
+            });
+            target.Add("AEXP_Zebra\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.210526316f, vanillaCooldownFactor = 0.76f, ceDamageFactor = 0.230366492f, ceCooldownFactor = 0.752f, ceBluntPenetrationFactor = 0.197561651f },
+            });
+            target.Add("AEXP_Zebra\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.210526316f, vanillaCooldownFactor = 0.76f, ceDamageFactor = 0.230366492f, ceCooldownFactor = 0.752f, ceBluntPenetrationFactor = 0.197561651f },
+            });
+            target.Add("AEXP_Zebra\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.105263158f, vanillaCooldownFactor = 0.54f, ceDamageFactor = 0.0157068063f, ceCooldownFactor = 0.544f, ceBluntPenetrationFactor = 0.0113604877f },
+            });
+            target.Add("Alligator\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.166666667f, vanillaCooldownFactor = 0.555555556f, ceDamageFactor = 0.0165289256f, ceCooldownFactor = 0.555555556f, ceBluntPenetrationFactor = 0.00875576037f },
+            });
+            target.Add("Alligator\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.166666667f, vanillaCooldownFactor = 0.511111111f, ceDamageFactor = 0.00826446281f, ceCooldownFactor = 0.506666667f, ceBluntPenetrationFactor = 0.00322580645f },
+            });
+            target.Add("Alligator\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.166666667f, vanillaCooldownFactor = 0.755555556f, ceDamageFactor = 0.198347107f, ceCooldownFactor = 0.764444444f, ceBluntPenetrationFactor = 0.165437788f },
+            });
+            target.Add("Alligator\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.166666667f, vanillaCooldownFactor = 0.755555556f, ceDamageFactor = 0.198347107f, ceCooldownFactor = 0.764444444f, ceBluntPenetrationFactor = 0.165437788f },
+            });
+            target.Add("Alligator\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.166666667f, vanillaCooldownFactor = 0.555555556f, ceDamageFactor = 0.0165289256f, ceCooldownFactor = 0.555555556f, ceBluntPenetrationFactor = 0.00875576037f },
+            });
+            target.Add("Allosaurus\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0925925926f, vanillaCooldownFactor = 0.52f, ceDamageFactor = 0.0821484992f, ceCooldownFactor = 0.51193634f, ceBluntPenetrationFactor = 0.0621526762f },
+            });
+            target.Add("Allosaurus\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.037037037f, vanillaCooldownFactor = 0.453333333f, ceDamageFactor = 0.0379146919f, ceCooldownFactor = 0.456233422f, ceBluntPenetrationFactor = 0.0262503656f },
+            });
+            target.Add("Allosaurus\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.537037037f, vanillaCooldownFactor = 0.746666667f, ceDamageFactor = 0.451816746f, ceCooldownFactor = 0.74270557f, ceBluntPenetrationFactor = 0.41364434f },
+            });
+            target.Add("Allosaurus\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.537037037f, vanillaCooldownFactor = 0.746666667f, ceDamageFactor = 0.451816746f, ceCooldownFactor = 0.74270557f, ceBluntPenetrationFactor = 0.41364434f },
+            });
+            target.Add("Allosaurus\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0925925926f, vanillaCooldownFactor = 0.52f, ceDamageFactor = 0.0821484992f, ceCooldownFactor = 0.51193634f, ceBluntPenetrationFactor = 0.0621526762f },
+            });
+            target.Add("Alpaca\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.564102564f, ceDamageFactor = 0.0181818182f, ceCooldownFactor = 0.567010309f, ceBluntPenetrationFactor = 0.00553097345f },
+            });
+            target.Add("Alpaca\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.512820513f, ceDamageFactor = 0.00363636364f, ceCooldownFactor = 0.515463918f, ceBluntPenetrationFactor = 0.00221238938f },
+            });
+            target.Add("Alpaca\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.145454545f, ceCooldownFactor = 0.768041237f, ceBluntPenetrationFactor = 0.109513274f },
+            });
+            target.Add("Alpaca\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.145454545f, ceCooldownFactor = 0.768041237f, ceBluntPenetrationFactor = 0.109513274f },
+            });
+            target.Add("Alpaca\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.564102564f, ceDamageFactor = 0.0181818182f, ceCooldownFactor = 0.567010309f, ceBluntPenetrationFactor = 0.00553097345f },
+            });
+            target.Add("Alphabeaver\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.571428571f, ceDamageFactor = 0.00714285714f, ceCooldownFactor = 0.579545455f, ceBluntPenetrationFactor = 0.00696055684f },
+            });
+            target.Add("Alphabeaver\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.571428571f, ceDamageFactor = 0.00714285714f, ceCooldownFactor = 0.534090909f, ceBluntPenetrationFactor = 0.00232018561f },
+            });
+            target.Add("Alphabeaver\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.784090909f, ceBluntPenetrationFactor = 0.11136891f },
+            });
+            target.Add("Alphabeaver\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.784090909f, ceBluntPenetrationFactor = 0.11136891f },
+            });
+            target.Add("Alphabeaver\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.571428571f, ceDamageFactor = 0.00714285714f, ceCooldownFactor = 0.579545455f, ceBluntPenetrationFactor = 0.00696055684f },
+            });
+            target.Add("AlphaThrumbo\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.129032258f, vanillaCooldownFactor = 0.5125f, ceDamageFactor = 0.101717305f, ceCooldownFactor = 0.515f, ceBluntPenetrationFactor = 0.0790025775f },
+            });
+        }
+
+        private static void AddBatch16(Dictionary<string, List<ZoologyLifeStageToolFactor>> target)
+        {
+            target.Add("AlphaThrumbo\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.064516129f, vanillaCooldownFactor = 0.4625f, ceDamageFactor = 0.0515191546f, ceCooldownFactor = 0.46f, ceBluntPenetrationFactor = 0.0367439909f },
+            });
+            target.Add("AlphaThrumbo\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.564516129f, vanillaCooldownFactor = 0.7625f, ceDamageFactor = 0.480845443f, ceCooldownFactor = 0.7575f, ceBluntPenetrationFactor = 0.443924954f },
+            });
+            target.Add("AlphaThrumbo\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.564516129f, vanillaCooldownFactor = 0.7625f, ceDamageFactor = 0.480845443f, ceCooldownFactor = 0.7575f, ceBluntPenetrationFactor = 0.443924954f },
+            });
+            target.Add("AlphaThrumbo\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.129032258f, vanillaCooldownFactor = 0.5125f, ceDamageFactor = 0.101717305f, ceCooldownFactor = 0.515f, ceBluntPenetrationFactor = 0.0790025775f },
+            });
+            target.Add("Andrewsarchus\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0625f, vanillaCooldownFactor = 0.534482759f, ceDamageFactor = 0.031152648f, ceCooldownFactor = 0.531034483f, ceBluntPenetrationFactor = 0.0210018668f },
+            });
+            target.Add("Andrewsarchus\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0625f, vanillaCooldownFactor = 0.482758621f, ceDamageFactor = 0.0124610592f, ceCooldownFactor = 0.482758621f, ceBluntPenetrationFactor = 0.00824517735f },
+            });
+            target.Add("Andrewsarchus\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.3125f, vanillaCooldownFactor = 0.74137931f, ceDamageFactor = 0.320872274f, ceCooldownFactor = 0.748275862f, ceBluntPenetrationFactor = 0.283291848f },
+            });
+            target.Add("Andrewsarchus\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.3125f, vanillaCooldownFactor = 0.74137931f, ceDamageFactor = 0.320872274f, ceCooldownFactor = 0.748275862f, ceBluntPenetrationFactor = 0.283291848f },
+            });
+            target.Add("Andrewsarchus\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0625f, vanillaCooldownFactor = 0.534482759f, ceDamageFactor = 0.031152648f, ceCooldownFactor = 0.531034483f, ceBluntPenetrationFactor = 0.0210018668f },
+            });
+            target.Add("Ankylosaurus\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0892857143f, vanillaCooldownFactor = 0.506493506f, ceDamageFactor = 0.0786686838f, ceCooldownFactor = 0.502604167f, ceBluntPenetrationFactor = 0.0591592428f },
+            });
+            target.Add("Ankylosaurus\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0357142857f, vanillaCooldownFactor = 0.441558442f, ceDamageFactor = 0.0363086233f, ceCooldownFactor = 0.447916667f, ceBluntPenetrationFactor = 0.0249860802f },
+            });
+            target.Add("Ankylosaurus\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.517857143f, vanillaCooldownFactor = 0.727272727f, ceDamageFactor = 0.432677761f, ceCooldownFactor = 0.729166667f, ceBluntPenetrationFactor = 0.39372216f },
+            });
+            target.Add("Ankylosaurus\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.517857143f, vanillaCooldownFactor = 0.727272727f, ceDamageFactor = 0.432677761f, ceCooldownFactor = 0.729166667f, ceBluntPenetrationFactor = 0.39372216f },
+            });
+            target.Add("Ankylosaurus\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0892857143f, vanillaCooldownFactor = 0.506493506f, ceDamageFactor = 0.0786686838f, ceCooldownFactor = 0.502604167f, ceBluntPenetrationFactor = 0.0591592428f },
+            });
+            target.Add("Armadillo\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.598425197f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Armadillo\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.787401575f, ceBluntPenetrationFactor = 0.0909090909f },
+            });
+            target.Add("Armadillo\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.787401575f, ceBluntPenetrationFactor = 0.0909090909f },
+            });
+            target.Add("Armadillo\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.598425197f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Arthropleura\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.594594595f, ceDamageFactor = 0.00476190476f, ceCooldownFactor = 0.580645161f, ceBluntPenetrationFactor = 0.00601503759f },
+            });
+            target.Add("Arthropleura\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.540540541f, ceDamageFactor = 0.00476190476f, ceCooldownFactor = 0.52688172f, ceBluntPenetrationFactor = 0.0030075188f },
+            });
+            target.Add("Arthropleura\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.783783784f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.790322581f, ceBluntPenetrationFactor = 0.126315789f },
+            });
+            target.Add("Arthropleura\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.783783784f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.790322581f, ceBluntPenetrationFactor = 0.126315789f },
+            });
+            target.Add("Arthropleura\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.594594595f, ceDamageFactor = 0.00476190476f, ceCooldownFactor = 0.580645161f, ceBluntPenetrationFactor = 0.00601503759f },
+            });
+            target.Add("Arthropython\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.724137931f, ceDamageFactor = 0.00476190476f, ceCooldownFactor = 0.729166667f, ceBluntPenetrationFactor = 0.00601503759f },
+            });
+            target.Add("Arthropython\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.689655172f, ceDamageFactor = 0.00476190476f, ceCooldownFactor = 0.694444444f, ceBluntPenetrationFactor = 0.0030075188f },
+            });
+            target.Add("Arthropython\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.862068966f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.868055556f, ceBluntPenetrationFactor = 0.126315789f },
+            });
+            target.Add("Arthropython\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.862068966f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.868055556f, ceBluntPenetrationFactor = 0.126315789f },
+            });
+            target.Add("Arthropython\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.724137931f, ceDamageFactor = 0.00476190476f, ceCooldownFactor = 0.729166667f, ceBluntPenetrationFactor = 0.00601503759f },
+            });
+            target.Add("Asciotaurus\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0877192982f, vanillaCooldownFactor = 0.659090909f, ceDamageFactor = 0.0773809524f, ceCooldownFactor = 0.669724771f, ceBluntPenetrationFactor = 0.0581077386f },
+            });
+            target.Add("Asciotaurus\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0350877193f, vanillaCooldownFactor = 0.613636364f, ceDamageFactor = 0.0357142857f, ceCooldownFactor = 0.628440367f, ceBluntPenetrationFactor = 0.0245419743f },
+            });
+            target.Add("Asciotaurus\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.50877193f, vanillaCooldownFactor = 0.818181818f, ceDamageFactor = 0.425595238f, ceCooldownFactor = 0.830275229f, ceBluntPenetrationFactor = 0.386724091f },
+            });
+            target.Add("Asciotaurus\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.50877193f, vanillaCooldownFactor = 0.818181818f, ceDamageFactor = 0.425595238f, ceCooldownFactor = 0.830275229f, ceBluntPenetrationFactor = 0.386724091f },
+            });
+            target.Add("Asciotaurus\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0877192982f, vanillaCooldownFactor = 0.659090909f, ceDamageFactor = 0.0773809524f, ceCooldownFactor = 0.669724771f, ceBluntPenetrationFactor = 0.0581077386f },
+            });
+            target.Add("Aurochs\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0555555556f, vanillaCooldownFactor = 0.524590164f, ceDamageFactor = 0.0351351351f, ceCooldownFactor = 0.521311475f, ceBluntPenetrationFactor = 0.0237684238f },
+            });
+            target.Add("Aurochs\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0555555556f, vanillaCooldownFactor = 0.475409836f, ceDamageFactor = 0.0162162162f, ceCooldownFactor = 0.472131148f, ceBluntPenetrationFactor = 0.00929491435f },
+            });
+            target.Add("Aurochs\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.737704918f, ceDamageFactor = 0.32972973f, ceCooldownFactor = 0.737704918f, ceBluntPenetrationFactor = 0.292524233f },
+            });
+            target.Add("Aurochs\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.737704918f, ceDamageFactor = 0.32972973f, ceCooldownFactor = 0.737704918f, ceBluntPenetrationFactor = 0.292524233f },
+            });
+            target.Add("Aurochs\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0555555556f, vanillaCooldownFactor = 0.524590164f, ceDamageFactor = 0.0351351351f, ceCooldownFactor = 0.521311475f, ceBluntPenetrationFactor = 0.0237684238f },
+            });
+            target.Add("Badger\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.714285714f, ceDamageFactor = 0.04f, ceCooldownFactor = 0.605633803f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Badger\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.714285714f, ceDamageFactor = 0.04f, ceCooldownFactor = 0.556338028f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Badger\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.821428571f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.802816901f, ceBluntPenetrationFactor = 0.112903226f },
+            });
+            target.Add("Badger\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.821428571f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.802816901f, ceBluntPenetrationFactor = 0.112903226f },
+            });
+            target.Add("Badger\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.714285714f, ceDamageFactor = 0.04f, ceCooldownFactor = 0.605633803f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Baryonyx\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0465116279f, vanillaCooldownFactor = 0.507462687f, ceDamageFactor = 0.0505263158f, ceCooldownFactor = 0.513432836f, ceBluntPenetrationFactor = 0.0360695268f },
+            });
+            target.Add("Baryonyx\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0465116279f, vanillaCooldownFactor = 0.462686567f, ceDamageFactor = 0.0231578947f, ceCooldownFactor = 0.462686567f, ceBluntPenetrationFactor = 0.014668944f },
+            });
+            target.Add("Baryonyx\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.418604651f, vanillaCooldownFactor = 0.731343284f, ceDamageFactor = 0.385263158f, ceCooldownFactor = 0.737313433f, ceBluntPenetrationFactor = 0.346729629f },
+            });
+            target.Add("Baryonyx\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.418604651f, vanillaCooldownFactor = 0.731343284f, ceDamageFactor = 0.385263158f, ceCooldownFactor = 0.737313433f, ceBluntPenetrationFactor = 0.346729629f },
+            });
+            target.Add("Baryonyx\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0465116279f, vanillaCooldownFactor = 0.507462687f, ceDamageFactor = 0.0505263158f, ceCooldownFactor = 0.513432836f, ceBluntPenetrationFactor = 0.0360695268f },
+            });
+            target.Add("Bear_Grizzly\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.133333333f, vanillaCooldownFactor = 0.553191489f, ceDamageFactor = 0.0133333333f, ceCooldownFactor = 0.555084746f, ceBluntPenetrationFactor = 0.0101156069f },
+            });
+            target.Add("Bear_Grizzly\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.133333333f, vanillaCooldownFactor = 0.510638298f, ceDamageFactor = 0.00666666667f, ceCooldownFactor = 0.504237288f, ceBluntPenetrationFactor = 0.00397398844f },
+            });
+            target.Add("Bear_Grizzly\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.2f, vanillaCooldownFactor = 0.765957447f, ceDamageFactor = 0.22f, ceCooldownFactor = 0.762711864f, ceBluntPenetrationFactor = 0.187861272f },
+            });
+            target.Add("Bear_Grizzly\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.2f, vanillaCooldownFactor = 0.765957447f, ceDamageFactor = 0.22f, ceCooldownFactor = 0.762711864f, ceBluntPenetrationFactor = 0.187861272f },
+            });
+            target.Add("Bear_Grizzly\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.133333333f, vanillaCooldownFactor = 0.553191489f, ceDamageFactor = 0.0133333333f, ceCooldownFactor = 0.555084746f, ceBluntPenetrationFactor = 0.0101156069f },
+            });
+            target.Add("Bear_Polar\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.105263158f, vanillaCooldownFactor = 0.54f, ceDamageFactor = 0.0157894737f, ceCooldownFactor = 0.546184739f, ceBluntPenetrationFactor = 0.0114365411f },
+            });
+            target.Add("Bear_Polar\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.105263158f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.00526315789f, ceCooldownFactor = 0.493975904f, ceBluntPenetrationFactor = 0.00446304045f },
+            });
+            target.Add("Bear_Polar\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.210526316f, vanillaCooldownFactor = 0.76f, ceDamageFactor = 0.231578947f, ceCooldownFactor = 0.75502008f, ceBluntPenetrationFactor = 0.19888424f },
+            });
+            target.Add("Bear_Polar\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.210526316f, vanillaCooldownFactor = 0.76f, ceDamageFactor = 0.231578947f, ceCooldownFactor = 0.75502008f, ceBluntPenetrationFactor = 0.19888424f },
+            });
+            target.Add("Bear_Polar\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.105263158f, vanillaCooldownFactor = 0.54f, ceDamageFactor = 0.0157894737f, ceCooldownFactor = 0.546184739f, ceBluntPenetrationFactor = 0.0114365411f },
+            });
+            target.Add("Bison\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0689655172f, vanillaCooldownFactor = 0.535714286f, ceDamageFactor = 0.0277777778f, ceCooldownFactor = 0.53024911f, ceBluntPenetrationFactor = 0.017380618f },
+            });
+            target.Add("Bison\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0689655172f, vanillaCooldownFactor = 0.482142857f, ceDamageFactor = 0.0104166667f, ceCooldownFactor = 0.480427046f, ceBluntPenetrationFactor = 0.00684691011f },
+            });
+            target.Add("Bison\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.275862069f, vanillaCooldownFactor = 0.75f, ceDamageFactor = 0.291666667f, ceCooldownFactor = 0.743772242f, ceBluntPenetrationFactor = 0.256320225f },
+            });
+            target.Add("Bison\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.275862069f, vanillaCooldownFactor = 0.75f, ceDamageFactor = 0.291666667f, ceCooldownFactor = 0.743772242f, ceBluntPenetrationFactor = 0.256320225f },
+            });
+            target.Add("Bison\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0689655172f, vanillaCooldownFactor = 0.535714286f, ceDamageFactor = 0.0277777778f, ceCooldownFactor = 0.53024911f, ceBluntPenetrationFactor = 0.017380618f },
+            });
+            target.Add("BogHound\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.567567568f, ceDamageFactor = 0.00540540541f, ceCooldownFactor = 0.579234973f, ceBluntPenetrationFactor = 0.00681431005f },
+            });
+        }
+
+        private static void AddBatch17(Dictionary<string, List<ZoologyLifeStageToolFactor>> target)
+        {
+            target.Add("BogHound\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.540540541f, ceDamageFactor = 0.00540540541f, ceCooldownFactor = 0.530054645f, ceBluntPenetrationFactor = 0.00340715503f },
+            });
+            target.Add("BogHound\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.783783784f, ceDamageFactor = 0.162162162f, ceCooldownFactor = 0.786885246f, ceBluntPenetrationFactor = 0.119250426f },
+            });
+            target.Add("BogHound\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.783783784f, ceDamageFactor = 0.162162162f, ceCooldownFactor = 0.786885246f, ceBluntPenetrationFactor = 0.119250426f },
+            });
+            target.Add("BogHound\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.567567568f, ceDamageFactor = 0.00540540541f, ceCooldownFactor = 0.579234973f, ceBluntPenetrationFactor = 0.00681431005f },
+            });
+            target.Add("Boomalope\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.181818182f, vanillaCooldownFactor = 0.568181818f, ceDamageFactor = 0.00884955752f, ceCooldownFactor = 0.554054054f, ceBluntPenetrationFactor = 0.00743678731f },
+            });
+            target.Add("Boomalope\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.181818182f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.00884955752f, ceCooldownFactor = 0.504504505f, ceBluntPenetrationFactor = 0.00297471492f },
+            });
+            target.Add("Boomalope\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.181818182f, vanillaCooldownFactor = 0.772727273f, ceDamageFactor = 0.17699115f, ceCooldownFactor = 0.756756757f, ceBluntPenetrationFactor = 0.144273674f },
+            });
+            target.Add("Boomalope\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.181818182f, vanillaCooldownFactor = 0.772727273f, ceDamageFactor = 0.17699115f, ceCooldownFactor = 0.756756757f, ceBluntPenetrationFactor = 0.144273674f },
+            });
+            target.Add("Boomalope\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.181818182f, vanillaCooldownFactor = 0.568181818f, ceDamageFactor = 0.00884955752f, ceCooldownFactor = 0.554054054f, ceBluntPenetrationFactor = 0.00743678731f },
+            });
+            target.Add("Boomrat\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.689655172f, ceDamageFactor = 0.0333333333f, ceCooldownFactor = 0.593103448f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Boomrat\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.689655172f, ceDamageFactor = 0.0333333333f, ceCooldownFactor = 0.544827586f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Boomrat\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.793103448f, ceDamageFactor = 0.166666667f, ceCooldownFactor = 0.786206897f, ceBluntPenetrationFactor = 0.0945945946f },
+            });
+            target.Add("Boomrat\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.793103448f, ceDamageFactor = 0.166666667f, ceCooldownFactor = 0.786206897f, ceBluntPenetrationFactor = 0.0945945946f },
+            });
+            target.Add("Boomrat\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.689655172f, ceDamageFactor = 0.0333333333f, ceCooldownFactor = 0.593103448f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Brachiosaurus\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.208791209f, vanillaCooldownFactor = 0.625f, ceDamageFactor = 0.156616415f, ceCooldownFactor = 0.6225f, ceBluntPenetrationFactor = 0.127539789f },
+            });
+            target.Add("Brachiosaurus\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.120879121f, vanillaCooldownFactor = 0.55f, ceDamageFactor = 0.0929648241f, ceCooldownFactor = 0.5525f, ceBluntPenetrationFactor = 0.0711682125f },
+            });
+            target.Add("Brachiosaurus\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.582417582f, vanillaCooldownFactor = 0.925f, ceDamageFactor = 0.514237856f, ceCooldownFactor = 0.93f, ceBluntPenetrationFactor = 0.477678733f },
+            });
+            target.Add("Brachiosaurus\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.582417582f, vanillaCooldownFactor = 0.925f, ceDamageFactor = 0.514237856f, ceCooldownFactor = 0.93f, ceBluntPenetrationFactor = 0.477678733f },
+            });
+            target.Add("Brachiosaurus\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.208791209f, vanillaCooldownFactor = 0.625f, ceDamageFactor = 0.156616415f, ceCooldownFactor = 0.6225f, ceBluntPenetrationFactor = 0.127539789f },
+            });
+            target.Add("Brontosaurus\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.16f, vanillaCooldownFactor = 0.5625f, ceDamageFactor = 0.1278826f, ceCooldownFactor = 0.5625f, ceBluntPenetrationFactor = 0.102004908f },
+            });
+            target.Add("Brontosaurus\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0933333333f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.070230608f, ceCooldownFactor = 0.5025f, ceBluntPenetrationFactor = 0.0520905681f },
+            });
+            target.Add("Brontosaurus\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.573333333f, vanillaCooldownFactor = 0.8375f, ceDamageFactor = 0.498951782f, ceCooldownFactor = 0.8375f, ceBluntPenetrationFactor = 0.461314071f },
+            });
+            target.Add("Brontosaurus\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.573333333f, vanillaCooldownFactor = 0.8375f, ceDamageFactor = 0.498951782f, ceCooldownFactor = 0.8375f, ceBluntPenetrationFactor = 0.461314071f },
+            });
+            target.Add("Brontosaurus\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.16f, vanillaCooldownFactor = 0.5625f, ceDamageFactor = 0.1278826f, ceCooldownFactor = 0.5625f, ceBluntPenetrationFactor = 0.102004908f },
+            });
+            target.Add("Capybara\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.594594595f, ceDamageFactor = 0.00465116279f, ceCooldownFactor = 0.577540107f, ceBluntPenetrationFactor = 0.00578034682f },
+            });
+            target.Add("Capybara\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.540540541f, ceDamageFactor = 0.00465116279f, ceCooldownFactor = 0.524064171f, ceBluntPenetrationFactor = 0.00289017341f },
+            });
+            target.Add("Capybara\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.783783784f, ceDamageFactor = 0.139534884f, ceCooldownFactor = 0.786096257f, ceBluntPenetrationFactor = 0.121387283f },
+            });
+            target.Add("Capybara\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.783783784f, ceDamageFactor = 0.139534884f, ceCooldownFactor = 0.786096257f, ceBluntPenetrationFactor = 0.121387283f },
+            });
+            target.Add("Capybara\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.594594595f, ceDamageFactor = 0.00465116279f, ceCooldownFactor = 0.577540107f, ceBluntPenetrationFactor = 0.00578034682f },
+            });
+            target.Add("Caribou\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.181818182f, vanillaCooldownFactor = 0.568181818f, ceDamageFactor = 0.00952380952f, ceCooldownFactor = 0.564220183f, ceBluntPenetrationFactor = 0.00806451613f },
+            });
+            target.Add("Caribou\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.181818182f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.00952380952f, ceCooldownFactor = 0.513761468f, ceBluntPenetrationFactor = 0.00322580645f },
+            });
+            target.Add("Caribou\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.181818182f, vanillaCooldownFactor = 0.772727273f, ceDamageFactor = 0.19047619f, ceCooldownFactor = 0.770642202f, ceBluntPenetrationFactor = 0.156451613f },
+            });
+            target.Add("Caribou\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.181818182f, vanillaCooldownFactor = 0.772727273f, ceDamageFactor = 0.19047619f, ceCooldownFactor = 0.770642202f, ceBluntPenetrationFactor = 0.156451613f },
+            });
+            target.Add("Caribou\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.181818182f, vanillaCooldownFactor = 0.568181818f, ceDamageFactor = 0.00952380952f, ceCooldownFactor = 0.564220183f, ceBluntPenetrationFactor = 0.00806451613f },
+            });
+            target.Add("Carnotaurus\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0512820513f, vanillaCooldownFactor = 0.53125f, ceDamageFactor = 0.0475059382f, ceCooldownFactor = 0.526645768f, ceBluntPenetrationFactor = 0.0334983308f },
+            });
+            target.Add("Carnotaurus\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0512820513f, vanillaCooldownFactor = 0.46875f, ceDamageFactor = 0.0213776722f, ceCooldownFactor = 0.476489028f, ceBluntPenetrationFactor = 0.0134684011f },
+            });
+            target.Add("Carnotaurus\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.41025641f, vanillaCooldownFactor = 0.75f, ceDamageFactor = 0.387173397f, ceCooldownFactor = 0.752351097f, ceBluntPenetrationFactor = 0.348451709f },
+            });
+            target.Add("Carnotaurus\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.41025641f, vanillaCooldownFactor = 0.75f, ceDamageFactor = 0.387173397f, ceCooldownFactor = 0.752351097f, ceBluntPenetrationFactor = 0.348451709f },
+            });
+            target.Add("Carnotaurus\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0512820513f, vanillaCooldownFactor = 0.53125f, ceDamageFactor = 0.0475059382f, ceCooldownFactor = 0.526645768f, ceBluntPenetrationFactor = 0.0334983308f },
+            });
+            target.Add("Cassowary\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.583333333f, ceDamageFactor = 0.00625f, ceCooldownFactor = 0.581005587f, ceBluntPenetrationFactor = 0.00613496933f },
+            });
+            target.Add("Cassowary\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.555555556f, ceDamageFactor = 0.00625f, ceCooldownFactor = 0.530726257f, ceBluntPenetrationFactor = 0.00204498978f },
+            });
+            target.Add("Cassowary\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.777777778f, ceDamageFactor = 0.15625f, ceCooldownFactor = 0.787709497f, ceBluntPenetrationFactor = 0.120654397f },
+            });
+            target.Add("Cassowary\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.777777778f, ceDamageFactor = 0.15625f, ceCooldownFactor = 0.787709497f, ceBluntPenetrationFactor = 0.120654397f },
+            });
+            target.Add("Cassowary\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.583333333f, ceDamageFactor = 0.00625f, ceCooldownFactor = 0.581005587f, ceBluntPenetrationFactor = 0.00613496933f },
+            });
+            target.Add("Castoroides\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.564102564f, ceDamageFactor = 0.0178571429f, ceCooldownFactor = 0.564102564f, ceBluntPenetrationFactor = 0.00540540541f },
+            });
+            target.Add("Castoroides\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.512820513f, ceDamageFactor = 0.00357142857f, ceCooldownFactor = 0.512820513f, ceBluntPenetrationFactor = 0.00216216216f },
+            });
+            target.Add("Castoroides\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.764102564f, ceBluntPenetrationFactor = 0.107027027f },
+            });
+            target.Add("Castoroides\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.764102564f, ceBluntPenetrationFactor = 0.107027027f },
+            });
+            target.Add("Castoroides\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.564102564f, ceDamageFactor = 0.0178571429f, ceCooldownFactor = 0.564102564f, ceBluntPenetrationFactor = 0.00540540541f },
+            });
+            target.Add("Cat\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.603174603f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Cat\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.793650794f, ceBluntPenetrationFactor = 0.1f },
+            });
+            target.Add("Cat\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.793650794f, ceBluntPenetrationFactor = 0.1f },
+            });
+            target.Add("Cat\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.603174603f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Cat_Scimitar\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.153846154f, vanillaCooldownFactor = 0.565217391f, ceDamageFactor = 0.0149253731f, ceCooldownFactor = 0.556521739f, ceBluntPenetrationFactor = 0.00941850942f },
+            });
+            target.Add("Cat_Scimitar\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.153846154f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.00746268657f, ceCooldownFactor = 0.508695652f, ceBluntPenetrationFactor = 0.00368550369f },
+            });
+            target.Add("Cat_Scimitar\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.230769231f, vanillaCooldownFactor = 0.760869565f, ceDamageFactor = 0.208955224f, ceCooldownFactor = 0.765217391f, ceBluntPenetrationFactor = 0.178542179f },
+            });
+            target.Add("Cat_Scimitar\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.230769231f, vanillaCooldownFactor = 0.760869565f, ceDamageFactor = 0.208955224f, ceCooldownFactor = 0.765217391f, ceBluntPenetrationFactor = 0.178542179f },
+            });
+            target.Add("Cat_Scimitar\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.153846154f, vanillaCooldownFactor = 0.565217391f, ceDamageFactor = 0.0149253731f, ceCooldownFactor = 0.556521739f, ceBluntPenetrationFactor = 0.00941850942f },
+            });
+            target.Add("Chalicotherium\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0606060606f, vanillaCooldownFactor = 0.525423729f, ceDamageFactor = 0.0295857988f, ceCooldownFactor = 0.52027027f, ceBluntPenetrationFactor = 0.0198092443f },
+            });
+            target.Add("Chalicotherium\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0606060606f, vanillaCooldownFactor = 0.474576271f, ceDamageFactor = 0.0118343195f, ceCooldownFactor = 0.472972973f, ceBluntPenetrationFactor = 0.00777696258f },
+            });
+            target.Add("Chalicotherium\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.303030303f, vanillaCooldownFactor = 0.728813559f, ceDamageFactor = 0.304733728f, ceCooldownFactor = 0.733108108f, ceBluntPenetrationFactor = 0.267204696f },
+            });
+            target.Add("Chalicotherium\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.303030303f, vanillaCooldownFactor = 0.728813559f, ceDamageFactor = 0.304733728f, ceCooldownFactor = 0.733108108f, ceBluntPenetrationFactor = 0.267204696f },
+            });
+            target.Add("Chalicotherium\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0606060606f, vanillaCooldownFactor = 0.525423729f, ceDamageFactor = 0.0295857988f, ceCooldownFactor = 0.52027027f, ceBluntPenetrationFactor = 0.0198092443f },
+            });
+            target.Add("Chicken\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.909090909f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.80733945f, ceBluntPenetrationFactor = 0.2f },
+            });
+        }
+
+        private static void AddBatch18(Dictionary<string, List<ZoologyLifeStageToolFactor>> target)
+        {
+            target.Add("Chicken\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.909090909f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.80733945f, ceBluntPenetrationFactor = 0.2f },
+            });
+            target.Add("Chinchilla\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", ceCooldownFactor = 0.806818182f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Chinchilla\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", ceCooldownFactor = 0.806818182f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Cobra\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.833333333f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.62295082f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Cobra\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.833333333f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.819672131f, ceBluntPenetrationFactor = 0.142857143f },
+            });
+            target.Add("Cobra\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.833333333f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.819672131f, ceBluntPenetrationFactor = 0.142857143f },
+            });
+            target.Add("Cobra\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.833333333f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.62295082f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("ColossusToad\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.578947368f, ceDamageFactor = 0.00434782609f, ceCooldownFactor = 0.571428571f, ceBluntPenetrationFactor = 0.00538358008f },
+            });
+            target.Add("ColossusToad\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.526315789f, ceDamageFactor = 0.00434782609f, ceCooldownFactor = 0.518518519f, ceBluntPenetrationFactor = 0.00269179004f },
+            });
+            target.Add("ColossusToad\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.763157895f, ceDamageFactor = 0.130434783f, ceCooldownFactor = 0.777777778f, ceBluntPenetrationFactor = 0.113055182f },
+            });
+            target.Add("ColossusToad\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.763157895f, ceDamageFactor = 0.130434783f, ceCooldownFactor = 0.777777778f, ceBluntPenetrationFactor = 0.113055182f },
+            });
+            target.Add("ColossusToad\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.578947368f, ceDamageFactor = 0.00434782609f, ceCooldownFactor = 0.571428571f, ceBluntPenetrationFactor = 0.00538358008f },
+            });
+            target.Add("Compsognathus\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.617886179f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Compsognathus\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.81300813f, ceBluntPenetrationFactor = 0.133333333f },
+            });
+            target.Add("Compsognathus\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.81300813f, ceBluntPenetrationFactor = 0.133333333f },
+            });
+            target.Add("Compsognathus\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.617886179f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Corythosaurus\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.08f, vanillaCooldownFactor = 0.513888889f, ceDamageFactor = 0.0684210526f, ceCooldownFactor = 0.511111111f, ceBluntPenetrationFactor = 0.0502953725f },
+            });
+            target.Add("Corythosaurus\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.04f, vanillaCooldownFactor = 0.458333333f, ceDamageFactor = 0.0315789474f, ceCooldownFactor = 0.461111111f, ceBluntPenetrationFactor = 0.0213324582f },
+            });
+            target.Add("Corythosaurus\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.75f, ceDamageFactor = 0.429824561f, ceCooldownFactor = 0.744444444f, ceBluntPenetrationFactor = 0.391942895f },
+            });
+            target.Add("Corythosaurus\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.75f, ceDamageFactor = 0.429824561f, ceCooldownFactor = 0.744444444f, ceBluntPenetrationFactor = 0.391942895f },
+            });
+            target.Add("Corythosaurus\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.08f, vanillaCooldownFactor = 0.513888889f, ceDamageFactor = 0.0684210526f, ceCooldownFactor = 0.511111111f, ceBluntPenetrationFactor = 0.0502953725f },
+            });
+            target.Add("Cougar\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.564102564f, ceDamageFactor = 0.0192307692f, ceCooldownFactor = 0.569948187f, ceBluntPenetrationFactor = 0.00588235294f },
+            });
+            target.Add("Cougar\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.512820513f, ceDamageFactor = 0.00384615385f, ceCooldownFactor = 0.518134715f, ceBluntPenetrationFactor = 0.00235294118f },
+            });
+            target.Add("Cougar\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.153846154f, ceCooldownFactor = 0.772020725f, ceBluntPenetrationFactor = 0.116470588f },
+            });
+            target.Add("Cougar\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.153846154f, ceCooldownFactor = 0.772020725f, ceBluntPenetrationFactor = 0.116470588f },
+            });
+            target.Add("Cougar\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.564102564f, ceDamageFactor = 0.0192307692f, ceCooldownFactor = 0.569948187f, ceBluntPenetrationFactor = 0.00588235294f },
+            });
+            target.Add("Cow\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0666666667f, vanillaCooldownFactor = 0.526315789f, ceDamageFactor = 0.0271186441f, ceCooldownFactor = 0.526501767f, ceBluntPenetrationFactor = 0.0168855535f },
+            });
+            target.Add("Cow\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0666666667f, vanillaCooldownFactor = 0.473684211f, ceDamageFactor = 0.0101694915f, ceCooldownFactor = 0.477031802f, ceBluntPenetrationFactor = 0.0066518847f },
+            });
+            target.Add("Cow\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.266666667f, vanillaCooldownFactor = 0.736842105f, ceDamageFactor = 0.284745763f, ceCooldownFactor = 0.738515901f, ceBluntPenetrationFactor = 0.249019273f },
+            });
+            target.Add("Cow\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.266666667f, vanillaCooldownFactor = 0.736842105f, ceDamageFactor = 0.284745763f, ceCooldownFactor = 0.738515901f, ceBluntPenetrationFactor = 0.249019273f },
+            });
+            target.Add("Cow\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0666666667f, vanillaCooldownFactor = 0.526315789f, ceDamageFactor = 0.0271186441f, ceCooldownFactor = 0.526501767f, ceBluntPenetrationFactor = 0.0168855535f },
+            });
+            target.Add("Crow\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", ceCooldownFactor = 0.78021978f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Crow\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", ceCooldownFactor = 0.78021978f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Daeodon\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.064516129f, vanillaCooldownFactor = 0.543859649f, ceDamageFactor = 0.0326797386f, ceCooldownFactor = 0.538461538f, ceBluntPenetrationFactor = 0.0221565731f },
+            });
+            target.Add("Daeodon\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.064516129f, vanillaCooldownFactor = 0.49122807f, ceDamageFactor = 0.0130718954f, ceCooldownFactor = 0.48951049f, ceBluntPenetrationFactor = 0.00869850648f },
+            });
+            target.Add("Daeodon\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.322580645f, vanillaCooldownFactor = 0.754385965f, ceDamageFactor = 0.336601307f, ceCooldownFactor = 0.758741259f, ceBluntPenetrationFactor = 0.298867553f },
+            });
+            target.Add("Daeodon\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.322580645f, vanillaCooldownFactor = 0.754385965f, ceDamageFactor = 0.336601307f, ceCooldownFactor = 0.758741259f, ceBluntPenetrationFactor = 0.298867553f },
+            });
+            target.Add("Daeodon\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.064516129f, vanillaCooldownFactor = 0.543859649f, ceDamageFactor = 0.0326797386f, ceCooldownFactor = 0.538461538f, ceBluntPenetrationFactor = 0.0221565731f },
+            });
+            target.Add("Dakotaraptor\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0952380952f, vanillaCooldownFactor = 0.549019608f, ceDamageFactor = 0.019047619f, ceCooldownFactor = 0.5390625f, ceBluntPenetrationFactor = 0.0119760479f },
+            });
+            target.Add("Dakotaraptor\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0952380952f, vanillaCooldownFactor = 0.490196078f, ceDamageFactor = 0.00952380952f, ceCooldownFactor = 0.48828125f, ceBluntPenetrationFactor = 0.00474051896f },
+            });
+            target.Add("Dakotaraptor\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.238095238f, vanillaCooldownFactor = 0.764705882f, ceDamageFactor = 0.247619048f, ceCooldownFactor = 0.75390625f, ceBluntPenetrationFactor = 0.212075848f },
+            });
+            target.Add("Dakotaraptor\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.238095238f, vanillaCooldownFactor = 0.764705882f, ceDamageFactor = 0.247619048f, ceCooldownFactor = 0.75390625f, ceBluntPenetrationFactor = 0.212075848f },
+            });
+            target.Add("Dakotaraptor\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0952380952f, vanillaCooldownFactor = 0.549019608f, ceDamageFactor = 0.019047619f, ceCooldownFactor = 0.5390625f, ceBluntPenetrationFactor = 0.0119760479f },
+            });
+            target.Add("Daspletosuchus\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.1f, vanillaCooldownFactor = 0.705882353f, ceDamageFactor = 0.0199004975f, ceCooldownFactor = 0.707602339f, ceBluntPenetrationFactor = 0.0125162973f },
+            });
+            target.Add("Daspletosuchus\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.1f, vanillaCooldownFactor = 0.676470588f, ceDamageFactor = 0.00995024876f, ceCooldownFactor = 0.666666667f, ceBluntPenetrationFactor = 0.00495436767f },
+            });
+            target.Add("Daspletosuchus\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.852941176f, ceDamageFactor = 0.258706468f, ceCooldownFactor = 0.85380117f, ceBluntPenetrationFactor = 0.221642764f },
+            });
+            target.Add("Daspletosuchus\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.852941176f, ceDamageFactor = 0.258706468f, ceCooldownFactor = 0.85380117f, ceBluntPenetrationFactor = 0.221642764f },
+            });
+            target.Add("Daspletosuchus\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.1f, vanillaCooldownFactor = 0.705882353f, ceDamageFactor = 0.0199004975f, ceCooldownFactor = 0.707602339f, ceBluntPenetrationFactor = 0.0125162973f },
+            });
+            target.Add("Deer\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.578947368f, ceDamageFactor = 0.02f, ceCooldownFactor = 0.57591623f, ceBluntPenetrationFactor = 0.00615763547f },
+            });
+            target.Add("Deer\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.526315789f, ceDamageFactor = 0.004f, ceCooldownFactor = 0.523560209f, ceBluntPenetrationFactor = 0.00246305419f },
+            });
+            target.Add("Deer\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.789473684f, ceDamageFactor = 0.16f, ceCooldownFactor = 0.780104712f, ceBluntPenetrationFactor = 0.121921182f },
+            });
+            target.Add("Deer\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.789473684f, ceDamageFactor = 0.16f, ceCooldownFactor = 0.780104712f, ceBluntPenetrationFactor = 0.121921182f },
+            });
+            target.Add("Deer\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.578947368f, ceDamageFactor = 0.02f, ceCooldownFactor = 0.57591623f, ceBluntPenetrationFactor = 0.00615763547f },
+            });
+            target.Add("Deinocheirus\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0983606557f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.0860655738f, ceCooldownFactor = 0.4975f, ceBluntPenetrationFactor = 0.0658786936f },
+            });
+            target.Add("Deinocheirus\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0491803279f, vanillaCooldownFactor = 0.45f, ceDamageFactor = 0.0423497268f, ceCooldownFactor = 0.445f, ceBluntPenetrationFactor = 0.0297356143f },
+            });
+            target.Add("Deinocheirus\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.524590164f, vanillaCooldownFactor = 0.725f, ceDamageFactor = 0.443989071f, ceCooldownFactor = 0.73f, ceBluntPenetrationFactor = 0.406531882f },
+            });
+            target.Add("Deinocheirus\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.524590164f, vanillaCooldownFactor = 0.725f, ceDamageFactor = 0.443989071f, ceCooldownFactor = 0.73f, ceBluntPenetrationFactor = 0.406531882f },
+            });
+            target.Add("Deinocheirus\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0983606557f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.0860655738f, ceCooldownFactor = 0.4975f, ceBluntPenetrationFactor = 0.0658786936f },
+            });
+            target.Add("Deinotherium\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.157142857f, vanillaCooldownFactor = 0.55f, ceDamageFactor = 0.123271889f, ceCooldownFactor = 0.5475f, ceBluntPenetrationFactor = 0.0973915728f },
+            });
+            target.Add("Deinotherium\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0857142857f, vanillaCooldownFactor = 0.4875f, ceDamageFactor = 0.0668202765f, ceCooldownFactor = 0.49f, ceBluntPenetrationFactor = 0.0491845449f },
+            });
+            target.Add("Deinotherium\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.585714286f, vanillaCooldownFactor = 0.8125f, ceDamageFactor = 0.505760369f, ceCooldownFactor = 0.8125f, ceBluntPenetrationFactor = 0.469259659f },
+            });
+            target.Add("Deinotherium\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.585714286f, vanillaCooldownFactor = 0.8125f, ceDamageFactor = 0.505760369f, ceCooldownFactor = 0.8125f, ceBluntPenetrationFactor = 0.469259659f },
+            });
+            target.Add("Deinotherium\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.157142857f, vanillaCooldownFactor = 0.55f, ceDamageFactor = 0.123271889f, ceCooldownFactor = 0.5475f, ceBluntPenetrationFactor = 0.0973915728f },
+            });
+            target.Add("Dilophosaurus\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0909090909f, vanillaCooldownFactor = 0.538461538f, ceDamageFactor = 0.0183486239f, ceCooldownFactor = 0.532818533f, ceBluntPenetrationFactor = 0.0114613181f },
+            });
+        }
+
+        private static void AddBatch19(Dictionary<string, List<ZoologyLifeStageToolFactor>> target)
+        {
+            target.Add("Dilophosaurus\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0909090909f, vanillaCooldownFactor = 0.480769231f, ceDamageFactor = 0.00917431193f, ceCooldownFactor = 0.482625483f, ceBluntPenetrationFactor = 0.00453677173f },
+            });
+            target.Add("Dilophosaurus\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.227272727f, vanillaCooldownFactor = 0.75f, ceDamageFactor = 0.23853211f, ceCooldownFactor = 0.745173745f, ceBluntPenetrationFactor = 0.20296084f },
+            });
+            target.Add("Dilophosaurus\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.227272727f, vanillaCooldownFactor = 0.75f, ceDamageFactor = 0.23853211f, ceCooldownFactor = 0.745173745f, ceBluntPenetrationFactor = 0.20296084f },
+            });
+            target.Add("Dilophosaurus\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0909090909f, vanillaCooldownFactor = 0.538461538f, ceDamageFactor = 0.0183486239f, ceCooldownFactor = 0.532818533f, ceBluntPenetrationFactor = 0.0114613181f },
+            });
+            target.Add("Dinocrocuta\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.142857143f, vanillaCooldownFactor = 0.565217391f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.551724138f, ceBluntPenetrationFactor = 0.00901960784f },
+            });
+            target.Add("Dinocrocuta\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.142857143f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.00714285714f, ceCooldownFactor = 0.504310345f, ceBluntPenetrationFactor = 0.00352941176f },
+            });
+            target.Add("Dinocrocuta\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.214285714f, vanillaCooldownFactor = 0.760869565f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.75862069f, ceBluntPenetrationFactor = 0.170980392f },
+            });
+            target.Add("Dinocrocuta\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.214285714f, vanillaCooldownFactor = 0.760869565f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.75862069f, ceBluntPenetrationFactor = 0.170980392f },
+            });
+            target.Add("Dinocrocuta\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.142857143f, vanillaCooldownFactor = 0.565217391f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.551724138f, ceBluntPenetrationFactor = 0.00901960784f },
+            });
+            target.Add("Dinopithecus\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.583333333f, ceDamageFactor = 0.00625f, ceCooldownFactor = 0.581005587f, ceBluntPenetrationFactor = 0.00598802395f },
+            });
+            target.Add("Dinopithecus\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.555555556f, ceDamageFactor = 0.00625f, ceCooldownFactor = 0.530726257f, ceBluntPenetrationFactor = 0.00199600798f },
+            });
+            target.Add("Dinopithecus\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.777777778f, ceDamageFactor = 0.15625f, ceCooldownFactor = 0.787709497f, ceBluntPenetrationFactor = 0.117764471f },
+            });
+            target.Add("Dinopithecus\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.777777778f, ceDamageFactor = 0.15625f, ceCooldownFactor = 0.787709497f, ceBluntPenetrationFactor = 0.117764471f },
+            });
+            target.Add("Dinopithecus\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.583333333f, ceDamageFactor = 0.00625f, ceCooldownFactor = 0.581005587f, ceBluntPenetrationFactor = 0.00598802395f },
+            });
+            target.Add("Dinornis\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.558139535f, ceDamageFactor = 0.0108695652f, ceCooldownFactor = 0.563380282f, ceBluntPenetrationFactor = 0.00747663551f },
+            });
+            target.Add("Dinornis\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.511627907f, ceDamageFactor = 0.00217391304f, ceCooldownFactor = 0.511737089f, ceBluntPenetrationFactor = 0.0031152648f },
+            });
+            target.Add("Dinornis\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.76744186f, ceDamageFactor = 0.173913043f, ceCooldownFactor = 0.769953052f, ceBluntPenetrationFactor = 0.143925234f },
+            });
+            target.Add("Dinornis\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.76744186f, ceDamageFactor = 0.173913043f, ceCooldownFactor = 0.769953052f, ceBluntPenetrationFactor = 0.143925234f },
+            });
+            target.Add("Dinornis\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.558139535f, ceDamageFactor = 0.0108695652f, ceCooldownFactor = 0.563380282f, ceBluntPenetrationFactor = 0.00747663551f },
+            });
+            target.Add("Diplodocus\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.162162162f, vanillaCooldownFactor = 0.5625f, ceDamageFactor = 0.130901288f, ceCooldownFactor = 0.5625f, ceBluntPenetrationFactor = 0.104789992f },
+            });
+            target.Add("Diplodocus\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0945945946f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.071888412f, ceCooldownFactor = 0.5025f, ceBluntPenetrationFactor = 0.0535128193f },
+            });
+            target.Add("Diplodocus\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.581081081f, vanillaCooldownFactor = 0.8375f, ceDamageFactor = 0.510729614f, ceCooldownFactor = 0.8375f, ceBluntPenetrationFactor = 0.473909528f },
+            });
+            target.Add("Diplodocus\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.581081081f, vanillaCooldownFactor = 0.8375f, ceDamageFactor = 0.510729614f, ceCooldownFactor = 0.8375f, ceBluntPenetrationFactor = 0.473909528f },
+            });
+            target.Add("Diplodocus\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.162162162f, vanillaCooldownFactor = 0.5625f, ceDamageFactor = 0.130901288f, ceCooldownFactor = 0.5625f, ceBluntPenetrationFactor = 0.104789992f },
+            });
+            target.Add("Diprotodon\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0625f, vanillaCooldownFactor = 0.507042254f, ceDamageFactor = 0.0609981516f, ceCooldownFactor = 0.509915014f, ceBluntPenetrationFactor = 0.045256745f },
+            });
+            target.Add("Diprotodon\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0416666667f, vanillaCooldownFactor = 0.450704225f, ceDamageFactor = 0.0277264325f, ceCooldownFactor = 0.458923513f, ceBluntPenetrationFactor = 0.01897302f },
+            });
+            target.Add("Diprotodon\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.479166667f, vanillaCooldownFactor = 0.732394366f, ceDamageFactor = 0.423290203f, ceCooldownFactor = 0.742209632f, ceBluntPenetrationFactor = 0.384160139f },
+            });
+            target.Add("Diprotodon\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.479166667f, vanillaCooldownFactor = 0.732394366f, ceDamageFactor = 0.423290203f, ceCooldownFactor = 0.742209632f, ceBluntPenetrationFactor = 0.384160139f },
+            });
+            target.Add("Diprotodon\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0625f, vanillaCooldownFactor = 0.507042254f, ceDamageFactor = 0.0609981516f, ceCooldownFactor = 0.509915014f, ceBluntPenetrationFactor = 0.045256745f },
+            });
+            target.Add("Doedicurus\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0526315789f, vanillaCooldownFactor = 0.523809524f, ceDamageFactor = 0.0392156863f, ceCooldownFactor = 0.518987342f, ceBluntPenetrationFactor = 0.027486911f },
+            });
+            target.Add("Doedicurus\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0526315789f, vanillaCooldownFactor = 0.476190476f, ceDamageFactor = 0.0171568627f, ceCooldownFactor = 0.46835443f, ceBluntPenetrationFactor = 0.010947168f },
+            });
+            target.Add("Doedicurus\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.368421053f, vanillaCooldownFactor = 0.746031746f, ceDamageFactor = 0.348039216f, ceCooldownFactor = 0.737341772f, ceBluntPenetrationFactor = 0.310447406f },
+            });
+            target.Add("Doedicurus\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.368421053f, vanillaCooldownFactor = 0.746031746f, ceDamageFactor = 0.348039216f, ceCooldownFactor = 0.737341772f, ceBluntPenetrationFactor = 0.310447406f },
+            });
+            target.Add("Doedicurus\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0526315789f, vanillaCooldownFactor = 0.523809524f, ceDamageFactor = 0.0392156863f, ceCooldownFactor = 0.518987342f, ceBluntPenetrationFactor = 0.027486911f },
+            });
+            target.Add("Donkey\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.181818182f, vanillaCooldownFactor = 0.568181818f, ceDamageFactor = 0.00884955752f, ceCooldownFactor = 0.556561086f, ceBluntPenetrationFactor = 0.00745897563f },
+            });
+            target.Add("Donkey\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.181818182f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.00884955752f, ceCooldownFactor = 0.50678733f, ceBluntPenetrationFactor = 0.00298359025f },
+            });
+            target.Add("Donkey\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.181818182f, vanillaCooldownFactor = 0.772727273f, ceDamageFactor = 0.17699115f, ceCooldownFactor = 0.760180995f, ceBluntPenetrationFactor = 0.144704127f },
+            });
+            target.Add("Donkey\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.181818182f, vanillaCooldownFactor = 0.772727273f, ceDamageFactor = 0.17699115f, ceCooldownFactor = 0.760180995f, ceBluntPenetrationFactor = 0.144704127f },
+            });
+            target.Add("Donkey\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.181818182f, vanillaCooldownFactor = 0.568181818f, ceDamageFactor = 0.00884955752f, ceCooldownFactor = 0.556561086f, ceBluntPenetrationFactor = 0.00745897563f },
+            });
+            target.Add("Dromedary\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0740740741f, vanillaCooldownFactor = 0.545454545f, ceDamageFactor = 0.0301886792f, ceCooldownFactor = 0.54379562f, ceBluntPenetrationFactor = 0.0190055673f },
+            });
+            target.Add("Dromedary\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0740740741f, vanillaCooldownFactor = 0.490909091f, ceDamageFactor = 0.0113207547f, ceCooldownFactor = 0.49270073f, ceBluntPenetrationFactor = 0.00748704166f },
+            });
+            target.Add("Dromedary\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.296296296f, vanillaCooldownFactor = 0.763636364f, ceDamageFactor = 0.316981132f, ceCooldownFactor = 0.762773723f, ceBluntPenetrationFactor = 0.280284124f },
+            });
+            target.Add("Dromedary\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.296296296f, vanillaCooldownFactor = 0.763636364f, ceDamageFactor = 0.316981132f, ceCooldownFactor = 0.762773723f, ceBluntPenetrationFactor = 0.280284124f },
+            });
+            target.Add("Dromedary\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0740740741f, vanillaCooldownFactor = 0.545454545f, ceDamageFactor = 0.0301886792f, ceCooldownFactor = 0.54379562f, ceBluntPenetrationFactor = 0.0190055673f },
+            });
+            target.Add("Dryosaurus\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.166666667f, vanillaCooldownFactor = 0.555555556f, ceDamageFactor = 0.0165289256f, ceCooldownFactor = 0.555555556f, ceBluntPenetrationFactor = 0.00873563218f },
+            });
+            target.Add("Dryosaurus\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.166666667f, vanillaCooldownFactor = 0.511111111f, ceDamageFactor = 0.00826446281f, ceCooldownFactor = 0.506666667f, ceBluntPenetrationFactor = 0.0032183908f },
+            });
+            target.Add("Dryosaurus\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.166666667f, vanillaCooldownFactor = 0.755555556f, ceDamageFactor = 0.198347107f, ceCooldownFactor = 0.764444444f, ceBluntPenetrationFactor = 0.165057471f },
+            });
+            target.Add("Dryosaurus\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.166666667f, vanillaCooldownFactor = 0.755555556f, ceDamageFactor = 0.198347107f, ceCooldownFactor = 0.764444444f, ceBluntPenetrationFactor = 0.165057471f },
+            });
+            target.Add("Dryosaurus\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.166666667f, vanillaCooldownFactor = 0.555555556f, ceDamageFactor = 0.0165289256f, ceCooldownFactor = 0.555555556f, ceBluntPenetrationFactor = 0.00873563218f },
+            });
+            target.Add("Duck\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.952380952f, ceCooldownFactor = 0.788461538f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Duck\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.952380952f, ceCooldownFactor = 0.788461538f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Elasmotherium\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0784313725f, vanillaCooldownFactor = 0.506849315f, ceDamageFactor = 0.0661016949f, ceCooldownFactor = 0.50273224f, ceBluntPenetrationFactor = 0.0484470086f },
+            });
+            target.Add("Elasmotherium\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0392156863f, vanillaCooldownFactor = 0.452054795f, ceDamageFactor = 0.0305084746f, ceCooldownFactor = 0.453551913f, ceBluntPenetrationFactor = 0.0205484865f },
+            });
+            target.Add("Elasmotherium\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.490196078f, vanillaCooldownFactor = 0.739726027f, ceDamageFactor = 0.415254237f, ceCooldownFactor = 0.732240437f, ceBluntPenetrationFactor = 0.377538924f },
+            });
+            target.Add("Elasmotherium\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.490196078f, vanillaCooldownFactor = 0.739726027f, ceDamageFactor = 0.415254237f, ceCooldownFactor = 0.732240437f, ceBluntPenetrationFactor = 0.377538924f },
+            });
+            target.Add("Elasmotherium\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0784313725f, vanillaCooldownFactor = 0.506849315f, ceDamageFactor = 0.0661016949f, ceCooldownFactor = 0.50273224f, ceBluntPenetrationFactor = 0.0484470086f },
+            });
+            target.Add("Elephant\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0909090909f, vanillaCooldownFactor = 0.513157895f, ceDamageFactor = 0.0803709428f, ceCooldownFactor = 0.50656168f, ceBluntPenetrationFactor = 0.0606103822f },
+            });
+            target.Add("Elephant\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0363636364f, vanillaCooldownFactor = 0.447368421f, ceDamageFactor = 0.0370942813f, ceCooldownFactor = 0.45144357f, ceBluntPenetrationFactor = 0.0255989732f },
+            });
+            target.Add("Elephant\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.527272727f, vanillaCooldownFactor = 0.736842105f, ceDamageFactor = 0.442040185f, ceCooldownFactor = 0.734908136f, ceBluntPenetrationFactor = 0.40337992f },
+            });
+            target.Add("Elephant\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.527272727f, vanillaCooldownFactor = 0.736842105f, ceDamageFactor = 0.442040185f, ceCooldownFactor = 0.734908136f, ceBluntPenetrationFactor = 0.40337992f },
+            });
+            target.Add("Elephant\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0909090909f, vanillaCooldownFactor = 0.513157895f, ceDamageFactor = 0.0803709428f, ceCooldownFactor = 0.50656168f, ceBluntPenetrationFactor = 0.0606103822f },
+            });
+            target.Add("Elk\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.111111111f, vanillaCooldownFactor = 0.551020408f, ceDamageFactor = 0.0171428571f, ceCooldownFactor = 0.542857143f, ceBluntPenetrationFactor = 0.0103500761f },
+            });
+            target.Add("Elk\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.111111111f, vanillaCooldownFactor = 0.489795918f, ceDamageFactor = 0.00571428571f, ceCooldownFactor = 0.493877551f, ceBluntPenetrationFactor = 0.00395738204f },
+            });
+            target.Add("Elk\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.755102041f, ceDamageFactor = 0.222857143f, ceCooldownFactor = 0.751020408f, ceBluntPenetrationFactor = 0.186605784f },
+            });
+        }
+
+        private static void AddBatch20(Dictionary<string, List<ZoologyLifeStageToolFactor>> target)
+        {
+            target.Add("Elk\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.755102041f, ceDamageFactor = 0.222857143f, ceCooldownFactor = 0.751020408f, ceBluntPenetrationFactor = 0.186605784f },
+            });
+            target.Add("Elk\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.111111111f, vanillaCooldownFactor = 0.551020408f, ceDamageFactor = 0.0171428571f, ceCooldownFactor = 0.542857143f, ceBluntPenetrationFactor = 0.0103500761f },
+            });
+            target.Add("Emu\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.571428571f, ceDamageFactor = 0.00740740741f, ceCooldownFactor = 0.582857143f, ceBluntPenetrationFactor = 0.00717703349f },
+            });
+            target.Add("Emu\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.571428571f, ceDamageFactor = 0.00740740741f, ceCooldownFactor = 0.537142857f, ceBluntPenetrationFactor = 0.0023923445f },
+            });
+            target.Add("Emu\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.148148148f, ceCooldownFactor = 0.788571429f, ceBluntPenetrationFactor = 0.114832536f },
+            });
+            target.Add("Emu\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.148148148f, ceCooldownFactor = 0.788571429f, ceBluntPenetrationFactor = 0.114832536f },
+            });
+            target.Add("Emu\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.571428571f, ceDamageFactor = 0.00740740741f, ceCooldownFactor = 0.582857143f, ceBluntPenetrationFactor = 0.00717703349f },
+            });
+            target.Add("Enhydriodon\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.142857143f, vanillaCooldownFactor = 0.565217391f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.551724138f, ceBluntPenetrationFactor = 0.0090054816f },
+            });
+            target.Add("Enhydriodon\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.142857143f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.00714285714f, ceCooldownFactor = 0.504310345f, ceBluntPenetrationFactor = 0.0035238841f },
+            });
+            target.Add("Enhydriodon\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.214285714f, vanillaCooldownFactor = 0.760869565f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.75862069f, ceBluntPenetrationFactor = 0.170712608f },
+            });
+            target.Add("Enhydriodon\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.214285714f, vanillaCooldownFactor = 0.760869565f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.75862069f, ceBluntPenetrationFactor = 0.170712608f },
+            });
+            target.Add("Enhydriodon\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.142857143f, vanillaCooldownFactor = 0.565217391f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.551724138f, ceBluntPenetrationFactor = 0.0090054816f },
+            });
+            target.Add("Flamingo\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.833333333f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.591666667f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Flamingo\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.833333333f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.791666667f, ceBluntPenetrationFactor = 0.0833333333f },
+            });
+            target.Add("Flamingo\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.833333333f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.791666667f, ceBluntPenetrationFactor = 0.0833333333f },
+            });
+            target.Add("Flamingo\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.833333333f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.591666667f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Fox_Arctic\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.833333333f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.62295082f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Fox_Arctic\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.833333333f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.819672131f, ceBluntPenetrationFactor = 0.142857143f },
+            });
+            target.Add("Fox_Arctic\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.833333333f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.819672131f, ceBluntPenetrationFactor = 0.142857143f },
+            });
+            target.Add("Fox_Arctic\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.833333333f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.62295082f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Fox_Fennec\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.952380952f, ceCooldownFactor = 0.796116505f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Fox_Fennec\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.952380952f, ceCooldownFactor = 0.796116505f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Fox_Red\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.714285714f, ceDamageFactor = 0.05f, ceCooldownFactor = 0.597122302f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Fox_Red\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.714285714f, ceDamageFactor = 0.05f, ceCooldownFactor = 0.54676259f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Fox_Red\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.785714286f, ceDamageFactor = 0.25f, ceCooldownFactor = 0.791366906f, ceBluntPenetrationFactor = 0.0961538462f },
+            });
+            target.Add("Fox_Red\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.785714286f, ceDamageFactor = 0.25f, ceCooldownFactor = 0.791366906f, ceBluntPenetrationFactor = 0.0961538462f },
+            });
+            target.Add("Fox_Red\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.714285714f, ceDamageFactor = 0.05f, ceCooldownFactor = 0.597122302f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Gallimimus\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0769230769f, vanillaCooldownFactor = 0.527272727f, ceDamageFactor = 0.0229007634f, ceCooldownFactor = 0.527472527f, ceBluntPenetrationFactor = 0.0136054422f },
+            });
+            target.Add("Gallimimus\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0769230769f, vanillaCooldownFactor = 0.472727273f, ceDamageFactor = 0.00763358779f, ceCooldownFactor = 0.476190476f, ceBluntPenetrationFactor = 0.00544217687f },
+            });
+            target.Add("Gallimimus\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.269230769f, vanillaCooldownFactor = 0.727272727f, ceDamageFactor = 0.255725191f, ceCooldownFactor = 0.736263736f, ceBluntPenetrationFactor = 0.218658892f },
+            });
+            target.Add("Gallimimus\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.269230769f, vanillaCooldownFactor = 0.727272727f, ceDamageFactor = 0.255725191f, ceCooldownFactor = 0.736263736f, ceBluntPenetrationFactor = 0.218658892f },
+            });
+            target.Add("Gallimimus\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0769230769f, vanillaCooldownFactor = 0.527272727f, ceDamageFactor = 0.0229007634f, ceCooldownFactor = 0.527472527f, ceBluntPenetrationFactor = 0.0136054422f },
+            });
+            target.Add("Gazelle\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.606060606f, ceDamageFactor = 0.0125f, ceCooldownFactor = 0.588957055f, ceBluntPenetrationFactor = 0.00444444444f },
+            });
+            target.Add("Gazelle\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.606060606f, ceDamageFactor = 0.0125f, ceCooldownFactor = 0.533742331f, ceBluntPenetrationFactor = 0.00444444444f },
+            });
+            target.Add("Gazelle\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.787878788f, ceDamageFactor = 0.125f, ceCooldownFactor = 0.791411043f, ceBluntPenetrationFactor = 0.106666667f },
+            });
+            target.Add("Gazelle\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.787878788f, ceDamageFactor = 0.125f, ceCooldownFactor = 0.791411043f, ceBluntPenetrationFactor = 0.106666667f },
+            });
+            target.Add("Gazelle\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.606060606f, ceDamageFactor = 0.0125f, ceCooldownFactor = 0.588957055f, ceBluntPenetrationFactor = 0.00444444444f },
+            });
+            target.Add("Gigantophis\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.153846154f, vanillaCooldownFactor = 0.543478261f, ceDamageFactor = 0.0153846154f, ceCooldownFactor = 0.548245614f, ceBluntPenetrationFactor = 0.00809199319f },
+            });
+            target.Add("Gigantophis\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.153846154f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.00769230769f, ceCooldownFactor = 0.5f, ceBluntPenetrationFactor = 0.00298126065f },
+            });
+            target.Add("Gigantophis\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.153846154f, vanillaCooldownFactor = 0.739130435f, ceDamageFactor = 0.184615385f, ceCooldownFactor = 0.754385965f, ceBluntPenetrationFactor = 0.152896082f },
+            });
+            target.Add("Gigantophis\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.153846154f, vanillaCooldownFactor = 0.739130435f, ceDamageFactor = 0.184615385f, ceCooldownFactor = 0.754385965f, ceBluntPenetrationFactor = 0.152896082f },
+            });
+            target.Add("Gigantophis\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.153846154f, vanillaCooldownFactor = 0.543478261f, ceDamageFactor = 0.0153846154f, ceCooldownFactor = 0.548245614f, ceBluntPenetrationFactor = 0.00809199319f },
+            });
+            target.Add("Gigantopithecus\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.142857143f, vanillaCooldownFactor = 0.553191489f, ceDamageFactor = 0.014084507f, ceCooldownFactor = 0.549356223f, ceBluntPenetrationFactor = 0.00886661527f },
+            });
+            target.Add("Gigantopithecus\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.142857143f, vanillaCooldownFactor = 0.489361702f, ceDamageFactor = 0.00704225352f, ceCooldownFactor = 0.502145923f, ceBluntPenetrationFactor = 0.0034695451f },
+            });
+            target.Add("Gigantopithecus\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.214285714f, vanillaCooldownFactor = 0.744680851f, ceDamageFactor = 0.197183099f, ceCooldownFactor = 0.755364807f, ceBluntPenetrationFactor = 0.168080185f },
+            });
+            target.Add("Gigantopithecus\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.214285714f, vanillaCooldownFactor = 0.744680851f, ceDamageFactor = 0.197183099f, ceCooldownFactor = 0.755364807f, ceBluntPenetrationFactor = 0.168080185f },
+            });
+            target.Add("Gigantopithecus\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.142857143f, vanillaCooldownFactor = 0.553191489f, ceDamageFactor = 0.014084507f, ceCooldownFactor = 0.549356223f, ceBluntPenetrationFactor = 0.00886661527f },
+            });
+            target.Add("Gigantoraptor\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0454545455f, vanillaCooldownFactor = 0.507462687f, ceDamageFactor = 0.049689441f, ceCooldownFactor = 0.510385757f, ceBluntPenetrationFactor = 0.0354322937f },
+            });
+            target.Add("Gigantoraptor\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0454545455f, vanillaCooldownFactor = 0.462686567f, ceDamageFactor = 0.0227743271f, ceCooldownFactor = 0.459940653f, ceBluntPenetrationFactor = 0.0144097908f },
+            });
+            target.Add("Gigantoraptor\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.409090909f, vanillaCooldownFactor = 0.731343284f, ceDamageFactor = 0.378881988f, ceCooldownFactor = 0.732937685f, ceBluntPenetrationFactor = 0.340604027f },
+            });
+            target.Add("Gigantoraptor\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.409090909f, vanillaCooldownFactor = 0.731343284f, ceDamageFactor = 0.378881988f, ceCooldownFactor = 0.732937685f, ceBluntPenetrationFactor = 0.340604027f },
+            });
+            target.Add("Gigantoraptor\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0454545455f, vanillaCooldownFactor = 0.507462687f, ceDamageFactor = 0.049689441f, ceCooldownFactor = 0.510385757f, ceBluntPenetrationFactor = 0.0354322937f },
+            });
+            target.Add("Goat\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.575f, ceDamageFactor = 0.015625f, ceCooldownFactor = 0.565f, ceBluntPenetrationFactor = 0.00648148148f },
+            });
+            target.Add("Goat\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.525f, ceDamageFactor = 0.003125f, ceCooldownFactor = 0.515f, ceBluntPenetrationFactor = 0.00277777778f },
+            });
+            target.Add("Goat\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.775f, ceDamageFactor = 0.15625f, ceCooldownFactor = 0.77f, ceBluntPenetrationFactor = 0.125f },
+            });
+            target.Add("Goat\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.775f, ceDamageFactor = 0.15625f, ceCooldownFactor = 0.77f, ceBluntPenetrationFactor = 0.125f },
+            });
+            target.Add("Goat\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.575f, ceDamageFactor = 0.015625f, ceCooldownFactor = 0.565f, ceBluntPenetrationFactor = 0.00648148148f },
+            });
+            target.Add("Gomphotaria\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0512820513f, vanillaCooldownFactor = 0.53125f, ceDamageFactor = 0.0475059382f, ceCooldownFactor = 0.526645768f, ceBluntPenetrationFactor = 0.0334983308f },
+            });
+            target.Add("Gomphotaria\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0512820513f, vanillaCooldownFactor = 0.46875f, ceDamageFactor = 0.0213776722f, ceCooldownFactor = 0.476489028f, ceBluntPenetrationFactor = 0.0134684011f },
+            });
+            target.Add("Gomphotaria\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.41025641f, vanillaCooldownFactor = 0.75f, ceDamageFactor = 0.387173397f, ceCooldownFactor = 0.752351097f, ceBluntPenetrationFactor = 0.348451709f },
+            });
+            target.Add("Gomphotaria\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.41025641f, vanillaCooldownFactor = 0.75f, ceDamageFactor = 0.387173397f, ceCooldownFactor = 0.752351097f, ceBluntPenetrationFactor = 0.348451709f },
+            });
+            target.Add("Gomphotaria\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0512820513f, vanillaCooldownFactor = 0.53125f, ceDamageFactor = 0.0475059382f, ceCooldownFactor = 0.526645768f, ceBluntPenetrationFactor = 0.0334983308f },
+            });
+            target.Add("Goose\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.740740741f, ceDamageFactor = 0.0666666667f, ceCooldownFactor = 0.614814815f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Goose\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.740740741f, ceDamageFactor = 0.0666666667f, ceCooldownFactor = 0.562962963f, ceBluntPenetrationFactor = 0f },
+            });
+        }
+
+        private static void AddBatch21(Dictionary<string, List<ZoologyLifeStageToolFactor>> target)
+        {
+            target.Add("Goose\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.814814815f, ceDamageFactor = 0.333333333f, ceCooldownFactor = 0.814814815f, ceBluntPenetrationFactor = 0.128205128f },
+            });
+            target.Add("Goose\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.814814815f, ceDamageFactor = 0.333333333f, ceCooldownFactor = 0.814814815f, ceBluntPenetrationFactor = 0.128205128f },
+            });
+            target.Add("Goose\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.740740741f, ceDamageFactor = 0.0666666667f, ceCooldownFactor = 0.614814815f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Gorilla\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.558139535f, ceDamageFactor = 0.0107526882f, ceCooldownFactor = 0.563380282f, ceBluntPenetrationFactor = 0.00734394125f },
+            });
+            target.Add("Gorilla\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.511627907f, ceDamageFactor = 0.00215053763f, ceCooldownFactor = 0.511737089f, ceBluntPenetrationFactor = 0.00305997552f },
+            });
+            target.Add("Gorilla\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.76744186f, ceDamageFactor = 0.172043011f, ceCooldownFactor = 0.769953052f, ceBluntPenetrationFactor = 0.141370869f },
+            });
+            target.Add("Gorilla\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.76744186f, ceDamageFactor = 0.172043011f, ceCooldownFactor = 0.769953052f, ceBluntPenetrationFactor = 0.141370869f },
+            });
+            target.Add("Gorilla\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.558139535f, ceDamageFactor = 0.0107526882f, ceCooldownFactor = 0.563380282f, ceBluntPenetrationFactor = 0.00734394125f },
+            });
+            target.Add("GuineaPig\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", ceCooldownFactor = 0.803921569f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("GuineaPig\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", ceCooldownFactor = 0.803921569f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Hare\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.608f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Hare\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.8f, ceBluntPenetrationFactor = 0.111111111f },
+            });
+            target.Add("Hare\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.8f, ceBluntPenetrationFactor = 0.111111111f },
+            });
+            target.Add("Hare\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.608f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Harpactotyrannus\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.136363636f, vanillaCooldownFactor = 0.673913043f, ceDamageFactor = 0.113720643f, ceCooldownFactor = 0.676855895f, ceBluntPenetrationFactor = 0.0888851784f },
+            });
+            target.Add("Harpactotyrannus\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0757575758f, vanillaCooldownFactor = 0.630434783f, ceDamageFactor = 0.0593325093f, ceCooldownFactor = 0.633187773f, ceBluntPenetrationFactor = 0.0435242389f },
+            });
+            target.Add("Harpactotyrannus\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.575757576f, vanillaCooldownFactor = 0.847826087f, ceDamageFactor = 0.496909765f, ceCooldownFactor = 0.847161572f, ceBluntPenetrationFactor = 0.460176991f },
+            });
+            target.Add("Harpactotyrannus\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.575757576f, vanillaCooldownFactor = 0.847826087f, ceDamageFactor = 0.496909765f, ceCooldownFactor = 0.847161572f, ceBluntPenetrationFactor = 0.460176991f },
+            });
+            target.Add("Harpactotyrannus\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.136363636f, vanillaCooldownFactor = 0.673913043f, ceDamageFactor = 0.113720643f, ceCooldownFactor = 0.676855895f, ceBluntPenetrationFactor = 0.0888851784f },
+            });
+            target.Add("Heron\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.952380952f, ceCooldownFactor = 0.822429907f, ceBluntPenetrationFactor = 0.25f },
+            });
+            target.Add("Heron\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.952380952f, ceCooldownFactor = 0.822429907f, ceBluntPenetrationFactor = 0.25f },
+            });
+            target.Add("Hippo\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0526315789f, vanillaCooldownFactor = 0.523809524f, ceDamageFactor = 0.04f, ceCooldownFactor = 0.523961661f, ceBluntPenetrationFactor = 0.0281295665f },
+            });
+            target.Add("Hippo\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0526315789f, vanillaCooldownFactor = 0.476190476f, ceDamageFactor = 0.0175f, ceCooldownFactor = 0.47284345f, ceBluntPenetrationFactor = 0.0112031174f },
+            });
+            target.Add("Hippo\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.368421053f, vanillaCooldownFactor = 0.746031746f, ceDamageFactor = 0.355f, ceCooldownFactor = 0.744408946f, ceBluntPenetrationFactor = 0.317705796f },
+            });
+            target.Add("Hippo\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.368421053f, vanillaCooldownFactor = 0.746031746f, ceDamageFactor = 0.355f, ceCooldownFactor = 0.744408946f, ceBluntPenetrationFactor = 0.317705796f },
+            });
+            target.Add("Hippo\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0526315789f, vanillaCooldownFactor = 0.523809524f, ceDamageFactor = 0.04f, ceCooldownFactor = 0.523961661f, ceBluntPenetrationFactor = 0.0281295665f },
+            });
+            target.Add("HiveQueen\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0983606557f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.0854816825f, ceCooldownFactor = 0.4975f, ceBluntPenetrationFactor = 0.0653179547f },
+            });
+            target.Add("HiveQueen\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0491803279f, vanillaCooldownFactor = 0.45f, ceDamageFactor = 0.0420624152f, ceCooldownFactor = 0.445f, ceBluntPenetrationFactor = 0.029482514f },
+            });
+            target.Add("HiveQueen\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.524590164f, vanillaCooldownFactor = 0.725f, ceDamageFactor = 0.440976934f, ceCooldownFactor = 0.73f, ceBluntPenetrationFactor = 0.403071609f },
+            });
+            target.Add("HiveQueen\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.524590164f, vanillaCooldownFactor = 0.725f, ceDamageFactor = 0.440976934f, ceCooldownFactor = 0.73f, ceBluntPenetrationFactor = 0.403071609f },
+            });
+            target.Add("HiveQueen\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0983606557f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.0854816825f, ceCooldownFactor = 0.4975f, ceBluntPenetrationFactor = 0.0653179547f },
+            });
+            target.Add("Horse\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0769230769f, vanillaCooldownFactor = 0.537037037f, ceDamageFactor = 0.0233463035f, ceCooldownFactor = 0.531365314f, ceBluntPenetrationFactor = 0.0139470014f },
+            });
+            target.Add("Horse\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0769230769f, vanillaCooldownFactor = 0.481481481f, ceDamageFactor = 0.00778210117f, ceCooldownFactor = 0.479704797f, ceBluntPenetrationFactor = 0.00557880056f },
+            });
+            target.Add("Horse\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.269230769f, vanillaCooldownFactor = 0.740740741f, ceDamageFactor = 0.260700389f, ceCooldownFactor = 0.741697417f, ceBluntPenetrationFactor = 0.224148237f },
+            });
+            target.Add("Horse\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.269230769f, vanillaCooldownFactor = 0.740740741f, ceDamageFactor = 0.260700389f, ceCooldownFactor = 0.741697417f, ceBluntPenetrationFactor = 0.224148237f },
+            });
+            target.Add("Horse\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0769230769f, vanillaCooldownFactor = 0.537037037f, ceDamageFactor = 0.0233463035f, ceCooldownFactor = 0.531365314f, ceBluntPenetrationFactor = 0.0139470014f },
+            });
+            target.Add("Husky\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.588235294f, ceDamageFactor = 0.01f, ceCooldownFactor = 0.583333333f, ceBluntPenetrationFactor = 0.00682593857f },
+            });
+            target.Add("Husky\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.588235294f, ceDamageFactor = 0.01f, ceCooldownFactor = 0.535714286f, ceBluntPenetrationFactor = 0.00341296928f },
+            });
+            target.Add("Husky\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.764705882f, ceDamageFactor = 0.15f, ceCooldownFactor = 0.785714286f, ceBluntPenetrationFactor = 0.105802048f },
+            });
+            target.Add("Husky\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.764705882f, ceDamageFactor = 0.15f, ceCooldownFactor = 0.785714286f, ceBluntPenetrationFactor = 0.105802048f },
+            });
+            target.Add("Husky\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.588235294f, ceDamageFactor = 0.01f, ceCooldownFactor = 0.583333333f, ceBluntPenetrationFactor = 0.00682593857f },
+            });
+            target.Add("Ibex\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.564102564f, ceDamageFactor = 0.0185185185f, ceCooldownFactor = 0.567010309f, ceBluntPenetrationFactor = 0.00562429696f },
+            });
+            target.Add("Ibex\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.512820513f, ceDamageFactor = 0.0037037037f, ceCooldownFactor = 0.515463918f, ceBluntPenetrationFactor = 0.00224971879f },
+            });
+            target.Add("Ibex\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.148148148f, ceCooldownFactor = 0.768041237f, ceBluntPenetrationFactor = 0.11136108f },
+            });
+            target.Add("Ibex\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.148148148f, ceCooldownFactor = 0.768041237f, ceBluntPenetrationFactor = 0.11136108f },
+            });
+            target.Add("Ibex\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.564102564f, ceDamageFactor = 0.0185185185f, ceCooldownFactor = 0.567010309f, ceBluntPenetrationFactor = 0.00562429696f },
+            });
+            target.Add("Iguana\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.869565217f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.622807018f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Iguana\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.869565217f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.833333333f, ceBluntPenetrationFactor = 0.125f },
+            });
+            target.Add("Iguana\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.869565217f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.833333333f, ceBluntPenetrationFactor = 0.125f },
+            });
+            target.Add("Iguana\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.869565217f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.622807018f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Iguanodon\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.123076923f, vanillaCooldownFactor = 0.5125f, ceDamageFactor = 0.0961298377f, ceCooldownFactor = 0.515f, ceBluntPenetrationFactor = 0.0741490858f },
+            });
+            target.Add("Iguanodon\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0615384615f, vanillaCooldownFactor = 0.4625f, ceDamageFactor = 0.0486891386f, ceCooldownFactor = 0.46f, ceBluntPenetrationFactor = 0.0344866385f },
+            });
+            target.Add("Iguanodon\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.538461538f, vanillaCooldownFactor = 0.7625f, ceDamageFactor = 0.45443196f, ceCooldownFactor = 0.7575f, ceBluntPenetrationFactor = 0.416652602f },
+            });
+            target.Add("Iguanodon\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.538461538f, vanillaCooldownFactor = 0.7625f, ceDamageFactor = 0.45443196f, ceCooldownFactor = 0.7575f, ceBluntPenetrationFactor = 0.416652602f },
+            });
+            target.Add("Iguanodon\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.123076923f, vanillaCooldownFactor = 0.5125f, ceDamageFactor = 0.0961298377f, ceCooldownFactor = 0.515f, ceBluntPenetrationFactor = 0.0741490858f },
+            });
+            target.Add("Josephoartigasia\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0833333333f, vanillaCooldownFactor = 0.547169811f, ceDamageFactor = 0.024691358f, ceCooldownFactor = 0.539325843f, ceBluntPenetrationFactor = 0.0148493848f },
+            });
+            target.Add("Josephoartigasia\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0833333333f, vanillaCooldownFactor = 0.490566038f, ceDamageFactor = 0.00823045267f, ceCooldownFactor = 0.486891386f, ceBluntPenetrationFactor = 0.00593975392f },
+            });
+            target.Add("Josephoartigasia\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.291666667f, vanillaCooldownFactor = 0.754716981f, ceDamageFactor = 0.275720165f, ceCooldownFactor = 0.752808989f, ceBluntPenetrationFactor = 0.238650827f },
+            });
+            target.Add("Josephoartigasia\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.291666667f, vanillaCooldownFactor = 0.754716981f, ceDamageFactor = 0.275720165f, ceCooldownFactor = 0.752808989f, ceBluntPenetrationFactor = 0.238650827f },
+            });
+            target.Add("Josephoartigasia\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0833333333f, vanillaCooldownFactor = 0.547169811f, ceDamageFactor = 0.024691358f, ceCooldownFactor = 0.539325843f, ceBluntPenetrationFactor = 0.0148493848f },
+            });
+            target.Add("Kalisk\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.130434783f, vanillaCooldownFactor = 0.5375f, ceDamageFactor = 0.107728337f, ceCooldownFactor = 0.5325f, ceBluntPenetrationFactor = 0.083660747f },
+            });
+            target.Add("Kalisk\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0724637681f, vanillaCooldownFactor = 0.475f, ceDamageFactor = 0.056206089f, ceCooldownFactor = 0.475f, ceBluntPenetrationFactor = 0.0409660014f },
+            });
+            target.Add("Kalisk\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.550724638f, vanillaCooldownFactor = 0.7875f, ceDamageFactor = 0.470725995f, ceCooldownFactor = 0.785f, ceBluntPenetrationFactor = 0.433129027f },
+            });
+            target.Add("Kalisk\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.550724638f, vanillaCooldownFactor = 0.7875f, ceDamageFactor = 0.470725995f, ceCooldownFactor = 0.785f, ceBluntPenetrationFactor = 0.433129027f },
+            });
+        }
+
+        private static void AddBatch22(Dictionary<string, List<ZoologyLifeStageToolFactor>> target)
+        {
+            target.Add("Kalisk\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.130434783f, vanillaCooldownFactor = 0.5375f, ceDamageFactor = 0.107728337f, ceCooldownFactor = 0.5325f, ceBluntPenetrationFactor = 0.083660747f },
+            });
+            target.Add("LabradorRetriever\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.571428571f, ceDamageFactor = 0.008f, ceCooldownFactor = 0.578034682f, ceBluntPenetrationFactor = 0.00529100529f },
+            });
+            target.Add("LabradorRetriever\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.571428571f, ceDamageFactor = 0.008f, ceCooldownFactor = 0.531791908f, ceBluntPenetrationFactor = 0.00264550265f },
+            });
+            target.Add("LabradorRetriever\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.771428571f, ceDamageFactor = 0.12f, ceCooldownFactor = 0.780346821f, ceBluntPenetrationFactor = 0.103174603f },
+            });
+            target.Add("LabradorRetriever\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.771428571f, ceDamageFactor = 0.12f, ceCooldownFactor = 0.780346821f, ceBluntPenetrationFactor = 0.103174603f },
+            });
+            target.Add("LabradorRetriever\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.571428571f, ceDamageFactor = 0.008f, ceCooldownFactor = 0.578034682f, ceBluntPenetrationFactor = 0.00529100529f },
+            });
+            target.Add("Larva\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.689655172f, ceDamageFactor = 0.0333333333f, ceCooldownFactor = 0.593103448f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Larva\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.689655172f, ceDamageFactor = 0.0333333333f, ceCooldownFactor = 0.544827586f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Larva\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.793103448f, ceDamageFactor = 0.166666667f, ceCooldownFactor = 0.786206897f, ceBluntPenetrationFactor = 0.0945945946f },
+            });
+            target.Add("Larva\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.793103448f, ceDamageFactor = 0.166666667f, ceCooldownFactor = 0.786206897f, ceBluntPenetrationFactor = 0.0945945946f },
+            });
+            target.Add("Larva\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.689655172f, ceDamageFactor = 0.0333333333f, ceCooldownFactor = 0.593103448f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("LavaSnail\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.594594595f, ceDamageFactor = 0.00476190476f, ceCooldownFactor = 0.580645161f, ceBluntPenetrationFactor = 0.00601503759f },
+            });
+            target.Add("LavaSnail\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.540540541f, ceDamageFactor = 0.00476190476f, ceCooldownFactor = 0.52688172f, ceBluntPenetrationFactor = 0.0030075188f },
+            });
+            target.Add("LavaSnail\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.783783784f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.790322581f, ceBluntPenetrationFactor = 0.126315789f },
+            });
+            target.Add("LavaSnail\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.783783784f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.790322581f, ceBluntPenetrationFactor = 0.126315789f },
+            });
+            target.Add("LavaSnail\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.594594595f, ceDamageFactor = 0.00476190476f, ceCooldownFactor = 0.580645161f, ceBluntPenetrationFactor = 0.00601503759f },
+            });
+            target.Add("Locust\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.625f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.596273292f, ceBluntPenetrationFactor = 0.00492610837f },
+            });
+            target.Add("Locust\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.625f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.540372671f, ceBluntPenetrationFactor = 0.00492610837f },
+            });
+            target.Add("Locust\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8125f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.801242236f, ceBluntPenetrationFactor = 0.118226601f },
+            });
+            target.Add("Locust\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8125f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.801242236f, ceBluntPenetrationFactor = 0.118226601f },
+            });
+            target.Add("Locust\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.625f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.596273292f, ceBluntPenetrationFactor = 0.00492610837f },
+            });
+            target.Add("Lynx\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.625f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.5875f, ceBluntPenetrationFactor = 0.00518134715f },
+            });
+            target.Add("Lynx\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.625f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.5375f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Lynx\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.78125f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.78125f, ceBluntPenetrationFactor = 0.0984455959f },
+            });
+            target.Add("Lynx\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.78125f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.78125f, ceBluntPenetrationFactor = 0.0984455959f },
+            });
+            target.Add("Lynx\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.625f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.5875f, ceBluntPenetrationFactor = 0.00518134715f },
+            });
+            target.Add("Macaw\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.952380952f, ceCooldownFactor = 0.796116505f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Macaw\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.952380952f, ceCooldownFactor = 0.796116505f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Macrauchenia\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0666666667f, vanillaCooldownFactor = 0.526315789f, ceDamageFactor = 0.0264900662f, ceCooldownFactor = 0.522807018f, ceBluntPenetrationFactor = 0.016439721f },
+            });
+            target.Add("Macrauchenia\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0666666667f, vanillaCooldownFactor = 0.473684211f, ceDamageFactor = 0.00993377483f, ceCooldownFactor = 0.473684211f, ceBluntPenetrationFactor = 0.00647625374f },
+            });
+            target.Add("Macrauchenia\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.266666667f, vanillaCooldownFactor = 0.736842105f, ceDamageFactor = 0.278145695f, ceCooldownFactor = 0.733333333f, ceBluntPenetrationFactor = 0.242444371f },
+            });
+            target.Add("Macrauchenia\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.266666667f, vanillaCooldownFactor = 0.736842105f, ceDamageFactor = 0.278145695f, ceCooldownFactor = 0.733333333f, ceBluntPenetrationFactor = 0.242444371f },
+            });
+            target.Add("Macrauchenia\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0666666667f, vanillaCooldownFactor = 0.526315789f, ceDamageFactor = 0.0264900662f, ceCooldownFactor = 0.522807018f, ceBluntPenetrationFactor = 0.016439721f },
+            });
+            target.Add("Magyarosaurus\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0588235294f, vanillaCooldownFactor = 0.525423729f, ceDamageFactor = 0.0292397661f, ceCooldownFactor = 0.518518519f, ceBluntPenetrationFactor = 0.0195765661f },
+            });
+            target.Add("Magyarosaurus\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0588235294f, vanillaCooldownFactor = 0.474576271f, ceDamageFactor = 0.0116959064f, ceCooldownFactor = 0.471380471f, ceBluntPenetrationFactor = 0.00768561485f },
+            });
+            target.Add("Magyarosaurus\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.294117647f, vanillaCooldownFactor = 0.728813559f, ceDamageFactor = 0.301169591f, ceCooldownFactor = 0.730639731f, ceBluntPenetrationFactor = 0.264066125f },
+            });
+            target.Add("Magyarosaurus\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.294117647f, vanillaCooldownFactor = 0.728813559f, ceDamageFactor = 0.301169591f, ceCooldownFactor = 0.730639731f, ceBluntPenetrationFactor = 0.264066125f },
+            });
+            target.Add("Magyarosaurus\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0588235294f, vanillaCooldownFactor = 0.525423729f, ceDamageFactor = 0.0292397661f, ceCooldownFactor = 0.518518519f, ceBluntPenetrationFactor = 0.0195765661f },
+            });
+            target.Add("Mastodon\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0892857143f, vanillaCooldownFactor = 0.506493506f, ceDamageFactor = 0.0781954887f, ceCooldownFactor = 0.501298701f, ceBluntPenetrationFactor = 0.0588113194f },
+            });
+            target.Add("Mastodon\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0357142857f, vanillaCooldownFactor = 0.441558442f, ceDamageFactor = 0.0360902256f, ceCooldownFactor = 0.446753247f, ceBluntPenetrationFactor = 0.0248391337f },
+            });
+            target.Add("Mastodon\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.517857143f, vanillaCooldownFactor = 0.727272727f, ceDamageFactor = 0.430075188f, ceCooldownFactor = 0.727272727f, ceBluntPenetrationFactor = 0.391406628f },
+            });
+            target.Add("Mastodon\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.517857143f, vanillaCooldownFactor = 0.727272727f, ceDamageFactor = 0.430075188f, ceCooldownFactor = 0.727272727f, ceBluntPenetrationFactor = 0.391406628f },
+            });
+            target.Add("Mastodon\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0892857143f, vanillaCooldownFactor = 0.506493506f, ceDamageFactor = 0.0781954887f, ceCooldownFactor = 0.501298701f, ceBluntPenetrationFactor = 0.0588113194f },
+            });
+            target.Add("Megalania\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.105263158f, vanillaCooldownFactor = 0.54f, ceDamageFactor = 0.0157068063f, ceCooldownFactor = 0.544f, ceBluntPenetrationFactor = 0.0113447703f },
+            });
+            target.Add("Megalania\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.105263158f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.00523560209f, ceCooldownFactor = 0.492f, ceBluntPenetrationFactor = 0.00442722745f },
+            });
+            target.Add("Megalania\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.210526316f, vanillaCooldownFactor = 0.76f, ceDamageFactor = 0.230366492f, ceCooldownFactor = 0.752f, ceBluntPenetrationFactor = 0.197288323f },
+            });
+            target.Add("Megalania\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.210526316f, vanillaCooldownFactor = 0.76f, ceDamageFactor = 0.230366492f, ceCooldownFactor = 0.752f, ceBluntPenetrationFactor = 0.197288323f },
+            });
+            target.Add("Megalania\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.105263158f, vanillaCooldownFactor = 0.54f, ceDamageFactor = 0.0157068063f, ceCooldownFactor = 0.544f, ceBluntPenetrationFactor = 0.0113447703f },
+            });
+            target.Add("Megaloceros\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0689655172f, vanillaCooldownFactor = 0.535714286f, ceDamageFactor = 0.0273972603f, ceCooldownFactor = 0.528368794f, ceBluntPenetrationFactor = 0.0170630817f },
+            });
+            target.Add("Megaloceros\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0689655172f, vanillaCooldownFactor = 0.482142857f, ceDamageFactor = 0.0102739726f, ceCooldownFactor = 0.478723404f, ceBluntPenetrationFactor = 0.00672182006f },
+            });
+            target.Add("Megaloceros\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.275862069f, vanillaCooldownFactor = 0.75f, ceDamageFactor = 0.287671233f, ceCooldownFactor = 0.741134752f, ceBluntPenetrationFactor = 0.251637366f },
+            });
+            target.Add("Megaloceros\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.275862069f, vanillaCooldownFactor = 0.75f, ceDamageFactor = 0.287671233f, ceCooldownFactor = 0.741134752f, ceBluntPenetrationFactor = 0.251637366f },
+            });
+            target.Add("Megaloceros\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0689655172f, vanillaCooldownFactor = 0.535714286f, ceDamageFactor = 0.0273972603f, ceCooldownFactor = 0.528368794f, ceBluntPenetrationFactor = 0.0170630817f },
+            });
+            target.Add("Megalochelys\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0588235294f, vanillaCooldownFactor = 0.525423729f, ceDamageFactor = 0.029154519f, ceCooldownFactor = 0.518518519f, ceBluntPenetrationFactor = 0.0194861432f },
+            });
+            target.Add("Megalochelys\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0588235294f, vanillaCooldownFactor = 0.474576271f, ceDamageFactor = 0.0116618076f, ceCooldownFactor = 0.471380471f, ceBluntPenetrationFactor = 0.00765011547f },
+            });
+            target.Add("Megalochelys\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.294117647f, vanillaCooldownFactor = 0.728813559f, ceDamageFactor = 0.300291545f, ceCooldownFactor = 0.730639731f, ceBluntPenetrationFactor = 0.26284642f },
+            });
+            target.Add("Megalochelys\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.294117647f, vanillaCooldownFactor = 0.728813559f, ceDamageFactor = 0.300291545f, ceCooldownFactor = 0.730639731f, ceBluntPenetrationFactor = 0.26284642f },
+            });
+            target.Add("Megalochelys\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0588235294f, vanillaCooldownFactor = 0.525423729f, ceDamageFactor = 0.029154519f, ceCooldownFactor = 0.518518519f, ceBluntPenetrationFactor = 0.0194861432f },
+            });
+            target.Add("Megascarab\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.689655172f, ceDamageFactor = 0.0333333333f, ceCooldownFactor = 0.593103448f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Megascarab\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.689655172f, ceDamageFactor = 0.0333333333f, ceCooldownFactor = 0.544827586f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Megascarab\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.793103448f, ceDamageFactor = 0.166666667f, ceCooldownFactor = 0.786206897f, ceBluntPenetrationFactor = 0.0945945946f },
+            });
+            target.Add("Megascarab\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.793103448f, ceDamageFactor = 0.166666667f, ceCooldownFactor = 0.786206897f, ceBluntPenetrationFactor = 0.0945945946f },
+            });
+            target.Add("Megascarab\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.689655172f, ceDamageFactor = 0.0333333333f, ceCooldownFactor = 0.593103448f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Megasloth\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0769230769f, vanillaCooldownFactor = 0.513513514f, ceDamageFactor = 0.0729684909f, ceCooldownFactor = 0.509485095f, ceBluntPenetrationFactor = 0.0550324174f },
+            });
+        }
+
+        private static void AddBatch23(Dictionary<string, List<ZoologyLifeStageToolFactor>> target)
+        {
+            target.Add("Megasloth\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0384615385f, vanillaCooldownFactor = 0.459459459f, ceDamageFactor = 0.0348258706f, ceCooldownFactor = 0.45799458f, ceBluntPenetrationFactor = 0.0237727694f },
+            });
+            target.Add("Megasloth\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.519230769f, vanillaCooldownFactor = 0.743243243f, ceDamageFactor = 0.44278607f, ceCooldownFactor = 0.742547425f, ceBluntPenetrationFactor = 0.404214264f },
+            });
+            target.Add("Megasloth\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.519230769f, vanillaCooldownFactor = 0.743243243f, ceDamageFactor = 0.44278607f, ceCooldownFactor = 0.742547425f, ceBluntPenetrationFactor = 0.404214264f },
+            });
+            target.Add("Megasloth\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0769230769f, vanillaCooldownFactor = 0.513513514f, ceDamageFactor = 0.0729684909f, ceCooldownFactor = 0.509485095f, ceBluntPenetrationFactor = 0.0550324174f },
+            });
+            target.Add("Megaspider\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.125f, vanillaCooldownFactor = 0.5625f, ceDamageFactor = 0.018404908f, ceCooldownFactor = 0.554166667f, ceBluntPenetrationFactor = 0.0112322431f },
+            });
+            target.Add("Megaspider\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.125f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.00613496933f, ceCooldownFactor = 0.504166667f, ceBluntPenetrationFactor = 0.0042946812f },
+            });
+            target.Add("Megaspider\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.770833333f, ceDamageFactor = 0.239263804f, ceCooldownFactor = 0.766666667f, ceBluntPenetrationFactor = 0.202510737f },
+            });
+            target.Add("Megaspider\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.770833333f, ceDamageFactor = 0.239263804f, ceCooldownFactor = 0.766666667f, ceBluntPenetrationFactor = 0.202510737f },
+            });
+            target.Add("Megaspider\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.125f, vanillaCooldownFactor = 0.5625f, ceDamageFactor = 0.018404908f, ceCooldownFactor = 0.554166667f, ceBluntPenetrationFactor = 0.0112322431f },
+            });
+            target.Add("Megavole\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.578947368f, ceDamageFactor = 0.02f, ceCooldownFactor = 0.572916667f, ceBluntPenetrationFactor = 0.00609756098f },
+            });
+            target.Add("Megavole\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.526315789f, ceDamageFactor = 0.004f, ceCooldownFactor = 0.520833333f, ceBluntPenetrationFactor = 0.00243902439f },
+            });
+            target.Add("Megavole\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.789473684f, ceDamageFactor = 0.16f, ceCooldownFactor = 0.776041667f, ceBluntPenetrationFactor = 0.120731707f },
+            });
+            target.Add("Megavole\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.789473684f, ceDamageFactor = 0.16f, ceCooldownFactor = 0.776041667f, ceBluntPenetrationFactor = 0.120731707f },
+            });
+            target.Add("Megavole\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.578947368f, ceDamageFactor = 0.02f, ceCooldownFactor = 0.572916667f, ceBluntPenetrationFactor = 0.00609756098f },
+            });
+            target.Add("Mink\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", ceCooldownFactor = 0.811881188f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Mink\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", ceCooldownFactor = 0.811881188f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Minmi\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.111111111f, vanillaCooldownFactor = 0.551020408f, ceDamageFactor = 0.0163934426f, ceCooldownFactor = 0.550607287f, ceBluntPenetrationFactor = 0.0118806143f },
+            });
+            target.Add("Minmi\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.111111111f, vanillaCooldownFactor = 0.510204082f, ceDamageFactor = 0.00546448087f, ceCooldownFactor = 0.497975709f, ceBluntPenetrationFactor = 0.00463633729f },
+            });
+            target.Add("Minmi\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.775510204f, ceDamageFactor = 0.240437158f, ceCooldownFactor = 0.761133603f, ceBluntPenetrationFactor = 0.206606781f },
+            });
+            target.Add("Minmi\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.775510204f, ceDamageFactor = 0.240437158f, ceCooldownFactor = 0.761133603f, ceBluntPenetrationFactor = 0.206606781f },
+            });
+            target.Add("Minmi\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.111111111f, vanillaCooldownFactor = 0.551020408f, ceDamageFactor = 0.0163934426f, ceCooldownFactor = 0.550607287f, ceBluntPenetrationFactor = 0.0118806143f },
+            });
+            target.Add("MonitorLizard\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.567567568f, ceDamageFactor = 0.00512820513f, ceCooldownFactor = 0.572972973f, ceBluntPenetrationFactor = 0.00637958533f },
+            });
+            target.Add("MonitorLizard\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.540540541f, ceDamageFactor = 0.00512820513f, ceCooldownFactor = 0.524324324f, ceBluntPenetrationFactor = 0.00318979266f },
+            });
+            target.Add("MonitorLizard\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.783783784f, ceDamageFactor = 0.153846154f, ceCooldownFactor = 0.778378378f, ceBluntPenetrationFactor = 0.111642743f },
+            });
+            target.Add("MonitorLizard\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.783783784f, ceDamageFactor = 0.153846154f, ceCooldownFactor = 0.778378378f, ceBluntPenetrationFactor = 0.111642743f },
+            });
+            target.Add("MonitorLizard\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.567567568f, ceDamageFactor = 0.00512820513f, ceCooldownFactor = 0.572972973f, ceBluntPenetrationFactor = 0.00637958533f },
+            });
+            target.Add("Monkey\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.740740741f, ceDamageFactor = 0.05f, ceCooldownFactor = 0.605839416f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Monkey\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.740740741f, ceDamageFactor = 0.05f, ceCooldownFactor = 0.554744526f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Monkey\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.814814815f, ceDamageFactor = 0.25f, ceCooldownFactor = 0.802919708f, ceBluntPenetrationFactor = 0.111111111f },
+            });
+            target.Add("Monkey\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.814814815f, ceDamageFactor = 0.25f, ceCooldownFactor = 0.802919708f, ceBluntPenetrationFactor = 0.111111111f },
+            });
+            target.Add("Monkey\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.740740741f, ceDamageFactor = 0.05f, ceCooldownFactor = 0.605839416f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Moose\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0869565217f, vanillaCooldownFactor = 0.547169811f, ceDamageFactor = 0.0260869565f, ceCooldownFactor = 0.547528517f, ceBluntPenetrationFactor = 0.0157303371f },
+            });
+            target.Add("Moose\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0869565217f, vanillaCooldownFactor = 0.490566038f, ceDamageFactor = 0.00869565217f, ceCooldownFactor = 0.494296578f, ceBluntPenetrationFactor = 0.00629213483f },
+            });
+            target.Add("Moose\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.304347826f, vanillaCooldownFactor = 0.754716981f, ceDamageFactor = 0.291304348f, ceCooldownFactor = 0.764258555f, ceBluntPenetrationFactor = 0.252808989f },
+            });
+            target.Add("Moose\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.304347826f, vanillaCooldownFactor = 0.754716981f, ceDamageFactor = 0.291304348f, ceCooldownFactor = 0.764258555f, ceBluntPenetrationFactor = 0.252808989f },
+            });
+            target.Add("Moose\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0869565217f, vanillaCooldownFactor = 0.547169811f, ceDamageFactor = 0.0260869565f, ceCooldownFactor = 0.547528517f, ceBluntPenetrationFactor = 0.0157303371f },
+            });
+            target.Add("Muffalo\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.1f, vanillaCooldownFactor = 0.549019608f, ceDamageFactor = 0.0199004975f, ceCooldownFactor = 0.545454545f, ceBluntPenetrationFactor = 0.0125162973f },
+            });
+            target.Add("Muffalo\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.1f, vanillaCooldownFactor = 0.490196078f, ceDamageFactor = 0.00995024876f, ceCooldownFactor = 0.494071146f, ceBluntPenetrationFactor = 0.00495436767f },
+            });
+            target.Add("Muffalo\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.764705882f, ceDamageFactor = 0.258706468f, ceCooldownFactor = 0.76284585f, ceBluntPenetrationFactor = 0.221642764f },
+            });
+            target.Add("Muffalo\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.764705882f, ceDamageFactor = 0.258706468f, ceCooldownFactor = 0.76284585f, ceBluntPenetrationFactor = 0.221642764f },
+            });
+            target.Add("Muffalo\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.1f, vanillaCooldownFactor = 0.549019608f, ceDamageFactor = 0.0199004975f, ceCooldownFactor = 0.545454545f, ceBluntPenetrationFactor = 0.0125162973f },
+            });
+            target.Add("Muskox\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.111111111f, vanillaCooldownFactor = 0.551020408f, ceDamageFactor = 0.0169491525f, ceCooldownFactor = 0.542857143f, ceBluntPenetrationFactor = 0.0102132773f },
+            });
+            target.Add("Muskox\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.111111111f, vanillaCooldownFactor = 0.489795918f, ceDamageFactor = 0.00564971751f, ceCooldownFactor = 0.493877551f, ceBluntPenetrationFactor = 0.0039050766f },
+            });
+            target.Add("Muskox\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.755102041f, ceDamageFactor = 0.220338983f, ceCooldownFactor = 0.751020408f, ceBluntPenetrationFactor = 0.184139381f },
+            });
+            target.Add("Muskox\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.755102041f, ceDamageFactor = 0.220338983f, ceCooldownFactor = 0.751020408f, ceBluntPenetrationFactor = 0.184139381f },
+            });
+            target.Add("Muskox\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.111111111f, vanillaCooldownFactor = 0.551020408f, ceDamageFactor = 0.0169491525f, ceCooldownFactor = 0.542857143f, ceBluntPenetrationFactor = 0.0102132773f },
+            });
+            target.Add("Ostrich\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.2f, vanillaCooldownFactor = 0.558139535f, ceDamageFactor = 0.0105263158f, ceCooldownFactor = 0.560747664f, ceBluntPenetrationFactor = 0.00720720721f },
+            });
+            target.Add("Ostrich\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.2f, vanillaCooldownFactor = 0.511627907f, ceDamageFactor = 0.00210526316f, ceCooldownFactor = 0.509345794f, ceBluntPenetrationFactor = 0.003003003f },
+            });
+            target.Add("Ostrich\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.2f, vanillaCooldownFactor = 0.76744186f, ceDamageFactor = 0.168421053f, ceCooldownFactor = 0.76635514f, ceBluntPenetrationFactor = 0.138738739f },
+            });
+            target.Add("Ostrich\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.2f, vanillaCooldownFactor = 0.76744186f, ceDamageFactor = 0.168421053f, ceCooldownFactor = 0.76635514f, ceBluntPenetrationFactor = 0.138738739f },
+            });
+            target.Add("Ostrich\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.2f, vanillaCooldownFactor = 0.558139535f, ceDamageFactor = 0.0105263158f, ceCooldownFactor = 0.560747664f, ceBluntPenetrationFactor = 0.00720720721f },
+            });
+            target.Add("Otter\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.606060606f, ceDamageFactor = 0.0105263158f, ceCooldownFactor = 0.586826347f, ceBluntPenetrationFactor = 0.00735294118f },
+            });
+            target.Add("Otter\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.606060606f, ceDamageFactor = 0.0105263158f, ceCooldownFactor = 0.538922156f, ceBluntPenetrationFactor = 0.00367647059f },
+            });
+            target.Add("Otter\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.787878788f, ceDamageFactor = 0.157894737f, ceCooldownFactor = 0.790419162f, ceBluntPenetrationFactor = 0.113970588f },
+            });
+            target.Add("Otter\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.787878788f, ceDamageFactor = 0.157894737f, ceCooldownFactor = 0.790419162f, ceBluntPenetrationFactor = 0.113970588f },
+            });
+            target.Add("Otter\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.606060606f, ceDamageFactor = 0.0105263158f, ceCooldownFactor = 0.586826347f, ceBluntPenetrationFactor = 0.00735294118f },
+            });
+            target.Add("Pachycephalosaurus\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0952380952f, vanillaCooldownFactor = 0.549019608f, ceDamageFactor = 0.0192307692f, ceCooldownFactor = 0.5390625f, ceBluntPenetrationFactor = 0.0120603015f },
+            });
+            target.Add("Pachycephalosaurus\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0952380952f, vanillaCooldownFactor = 0.490196078f, ceDamageFactor = 0.00961538462f, ceCooldownFactor = 0.48828125f, ceBluntPenetrationFactor = 0.00477386935f },
+            });
+            target.Add("Pachycephalosaurus\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.238095238f, vanillaCooldownFactor = 0.764705882f, ceDamageFactor = 0.25f, ceCooldownFactor = 0.75390625f, ceBluntPenetrationFactor = 0.213567839f },
+            });
+            target.Add("Pachycephalosaurus\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.238095238f, vanillaCooldownFactor = 0.764705882f, ceDamageFactor = 0.25f, ceCooldownFactor = 0.75390625f, ceBluntPenetrationFactor = 0.213567839f },
+            });
+            target.Add("Pachycephalosaurus\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0952380952f, vanillaCooldownFactor = 0.549019608f, ceDamageFactor = 0.0192307692f, ceCooldownFactor = 0.5390625f, ceBluntPenetrationFactor = 0.0120603015f },
+            });
+            target.Add("Palaeeudyptes\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.567567568f, ceDamageFactor = 0.00540540541f, ceCooldownFactor = 0.579234973f, ceBluntPenetrationFactor = 0.00684931507f },
+            });
+            target.Add("Palaeeudyptes\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.540540541f, ceDamageFactor = 0.00540540541f, ceCooldownFactor = 0.530054645f, ceBluntPenetrationFactor = 0.00342465753f },
+            });
+            target.Add("Palaeeudyptes\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.783783784f, ceDamageFactor = 0.162162162f, ceCooldownFactor = 0.786885246f, ceBluntPenetrationFactor = 0.119863014f },
+            });
+        }
+
+        private static void AddBatch24(Dictionary<string, List<ZoologyLifeStageToolFactor>> target)
+        {
+            target.Add("Palaeeudyptes\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.783783784f, ceDamageFactor = 0.162162162f, ceCooldownFactor = 0.786885246f, ceBluntPenetrationFactor = 0.119863014f },
+            });
+            target.Add("Palaeeudyptes\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.5f, vanillaCooldownFactor = 0.567567568f, ceDamageFactor = 0.00540540541f, ceCooldownFactor = 0.579234973f, ceBluntPenetrationFactor = 0.00684931507f },
+            });
+            target.Add("Panda\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.571428571f, ceDamageFactor = 0.0114942529f, ceCooldownFactor = 0.568720379f, ceBluntPenetrationFactor = 0.00792602378f },
+            });
+            target.Add("Panda\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.523809524f, ceDamageFactor = 0.00229885057f, ceCooldownFactor = 0.516587678f, ceBluntPenetrationFactor = 0.00330250991f },
+            });
+            target.Add("Panda\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.785714286f, ceDamageFactor = 0.183908046f, ceCooldownFactor = 0.777251185f, ceBluntPenetrationFactor = 0.152575958f },
+            });
+            target.Add("Panda\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.785714286f, ceDamageFactor = 0.183908046f, ceCooldownFactor = 0.777251185f, ceBluntPenetrationFactor = 0.152575958f },
+            });
+            target.Add("Panda\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.571428571f, ceDamageFactor = 0.0114942529f, ceCooldownFactor = 0.568720379f, ceBluntPenetrationFactor = 0.00792602378f },
+            });
+            target.Add("Panther\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.578947368f, ceDamageFactor = 0.00434782609f, ceCooldownFactor = 0.571428571f, ceBluntPenetrationFactor = 0.00534759358f },
+            });
+            target.Add("Panther\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.526315789f, ceDamageFactor = 0.00434782609f, ceCooldownFactor = 0.518518519f, ceBluntPenetrationFactor = 0.00267379679f },
+            });
+            target.Add("Panther\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.763157895f, ceDamageFactor = 0.130434783f, ceCooldownFactor = 0.777777778f, ceBluntPenetrationFactor = 0.112299465f },
+            });
+            target.Add("Panther\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.763157895f, ceDamageFactor = 0.130434783f, ceCooldownFactor = 0.777777778f, ceBluntPenetrationFactor = 0.112299465f },
+            });
+            target.Add("Panther\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.578947368f, ceDamageFactor = 0.00434782609f, ceCooldownFactor = 0.571428571f, ceBluntPenetrationFactor = 0.00534759358f },
+            });
+            target.Add("Paraceratherium\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.152777778f, vanillaCooldownFactor = 0.55f, ceDamageFactor = 0.11784141f, ceCooldownFactor = 0.5475f, ceBluntPenetrationFactor = 0.0926941534f },
+            });
+            target.Add("Paraceratherium\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0833333333f, vanillaCooldownFactor = 0.4875f, ceDamageFactor = 0.063876652f, ceCooldownFactor = 0.49f, ceBluntPenetrationFactor = 0.0468122613f },
+            });
+            target.Add("Paraceratherium\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.569444444f, vanillaCooldownFactor = 0.8125f, ceDamageFactor = 0.483480176f, ceCooldownFactor = 0.8125f, ceBluntPenetrationFactor = 0.446626187f },
+            });
+            target.Add("Paraceratherium\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.569444444f, vanillaCooldownFactor = 0.8125f, ceDamageFactor = 0.483480176f, ceCooldownFactor = 0.8125f, ceBluntPenetrationFactor = 0.446626187f },
+            });
+            target.Add("Paraceratherium\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.152777778f, vanillaCooldownFactor = 0.55f, ceDamageFactor = 0.11784141f, ceCooldownFactor = 0.5475f, ceBluntPenetrationFactor = 0.0926941534f },
+            });
+            target.Add("Paragnathus\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.709677419f, ceDamageFactor = 0.012345679f, ceCooldownFactor = 0.718954248f, ceBluntPenetrationFactor = 0.00645624103f },
+            });
+            target.Add("Paragnathus\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.677419355f, ceDamageFactor = 0.0024691358f, ceCooldownFactor = 0.679738562f, ceBluntPenetrationFactor = 0.00286944046f },
+            });
+            target.Add("Paragnathus\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.838709677f, ceDamageFactor = 0.160493827f, ceCooldownFactor = 0.85620915f, ceBluntPenetrationFactor = 0.128407461f },
+            });
+            target.Add("Paragnathus\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.838709677f, ceDamageFactor = 0.160493827f, ceCooldownFactor = 0.85620915f, ceBluntPenetrationFactor = 0.128407461f },
+            });
+            target.Add("Paragnathus\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.709677419f, ceDamageFactor = 0.012345679f, ceCooldownFactor = 0.718954248f, ceBluntPenetrationFactor = 0.00645624103f },
+            });
+            target.Add("Parasaur\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0909090909f, vanillaCooldownFactor = 0.513157895f, ceDamageFactor = 0.0803709428f, ceCooldownFactor = 0.50656168f, ceBluntPenetrationFactor = 0.0606103822f },
+            });
+            target.Add("Parasaur\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0363636364f, vanillaCooldownFactor = 0.447368421f, ceDamageFactor = 0.0370942813f, ceCooldownFactor = 0.45144357f, ceBluntPenetrationFactor = 0.0255989732f },
+            });
+            target.Add("Parasaur\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.527272727f, vanillaCooldownFactor = 0.736842105f, ceDamageFactor = 0.442040185f, ceCooldownFactor = 0.734908136f, ceBluntPenetrationFactor = 0.40337992f },
+            });
+            target.Add("Parasaur\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.527272727f, vanillaCooldownFactor = 0.736842105f, ceDamageFactor = 0.442040185f, ceCooldownFactor = 0.734908136f, ceBluntPenetrationFactor = 0.40337992f },
+            });
+            target.Add("Parasaur\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0909090909f, vanillaCooldownFactor = 0.513157895f, ceDamageFactor = 0.0803709428f, ceCooldownFactor = 0.50656168f, ceBluntPenetrationFactor = 0.0606103822f },
+            });
+            target.Add("Peacock\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.603174603f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Peacock\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.793650794f, ceBluntPenetrationFactor = 0.1f },
+            });
+            target.Add("Peacock\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.793650794f, ceBluntPenetrationFactor = 0.1f },
+            });
+            target.Add("Peacock\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.603174603f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Penguin\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.571428571f, ceDamageFactor = 0.00769230769f, ceCooldownFactor = 0.586206897f, ceBluntPenetrationFactor = 0.0075f },
+            });
+            target.Add("Penguin\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.571428571f, ceDamageFactor = 0.00769230769f, ceCooldownFactor = 0.540229885f, ceBluntPenetrationFactor = 0.0025f },
+            });
+            target.Add("Penguin\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.153846154f, ceCooldownFactor = 0.793103448f, ceBluntPenetrationFactor = 0.12f },
+            });
+            target.Add("Penguin\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.153846154f, ceCooldownFactor = 0.793103448f, ceBluntPenetrationFactor = 0.12f },
+            });
+            target.Add("Penguin\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.571428571f, ceDamageFactor = 0.00769230769f, ceCooldownFactor = 0.586206897f, ceBluntPenetrationFactor = 0.0075f },
+            });
+            target.Add("Pig\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.117647059f, vanillaCooldownFactor = 0.551020408f, ceDamageFactor = 0.0176470588f, ceCooldownFactor = 0.547325103f, ceBluntPenetrationFactor = 0.0107187894f },
+            });
+            target.Add("Pig\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.117647059f, vanillaCooldownFactor = 0.489795918f, ceDamageFactor = 0.00588235294f, ceCooldownFactor = 0.497942387f, ceBluntPenetrationFactor = 0.00409836066f },
+            });
+            target.Add("Pig\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.235294118f, vanillaCooldownFactor = 0.755102041f, ceDamageFactor = 0.229411765f, ceCooldownFactor = 0.757201646f, ceBluntPenetrationFactor = 0.193253468f },
+            });
+            target.Add("Pig\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.235294118f, vanillaCooldownFactor = 0.755102041f, ceDamageFactor = 0.229411765f, ceCooldownFactor = 0.757201646f, ceBluntPenetrationFactor = 0.193253468f },
+            });
+            target.Add("Pig\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.117647059f, vanillaCooldownFactor = 0.551020408f, ceDamageFactor = 0.0176470588f, ceCooldownFactor = 0.547325103f, ceBluntPenetrationFactor = 0.0107187894f },
+            });
+            target.Add("Platybelodon\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0454545455f, vanillaCooldownFactor = 0.507462687f, ceDamageFactor = 0.0495867769f, ceCooldownFactor = 0.510385757f, ceBluntPenetrationFactor = 0.0353729431f },
+            });
+            target.Add("Platybelodon\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0454545455f, vanillaCooldownFactor = 0.462686567f, ceDamageFactor = 0.0227272727f, ceCooldownFactor = 0.459940653f, ceBluntPenetrationFactor = 0.0143856538f },
+            });
+            target.Add("Platybelodon\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.409090909f, vanillaCooldownFactor = 0.731343284f, ceDamageFactor = 0.378099174f, ceCooldownFactor = 0.732937685f, ceBluntPenetrationFactor = 0.340033501f },
+            });
+            target.Add("Platybelodon\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.409090909f, vanillaCooldownFactor = 0.731343284f, ceDamageFactor = 0.378099174f, ceCooldownFactor = 0.732937685f, ceBluntPenetrationFactor = 0.340033501f },
+            });
+            target.Add("Platybelodon\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0454545455f, vanillaCooldownFactor = 0.507462687f, ceDamageFactor = 0.0495867769f, ceCooldownFactor = 0.510385757f, ceBluntPenetrationFactor = 0.0353729431f },
+            });
+            target.Add("Porcupine\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.666666667f, ceDamageFactor = 0.0285714286f, ceCooldownFactor = 0.594594595f, ceBluntPenetrationFactor = 0.0107526882f },
+            });
+            target.Add("Porcupine\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.666666667f, ceDamageFactor = 0.0285714286f, ceCooldownFactor = 0.554054054f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Porcupine\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.797297297f, ceBluntPenetrationFactor = 0.107526882f },
+            });
+            target.Add("Porcupine\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.797297297f, ceBluntPenetrationFactor = 0.107526882f },
+            });
+            target.Add("Porcupine\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.666666667f, ceDamageFactor = 0.0285714286f, ceCooldownFactor = 0.594594595f, ceBluntPenetrationFactor = 0.0107526882f },
+            });
+            target.Add("PrairieDog\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", ceCooldownFactor = 0.828282828f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("PrairieDog\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", ceCooldownFactor = 0.828282828f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Procoptodon\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.125f, vanillaCooldownFactor = 0.553191489f, ceDamageFactor = 0.0129032258f, ceCooldownFactor = 0.552742616f, ceBluntPenetrationFactor = 0.00977653631f },
+            });
+            target.Add("Procoptodon\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.125f, vanillaCooldownFactor = 0.510638298f, ceDamageFactor = 0.0064516129f, ceCooldownFactor = 0.502109705f, ceBluntPenetrationFactor = 0.00384078212f },
+            });
+            target.Add("Procoptodon\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.1875f, vanillaCooldownFactor = 0.765957447f, ceDamageFactor = 0.212903226f, ceCooldownFactor = 0.759493671f, ceBluntPenetrationFactor = 0.181564246f },
+            });
+            target.Add("Procoptodon\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.1875f, vanillaCooldownFactor = 0.765957447f, ceDamageFactor = 0.212903226f, ceCooldownFactor = 0.759493671f, ceBluntPenetrationFactor = 0.181564246f },
+            });
+            target.Add("Procoptodon\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.125f, vanillaCooldownFactor = 0.553191489f, ceDamageFactor = 0.0129032258f, ceCooldownFactor = 0.552742616f, ceBluntPenetrationFactor = 0.00977653631f },
+            });
+            target.Add("Protoceratops\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.285714286f, vanillaCooldownFactor = 0.575f, ceDamageFactor = 0.0147058824f, ceCooldownFactor = 0.559405941f, ceBluntPenetrationFactor = 0.00606585789f },
+            });
+            target.Add("Protoceratops\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.285714286f, vanillaCooldownFactor = 0.525f, ceDamageFactor = 0.00294117647f, ceCooldownFactor = 0.50990099f, ceBluntPenetrationFactor = 0.00259965338f },
+            });
+            target.Add("Protoceratops\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.285714286f, vanillaCooldownFactor = 0.775f, ceDamageFactor = 0.147058824f, ceCooldownFactor = 0.762376238f, ceBluntPenetrationFactor = 0.116984402f },
+            });
+            target.Add("Protoceratops\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.285714286f, vanillaCooldownFactor = 0.775f, ceDamageFactor = 0.147058824f, ceCooldownFactor = 0.762376238f, ceBluntPenetrationFactor = 0.116984402f },
+            });
+            target.Add("Protoceratops\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.285714286f, vanillaCooldownFactor = 0.575f, ceDamageFactor = 0.0147058824f, ceCooldownFactor = 0.559405941f, ceBluntPenetrationFactor = 0.00606585789f },
+            });
+            target.Add("Pteranodon\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.625f, ceDamageFactor = 0.0153846154f, ceCooldownFactor = 0.591194969f, ceBluntPenetrationFactor = 0.00543478261f },
+            });
+        }
+
+        private static void AddBatch25(Dictionary<string, List<ZoologyLifeStageToolFactor>> target)
+        {
+            target.Add("Pteranodon\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.625f, ceDamageFactor = 0.0153846154f, ceCooldownFactor = 0.540880503f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Pteranodon\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.78125f, ceDamageFactor = 0.153846154f, ceCooldownFactor = 0.786163522f, ceBluntPenetrationFactor = 0.10326087f },
+            });
+            target.Add("Pteranodon\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.78125f, ceDamageFactor = 0.153846154f, ceCooldownFactor = 0.786163522f, ceBluntPenetrationFactor = 0.10326087f },
+            });
+            target.Add("Pteranodon\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.625f, ceDamageFactor = 0.0153846154f, ceCooldownFactor = 0.591194969f, ceBluntPenetrationFactor = 0.00543478261f },
+            });
+            target.Add("Pulmonoscorpius\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.833333333f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.596638655f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Pulmonoscorpius\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.833333333f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.798319328f, ceBluntPenetrationFactor = 0.0909090909f },
+            });
+            target.Add("Pulmonoscorpius\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.833333333f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.798319328f, ceBluntPenetrationFactor = 0.0909090909f },
+            });
+            target.Add("Pulmonoscorpius\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.833333333f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.596638655f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Purussaurus\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0784313725f, vanillaCooldownFactor = 0.506849315f, ceDamageFactor = 0.0659898477f, ceCooldownFactor = 0.50273224f, ceBluntPenetrationFactor = 0.048328603f },
+            });
+            target.Add("Purussaurus\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0392156863f, vanillaCooldownFactor = 0.452054795f, ceDamageFactor = 0.0304568528f, ceCooldownFactor = 0.453551913f, ceBluntPenetrationFactor = 0.0204982655f },
+            });
+            target.Add("Purussaurus\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.490196078f, vanillaCooldownFactor = 0.739726027f, ceDamageFactor = 0.414551607f, ceCooldownFactor = 0.732240437f, ceBluntPenetrationFactor = 0.376616209f },
+            });
+            target.Add("Purussaurus\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.490196078f, vanillaCooldownFactor = 0.739726027f, ceDamageFactor = 0.414551607f, ceCooldownFactor = 0.732240437f, ceBluntPenetrationFactor = 0.376616209f },
+            });
+            target.Add("Purussaurus\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0784313725f, vanillaCooldownFactor = 0.506849315f, ceDamageFactor = 0.0659898477f, ceCooldownFactor = 0.50273224f, ceBluntPenetrationFactor = 0.048328603f },
+            });
+            target.Add("Quetzalcoatlus\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.125f, vanillaCooldownFactor = 0.541666667f, ceDamageFactor = 0.0126582278f, ceCooldownFactor = 0.548117155f, ceBluntPenetrationFactor = 0.00953353762f },
+            });
+            target.Add("Quetzalcoatlus\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.125f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.00632911392f, ceCooldownFactor = 0.49790795f, ceBluntPenetrationFactor = 0.00374531835f },
+            });
+            target.Add("Quetzalcoatlus\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.1875f, vanillaCooldownFactor = 0.75f, ceDamageFactor = 0.208860759f, ceCooldownFactor = 0.753138075f, ceBluntPenetrationFactor = 0.177051413f },
+            });
+            target.Add("Quetzalcoatlus\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.1875f, vanillaCooldownFactor = 0.75f, ceDamageFactor = 0.208860759f, ceCooldownFactor = 0.753138075f, ceBluntPenetrationFactor = 0.177051413f },
+            });
+            target.Add("Quetzalcoatlus\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.125f, vanillaCooldownFactor = 0.541666667f, ceDamageFactor = 0.0126582278f, ceCooldownFactor = 0.548117155f, ceBluntPenetrationFactor = 0.00953353762f },
+            });
+            target.Add("Quinkana\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0588235294f, vanillaCooldownFactor = 0.533333333f, ceDamageFactor = 0.0374639769f, ceCooldownFactor = 0.533557047f, ceBluntPenetrationFactor = 0.0255240268f },
+            });
+            target.Add("Quinkana\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0588235294f, vanillaCooldownFactor = 0.483333333f, ceDamageFactor = 0.0172910663f, ceCooldownFactor = 0.483221477f, ceBluntPenetrationFactor = 0.009981463f },
+            });
+            target.Add("Quinkana\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.352941176f, vanillaCooldownFactor = 0.75f, ceDamageFactor = 0.351585014f, ceCooldownFactor = 0.755033557f, ceBluntPenetrationFactor = 0.3141309f },
+            });
+            target.Add("Quinkana\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.352941176f, vanillaCooldownFactor = 0.75f, ceDamageFactor = 0.351585014f, ceCooldownFactor = 0.755033557f, ceBluntPenetrationFactor = 0.3141309f },
+            });
+            target.Add("Quinkana\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0588235294f, vanillaCooldownFactor = 0.533333333f, ceDamageFactor = 0.0374639769f, ceCooldownFactor = 0.533557047f, ceBluntPenetrationFactor = 0.0255240268f },
+            });
+            target.Add("Raccoon\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.740740741f, ceDamageFactor = 0.0666666667f, ceCooldownFactor = 0.592592593f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Raccoon\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.740740741f, ceDamageFactor = 0.0666666667f, ceCooldownFactor = 0.540740741f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Raccoon\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.777777778f, ceDamageFactor = 0.0666666667f, ceCooldownFactor = 0.777777778f, ceBluntPenetrationFactor = 0.0810810811f },
+            });
+            target.Add("Raccoon\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.777777778f, ceDamageFactor = 0.0666666667f, ceCooldownFactor = 0.777777778f, ceBluntPenetrationFactor = 0.0810810811f },
+            });
+            target.Add("Raccoon\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.740740741f, ceDamageFactor = 0.0666666667f, ceCooldownFactor = 0.592592593f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Rat\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", ceCooldownFactor = 0.865853659f },
+            });
+            target.Add("Rat\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", ceCooldownFactor = 0.865853659f },
+            });
+            target.Add("Rhinoceros\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0476190476f, vanillaCooldownFactor = 0.515151515f, ceDamageFactor = 0.0517241379f, ceCooldownFactor = 0.518072289f, ceBluntPenetrationFactor = 0.0370141252f },
+            });
+            target.Add("Rhinoceros\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0476190476f, vanillaCooldownFactor = 0.46969697f, ceDamageFactor = 0.0237068966f, ceCooldownFactor = 0.46686747f, ceBluntPenetrationFactor = 0.0150530983f },
+            });
+            target.Add("Rhinoceros\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.428571429f, vanillaCooldownFactor = 0.742424242f, ceDamageFactor = 0.394396552f, ceCooldownFactor = 0.743975904f, ceBluntPenetrationFactor = 0.355809877f },
+            });
+            target.Add("Rhinoceros\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.428571429f, vanillaCooldownFactor = 0.742424242f, ceDamageFactor = 0.394396552f, ceCooldownFactor = 0.743975904f, ceBluntPenetrationFactor = 0.355809877f },
+            });
+            target.Add("Rhinoceros\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0476190476f, vanillaCooldownFactor = 0.515151515f, ceDamageFactor = 0.0517241379f, ceCooldownFactor = 0.518072289f, ceBluntPenetrationFactor = 0.0370141252f },
+            });
+            target.Add("Seal\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.58974359f, ceDamageFactor = 0.0169491525f, ceCooldownFactor = 0.573604061f, ceBluntPenetrationFactor = 0.00710659898f },
+            });
+            target.Add("Seal\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.538461538f, ceDamageFactor = 0.00338983051f, ceCooldownFactor = 0.52284264f, ceBluntPenetrationFactor = 0.00304568528f },
+            });
+            target.Add("Seal\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.794871795f, ceDamageFactor = 0.169491525f, ceCooldownFactor = 0.781725888f, ceBluntPenetrationFactor = 0.137055838f },
+            });
+            target.Add("Seal\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.794871795f, ceDamageFactor = 0.169491525f, ceCooldownFactor = 0.781725888f, ceBluntPenetrationFactor = 0.137055838f },
+            });
+            target.Add("Seal\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.58974359f, ceDamageFactor = 0.0169491525f, ceCooldownFactor = 0.573604061f, ceBluntPenetrationFactor = 0.00710659898f },
+            });
+            target.Add("SeaLion\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.2f, vanillaCooldownFactor = 0.581395349f, ceDamageFactor = 0.0099009901f, ceCooldownFactor = 0.566820276f, ceBluntPenetrationFactor = 0.00837988827f },
+            });
+            target.Add("SeaLion\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.2f, vanillaCooldownFactor = 0.511627907f, ceDamageFactor = 0.0099009901f, ceCooldownFactor = 0.516129032f, ceBluntPenetrationFactor = 0.00335195531f },
+            });
+            target.Add("SeaLion\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.2f, vanillaCooldownFactor = 0.790697674f, ceDamageFactor = 0.198019802f, ceCooldownFactor = 0.774193548f, ceBluntPenetrationFactor = 0.162569832f },
+            });
+            target.Add("SeaLion\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.2f, vanillaCooldownFactor = 0.790697674f, ceDamageFactor = 0.198019802f, ceCooldownFactor = 0.774193548f, ceBluntPenetrationFactor = 0.162569832f },
+            });
+            target.Add("SeaLion\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.2f, vanillaCooldownFactor = 0.581395349f, ceDamageFactor = 0.0099009901f, ceCooldownFactor = 0.566820276f, ceBluntPenetrationFactor = 0.00837988827f },
+            });
+            target.Add("SeaTurtle\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.571428571f, ceDamageFactor = 0.0113636364f, ceCooldownFactor = 0.568720379f, ceBluntPenetrationFactor = 0.00789993417f },
+            });
+            target.Add("SeaTurtle\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.523809524f, ceDamageFactor = 0.00227272727f, ceCooldownFactor = 0.516587678f, ceBluntPenetrationFactor = 0.00329163924f },
+            });
+            target.Add("SeaTurtle\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.785714286f, ceDamageFactor = 0.181818182f, ceCooldownFactor = 0.777251185f, ceBluntPenetrationFactor = 0.152073733f },
+            });
+            target.Add("SeaTurtle\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.785714286f, ceDamageFactor = 0.181818182f, ceCooldownFactor = 0.777251185f, ceBluntPenetrationFactor = 0.152073733f },
+            });
+            target.Add("SeaTurtle\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.571428571f, ceDamageFactor = 0.0113636364f, ceCooldownFactor = 0.568720379f, ceBluntPenetrationFactor = 0.00789993417f },
+            });
+            target.Add("Sheep\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.56097561f, ceDamageFactor = 0.0125f, ceCooldownFactor = 0.565217391f, ceBluntPenetrationFactor = 0.00657414171f },
+            });
+            target.Add("Sheep\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.512195122f, ceDamageFactor = 0.0025f, ceCooldownFactor = 0.512077295f, ceBluntPenetrationFactor = 0.00292184076f },
+            });
+            target.Add("Sheep\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.780487805f, ceDamageFactor = 0.1625f, ceCooldownFactor = 0.768115942f, ceBluntPenetrationFactor = 0.130752374f },
+            });
+            target.Add("Sheep\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.780487805f, ceDamageFactor = 0.1625f, ceCooldownFactor = 0.768115942f, ceBluntPenetrationFactor = 0.130752374f },
+            });
+            target.Add("Sheep\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.56097561f, ceDamageFactor = 0.0125f, ceCooldownFactor = 0.565217391f, ceBluntPenetrationFactor = 0.00657414171f },
+            });
+            target.Add("ShortfacedBear\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0714285714f, vanillaCooldownFactor = 0.535714286f, ceDamageFactor = 0.0286738351f, ceCooldownFactor = 0.535971223f, ceBluntPenetrationFactor = 0.0179869186f },
+            });
+            target.Add("ShortfacedBear\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0714285714f, vanillaCooldownFactor = 0.482142857f, ceDamageFactor = 0.0107526882f, ceCooldownFactor = 0.485611511f, ceBluntPenetrationFactor = 0.00708575581f },
+            });
+            target.Add("ShortfacedBear\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.285714286f, vanillaCooldownFactor = 0.75f, ceDamageFactor = 0.301075269f, ceCooldownFactor = 0.751798561f, ceBluntPenetrationFactor = 0.265261628f },
+            });
+            target.Add("ShortfacedBear\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.285714286f, vanillaCooldownFactor = 0.75f, ceDamageFactor = 0.301075269f, ceCooldownFactor = 0.751798561f, ceBluntPenetrationFactor = 0.265261628f },
+            });
+            target.Add("ShortfacedBear\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0714285714f, vanillaCooldownFactor = 0.535714286f, ceDamageFactor = 0.0286738351f, ceCooldownFactor = 0.535971223f, ceBluntPenetrationFactor = 0.0179869186f },
+            });
+            target.Add("Sivatherium\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0540540541f, vanillaCooldownFactor = 0.532258065f, ceDamageFactor = 0.0412371134f, ceCooldownFactor = 0.529032258f, ceBluntPenetrationFactor = 0.0290968636f },
+            });
+            target.Add("Sivatherium\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0540540541f, vanillaCooldownFactor = 0.483870968f, ceDamageFactor = 0.0180412371f, ceCooldownFactor = 0.477419355f, ceBluntPenetrationFactor = 0.0115883613f },
+            });
+            target.Add("Sivatherium\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.378378378f, vanillaCooldownFactor = 0.758064516f, ceDamageFactor = 0.365979381f, ceCooldownFactor = 0.751612903f, ceBluntPenetrationFactor = 0.32863081f },
+            });
+            target.Add("Sivatherium\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.378378378f, vanillaCooldownFactor = 0.758064516f, ceDamageFactor = 0.365979381f, ceCooldownFactor = 0.751612903f, ceBluntPenetrationFactor = 0.32863081f },
+            });
+        }
+
+        private static void AddBatch26(Dictionary<string, List<ZoologyLifeStageToolFactor>> target)
+        {
+            target.Add("Sivatherium\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0540540541f, vanillaCooldownFactor = 0.532258065f, ceDamageFactor = 0.0412371134f, ceCooldownFactor = 0.529032258f, ceBluntPenetrationFactor = 0.0290968636f },
+            });
+            target.Add("Smilodon\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.142857143f, vanillaCooldownFactor = 0.565217391f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.551724138f, ceBluntPenetrationFactor = 0.00898788589f },
+            });
+            target.Add("Smilodon\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.142857143f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.00714285714f, ceCooldownFactor = 0.504310345f, ceBluntPenetrationFactor = 0.00351699883f },
+            });
+            target.Add("Smilodon\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.214285714f, vanillaCooldownFactor = 0.760869565f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.75862069f, ceBluntPenetrationFactor = 0.170379054f },
+            });
+            target.Add("Smilodon\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.214285714f, vanillaCooldownFactor = 0.760869565f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.75862069f, ceBluntPenetrationFactor = 0.170379054f },
+            });
+            target.Add("Smilodon\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.142857143f, vanillaCooldownFactor = 0.565217391f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.551724138f, ceBluntPenetrationFactor = 0.00898788589f },
+            });
+            target.Add("Snowhare\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.833333333f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.62295082f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Snowhare\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.833333333f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.819672131f, ceBluntPenetrationFactor = 0.142857143f },
+            });
+            target.Add("Snowhare\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.833333333f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.819672131f, ceBluntPenetrationFactor = 0.142857143f },
+            });
+            target.Add("Snowhare\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.833333333f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.62295082f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Spelopede\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.547619048f, ceDamageFactor = 0.012345679f, ceCooldownFactor = 0.5625f, ceBluntPenetrationFactor = 0.00645624103f },
+            });
+            target.Add("Spelopede\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.0024691358f, ceCooldownFactor = 0.509615385f, ceBluntPenetrationFactor = 0.00286944046f },
+            });
+            target.Add("Spelopede\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.761904762f, ceDamageFactor = 0.160493827f, ceCooldownFactor = 0.764423077f, ceBluntPenetrationFactor = 0.128407461f },
+            });
+            target.Add("Spelopede\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.761904762f, ceDamageFactor = 0.160493827f, ceCooldownFactor = 0.764423077f, ceBluntPenetrationFactor = 0.128407461f },
+            });
+            target.Add("Spelopede\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.547619048f, ceDamageFactor = 0.012345679f, ceCooldownFactor = 0.5625f, ceBluntPenetrationFactor = 0.00645624103f },
+            });
+            target.Add("Spinosaurus\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.126984127f, vanillaCooldownFactor = 0.5125f, ceDamageFactor = 0.0998702983f, ceCooldownFactor = 0.515f, ceBluntPenetrationFactor = 0.0773792051f },
+            });
+            target.Add("Spinosaurus\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0634920635f, vanillaCooldownFactor = 0.4625f, ceDamageFactor = 0.0505836576f, ceCooldownFactor = 0.46f, ceBluntPenetrationFactor = 0.0359889626f },
+            });
+            target.Add("Spinosaurus\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.555555556f, vanillaCooldownFactor = 0.7625f, ceDamageFactor = 0.472114137f, ceCooldownFactor = 0.7575f, ceBluntPenetrationFactor = 0.434803029f },
+            });
+            target.Add("Spinosaurus\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.555555556f, vanillaCooldownFactor = 0.7625f, ceDamageFactor = 0.472114137f, ceCooldownFactor = 0.7575f, ceBluntPenetrationFactor = 0.434803029f },
+            });
+            target.Add("Spinosaurus\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.126984127f, vanillaCooldownFactor = 0.5125f, ceDamageFactor = 0.0998702983f, ceCooldownFactor = 0.515f, ceBluntPenetrationFactor = 0.0773792051f },
+            });
+            target.Add("Squirrel\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", ceCooldownFactor = 0.845238095f },
+            });
+            target.Add("Squirrel\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", ceCooldownFactor = 0.845238095f },
+            });
+            target.Add("Stegosaurus\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.103448276f, vanillaCooldownFactor = 0.512820513f, ceDamageFactor = 0.0918367347f, ceCooldownFactor = 0.508951407f, ceBluntPenetrationFactor = 0.0708266453f },
+            });
+            target.Add("Stegosaurus\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0517241379f, vanillaCooldownFactor = 0.461538462f, ceDamageFactor = 0.0451895044f, ceCooldownFactor = 0.455242967f, ceBluntPenetrationFactor = 0.0319689674f },
+            });
+            target.Add("Stegosaurus\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.551724138f, vanillaCooldownFactor = 0.743589744f, ceDamageFactor = 0.473760933f, ceCooldownFactor = 0.746803069f, ceBluntPenetrationFactor = 0.437065276f },
+            });
+            target.Add("Stegosaurus\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.551724138f, vanillaCooldownFactor = 0.743589744f, ceDamageFactor = 0.473760933f, ceCooldownFactor = 0.746803069f, ceBluntPenetrationFactor = 0.437065276f },
+            });
+            target.Add("Stegosaurus\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.103448276f, vanillaCooldownFactor = 0.512820513f, ceDamageFactor = 0.0918367347f, ceCooldownFactor = 0.508951407f, ceBluntPenetrationFactor = 0.0708266453f },
+            });
+            target.Add("Stygimoloch\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.1f, vanillaCooldownFactor = 0.549019608f, ceDamageFactor = 0.0196078431f, ceCooldownFactor = 0.543307087f, ceBluntPenetrationFactor = 0.0123679464f },
+            });
+            target.Add("Stygimoloch\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.1f, vanillaCooldownFactor = 0.490196078f, ceDamageFactor = 0.00980392157f, ceCooldownFactor = 0.492125984f, ceBluntPenetrationFactor = 0.00489564545f },
+            });
+            target.Add("Stygimoloch\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.764705882f, ceDamageFactor = 0.254901961f, ceCooldownFactor = 0.75984252f, ceBluntPenetrationFactor = 0.219015718f },
+            });
+            target.Add("Stygimoloch\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.764705882f, ceDamageFactor = 0.254901961f, ceCooldownFactor = 0.75984252f, ceBluntPenetrationFactor = 0.219015718f },
+            });
+            target.Add("Stygimoloch\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.1f, vanillaCooldownFactor = 0.549019608f, ceDamageFactor = 0.0196078431f, ceCooldownFactor = 0.543307087f, ceBluntPenetrationFactor = 0.0123679464f },
+            });
+            target.Add("Swan\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.689655172f, ceDamageFactor = 0.04f, ceCooldownFactor = 0.601398601f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Swan\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.689655172f, ceDamageFactor = 0.04f, ceCooldownFactor = 0.552447552f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Swan\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.793103448f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.797202797f, ceBluntPenetrationFactor = 0.102941176f },
+            });
+            target.Add("Swan\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.793103448f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.797202797f, ceBluntPenetrationFactor = 0.102941176f },
+            });
+            target.Add("Swan\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.689655172f, ceDamageFactor = 0.04f, ceCooldownFactor = 0.601398601f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Talpobaena\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.733333333f, ceDamageFactor = 0.0161290323f, ceCooldownFactor = 0.724832215f, ceBluntPenetrationFactor = 0.0067114094f },
+            });
+            target.Add("Talpobaena\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.666666667f, ceDamageFactor = 0.00322580645f, ceCooldownFactor = 0.684563758f, ceBluntPenetrationFactor = 0.00287631831f },
+            });
+            target.Add("Talpobaena\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.866666667f, ceDamageFactor = 0.161290323f, ceCooldownFactor = 0.865771812f, ceBluntPenetrationFactor = 0.129434324f },
+            });
+            target.Add("Talpobaena\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.866666667f, ceDamageFactor = 0.161290323f, ceCooldownFactor = 0.865771812f, ceBluntPenetrationFactor = 0.129434324f },
+            });
+            target.Add("Talpobaena\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.733333333f, ceDamageFactor = 0.0161290323f, ceCooldownFactor = 0.724832215f, ceBluntPenetrationFactor = 0.0067114094f },
+            });
+            target.Add("Therizinosaurus\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0967741935f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.0847913863f, ceCooldownFactor = 0.4975f, ceBluntPenetrationFactor = 0.0647548f },
+            });
+            target.Add("Therizinosaurus\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0483870968f, vanillaCooldownFactor = 0.45f, ceDamageFactor = 0.0417227456f, ceCooldownFactor = 0.445f, ceBluntPenetrationFactor = 0.0292283233f },
+            });
+            target.Add("Therizinosaurus\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.516129032f, vanillaCooldownFactor = 0.725f, ceDamageFactor = 0.437415882f, ceCooldownFactor = 0.73f, ceBluntPenetrationFactor = 0.399596429f },
+            });
+            target.Add("Therizinosaurus\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.516129032f, vanillaCooldownFactor = 0.725f, ceDamageFactor = 0.437415882f, ceCooldownFactor = 0.73f, ceBluntPenetrationFactor = 0.399596429f },
+            });
+            target.Add("Therizinosaurus\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0967741935f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.0847913863f, ceCooldownFactor = 0.4975f, ceBluntPenetrationFactor = 0.0647548f },
+            });
+            target.Add("Thrumbo\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.1f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.0878661088f, ceCooldownFactor = 0.498746867f, ceBluntPenetrationFactor = 0.0673792709f },
+            });
+            target.Add("Thrumbo\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.05f, vanillaCooldownFactor = 0.45f, ceDamageFactor = 0.0432357043f, ceCooldownFactor = 0.446115288f, ceBluntPenetrationFactor = 0.0304129287f },
+            });
+            target.Add("Thrumbo\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.533333333f, vanillaCooldownFactor = 0.725f, ceDamageFactor = 0.453277545f, ceCooldownFactor = 0.731829574f, ceBluntPenetrationFactor = 0.415791818f },
+            });
+            target.Add("Thrumbo\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.533333333f, vanillaCooldownFactor = 0.725f, ceDamageFactor = 0.453277545f, ceCooldownFactor = 0.731829574f, ceBluntPenetrationFactor = 0.415791818f },
+            });
+            target.Add("Thrumbo\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.1f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.0878661088f, ceCooldownFactor = 0.498746867f, ceBluntPenetrationFactor = 0.0673792709f },
+            });
+            target.Add("Tiger\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.153846154f, vanillaCooldownFactor = 0.565217391f, ceDamageFactor = 0.015037594f, ceCooldownFactor = 0.558951965f, ceBluntPenetrationFactor = 0.00947672023f },
+            });
+            target.Add("Tiger\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.153846154f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.00751879699f, ceCooldownFactor = 0.510917031f, ceBluntPenetrationFactor = 0.00370828183f },
+            });
+            target.Add("Tiger\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.230769231f, vanillaCooldownFactor = 0.760869565f, ceDamageFactor = 0.210526316f, ceCooldownFactor = 0.768558952f, ceBluntPenetrationFactor = 0.179645653f },
+            });
+            target.Add("Tiger\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.230769231f, vanillaCooldownFactor = 0.760869565f, ceDamageFactor = 0.210526316f, ceCooldownFactor = 0.768558952f, ceBluntPenetrationFactor = 0.179645653f },
+            });
+            target.Add("Tiger\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.153846154f, vanillaCooldownFactor = 0.565217391f, ceDamageFactor = 0.015037594f, ceCooldownFactor = 0.558951965f, ceBluntPenetrationFactor = 0.00947672023f },
+            });
+            target.Add("Titanis\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.181818182f, vanillaCooldownFactor = 0.568181818f, ceDamageFactor = 0.00884955752f, ceCooldownFactor = 0.554054054f, ceBluntPenetrationFactor = 0.00743678731f },
+            });
+            target.Add("Titanis\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.181818182f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.00884955752f, ceCooldownFactor = 0.504504505f, ceBluntPenetrationFactor = 0.00297471492f },
+            });
+            target.Add("Titanis\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.181818182f, vanillaCooldownFactor = 0.772727273f, ceDamageFactor = 0.17699115f, ceCooldownFactor = 0.756756757f, ceBluntPenetrationFactor = 0.144273674f },
+            });
+            target.Add("Titanis\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.181818182f, vanillaCooldownFactor = 0.772727273f, ceDamageFactor = 0.17699115f, ceCooldownFactor = 0.756756757f, ceBluntPenetrationFactor = 0.144273674f },
+            });
+            target.Add("Titanis\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.181818182f, vanillaCooldownFactor = 0.568181818f, ceDamageFactor = 0.00884955752f, ceCooldownFactor = 0.554054054f, ceBluntPenetrationFactor = 0.00743678731f },
+            });
+            target.Add("Titanoboa\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0555555556f, vanillaCooldownFactor = 0.524590164f, ceDamageFactor = 0.0349462366f, ceCooldownFactor = 0.521311475f, ceBluntPenetrationFactor = 0.0236210082f },
+            });
+            target.Add("Titanoboa\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0555555556f, vanillaCooldownFactor = 0.475409836f, ceDamageFactor = 0.0161290323f, ceCooldownFactor = 0.472131148f, ceBluntPenetrationFactor = 0.00923726577f },
+            });
+        }
+
+        private static void AddBatch27(Dictionary<string, List<ZoologyLifeStageToolFactor>> target)
+        {
+            target.Add("Titanoboa\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.737704918f, ceDamageFactor = 0.327956989f, ceCooldownFactor = 0.737704918f, ceBluntPenetrationFactor = 0.29070995f },
+            });
+            target.Add("Titanoboa\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.737704918f, ceDamageFactor = 0.327956989f, ceCooldownFactor = 0.737704918f, ceBluntPenetrationFactor = 0.29070995f },
+            });
+            target.Add("Titanoboa\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0555555556f, vanillaCooldownFactor = 0.524590164f, ceDamageFactor = 0.0349462366f, ceCooldownFactor = 0.521311475f, ceBluntPenetrationFactor = 0.0236210082f },
+            });
+            target.Add("Tortoise\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.625f, ceDamageFactor = 0.0133333333f, ceCooldownFactor = 0.592592593f, ceBluntPenetrationFactor = 0.00458715596f },
+            });
+            target.Add("Tortoise\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.625f, ceDamageFactor = 0.0133333333f, ceCooldownFactor = 0.537037037f, ceBluntPenetrationFactor = 0.00458715596f },
+            });
+            target.Add("Tortoise\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8125f, ceDamageFactor = 0.133333333f, ceCooldownFactor = 0.796296296f, ceBluntPenetrationFactor = 0.110091743f },
+            });
+            target.Add("Tortoise\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8125f, ceDamageFactor = 0.133333333f, ceCooldownFactor = 0.796296296f, ceBluntPenetrationFactor = 0.110091743f },
+            });
+            target.Add("Tortoise\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.625f, ceDamageFactor = 0.0133333333f, ceCooldownFactor = 0.592592593f, ceBluntPenetrationFactor = 0.00458715596f },
+            });
+            target.Add("Toxalope\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.181818182f, vanillaCooldownFactor = 0.568181818f, ceDamageFactor = 0.00884955752f, ceCooldownFactor = 0.554054054f, ceBluntPenetrationFactor = 0.00743678731f },
+            });
+            target.Add("Toxalope\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.181818182f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.00884955752f, ceCooldownFactor = 0.504504505f, ceBluntPenetrationFactor = 0.00297471492f },
+            });
+            target.Add("Toxalope\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.181818182f, vanillaCooldownFactor = 0.772727273f, ceDamageFactor = 0.17699115f, ceCooldownFactor = 0.756756757f, ceBluntPenetrationFactor = 0.144273674f },
+            });
+            target.Add("Toxalope\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.181818182f, vanillaCooldownFactor = 0.772727273f, ceDamageFactor = 0.17699115f, ceCooldownFactor = 0.756756757f, ceBluntPenetrationFactor = 0.144273674f },
+            });
+            target.Add("Toxalope\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.181818182f, vanillaCooldownFactor = 0.568181818f, ceDamageFactor = 0.00884955752f, ceCooldownFactor = 0.554054054f, ceBluntPenetrationFactor = 0.00743678731f },
+            });
+            target.Add("Triceratops\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0983606557f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.0859481583f, ceCooldownFactor = 0.4975f, ceBluntPenetrationFactor = 0.0657110946f },
+            });
+            target.Add("Triceratops\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0491803279f, vanillaCooldownFactor = 0.45f, ceDamageFactor = 0.0422919509f, ceCooldownFactor = 0.445f, ceBluntPenetrationFactor = 0.0296599653f },
+            });
+            target.Add("Triceratops\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.524590164f, vanillaCooldownFactor = 0.725f, ceDamageFactor = 0.443383356f, ceCooldownFactor = 0.73f, ceBluntPenetrationFactor = 0.405497642f },
+            });
+            target.Add("Triceratops\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.524590164f, vanillaCooldownFactor = 0.725f, ceDamageFactor = 0.443383356f, ceCooldownFactor = 0.73f, ceBluntPenetrationFactor = 0.405497642f },
+            });
+            target.Add("Triceratops\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0983606557f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.0859481583f, ceCooldownFactor = 0.4975f, ceBluntPenetrationFactor = 0.0657110946f },
+            });
+            target.Add("Turkey\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.740740741f, ceDamageFactor = 0.0666666667f, ceCooldownFactor = 0.601503759f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Turkey\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.740740741f, ceDamageFactor = 0.0666666667f, ceCooldownFactor = 0.54887218f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Turkey\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.777777778f, ceDamageFactor = 0.0666666667f, ceCooldownFactor = 0.789473684f, ceBluntPenetrationFactor = 0.0909090909f },
+            });
+            target.Add("Turkey\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.777777778f, ceDamageFactor = 0.0666666667f, ceCooldownFactor = 0.789473684f, ceBluntPenetrationFactor = 0.0909090909f },
+            });
+            target.Add("Turkey\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.740740741f, ceDamageFactor = 0.0666666667f, ceCooldownFactor = 0.601503759f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("TyrannosaurusRex\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.129032258f, vanillaCooldownFactor = 0.5125f, ceDamageFactor = 0.102803738f, ceCooldownFactor = 0.515f, ceBluntPenetrationFactor = 0.0799320759f },
+            });
+            target.Add("TyrannosaurusRex\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.064516129f, vanillaCooldownFactor = 0.4625f, ceDamageFactor = 0.0520694259f, ceCooldownFactor = 0.46f, ceBluntPenetrationFactor = 0.0371762994f },
+            });
+            target.Add("TyrannosaurusRex\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.564516129f, vanillaCooldownFactor = 0.7625f, ceDamageFactor = 0.485981308f, ceCooldownFactor = 0.7575f, ceBluntPenetrationFactor = 0.449147917f },
+            });
+            target.Add("TyrannosaurusRex\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.564516129f, vanillaCooldownFactor = 0.7625f, ceDamageFactor = 0.485981308f, ceCooldownFactor = 0.7575f, ceBluntPenetrationFactor = 0.449147917f },
+            });
+            target.Add("TyrannosaurusRex\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.129032258f, vanillaCooldownFactor = 0.5125f, ceDamageFactor = 0.102803738f, ceCooldownFactor = 0.515f, ceBluntPenetrationFactor = 0.0799320759f },
+            });
+            target.Add("Uintatherium\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0512820513f, vanillaCooldownFactor = 0.515625f, ceDamageFactor = 0.038647343f, ceCooldownFactor = 0.51572327f, ceBluntPenetrationFactor = 0.027027027f },
+            });
+            target.Add("Uintatherium\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0512820513f, vanillaCooldownFactor = 0.46875f, ceDamageFactor = 0.0169082126f, ceCooldownFactor = 0.465408805f, ceBluntPenetrationFactor = 0.0107640108f },
+            });
+            target.Add("Uintatherium\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.358974359f, vanillaCooldownFactor = 0.734375f, ceDamageFactor = 0.342995169f, ceCooldownFactor = 0.732704403f, ceBluntPenetrationFactor = 0.305253305f },
+            });
+            target.Add("Uintatherium\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.358974359f, vanillaCooldownFactor = 0.734375f, ceDamageFactor = 0.342995169f, ceCooldownFactor = 0.732704403f, ceBluntPenetrationFactor = 0.305253305f },
+            });
+            target.Add("Uintatherium\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0512820513f, vanillaCooldownFactor = 0.515625f, ceDamageFactor = 0.038647343f, ceCooldownFactor = 0.51572327f, ceBluntPenetrationFactor = 0.027027027f },
+            });
+            target.Add("Utahraptor\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0769230769f, vanillaCooldownFactor = 0.537037037f, ceDamageFactor = 0.0230769231f, ceCooldownFactor = 0.529411765f, ceBluntPenetrationFactor = 0.013728182f },
+            });
+            target.Add("Utahraptor\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0769230769f, vanillaCooldownFactor = 0.481481481f, ceDamageFactor = 0.00769230769f, ceCooldownFactor = 0.477941176f, ceBluntPenetrationFactor = 0.0054912728f },
+            });
+            target.Add("Utahraptor\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.269230769f, vanillaCooldownFactor = 0.740740741f, ceDamageFactor = 0.257692308f, ceCooldownFactor = 0.738970588f, ceBluntPenetrationFactor = 0.220631496f },
+            });
+            target.Add("Utahraptor\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.269230769f, vanillaCooldownFactor = 0.740740741f, ceDamageFactor = 0.257692308f, ceCooldownFactor = 0.738970588f, ceBluntPenetrationFactor = 0.220631496f },
+            });
+            target.Add("Utahraptor\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0769230769f, vanillaCooldownFactor = 0.537037037f, ceDamageFactor = 0.0230769231f, ceCooldownFactor = 0.529411765f, ceBluntPenetrationFactor = 0.013728182f },
+            });
+            target.Add("VAERoy_AngoraRabbit\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.869565217f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.612068966f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("VAERoy_AngoraRabbit\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.869565217f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.818965517f, ceBluntPenetrationFactor = 0.111111111f },
+            });
+            target.Add("VAERoy_AngoraRabbit\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.869565217f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.818965517f, ceBluntPenetrationFactor = 0.111111111f },
+            });
+            target.Add("VAERoy_AngoraRabbit\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.869565217f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.612068966f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("VAERoy_Crane\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.714285714f, ceDamageFactor = 0.05f, ceCooldownFactor = 0.597122302f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("VAERoy_Crane\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.714285714f, ceDamageFactor = 0.05f, ceCooldownFactor = 0.54676259f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("VAERoy_Crane\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.785714286f, ceDamageFactor = 0.25f, ceCooldownFactor = 0.791366906f, ceBluntPenetrationFactor = 0.1f },
+            });
+            target.Add("VAERoy_Crane\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.785714286f, ceDamageFactor = 0.25f, ceCooldownFactor = 0.791366906f, ceBluntPenetrationFactor = 0.1f },
+            });
+            target.Add("VAERoy_Crane\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.714285714f, ceDamageFactor = 0.05f, ceCooldownFactor = 0.597122302f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("VAERoy_Megachicken\nVAERoy_AnimalAdult", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 25.5f, vanillaCooldownFactor = 2.80769231f, ceDamageFactor = 294f, ceCooldownFactor = 2.80769231f, ceBluntPenetrationFactor = 484.615385f },
+            });
+            target.Add("VAERoy_Megachicken\nVAERoy_AnimalAdultIntermediate", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 29f, vanillaCooldownFactor = 3f, ceDamageFactor = 343f, ceCooldownFactor = 3.00769231f, ceBluntPenetrationFactor = 575.538462f },
+            });
+            target.Add("VAERoy_Megachicken\nVAERoy_AnimalAdultMax", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 36f, vanillaCooldownFactor = 3.07692308f, ceDamageFactor = 449f, ceCooldownFactor = 3.07692308f, ceBluntPenetrationFactor = 776.307692f },
+            });
+            target.Add("VAERoy_Megachicken\nVAERoy_AnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.615384615f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("VAERoy_Megachicken\nVAERoy_AnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 5.5f, vanillaCooldownFactor = 1.69230769f, ceDamageFactor = 53.5f, ceCooldownFactor = 1.68461538f, ceBluntPenetrationFactor = 72.8076923f },
+            });
+            target.Add("VAERoy_Orangutan\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.578947368f, ceDamageFactor = 0.0208333333f, ceCooldownFactor = 0.578947368f, ceBluntPenetrationFactor = 0.00645994832f },
+            });
+            target.Add("VAERoy_Orangutan\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.526315789f, ceDamageFactor = 0.00416666667f, ceCooldownFactor = 0.526315789f, ceBluntPenetrationFactor = 0.00258397933f },
+            });
+            target.Add("VAERoy_Orangutan\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.789473684f, ceDamageFactor = 0.166666667f, ceCooldownFactor = 0.784210526f, ceBluntPenetrationFactor = 0.127906977f },
+            });
+            target.Add("VAERoy_Orangutan\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.789473684f, ceDamageFactor = 0.166666667f, ceCooldownFactor = 0.784210526f, ceBluntPenetrationFactor = 0.127906977f },
+            });
+            target.Add("VAERoy_Orangutan\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.4f, vanillaCooldownFactor = 0.578947368f, ceDamageFactor = 0.0208333333f, ceCooldownFactor = 0.578947368f, ceBluntPenetrationFactor = 0.00645994832f },
+            });
+            target.Add("VAERoy_Peacock\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.603174603f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("VAERoy_Peacock\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.793650794f, ceBluntPenetrationFactor = 0.1f },
+            });
+            target.Add("VAERoy_Peacock\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.793650794f, ceBluntPenetrationFactor = 0.1f },
+            });
+            target.Add("VAERoy_Peacock\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.603174603f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("VAERoy_Pheasant\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", ceCooldownFactor = 0.803921569f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("VAERoy_Pheasant\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", ceCooldownFactor = 0.803921569f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("VAERoy_RoyalTiger\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.105263158f, vanillaCooldownFactor = 0.54f, ceDamageFactor = 0.0162162162f, ceCooldownFactor = 0.548387097f, ceBluntPenetrationFactor = 0.0117579581f },
+            });
+        }
+
+        private static void AddBatch28(Dictionary<string, List<ZoologyLifeStageToolFactor>> target)
+        {
+            target.Add("VAERoy_RoyalTiger\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.105263158f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.00540540541f, ceCooldownFactor = 0.495967742f, ceBluntPenetrationFactor = 0.00458847147f },
+            });
+            target.Add("VAERoy_RoyalTiger\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.210526316f, vanillaCooldownFactor = 0.76f, ceDamageFactor = 0.237837838f, ceCooldownFactor = 0.758064516f, ceBluntPenetrationFactor = 0.20447376f },
+            });
+            target.Add("VAERoy_RoyalTiger\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.210526316f, vanillaCooldownFactor = 0.76f, ceDamageFactor = 0.237837838f, ceCooldownFactor = 0.758064516f, ceBluntPenetrationFactor = 0.20447376f },
+            });
+            target.Add("VAERoy_RoyalTiger\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.105263158f, vanillaCooldownFactor = 0.54f, ceDamageFactor = 0.0162162162f, ceCooldownFactor = 0.548387097f, ceBluntPenetrationFactor = 0.0117579581f },
+            });
+            target.Add("VAERoy_Swan\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.689655172f, ceDamageFactor = 0.04f, ceCooldownFactor = 0.601398601f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("VAERoy_Swan\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.689655172f, ceDamageFactor = 0.04f, ceCooldownFactor = 0.552447552f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("VAERoy_Swan\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.793103448f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.797202797f, ceBluntPenetrationFactor = 0.102941176f },
+            });
+            target.Add("VAERoy_Swan\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.793103448f, ceDamageFactor = 0.2f, ceCooldownFactor = 0.797202797f, ceBluntPenetrationFactor = 0.102941176f },
+            });
+            target.Add("VAERoy_Swan\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.689655172f, ceDamageFactor = 0.04f, ceCooldownFactor = 0.601398601f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("VAEWaste_Hydra\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.689655172f, ceDamageFactor = 0.0333333333f, ceCooldownFactor = 0.593103448f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("VAEWaste_Hydra\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.689655172f, ceDamageFactor = 0.0333333333f, ceCooldownFactor = 0.544827586f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("VAEWaste_Hydra\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.793103448f, ceDamageFactor = 0.166666667f, ceCooldownFactor = 0.786206897f, ceBluntPenetrationFactor = 0.0945945946f },
+            });
+            target.Add("VAEWaste_Hydra\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.793103448f, ceDamageFactor = 0.166666667f, ceCooldownFactor = 0.786206897f, ceBluntPenetrationFactor = 0.0945945946f },
+            });
+            target.Add("VAEWaste_Hydra\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.689655172f, ceDamageFactor = 0.0333333333f, ceCooldownFactor = 0.593103448f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("VAEWaste_Megatardi\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.125f, vanillaCooldownFactor = 0.5625f, ceDamageFactor = 0.018404908f, ceCooldownFactor = 0.554166667f, ceBluntPenetrationFactor = 0.0112322431f },
+            });
+            target.Add("VAEWaste_Megatardi\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.125f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.00613496933f, ceCooldownFactor = 0.504166667f, ceBluntPenetrationFactor = 0.0042946812f },
+            });
+            target.Add("VAEWaste_Megatardi\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.770833333f, ceDamageFactor = 0.239263804f, ceCooldownFactor = 0.766666667f, ceBluntPenetrationFactor = 0.202510737f },
+            });
+            target.Add("VAEWaste_Megatardi\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.25f, vanillaCooldownFactor = 0.770833333f, ceDamageFactor = 0.239263804f, ceCooldownFactor = 0.766666667f, ceBluntPenetrationFactor = 0.202510737f },
+            });
+            target.Add("VAEWaste_Megatardi\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.125f, vanillaCooldownFactor = 0.5625f, ceDamageFactor = 0.018404908f, ceCooldownFactor = 0.554166667f, ceBluntPenetrationFactor = 0.0112322431f },
+            });
+            target.Add("VAEWaste_Pestigator\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0588235294f, vanillaCooldownFactor = 0.533333333f, ceDamageFactor = 0.037037037f, ceCooldownFactor = 0.531772575f, ceBluntPenetrationFactor = 0.0251970721f },
+            });
+            target.Add("VAEWaste_Pestigator\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0588235294f, vanillaCooldownFactor = 0.483333333f, ceDamageFactor = 0.0170940171f, ceCooldownFactor = 0.481605351f, ceBluntPenetrationFactor = 0.0098536036f },
+            });
+            target.Add("VAEWaste_Pestigator\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.352941176f, vanillaCooldownFactor = 0.75f, ceDamageFactor = 0.347578348f, ceCooldownFactor = 0.752508361f, ceBluntPenetrationFactor = 0.310106982f },
+            });
+            target.Add("VAEWaste_Pestigator\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.352941176f, vanillaCooldownFactor = 0.75f, ceDamageFactor = 0.347578348f, ceCooldownFactor = 0.752508361f, ceBluntPenetrationFactor = 0.310106982f },
+            });
+            target.Add("VAEWaste_Pestigator\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0588235294f, vanillaCooldownFactor = 0.533333333f, ceDamageFactor = 0.037037037f, ceCooldownFactor = 0.531772575f, ceBluntPenetrationFactor = 0.0251970721f },
+            });
+            target.Add("VAEWaste_Toxafox\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.714285714f, ceDamageFactor = 0.05f, ceCooldownFactor = 0.592857143f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("VAEWaste_Toxafox\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.714285714f, ceDamageFactor = 0.05f, ceCooldownFactor = 0.542857143f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("VAEWaste_Toxafox\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.785714286f, ceDamageFactor = 0.25f, ceCooldownFactor = 0.785714286f, ceBluntPenetrationFactor = 0.0943396226f },
+            });
+            target.Add("VAEWaste_Toxafox\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.785714286f, ceDamageFactor = 0.25f, ceCooldownFactor = 0.785714286f, ceBluntPenetrationFactor = 0.0943396226f },
+            });
+            target.Add("VAEWaste_Toxafox\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.714285714f, ceDamageFactor = 0.05f, ceCooldownFactor = 0.592857143f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("VAEWaste_Toxbear\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0588235294f, vanillaCooldownFactor = 0.533333333f, ceDamageFactor = 0.037037037f, ceCooldownFactor = 0.531772575f, ceBluntPenetrationFactor = 0.0251970721f },
+            });
+            target.Add("VAEWaste_Toxbear\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0588235294f, vanillaCooldownFactor = 0.483333333f, ceDamageFactor = 0.0170940171f, ceCooldownFactor = 0.481605351f, ceBluntPenetrationFactor = 0.0098536036f },
+            });
+            target.Add("VAEWaste_Toxbear\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.352941176f, vanillaCooldownFactor = 0.75f, ceDamageFactor = 0.347578348f, ceCooldownFactor = 0.752508361f, ceBluntPenetrationFactor = 0.310106982f },
+            });
+            target.Add("VAEWaste_Toxbear\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.352941176f, vanillaCooldownFactor = 0.75f, ceDamageFactor = 0.347578348f, ceCooldownFactor = 0.752508361f, ceBluntPenetrationFactor = 0.310106982f },
+            });
+            target.Add("VAEWaste_Toxbear\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0588235294f, vanillaCooldownFactor = 0.533333333f, ceDamageFactor = 0.037037037f, ceCooldownFactor = 0.531772575f, ceBluntPenetrationFactor = 0.0251970721f },
+            });
+            target.Add("VAEWaste_Toxiguana\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.666666667f, ceDamageFactor = 0.0285714286f, ceCooldownFactor = 0.590604027f, ceBluntPenetrationFactor = 0.0103092784f },
+            });
+            target.Add("VAEWaste_Toxiguana\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.666666667f, ceDamageFactor = 0.0285714286f, ceCooldownFactor = 0.55033557f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("VAEWaste_Toxiguana\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.791946309f, ceBluntPenetrationFactor = 0.103092784f },
+            });
+            target.Add("VAEWaste_Toxiguana\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.791946309f, ceBluntPenetrationFactor = 0.103092784f },
+            });
+            target.Add("VAEWaste_Toxiguana\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.666666667f, ceDamageFactor = 0.0285714286f, ceCooldownFactor = 0.590604027f, ceBluntPenetrationFactor = 0.0103092784f },
+            });
+            target.Add("VAEWaste_Toxlion\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.166666667f, vanillaCooldownFactor = 0.555555556f, ceDamageFactor = 0.0168067227f, ceCooldownFactor = 0.558035714f, ceBluntPenetrationFactor = 0.00892018779f },
+            });
+            target.Add("VAEWaste_Toxlion\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.166666667f, vanillaCooldownFactor = 0.511111111f, ceDamageFactor = 0.00840336134f, ceCooldownFactor = 0.508928571f, ceBluntPenetrationFactor = 0.00328638498f },
+            });
+            target.Add("VAEWaste_Toxlion\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.166666667f, vanillaCooldownFactor = 0.755555556f, ceDamageFactor = 0.201680672f, ceCooldownFactor = 0.767857143f, ceBluntPenetrationFactor = 0.168544601f },
+            });
+            target.Add("VAEWaste_Toxlion\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.166666667f, vanillaCooldownFactor = 0.755555556f, ceDamageFactor = 0.201680672f, ceCooldownFactor = 0.767857143f, ceBluntPenetrationFactor = 0.168544601f },
+            });
+            target.Add("VAEWaste_Toxlion\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.166666667f, vanillaCooldownFactor = 0.555555556f, ceDamageFactor = 0.0168067227f, ceCooldownFactor = 0.558035714f, ceBluntPenetrationFactor = 0.00892018779f },
+            });
+            target.Add("VAEWaste_Toxscorpion\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0909090909f, vanillaCooldownFactor = 0.538461538f, ceDamageFactor = 0.0183486239f, ceCooldownFactor = 0.532818533f, ceBluntPenetrationFactor = 0.0114613181f },
+            });
+            target.Add("VAEWaste_Toxscorpion\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0909090909f, vanillaCooldownFactor = 0.480769231f, ceDamageFactor = 0.00917431193f, ceCooldownFactor = 0.482625483f, ceBluntPenetrationFactor = 0.00453677173f },
+            });
+            target.Add("VAEWaste_Toxscorpion\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.227272727f, vanillaCooldownFactor = 0.75f, ceDamageFactor = 0.23853211f, ceCooldownFactor = 0.745173745f, ceBluntPenetrationFactor = 0.20296084f },
+            });
+            target.Add("VAEWaste_Toxscorpion\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.227272727f, vanillaCooldownFactor = 0.75f, ceDamageFactor = 0.23853211f, ceCooldownFactor = 0.745173745f, ceBluntPenetrationFactor = 0.20296084f },
+            });
+            target.Add("VAEWaste_Toxscorpion\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0909090909f, vanillaCooldownFactor = 0.538461538f, ceDamageFactor = 0.0183486239f, ceCooldownFactor = 0.532818533f, ceBluntPenetrationFactor = 0.0114613181f },
+            });
+            target.Add("VAEWaste_Wasteboar\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.181818182f, vanillaCooldownFactor = 0.568181818f, ceDamageFactor = 0.00884955752f, ceCooldownFactor = 0.554054054f, ceBluntPenetrationFactor = 0.00743678731f },
+            });
+            target.Add("VAEWaste_Wasteboar\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.181818182f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.00884955752f, ceCooldownFactor = 0.504504505f, ceBluntPenetrationFactor = 0.00297471492f },
+            });
+            target.Add("VAEWaste_Wasteboar\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.181818182f, vanillaCooldownFactor = 0.772727273f, ceDamageFactor = 0.17699115f, ceCooldownFactor = 0.756756757f, ceBluntPenetrationFactor = 0.144273674f },
+            });
+            target.Add("VAEWaste_Wasteboar\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.181818182f, vanillaCooldownFactor = 0.772727273f, ceDamageFactor = 0.17699115f, ceCooldownFactor = 0.756756757f, ceBluntPenetrationFactor = 0.144273674f },
+            });
+            target.Add("VAEWaste_Wasteboar\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.181818182f, vanillaCooldownFactor = 0.568181818f, ceDamageFactor = 0.00884955752f, ceCooldownFactor = 0.554054054f, ceBluntPenetrationFactor = 0.00743678731f },
+            });
+            target.Add("VAEWaste_Wastedeer\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.58974359f, ceDamageFactor = 0.0172413793f, ceCooldownFactor = 0.576530612f, ceBluntPenetrationFactor = 0.00721649485f },
+            });
+            target.Add("VAEWaste_Wastedeer\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.538461538f, ceDamageFactor = 0.00344827586f, ceCooldownFactor = 0.525510204f, ceBluntPenetrationFactor = 0.00309278351f },
+            });
+            target.Add("VAEWaste_Wastedeer\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.794871795f, ceDamageFactor = 0.172413793f, ceCooldownFactor = 0.785714286f, ceBluntPenetrationFactor = 0.139175258f },
+            });
+            target.Add("VAEWaste_Wastedeer\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.794871795f, ceDamageFactor = 0.172413793f, ceCooldownFactor = 0.785714286f, ceBluntPenetrationFactor = 0.139175258f },
+            });
+            target.Add("VAEWaste_Wastedeer\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.58974359f, ceDamageFactor = 0.0172413793f, ceCooldownFactor = 0.576530612f, ceBluntPenetrationFactor = 0.00721649485f },
+            });
+            target.Add("VAEWaste_Wasteffalo\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0909090909f, vanillaCooldownFactor = 0.538461538f, ceDamageFactor = 0.0183486239f, ceCooldownFactor = 0.532818533f, ceBluntPenetrationFactor = 0.0114613181f },
+            });
+            target.Add("VAEWaste_Wasteffalo\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0909090909f, vanillaCooldownFactor = 0.480769231f, ceDamageFactor = 0.00917431193f, ceCooldownFactor = 0.482625483f, ceBluntPenetrationFactor = 0.00453677173f },
+            });
+            target.Add("VAEWaste_Wasteffalo\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.227272727f, vanillaCooldownFactor = 0.75f, ceDamageFactor = 0.23853211f, ceCooldownFactor = 0.745173745f, ceBluntPenetrationFactor = 0.20296084f },
+            });
+            target.Add("VAEWaste_Wasteffalo\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.227272727f, vanillaCooldownFactor = 0.75f, ceDamageFactor = 0.23853211f, ceCooldownFactor = 0.745173745f, ceBluntPenetrationFactor = 0.20296084f },
+            });
+            target.Add("VAEWaste_Wasteffalo\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0909090909f, vanillaCooldownFactor = 0.538461538f, ceDamageFactor = 0.0183486239f, ceCooldownFactor = 0.532818533f, ceBluntPenetrationFactor = 0.0114613181f },
+            });
+        }
+
+        private static void AddBatch29(Dictionary<string, List<ZoologyLifeStageToolFactor>> target)
+        {
+            target.Add("Velociraptor\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.625f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.583850932f, ceBluntPenetrationFactor = 0.00502512563f },
+            });
+            target.Add("Velociraptor\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.625f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.534161491f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Velociraptor\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.78125f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.776397516f, ceBluntPenetrationFactor = 0.0954773869f },
+            });
+            target.Add("Velociraptor\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.78125f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.776397516f, ceBluntPenetrationFactor = 0.0954773869f },
+            });
+            target.Add("Velociraptor\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.625f, ceDamageFactor = 0.0142857143f, ceCooldownFactor = 0.583850932f, ceBluntPenetrationFactor = 0.00502512563f },
+            });
+            target.Add("Vulture\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.598425197f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Vulture\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.787401575f, ceBluntPenetrationFactor = 0.0952380952f },
+            });
+            target.Add("Vulture\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.787401575f, ceBluntPenetrationFactor = 0.0952380952f },
+            });
+            target.Add("Vulture\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.598425197f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Walrus\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0588235294f, vanillaCooldownFactor = 0.533333333f, ceDamageFactor = 0.0368271955f, ceCooldownFactor = 0.53f, ceBluntPenetrationFactor = 0.0250034921f },
+            });
+            target.Add("Walrus\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0588235294f, vanillaCooldownFactor = 0.483333333f, ceDamageFactor = 0.0169971671f, ceCooldownFactor = 0.48f, ceBluntPenetrationFactor = 0.00977790194f },
+            });
+            target.Add("Walrus\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.352941176f, vanillaCooldownFactor = 0.75f, ceDamageFactor = 0.345609065f, ceCooldownFactor = 0.75f, ceBluntPenetrationFactor = 0.307724543f },
+            });
+            target.Add("Walrus\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.352941176f, vanillaCooldownFactor = 0.75f, ceDamageFactor = 0.345609065f, ceCooldownFactor = 0.75f, ceBluntPenetrationFactor = 0.307724543f },
+            });
+            target.Add("Walrus\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0588235294f, vanillaCooldownFactor = 0.533333333f, ceDamageFactor = 0.0368271955f, ceCooldownFactor = 0.53f, ceBluntPenetrationFactor = 0.0250034921f },
+            });
+            target.Add("Warg\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.166666667f, vanillaCooldownFactor = 0.555555556f, ceDamageFactor = 0.0161290323f, ceCooldownFactor = 0.553097345f, ceBluntPenetrationFactor = 0.00847835788f },
+            });
+            target.Add("Warg\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.166666667f, vanillaCooldownFactor = 0.511111111f, ceDamageFactor = 0.00806451613f, ceCooldownFactor = 0.504424779f, ceBluntPenetrationFactor = 0.00312360553f },
+            });
+            target.Add("Warg\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.166666667f, vanillaCooldownFactor = 0.755555556f, ceDamageFactor = 0.193548387f, ceCooldownFactor = 0.761061947f, ceBluntPenetrationFactor = 0.160196341f },
+            });
+            target.Add("Warg\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.166666667f, vanillaCooldownFactor = 0.755555556f, ceDamageFactor = 0.193548387f, ceCooldownFactor = 0.761061947f, ceBluntPenetrationFactor = 0.160196341f },
+            });
+            target.Add("Warg\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.166666667f, vanillaCooldownFactor = 0.555555556f, ceDamageFactor = 0.0161290323f, ceCooldownFactor = 0.553097345f, ceBluntPenetrationFactor = 0.00847835788f },
+            });
+            target.Add("WasteRat\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.689655172f, ceDamageFactor = 0.0333333333f, ceCooldownFactor = 0.593103448f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("WasteRat\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.689655172f, ceDamageFactor = 0.0333333333f, ceCooldownFactor = 0.544827586f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("WasteRat\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.793103448f, ceDamageFactor = 0.166666667f, ceCooldownFactor = 0.786206897f, ceBluntPenetrationFactor = 0.0945945946f },
+            });
+            target.Add("WasteRat\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.793103448f, ceDamageFactor = 0.166666667f, ceCooldownFactor = 0.786206897f, ceBluntPenetrationFactor = 0.0945945946f },
+            });
+            target.Add("WasteRat\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.689655172f, ceDamageFactor = 0.0333333333f, ceCooldownFactor = 0.593103448f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("WildBoar\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.558139535f, ceDamageFactor = 0.0108695652f, ceCooldownFactor = 0.563380282f, ceBluntPenetrationFactor = 0.00746733043f },
+            });
+            target.Add("WildBoar\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.511627907f, ceDamageFactor = 0.00217391304f, ceCooldownFactor = 0.511737089f, ceBluntPenetrationFactor = 0.00311138768f },
+            });
+            target.Add("WildBoar\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.76744186f, ceDamageFactor = 0.173913043f, ceCooldownFactor = 0.769953052f, ceBluntPenetrationFactor = 0.143746111f },
+            });
+            target.Add("WildBoar\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.76744186f, ceDamageFactor = 0.173913043f, ceCooldownFactor = 0.769953052f, ceBluntPenetrationFactor = 0.143746111f },
+            });
+            target.Add("WildBoar\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.222222222f, vanillaCooldownFactor = 0.558139535f, ceDamageFactor = 0.0108695652f, ceCooldownFactor = 0.563380282f, ceBluntPenetrationFactor = 0.00746733043f },
+            });
+            target.Add("Wolf_Arctic\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.583333333f, ceDamageFactor = 0.00606060606f, ceCooldownFactor = 0.577777778f, ceBluntPenetrationFactor = 0.00592885375f },
+            });
+            target.Add("Wolf_Arctic\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.555555556f, ceDamageFactor = 0.00606060606f, ceCooldownFactor = 0.527777778f, ceBluntPenetrationFactor = 0.00197628458f },
+            });
+            target.Add("Wolf_Arctic\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.777777778f, ceDamageFactor = 0.151515152f, ceCooldownFactor = 0.783333333f, ceBluntPenetrationFactor = 0.116600791f },
+            });
+            target.Add("Wolf_Arctic\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.777777778f, ceDamageFactor = 0.151515152f, ceCooldownFactor = 0.783333333f, ceBluntPenetrationFactor = 0.116600791f },
+            });
+            target.Add("Wolf_Arctic\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.583333333f, ceDamageFactor = 0.00606060606f, ceCooldownFactor = 0.577777778f, ceBluntPenetrationFactor = 0.00592885375f },
+            });
+            target.Add("Wolf_Great\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.564102564f, ceDamageFactor = 0.0178571429f, ceCooldownFactor = 0.564102564f, ceBluntPenetrationFactor = 0.00540540541f },
+            });
+            target.Add("Wolf_Great\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.512820513f, ceDamageFactor = 0.00357142857f, ceCooldownFactor = 0.512820513f, ceBluntPenetrationFactor = 0.00216216216f },
+            });
+            target.Add("Wolf_Great\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.764102564f, ceBluntPenetrationFactor = 0.107027027f },
+            });
+            target.Add("Wolf_Great\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.142857143f, ceCooldownFactor = 0.764102564f, ceBluntPenetrationFactor = 0.107027027f },
+            });
+            target.Add("Wolf_Great\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.333333333f, vanillaCooldownFactor = 0.564102564f, ceDamageFactor = 0.0178571429f, ceCooldownFactor = 0.564102564f, ceBluntPenetrationFactor = 0.00540540541f },
+            });
+            target.Add("Wolf_Timber\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.583333333f, ceDamageFactor = 0.00606060606f, ceCooldownFactor = 0.577777778f, ceBluntPenetrationFactor = 0.00574712644f },
+            });
+            target.Add("Wolf_Timber\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.555555556f, ceDamageFactor = 0.00606060606f, ceCooldownFactor = 0.527777778f, ceBluntPenetrationFactor = 0.00191570881f },
+            });
+            target.Add("Wolf_Timber\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.777777778f, ceDamageFactor = 0.151515152f, ceCooldownFactor = 0.783333333f, ceBluntPenetrationFactor = 0.11302682f },
+            });
+            target.Add("Wolf_Timber\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.777777778f, ceDamageFactor = 0.151515152f, ceCooldownFactor = 0.783333333f, ceBluntPenetrationFactor = 0.11302682f },
+            });
+            target.Add("Wolf_Timber\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.666666667f, vanillaCooldownFactor = 0.583333333f, ceDamageFactor = 0.00606060606f, ceCooldownFactor = 0.577777778f, ceBluntPenetrationFactor = 0.00574712644f },
+            });
+            target.Add("Wolverine\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.666666667f, ceDamageFactor = 0.025f, ceCooldownFactor = 0.582781457f, ceBluntPenetrationFactor = 0.00900900901f },
+            });
+            target.Add("Wolverine\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.666666667f, ceDamageFactor = 0.025f, ceCooldownFactor = 0.543046358f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("Wolverine\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.125f, ceCooldownFactor = 0.781456954f, ceBluntPenetrationFactor = 0.0900900901f },
+            });
+            target.Add("Wolverine\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.8f, ceDamageFactor = 0.125f, ceCooldownFactor = 0.781456954f, ceBluntPenetrationFactor = 0.0900900901f },
+            });
+            target.Add("Wolverine\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.666666667f, ceDamageFactor = 0.025f, ceCooldownFactor = 0.582781457f, ceBluntPenetrationFactor = 0.00900900901f },
+            });
+            target.Add("WoollyMammoth\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0769230769f, vanillaCooldownFactor = 0.513513514f, ceDamageFactor = 0.0723684211f, ceCooldownFactor = 0.508108108f, ceBluntPenetrationFactor = 0.0544648995f },
+            });
+            target.Add("WoollyMammoth\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0384615385f, vanillaCooldownFactor = 0.459459459f, ceDamageFactor = 0.0345394737f, ceCooldownFactor = 0.456756757f, ceBluntPenetrationFactor = 0.0235276144f },
+            });
+            target.Add("WoollyMammoth\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.519230769f, vanillaCooldownFactor = 0.743243243f, ceDamageFactor = 0.439144737f, ceCooldownFactor = 0.740540541f, ceBluntPenetrationFactor = 0.400045833f },
+            });
+            target.Add("WoollyMammoth\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.519230769f, vanillaCooldownFactor = 0.743243243f, ceDamageFactor = 0.439144737f, ceCooldownFactor = 0.740540541f, ceBluntPenetrationFactor = 0.400045833f },
+            });
+            target.Add("WoollyMammoth\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0769230769f, vanillaCooldownFactor = 0.513513514f, ceDamageFactor = 0.0723684211f, ceCooldownFactor = 0.508108108f, ceBluntPenetrationFactor = 0.0544648995f },
+            });
+            target.Add("Yak\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0869565217f, vanillaCooldownFactor = 0.557692308f, ceDamageFactor = 0.0262008734f, ceCooldownFactor = 0.549618321f, ceBluntPenetrationFactor = 0.0158658205f },
+            });
+            target.Add("Yak\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0869565217f, vanillaCooldownFactor = 0.5f, ceDamageFactor = 0.00873362445f, ceCooldownFactor = 0.496183206f, ceBluntPenetrationFactor = 0.0063463282f },
+            });
+            target.Add("Yak\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.304347826f, vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.292576419f, ceCooldownFactor = 0.767175573f, ceBluntPenetrationFactor = 0.254986401f },
+            });
+            target.Add("Yak\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.304347826f, vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.292576419f, ceCooldownFactor = 0.767175573f, ceBluntPenetrationFactor = 0.254986401f },
+            });
+            target.Add("Yak\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0869565217f, vanillaCooldownFactor = 0.557692308f, ceDamageFactor = 0.0262008734f, ceCooldownFactor = 0.549618321f, ceBluntPenetrationFactor = 0.0158658205f },
+            });
+            target.Add("YorkshireTerrier\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.615384615f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("YorkshireTerrier\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.561538462f, ceBluntPenetrationFactor = 0f },
+            });
+            target.Add("YorkshireTerrier\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.807692308f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.807692308f, ceBluntPenetrationFactor = 0.111111111f },
+            });
+            target.Add("YorkshireTerrier\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.807692308f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.807692308f, ceBluntPenetrationFactor = 0.111111111f },
+            });
+            target.Add("YorkshireTerrier\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaCooldownFactor = 0.769230769f, ceDamageFactor = 0.1f, ceCooldownFactor = 0.615384615f, ceBluntPenetrationFactor = 0f },
+            });
+        }
+
+        private static void AddBatch30(Dictionary<string, List<ZoologyLifeStageToolFactor>> target)
+        {
+            target.Add("Yutyrannus\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0512820513f, vanillaCooldownFactor = 0.523809524f, ceDamageFactor = 0.0390243902f, ceCooldownFactor = 0.518987342f, ceBluntPenetrationFactor = 0.027356703f },
+            });
+            target.Add("Yutyrannus\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0512820513f, vanillaCooldownFactor = 0.476190476f, ceDamageFactor = 0.0170731707f, ceCooldownFactor = 0.46835443f, ceBluntPenetrationFactor = 0.0108953103f },
+            });
+            target.Add("Yutyrannus\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.358974359f, vanillaCooldownFactor = 0.746031746f, ceDamageFactor = 0.346341463f, ceCooldownFactor = 0.737341772f, ceBluntPenetrationFactor = 0.308976788f },
+            });
+            target.Add("Yutyrannus\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.358974359f, vanillaCooldownFactor = 0.746031746f, ceDamageFactor = 0.346341463f, ceCooldownFactor = 0.737341772f, ceBluntPenetrationFactor = 0.308976788f },
+            });
+            target.Add("Yutyrannus\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0512820513f, vanillaCooldownFactor = 0.523809524f, ceDamageFactor = 0.0390243902f, ceCooldownFactor = 0.518987342f, ceBluntPenetrationFactor = 0.027356703f },
+            });
+            target.Add("Zygolophodon\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0909090909f, vanillaCooldownFactor = 0.513157895f, ceDamageFactor = 0.0811232449f, ceCooldownFactor = 0.509234828f, ceBluntPenetrationFactor = 0.061270093f },
+            });
+            target.Add("Zygolophodon\nAnimalBabyTiny", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0363636364f, vanillaCooldownFactor = 0.447368421f, ceDamageFactor = 0.0374414977f, ceCooldownFactor = 0.453825858f, ceBluntPenetrationFactor = 0.025877604f },
+            });
+            target.Add("Zygolophodon\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.527272727f, vanillaCooldownFactor = 0.736842105f, ceDamageFactor = 0.446177847f, ceCooldownFactor = 0.73878628f, ceBluntPenetrationFactor = 0.407770489f },
+            });
+            target.Add("Zygolophodon\nEusocialInsectJuvenile", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.527272727f, vanillaCooldownFactor = 0.736842105f, ceDamageFactor = 0.446177847f, ceCooldownFactor = 0.73878628f, ceBluntPenetrationFactor = 0.407770489f },
+            });
+            target.Add("Zygolophodon\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
+            {
+                new ZoologyLifeStageToolFactor { toolIndex = 0, label = "head", linkedBodyPartsGroup = "HeadAttackTool", vanillaDamageFactor = 0.0909090909f, vanillaCooldownFactor = 0.513157895f, ceDamageFactor = 0.0811232449f, ceCooldownFactor = 0.509234828f, ceBluntPenetrationFactor = 0.061270093f },
+            });
+        }
 
         public static List<ZoologyLifeStageToolFactor> For(string species, string sourceStage)
         {
