@@ -9,6 +9,7 @@ from __future__ import annotations
 import math
 import json
 import re
+from decimal import Decimal, ROUND_HALF_UP
 from collections import Counter, defaultdict
 from lxml import etree as E
 
@@ -82,6 +83,22 @@ def _required(value, context, *, positive=True):
 
 
 def _text_number(value):
+    """Serialize a final factor: hundredths, except sub-cent nonzero values.
+
+    Precision is reduced only at the AnimalStats -> generated Def boundary.
+    Sub-0.01 factors retain two significant digits to avoid silently
+    converting tiny animal stats and melee penetration to zero.
+    """
+    if value == 0:
+        return "0"
+    if abs(value) < 0.01:
+        return format(Decimal(format(value, ".2g")), "f")
+    rounded = Decimal(str(value)).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+    return format(rounded.normalize(), "f")
+
+
+def _source_number(value):
+    """Exact adult baselines participate in strict runtime compatibility checks."""
     return format(value, ".12g")
 
 
@@ -180,8 +197,11 @@ def _tool_profiles(table, diagnostics):
                     continue
                 number_value = _required(value, context,
                                          positive=source_field.endswith("CooldownFactor"))
-                if not math.isclose(number_value, 1, abs_tol=1e-10, rel_tol=0):
-                    factors.append((field, number_value))
+                # Validate full-precision Sheet values, then serialize only
+                # factors that remain non-neutral after export rounding.
+                export_value = float(_text_number(number_value))
+                if not math.isclose(export_value, 1, abs_tol=1e-10, rel_tol=0):
+                    factors.append((field, export_value))
             if factors:
                 if set(sources) <= {"AnimalAdult", "EusocialInsectAdult"}:
                     raise ValueError(
@@ -354,8 +374,8 @@ def render_species_life_stage_profiles(species_profiles, attacks,
                 node = E.SubElement(stage_nodes, "li")
                 for tag, value in (
                     ("animalDefName", name), ("sourceStageDefName", source),
-                    ("expectedBaseBodySize", _text_number(expected_body)),
-                    ("expectedBaseHungerRate", _text_number(expected_hunger)),
+                    ("expectedBaseBodySize", _source_number(expected_body)),
+                    ("expectedBaseHungerRate", _source_number(expected_hunger)),
                     ("bodySizeFactor", _text_number(body_factor)),
                     ("healthScaleFactor", _text_number(health_factor)),
                     ("hungerRateFactor", _text_number(hunger)),
@@ -452,7 +472,7 @@ def render_life_stage_attack_profiles_cs(attack_profiles):
                     cells.append(
                         f"linkedBodyPartsGroup = {json.dumps(group, ensure_ascii=True)}")
                 for field, value in factors:
-                    cells.append(f"{field} = {format(value, '.9g')}f")
+                    cells.append(f"{field} = {_text_number(value)}f")
                 lines.append("                new ZoologyLifeStageToolFactor { "
                              + ", ".join(cells) + " },")
             lines.append("            });")
