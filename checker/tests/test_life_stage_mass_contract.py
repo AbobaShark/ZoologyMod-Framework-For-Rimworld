@@ -124,6 +124,55 @@ class LifeStageMassContractTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "mixed incompatible"):
             audit_mass_profiles(rows, require_complete=True)
 
+    def test_thrumbo_and_alpha_thrumbo_empirical_ungulate_reconstruction(self):
+        # Values correspond to fitted published Artiodactyla,
+        # Perissodactyla and Proboscidea mass regressions in AnimalStats.
+        cases = (
+            ("Thrumbo", 6000, 123.45469675300308, 1202.8051002055142,
+             0.24129496465835248, 0.5626975108959649),
+            ("AlphaThrumbo", 7000, 139.40281871166638, 1384.1964087051365,
+             0.2400259397770624, 0.5614078619989306),
+        )
+        records = []
+        for species, adult, baby, young, baby_factor, young_factor in cases:
+            for stage, mass, factor in zip(
+                CORE, (baby, young, adult), (baby_factor, young_factor, 1)
+            ):
+                records.append(entry(
+                    species, stage, adult, mass, factor,
+                    source="GROUP_ALLOMETRY",
+                ))
+        result = audit_mass_profiles(pd.DataFrame(records), require_complete=True)
+        self.assertEqual(result["complete_mass_series"], 2)
+
+    def test_lockjaw_hatching_is_grounded_but_juvenile_is_not_yet(self):
+        # Crocodilia n=11 hatchling allometry predicts 0.15448 kg at 1,000 kg.
+        # An invented intermediate mass must not make the profile pass.
+        rows = pd.DataFrame([
+            entry("AA_Lockjaw", CORE[0], 1000, .1544824169172378,
+                  .020138429632334313, source="GROUP_ALLOMETRY"),
+            entry("AA_Lockjaw", CORE[2], 1000, 1000),
+        ])
+        summary = audit_mass_profiles(rows)
+        self.assertEqual(summary["complete_mass_series"], 0)
+        self.assertEqual(summary["invalid_count"], 1)
+        with self.assertRaisesRegex(ValueError, "Incomplete biological"):
+            audit_mass_profiles(rows, require_complete=True)
+
+    def test_tasmanian_devil_neonate_below_mass_band_minimum(self):
+        # Direct Amniote Life-History Database neonatal mass: 21.75 mg.
+        values = (
+            (.00002175, .0023971847569779384),
+            (.85, .36374806280570937),
+            (7.15, 1),
+        )
+        series = pd.DataFrame([
+            entry("AEXP_TasmanianDevil", stage, 7.15, mass, factor)
+            for stage, (mass, factor) in zip(CORE, values)
+        ])
+        report = audit_mass_profiles(series, require_complete=True)
+        self.assertEqual(report["complete_mass_series"], 1)
+
     def test_armor_and_attack_are_not_made_up_by_mass_contract(self):
         # Numerical combat factors must always be calculated by AnimalStats,
         # never filled by a mass-evidence validator.
