@@ -20,6 +20,7 @@ from core.static_stats import read_table,update_bionics,update_life_stages,SHEET
 from core.life_stages import render_life_stage_combat_power, render_life_stages, ROYAL_SOURCE
 from core.life_stage_species_profiles import (
     render_species_life_stage_profiles, render_life_stage_attack_profiles_cs)
+from core.life_stage_mass_contract import audit_mass_profiles
 from core.body_size_mass_equivalence import mass_lookup_from_service_bands
 from core.animalstats_source import is_multisheet_source
 from core.production_stats import render_reproduction
@@ -387,14 +388,26 @@ def stage_pipeline(source, *, root=None, registry_path=None, sheet_sources=None,
                 # installed animal race.lifestageAges, never per-pawn.
                 # Profiles are native AnimalStats calculations, not Python models.
                 # Use the workbook tab automatically, or a named TSV override.
+                profile_table = sheet_frame('LifeStageProfiles')
+                mass_columns = {
+                    'AdultMass_kg', 'BiologicalStageMass_kg',
+                    'MassEvidenceMethod', 'MassReference',
+                    'MassDerivedStageBodySize', 'MassDerivedBodySizeFactor',
+                }
+                mass_diagnostics = (
+                    audit_mass_profiles(profile_table)
+                    if mass_columns <= set(profile_table.columns) else None
+                )
                 payload, diagnostics = render_species_life_stage_profiles(
-                    sheet_frame('LifeStageProfiles'),
-                    sheet_frame('LifeStageProfiles'),
+                    profile_table,
+                    profile_table,
                     sheet_frame('Animals'),
                     t,
                     ce=ce,
                     mass_lookup=mass_lookup,
                 )
+                if mass_diagnostics is not None:
+                    diagnostics['biological_mass_coverage'] = mass_diagnostics
                 e=output_by_id(registry,'life-stages.species')
                 emit(e['destination'],e['category'],payload,e.get('requires'))
                 entry_by_dest[e['destination']]['pipeline_category']='life-stages'
