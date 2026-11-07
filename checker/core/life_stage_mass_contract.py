@@ -10,7 +10,7 @@ import math
 import re
 from collections import defaultdict
 
-NAME = re.compile(r"^\\s*<li>([^<>]+)</li>\\s*$")
+NAME = re.compile(r"^\s*<li>([^<>]+)</li>\s*$")
 CORE = {
     "AnimalAdult or EusocialInsectAdult": ("Adult", 2),
     "AnimalJuvenile or EusocialInsectJuvenile": ("Juvenile", 1),
