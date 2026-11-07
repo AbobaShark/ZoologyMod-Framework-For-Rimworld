@@ -19,8 +19,8 @@ def sources(base_size=1):
         "XML name": "<li>TestAnimal</li>",
         "LifeStageDef": " or ".join(group),
         "BiologicalStageMass_kg": (10, 2, .05)[i],
-        "MassDerivedStageBodySize": base_size * (1, .5, .2)[i],
-        "ExpectedBodySizeFactor": (1, .5, .2)[i],
+        "StageBodySize": base_size * (1, .5, .2)[i],
+        "bodySizeFactor": (1, .5, .2)[i],
         "SpeedFactor": (1, .85, .65)[i],
         "FoodMaxFactor": (1, .2, .005)[i],
         "StageHealthScaleFactor": (1, .5, .2)[i],
@@ -142,8 +142,8 @@ class SpeciesLifeStageProfilesTests(unittest.TestCase):
     def test_species_body_and_health_factors_can_change_independently_of_core(self):
         args = list(sources())
         args[0] = args[0].copy()
-        args[0].at[2, "MassDerivedStageBodySize"] = .1
-        args[0].at[2, "ExpectedBodySizeFactor"] = .1
+        args[0].at[2, "StageBodySize"] = .1
+        args[0].at[2, "bodySizeFactor"] = .1
         args[0].at[2, "StageHealthScaleFactor"] = .1
         args[1] = args[0]
         xml, _ = render(*args)

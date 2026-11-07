@@ -204,7 +204,7 @@ def render_species_life_stage_profiles(species_profiles, attacks,
         raise ValueError("LifeStageProfiles source is required")
     required = {
         "XML name", "LifeStageDef", "BiologicalStageMass_kg",
-        "MassDerivedStageBodySize", "ExpectedBodySizeFactor",
+        "StageBodySize", "bodySizeFactor",
         "StageHealthScaleFactor", "CE_ArmorDurabilityFactor",
         "HungerRateFactor", "CalculationStatus",
     }
@@ -269,9 +269,9 @@ def render_species_life_stage_profiles(species_profiles, attacks,
         biological_mass = _required(
             row.get("BiologicalStageMass_kg"), f"{label} row {number} biological mass")
         stage_body = _required(
-            row.get("MassDerivedStageBodySize"), f"{label} row {number} stage BodySize")
+            row.get("StageBodySize"), f"{label} row {number} stage BodySize")
         body_factor = _required(
-            row.get("ExpectedBodySizeFactor"), f"{label} row {number} size factor")
+            row.get("bodySizeFactor"), f"{label} row {number} size factor")
         if not math.isclose(
                 stage_body / expected_body, body_factor,
                 rel_tol=2e-5, abs_tol=1e-8):

@@ -16,8 +16,8 @@ def entry(species, stage, adult, mass, factor=1, *, source="DIRECT"):
         "LifeStageDef": stage,
         "BiologicalStageMass_kg": mass,
         "MassReference": "Base stats" if mass == adult else "https://example.org/reference",
-        "MassDerivedStageBodySize": factor,
-        "ExpectedBodySizeFactor": factor,
+        "StageBodySize": factor,
+        "bodySizeFactor": factor,
     }
 
 
@@ -90,7 +90,7 @@ class LifeStageMassContractTests(unittest.TestCase):
     def test_source_and_factor_parity_are_mandatory(self):
         rows = normal()
         rows.at[0, "MassReference"] = ""
-        rows.at[1, "ExpectedBodySizeFactor"] = 2
+        rows.at[1, "bodySizeFactor"] = 2
         with self.assertRaisesRegex(ValueError, "BodySize/factor mismatch"):
             audit_mass_profiles(rows, require_complete=True)
 

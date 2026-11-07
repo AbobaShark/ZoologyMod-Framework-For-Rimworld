@@ -72,7 +72,7 @@ def audit_mass_profiles(profiles, *, require_complete=False):
     """
     mandatory = {
         "XML name", "LifeStageDef", "BiologicalStageMass_kg",
-        "MassReference", "MassDerivedStageBodySize", "ExpectedBodySizeFactor",
+        "MassReference", "StageBodySize", "bodySizeFactor",
     }
     absent = mandatory - set(profiles.columns)
     if absent:
@@ -95,8 +95,8 @@ def audit_mass_profiles(profiles, *, require_complete=False):
             continue
         family, semantic, rank = parsed
         mass = _positive(record.get("BiologicalStageMass_kg"))
-        size = _positive(record.get("MassDerivedStageBodySize"))
-        factor = _positive(record.get("ExpectedBodySizeFactor"))
+        size = _positive(record.get("StageBodySize"))
+        factor = _positive(record.get("bodySizeFactor"))
         source = str(record.get("MassReference") or "").strip()
         species[name].append((family, semantic, rank, mass, size, factor, row_number))
         if any(value is None for value in (mass, size, factor)):

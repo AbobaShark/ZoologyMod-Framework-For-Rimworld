@@ -351,7 +351,7 @@ def stage_pipeline(source, *, root=None, registry_path=None, sheet_sources=None,
                 profile_table = sheet_frame('LifeStageProfiles')
                 mass_columns = {
                     'BiologicalStageMass_kg', 'MassReference',
-                    'MassDerivedStageBodySize', 'ExpectedBodySizeFactor',
+                    'StageBodySize', 'bodySizeFactor',
                 }
                 mass_diagnostics = (
                     audit_mass_profiles(profile_table)
