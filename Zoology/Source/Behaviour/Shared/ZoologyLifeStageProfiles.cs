@@ -18,7 +18,6 @@ namespace ZoologyMod
         public string sourceStageDefName;
         public float expectedBaseBodySize = -1f;
         public float expectedBaseHungerRate = -1f;
-        public float expectedBodySizeFactor = -1f;
         public float bodySizeFactor = -1f;
         public float healthScaleFactor = -1f;
         public float foodMaxFactor = -1f;

@@ -207,7 +207,9 @@ namespace ZoologyMod
 
                 var provenance = current.GetModExtension<ZoologyLifeStageOrigin>();
                 var source = provenance?.sourceStage ?? current;
-                if (string.Equals(source.defName, profile.sourceStageDefName, StringComparison.Ordinal))
+                // The foreign Tiny Def is a source identity, not a separate age.
+                if (string.Equals(source.defName, profile.sourceStageDefName, StringComparison.Ordinal)
+                    || profile.sourceStageDefName == "AnimalBaby" && source.defName == "AnimalBabyTiny")
                 {
                     stageIndex = i;
                     original = source;
@@ -218,14 +220,6 @@ namespace ZoologyMod
             if (original == null)
             {
                 return false; // Do not manufacture stages the race does not use.
-            }
-
-            if (profile.expectedBodySizeFactor > 0f
-                && Math.Abs(original.bodySizeFactor - profile.expectedBodySizeFactor) > 0.0001f)
-            {
-                Log.Warning("[Zoology] " + animal.defName + "/" + original.defName
-                    + ": life-stage bodySizeFactor changed after Checker generation.");
-                return false;
             }
 
             string generatedName = "ZoologyStage_" + animal.defName + "_" + original.defName;

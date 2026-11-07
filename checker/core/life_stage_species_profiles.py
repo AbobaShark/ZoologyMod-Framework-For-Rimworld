@@ -13,7 +13,7 @@ from collections import Counter, defaultdict
 from lxml import etree as E
 
 from core.life_stages import (
-    STAGE_GROUPS, ROYAL_STAGES, SPECTROBIONTA_STAGES, parse_stages)
+    STAGE_GROUPS, ROYAL_STAGES, SPECTROBIONTA_STAGES)
 from core.generated_source_contract import LIFE_STAGE_ATTACK_CSHARP_HEADER
 
 _XML_NAMES = re.compile(r"<li>\s*([^<>]+?)\s*</li>")
@@ -190,8 +190,7 @@ def _tool_profiles(table, diagnostics):
 
 
 def render_species_life_stage_profiles(species_profiles, attacks,
-                                       animals, life_stages, *, ce=True,
-                                       mass_lookup=None):
+                                       animals, *, ce=True):
     """Render XML from *evaluated* LifeStageProfiles/AttackProfiles.
 
     Missing biomechanical outputs remain absent: no universal power law or
@@ -200,18 +199,17 @@ def render_species_life_stage_profiles(species_profiles, attacks,
     if species_profiles is None:
         raise ValueError("LifeStageProfiles source is required")
     required = {"XML name", "LifeStageDef", "ExpectedBaseBodySize",
-                "ExpectedBaseHungerRate", "ExpectedBodySizeFactor",
-                "HungerRateFactor", "CalculationStatus",
-                "StageBodySize", "StageHealthScaleFactor", "CEArmorDurabilityFactor"}
+                "ExpectedBaseHungerRate", "HungerRateFactor", "CalculationStatus",
+                "StageBodySize", "StageMass_kg", "AdultMass_kg",
+                "BiologicalStageMass_kg", "MassDerivedStageBodySize",
+                "MassDerivedBodySizeFactor", "StageHealthScaleFactor",
+                "CEArmorDurabilityFactor"}
     missing = required - set(species_profiles.columns)
     if missing:
         raise ValueError(f"LifeStageProfiles missing columns: {sorted(missing)}")
     adults = _adult_rows(animals)
-    stage_inputs = parse_stages(life_stages, mass_lookup=mass_lookup)
-    stage_groups = {}
-    for names, stage_values in stage_inputs:
-        label = " or ".join(names)
-        stage_groups[label] = (names, stage_values)
+    stage_groups = {" or ".join(group): group for group in (
+        *STAGE_GROUPS, *ROYAL_STAGES, *SPECTROBIONTA_STAGES)}
     diagnostics = Counter()
     tool_profiles = _tool_profiles(species_profiles, diagnostics)
     diagnostics["species_rows_total"] = 0
@@ -236,7 +234,7 @@ def render_species_life_stage_profiles(species_profiles, attacks,
         label = str(row.get("LifeStageDef", "")).strip()
         if label not in stage_groups:
             raise ValueError(f"LifeStageProfiles row {number}: unknown LifeStageDef {label!r}")
-        sources, common = stage_groups[label]
+        sources = stage_groups[label]
         status = str(row.get("CalculationStatus", "")).strip().upper()
         if status == "SOURCE ERROR":
             diagnostics["species_rows_invalid_source"] += 1
@@ -247,15 +245,32 @@ def render_species_life_stage_profiles(species_profiles, attacks,
             continue
         if status not in ("READY", "INCOMPLETE"):
             raise ValueError(f"LifeStageProfiles row {number}: invalid status {status!r}")
+        if status == "INCOMPLETE":
+            diagnostics["species_rows_incomplete"] += 1
+            if len(diagnostics["incomplete_examples"]) < 24:
+                diagnostics["incomplete_examples"].append(
+                    {"row": number, "animal": names, "stage": label,
+                     "reason": str(row.get("MissingToolDiagnostics") or
+                                   "INCOMPLETE in AnimalStats; not installed").strip()})
+            continue
         expected_body = _required(row.get("ExpectedBaseBodySize"),
                                   f"{label} row {number} adult BodySize")
         expected_hunger = _required(row.get("ExpectedBaseHungerRate"),
                                     f"{label} row {number} adult hunger")
-        expected_stage_size = _required(row.get("ExpectedBodySizeFactor"),
-                                        f"{label} row {number} stage factor")
         stage_body = _required(row.get("StageBodySize"),
                                f"{label} row {number} effective stage BodySize")
+        adult_mass = _required(row.get("AdultMass_kg"), f"{label} row {number} adult mass")
+        stage_mass = _required(row.get("StageMass_kg"), f"{label} row {number} stage mass")
+        biological_mass = _required(row.get("BiologicalStageMass_kg"), f"{label} row {number} biological mass")
+        mass_body = _required(row.get("MassDerivedStageBodySize"), f"{label} row {number} derived BodySize")
+        mass_factor = _required(row.get("MassDerivedBodySizeFactor"), f"{label} row {number} derived factor")
         body_factor = stage_body / expected_body
+        if (not math.isclose(stage_mass, biological_mass, rel_tol=1e-6)
+            or not math.isclose(stage_body, mass_body, rel_tol=1e-6)
+            or not math.isclose(body_factor, mass_factor, rel_tol=1e-6)):
+            raise ValueError(f"{label} row {number}: stage outputs disagree with biological masses")
+        if biological_mass > adult_mass*(1+1e-6) and not label.startswith("VAERoy_"):
+            raise ValueError(f"{label} row {number}: stage mass exceeds adult mass")
         health_factor = _required(row.get("StageHealthScaleFactor"),
                                   f"{label} row {number} stage health scale")
         durability_factor = (_required(row.get("CEArmorDurabilityFactor"),
@@ -272,7 +287,8 @@ def render_species_life_stage_profiles(species_profiles, attacks,
                 continue
             value = _number(row.get(column), f"{label} row {number} {column}",
                             positive=False)
-            if value is not None and not math.isclose(value, 1, abs_tol=1e-10):
+            if value is not None:
+                # Explicit unity cancels inherited physical factors in a foreign Def.
                 stats.append((stat_name, value, ce_only))
         offsets = []
         for column, stat_name, ce_only in _STAT_OFFSET_FIELDS:
@@ -297,14 +313,6 @@ def render_species_life_stage_profiles(species_profiles, attacks,
                                f"{label} row {number} MarketValueFactor")
         if status == "READY" and (combat_power is None or market_value is None):
             raise ValueError(f"{label} row {number}: READY profile has missing outputs")
-        if status == "INCOMPLETE":
-            diagnostics["species_rows_incomplete"] += 1
-            if len(diagnostics["incomplete_examples"]) < 24:
-                diagnostics["incomplete_examples"].append(
-                    {"row": number, "animal": names, "stage": label,
-                     "reason": str(row.get("MissingToolDiagnostics") or
-                                   "INCOMPLETE in AnimalStats; not installed").strip()})
-            continue
         diagnostics["species_rows_ready"] += 1
         for name in names:
             adult = adults.get(name)
@@ -325,23 +333,13 @@ def render_species_life_stage_profiles(species_profiles, attacks,
                     raise ValueError(f"Duplicate life stage {key!r}")
                 rendered.add(key)
                 tools = tool_profiles.get(key, [])
-                changed = (not math.isclose(body_factor, common["bodySizeFactor"], abs_tol=1e-7)
-                           or not math.isclose(health_factor, common["healthScaleFactor"], abs_tol=1e-7)
-                           or durability_factor is not None and not math.isclose(durability_factor, 1, abs_tol=1e-10)
-                           or not math.isclose(hunger, 1, abs_tol=1e-10)
-                           or food_max is not None
-                           or bool(stats) or bool(offsets) or bool(tools)
-                           or combat_power is not None and not math.isclose(combat_power, 1)
-                           or market_value is not None and not math.isclose(market_value, 1))
-                if not changed:
-                    diagnostics["neutral_stages_omitted"] += 1
-                    continue
+                # Every READY mass-defined stage gets its own clone, including
+                # unity coefficients that cancel a non-neutral source Def.
                 node = E.SubElement(stage_nodes, "li")
                 for tag, value in (
                     ("animalDefName", name), ("sourceStageDefName", source),
                     ("expectedBaseBodySize", _text_number(expected_body)),
                     ("expectedBaseHungerRate", _text_number(expected_hunger)),
-                    ("expectedBodySizeFactor", _text_number(expected_stage_size)),
                     ("bodySizeFactor", _text_number(body_factor)),
                     ("healthScaleFactor", _text_number(health_factor)),
                     ("hungerRateFactor", _text_number(hunger)),

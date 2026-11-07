@@ -16,12 +16,10 @@ from core.patch_engine import PatchGenerator
 from core.generation_registry import load_registry,target_entry,output_by_id,outputs_for
 from core.xml_routing import digest,find_project_root,route_dependency
 from core.generated_source_contract import LIFE_STAGE_ATTACK_CSHARP_HEADER
-from core.static_stats import read_table,update_bionics,update_life_stages,SHEET_REQUIRED
-from core.life_stages import render_life_stage_combat_power, render_life_stages, ROYAL_SOURCE
+from core.static_stats import read_table,update_bionics,SHEET_REQUIRED
 from core.life_stage_species_profiles import (
     render_species_life_stage_profiles, render_life_stage_attack_profiles_cs)
 from core.life_stage_mass_contract import audit_mass_profiles
-from core.body_size_mass_equivalence import mass_lookup_from_service_bands
 from core.animalstats_source import is_multisheet_source
 from core.production_stats import render_reproduction
 from core.checker_config import ROOT
@@ -103,7 +101,6 @@ def stage_pipeline(source, *, root=None, registry_path=None, sheet_sources=None,
     registered_outputs={entry['destination']:entry for entry in registry['outputs']}
     life_stage_destinations={entry['destination'] for entry in registry['outputs'] if entry['pipeline_category']=='life-stages'}
     animal_group_destinations={group['destination'] for group in registry['groups']}
-    baby_tiny_defnames=set(registry.get('baby_tiny_defs',()))
     declared_routes={entry['destination']:(section,entry) for section in ('groups','biomes','shared_defs','outputs') for entry in registry[section]}
     cats=set(categories)
     if cats-set(CATEGORIES):raise ValueError(f'Unknown categories: {cats-set(CATEGORIES)}')
@@ -209,7 +206,6 @@ def stage_pipeline(source, *, root=None, registry_path=None, sheet_sources=None,
                     if missing:raise ValueError(f'{group["id"]}: missing in Animals: {sorted(missing)}')
                     path=temp/'work'/group['id'];path.parent.mkdir(parents=True,exist_ok=True)
                     overrides=dict(group.get('overrides') or {})
-                    overrides['baby_tiny_defs']=[name for name in group['defs'] if name in baby_tiny_defnames]
                     if not generator.generate_patch_from_definitions(str(path),group['defs'],patched_abstracts=group['abstracts'],group_overrides=overrides):
                         raise RuntimeError(f'Generation failed for {group["id"]}')
                     e=group
@@ -347,42 +343,6 @@ def stage_pipeline(source, *, root=None, registry_path=None, sheet_sources=None,
                     emit(dest,e['category'],payload,e.get('requires'))
                     entry_by_dest[dest]['pipeline_category']='bionics'
             if 'life-stages' in cats:
-                # A native workbook owns its mass equivalence data. This
-                # refreshes automatically when the Animals!AO model changes.
-                # Separate TSV sources can provide this tab explicitly.
-                has_mass_bands = bool(sheets.get('SERVICE_BodySizeMassBands')) or (
-                    source is not None and is_multisheet_source(source))
-                mass_lookup = (mass_lookup_from_service_bands(
-                    sheet_frame('SERVICE_BodySizeMassBands'))
-                    if has_mass_bands else None)
-                e=output_by_id(registry,'life-stages.vanilla')
-                results.append(static('LifeStages',e['destination'],e['category'],lambda tree,table:update_life_stages(tree,table,False,mass_lookup=mass_lookup)))
-                if ce:
-                    e=output_by_id(registry,'life-stages.ce')
-                    results.append(static('LifeStages',e['destination'],e['category'],lambda tree,table:update_life_stages(tree,table,True,mass_lookup=mass_lookup)))
-                e=output_by_id(registry,'life-stages.power')
-                payload=render_life_stage_combat_power(sheet_frame('LifeStages'),mass_lookup=mass_lookup)
-                emit(e['destination'],e['category'],payload,e.get('requires'))
-                entry_by_dest[e['destination']]['pipeline_category']='life-stages'
-                results.append({'destination':e['destination'],'changes':[{'regenerated':'life-stages.power'}],'warnings':[]})
-                # Extra source-owned LifeStageDefs; do not co-mingle Royal
-                # operations with Core XML. CE-only output is guarded both by
-                # its CE load folder and by Royal-stage existence.
-                t=sheet_frame('LifeStages')
-                royal_outputs=[
-                    ('life-stages.royal',render_life_stages(t,source_mod=ROYAL_SOURCE,mass_lookup=mass_lookup)),
-                    ('life-stages.royal.power',render_life_stage_combat_power(t,source_mod=ROYAL_SOURCE,mass_lookup=mass_lookup)),
-                ]
-                if ce:
-                    royal_outputs.append(('life-stages.royal.ce',
-                                          render_life_stages(t,ce=True,source_mod=ROYAL_SOURCE,mass_lookup=mass_lookup)))
-                for ident,payload in royal_outputs:
-                    e=output_by_id(registry,ident)
-                    emit(e['destination'],e['category'],payload,e.get('requires'))
-                    entry_by_dest[e['destination']]['pipeline_category']='life-stages'
-                    results.append({'destination':e['destination'],
-                                    'changes':[{'regenerated':ident}],'warnings':[]})
-
                 # Species-specific corrections are evaluated by Checker only.
                 # The runtime clones only stages actually present in the
                 # installed animal race.lifestageAges, never per-pawn.
@@ -402,9 +362,7 @@ def stage_pipeline(source, *, root=None, registry_path=None, sheet_sources=None,
                     profile_table,
                     profile_table,
                     sheet_frame('Animals'),
-                    t,
                     ce=ce,
-                    mass_lookup=mass_lookup,
                 )
                 if mass_diagnostics is not None:
                     diagnostics['biological_mass_coverage'] = mass_diagnostics

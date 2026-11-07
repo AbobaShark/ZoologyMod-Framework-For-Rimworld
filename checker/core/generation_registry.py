@@ -44,10 +44,6 @@ def load_registry(path,mod):
         if not isinstance(preserved,list) or len(preserved)!=len(set(preserved)) or any(
                 not isinstance(name,str) or name not in group['defs'] for name in preserved):
             raise ValueError(f"{group['id']}: preserve_life_stages must be registered in the same group")
-    tiny=obj.get('baby_tiny_defs',[])
-    if not isinstance(tiny,list) or len(tiny)!=len(set(tiny)) or any(
-            not isinstance(name,str) or not name or name not in animal_names for name in tiny):
-        raise ValueError('baby_tiny_defs must contain unique registered animal DefNames')
     for section in ('biomes','shared_defs','outputs'):
         if not isinstance(obj.get(section),list): raise ValueError(f'Missing registry section {section}')
         for entry in obj[section]:
@@ -82,14 +78,10 @@ def load_registry(path,mod):
         raise ValueError('Duplicate registered biome DefName')
     overlap=marker_names & {name.casefold() for name in biome_names}
     if overlap:raise ValueError(f'Biomes cannot be registered and reference-only: {sorted(overlap)}')
-    required_ids={'bionics.vanilla','bionics.ce','life-stages.vanilla','life-stages.ce'}
-    royal_ids={'life-stages.royal','life-stages.royal.power','life-stages.royal.ce'}
-    found_ids={e['id'] for e in obj['outputs']}
-    if (found_ids & royal_ids) and not royal_ids <= found_ids:
-        raise ValueError('Royal life-stage outputs must have all three destinations')
+    required_ids={'bionics.vanilla','bionics.ce','life-stages.species','life-stages.attacks.cs'}
     actual={e['id'] for e in obj['outputs']}
     if not required_ids <= actual or not any(e['pipeline_category']=='products' for e in obj['outputs']):
-        raise ValueError('Missing required named static outputs')
+        raise ValueError('Missing required outputs')
     # Validate playable XML only. Source/ contains benchmark archives and
     # upstream snapshots that are not loaded as patches by RimWorld.
     if (Path(mod) / 'LoadFolders.xml').is_file():
