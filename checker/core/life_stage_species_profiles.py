@@ -28,19 +28,19 @@ _TOOL_FIELDS = (
 _STAT_FIELDS = (
     ("SpeedFactor", "MoveSpeed", False),
     ("FilthRate", "FilthRate", False),
-    ("MeleeDodgeChance", "MeleeDodgeChance", False),
-    ("MeleeCritChance", "MeleeCritChance", True),
-    ("MeleeParryChance", "MeleeParryChance", True),
+    ("CE_MeleeDodgeChance", "MeleeDodgeChance", True),
+    ("CE_MeleeCritChance", "MeleeCritChance", True),
+    ("CE_MeleeParryChance", "MeleeParryChance", True),
     ("ArmorRating_Sharp", "ArmorRating_Sharp", False),
     ("ArmorRating_Blunt", "ArmorRating_Blunt", False),
-    ("ArmorRating_Sharp_CE", "ArmorRating_Sharp", True),
-    ("ArmorRating_Blunt_CE", "ArmorRating_Blunt", True),
+    ("CE_ArmorRating_Sharp", "ArmorRating_Sharp", True),
+    ("CE_ArmorRating_Blunt", "ArmorRating_Blunt", True),
 )
 _STAT_OFFSET_FIELDS = (
     ("ArmorRating_Sharp_Offset", "ArmorRating_Sharp", False),
     ("ArmorRating_Blunt_Offset", "ArmorRating_Blunt", False),
-    ("ArmorRating_Sharp_CE_Offset", "ArmorRating_Sharp", True),
-    ("ArmorRating_Blunt_CE_Offset", "ArmorRating_Blunt", True),
+    ("CE_ArmorRating_Sharp_Offset", "ArmorRating_Sharp", True),
+    ("CE_ArmorRating_Blunt_Offset", "ArmorRating_Blunt", True),
 )
 _ERRORS = ("#REF!", "#N/A", "#DIV/0!", "#VALUE!", "#NUM!", "#NAME?", "#ERROR!")
 
@@ -198,12 +198,12 @@ def render_species_life_stage_profiles(species_profiles, attacks,
     """
     if species_profiles is None:
         raise ValueError("LifeStageProfiles source is required")
-    required = {"XML name", "LifeStageDef", "ExpectedBaseBodySize",
-                "ExpectedBaseHungerRate", "HungerRateFactor", "CalculationStatus",
-                "StageBodySize", "StageMass_kg", "AdultMass_kg",
-                "BiologicalStageMass_kg", "MassDerivedStageBodySize",
-                "MassDerivedBodySizeFactor", "StageHealthScaleFactor",
-                "CEArmorDurabilityFactor"}
+    required = {
+        "XML name", "LifeStageDef", "BiologicalStageMass_kg",
+        "MassDerivedStageBodySize", "ExpectedBodySizeFactor",
+        "StageHealthScaleFactor", "CE_ArmorDurabilityFactor",
+        "HungerRateFactor", "CalculationStatus",
+    }
     missing = required - set(species_profiles.columns)
     if missing:
         raise ValueError(f"LifeStageProfiles missing columns: {sorted(missing)}")
@@ -250,30 +250,33 @@ def render_species_life_stage_profiles(species_profiles, attacks,
             if len(diagnostics["incomplete_examples"]) < 24:
                 diagnostics["incomplete_examples"].append(
                     {"row": number, "animal": names, "stage": label,
-                     "reason": str(row.get("MissingToolDiagnostics") or
-                                   "INCOMPLETE in AnimalStats; not installed").strip()})
+                     "reason": "INCOMPLETE in AnimalStats; not installed"})
             continue
-        expected_body = _required(row.get("ExpectedBaseBodySize"),
-                                  f"{label} row {number} adult BodySize")
-        expected_hunger = _required(row.get("ExpectedBaseHungerRate"),
-                                    f"{label} row {number} adult hunger")
-        stage_body = _required(row.get("StageBodySize"),
-                               f"{label} row {number} effective stage BodySize")
-        adult_mass = _required(row.get("AdultMass_kg"), f"{label} row {number} adult mass")
-        stage_mass = _required(row.get("StageMass_kg"), f"{label} row {number} stage mass")
-        biological_mass = _required(row.get("BiologicalStageMass_kg"), f"{label} row {number} biological mass")
-        mass_body = _required(row.get("MassDerivedStageBodySize"), f"{label} row {number} derived BodySize")
-        mass_factor = _required(row.get("MassDerivedBodySizeFactor"), f"{label} row {number} derived factor")
-        body_factor = stage_body / expected_body
-        if (not math.isclose(stage_mass, biological_mass, rel_tol=1e-6)
-            or not math.isclose(stage_body, mass_body, rel_tol=1e-6)
-            or not math.isclose(body_factor, mass_factor, rel_tol=1e-6)):
-            raise ValueError(f"{label} row {number}: stage outputs disagree with biological masses")
-        if biological_mass > adult_mass*(1+1e-6) and not label.startswith("VAERoy_"):
-            raise ValueError(f"{label} row {number}: stage mass exceeds adult mass")
+        if len(names) != 1:
+            raise ValueError(f"LifeStageProfiles row {number}: expected one species")
+        adult = adults.get(names[0])
+        if adult is None:
+            raise ValueError(f"LifeStageProfiles unknown species {names[0]!r}")
+        # Adult baselines come exclusively from Animals, not age rows.
+        expected_body = _required(
+            adult.get("baseBodySize"), f"{names[0]}/baseBodySize")
+        expected_hunger = _required(
+            adult.get("baseHungerRate"), f"{names[0]}/baseHungerRate")
+        biological_mass = _required(
+            row.get("BiologicalStageMass_kg"), f"{label} row {number} biological mass")
+        stage_body = _required(
+            row.get("MassDerivedStageBodySize"), f"{label} row {number} stage BodySize")
+        body_factor = _required(
+            row.get("ExpectedBodySizeFactor"), f"{label} row {number} size factor")
+        if not math.isclose(
+                stage_body / expected_body, body_factor,
+                rel_tol=2e-5, abs_tol=1e-8):
+            raise ValueError(
+                f"{names[0]}: source baseline changed or stage factor disagrees "
+                "with AnimalStats mass-derived BodySize")
         health_factor = _required(row.get("StageHealthScaleFactor"),
                                   f"{label} row {number} stage health scale")
-        durability_factor = (_required(row.get("CEArmorDurabilityFactor"),
+        durability_factor = (_required(row.get("CE_ArmorDurabilityFactor"),
                                        f"{label} row {number} CE armor durability",
                                        positive=False)
                              if ce and status == "READY" else None)
@@ -318,11 +321,7 @@ def render_species_life_stage_profiles(species_profiles, attacks,
             adult = adults.get(name)
             if adult is None:
                 raise ValueError(f"LifeStageProfiles unknown species {name!r}")
-            for field, wanted in (("baseBodySize", expected_body),
-                                  ("baseHungerRate", expected_hunger)):
-                original = _required(adult.get(field), f"{name}/{field}")
-                if not math.isclose(original, wanted, abs_tol=1e-4):
-                    raise ValueError(f"{name}/{field}: source baseline changed")
+            # Age rows do not duplicate or validate Animals' own baselines.
             if name == "VAERoy_Megachicken" and not sources[0].startswith("VAERoy_"):
                 continue
             if name != "VAERoy_Megachicken" and sources[0].startswith("VAERoy_"):

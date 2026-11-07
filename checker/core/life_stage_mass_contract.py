@@ -64,27 +64,23 @@ def _stage(label):
 
 
 def audit_mass_profiles(profiles, *, require_complete=False):
-    """Audit evaluated LifeStageProfiles and optionally reject unfinished data.
+    """Validate stage masses and mapped BodySize without duplicating adult data.
 
-    Only an original Tiny LifeStageDef can survive as an alias of the single
-    Baby profile. The separate AnimalBabyTiny row is always a violation.
-    This function can audit an in-progress workbook without changing its
-    installed XML. Set require_complete=True at the migration cutover.
+    The adult-stage row supplies the comparison mass and reference BodySize.
+    Biological evidence methods remain attached as Google Sheets cell notes
+    to MassReference, not mandatory columns in the exported numerical model.
     """
     mandatory = {
-        "XML name", "LifeStageDef", "AdultMass_kg", "BiologicalStageMass_kg",
-        "MassEvidenceMethod", "MassReference", "MassDerivedStageBodySize",
-        "MassDerivedBodySizeFactor", "ExpectedBaseBodySize",
+        "XML name", "LifeStageDef", "BiologicalStageMass_kg",
+        "MassReference", "MassDerivedStageBodySize", "ExpectedBodySizeFactor",
     }
     absent = mandatory - set(profiles.columns)
     if absent:
         raise ValueError(f"LifeStageProfiles lacks mass contract columns: {sorted(absent)}")
 
     species = defaultdict(list)
-    invalid = []
-    missing = []
+    invalid, missing = [], []
     stage_rows = 0
-
     for row_number, (_, record) in enumerate(profiles.iterrows(), start=2):
         name_raw = record.get("XML name")
         if not name_raw or str(name_raw).strip().lower() in ("", "nan", "none"):
@@ -94,61 +90,54 @@ def audit_mass_profiles(profiles, *, require_complete=False):
         stage_name = str(record.get("LifeStageDef") or "").strip()
         parsed = _stage(stage_name)
         if not name or not parsed:
-            invalid.append(f"row {row_number}: unknown animal or stage {name_raw}/{stage_name}")
+            invalid.append(
+                f"row {row_number}: unknown animal or stage {name_raw}/{stage_name}")
             continue
-
         family, semantic, rank = parsed
-        adult = _positive(record.get("AdultMass_kg"))
         mass = _positive(record.get("BiologicalStageMass_kg"))
         size = _positive(record.get("MassDerivedStageBodySize"))
-        factor = _positive(record.get("MassDerivedBodySizeFactor"))
-        base_size = _positive(record.get("ExpectedBaseBodySize"))
-        method = str(record.get("MassEvidenceMethod") or "").strip()
-        reference = str(record.get("MassReference") or "").strip()
-
-        species[name].append((family, semantic, rank, adult, mass, row_number))
-        if any(x is None for x in (adult, mass, size, factor, base_size)):
-            missing.append(f"{name}/{stage_name} (row {row_number}): mass or derived size missing")
+        factor = _positive(record.get("ExpectedBodySizeFactor"))
+        source = str(record.get("MassReference") or "").strip()
+        species[name].append((family, semantic, rank, mass, size, factor, row_number))
+        if any(value is None for value in (mass, size, factor)):
+            missing.append(
+                f"{name}/{stage_name} (row {row_number}): mass or derived size missing")
             continue
-
-        if not math.isclose(size / base_size, factor, rel_tol=2e-5, abs_tol=1e-8):
-            invalid.append(f"{name}/{stage_name}: derived BodySize/factor mismatch")
-
-        # Royal megachickens reach their AnimalStats reference adult mass at
-        # the third of five real stages; growth continues afterwards.
-        # Last-stage mass is NOT the mass of an ordinary adult chicken.
-        is_adult = rank == 2
-        if is_adult and not math.isclose(mass, adult, rel_tol=1e-6):
-            invalid.append(f"{name}/{stage_name}: reference adult stage must equal AdultMass_kg")
-        if rank < 2 and mass >= adult:
-            invalid.append(f"{name}/{stage_name}: preadult mass must be below adult mass")
-        if family == "Royal" and rank > 2 and mass <= adult:
-            invalid.append(f"{name}/{stage_name}: late growth must exceed the reference adult mass")
-        if is_adult and method != "ADULT_ANIMALSTATS":
-            invalid.append(f"{name}/{stage_name}: missing adult mass provenance")
-        if not is_adult and method not in METHODS:
-            invalid.append(f"{name}/{stage_name}: unknown evidence method {method!r}")
-        if not reference:
+        if not source:
             invalid.append(f"{name}/{stage_name}: missing source reference")
 
     verified = 0
     for name, records in species.items():
         families = {r[0] for r in records}
         if len(families) != 1:
-            invalid.append(f"{name}: mixed incompatible lifecycle families: {sorted(families)}")
+            invalid.append(
+                f"{name}: mixed incompatible lifecycle families: {sorted(families)}")
             continue
         family = next(iter(families))
         ranks = [r[2] for r in records]
         expected = list(range(5 if family == "Royal" else 3))
         if sorted(ranks) != expected:
-            invalid.append(f"{name}: lifecycle stages {sorted(ranks)}, expected {expected}")
+            invalid.append(
+                f"{name}: lifecycle stages {sorted(ranks)}, expected {expected}")
             continue
-        adults = [r[3] for r in records]
-        masses = [r[4] for r in sorted(records, key=lambda x: x[2])]
-        if any(a is not None and not math.isclose(a, adults[0], rel_tol=1e-8)
-               for a in adults if adults[0] is not None):
-            invalid.append(f"{name}: inconsistent adult mass across stages")
-        if all(m is not None for m in masses):
+        adult = next(r for r in records if r[2] == 2)
+        adult_mass, adult_size = adult[3], adult[4]
+        if adult_mass is not None and adult_size is not None:
+            for r in records:
+                rank, mass, size, factor = r[2:6]
+                if any(value is None for value in (mass, size, factor)):
+                    continue
+                if not math.isclose(
+                        size / adult_size, factor, rel_tol=2e-5, abs_tol=1e-8):
+                    invalid.append(f"{name} stage {rank}: BodySize/factor mismatch")
+                if rank < 2 and mass >= adult_mass:
+                    invalid.append(
+                        f"{name} stage {rank}: preadult mass must be below adult mass")
+                if family == "Royal" and rank > 2 and mass <= adult_mass:
+                    invalid.append(
+                        f"{name} stage {rank}: late growth must exceed adult mass")
+        masses = [r[3] for r in sorted(records, key=lambda x: x[2])]
+        if all(mass is not None for mass in masses):
             if not all(a < b for a, b in zip(masses, masses[1:])):
                 invalid.append(f"{name}: stage masses must strictly increase")
             else:

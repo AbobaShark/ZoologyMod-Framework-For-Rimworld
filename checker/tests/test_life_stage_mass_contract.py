@@ -14,13 +14,10 @@ def entry(species, stage, adult, mass, factor=1, *, source="DIRECT"):
     return {
         "XML name": f"<li>{species}</li>",
         "LifeStageDef": stage,
-        "AdultMass_kg": adult,
         "BiologicalStageMass_kg": mass,
-        "MassEvidenceMethod": "ADULT_ANIMALSTATS" if mass == adult else source,
         "MassReference": "Base stats" if mass == adult else "https://example.org/reference",
-        "ExpectedBaseBodySize": 1,
         "MassDerivedStageBodySize": factor,
-        "MassDerivedBodySizeFactor": factor,
+        "ExpectedBodySizeFactor": factor,
     }
 
 
@@ -89,7 +86,7 @@ class LifeStageMassContractTests(unittest.TestCase):
     def test_source_and_factor_parity_are_mandatory(self):
         rows = normal()
         rows.at[0, "MassReference"] = ""
-        rows.at[1, "MassDerivedBodySizeFactor"] = 2
+        rows.at[1, "ExpectedBodySizeFactor"] = 2
         with self.assertRaisesRegex(ValueError, "BodySize/factor mismatch"):
             audit_mass_profiles(rows, require_complete=True)
 

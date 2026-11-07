@@ -350,9 +350,8 @@ def stage_pipeline(source, *, root=None, registry_path=None, sheet_sources=None,
                 # Use the workbook tab automatically, or a named TSV override.
                 profile_table = sheet_frame('LifeStageProfiles')
                 mass_columns = {
-                    'AdultMass_kg', 'BiologicalStageMass_kg',
-                    'MassEvidenceMethod', 'MassReference',
-                    'MassDerivedStageBodySize', 'MassDerivedBodySizeFactor',
+                    'BiologicalStageMass_kg', 'MassReference',
+                    'MassDerivedStageBodySize', 'ExpectedBodySizeFactor',
                 }
                 mass_diagnostics = (
                     audit_mass_profiles(profile_table)

@@ -18,27 +18,22 @@ def sources(base_size=1):
     profiles = pd.DataFrame([{
         "XML name": "<li>TestAnimal</li>",
         "LifeStageDef": " or ".join(group),
-        "ExpectedBaseBodySize": base_size,
-        "ExpectedBaseHungerRate": 1,
-        "StageBodySize": base_size * (1, .5, .2)[i],
-        "AdultMass_kg": 10,
         "BiologicalStageMass_kg": (10, 2, .05)[i],
-        "StageMass_kg": (10, 2, .05)[i],
         "MassDerivedStageBodySize": base_size * (1, .5, .2)[i],
-        "MassDerivedBodySizeFactor": (1, .5, .2)[i],
+        "ExpectedBodySizeFactor": (1, .5, .2)[i],
         "SpeedFactor": (1, .85, .65)[i],
         "FoodMaxFactor": (1, .2, .005)[i],
         "StageHealthScaleFactor": (1, .5, .2)[i],
-        "CEArmorDurabilityFactor": (1, .5, .2)[i],
+        "CE_ArmorDurabilityFactor": (1, .5, .2)[i],
         "HungerRateFactor": (1, .6, .3)[i],
         "FilthRate": (1, .5, .3)[i],
-        "MeleeDodgeChance": (1, 1.2, 1.5)[i],
-        "MeleeCritChance": (1, .9, .8)[i],
-        "MeleeParryChance": (1, .85, .65)[i],
+        "CE_MeleeDodgeChance": (1, 1.2, 1.5)[i],
+        "CE_MeleeCritChance": (1, .9, .8)[i],
+        "CE_MeleeParryChance": (1, .85, .65)[i],
         "ArmorRating_Sharp": "",
         "ArmorRating_Blunt": "",
-        "ArmorRating_Sharp_CE": (1, .8, .5)[i],
-        "ArmorRating_Blunt_CE": (1, .9, .6)[i],
+        "CE_ArmorRating_Sharp": (1, .8, .5)[i],
+        "CE_ArmorRating_Blunt": (1, .9, .6)[i],
         "CombatPowerFactor": (1, .8, .4)[i],
         "MarketValueFactor": (1, .75, .5)[i],
         "CalculationStatus": "READY",
@@ -119,7 +114,7 @@ class SpeciesLifeStageProfilesTests(unittest.TestCase):
     def test_zero_ce_armor_durability_is_valid_after_sheet_rounding(self):
         args = list(sources())
         args[0] = args[0].copy()
-        args[0].at[2, "CEArmorDurabilityFactor"] = 0
+        args[0].at[2, "CE_ArmorDurabilityFactor"] = 0
         args[1] = args[0]
         xml, _ = render(*args)
         baby = [n for n in nodes(xml) if n.findtext("sourceStageDefName") == "AnimalBaby"][0]
@@ -131,7 +126,7 @@ class SpeciesLifeStageProfilesTests(unittest.TestCase):
     def test_missing_ce_armor_durability_is_not_silently_accepted(self):
         args = list(sources())
         args[0] = args[0].copy()
-        args[0].at[2, "CEArmorDurabilityFactor"] = ""
+        args[0].at[2, "CE_ArmorDurabilityFactor"] = ""
         args[1] = args[0]
         with self.assertRaisesRegex(ValueError, "missing required"):
             render(*args)
@@ -139,7 +134,7 @@ class SpeciesLifeStageProfilesTests(unittest.TestCase):
     def test_negative_ce_armor_durability_is_invalid(self):
         args = list(sources())
         args[0] = args[0].copy()
-        args[0].at[2, "CEArmorDurabilityFactor"] = -0.5
+        args[0].at[2, "CE_ArmorDurabilityFactor"] = -0.5
         args[1] = args[0]
         with self.assertRaisesRegex(ValueError, "invalid nonnegative"):
             render(*args)
@@ -147,9 +142,8 @@ class SpeciesLifeStageProfilesTests(unittest.TestCase):
     def test_species_body_and_health_factors_can_change_independently_of_core(self):
         args = list(sources())
         args[0] = args[0].copy()
-        args[0].at[2, "StageBodySize"] = .1
         args[0].at[2, "MassDerivedStageBodySize"] = .1
-        args[0].at[2, "MassDerivedBodySizeFactor"] = .1
+        args[0].at[2, "ExpectedBodySizeFactor"] = .1
         args[0].at[2, "StageHealthScaleFactor"] = .1
         args[1] = args[0]
         xml, _ = render(*args)
@@ -166,8 +160,8 @@ class SpeciesLifeStageProfilesTests(unittest.TestCase):
     def test_missing_nonapplicable_stats_remain_absent(self):
         args = list(sources(.05))
         args[0] = args[0].copy()
-        args[0].at[2, "MeleeCritChance"] = ""
-        args[0].at[2, "MeleeParryChance"] = ""
+        args[0].at[2, "CE_MeleeCritChance"] = ""
+        args[0].at[2, "CE_MeleeParryChance"] = ""
         args[1] = args[0]
         xml, _ = render(*args)
         baby = [n for n in nodes(xml) if n.findtext("sourceStageDefName") == "AnimalBaby"][0]
@@ -177,12 +171,12 @@ class SpeciesLifeStageProfilesTests(unittest.TestCase):
     def test_zero_adult_armor_uses_absolute_ce_offset(self):
         args = list(sources())
         args[0] = args[0].copy()
-        args[0]["ArmorRating_Sharp_CE_Offset"] = ""
-        args[0]["ArmorRating_Blunt_CE_Offset"] = ""
-        args[0].at[2, "ArmorRating_Sharp_CE"] = 1
-        args[0].at[2, "ArmorRating_Blunt_CE"] = 1
-        args[0].at[2, "ArmorRating_Sharp_CE_Offset"] = .02
-        args[0].at[2, "ArmorRating_Blunt_CE_Offset"] = .05
+        args[0]["CE_ArmorRating_Sharp_Offset"] = ""
+        args[0]["CE_ArmorRating_Blunt_Offset"] = ""
+        args[0].at[2, "CE_ArmorRating_Sharp"] = 1
+        args[0].at[2, "CE_ArmorRating_Blunt"] = 1
+        args[0].at[2, "CE_ArmorRating_Sharp_Offset"] = .02
+        args[0].at[2, "CE_ArmorRating_Blunt_Offset"] = .05
         args[1] = args[0]
         xml, _ = render(*args)
         baby = [n for n in nodes(xml) if n.findtext("sourceStageDefName") == "AnimalBaby"][0]
@@ -199,12 +193,12 @@ class SpeciesLifeStageProfilesTests(unittest.TestCase):
     def test_armor_offset_rejects_non_neutral_factor_and_bad_formula(self):
         args = list(sources())
         args[0] = args[0].copy()
-        args[0].at[2, "ArmorRating_Sharp_CE_Offset"] = .02
+        args[0].at[2, "CE_ArmorRating_Sharp_Offset"] = .02
         args[1] = args[0]
         with self.assertRaisesRegex(ValueError, "requires neutral"):
             render(*args)
-        args[0].at[2, "ArmorRating_Sharp_CE"] = 1
-        args[0].at[2, "ArmorRating_Sharp_CE_Offset"] = "#REF!"
+        args[0].at[2, "CE_ArmorRating_Sharp"] = 1
+        args[0].at[2, "CE_ArmorRating_Sharp_Offset"] = "#REF!"
         with self.assertRaisesRegex(ValueError, "source formula error"):
             render(*args)
 
@@ -310,7 +304,7 @@ class SpeciesLifeStageProfilesTests(unittest.TestCase):
         args = list(sources())
         first, _ = render(*args)
         args[0] = args[0].copy()
-        args[0].at[2, "MeleeDodgeChance"] = 2.8
+        args[0].at[2, "CE_MeleeDodgeChance"] = 2.8
         args[1] = args[0]
         second, _ = render(*args)
         self.assertNotEqual(first, second)
