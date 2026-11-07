@@ -17,7 +17,8 @@ ROYAL_STAGES = tuple((name,) for name in (
 ))
 SPECTROBIONTA_STAGES = tuple((name,) for name in (
     "SpectrobiontaImago", "SpectrobiontaPredimago",
-    "SpectrobiontaPredimagoSmall", "SpectrobiontaLarvaLarge",
+    "SpectrobiontaPredimagoMedium", "SpectrobiontaPredimagoSmall",
+    "SpectrobiontaLarvaLarge",
     "SpectrobiontaLarvaMedium", "SpectrobiontaLarvaSmall",
 ))
 ROYAL_SOURCE = "Vanilla Animals Expanded — Royal Animals"
