@@ -259,6 +259,13 @@ class SpeciesLifeStageProfilesTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "invalid positive"):
             render_life_stage_attack_profiles_cs(args[0])
 
+    def test_adult_tool_must_be_neutral_and_never_compiled(self):
+        args = with_tools(sources(), [tool_record()], stage_row=0)
+        with self.assertRaisesRegex(ValueError, "Adult must have neutral Tool factors"):
+            render(*args)
+        with self.assertRaisesRegex(ValueError, "Adult must have neutral Tool factors"):
+            render_life_stage_attack_profiles_cs(args[0])
+
     def test_incomplete_status_does_not_supply_neutral_attack(self):
         args = list(sources())
         args[0] = args[0].copy()

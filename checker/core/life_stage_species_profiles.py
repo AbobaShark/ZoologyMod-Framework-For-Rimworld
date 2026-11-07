@@ -182,6 +182,10 @@ def _tool_profiles(table, diagnostics):
                 if not math.isclose(number_value, 1, abs_tol=1e-10, rel_tol=0):
                     factors.append((field, number_value))
             if factors:
+                if set(sources) <= {"AnimalAdult", "EusocialInsectAdult"}:
+                    raise ValueError(
+                        f"{name}/{stage}: Adult must have neutral Tool factors "
+                        "because its existing race Tool is not age-scaled")
                 for source in sources:
                     output[(name, source)].append(
                         (indexes[0], indexes[1], label, linked, capacities, factors))
