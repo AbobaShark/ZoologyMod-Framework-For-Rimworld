@@ -234,24 +234,29 @@ namespace ZoologyMod
             replacement.generated = true;
             replacement.shortHash = 0;
             replacement.index = ushort.MaxValue;
+            // All inherited size-dependent modifiers must be neutralized
+            // before applying the numerically complete AnimalStats profile.
+            // Otherwise a foreign Baby/Tiny/CE source def can multiply the
+            // already mass-scaled Tool stats for a second time.
+            bool changed = false;
             replacement.statFactors = new List<StatModifier>();
             if (original.statFactors != null)
             {
                 for (int i = 0; i < original.statFactors.Count; i++)
                 {
                     var modifier = original.statFactors[i];
-                    if (modifier != null)
+                    if (modifier == null)
+                        continue;
+
+                    bool agePhysical = IsAgePhysicalStatFactor(modifier.stat);
+                    float value = agePhysical ? 1f : modifier.value;
+                    if (agePhysical && Math.Abs(modifier.value - value) > 0.000001f)
+                        changed = true;
+                    replacement.statFactors.Add(new StatModifier
                     {
-                        replacement.statFactors.Add(new StatModifier
-                        {
-                            stat = modifier.stat,
-                            // Per-Tool cooldowns are already mass-scaled by
-                            // AnimalStats. Do not multiply them by a generic
-                            // cooldown inherited from another LifeStageDef.
-                            value = modifier.stat?.defName == "MeleeCooldownFactor"
-                                ? 1f : modifier.value
-                        });
-                    }
+                        stat = modifier.stat,
+                        value = value
+                    });
                 }
             }
 
@@ -260,7 +265,6 @@ namespace ZoologyMod
                 : new List<DefModExtension>(original.modExtensions);
             replacement.modExtensions.Add(new ZoologyLifeStageOrigin { sourceStage = original });
 
-            bool changed = false;
             if (IsFinitePositive(profile.foodMaxFactor)
                 && Math.Abs(replacement.foodMaxFactor - profile.foodMaxFactor) > 0.000001f)
             {
@@ -732,6 +736,28 @@ namespace ZoologyMod
             return string.IsNullOrWhiteSpace(value) ? string.Empty
                 : string.Join(" ", value.Split(
                     new[] { ' ', '\t', '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries));
+        }
+
+        // These factors depend on the animal's mass, size or combat model.
+        // They are never inherited from a shared age def, even if a source
+        // mod used a generic approximation or a CE-specific age modifier.
+        private static bool IsAgePhysicalStatFactor(StatDef stat)
+        {
+            switch (stat?.defName)
+            {
+                case "MoveSpeed":
+                case "FilthRate":
+                case "ArmorRating_Sharp":
+                case "ArmorRating_Blunt":
+                case "MeleeDodgeChance":
+                case "MeleeCritChance":
+                case "MeleeParryChance":
+                case "MeleeCooldownFactor":
+                case "Zoology_MeleeCooldownFactor":
+                    return true;
+                default:
+                    return false;
+            }
         }
 
         private static bool IsFiniteNonnegative(float value)
