@@ -138,9 +138,20 @@ def audit_mass_profiles(profiles, *, require_complete=False):
                         f"{name} stage {rank}: late growth must exceed adult mass")
         masses = [r[3] for r in sorted(records, key=lambda x: x[2])]
         if all(mass is not None for mass in masses):
-            if not all(a < b for a, b in zip(masses, masses[1:])):
+            increasing = all(a < b for a, b in zip(masses, masses[1:]))
+            if not increasing:
                 invalid.append(f"{name}: stage masses must strictly increase")
-            else:
+            midpoint_valid = True
+            if family == "Core":
+                # Juvenile is defined as the midpoint of newborn and adult
+                # biological masses, not the mass measured at weaning.
+                midpoint = (masses[0] + masses[2]) / 2
+                midpoint_valid = math.isclose(
+                    masses[1], midpoint, rel_tol=1e-9, abs_tol=1e-10)
+                if not midpoint_valid:
+                    invalid.append(
+                        f"{name}: Juvenile mass must equal the Baby/Adult midpoint")
+            if increasing and midpoint_valid:
                 verified += 1
 
     summary = {

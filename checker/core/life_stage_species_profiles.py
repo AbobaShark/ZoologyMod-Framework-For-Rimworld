@@ -317,6 +317,12 @@ def render_species_life_stage_profiles(species_profiles, attacks,
         if status == "READY" and (combat_power is None or market_value is None):
             raise ValueError(f"{label} row {number}: READY profile has missing outputs")
         diagnostics["species_rows_ready"] += 1
+        if label == "AnimalAdult or EusocialInsectAdult":
+            # The existing adult Def uses Animals' patched absolute stats.
+            # Keep its row as a mass/size validation reference only: cloning
+            # it adds no information and needlessly replaces foreign Defs.
+            diagnostics["adult_reference_rows"] += 1
+            continue
         for name in names:
             adult = adults.get(name)
             if adult is None:

@@ -323,9 +323,13 @@ class SpeciesLifeStageProfilesTests(unittest.TestCase):
         xml, _ = render(*args)
         self.assertIn(b"OptionalModAnimal", xml)
 
-    def test_adult_has_explicit_species_def_even_if_factor_is_one(self):
-        xml, _ = render(*sources())
-        self.assertIn(b"<sourceStageDefName>AnimalAdult</sourceStageDefName>", xml)
+    def test_adult_reuses_existing_def_and_young_are_species_specific(self):
+        xml, diagnostics = render(*sources())
+        self.assertNotIn(b"<sourceStageDefName>AnimalAdult</sourceStageDefName>", xml)
+        self.assertNotIn(b"<sourceStageDefName>EusocialInsectAdult</sourceStageDefName>", xml)
+        self.assertIn(b"<sourceStageDefName>AnimalJuvenile</sourceStageDefName>", xml)
+        self.assertIn(b"<sourceStageDefName>AnimalBaby</sourceStageDefName>", xml)
+        self.assertEqual(diagnostics["adult_reference_rows"], 1)
         self.assertNotIn(b"AnimalBabyTiny", xml)
 
 

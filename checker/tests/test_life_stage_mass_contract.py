@@ -28,10 +28,12 @@ CORE = (
 )
 
 
-def normal(species="AEXP_Lion", newborn=1.5, weaned=19, adult=171):
+def normal(species="AEXP_Lion", newborn=1.5, juvenile=None, adult=171):
+    if juvenile is None:
+        juvenile = (adult + newborn) / 2
     return pd.DataFrame([
         entry(species, CORE[0], adult, newborn, factor=.124),
-        entry(species, CORE[1], adult, weaned, factor=.403),
+        entry(species, CORE[1], adult, juvenile, factor=.403),
         entry(species, CORE[2], adult, adult, factor=1),
     ])
 
@@ -46,7 +48,7 @@ class LifeStageMassContractTests(unittest.TestCase):
         )]
         for name, adult in variants:
             lion = pd.concat([lion, normal(
-                name, 1.5 * adult / 171, 19 * adult / 171, adult
+                name, 1.5 * adult / 171, adult=adult
             )], ignore_index=True)
         result = audit_mass_profiles(lion, require_complete=True)
         self.assertEqual(result["species"], 4)
@@ -55,14 +57,10 @@ class LifeStageMassContractTests(unittest.TestCase):
 
     def test_warg_and_muffalo_reference_analogs(self):
         wolf_birth = .45
-        wolf_weaning = 5.25
         wolf_adult = 26.625
-        warg = normal("Warg", wolf_birth * 170 / wolf_adult,
-                      wolf_weaning * 170 / wolf_adult, 170)
+        warg = normal("Warg", wolf_birth * 170 / wolf_adult, adult=170)
         bison_birth = 45 * .45359237
-        bison_weaning = (350 + 425) / 2 * .45359237
-        muffalo = normal("Muffalo", bison_birth * 350 / 665.035,
-                         bison_weaning * 350 / 665.035, 350)
+        muffalo = normal("Muffalo", bison_birth * 350 / 665.035, adult=350)
         out = audit_mass_profiles(pd.concat([warg, muffalo]), require_complete=True)
         self.assertEqual(out["complete_mass_series"], 2)
 
@@ -78,9 +76,15 @@ class LifeStageMassContractTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "missing"):
             audit_mass_profiles(rows, require_complete=True)
 
-    def test_birth_must_be_less_than_weaning(self):
-        rows = normal(newborn=20, weaned=19)
+    def test_juvenile_must_be_between_newborn_and_adult(self):
+        rows = normal(newborn=20, juvenile=19)
         with self.assertRaisesRegex(ValueError, "strictly increase"):
+            audit_mass_profiles(rows, require_complete=True)
+
+    def test_juvenile_must_match_arithmetic_midpoint(self):
+        rows = normal()
+        rows.at[1, "BiologicalStageMass_kg"] += 1
+        with self.assertRaisesRegex(ValueError, "Baby/Adult midpoint"):
             audit_mass_profiles(rows, require_complete=True)
 
     def test_source_and_factor_parity_are_mandatory(self):
@@ -123,8 +127,8 @@ class LifeStageMassContractTests(unittest.TestCase):
             audit_mass_profiles(rows, require_complete=True)
 
     def test_thrumbo_and_alpha_thrumbo_empirical_ungulate_reconstruction(self):
-        # Values correspond to fitted published Artiodactyla,
-        # Perissodactyla and Proboscidea mass regressions in AnimalStats.
+        # Neonatal estimates use published large-herbivore mass regressions.
+        # Juvenile is defined by the Adult/Baby midpoint, not weaning mass.
         cases = (
             ("Thrumbo", 6000, 123.45469675300308, 1202.8051002055142,
              0.24129496465835248, 0.5626975108959649),
@@ -134,7 +138,7 @@ class LifeStageMassContractTests(unittest.TestCase):
         records = []
         for species, adult, baby, young, baby_factor, young_factor in cases:
             for stage, mass, factor in zip(
-                CORE, (baby, young, adult), (baby_factor, young_factor, 1)
+                CORE, (baby, (baby + adult) / 2, adult), (baby_factor, young_factor, 1)
             ):
                 records.append(entry(
                     species, stage, adult, mass, factor,
@@ -145,12 +149,11 @@ class LifeStageMassContractTests(unittest.TestCase):
 
     def test_lockjaw_crocodilian_birth_and_juvenile_ontogeny(self):
         # Birth: 11 Crocodilia taxa (Myhrvold 2015).
-        # Juvenile: Crocodylus acutus field-survey mean length ratios
-        # (Mauger et al. 2012), cubed under geometric similarity.
+        # Juvenile: midpoint between modeled hatchling and adult mass.
         series = pd.DataFrame([
             entry("AA_Lockjaw", CORE[0], 1000, .1544824169172378,
                   .020138429632334313, source="GROUP_ALLOMETRY"),
-            entry("AA_Lockjaw", CORE[1], 1000, 23.197660635657314,
+            entry("AA_Lockjaw", CORE[1], 1000, (1000 + .1544824169172378) / 2,
                   .22902704159936202, source="PHYLOGENETIC_ANALOG"),
             entry("AA_Lockjaw", CORE[2], 1000, 1000),
         ])
@@ -162,7 +165,7 @@ class LifeStageMassContractTests(unittest.TestCase):
         # Direct Amniote Life-History Database neonatal mass: 21.75 mg.
         values = (
             (.00002175, .0023971847569779384),
-            (.85, .36374806280570937),
+            ((7.15 + .00002175) / 2, .36374806280570937),
             (7.15, 1),
         )
         series = pd.DataFrame([

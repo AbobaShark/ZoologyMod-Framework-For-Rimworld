@@ -16,6 +16,16 @@ TSV override:
 
 Columns CalculationStatus and ToolStatus must both equal READY. Otherwise
 that stage is omitted with a diagnostic; missing coefficients do not become 1.
+The existing Adult LifeStageDef is retained: its AnimalStats row validates
+the biological adult baseline, but Checker creates no species-specific Adult
+clone for the ordinary AnimalAdult/EusocialInsectAdult family. The Royal
+five-stage lifecycle and special Spectrobionta stages keep their identities.
+
+For ordinary animals, the Juvenile biological mass is the arithmetic midpoint
+between Baby and Adult masses, implemented as a spreadsheet formula referencing
+both stage cells; it is not a published weaning mass. The mass contract rejects
+a numeric Juvenile value inconsistent with that definition. Scientific evidence
+for newborn and adult masses remains in their MassReference cells and notes.
 
 ToolRecordsV2 contains one tab-delimited line per individual natural attack.
 Its eleven fields are, in order: VanillaToolIndex, CEToolIndex, label,
@@ -63,10 +73,10 @@ with the generated per-Tool CE penetration ratios; no ToolCE is mutated.
 Core MoveSpeed still uses the common LifeStages.SpeedFactor =
 MROUND(bodySizeFactor^0.17,0.05). It is *not* the same operation as
 recalculating a species' Base stats speed model and the Animals/Animals CE
-movement mapping at the reduced StageMass_kg. For Warg juvenile, the
-current CE stage speed is 6.6 * 0.9 = 5.94, whereas evaluating Warg's
-existing Base stats!M mass-speed formula at 30.399549 kg and then
-applying the same Animals CE!W mapping gives 6.10. This discrepancy is
+movement mapping at the reduced StageMass_kg. The historical Warg example used a Juvenile mass derived from an obsolete
+weaning-stage model. All speed parity comparisons must be rerun using the
+current Adult/Baby midpoint masses; previously published numbers are no
+longer valid. This discrepancy is
 not silently treated as parity. Base stats!M contains empirical fixed
 speeds as well as distinct species formula families; there is no
 validated model for replacing every fixed-speed datum with a
@@ -76,7 +86,7 @@ speed factor as long as this exception remains.
 
 ## Spectrobionta life stages
 
-AnimalStats LifeStages contains six custom stages owned by the
+AnimalStats LifeStageProfiles contains six custom stage identities owned by the
 `Spectrobionta` source: `SpectrobiontaImago`,
 `SpectrobiontaPredimago`, `SpectrobiontaPredimagoSmall`,
 `SpectrobiontaLarvaLarge`, `SpectrobiontaLarvaMedium` and
@@ -155,7 +165,7 @@ Recommended validation matrix (use actual species installed by your mod list):
 - Ectothermic animal, e.g. iguana or tortoise: stage modifiers and stat
   availability, without making up CE-only stats.
 - Megachicken from Vanilla Animals Expanded Royal, if installed:
-  all five stages are READY. The three older stages have positive CE armor
+  verify all five stages; an INCOMPLETE profile must not be interpreted as READY. The three older stages have positive CE armor
   despite a zero adult baseline; calculated armor additions are installed
   through ZoologyLifeStageArmorStatPart, while their independent Tool ratios
   remain in the generated C# registry.
