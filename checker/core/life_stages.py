@@ -23,7 +23,20 @@ ROYAL_STAGES = tuple((name,) for name in (
     "VAERoy_AnimalAdultIntermediate",
     "VAERoy_AnimalAdultMax",
 ))
-SOURCE_STAGES = {"Core": STAGE_GROUPS, ROYAL_SOURCE: ROYAL_STAGES}
+SPECTROBIONTA_SOURCE = "Spectrobionta"
+SPECTROBIONTA_STAGES = tuple((name,) for name in (
+    "SpectrobiontaImago",
+    "SpectrobiontaPredimago",
+    "SpectrobiontaPredimagoSmall",
+    "SpectrobiontaLarvaLarge",
+    "SpectrobiontaLarvaMedium",
+    "SpectrobiontaLarvaSmall",
+))
+SOURCE_STAGES = {
+    "Core": STAGE_GROUPS,
+    ROYAL_SOURCE: ROYAL_STAGES,
+    SPECTROBIONTA_SOURCE: SPECTROBIONTA_STAGES,
+}
 
 BASE_FIELDS = (
     "bodySizeFactor", "marketValueFactor", "healthScaleFactor",

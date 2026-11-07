@@ -7,7 +7,8 @@ from core.locomotion_allometry import age_speed_factor
 from core.body_size_mass_equivalence import body_size_equivalent_mass_kg
 
 from core.life_stages import (
-    REQUIRED_COLUMNS, STAGE_GROUPS, ROYAL_SOURCE, ROYAL_STAGES, parse_stages,
+    REQUIRED_COLUMNS, STAGE_GROUPS, ROYAL_SOURCE, ROYAL_STAGES,
+    SPECTROBIONTA_SOURCE, SPECTROBIONTA_STAGES, parse_stages,
     render_life_stages, render_life_stage_combat_power,
 )
 
@@ -57,6 +58,17 @@ def fixture():
                       'MeleeCritChance':round(size**.165/.05)*.05,
                       'MeleeParryChance':round(size**.165/.05)*.05})
         rows.append(royal)
+    for group, size, speed in zip(SPECTROBIONTA_STAGES,
+                                  (1, .5, .2, 1, .5, .2),
+                                  (1, .85, .6, 1, .85, .6)):
+        age = {name: 1.0 for name in REQUIRED_COLUMNS
+               if name not in ("Life stage", "Source mod")}
+        age.update({"Life stage": group[0],
+                    "Source mod": SPECTROBIONTA_SOURCE,
+                    "bodySizeFactor": size,
+                    "healthScaleFactor": size,
+                    "SpeedFactor": speed})
+        rows.append(age)
     return pd.DataFrame(rows)
 
 
@@ -102,6 +114,17 @@ def apply_patch(defs, output):
         execute(operation)
 
 class LifeStageGenerationTests(unittest.TestCase):
+    def test_spectrobiont_larva_and_predimago_stages_are_distinct(self):
+        stages = parse_stages(fixture(), SPECTROBIONTA_SOURCE)
+        self.assertEqual([group[0] for group, _ in stages],
+                         [group[0] for group in SPECTROBIONTA_STAGES])
+        self.assertEqual([row["bodySizeFactor"] for _, row in stages],
+                         [1, .5, .2, 1, .5, .2])
+        self.assertEqual([row["SpeedFactor"] for _, row in stages],
+                         [1, .85, .6, 1, .85, .6])
+        self.assertEqual(len(parse_stages(fixture())), 15)
+
+
     def test_exact_factors_for_all_seven_stage_defs(self):
         table = fixture()
         stages = parse_stages(table, 'Core')

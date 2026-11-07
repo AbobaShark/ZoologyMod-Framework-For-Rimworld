@@ -74,6 +74,23 @@ mass-dependent speed, so no invented species-independent coefficients
 are installed by Checker. Combat Power still uses the common age
 speed factor as long as this exception remains.
 
+## Spectrobionta life stages
+
+AnimalStats LifeStages contains six custom stages owned by the
+`Spectrobionta` source: `SpectrobiontaImago`,
+`SpectrobiontaPredimago`, `SpectrobiontaPredimagoSmall`,
+`SpectrobiontaLarvaLarge`, `SpectrobiontaLarvaMedium` and
+`SpectrobiontaLarvaSmall`. LifeStageProfiles selects an age-stage
+family from the group-level `Groups.LifeStageProfileFamily` column.
+Three actual stages per species are passed to Checker; no
+`AnimalBabyTiny` artifact should be generated for spectrobionts.
+The custom LifeStageDefs retain only common visual, life-cycle, body
+size and movement factors in the source mod. Zoology supplies
+species-specific health, feeding, armor, market value, attack damage,
+cooldown, CE penetration and combat power from evaluated AnimalStats.
+The original source stage identity must be used when implementing
+life-stage-gated gameplay in the source mod.
+
 ## Current generated artifacts
 
 - Zoology/Core/Defs/Misc/LifeStageProfiles_Generated.xml: numerical scalars,

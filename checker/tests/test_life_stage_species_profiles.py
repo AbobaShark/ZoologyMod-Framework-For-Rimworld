@@ -69,6 +69,22 @@ def nodes(xml):
 
 
 class SpeciesLifeStageProfilesTests(unittest.TestCase):
+    def test_custom_spectrobiont_stage_can_compile_species_factors(self):
+        args = list(sources())
+        args[0] = args[0].copy()
+        args[0].at[2, "LifeStageDef"] = "SpectrobiontaImago"
+        args[0].at[2, "StageHealthScaleFactor"] = 1
+        args[0].at[2, "ExpectedBodySizeFactor"] = 1
+        args[0].at[2, "StageBodySize"] = 1
+        args[0].at[3, "LifeStageDef"] = "SpectrobiontaLarvaMedium"
+        args[1] = args[0]
+        xml, diagnostics = render(*args)
+        defs = [node.findtext("sourceStageDefName") for node in nodes(xml)]
+        self.assertIn("SpectrobiontaImago", defs)
+        self.assertIn("SpectrobiontaLarvaMedium", defs)
+        self.assertGreater(diagnostics["profiles"], 0)
+
+
     def test_exact_animalstats_factor_and_eusocial_alternative(self):
         args = list(sources())
         args[0].at[2, "HungerRateFactor"] = .137

@@ -12,7 +12,8 @@ import re
 from collections import Counter, defaultdict
 from lxml import etree as E
 
-from core.life_stages import STAGE_GROUPS, ROYAL_STAGES, parse_stages
+from core.life_stages import (
+    STAGE_GROUPS, ROYAL_STAGES, SPECTROBIONTA_STAGES, parse_stages)
 from core.generated_source_contract import LIFE_STAGE_ATTACK_CSHARP_HEADER
 
 _XML_NAMES = re.compile(r"<li>\s*([^<>]+?)\s*</li>")
@@ -116,7 +117,7 @@ def _tool_profiles(table, diagnostics):
         name = names[0]
         stage = str(row.get("LifeStageDef", "")).strip()
         sources = tuple(x.strip() for x in stage.split(" or "))
-        legal = (*STAGE_GROUPS, *ROYAL_STAGES)
+        legal = (*STAGE_GROUPS, *ROYAL_STAGES, *SPECTROBIONTA_STAGES)
         if not sources or not (any(set(sources) == set(group) for group in legal)
                               or len(sources) == 1 and any(sources[0] in group for group in legal)):
             raise ValueError(f"LifeStageProfiles row {number}: unknown stage {stage!r}")
