@@ -22,8 +22,8 @@ ROYAL = (
 )
 SPECTRO = {
     "Predimago": (
-        "SpectrobiontaPredimagoSmall", "SpectrobiontaPredimago",
-        "SpectrobiontaImago",
+        "SpectrobiontaPredimagoSmall", "SpectrobiontaPredimagoMedium",
+        "SpectrobiontaPredimago", "SpectrobiontaImago",
     ),
     "Larva": (
         "SpectrobiontaLarvaSmall", "SpectrobiontaLarvaMedium",
@@ -115,12 +115,20 @@ def audit_mass_profiles(profiles, *, require_complete=False):
             continue
         family = next(iter(families))
         ranks = [r[2] for r in records]
-        expected = list(range(5 if family == "Royal" else 3))
+        if family == "Royal":
+            expected, adult_rank = list(range(5)), 2
+        elif family == "Predimago":
+            # A medium predimago is optional: Harpactotyrannus has four
+            # forms while other Carnophagidae retain their three-stage cycle.
+            expected = [0, 1, 2, 3] if 1 in ranks else [0, 2, 3]
+            adult_rank = 3
+        else:
+            expected, adult_rank = [0, 1, 2], 2
         if sorted(ranks) != expected:
             invalid.append(
                 f"{name}: lifecycle stages {sorted(ranks)}, expected {expected}")
             continue
-        adult = next(r for r in records if r[2] == 2)
+        adult = next(r for r in records if r[2] == adult_rank)
         adult_mass, adult_size = adult[3], adult[4]
         if adult_mass is not None and adult_size is not None:
             for r in records:
@@ -130,7 +138,7 @@ def audit_mass_profiles(profiles, *, require_complete=False):
                 if not math.isclose(
                         size / adult_size, factor, rel_tol=2e-5, abs_tol=1e-8):
                     invalid.append(f"{name} stage {rank}: BodySize/factor mismatch")
-                if rank < 2 and mass >= adult_mass:
+                if rank < adult_rank and mass >= adult_mass:
                     invalid.append(
                         f"{name} stage {rank}: preadult mass must be below adult mass")
                 if family == "Royal" and rank > 2 and mass <= adult_mass:
