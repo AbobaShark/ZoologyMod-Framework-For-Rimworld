@@ -14,7 +14,7 @@ import tempfile
 from lxml import etree as E
 from core.patch_engine import PatchGenerator
 from core.generation_registry import load_registry,target_entry,output_by_id,outputs_for
-from core.xml_routing import digest,find_project_root,route_dependency
+from core.xml_routing import digest,find_project_root,route_dependency,RETIRED_LIFE_STAGE_OUTPUTS
 from core.generated_source_contract import LIFE_STAGE_ATTACK_CSHARP_HEADER
 from core.static_stats import read_table,update_bionics,SHEET_REQUIRED
 from core.life_stage_species_profiles import (
@@ -126,7 +126,7 @@ def stage_pipeline(source, *, root=None, registry_path=None, sheet_sources=None,
         p=stage/e['source']
         if not p.is_file() or digest(p)!=e.get('sha256'):raise ValueError(f'Staged file changed externally: {p}')
     entry_by_dest={}
-    remove_generated=set()
+    remove_generated=set(RETIRED_LIFE_STAGE_OUTPUTS) if 'life-stages' in cats else set()
     generated_this_run=set()
     postprocessor=PatchPostprocessor(original_xml=original_xml or ROOT/'OriginalXML',
         original_patches=(original_patches or ROOT/'OriginalXML/CEPatches') if ce else None,

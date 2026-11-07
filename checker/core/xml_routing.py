@@ -112,6 +112,15 @@ def validate_target(mod, entry):
     return target
 
 
+RETIRED_LIFE_STAGE_OUTPUTS = frozenset((
+    "Core/Patches/Core/LifeStageDefs/LifeStages.xml",
+    "Core/Patches/Core/LifeStageDefs/CombatPowerFactors.xml",
+    "ModPatches/CombatExtended/Patches/LifeStageDefs/LifeStages_CE.xml",
+    "ModPatches/VanillaAnimalsExpandedRoyal/Patches/LifeStageDefs/LifeStages_VAER.xml",
+    "ModPatches/VanillaAnimalsExpandedRoyal/Patches/LifeStageDefs/CombatPowerFactors_VAER.xml",
+    "ModPatches/CombatExtended/Patches/LifeStageDefs/LifeStages_VAER_CE.xml",
+))
+
 def plan(manifest_path, root, *, current_run_only=False):
     root = Path(root).resolve(); mod = root/'Zoology'
     manifest_path = Path(manifest_path).resolve()
@@ -176,7 +185,7 @@ def plan(manifest_path, root, *, current_run_only=False):
     }
     for name in removals:
         rel = safe_relative(name)
-        if rel.name not in generated_names or name in desired:
+        if (rel.name not in generated_names and name not in RETIRED_LIFE_STAGE_OUTPUTS) or name in desired:
             raise ValueError(f'Unsafe or conflicting generated XML removal: {name}')
         target = (mod/rel).resolve()
         if not target.is_relative_to(mod.resolve()):

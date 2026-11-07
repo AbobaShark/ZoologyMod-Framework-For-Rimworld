@@ -143,7 +143,10 @@ class RouteAudit(unittest.TestCase):
         manifest=json.loads(result.read_text())
         self.assertEqual(len(manifest['generated_this_run']),2)
         self.assertFalse(set(old)&set(manifest['generated_this_run']))
+        self.assertEqual(len(manifest['remove']),6)
         deploy(result,self.root,current_run_only=True)
+        for destination in old:
+            self.assertFalse((self.mod/destination).exists())
         self.assertTrue((self.mod/'Core/Defs/Misc/LifeStageProfiles_Generated.xml').is_file())
         self.assertTrue((self.mod/'Source/Behaviour/Shared/ZoologyLifeStageAttackProfiles_Generated.cs').is_file())
 
