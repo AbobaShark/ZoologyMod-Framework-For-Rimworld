@@ -121,6 +121,23 @@ Gameplay gated by stage must not compare the runtime stage DefName to
 its original: Zoology clones that Def under a species-specific name.
 Use the race's stage index or resolve the source-stage provenance.
 
+## Precision of exported life-stage factors
+
+AnimalStats retains unrounded biological masses and intermediate calculations.
+The LifeStageProfiles sheet displays ordinary final factors with two decimal
+places, without changing their numeric formula values. Sub-cent positive
+factors use scientific display to avoid a misleading zero. The tab-separated
+`ToolRecordsV2` field rounds its output values independently of the
+underlying attack calculations.
+
+Checker writes ordinary final XML/C# stat and Tool multipliers rounded to
+hundredths (e.g. 0.0652173913 -> 0.07). Nonzero factors below 0.01
+retain two significant digits instead (e.g. 0.00027894 -> 0.00028),
+preventing artificial zero damage or food capacity. Adult baseline fields
+used to validate installed Defs retain their original precision, and life-stage
+masses are not arbitrarily rounded to 0.01 kg. Rounding primarily improves
+readability; it does not change the size or evaluation cost of a runtime float.
+
 ## Current generated artifacts
 
 - Zoology/Core/Defs/Misc/LifeStageProfiles_Generated.xml: numerical scalars,
