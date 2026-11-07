@@ -21,6 +21,8 @@ namespace ZoologyMod
         public float expectedBodySizeFactor = -1f;
         public float bodySizeFactor = -1f;
         public float healthScaleFactor = -1f;
+        public float foodMaxFactor = -1f;
+        public float meleeDamageFactor = -1f;
         public float ceArmorDurabilityFactor = -1f;
 
         // Negative means "retain the source LifeStageDef's field".

@@ -26,6 +26,7 @@ _TOOL_FIELDS = (
     ("CEBluntPenetrationFactor", "ceBluntPenetrationFactor"),
 )
 _STAT_FIELDS = (
+    ("SpeedFactor", "MoveSpeed", False),
     ("FilthRate", "FilthRate", False),
     ("MeleeDodgeChance", "MeleeDodgeChance", False),
     ("MeleeCritChance", "MeleeCritChance", True),
@@ -252,8 +253,6 @@ def render_species_life_stage_profiles(species_profiles, attacks,
                                     f"{label} row {number} adult hunger")
         expected_stage_size = _required(row.get("ExpectedBodySizeFactor"),
                                         f"{label} row {number} stage factor")
-        if not math.isclose(expected_stage_size, common["bodySizeFactor"], abs_tol=1e-7):
-            raise ValueError(f"{label} row {number}: stage factor differs from LifeStages")
         stage_body = _required(row.get("StageBodySize"),
                                f"{label} row {number} effective stage BodySize")
         body_factor = stage_body / expected_body
@@ -265,6 +264,8 @@ def render_species_life_stage_profiles(species_profiles, attacks,
                              if ce and status == "READY" else None)
         hunger = _required(row.get("HungerRateFactor"),
                            f"{label} row {number} stage hunger factor")
+        food_max = _number(row.get("FoodMaxFactor"),
+                           f"{label} row {number} FoodMaxFactor")
         stats = []
         for column, stat_name, ce_only in _STAT_FIELDS:
             if ce_only and not ce:
@@ -328,6 +329,7 @@ def render_species_life_stage_profiles(species_profiles, attacks,
                            or not math.isclose(health_factor, common["healthScaleFactor"], abs_tol=1e-7)
                            or durability_factor is not None and not math.isclose(durability_factor, 1, abs_tol=1e-10)
                            or not math.isclose(hunger, 1, abs_tol=1e-10)
+                           or food_max is not None
                            or bool(stats) or bool(offsets) or bool(tools)
                            or combat_power is not None and not math.isclose(combat_power, 1)
                            or market_value is not None and not math.isclose(market_value, 1))
@@ -343,8 +345,11 @@ def render_species_life_stage_profiles(species_profiles, attacks,
                     ("bodySizeFactor", _text_number(body_factor)),
                     ("healthScaleFactor", _text_number(health_factor)),
                     ("hungerRateFactor", _text_number(hunger)),
+                    ("meleeDamageFactor", "1"),
                 ):
                     E.SubElement(node, tag).text = value
+                if food_max is not None:
+                    E.SubElement(node, "foodMaxFactor").text = _text_number(food_max)
                 if durability_factor is not None:
                     E.SubElement(node, "ceArmorDurabilityFactor").text = _text_number(durability_factor)
                 if market_value is not None:

@@ -263,6 +263,20 @@ namespace ZoologyMod
             replacement.modExtensions.Add(new ZoologyLifeStageOrigin { sourceStage = original });
 
             bool changed = false;
+            if (IsFinitePositive(profile.foodMaxFactor)
+                && Math.Abs(replacement.foodMaxFactor - profile.foodMaxFactor) > 0.000001f)
+            {
+                replacement.foodMaxFactor = profile.foodMaxFactor;
+                changed = true;
+            }
+            if (IsFinitePositive(profile.meleeDamageFactor)
+                && Math.Abs(replacement.meleeDamageFactor - profile.meleeDamageFactor) > 0.000001f)
+            {
+                // All natural-Tool stage damage is calculated independently.
+                // Neutralize any inherited global damage multiplier.
+                replacement.meleeDamageFactor = profile.meleeDamageFactor;
+                changed = true;
+            }
             if (IsFinitePositive(profile.bodySizeFactor)
                 && Math.Abs(replacement.bodySizeFactor - profile.bodySizeFactor) > 0.000001f)
             {
