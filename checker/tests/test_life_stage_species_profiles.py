@@ -84,14 +84,14 @@ class SpeciesLifeStageProfilesTests(unittest.TestCase):
         self.assertGreater(diagnostics["profiles"], 0)
 
 
-    def test_exact_animalstats_factor_and_eusocial_alternative(self):
+    def test_animalstats_factor_is_rounded_only_at_export(self):
         args = list(sources())
         args[0].at[2, "HungerRateFactor"] = .137
         args[1] = args[0]
         xml, info = render(*args)
         baby = [n for n in nodes(xml) if n.findtext("sourceStageDefName") == "AnimalBaby"]
         self.assertEqual(len(baby), 1)
-        self.assertEqual(float(baby[0].findtext("hungerRateFactor")), .137)
+        self.assertEqual(float(baby[0].findtext("hungerRateFactor")), .14)
         stages = [node.findtext("sourceStageDefName") for node in nodes(xml)]
         self.assertIn("EusocialInsectLarva", stages)
         self.assertEqual(info.get("species_rows_incomplete", 0), 0)
@@ -252,6 +252,39 @@ class SpeciesLifeStageProfilesTests(unittest.TestCase):
         self.assertEqual(info["compiled_stage_keys"], 2)
         self.assertEqual(info["attack_tools_ready"], 2)
         self.assertEqual(cs, render_life_stage_attack_profiles_cs(args[0])[0])
+
+    def test_two_decimal_export_keeps_tiny_factors_and_precise_baselines(self):
+        baseline = .0652173913
+        args = list(sources(base_size=baseline))
+        args[2].at[0, "baseHungerRate"] = baseline
+        args[0] = args[0].copy()
+        args[0].at[2, "HungerRateFactor"] = .0652173913
+        args[0].at[2, "FoodMaxFactor"] = .00000027314
+        args[0].at[2, "StageHealthScaleFactor"] = .00327145
+        args[1] = args[0]
+        xml, _ = render(*args)
+        baby = [node for node in nodes(xml)
+                if node.findtext("sourceStageDefName") == "AnimalBaby"][0]
+        self.assertEqual(baby.findtext("hungerRateFactor"), "0.07")
+        self.assertEqual(baby.findtext("healthScaleFactor"), "0.0033")
+        self.assertEqual(baby.findtext("foodMaxFactor"), "0.00000027")
+        # The installer checks these against Animals with a 0.001 tolerance:
+        # reducing precision here would skip legitimate species.
+        self.assertEqual(baby.findtext("expectedBaseBodySize"), "0.0652173913")
+        self.assertEqual(baby.findtext("expectedBaseHungerRate"), "0.0652173913")
+
+    def test_attack_rounding_omits_newly_neutral_factors(self):
+        args = with_tools(sources(), [
+            tool_record(factors=(
+                .0652173913, 1.0049, .00027894, 1.0061, 0, .9999))
+        ])
+        cs, _ = render_life_stage_attack_profiles_cs(args[0])
+        self.assertIn(b"vanillaDamageFactor = 0.07f", cs)
+        self.assertNotIn(b"vanillaCooldownFactor =", cs)
+        self.assertIn(b"ceDamageFactor = 0.00028f", cs)
+        self.assertIn(b"ceCooldownFactor = 1.01f", cs)
+        self.assertIn(b"ceSharpPenetrationFactor = 0f", cs)
+        self.assertNotIn(b"ceBluntPenetrationFactor =", cs)
 
     def test_tool_missing_in_one_mode_is_valid(self):
         args = with_tools(sources(), [
