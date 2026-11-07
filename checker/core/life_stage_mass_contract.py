@@ -15,8 +15,6 @@ CORE = {
     "AnimalAdult or EusocialInsectAdult": ("Adult", 2),
     "AnimalJuvenile or EusocialInsectJuvenile": ("Juvenile", 1),
     "AnimalBaby or EusocialInsectLarva": ("Baby", 0),
-    # The original Tiny Def is an optional alias of Baby, never another age.
-    "AnimalBaby or EusocialInsectLarva or AnimalBabyTiny": ("Baby", 0),
 }
 ROYAL = (
     "VAERoy_AnimalBaby", "VAERoy_AnimalJuvenile", "VAERoy_AnimalAdult",

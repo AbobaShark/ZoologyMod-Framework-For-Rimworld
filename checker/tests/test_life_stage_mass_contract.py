@@ -25,7 +25,7 @@ def entry(species, stage, adult, mass, factor=1, *, source="DIRECT"):
 
 
 CORE = (
-    "AnimalBaby or EusocialInsectLarva or AnimalBabyTiny",
+    "AnimalBaby or EusocialInsectLarva",
     "AnimalJuvenile or EusocialInsectJuvenile",
     "AnimalAdult or EusocialInsectAdult",
 )

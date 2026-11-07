@@ -7,7 +7,6 @@ from lxml import etree as E
 from core.life_stages import STAGE_GROUPS
 from core.life_stage_species_profiles import (
     render_species_life_stage_profiles, render_life_stage_attack_profiles_cs)
-from tests.test_life_stages import fixture
 
 
 def sources(base_size=1):
@@ -21,27 +20,33 @@ def sources(base_size=1):
         "LifeStageDef": " or ".join(group),
         "ExpectedBaseBodySize": base_size,
         "ExpectedBaseHungerRate": 1,
-        "ExpectedBodySizeFactor": (1, .5, .2, .15)[i],
-        "StageBodySize": base_size * (1, .5, .2, .15)[i],
-        "StageHealthScaleFactor": (1, .5, .2, .15)[i],
-        "CEArmorDurabilityFactor": (1, .5, .2, .15)[i],
-        "HungerRateFactor": (1, .6, .3, .25)[i],
-        "FilthRate": (1, .5, .3, .2)[i],
-        "MeleeDodgeChance": (1, 1.2, 1.5, 1.7)[i],
-        "MeleeCritChance": (1, .9, .8, .75)[i],
-        "MeleeParryChance": (1, .85, .65, .6)[i],
+        "StageBodySize": base_size * (1, .5, .2)[i],
+        "AdultMass_kg": 10,
+        "BiologicalStageMass_kg": (10, 2, .05)[i],
+        "StageMass_kg": (10, 2, .05)[i],
+        "MassDerivedStageBodySize": base_size * (1, .5, .2)[i],
+        "MassDerivedBodySizeFactor": (1, .5, .2)[i],
+        "SpeedFactor": (1, .85, .65)[i],
+        "FoodMaxFactor": (1, .2, .005)[i],
+        "StageHealthScaleFactor": (1, .5, .2)[i],
+        "CEArmorDurabilityFactor": (1, .5, .2)[i],
+        "HungerRateFactor": (1, .6, .3)[i],
+        "FilthRate": (1, .5, .3)[i],
+        "MeleeDodgeChance": (1, 1.2, 1.5)[i],
+        "MeleeCritChance": (1, .9, .8)[i],
+        "MeleeParryChance": (1, .85, .65)[i],
         "ArmorRating_Sharp": "",
         "ArmorRating_Blunt": "",
-        "ArmorRating_Sharp_CE": (1, .8, .5, .2)[i],
-        "ArmorRating_Blunt_CE": (1, .9, .6, .3)[i],
-        "CombatPowerFactor": (1, .8, .4, .2)[i],
-        "MarketValueFactor": (1, .75, .5, .25)[i],
+        "ArmorRating_Sharp_CE": (1, .8, .5)[i],
+        "ArmorRating_Blunt_CE": (1, .9, .6)[i],
+        "CombatPowerFactor": (1, .8, .4)[i],
+        "MarketValueFactor": (1, .75, .5)[i],
         "CalculationStatus": "READY",
         "ToolStatus": "READY",
         "ToolCount": 0,
         "ToolRecordsV2": "",
     } for i, group in enumerate(STAGE_GROUPS)])
-    return profiles, profiles, animals, fixture()
+    return profiles, profiles, animals
 
 
 def tool_record(v_index=1, ce_index=3, label="left claw", group="FrontLeftPaw",
@@ -74,10 +79,8 @@ class SpeciesLifeStageProfilesTests(unittest.TestCase):
         args[0] = args[0].copy()
         args[0].at[2, "LifeStageDef"] = "SpectrobiontaImago"
         args[0].at[2, "StageHealthScaleFactor"] = 1
-        args[0].at[2, "ExpectedBodySizeFactor"] = 1
         args[0].at[2, "StageBodySize"] = 1
         args[0].at[3, "LifeStageDef"] = "SpectrobiontaLarvaMedium"
-        args[0].at[3, "ExpectedBodySizeFactor"] = .5
         args[0].at[3, "StageBodySize"] = .5
         args[0].at[3, "StageHealthScaleFactor"] = .48
         args[1] = args[0]
@@ -148,11 +151,13 @@ class SpeciesLifeStageProfilesTests(unittest.TestCase):
         args = list(sources())
         args[0] = args[0].copy()
         args[0].at[2, "StageBodySize"] = .1
+        args[0].at[2, "MassDerivedStageBodySize"] = .1
+        args[0].at[2, "MassDerivedBodySizeFactor"] = .1
         args[0].at[2, "StageHealthScaleFactor"] = .1
         args[1] = args[0]
         xml, _ = render(*args)
         baby = [n for n in nodes(xml) if n.findtext("sourceStageDefName") == "AnimalBaby"][0]
-        self.assertEqual(baby.findtext("expectedBodySizeFactor"), "0.2")
+        self.assertIsNone(baby.find("expectedBodySizeFactor"))
         self.assertEqual(baby.findtext("bodySizeFactor"), "0.1")
         self.assertEqual(baby.findtext("healthScaleFactor"), "0.1")
 
@@ -327,9 +332,10 @@ class SpeciesLifeStageProfilesTests(unittest.TestCase):
         xml, _ = render(*args)
         self.assertIn(b"OptionalModAnimal", xml)
 
-    def test_neutral_adult_has_no_specialized_stage(self):
+    def test_adult_has_explicit_species_def_even_if_factor_is_one(self):
         xml, _ = render(*sources())
-        self.assertNotIn(b"<sourceStageDefName>AnimalAdult</sourceStageDefName>", xml)
+        self.assertIn(b"<sourceStageDefName>AnimalAdult</sourceStageDefName>", xml)
+        self.assertNotIn(b"AnimalBabyTiny", xml)
 
 
 if __name__ == "__main__":
