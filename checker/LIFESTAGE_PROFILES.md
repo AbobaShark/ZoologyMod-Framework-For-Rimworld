@@ -96,6 +96,33 @@ movement reference are raised to that estimate within AnimalStats;
 existing higher model values remain intact. This is an explicit
 functional-stage assumption, not published measurements for every species.
 
+For non-avian Dinosauria Baby stages, the service-speed estimate also
+includes an ontogenetic locomotor ceiling relative to that species'
+actual Juvenile stage. Let the real Baby and Juvenile masses be mB and mJ,
+and the recalculated Juvenile maximum be vJ. Equal-Froude dynamic
+similarity gives a reference v0 = vJ × (mB/mJ)^(1/6); because Baby is
+an entire functional age interval rather than the instant of hatching,
+the midpoint on the log-speed scale is used:
+
+    vBaby = min(vSpeciesModel(mB), sqrt(v0 × vJ))
+          = min(vSpeciesModel(mB), vJ × (mB/mJ)^(1/12))
+
+The 1/12 power is derived from the 1/6 length/dynamic-similarity
+scaling and the geometric midpoint, not an independent game-balance
+constant. This is a **conservative developmental estimate**, not an
+empirically established bound on every dinosaur's maximum running
+speed. It preserves Juvenile advantages for giant theropods and does
+not alter pterosaurs, mammals, or birds. The specific relation is
+maintained in `SERVICE_LifeStageCalculations!DZ` and automatically
+responds to both stage masses and the Juvenile speed. Biomechanics:
+https://www.nature.com/articles/s41467-024-46269-w and
+https://pmc.ncbi.nlm.nih.gov/articles/PMC6527699/.
+
+`LifeStageProfiles.CalculationStatus` now checks that **both**
+`SpeedFactor` and `CE_SpeedFactor` are positive numeric outputs,
+as well as mass, size, food and attack readiness; a blank CE speed must
+not be masked by the "READY" label.
+
 Mass-dependent speed expressions in `Base stats!M` that have been copied
 into the service sheet must be reviewed if their *formula itself* changes;
 changes to referenced adult masses and other numeric parameters flow
@@ -113,10 +140,12 @@ LifeStageProfiles selects an age-stage family from
 Harpactotyrannus additionally uses the medium predimago (400 kg)
 between the small and large predimagos. No `AnimalBabyTiny`
 artifact should be generated for spectrobionts.
-The custom LifeStageDefs retain only common visual, life-cycle, body
-size and movement factors in the source mod. Zoology supplies
-species-specific health, feeding, armor, market value, attack damage,
-cooldown, CE penetration and combat power from evaluated AnimalStats.
+The source Spectrobionta LifeStageDefs retain labels, sound and
+life-cycle flags only (such as reproductive, milkable and rideable);
+there are no shared size, movement, health or combat multipliers.
+Zoology supplies mass-dependent size, movement, health, feeding,
+armor, market value, attack damage, cooldown, CE penetration and
+combat power from evaluated AnimalStats.
 Gameplay gated by stage must not compare the runtime stage DefName to
 its original: Zoology clones that Def under a species-specific name.
 Use the race's stage index or resolve the source-stage provenance.
