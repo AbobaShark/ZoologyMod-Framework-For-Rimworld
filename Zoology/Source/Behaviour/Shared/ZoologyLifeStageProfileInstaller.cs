@@ -245,7 +245,11 @@ namespace ZoologyMod
                         replacement.statFactors.Add(new StatModifier
                         {
                             stat = modifier.stat,
-                            value = modifier.value
+                            // Per-Tool cooldowns are already mass-scaled by
+                            // AnimalStats. Do not multiply them by a generic
+                            // cooldown inherited from another LifeStageDef.
+                            value = modifier.stat?.defName == "MeleeCooldownFactor"
+                                ? 1f : modifier.value
                         });
                     }
                 }

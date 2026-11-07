@@ -23,6 +23,7 @@ class StageTopologyTests(unittest.TestCase):
         code = (ROOT/"Zoology/Source/Behaviour/Shared/ZoologyLifeStageProfileInstaller.cs").read_text("utf-8")
         self.assertIn('profile.sourceStageDefName == "AnimalBaby" && source.defName == "AnimalBabyTiny"', code)
         self.assertNotIn("profile.expectedBodySizeFactor", code)
+        self.assertIn('modifier.stat?.defName == "MeleeCooldownFactor"', code)
 
     def test_royal_five_and_spectrobionta_six_source_identities(self):
         self.assertEqual(len(ROYAL_STAGES), 5)
