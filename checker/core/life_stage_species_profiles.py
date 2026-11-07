@@ -27,6 +27,7 @@ _TOOL_FIELDS = (
 )
 _STAT_FIELDS = (
     ("SpeedFactor", "MoveSpeed", False),
+    ("CE_SpeedFactor", "MoveSpeed", True),
     ("FilthRate", "FilthRate", False),
     ("CE_MeleeDodgeChance", "MeleeDodgeChance", True),
     ("CE_MeleeCritChance", "MeleeCritChance", True),
@@ -206,7 +207,8 @@ def render_species_life_stage_profiles(species_profiles, attacks,
         "XML name", "LifeStageDef", "BiologicalStageMass_kg",
         "StageBodySize", "bodySizeFactor",
         "StageHealthScaleFactor", "CE_ArmorDurabilityFactor",
-        "HungerRateFactor", "CalculationStatus",
+        "HungerRateFactor", "SpeedFactor", "CE_SpeedFactor",
+        "CalculationStatus",
     }
     missing = required - set(species_profiles.columns)
     if missing:
@@ -288,6 +290,11 @@ def render_species_life_stage_profiles(species_profiles, attacks,
                            f"{label} row {number} stage hunger factor")
         food_max = _number(row.get("FoodMaxFactor"),
                            f"{label} row {number} FoodMaxFactor")
+        _required(row.get("SpeedFactor"),
+                  f"{label} row {number} Vanilla speed factor")
+        if ce:
+            _required(row.get("CE_SpeedFactor"),
+                      f"{label} row {number} CE speed factor")
         stats = []
         for column, stat_name, ce_only in _STAT_FIELDS:
             if ce_only and not ce:

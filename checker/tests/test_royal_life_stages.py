@@ -23,6 +23,7 @@ class RoyalLifeStageTests(unittest.TestCase):
             "HungerRateFactor":factor,
             "FoodMaxFactor":mass/25,
             "SpeedFactor":factor,
+            "CE_SpeedFactor":factor,
             "CombatPowerFactor":factor,
             "MarketValueFactor":factor,
             "CE_ArmorDurabilityFactor":factor,

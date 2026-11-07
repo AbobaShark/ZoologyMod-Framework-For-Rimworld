@@ -22,6 +22,7 @@ def sources(base_size=1):
         "StageBodySize": base_size * (1, .5, .2)[i],
         "bodySizeFactor": (1, .5, .2)[i],
         "SpeedFactor": (1, .85, .65)[i],
+        "CE_SpeedFactor": (1, .9, .62)[i],
         "FoodMaxFactor": (1, .2, .005)[i],
         "StageHealthScaleFactor": (1, .5, .2)[i],
         "CE_ArmorDurabilityFactor": (1, .5, .2)[i],
@@ -94,6 +95,38 @@ class SpeciesLifeStageProfilesTests(unittest.TestCase):
         stages = [node.findtext("sourceStageDefName") for node in nodes(xml)]
         self.assertIn("EusocialInsectLarva", stages)
         self.assertEqual(info.get("species_rows_incomplete", 0), 0)
+
+
+    def test_vanilla_and_ce_speed_are_two_independent_outputs(self):
+        xml, _ = render(*sources(), ce=True)
+        baby = [node for node in nodes(xml)
+                if node.findtext("sourceStageDefName") == "AnimalBaby"][0]
+        speeds = baby.xpath("./statFactors/li[stat='MoveSpeed']")
+        self.assertEqual(len(speeds), 2)
+        self.assertEqual(speeds[0].findtext("factor"), "0.65")
+        self.assertIsNone(speeds[0].find("ceOnly"))
+        self.assertEqual(speeds[1].findtext("factor"), "0.62")
+        self.assertEqual(speeds[1].findtext("ceOnly"), "true")
+        vanilla, _ = render(*sources(), ce=False)
+        vanilla_baby = [node for node in nodes(vanilla)
+                        if node.findtext("sourceStageDefName") == "AnimalBaby"][0]
+        vanilla_speeds = vanilla_baby.xpath("./statFactors/li[stat='MoveSpeed']")
+        self.assertEqual(len(vanilla_speeds), 1)
+        self.assertEqual(vanilla_speeds[0].findtext("factor"), "0.65")
+
+    def test_missing_mode_specific_speed_fails_closed(self):
+        args = list(sources())
+        args[0] = args[0].copy()
+        args[0].at[2, "CE_SpeedFactor"] = ""
+        args[1] = args[0]
+        with self.assertRaisesRegex(ValueError, "CE speed factor"):
+            render(*args, ce=True)
+        vanilla, _ = render(*args, ce=False)
+        self.assertTrue(nodes(vanilla))
+        args[0].at[2, "SpeedFactor"] = ""
+        args[1] = args[0]
+        with self.assertRaisesRegex(ValueError, "Vanilla speed factor"):
+            render(*args, ce=False)
 
     def test_ce_armor_is_separate_from_vanilla_armor(self):
         xml, _ = render(*sources())

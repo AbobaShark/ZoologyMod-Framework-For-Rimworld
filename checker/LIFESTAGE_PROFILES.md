@@ -21,6 +21,17 @@ the biological adult baseline, but Checker creates no species-specific Adult
 clone for the ordinary AnimalAdult/EusocialInsectAdult family. The Royal
 five-stage lifecycle and special Spectrobionta stages keep their identities.
 
+For ordinary animals, the Baby mass denotes **mass at birth or hatching**,
+but Baby speed represents the **whole functional stage until weaning or
+independent feeding**, not locomotion during the first hours of life.
+Altricial species have a documented, adjustable design estimate of about
+62% of adult *in-game* movement as a lower functional-stage reference;
+where the stage model already yields a higher value, it remains unchanged.
+The 62% reference is not a measured universal neonatal speed or a blanket
+rule for precocial mammals, reptiles or birds. In AnimalStats the
+`SpeedFactor` and `CE_SpeedFactor` are separate formula outputs, and the
+CE output overrides, rather than multiplies, the Vanilla MoveSpeed factor.
+
 For ordinary animals, the Juvenile biological mass is the arithmetic midpoint
 between Baby and Adult masses, implemented as a spreadsheet formula referencing
 both stage cells; it is not a published weaning mass. The mass contract rejects
@@ -68,21 +79,27 @@ combat getters and CE stat panel are distinct code paths. The status
 panel and both explanation paths use CE's original skill/stat factors
 with the generated per-Tool CE penetration ratios; no ToolCE is mutated.
 
-### Remaining age-size parity exception
+### Size-dependent movement model
 
-Core MoveSpeed still uses the common LifeStages.SpeedFactor =
-MROUND(bodySizeFactor^0.17,0.05). It is *not* the same operation as
-recalculating a species' Base stats speed model and the Animals/Animals CE
-movement mapping at the reduced StageMass_kg. The historical Warg example used a Juvenile mass derived from an obsolete
-weaning-stage model. All speed parity comparisons must be rerun using the
-current Adult/Baby midpoint masses; previously published numbers are no
-longer valid. This discrepancy is
-not silently treated as parity. Base stats!M contains empirical fixed
-speeds as well as distinct species formula families; there is no
-validated model for replacing every fixed-speed datum with a
-mass-dependent speed, so no invented species-independent coefficients
-are installed by Checker. Combat Power still uses the common age
-speed factor as long as this exception remains.
+AnimalStats computes `SERVICE_LifeStageCalculations!DZ` from the stage's
+real mass. Where `Base stats!M` is a mass-dependent species expression,
+it is evaluated at that stage mass. For species with only a fixed adult
+speed, the adult-normalized, unimodal mass–speed relation is used as a
+fall-back. `LifeStageProfiles.SpeedFactor` and `CE_SpeedFactor`
+contain separately calculated final in-game MoveSpeed ratios.
+
+The mass-based potential must be distinguished from the mobility of an
+age interval: altricial Baby includes the entire period until weaning,
+while precocial hatchlings and young ungulates develop locomotion
+much earlier. For altricial Baby, values falling below the 0.62 adult
+movement reference are raised to that estimate within AnimalStats;
+existing higher model values remain intact. This is an explicit
+functional-stage assumption, not published measurements for every species.
+
+Mass-dependent speed expressions in `Base stats!M` that have been copied
+into the service sheet must be reviewed if their *formula itself* changes;
+changes to referenced adult masses and other numeric parameters flow
+through normally. Checker and Zoology only consume evaluated numbers.
 
 ## Spectrobionta life stages
 
