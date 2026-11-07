@@ -126,6 +126,31 @@ class LifeStageMassContractTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "mixed incompatible"):
             audit_mass_profiles(rows, require_complete=True)
 
+    def test_four_stage_harpactotyrannus_preserves_older_predimago_cycles(self):
+        forms = (
+            "SpectrobiontaPredimagoSmall",
+            "SpectrobiontaPredimagoMedium",
+            "SpectrobiontaPredimago",
+            "SpectrobiontaImago",
+        )
+        masses = (50, 400, 1500, 8540)
+        harpactotyrannus = pd.DataFrame([
+            entry("Harpactotyrannus", stage, 8540, mass, mass / 8540)
+            for stage, mass in zip(forms, masses)
+        ])
+        report = audit_mass_profiles(harpactotyrannus, require_complete=True)
+        self.assertEqual(report["complete_mass_series"], 1)
+
+        # Omitting only the optional medium stage remains valid for other races.
+        legacy = harpactotyrannus.drop(index=1)
+        self.assertEqual(
+            audit_mass_profiles(legacy, require_complete=True)["complete_mass_series"], 1
+        )
+        # Omitting a required large predimago is never valid.
+        incomplete = harpactotyrannus.drop(index=2)
+        with self.assertRaisesRegex(ValueError, "lifecycle stages"):
+            audit_mass_profiles(incomplete, require_complete=True)
+
     def test_thrumbo_and_alpha_thrumbo_empirical_ungulate_reconstruction(self):
         # Neonatal estimates use published large-herbivore mass regressions.
         # Juvenile is defined by the Adult/Baby midpoint, not weaning mass.
