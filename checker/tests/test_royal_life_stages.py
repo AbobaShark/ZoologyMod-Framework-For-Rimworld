@@ -12,7 +12,7 @@ class RoyalLifeStageTests(unittest.TestCase):
         adult = pd.DataFrame([{"XML name":"<li>VAERoy_Megachicken</li>",
                                "baseBodySize":.35,"baseHungerRate":1}])
         masses = (.25, 10, 25, 65, 100)
-        factors = (.1, .6, .9, 1.4, 2)
+        factors = (.1, .6, 1, 1.4, 2)
         profiles = pd.DataFrame([{
             "XML name":"<li>VAERoy_Megachicken</li>",
             "LifeStageDef":stage[0],
@@ -20,13 +20,13 @@ class RoyalLifeStageTests(unittest.TestCase):
             "ExpectedBaseHungerRate":1,
             "StageBodySize":.35*factor,
             "StageMass_kg":mass,
-            "AdultMass_kg":100,
+            "AdultMass_kg":25,
             "BiologicalStageMass_kg":mass,
             "MassDerivedStageBodySize":.35*factor,
             "MassDerivedBodySizeFactor":factor,
             "StageHealthScaleFactor":factor,
             "HungerRateFactor":factor,
-            "FoodMaxFactor":mass/100,
+            "FoodMaxFactor":mass/25,
             "SpeedFactor":factor,
             "CombatPowerFactor":factor,
             "MarketValueFactor":factor,

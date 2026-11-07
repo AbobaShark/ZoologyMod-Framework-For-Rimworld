@@ -100,8 +100,9 @@ class LifeStageMassContractTests(unittest.TestCase):
             "VAERoy_AnimalAdultMax",
         )
         rows = pd.DataFrame([
-            entry("VAERoy_Megachicken", stage, 5, mass, .1 * (i+1))
-            for i, (stage, mass) in enumerate(zip(stages, (.1, .5, 1, 2, 5)))
+            entry("VAERoy_Megachicken", stage, 5, mass, factor)
+            for stage, mass, factor in zip(stages, (.1, .5, 5, 10, 20),
+                                            (.1, .2, 1, 2, 4))
         ])
         self.assertEqual(audit_mass_profiles(rows, require_complete=True)["stage_rows"], 5)
         with self.assertRaisesRegex(ValueError, "lifecycle stages"):

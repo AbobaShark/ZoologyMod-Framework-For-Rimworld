@@ -114,14 +114,16 @@ def audit_mass_profiles(profiles, *, require_complete=False):
         if not math.isclose(size / base_size, factor, rel_tol=2e-5, abs_tol=1e-8):
             invalid.append(f"{name}/{stage_name}: derived BodySize/factor mismatch")
 
-        is_adult = rank == (4 if family == "Royal" else 2)
+        # Royal megachickens reach their AnimalStats reference adult mass at
+        # the third of five real stages; growth continues afterwards.
+        # Last-stage mass is NOT the mass of an ordinary adult chicken.
+        is_adult = rank == 2
         if is_adult and not math.isclose(mass, adult, rel_tol=1e-6):
-            # A megachicken can have radically different late-age masses;
-            # its reference adult mass is the final-stage mass, not the
-            # ancestor's base mass in 'Base stats'.
-            invalid.append(f"{name}/{stage_name}: terminal mass must equal AdultMass_kg")
-        if not is_adult and mass >= adult:
-            invalid.append(f"{name}/{stage_name}: young mass must be below adult mass")
+            invalid.append(f"{name}/{stage_name}: reference adult stage must equal AdultMass_kg")
+        if rank < 2 and mass >= adult:
+            invalid.append(f"{name}/{stage_name}: preadult mass must be below adult mass")
+        if family == "Royal" and rank > 2 and mass <= adult:
+            invalid.append(f"{name}/{stage_name}: late growth must exceed the reference adult mass")
         if is_adult and method != "ADULT_ANIMALSTATS":
             invalid.append(f"{name}/{stage_name}: missing adult mass provenance")
         if not is_adult and method not in METHODS:
