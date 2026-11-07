@@ -86,20 +86,23 @@ speed factor as long as this exception remains.
 
 ## Spectrobionta life stages
 
-AnimalStats LifeStageProfiles contains six custom stage identities owned by the
-`Spectrobionta` source: `SpectrobiontaImago`,
-`SpectrobiontaPredimago`, `SpectrobiontaPredimagoSmall`,
-`SpectrobiontaLarvaLarge`, `SpectrobiontaLarvaMedium` and
-`SpectrobiontaLarvaSmall`. LifeStageProfiles selects an age-stage
-family from the group-level `Groups.LifeStageProfileFamily` column.
-Three actual stages per species are passed to Checker; no
-`AnimalBabyTiny` artifact should be generated for spectrobionts.
+AnimalStats LifeStageProfiles contains seven custom stage identities owned by
+the `Spectrobionta` source: `SpectrobiontaImago`,
+`SpectrobiontaPredimago`, `SpectrobiontaPredimagoMedium`,
+`SpectrobiontaPredimagoSmall`, `SpectrobiontaLarvaLarge`,
+`SpectrobiontaLarvaMedium` and `SpectrobiontaLarvaSmall`.
+LifeStageProfiles selects an age-stage family from
+`Groups.LifeStageProfileFamily`. Most species use three stages;
+Harpactotyrannus additionally uses the medium predimago (400 kg)
+between the small and large predimagos. No `AnimalBabyTiny`
+artifact should be generated for spectrobionts.
 The custom LifeStageDefs retain only common visual, life-cycle, body
 size and movement factors in the source mod. Zoology supplies
 species-specific health, feeding, armor, market value, attack damage,
 cooldown, CE penetration and combat power from evaluated AnimalStats.
-The original source stage identity must be used when implementing
-life-stage-gated gameplay in the source mod.
+Gameplay gated by stage must not compare the runtime stage DefName to
+its original: Zoology clones that Def under a species-specific name.
+Use the race's stage index or resolve the source-stage provenance.
 
 ## Current generated artifacts
 
