@@ -77,6 +77,9 @@ class SpeciesLifeStageProfilesTests(unittest.TestCase):
         args[0].at[2, "ExpectedBodySizeFactor"] = 1
         args[0].at[2, "StageBodySize"] = 1
         args[0].at[3, "LifeStageDef"] = "SpectrobiontaLarvaMedium"
+        args[0].at[3, "ExpectedBodySizeFactor"] = .5
+        args[0].at[3, "StageBodySize"] = .5
+        args[0].at[3, "StageHealthScaleFactor"] = .48
         args[1] = args[0]
         xml, diagnostics = render(*args)
         defs = [node.findtext("sourceStageDefName") for node in nodes(xml)]
