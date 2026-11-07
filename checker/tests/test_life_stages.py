@@ -23,7 +23,27 @@ class StageTopologyTests(unittest.TestCase):
         code = (ROOT/"Zoology/Source/Behaviour/Shared/ZoologyLifeStageProfileInstaller.cs").read_text("utf-8")
         self.assertIn('profile.sourceStageDefName == "AnimalBaby" && source.defName == "AnimalBabyTiny"', code)
         self.assertNotIn("profile.expectedBodySizeFactor", code)
-        self.assertIn('modifier.stat?.defName == "MeleeCooldownFactor"', code)
+        self.assertIn("IsAgePhysicalStatFactor(modifier.stat)", code)
+        self.assertIn("bool changed = false;", code)
+        self.assertIn('case "MeleeCooldownFactor":', code)
+        self.assertIn('case "Zoology_MeleeCooldownFactor":', code)
+        self.assertIn('case "MoveSpeed":', code)
+        self.assertIn('case "MeleeCritChance":', code)
+        self.assertIn('case "MeleeParryChance":', code)
+
+    def test_obsolete_universal_physical_age_patches_are_deleted(self):
+        retired = (
+            "Core/Patches/Core/LifeStageDefs/LifeStages.xml",
+            "Core/Patches/Core/LifeStageDefs/CombatPowerFactors.xml",
+            "ModPatches/CombatExtended/Patches/LifeStageDefs/LifeStages_CE.xml",
+            "ModPatches/VanillaAnimalsExpandedRoyal/Patches/LifeStageDefs/LifeStages_VAER.xml",
+            "ModPatches/VanillaAnimalsExpandedRoyal/Patches/LifeStageDefs/CombatPowerFactors_VAER.xml",
+            "ModPatches/CombatExtended/Patches/LifeStageDefs/LifeStages_VAER_CE.xml",
+        )
+        for path in retired:
+            with self.subTest(path=path):
+                self.assertFalse((ROOT / "Zoology" / path).exists())
+        self.assertTrue((ROOT / "Zoology/Core/Patches/Core/LifeStageDefs/LifeStages_Insect.xml").is_file())
 
     def test_royal_five_and_spectrobionta_six_source_identities(self):
         self.assertEqual(len(ROYAL_STAGES), 5)
