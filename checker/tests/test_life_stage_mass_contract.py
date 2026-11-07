@@ -145,19 +145,20 @@ class LifeStageMassContractTests(unittest.TestCase):
         result = audit_mass_profiles(pd.DataFrame(records), require_complete=True)
         self.assertEqual(result["complete_mass_series"], 2)
 
-    def test_lockjaw_hatching_is_grounded_but_juvenile_is_not_yet(self):
-        # Crocodilia n=11 hatchling allometry predicts 0.15448 kg at 1,000 kg.
-        # An invented intermediate mass must not make the profile pass.
-        rows = pd.DataFrame([
+    def test_lockjaw_crocodilian_birth_and_juvenile_ontogeny(self):
+        # Birth: 11 Crocodilia taxa (Myhrvold 2015).
+        # Juvenile: Crocodylus acutus field-survey mean length ratios
+        # (Mauger et al. 2012), cubed under geometric similarity.
+        series = pd.DataFrame([
             entry("AA_Lockjaw", CORE[0], 1000, .1544824169172378,
                   .020138429632334313, source="GROUP_ALLOMETRY"),
+            entry("AA_Lockjaw", CORE[1], 1000, 23.197660635657314,
+                  .22902704159936202, source="PHYLOGENETIC_ANALOG"),
             entry("AA_Lockjaw", CORE[2], 1000, 1000),
         ])
-        summary = audit_mass_profiles(rows)
-        self.assertEqual(summary["complete_mass_series"], 0)
-        self.assertEqual(summary["invalid_count"], 1)
-        with self.assertRaisesRegex(ValueError, "Incomplete biological"):
-            audit_mass_profiles(rows, require_complete=True)
+        summary = audit_mass_profiles(series, require_complete=True)
+        self.assertEqual(summary["complete_mass_series"], 1)
+        self.assertEqual(summary["invalid_count"], 0)
 
     def test_tasmanian_devil_neonate_below_mass_band_minimum(self):
         # Direct Amniote Life-History Database neonatal mass: 21.75 mg.
