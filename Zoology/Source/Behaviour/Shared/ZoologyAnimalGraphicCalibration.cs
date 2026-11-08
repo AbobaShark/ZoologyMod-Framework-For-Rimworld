@@ -1,26 +1,43 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using RimWorld;
 using UnityEngine;
 using Verse;
 
 namespace ZoologyMod
 {
-    // Graphic identity changes need a separate calibration: drawSize measures
-    // the textured quad, not the visible animal. A uniform correction per run
-    // of identical artwork retains the existing daily growth curve.
+    // Calibrate only transitions to a different body texture. A visible
+    // silhouette, rather than the whole drawSize quad, sets their size.
+    // Identical-texture stages keep the original daily interpolation.
     internal static class ZoologyAnimalGraphicCalibration
     {
         private const int SampleAxis = 192;
         private const byte AlphaThreshold = 32;
         private const float TrimmedAlphaFraction = 0.01f;
 
-        // Only kinds actually rendered while growing are examined. Neither
-        // the texture nor the kind is rescanned for subsequent pawns/days.
-        private static readonly Dictionary<PawnKindDef, float[][]> ByKind =
-            new Dictionary<PawnKindDef, float[][]>();
-        private static readonly Dictionary<Texture, float> ByTexture =
-            new Dictionary<Texture, float>();
+        private struct Footprint
+        {
+            internal float width;
+            internal float height;
+            internal float areaDiameter;
+
+            internal bool Valid => width > 0f && height > 0f
+                && areaDiameter > 0f;
+        }
+
+        private sealed class KindCalibration
+        {
+            internal float[] factors;
+            internal string[] transitions;
+        }
+
+        // Both caches are shared by all pawns. Neither PNG inspection nor GPU
+        // readback occurs inside the daily growth calculation or every draw.
+        private static readonly Dictionary<PawnKindDef, KindCalibration[]> ByKind =
+            new Dictionary<PawnKindDef, KindCalibration[]>();
+        private static readonly Dictionary<Texture, Footprint> ByTexture =
+            new Dictionary<Texture, Footprint>();
 
         internal static float StageFactor(PawnKindDef kind, int stageIndex, bool female)
         {
@@ -28,115 +45,166 @@ namespace ZoologyMod
                 || stageIndex >= kind.lifeStages.Count)
                 return 1f;
 
-            float[][] variants;
+            return GetOrBuild(kind, female).factors[stageIndex];
+        }
+
+        internal static void AppendDiagnostics(PawnKindDef kind, bool female, StringBuilder output)
+        {
+            if (kind?.lifeStages == null || output == null)
+                return;
+            KindCalibration calibration = GetOrBuild(kind, female);
+            output.Append("Graphic calibration (")
+                .Append(female ? "female" : "default")
+                .AppendLine("):");
+            for (int i = 0; i < calibration.factors.Length; i++)
+            {
+                output.Append("  stage ").Append(i).Append(": x")
+                    .Append(calibration.factors[i].ToString("0.####"));
+                if (!string.IsNullOrEmpty(calibration.transitions[i]))
+                    output.Append("; ").Append(calibration.transitions[i]);
+                output.AppendLine();
+            }
+        }
+
+        private static KindCalibration GetOrBuild(PawnKindDef kind, bool female)
+        {
+            KindCalibration[] variants;
             if (!ByKind.TryGetValue(kind, out variants))
             {
-                variants = new float[2][];
+                variants = new KindCalibration[2];
                 ByKind.Add(kind, variants);
             }
+
             int variant = female ? 1 : 0;
             if (variants[variant] == null)
                 variants[variant] = Build(kind, female);
-            return variants[variant][stageIndex];
+            return variants[variant];
         }
 
-        private static float[] Build(PawnKindDef kind, bool female)
+        private static KindCalibration Build(PawnKindDef kind, bool female)
         {
             var stages = kind.lifeStages;
             int count = stages.Count;
-            var factors = new float[count];
+            var result = new KindCalibration
+            {
+                factors = new float[count],
+                transitions = new string[count]
+            };
             for (int i = 0; i < count; i++)
-                factors[i] = 1f;
+                result.factors[i] = 1f;
 
-            // Keep the last/adult stage at its authored scale. Work backwards:
-            // on a graphic change, the outgoing artwork at the next stage's
-            // drawSize must occupy the same visible area as the incoming art.
-            // Constant factors for contiguous stages with the same texPath
-            // preserve their original relative sizes and interpolation.
+            // Adult artwork remains at its authored scale. Work backwards.
+            // All adjacent stages with the same artwork inherit one common
+            // factor and therefore keep their original relative growth.
             for (int i = count - 2; i >= 0; i--)
             {
-                factors[i] = factors[i + 1];
-                GraphicData from = stages[i]?.bodyGraphicData;
-                GraphicData to = stages[i + 1]?.bodyGraphicData;
-                if (female)
-                {
-                    from = stages[i]?.femaleGraphicData ?? from;
-                    to = stages[i + 1]?.femaleGraphicData ?? to;
-                }
+                result.factors[i] = result.factors[i + 1];
+                GraphicData from = GraphicForStage(stages[i], female);
+                GraphicData to = GraphicForStage(stages[i + 1], female);
                 if (from == null || to == null
                     || string.IsNullOrEmpty(from.texPath)
                     || string.IsNullOrEmpty(to.texPath)
                     || string.Equals(from.texPath, to.texPath, StringComparison.Ordinal))
                     continue;
 
-                float sourceFootprint;
-                float targetFootprint;
-                if (!TryVisibleFootprint(from, out sourceFootprint)
-                    || !TryVisibleFootprint(to, out targetFootprint))
+                Footprint[] source;
+                Footprint[] target;
+                if (!TryFacings(from, out source) || !TryFacings(to, out target))
+                {
+                    result.transitions[i] = from.texPath + " -> " + to.texPath
+                        + ": cannot inspect both silhouettes; native scale retained";
                     continue;
+                }
 
-                float factor = factors[i + 1] * targetFootprint / sourceFootprint;
-                if (factor > 0f && !float.IsNaN(factor) && !float.IsInfinity(factor))
-                    factors[i] = factor;
+                // Preserve size in every supported cardinal view, instead of
+                // comparing median bounding boxes. The minimum of the width,
+                // height and sqrt(alpha area) ratios is conservative: an
+                // outgoing animal cannot be larger on any of these measures
+                // immediately before the incoming texture appears.
+                float ratio = float.PositiveInfinity;
+                int matched = 0;
+                for (int direction = 0; direction < 4; direction++)
+                {
+                    if (!source[direction].Valid || !target[direction].Valid)
+                        continue;
+                    ratio = Mathf.Min(ratio, target[direction].width / source[direction].width);
+                    ratio = Mathf.Min(ratio, target[direction].height / source[direction].height);
+                    ratio = Mathf.Min(ratio, target[direction].areaDiameter
+                        / source[direction].areaDiameter);
+                    matched++;
+                }
+
+                if (matched == 0 || !(ratio > 0f)
+                    || float.IsNaN(ratio) || float.IsInfinity(ratio))
+                {
+                    result.transitions[i] = from.texPath + " -> " + to.texPath
+                        + ": no comparable facings; native scale retained";
+                    continue;
+                }
+
+                // A transition that is already increasing must not enlarge
+                // the previous artwork and make its other directions oversized.
+                // Upward size jumps are preferable to reversal of growth.
+                float correction = Mathf.Min(1f, ratio);
+                result.factors[i] = result.factors[i + 1] * correction;
+                result.transitions[i] = from.texPath + " -> " + to.texPath
+                    + "; silhouette ratio " + ratio.ToString("0.####")
+                    + "; applied x" + correction.ToString("0.####")
+                    + "; directions " + matched;
             }
-            return factors;
+            return result;
         }
 
-        private static bool TryVisibleFootprint(GraphicData data, out float footprint)
+        private static GraphicData GraphicForStage(PawnKindLifeStage stage, bool female)
         {
-            footprint = 0f;
+            if (stage == null)
+                return null;
+            return female ? stage.femaleGraphicData ?? stage.bodyGraphicData
+                : stage.bodyGraphicData;
+        }
+
+        private static bool TryFacings(GraphicData data, out Footprint[] measures)
+        {
+            measures = new Footprint[4];
             try
             {
-                Graphic graphic = data.Graphic;
-                if (graphic == null && data.graphicClass == null)
-                {
-                    // Some animal graphics omit graphicClass in XML. The
-                    // normal animal body renderer uses a directional graphic;
-                    // resolve that texture without changing the original def.
-                    graphic = GraphicDatabase.Get<Graphic_Multi>(
-                        data.texPath, ShaderDatabase.Cutout, data.drawSize, data.color);
-                }
+                // GraphicData.Graphic is null when graphicClass is unset. In
+                // animal stages the renderer uses a directional Graphic_Multi.
+                Graphic graphic = data.graphicClass == null
+                    ? GraphicDatabase.Get<Graphic_Multi>(
+                        data.texPath, ShaderDatabase.Cutout, data.drawSize, data.color)
+                    : data.Graphic;
                 if (graphic == null)
                     return false;
 
-                // Use the median of the four facings. A curled tail or an
-                // unusual posture in one direction must not set the scale of
-                // the entire pawn and cause the size to change on turning.
-                var directions = new[] { Rot4.North, Rot4.East, Rot4.South, Rot4.West };
-                var measures = new float[4];
-                int count = 0;
+                Rot4[] directions = { Rot4.North, Rot4.East, Rot4.South, Rot4.West };
+                int valid = 0;
                 for (int i = 0; i < directions.Length; i++)
                 {
-                    Material material = graphic.MatAt(directions[i]);
-                    Texture texture = material?.mainTexture;
-                    float measured;
-                    if (texture != null && TryTextureFootprint(texture, out measured))
-                        measures[count++] = measured;
+                    Texture texture = graphic.MatAt(directions[i])?.mainTexture;
+                    Footprint measure;
+                    if (texture != null && TryTextureFootprint(texture, out measure))
+                    {
+                        measures[i] = measure;
+                        valid++;
+                    }
                 }
-
-                if (count == 0)
-                    return false;
-                Array.Sort(measures, 0, count);
-                footprint = (count & 1) == 0
-                    ? (measures[count / 2 - 1] + measures[count / 2]) * 0.5f
-                    : measures[count / 2];
-                return footprint > 0f;
+                return valid > 0;
             }
             catch (Exception ex)
             {
-                Log.Warning("[Zoology] Cannot calibrate animal graphic "
-                    + data.texPath + ": " + ex.GetType().Name
-                    + ". Using its authored drawSize.");
+                Log.Warning("[Zoology] Cannot inspect animal graphic " + data.texPath
+                    + ": " + ex.GetType().Name + "; using original draw scale.");
                 return false;
             }
         }
 
-        private static bool TryTextureFootprint(Texture texture, out float value)
+        private static bool TryTextureFootprint(Texture texture, out Footprint value)
         {
             if (ByTexture.TryGetValue(texture, out value))
-                return value > 0f;
+                return value.Valid;
 
-            value = 0f;
+            value = default(Footprint);
             try
             {
                 Texture2D readable = texture as Texture2D;
@@ -146,26 +214,23 @@ namespace ZoologyMod
             }
             catch (Exception ex)
             {
-                Log.Warning("[Zoology] Cannot inspect alpha of animal texture "
-                    + texture.name + ": " + ex.GetType().Name
-                    + ". Falling back to uncalibrated rendering.");
+                Log.Warning("[Zoology] Cannot read animal texture alpha "
+                    + texture.name + ": " + ex.GetType().Name);
             }
 
-            if (!(value > 0f) || float.IsNaN(value) || float.IsInfinity(value))
-                value = 0f;
+            if (!value.Valid)
+                value = default(Footprint);
             ByTexture.Add(texture, value);
-            return value > 0f;
+            return value.Valid;
         }
 
-        private static float MeasureGpuCopy(Texture source)
+        private static Footprint MeasureGpuCopy(Texture source)
         {
             RenderTexture previous = RenderTexture.active;
             RenderTexture target = null;
             Texture2D copy = null;
             try
             {
-                // Many RimWorld textures are not CPU-readable. Perform a
-                // single bounded GPU readback, never once per frame or day.
                 target = RenderTexture.GetTemporary(
                     SampleAxis, SampleAxis, 0, RenderTextureFormat.ARGB32);
                 Graphics.Blit(source, target);
@@ -185,19 +250,19 @@ namespace ZoologyMod
             }
         }
 
-        private static float Measure(Color32[] pixels, int width, int height)
+        private static Footprint Measure(Color32[] pixels, int width, int height)
         {
+            Footprint empty = default(Footprint);
             if (pixels == null || width <= 0 || height <= 0
                 || pixels.Length < (long)width * height)
-                return 0f;
+                return empty;
 
             int step = Math.Max(1, (Math.Max(width, height) + SampleAxis - 1) / SampleAxis);
             int cols = (width + step - 1) / step;
             int rows = (height + step - 1) / step;
-            var xWeights = new long[cols];
-            var yWeights = new long[rows];
+            long[] xWeights = new long[cols];
+            long[] yWeights = new long[rows];
             long total = 0;
-
             for (int y = 0, iy = 0; y < height; y += step, iy++)
             {
                 int offset = y * width;
@@ -213,23 +278,25 @@ namespace ZoologyMod
             }
 
             if (total == 0)
-                return 0f;
+                return empty;
 
-            // Trim one percent of alpha mass at each edge to reduce the
-            // influence of stray pixels, tails and antialiased fringes.
             long trim = Math.Max(1L, (long)(total * TrimmedAlphaFraction));
             int minX = PercentileFromStart(xWeights, trim);
             int maxX = PercentileFromEnd(xWeights, trim);
             int minY = PercentileFromStart(yWeights, trim);
             int maxY = PercentileFromEnd(yWeights, trim);
             if (maxX < minX || maxY < minY)
-                return 0f;
+                return empty;
 
-            float fractionX = Mathf.Min(1f, (maxX - minX + 1f) * step / width);
-            float fractionY = Mathf.Min(1f, (maxY - minY + 1f) * step / height);
-            // Geometric mean is invariant under X/Y swaps due to orientation
-            // and supplies one uniform (non-distorting) root scale factor.
-            return Mathf.Sqrt(fractionX * fractionY);
+            return new Footprint
+            {
+                width = Mathf.Min(1f, (maxX - minX + 1f) * step / width),
+                height = Mathf.Min(1f, (maxY - minY + 1f) * step / height),
+                // Square root turns occupied area into a linear size. Unlike
+                // a bounding rectangle it reacts to a solid, round chick
+                // versus a sparse silhouette with a long feathered tail.
+                areaDiameter = Mathf.Sqrt((float)total / (255f * cols * rows))
+            };
         }
 
         private static int PercentileFromStart(long[] weights, long threshold)
