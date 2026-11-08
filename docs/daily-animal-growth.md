@@ -34,13 +34,35 @@ The graphic's root transform interpolates a size-normalized footprint
 between the current and next stage. For each endpoint, divide the authored
 `bodyGraphicData.drawSize` by the square root of that stage's game
 `bodySizeFactor`; interpolate these normalized dimensions and multiply by
-the square root of the interpolated body factor. At the beginning of the stage,
-the transform equals 1, preserving the authored drawSize. At the next stage
-boundary it matches the next graphic's native drawSize, avoiding a size jump
-caused by changing the graphic. In particular, smaller authored juvenile
-drawSizes are no longer cancelled by the runtime scaling patch. This is a
-visual convention, not a conversion of kilograms to BodySize. The runtime
-never rebuilds the graphics or alters the underlying textures.
+the square root of the interpolated body factor. This is a visual convention,
+not a conversion of kilograms to BodySize.
+
+**Graphic changes are calibrated separately.** Authored drawSize describes
+the full texture quad, including transparent borders. For each PawnKindDef,
+the runtime finds contiguous runs of stages with identical `texPath`.
+A run with no graphic change retains the original interpolation unchanged.
+For a change of texPath, the outgoing and incoming artwork receive a
+per-run **uniform** scale calibration based on their visible alpha footprints.
+The final/adult run is the anchor (scale 1); preceding runs are calibrated
+backwards. Consequently an earlier artwork reaches the same *estimated
+visible size* that the next artwork has at the stage boundary. Two adjacent
+stages with the same graphic retain their original relative scaling, even
+when a later change of artwork requires a common calibration for that run.
+The original authored graphics, proportions, stage boundaries and biology
+are not modified.
+
+The visual footprint of each artwork is the median over the four directions
+of the geometric mean of the alpha silhouette's trimmed horizontal and
+vertical extents. Each edge discards 1% of cumulative alpha weight, to
+reduce interference from isolated pixels and thin trailing elements. These
+measurements estimate apparent size, not anatomical body length; dissimilar
+poses or shapes can still show a small visual difference. When alpha is
+unavailable, the original uncalibrated graphic scaling is used for that
+boundary. A texture is inspected at most once and measurements are cached
+across animals. CPU-readable textures are sampled directly; others receive
+a bounded 192x192 GPU readback. This occurs only when that PawnKindDef first
+needs rendering during growth, never every tick or every biological day.
+The runtime never rebuilds the graphics or changes the textures.
 
 Spectrobionta are interpolated between consecutive life stages *within the
 same race*: e.g. small -> medium -> large predimago when those stages exist
@@ -53,7 +75,8 @@ retain vanilla behavior. Actual stage transitions remain discrete.
 ## Performance design
 
 - One per-pawn snapshot is lazily recomputed once per biological day
-  or after a change of current stage/kind.
+  or after a change of current stage/kind. Graphic calibration is resolved
+  once per pawn/day from the shared per-kind cache on its first render.
 - Snapshots use weak keys, with no world or map-wide pawn scan, polling
   component, persistent save data, LINQ, or per-tick allocation.
 - Species stage intervals and stat-factor dictionaries are built once
@@ -84,6 +107,10 @@ interactions with external performance mods.
    the following day, and match stage endpoints at transitions.
 4. Specifically exercise tiny baby birds, swine, the Royal megachicken with
    five stages, a large theropod, crocodiles and a Spectrobionta animal.
+   For every graphic transition, compare the last day of the old artwork
+   against the first day of the new, from multiple viewing directions.
+   Confirm that shared-texPath intervals retain their original growth curve.
+   Changing silhouettes may not match perfectly in every direction.
    For Spectrobionta, verify daily changes between small, medium and large
    predimago (where defined) and between larval size stages, without
    interpolating the cross-race metamorphosis. Verify that stage-gated
@@ -101,6 +128,7 @@ interactions with external performance mods.
    comparing the same save with and without this runtime feature.
 
 Source locations: `ZoologyAnimalGrowth.cs`,
+`ZoologyAnimalGraphicCalibration.cs`,
 `ZoologyAnimalGrowthStatPart.cs`,
 `Patch_ZoologyAnimalGrowth.cs`, and the existing
 `ZoologyLifeStageProfileInstaller.cs`.
