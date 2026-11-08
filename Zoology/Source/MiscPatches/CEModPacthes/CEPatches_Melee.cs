@@ -113,6 +113,16 @@ namespace ZoologyMod
             if (!CEReflectionUtility.TryGetVerbTool(verbInstance, out toolObj))
                 return;
 
+            float interpolated;
+            if (ZoologyAnimalGrowth.TryGetToolFactor(caster, toolObj as Tool,
+                    sharp ? ZoologyAnimalGrowth.GrowthToolFactor.CeSharpPenetration
+                          : ZoologyAnimalGrowth.GrowthToolFactor.CeBluntPenetration,
+                    out interpolated))
+            {
+                result *= interpolated;
+                return;
+            }
+
             ZoologyLifeStageToolFactor factors;
             if (ZoologyLifeStageProfileInstaller.TryGetToolFactor(caster,
                     toolObj as Tool, out factors))
