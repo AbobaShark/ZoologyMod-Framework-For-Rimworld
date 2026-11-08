@@ -49,6 +49,7 @@ namespace ZoologyMod
             internal Vector2 drawRatio = Vector2.one;
             internal float graphicCalibration = 1f;
             internal bool graphicCalibrationReady;
+            internal Gender graphicGender;
         }
 
         private static readonly Dictionary<ThingDef, Segment[]> RaceSegments =
@@ -316,14 +317,15 @@ namespace ZoologyMod
             if (!TryGetSnapshot(pawn, out state))
                 return Vector2.one;
 
-            if (!state.graphicCalibrationReady)
+            if (!state.graphicCalibrationReady || state.graphicGender != pawn.gender)
             {
                 // Only a rendered animal needs its graphic inspected. Matching
                 // texture paths retain exactly the existing interpolation.
                 // Distinct graphics use a per-kind, once-calculated silhouette
-                // correction shared by every pawn with this PawnKindDef.
+                // correction shared by every pawn with this PawnKindDef/sex.
                 state.graphicCalibration = ZoologyAnimalGraphicCalibration.StageFactor(
-                    pawn.kindDef, state.stageIndex);
+                    pawn.kindDef, state.stageIndex, pawn.gender == Gender.Female);
+                state.graphicGender = pawn.gender;
                 state.graphicCalibrationReady = true;
             }
             return state.drawRatio * state.graphicCalibration;
