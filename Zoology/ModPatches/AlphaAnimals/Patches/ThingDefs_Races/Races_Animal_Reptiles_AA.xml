@@ -4569,19 +4569,19 @@
       <xpath>/Defs/ThingDef[defName = "AA_SandProwler"]/race/roamMtbDays</xpath>
     </match>
   </Operation>
-  <Operation Class="PatchOperationReplace">
+  <Operation Class="PatchOperationConditional"><xpath>/Defs/ThingDef[defName="Leather_Lizard"]</xpath><match Class="PatchOperationSequence"><operations><li Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_SandProwler"]/race/leatherDef</xpath>
     <value>
       <leatherDef>Leather_Lizard</leatherDef>
     </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
+  </li>
+  <li Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_SandProwler"]/race/useLeatherFrom</xpath>
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "AA_SandProwler"]/race/useLeatherFrom</xpath>
     </match>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
+  </li>
+  </operations></match></Operation><Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_SandProwler"]/race/manhunterOnDamageChance</xpath>
     <value>
       <manhunterOnDamageChance>0.3</manhunterOnDamageChance>

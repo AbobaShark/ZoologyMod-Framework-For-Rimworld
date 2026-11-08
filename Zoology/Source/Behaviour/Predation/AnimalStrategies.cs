@@ -12,9 +12,17 @@ namespace ZoologyMod
     public class ModExtension_PredationStrategy : DefModExtension
     {
         public PredationStrategy strategy;
+        // Optional: restrict a strategy to specified life stage indices.
+        // Unspecified means all stages, preserving existing animal definitions.
+        public List<int> lifeStageIndices;
         public override IEnumerable<string> ConfigErrors()
         {
-            if (!Enum.IsDefined(typeof(PredationStrategy), strategy)) yield return "Invalid Zoology predation strategy";
+            if (!Enum.IsDefined(typeof(PredationStrategy), strategy))
+                yield return "Invalid Zoology predation strategy";
+            if (lifeStageIndices != null)
+                foreach (int stage in lifeStageIndices)
+                    if (stage < 0)
+                        yield return "Predation strategy lifeStageIndices must be nonnegative";
         }
     }
     public class ModExtension_Burrower : DefModExtension { public float maxBodySize = 2f; }
@@ -175,9 +183,23 @@ namespace ZoologyMod
 
     internal static class AnimalHuntStrategy
     {
-        public static PredationStrategy For(Pawn pawn) => pawn?.RaceProps.predator == true
-            ? DefModExtensionCache<ModExtension_PredationStrategy>.Get(pawn.def)?.strategy ?? PredationStrategy.No
-            : PredationStrategy.No;
+        public static PredationStrategy For(Pawn pawn)
+        {
+            if (pawn?.RaceProps.predator != true)
+                return PredationStrategy.No;
+
+            ModExtension_PredationStrategy extension =
+                DefModExtensionCache<ModExtension_PredationStrategy>.Get(pawn.def);
+            if (extension == null)
+                return PredationStrategy.No;
+
+            List<int> stages = extension.lifeStageIndices;
+            if (stages != null && (pawn.ageTracker == null
+                || !stages.Contains(pawn.ageTracker.CurLifeStageIndex)))
+                return PredationStrategy.No;
+
+            return extension.strategy;
+        }
         public static bool IsHunt(Pawn pawn, Pawn prey) => pawn?.RaceProps.predator == true
             && pawn.CurJob?.targetA.Thing == prey
             && (pawn.jobs.curDriver is JobDriver_PredatorHunt || pawn.jobs.curDriver is JobDriver_Constrict);

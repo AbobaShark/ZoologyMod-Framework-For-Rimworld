@@ -1,0 +1,223 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Patch>
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>Odyssey</li>
+    </mods>
+    <nomatch Class="PatchOperationSequence">
+      <operations>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName="Leather_Hippo"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs</xpath>
+            <value>
+              <ThingDef ParentName="LeatherBase">
+                <defName>Leather_Hippo</defName>
+                <label>hippo leather</label>
+                <description>Tanned, dried, scraped hippo skin. While extremely durable, it provides little protection from extreme weather.</description>
+                <statBases>
+                  <MarketValue>2.9</MarketValue>
+                  <StuffPower_Armor_Sharp>1.12</StuffPower_Armor_Sharp>
+                  <StuffPower_Armor_Blunt>0.24</StuffPower_Armor_Blunt>
+                  <StuffPower_Insulation_Cold>16</StuffPower_Insulation_Cold>
+                  <StuffPower_Insulation_Heat>16</StuffPower_Insulation_Heat>
+                </statBases>
+                <stuffProps>
+                  <statFactors>
+                    <Beauty>1</Beauty>
+                    <MaxHitPoints>1.5</MaxHitPoints>
+                  </statFactors>
+                  <color>(104,90,98)</color>
+                </stuffProps>
+                <graphicData>
+                  <color>(104,90,98)</color>
+                </graphicData>
+              </ThingDef>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationFindMod">
+          <mods>
+            <li>Combat Extended</li>
+          </mods>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/ThingDef[defName="Leather_Hippo"]</xpath>
+                <match Class="PatchOperationSequence">
+                  <operations>
+                    <li Class="PatchOperationConditional">
+                      <xpath>/Defs/ThingDef[defName="Leather_Hippo"]/statBases</xpath>
+                      <nomatch Class="PatchOperationAdd">
+                        <xpath>/Defs/ThingDef[defName="Leather_Hippo"]</xpath>
+                        <value>
+                          <statBases/>
+                        </value>
+                      </nomatch>
+                    </li>
+                    <li Class="PatchOperationConditional">
+                      <xpath>/Defs/ThingDef[defName="Leather_Hippo"]/statBases/StuffPower_Armor_Sharp</xpath>
+                      <match Class="PatchOperationReplace">
+                        <xpath>/Defs/ThingDef[defName="Leather_Hippo"]/statBases/StuffPower_Armor_Sharp</xpath>
+                        <value>
+                          <StuffPower_Armor_Sharp>0.08</StuffPower_Armor_Sharp>
+                        </value>
+                      </match>
+                      <nomatch Class="PatchOperationAdd">
+                        <xpath>/Defs/ThingDef[defName="Leather_Hippo"]/statBases</xpath>
+                        <value>
+                          <StuffPower_Armor_Sharp>0.08</StuffPower_Armor_Sharp>
+                        </value>
+                      </nomatch>
+                    </li>
+                  </operations>
+                </match>
+              </li>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/ThingDef[defName="Leather_Hippo"]</xpath>
+                <match Class="PatchOperationSequence">
+                  <operations>
+                    <li Class="PatchOperationConditional">
+                      <xpath>/Defs/ThingDef[defName="Leather_Hippo"]/statBases</xpath>
+                      <nomatch Class="PatchOperationAdd">
+                        <xpath>/Defs/ThingDef[defName="Leather_Hippo"]</xpath>
+                        <value>
+                          <statBases/>
+                        </value>
+                      </nomatch>
+                    </li>
+                    <li Class="PatchOperationConditional">
+                      <xpath>/Defs/ThingDef[defName="Leather_Hippo"]/statBases/StuffPower_Armor_Blunt</xpath>
+                      <match Class="PatchOperationReplace">
+                        <xpath>/Defs/ThingDef[defName="Leather_Hippo"]/statBases/StuffPower_Armor_Blunt</xpath>
+                        <value>
+                          <StuffPower_Armor_Blunt>0.064</StuffPower_Armor_Blunt>
+                        </value>
+                      </match>
+                      <nomatch Class="PatchOperationAdd">
+                        <xpath>/Defs/ThingDef[defName="Leather_Hippo"]/statBases</xpath>
+                        <value>
+                          <StuffPower_Armor_Blunt>0.064</StuffPower_Armor_Blunt>
+                        </value>
+                      </nomatch>
+                    </li>
+                  </operations>
+                </match>
+              </li>
+            </operations>
+          </match>
+        </li>
+      </operations>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>Odyssey</li>
+    </mods>
+    <nomatch Class="PatchOperationSequence">
+      <operations>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName="Leather_Sealskin"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs</xpath>
+            <value>
+              <ThingDef ParentName="LeatherBase">
+                <defName>Leather_Sealskin</defName>
+                <label>sealskin</label>
+                <description>The tanned skin of various pinnipeds, such as seals, sea lions, and walruses. It's not particularly tough but it is extremely well insulated. Sealskin is luxuriously soft to the touch, fetching a high price.</description>
+                <statBases>
+                  <MarketValue>3.3</MarketValue>
+                  <StuffPower_Armor_Sharp>0.81</StuffPower_Armor_Sharp>
+                  <StuffPower_Armor_Blunt>0.24</StuffPower_Armor_Blunt>
+                  <StuffPower_Insulation_Cold>20</StuffPower_Insulation_Cold>
+                  <StuffPower_Insulation_Heat>20</StuffPower_Insulation_Heat>
+                </statBases>
+                <stuffProps>
+                  <statFactors>
+                    <Beauty>1.5</Beauty>
+                    <MaxHitPoints>1.3</MaxHitPoints>
+                  </statFactors>
+                  <color>(159,159,155)</color>
+                </stuffProps>
+                <graphicData>
+                  <color>(159,159,155)</color>
+                </graphicData>
+              </ThingDef>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationFindMod">
+          <mods>
+            <li>Combat Extended</li>
+          </mods>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/ThingDef[defName="Leather_Sealskin"]</xpath>
+                <match Class="PatchOperationSequence">
+                  <operations>
+                    <li Class="PatchOperationConditional">
+                      <xpath>/Defs/ThingDef[defName="Leather_Sealskin"]/statBases</xpath>
+                      <nomatch Class="PatchOperationAdd">
+                        <xpath>/Defs/ThingDef[defName="Leather_Sealskin"]</xpath>
+                        <value>
+                          <statBases/>
+                        </value>
+                      </nomatch>
+                    </li>
+                    <li Class="PatchOperationConditional">
+                      <xpath>/Defs/ThingDef[defName="Leather_Sealskin"]/statBases/StuffPower_Armor_Sharp</xpath>
+                      <match Class="PatchOperationReplace">
+                        <xpath>/Defs/ThingDef[defName="Leather_Sealskin"]/statBases/StuffPower_Armor_Sharp</xpath>
+                        <value>
+                          <StuffPower_Armor_Sharp>0.05</StuffPower_Armor_Sharp>
+                        </value>
+                      </match>
+                      <nomatch Class="PatchOperationAdd">
+                        <xpath>/Defs/ThingDef[defName="Leather_Sealskin"]/statBases</xpath>
+                        <value>
+                          <StuffPower_Armor_Sharp>0.05</StuffPower_Armor_Sharp>
+                        </value>
+                      </nomatch>
+                    </li>
+                  </operations>
+                </match>
+              </li>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/ThingDef[defName="Leather_Sealskin"]</xpath>
+                <match Class="PatchOperationSequence">
+                  <operations>
+                    <li Class="PatchOperationConditional">
+                      <xpath>/Defs/ThingDef[defName="Leather_Sealskin"]/statBases</xpath>
+                      <nomatch Class="PatchOperationAdd">
+                        <xpath>/Defs/ThingDef[defName="Leather_Sealskin"]</xpath>
+                        <value>
+                          <statBases/>
+                        </value>
+                      </nomatch>
+                    </li>
+                    <li Class="PatchOperationConditional">
+                      <xpath>/Defs/ThingDef[defName="Leather_Sealskin"]/statBases/StuffPower_Armor_Blunt</xpath>
+                      <match Class="PatchOperationReplace">
+                        <xpath>/Defs/ThingDef[defName="Leather_Sealskin"]/statBases/StuffPower_Armor_Blunt</xpath>
+                        <value>
+                          <StuffPower_Armor_Blunt>0.04</StuffPower_Armor_Blunt>
+                        </value>
+                      </match>
+                      <nomatch Class="PatchOperationAdd">
+                        <xpath>/Defs/ThingDef[defName="Leather_Sealskin"]/statBases</xpath>
+                        <value>
+                          <StuffPower_Armor_Blunt>0.04</StuffPower_Armor_Blunt>
+                        </value>
+                      </nomatch>
+                    </li>
+                  </operations>
+                </match>
+              </li>
+            </operations>
+          </match>
+        </li>
+      </operations>
+    </nomatch>
+  </Operation>
+</Patch>

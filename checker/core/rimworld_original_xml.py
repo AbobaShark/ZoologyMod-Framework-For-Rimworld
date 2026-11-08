@@ -62,6 +62,7 @@ class OriginalXmlIndex:
         self.base_root = LET.Element("Defs")
         self.sources = {}
         self.duplicates = []
+        self.duplicates_before_patches = []
         self.files_loaded = 0
         self.patch_files_loaded = 0
         self.patch_apply_stats = Counter()
@@ -81,7 +82,10 @@ class OriginalXmlIndex:
         parser = LET.XMLParser(remove_comments=False, recover=True)
         paths = []
         if has_root_dir:
-            for root, _, files in os.walk(self.root_dir):
+            for root, dirs, files in os.walk(self.root_dir):
+                # CE patch snapshots are not Def files and must not be indexed as such.
+                if os.path.abspath(root) == os.path.abspath(self.root_dir):
+                    dirs[:] = [d for d in dirs if d.casefold() != 'cepatches']
                 for filename in files:
                     if filename.lower().endswith(".xml"):
                         paths.append(os.path.join(root, filename))
@@ -113,6 +117,7 @@ class OriginalXmlIndex:
                 self.root.append(copied)
                 self._index_def(copied, path)
         self.base_root = copy.deepcopy(self.root)
+        self.duplicates_before_patches = list(self.duplicates)
         self._apply_original_patches(parser)
         return self
 

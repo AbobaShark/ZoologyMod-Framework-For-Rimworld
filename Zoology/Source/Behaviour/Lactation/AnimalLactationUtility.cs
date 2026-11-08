@@ -4,6 +4,7 @@ using UnityEngine;
 using Verse;
 using Verse.AI;
 using RimWorld;
+using RimWorld.Planet;
 
 namespace ZoologyMod
 {
@@ -348,6 +349,72 @@ namespace ZoologyMod
             return pup.needs.food.CurLevelPercentage < feedingThreshold;
         }
 
+        // Only called from existing hungry-baby food searches and handler feeding.
+        // A baby fed by handlers or another female does not reset its biological
+        // mother's naturally decaying lactation, so restore it when needed.
+        internal static void MaintainKnownMotherLactationForBaby(Pawn baby)
+        {
+            if (!ChildWantsSuckle(baby)
+                || !ChildcareUtility.TryGetKnownBiologicalMother(baby, out Pawn mother)
+                || mother == null || mother.Dead || mother.Destroyed
+                || mother.gender != Gender.Female || !mother.IsMammal()
+                || !IsCrossBreedCompatible(mother, baby)
+                || !IsPupFactionCompatible(mother, baby)
+                || !MotherHasSufficientNutrition(mother))
+            {
+                return;
+            }
+
+            // The map, a shared barn and a caravan all represent real
+            // opportunities to nurse. Unspawned pawns must not be rejected
+            // solely because they are held by the barn or caravan.
+            bool together = baby.Spawned && mother.Spawned
+                && baby.Map != null && baby.Map == mother.Map;
+#if RIMWORLD17
+            if (!together)
+            {
+                Building_AnimalBarn barn = ThingOwnerUtility.GetAnyParent<Building_AnimalBarn>(baby);
+                together = barn != null
+                    && ReferenceEquals(barn,
+                        ThingOwnerUtility.GetAnyParent<Building_AnimalBarn>(mother));
+            }
+#endif
+            if (!together)
+            {
+                Caravan caravan = baby.GetCaravan();
+                together = caravan != null && ReferenceEquals(caravan, mother.GetCaravan());
+            }
+
+            if (!together)
+            {
+                return;
+            }
+
+            // Retain the existing severe-malnutrition safeguard.
+            HediffSet health = mother.health?.hediffSet;
+            Hediff malnutrition = health?.GetFirstHediffOfDef(HediffDefOf.Malnutrition);
+            if (malnutrition != null && malnutrition.CurStageIndex >= 2)
+            {
+                return;
+            }
+
+            HediffDef lactDef = LactatingHediffDef;
+            if (health == null || lactDef == null)
+            {
+                return;
+            }
+
+            Hediff lactating = health.GetFirstHediffOfDef(lactDef);
+            if (lactating == null)
+            {
+                EnsureLactatingHediff(mother);
+            }
+            else if (lactating.Severity < 0.25f)
+            {
+                lactating.Severity = 1f;
+            }
+        }
+
         private static IReadOnlyList<Pawn> GetMotherCandidates(Map map, int currentTick)
         {
             if (map?.mapPawns?.AllPawnsSpawned == null)
@@ -445,6 +512,10 @@ namespace ZoologyMod
         public static Pawn FindNearestReachableMotherForPup(Pawn pup)
         {
             if (pup == null || pup.Map == null || pup.Dead) return null;
+            if (ChildWantsSuckle(pup))
+            {
+                MaintainKnownMotherLactationForBaby(pup);
+            }
             Pawn nearest = null;
             float bestDistSqr = float.MaxValue;
             IntVec3 pupPosition = pup.Position;
@@ -698,7 +769,24 @@ namespace ZoologyMod
                 Hediff lact = mom.health?.hediffSet?.GetFirstHediffOfDef(lactDef);
                 if (lact == null) return false;
 
-                if ((pup.Position - mom.Position).LengthHorizontalSquared > 2f) return false;
+                bool canNurse = pup.Spawned && mom.Spawned
+                    && pup.Map != null && pup.Map == mom.Map
+                    && (pup.Position - mom.Position).LengthHorizontalSquared <= 2f;
+#if RIMWORLD17
+                if (!canNurse)
+                {
+                    Building_AnimalBarn barn = ThingOwnerUtility.GetAnyParent<Building_AnimalBarn>(pup);
+                    canNurse = barn != null
+                        && ReferenceEquals(barn, ThingOwnerUtility.GetAnyParent<Building_AnimalBarn>(mom));
+                }
+#endif
+                if (!canNurse)
+                {
+                    Caravan caravan = pup.GetCaravan();
+                    canNurse = caravan != null && ReferenceEquals(caravan, mom.GetCaravan());
+                }
+
+                if (!canNurse) return false;
 
                 if (mom.needs?.food == null) return false;
                 if (pup.needs?.food == null) return false;
@@ -709,7 +797,7 @@ namespace ZoologyMod
                 if (nutritionWanted <= 0f) return false;
 
                 float perTick = pup.needs.food.MaxLevel / (float)FullFeedSessionTicks;
-                float providedRequested = perTick * deltaTicks;
+                float providedRequested = perTick * Math.Max(1, deltaTicks);
 
                 float provided = Math.Min(nutritionWanted, providedRequested);
 

@@ -746,7 +746,7 @@ namespace ZoologyMod
             }
 
             Faction faction = predator.Faction;
-            if (faction != null && !IsPhotonozoaFaction(faction))
+            if (faction != null && !IsSpectrobiontaFaction(faction))
             {
                 return false;
             }
@@ -766,11 +766,11 @@ namespace ZoologyMod
             return comp.IsPaired(predator, paired);
         }
 
-        private static bool IsPhotonozoaFaction(Faction faction)
+        private static bool IsSpectrobiontaFaction(Faction faction)
         {
             var defName = faction?.def?.defName;
             return !string.IsNullOrEmpty(defName)
-                && defName.Equals("Photonozoa", StringComparison.OrdinalIgnoreCase);
+                && defName.Equals("Spectrobionta", StringComparison.OrdinalIgnoreCase);
         }
 
         private static Pawn TryGetVanillaHuntTarget(Pawn predator, bool desperate)

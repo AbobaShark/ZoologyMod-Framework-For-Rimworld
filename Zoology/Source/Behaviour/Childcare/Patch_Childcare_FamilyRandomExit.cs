@@ -70,36 +70,63 @@ namespace ZoologyMod
             TryStartFamilyExit(mother, child.Map, child);
         }
 
-        public static bool TryStartForcedWildExit(Pawn pawn)
+        // Called with the complete, prevalidated family. Never choose a mother whose dependent
+        // young cannot also leave, and verify every exit destination before starting any job.
+        public static bool TryStartForcedWildExit(Pawn root, IReadOnlyList<Pawn> members)
         {
-            Map map = pawn?.Map;
-            if (!CanJoinFamilyExit(pawn, map)
-                || IsProtectedByGuardingEggMother(pawn))
+            Map map = root?.Map;
+            if (map == null || members == null || members.Count == 0
+                || !ReferenceEquals(root, members[0]))
             {
                 return false;
             }
 
-            if (ChildcareUtility.IsChildcareEnabled)
+            bool family = members.Count > 1;
+            if (family && (!ChildcareUtility.IsChildcareEnabled || !ChildcareUtility.HasChildcareExtension(root)))
             {
-                if (ChildcareUtility.IsAnimalChild(pawn)
-                    && TryGetChildcareMotherForChild(pawn, out Pawn childMother))
-                {
-                    if (!CanJoinFamilyExit(childMother, map) || IsGuardingEggClutch(childMother))
-                    {
-                        return false;
-                    }
-
-                    return TryStartFamilyExit(childMother, map, null);
-                }
-
-                if (ChildcareUtility.HasChildcareExtension(pawn)
-                    && HasAnyEligibleChildOfMother(pawn, map))
-                {
-                    return TryStartFamilyExit(pawn, map, null);
-                }
+                return false;
             }
 
-            return TryStartExitJob(pawn);
+            int now = Find.TickManager?.TicksGame ?? 0;
+            if (family && lastFamilyExitTickByMotherId.TryGetValue(root.thingIDNumber, out int lastTick)
+                && now - lastTick < FamilyExitCooldownTicks)
+            {
+                return false;
+            }
+
+            var jobs = new List<Job>(members.Count);
+            for (int i = 0; i < members.Count; i++)
+            {
+                Pawn member = members[i];
+                if (!CanJoinFamilyExit(member, map) || IsProtectedByGuardingEggMother(member))
+                {
+                    return false;
+                }
+
+                Job job = MakeFamilyExitJob(member);
+                if (job == null)
+                {
+                    return false;
+                }
+
+                jobs.Add(job);
+            }
+
+            bool started = false;
+            for (int i = 0; i < members.Count; i++)
+            {
+                Pawn member = members[i];
+                member.jobs.StartJob(jobs[i], JobCondition.InterruptForced, null,
+                    resumeCurJobAfterwards: false, cancelBusyStances: true, null, JobTag.Misc);
+                started |= IsLeavingMap(member.CurJob);
+            }
+
+            if (started && family)
+            {
+                lastFamilyExitTickByMotherId[root.thingIDNumber] = now;
+            }
+
+            return started;
         }
 
         public static bool CanJoinFamilyExit(Pawn pawn, Map map)
@@ -227,41 +254,13 @@ namespace ZoologyMod
             return mother != null && ChildcareUtility.HasChildcareExtension(mother);
         }
 
-        private static bool HasAnyEligibleChildOfMother(Pawn mother, Map map)
-        {
-            if (mother == null
-                || map?.mapPawns == null
-                || !ChildcareUtility.HasChildcareExtension(mother))
-            {
-                return false;
-            }
-
-            IReadOnlyList<Pawn> pawns = map.mapPawns.AllPawnsSpawned;
-            for (int i = 0; i < pawns.Count; i++)
-            {
-                Pawn child = pawns[i];
-                if (ReferenceEquals(child, mother)
-                    || !CanJoinFamilyExit(child, map)
-                    || !ChildcareUtility.IsAnimalChild(child)
-                    || !ChildcareUtility.TryGetBiologicalMother(child, out Pawn childMother)
-                    || !ReferenceEquals(childMother, mother))
-                {
-                    continue;
-                }
-
-                return true;
-            }
-
-            return false;
-        }
-
         private static bool IsExitMapJob(Job job)
         {
             return job != null
                 && (job.exitMapOnArrival || job.def == JobDefOf.ExitMapFlying);
         }
 
-        private static bool IsLeavingMap(Job job)
+        internal static bool IsLeavingMap(Job job)
         {
             return job != null
                 && (job.exitMapOnArrival || job.def == JobDefOf.ExitMapFlying || job.def == JobDefOf.EnterPortal);

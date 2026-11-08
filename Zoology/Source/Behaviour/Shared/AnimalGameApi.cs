@@ -24,13 +24,32 @@ namespace ZoologyMod
             (m.Name == "FindPathNow" || m.Name == "FindPath") && m.GetParameters().Length >= 3 && m.GetParameters()[2].ParameterType == typeof(Pawn));
         public static void TickContainedPhysiology(Pawn pawn)
         {
-            pawn.needs?.rest?.TickResting(1f);
+            // Containment simulates sleeping, not an indefinite forced-rest
+            // job. Stop marking the pawn as resting once fully rested, as a
+            // vanilla sleeper would wake up. This matters when mods allow
+            // needs to exceed their normal maximum.
+            Need_Rest rest = pawn.needs?.rest;
+            if (rest != null && rest.CurLevel < rest.MaxLevel)
+            {
+                rest.TickResting(1f);
+            }
+
             pawn.health.HealthTick();
             if (pawn.Dead) return;
             healthInterval?.Invoke(pawn.health, 1);
             if (pawn.Dead) return;
             if (needsInterval != null) needsInterval(pawn.needs, 1); else needsLegacy?.Invoke(pawn.needs);
             if (pawn.Dead) return;
+
+            // Resting may remain true briefly after the final TickResting
+            // (until the pawn's update interval expires). Enforce the
+            // natural sleep ceiling after the needs tick, independently of
+            // third-party changes to Need.CurLevel's setter.
+            if (rest != null && rest.CurLevel > rest.MaxLevel)
+            {
+                rest.CurLevel = rest.MaxLevel;
+            }
+
             if (ageInterval != null) ageInterval(pawn.ageTracker, 1); else ageLegacy?.Invoke(pawn.ageTracker);
         }
         public static PawnPath FindPath(Pawn pawn, IntVec3 target)

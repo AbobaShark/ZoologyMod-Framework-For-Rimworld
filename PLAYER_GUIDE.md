@@ -61,6 +61,8 @@ Supported animals receive revised biome commonality and ecological placement. Zo
 
 The same ecological data also matter to Zoology's wild-reproduction capacity system: the game can have a biome that supports many animals in one season and substantially fewer in another.
 
+Wild population management also includes an independent, optional per-species cap (30 by default, configurable from 10 to 100). The cap counts wild animals of each race on the map, not owned animals. Wild breeding and routine wildlife spawning avoid species at capacity. Over-limit populations are encouraged to leave using the existing family-aware departure jobs; dependent young do not leave their mother behind. When the total ecosystem-weight limit is exceeded, departure favors species that contribute most to the excess instead of picking a uniformly random animal. Scripted and quest-related spawns are not rejected by the cap.
+
 ### Cross-breeding and related species
 
 Zoology adds selected cross-breeding relationships where the underlying animals are treated as compatible. In Core, the shipped patches include Arctic/Timber wolf compatibility and, when the relevant expanded-animal package is absent, Labrador/Husky compatibility.
@@ -372,7 +374,7 @@ The search excludes drugs, corpses, food dispensers and opportunistic plant harv
 
 Handler feeding provides suitable food when the mother is absent, inaccessible, no longer lactating or temporarily unable to nurse.
 
-The handler-feeding option is subordinate to the main Mammal lactation setting. Turning lactation off also turns handler baby feeding off.
+The handler-feeding option is subordinate to the main Mammal lactation setting. Turning lactation off suspends handler feeding but preserves the saved choice, which takes effect again when lactation is re-enabled. Switching handler feeding takes effect immediately and does not disable nursing by mothers.
 
 ## 9. Mammal babies use baby food rules
 
@@ -934,7 +936,7 @@ The scavenger species editor also exposes allowVeryRotten.
 | Enable wound licking | On | Animal self-tending. |
 | Enable ectothermic handling | On | Ectotherm species configurable. |
 
-Turning mammal lactation off also disables handler baby feeding and the lactation auto-slaughter option.
+Turning mammal lactation off suspends handler baby feeding (without clearing its saved checkbox) and disables the lactation auto-slaughter option.
 
 ### Combat
 

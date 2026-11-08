@@ -17,6 +17,7 @@ from lxml import etree as E
 from core.animalstats_source import is_multisheet_source
 from core.static_stats import read_table
 from core.leather_overrides import GROUP_ROUTES, _conditional, _emit
+from core.material_colors import xml_color as _hex
 from core.rimworld_patch_apply import PatchApplier
 
 FIELDS = {
@@ -99,16 +100,6 @@ def _number(value):
         return None
 
 
-def _hex(value):
-    try:
-        values = [int(part) for part in str(value).strip(' ()').split(',')]
-    except ValueError:
-        return None
-    if len(values) != 3 or any(not 0 <= c <= 255 for c in values):
-        return None
-    return '#' + ''.join(f'{v:02X}' for v in values)
-
-
 def _rgb(hex_color):
     return '(' + ','.join(str(int(hex_color[i:i+2], 16)) for i in (1, 3, 5)) + ')'
 
@@ -118,15 +109,12 @@ def _same(a, b):
 
 
 def _version_rank(path):
-    parts = [p.casefold() for p in path.parts]
-    versions = [p.removeprefix('v') for p in parts if re.fullmatch(r'v?1\.\d+', p)]
-    if '1.7' in versions:
-        return 300
-    if '1.6' in versions or any('1.6notodyssey' in p for p in parts):
-        return 200
-    if versions:
-        return 0
-    return 100
+    """Numeric major.minor order for versions including future RimWorld releases."""
+    versions = [tuple(map(int, match.groups()))
+                for part in path.parts
+                if (match := re.match(r'^v?(\d+)\.(\d+)(?:notodyssey)?$',
+                                      part, re.I))]
+    return max(versions, default=(0, 0))
 
 
 def _absent_mod_for_source(path):
@@ -146,7 +134,7 @@ def _read_xml(path):
 
 
 class TextileReferences:
-    def __init__(self, originals, patches, rows):
+    def __init__(self, originals, patches, rows, *, ce=True):
         self.originals = Path(originals)
         self.patches = Path(patches)
         self.rows = rows
@@ -154,6 +142,7 @@ class TextileReferences:
         self.materials = {}
         self.absent_mod = {}
         self.ce = {}
+        self.include_ce = ce
         self.ce_ready = False
         self.warnings = []
         self._load()
@@ -172,7 +161,7 @@ class TextileReferences:
                 continue
             if root.tag != 'Defs':
                 continue
-            rank = (_version_rank(relative), int('_Leathers' in relative.parts))
+            rank = _version_rank(relative)
             for node in root.findall('ThingDef'):
                 abstract = node.get('Name')
                 if abstract:
@@ -200,7 +189,8 @@ class TextileReferences:
         if missing:
             raise ValueError('Animal textiles: missing original ThingDefs: ' + ', '.join(missing)
                              + '. Update OriginalXML using Reference Sync.')
-        self._load_ce()
+        if self.include_ce:
+            self._load_ce()
 
     def value(self, name, field, *, concrete=None, parents=None):
         node = concrete if concrete is not None else self.materials[name]
@@ -243,7 +233,7 @@ class TextileReferences:
         return None
 
     def _load_ce(self):
-        rootdir = self.patches / 'CE' / '_Leathers'
+        rootdir = self.patches
         if not rootdir.is_dir():
             return
         # Choose one upstream version for each logical CE patch.
@@ -306,9 +296,9 @@ class TextileReferences:
 
 def render_textile_outputs(source, entries, *, original_xml, original_patches, ce=True):
     rows = read_textiles(source)
-    refs = TextileReferences(original_xml, original_patches, rows)
+    refs = TextileReferences(original_xml, original_patches, rows, ce=ce)
     if ce and not refs.ce_ready:
-        raise ValueError('Animal textiles: missing CE WoolBase reference in OriginalPatches/CE/_Leathers. '
+        raise ValueError('Animal textiles: missing CE WoolBase reference in OriginalXML/CEPatches. '
                          'Synchronize references or explicitly generate with --no-ce.')
     outputs = {group: E.Element('Patch') for group in ROUTES}
     ce_outputs = {group: E.Element('Patch') for group in ROUTES}
@@ -337,13 +327,12 @@ def render_textile_outputs(source, entries, *, original_xml, original_patches, c
                 _conditional(vanilla_target, name, xpath, format(row[field], '.12g'), original)
                 vanilla.append((name, field, existing, row[field]))
         color = refs.color(name)
-        if color != row['Color hex']:
-            # If the source leaves color unspecified, write the explicit
-            # spreadsheet color; do not assume graphicData uses that color.
+        graphic = _hex(original.findtext('graphicData/color'))
+        if row['Color hex'] not in {color, graphic}:
             _conditional(vanilla_target, name, 'stuffProps/color', _rgb(row['Color hex']), original)
-            if color is not None and _hex(original.findtext('graphicData/color')) == color:
+            if graphic is not None and (color is None or graphic == color):
                 _conditional(vanilla_target, name, 'graphicData/color', _rgb(row['Color hex']), original)
-            vanilla.append((name, 'Color hex', color, row['Color hex']))
+            vanilla.append((name, 'Color hex', color or graphic, row['Color hex']))
         if ce:
             for field, column in CE_FIELDS.items():
                 baseline = refs.ce.get(name, {}).get(field)

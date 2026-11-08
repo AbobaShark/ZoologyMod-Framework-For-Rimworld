@@ -197,13 +197,13 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_Helixien"]/race/manhunterOnTameFailChance</xpath>
     <value>
-      <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
+      <manhunterOnTameFailChance>0.1</manhunterOnTameFailChance>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_Helixien"]/race/manhunterOnDamageChance</xpath>
     <value>
-      <manhunterOnDamageChance>0</manhunterOnDamageChance>
+      <manhunterOnDamageChance>0.3</manhunterOnDamageChance>
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
@@ -408,6 +408,12 @@
         <ecoSystemWeight>0.95</ecoSystemWeight>
       </value>
     </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/PawnKindDef[defName = "AA_Helixien"]/canArriveManhunter</xpath>
+    <value>
+      <canArriveManhunter>true</canArriveManhunter>
+    </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/PawnKindDef[defName = "AA_Helixien"]/wildGroupSize</xpath>

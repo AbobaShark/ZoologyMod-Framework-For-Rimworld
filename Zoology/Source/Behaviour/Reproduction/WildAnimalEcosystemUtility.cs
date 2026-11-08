@@ -5,6 +5,7 @@ using HarmonyLib;
 using RimWorld;
 using UnityEngine;
 using Verse;
+using Verse.AI.Group;
 
 namespace ZoologyMod
 {
@@ -19,6 +20,7 @@ namespace ZoologyMod
         };
 
         private static readonly Dictionary<int, EcosystemStatus> EcosystemStatusCache = new Dictionary<int, EcosystemStatus>();
+        private static Game cachedGame;
 
         private static readonly MethodInfo AggregateAnimalDensityFactorMethod =
             AccessTools.Method(typeof(GameConditionManager), "AggregateAnimalDensityFactor", new[] { typeof(Map) });
@@ -26,9 +28,7 @@ namespace ZoologyMod
         public static bool ShouldBlockWildWildMating(Pawn first, Pawn second, ZoologyModSettings settings = null)
         {
             settings ??= ModConstants.Settings;
-            if (settings == null
-                || !settings.LimitWildAnimalReproductionByEcosystem
-                || !BothWildAnimals(first, second))
+            if (settings == null || settings.DisableAllRuntimePatches || !BothWildAnimals(first, second))
             {
                 return false;
             }
@@ -39,7 +39,98 @@ namespace ZoologyMod
                 return false;
             }
 
-            return IsOverAllowedEcosystemWeight(map, settings.WildAnimalReproductionEcosystemLimitFactor);
+            if (settings.LimitWildAnimalsPerSpecies)
+            {
+                Dictionary<ThingDef, int> counts = GetEcosystemStatus(map).SpeciesCounts;
+                if (counts.TryGetValue(first.def, out int firstCount) && firstCount >= settings.WildAnimalSpeciesLimit
+                    || counts.TryGetValue(second.def, out int secondCount) && secondCount >= settings.WildAnimalSpeciesLimit)
+                {
+                    return true;
+                }
+            }
+
+            return settings.EnableWildAnimalReproduction
+                && settings.LimitWildAnimalReproductionByEcosystem
+                && IsOverAllowedEcosystemWeight(map, settings.WildAnimalReproductionEcosystemLimitFactor);
+        }
+
+        public static bool IsSpeciesLimitActive(ZoologyModSettings settings)
+        {
+            return settings != null && !settings.DisableAllRuntimePatches && settings.LimitWildAnimalsPerSpecies;
+        }
+
+        public static Dictionary<ThingDef, int> GetLiveWildSpeciesCounts(Map map)
+        {
+            var counts = new Dictionary<ThingDef, int>();
+            IReadOnlyList<Pawn> pawns = map?.mapPawns?.AllPawnsSpawned;
+            if (pawns == null)
+            {
+                return counts;
+            }
+
+            for (int i = 0; i < pawns.Count; i++)
+            {
+                Pawn pawn = pawns[i];
+                if (!IsWildAnimal(pawn) || pawn.Dead || pawn.def == null)
+                {
+                    continue;
+                }
+
+                counts.TryGetValue(pawn.def, out int count);
+                counts[pawn.def] = count + 1;
+            }
+
+            return counts;
+        }
+
+        public static Dictionary<ThingDef, float> GetExpectedSpeciesWeights(Map map, float allowedWeight)
+        {
+            var weights = new Dictionary<ThingDef, float>();
+            if (map?.TileInfo == null || allowedWeight <= 0f)
+            {
+                return weights;
+            }
+
+            float total = 0f;
+            foreach (BiomeDef biome in map.Biomes)
+            {
+                if (biome == null)
+                {
+                    continue;
+                }
+
+                foreach (PawnKindDef kind in biome.AllWildAnimals)
+                {
+                    if (kind?.race == null || !map.mapTemperature.SeasonAcceptableFor(kind.race))
+                    {
+                        continue;
+                    }
+
+                    float commonality = Mathf.Max(0f, biome.CommonalityOfAnimal(kind)
+                        + (map.TileInfo.IsCoastal ? biome.CommonalityOfCoastalAnimal(kind) : 0f));
+                    if (commonality <= 0f)
+                    {
+                        continue;
+                    }
+
+                    float expectedWeight = commonality * Mathf.Max(0f, kind.ecoSystemWeight);
+                    weights.TryGetValue(kind.race, out float current);
+                    weights[kind.race] = current + expectedWeight;
+                    total += expectedWeight;
+                }
+            }
+
+            if (total > 0f)
+            {
+                var species = new List<ThingDef>(weights.Keys);
+                for (int i = 0; i < species.Count; i++)
+                {
+                    ThingDef race = species[i];
+                    weights[race] = allowedWeight * weights[race] / total;
+                }
+            }
+
+            return weights;
         }
 
         public static float AllowedEcosystemWeight(Map map, float limitFactor)
@@ -81,46 +172,57 @@ namespace ZoologyMod
 
         public static float CurrentTotalEcosystemWeight(Map map)
         {
-            if (map?.mapPawns == null)
-            {
-                return 0f;
-            }
-
-            float total = 0f;
-            IReadOnlyList<Pawn> pawns = map.mapPawns.AllPawnsSpawned;
-            for (int i = 0; i < pawns.Count; i++)
-            {
-                Pawn pawn = pawns[i];
-                if (IsWildAnimal(pawn) && pawn.kindDef != null)
-                {
-                    total += pawn.kindDef.ecoSystemWeight;
-                }
-            }
-
-            return total;
+            return GetEcosystemStatus(map).CurrentWeight;
         }
 
         private static EcosystemStatus GetEcosystemStatus(Map map)
         {
             if (map == null)
             {
-                return default;
+                return new EcosystemStatus();
+            }
+
+            if (cachedGame != Current.Game)
+            {
+                cachedGame = Current.Game;
+                EcosystemStatusCache.Clear();
             }
 
             int tick = GenTicks.TicksGame;
             int mapId = map.uniqueID;
             if (EcosystemStatusCache.TryGetValue(mapId, out EcosystemStatus cached)
+                && tick - cached.Tick >= 0
                 && tick - cached.Tick <= EcosystemStatusCacheTicks)
             {
                 return cached;
             }
 
-            EcosystemStatus status = new EcosystemStatus
+            var status = new EcosystemStatus
             {
                 Tick = tick,
-                DesiredWeight = DesiredTotalAnimalWeight(map),
-                CurrentWeight = CurrentTotalEcosystemWeight(map)
+                DesiredWeight = DesiredTotalAnimalWeight(map)
             };
+
+            IReadOnlyList<Pawn> pawns = map.mapPawns?.AllPawnsSpawned;
+            if (pawns != null)
+            {
+                for (int i = 0; i < pawns.Count; i++)
+                {
+                    Pawn pawn = pawns[i];
+                    if (!IsWildAnimal(pawn) || pawn.Dead || pawn.def == null)
+                    {
+                        continue;
+                    }
+
+                    status.SpeciesCounts.TryGetValue(pawn.def, out int count);
+                    status.SpeciesCounts[pawn.def] = count + 1;
+                    if (pawn.kindDef != null)
+                    {
+                        status.CurrentWeight += pawn.kindDef.ecoSystemWeight;
+                    }
+                }
+            }
+
             EcosystemStatusCache[mapId] = status;
             return status;
         }
@@ -135,7 +237,9 @@ namespace ZoologyMod
             return pawn != null
                 && pawn.IsAnimal
                 && pawn.Faction == null
-                && pawn.HostFaction == null;
+                && pawn.HostFaction == null
+                && !pawn.IsQuestLodger()
+                && pawn.GetLord() == null;
         }
 
         private static float DesiredAnimalDensity(Map map)
@@ -212,11 +316,12 @@ namespace ZoologyMod
             }
         }
 
-        private struct EcosystemStatus
+        private sealed class EcosystemStatus
         {
             public int Tick;
             public float DesiredWeight;
             public float CurrentWeight;
+            public readonly Dictionary<ThingDef, int> SpeciesCounts = new Dictionary<ThingDef, int>();
         }
     }
 }

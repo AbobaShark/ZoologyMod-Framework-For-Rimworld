@@ -907,7 +907,7 @@ namespace ZoologyMod
         private const int ThreatScanBudgetMax = 96;
         private const int ThreatScanBudgetCooldownTicks = ZoologyTickLimiter.FleeThreat.ThreatScanBudgetCooldownTicks;
         private const int FallbackThreatScanBudgetPerTick = ZoologyTickLimiter.FleeThreat.FallbackThreatScanBudgetPerTick;
-        private const string PhotonozoaFactionDefName = "Photonozoa";
+        private const string SpectrobiontaFactionDefName = "Spectrobionta";
 
         private static int lastThreatCacheCleanupTick = -ThreatCacheCleanupIntervalTicks;
         private static int lastFreshThreatCacheTick = int.MinValue;
@@ -918,7 +918,7 @@ namespace ZoologyMod
         private static int fallbackThreatScanBudgetRemaining = 0;
         private static Game runtimeCacheGame;
         private static int runtimeCacheLastTick = -1;
-        private static FactionDef photonozoaFactionDefCached = DefDatabase<FactionDef>.GetNamedSilentFail(PhotonozoaFactionDefName);
+        private static FactionDef spectrobiontaFactionDefCached = DefDatabase<FactionDef>.GetNamedSilentFail(SpectrobiontaFactionDefName);
 
         private static float ClampSearchRadius(int radius)
         {
@@ -1035,7 +1035,7 @@ namespace ZoologyMod
             return GetFleeDistanceTargetPredator();
         }
 
-        private static bool IsPhotonozoaFaction(Faction faction)
+        private static bool IsSpectrobiontaFaction(Faction faction)
         {
             FactionDef factionDef = faction?.def;
             if (factionDef == null)
@@ -1043,40 +1043,40 @@ namespace ZoologyMod
                 return false;
             }
 
-            if (photonozoaFactionDefCached == null)
+            if (spectrobiontaFactionDefCached == null)
             {
-                photonozoaFactionDefCached = DefDatabase<FactionDef>.GetNamedSilentFail(PhotonozoaFactionDefName);
+                spectrobiontaFactionDefCached = DefDatabase<FactionDef>.GetNamedSilentFail(SpectrobiontaFactionDefName);
             }
 
-            return factionDef == photonozoaFactionDefCached
-                || string.Equals(factionDef.defName, PhotonozoaFactionDefName, StringComparison.Ordinal);
+            return factionDef == spectrobiontaFactionDefCached
+                || string.Equals(factionDef.defName, SpectrobiontaFactionDefName, StringComparison.Ordinal);
         }
 
-        private static bool IsFactionNullOrPhotonozoa(Faction faction)
+        private static bool IsFactionNullOrSpectrobionta(Faction faction)
         {
             if (faction == null)
             {
                 return true;
             }
 
-            return IsPhotonozoaFaction(faction);
+            return IsSpectrobiontaFaction(faction);
         }
 
-        private static bool CanUsePhotonozoaPredatorException(Pawn prey, Pawn threat)
+        private static bool CanUseSpectrobiontaPredatorException(Pawn prey, Pawn threat)
         {
             if (prey == null || threat == null)
             {
                 return false;
             }
 
-            bool preyPhotonozoa = ZoologyCacheUtility.IsPhotonozoa(prey.def) || IsPhotonozoaFaction(prey.Faction);
-            bool threatPhotonozoa = ZoologyCacheUtility.IsPhotonozoa(threat.def) || IsPhotonozoaFaction(threat.Faction);
-            if (!preyPhotonozoa || !threatPhotonozoa)
+            bool preySpectrobionta = ZoologyCacheUtility.IsSpectrobionta(prey.def) || IsSpectrobiontaFaction(prey.Faction);
+            bool threatSpectrobionta = ZoologyCacheUtility.IsSpectrobionta(threat.def) || IsSpectrobiontaFaction(threat.Faction);
+            if (!preySpectrobionta || !threatSpectrobionta)
             {
                 return false;
             }
 
-            if (!IsFactionNullOrPhotonozoa(prey.Faction) || !IsFactionNullOrPhotonozoa(threat.Faction))
+            if (!IsFactionNullOrSpectrobionta(prey.Faction) || !IsFactionNullOrSpectrobionta(threat.Faction))
             {
                 return false;
             }
@@ -1084,7 +1084,7 @@ namespace ZoologyMod
             return threat.RaceProps?.predator == true;
         }
 
-        private static bool CanPhotonozoaPreyReactToPredatorFlee(Pawn pawn)
+        private static bool CanSpectrobiontaPreyReactToPredatorFlee(Pawn pawn)
         {
             if (pawn == null || !pawn.Spawned || pawn.Dead || pawn.Destroyed || pawn.Downed)
             {
@@ -1142,7 +1142,7 @@ namespace ZoologyMod
         private static bool IsValidNonTargetPredatorFactionContext(Pawn predator, Pawn prey)
         {
             return IsFactionNullOrHostileToPrey(predator, prey)
-                || CanUsePhotonozoaPredatorException(prey, predator);
+                || CanUseSpectrobiontaPredatorException(prey, predator);
         }
 
         private static bool ShouldBlockFleeInMeleeForPawn(Pawn pawn)
@@ -1217,6 +1217,14 @@ namespace ZoologyMod
 
                 RaceProperties raceProps = pawn?.RaceProps;
                 if (pawn == null || pawn.Map == null || raceProps == null || !raceProps.Animal || pawn.Dead || pawn.Destroyed)
+                {
+                    return;
+                }
+
+                // Vanilla followers do not flee from ambient threats. Apply the same
+                // rule before Zoology's additional predator, carrier and raider scans.
+                // Explicit damage/mental-state fleeing is handled outside this job giver.
+                if (ThinkNode_ConditionalShouldFollowMaster.ShouldFollowMaster(pawn))
                 {
                     return;
                 }
@@ -1482,7 +1490,16 @@ namespace ZoologyMod
 
         private static bool ReachesElevatedPrey(Pawn threat, Pawn prey, Plant tree)
             => AnimalDefense.IsRanged(threat) || threat.Flying || threat.flight?.CanFlyNow == true
-                || AnimalDefense.DirectClimbingThreat(threat, prey, tree);
+                || AnimalDefense.DirectClimbingThreat(threat, prey, tree)
+                || (threat?.RaceProps?.predator == true && AnimalDefense.CanClimbTree(threat, tree));
+
+        // Reuse the ordinary prey/faction filter for immediate tree-occupancy checks.
+        // This is called only when a climber chooses or enters an occupied tree.
+        internal static bool IsDangerousTreeClimber(Pawn predator, Pawn prey, Plant tree)
+            => predator?.RaceProps?.predator == true && predator != prey && prey != null
+                && AnimalDefense.CanClimbTree(predator, tree)
+                && !AnimalHuntStrategy.HiddenFrom(predator, prey)
+                && IsRelevantRefugeThreat(predator, prey);
 
         private static bool IsRelevantRefugeThreat(Pawn threat, Pawn prey)
         {
@@ -1588,7 +1605,7 @@ namespace ZoologyMod
 
             if (best == null)
             {
-                if (ZoologyCacheUtility.IsPhotonozoa(pawn.def))
+                if (ZoologyCacheUtility.IsSpectrobionta(pawn.def))
                 {
                     best = FindNearestTargetedPredatorThreatFallback(pawn, predatorRadius);
                 }
@@ -2018,7 +2035,7 @@ namespace ZoologyMod
                 return false;
             }
 
-            bool preyIsPhotonozoa = ZoologyCacheUtility.IsPhotonozoa(pawn.def);
+            bool preyIsSpectrobionta = ZoologyCacheUtility.IsSpectrobionta(pawn.def);
             bool foodJobActive = false;
             bool foodJobActiveKnown = false;
             int currentTick = Find.TickManager?.TicksGame ?? 0;
@@ -2034,7 +2051,7 @@ namespace ZoologyMod
 
                     foodJobActive = IsFoodSeekingOrEatingJob(pawn);
                     foodJobActiveKnown = true;
-                    return TryBuildPredatorFleeJob(pawn, fallbackThreat, preyIsPhotonozoa, foodJobActive, out fleeJob);
+                    return TryBuildPredatorFleeJob(pawn, fallbackThreat, preyIsSpectrobionta, foodJobActive, out fleeJob);
                 }
 
                 return false;
@@ -2065,7 +2082,7 @@ namespace ZoologyMod
                         foodJobActiveKnown = true;
                     }
 
-                    return TryBuildPredatorFleeJob(pawn, fallbackThreat, preyIsPhotonozoa, foodJobActive, out fleeJob);
+                    return TryBuildPredatorFleeJob(pawn, fallbackThreat, preyIsSpectrobionta, foodJobActive, out fleeJob);
                 }
 
                 return false;
@@ -2100,7 +2117,7 @@ namespace ZoologyMod
 
             if (threat == null)
             {
-                if (preyIsPhotonozoa
+                if (preyIsSpectrobionta
                     && allowNonHostilePredators
                     && TryConsumeFallbackThreatScanBudget(currentTick))
                 {
@@ -2119,14 +2136,14 @@ namespace ZoologyMod
                 foodJobActiveKnown = true;
             }
 
-            bool created = TryBuildPredatorFleeJob(pawn, threat, preyIsPhotonozoa, foodJobActive, out fleeJob);
+            bool created = TryBuildPredatorFleeJob(pawn, threat, preyIsSpectrobionta, foodJobActive, out fleeJob);
             return created;
         }
 
         private static bool TryBuildPredatorFleeJob(
             Pawn pawn,
             Pawn threat,
-            bool preyIsPhotonozoa,
+            bool preyIsSpectrobionta,
             bool foodJobActive,
             out Job fleeJob)
         {
@@ -2136,13 +2153,13 @@ namespace ZoologyMod
                 return false;
             }
 
-            bool photonozoaPredatorException = CanUsePhotonozoaPredatorException(pawn, threat);
-            if (!photonozoaPredatorException && ZoologyFleeSafetyUtility.IsStandardFleeBlockedByExtensions(pawn))
+            bool spectrobiontaPredatorException = CanUseSpectrobiontaPredatorException(pawn, threat);
+            if (!spectrobiontaPredatorException && ZoologyFleeSafetyUtility.IsStandardFleeBlockedByExtensions(pawn))
             {
                 return false;
             }
 
-            bool shouldAnimalFleeDanger = photonozoaPredatorException || FleeUtility.ShouldAnimalFleeDanger(pawn);
+            bool shouldAnimalFleeDanger = spectrobiontaPredatorException || FleeUtility.ShouldAnimalFleeDanger(pawn);
             bool threatAimingAtPawn = CanThreatTargetPawnForFlee(threat, pawn);
             if (threatAimingAtPawn)
             {
@@ -2155,7 +2172,7 @@ namespace ZoologyMod
                 return false;
             }
 
-            if (!shouldAnimalFleeDanger && !photonozoaPredatorException)
+            if (!shouldAnimalFleeDanger && !spectrobiontaPredatorException)
             {
                 return false;
             }
@@ -2173,10 +2190,10 @@ namespace ZoologyMod
 
             int fleeDistance = GetPredatorFleeDistanceForThreat(pawn, threat);
 
-            bool bothPhotonozoaInTheirFaction = IsPhotonozoaPairInTheirFaction(threat, pawn);
-            if (photonozoaPredatorException)
+            bool bothSpectrobiontaInTheirFaction = IsSpectrobiontaPairInTheirFaction(threat, pawn);
+            if (spectrobiontaPredatorException)
             {
-                if (!CanPhotonozoaPreyReactToPredatorFlee(pawn))
+                if (!CanSpectrobiontaPreyReactToPredatorFlee(pawn))
                 {
                     return false;
                 }
@@ -2187,9 +2204,9 @@ namespace ZoologyMod
                     return false;
                 }
             }
-            else if (!bothPhotonozoaInTheirFaction)
+            else if (!bothSpectrobiontaInTheirFaction)
             {
-                if (preyIsPhotonozoa && !shouldAnimalFleeDanger)
+                if (preyIsSpectrobionta && !shouldAnimalFleeDanger)
                 {
                     return false;
                 }
@@ -2419,12 +2436,9 @@ namespace ZoologyMod
 
         private static bool CanAnimalFleeFromCarriers(Pawn pawn)
         {
-            if (pawn == null || !pawn.RaceProps.Animal || !pawn.Spawned || pawn.Map == null)
-            {
-                return false;
-            }
-
-            if (pawn.Dead || pawn.Downed || pawn.Destroyed || pawn.InMentalState || pawn.IsFighting())
+            // Carrier fear must respect master-follow, lord and non-interruptible
+            // job rules just like Zoology's other forced threat-flee paths.
+            if (!ZoologyFleeSafetyUtility.CanUseForcedThreatFlee(pawn) || pawn.Map == null || pawn.IsFighting())
             {
                 return false;
             }
@@ -4821,14 +4835,14 @@ namespace ZoologyMod
                 return false;
             }
 
-            if (CanUsePhotonozoaPredatorException(prey, predator))
+            if (CanUseSpectrobiontaPredatorException(prey, predator))
             {
                 if (IsAcceptablePrey(predator, prey))
                 {
                     return true;
                 }
 
-                return Patch_IsAcceptablePreyForPredator.IsAcceptablePhotonozoaPreyForFlee(predator, prey);
+                return Patch_IsAcceptablePreyForPredator.IsAcceptableSpectrobiontaPreyForFlee(predator, prey);
             }
 
             return IsAcceptablePrey(predator, prey);
@@ -4935,7 +4949,7 @@ namespace ZoologyMod
             }
         }
 
-        private static bool IsPhotonozoaPairInTheirFaction(Pawn a, Pawn b)
+        private static bool IsSpectrobiontaPairInTheirFaction(Pawn a, Pawn b)
         {
             try
             {
@@ -4944,11 +4958,11 @@ namespace ZoologyMod
                     return false;
                 }
 
-                return ZoologyCacheUtility.IsPhotonozoaPairInTheirFaction(a, b);
+                return ZoologyCacheUtility.IsSpectrobiontaPairInTheirFaction(a, b);
             }
             catch (Exception ex)
             {
-                Log.Error($"[ZoologyMod] IsPhotonozoaPairInTheirFaction error: {ex}");
+                Log.Error($"[ZoologyMod] IsSpectrobiontaPairInTheirFaction error: {ex}");
                 return false;
             }
         }

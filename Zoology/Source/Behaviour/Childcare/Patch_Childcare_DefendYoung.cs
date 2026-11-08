@@ -63,6 +63,16 @@ namespace ZoologyMod
 
                 if (!ChildcareUtility.TryGetBiologicalMother(child, out Pawn mother)) return;
                 if (!ChildcareUtility.HasChildcareExtension(mother)) return;
+
+                if (mother.Spawned && mother.Map == child.Map && !mother.Downed
+                    && !mother.Awake()
+                    && (mother.Position - child.Position).LengthHorizontalSquared
+                        <= ChildcareDefenseUtility.GetProtectionRangeSquared())
+                {
+                    mother.mindState.canSleepTick = (Find.TickManager?.TicksGame ?? 0) + 1000;
+                    RestUtility.WakeUp(mother);
+                }
+
                 ChildcareDefenseUtility.TryOrderProtection(mother, attacker, child);
             }
             catch (Exception ex)

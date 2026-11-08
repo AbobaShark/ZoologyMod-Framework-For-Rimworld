@@ -44,6 +44,7 @@ namespace ZoologyMod
         public bool EnableWildAnimalReproduction = ModConstants.DefaultEnableWildAnimalReproduction;
         public bool LimitWildAnimalReproductionByEcosystem = ModConstants.DefaultLimitWildAnimalReproductionByEcosystem;
         public bool ForceWildAnimalsToLeaveOnEcosystemOverload = ModConstants.DefaultForceWildAnimalsToLeaveOnEcosystemOverload;
+        public bool LimitWildAnimalsPerSpecies = ModConstants.DefaultLimitWildAnimalsPerSpecies;
         public bool EnableCannotChewExtension = ModConstants.DefaultEnableCannotChewExtension;
         public bool EnablePredatorDefendCorpse = ModConstants.DefaultEnablePredatorDefendCorpse;
         public bool EnablePredatorDefendPreyFromHumansAndMechanoids = ModConstants.DefaultEnablePredatorDefendPreyFromHumansAndMechanoids;
@@ -55,6 +56,8 @@ namespace ZoologyMod
         public bool EnableInsectCocoonSpawnFix = ModConstants.DefaultEnableInsectCocoonSpawnFix;
         public bool EnableRaidAnimals = ModConstants.DefaultEnableRaidAnimals;
         public bool OrphanedRaidAnimalsBecomeWild = ModConstants.DefaultOrphanedRaidAnimalsBecomeWild;
+        public bool EnableAnimalBarn = ModConstants.DefaultEnableAnimalBarn;
+        public bool HideBarnAnimalsFromAnimalTab;
 
         public int PredatorSearchRadius = ModConstants.DefaultPredatorSearchRadius;
         public int NonHostilePredatorSearchRadius = ModConstants.DefaultNonHostilePredatorSearchRadius;
@@ -120,6 +123,8 @@ namespace ZoologyMod
         private float _safeNonPredatorBodySizeThreshold = ModConstants.DefaultSafeNonPredatorBodySizeThreshold;
         private float _petPlayMaxWildness = ModConstants.DefaultPetPlayMaxWildness;
         private float _wildAnimalReproductionEcosystemLimitFactor = ModConstants.DefaultWildAnimalReproductionEcosystemLimitFactor;
+        private int _wildAnimalSpeciesLimit = ModConstants.DefaultWildAnimalSpeciesLimit;
+        private float _animalBarnMaximumBodySize = ModConstants.DefaultAnimalBarnMaximumBodySize;
         private int _minCombatPowerToDefendPreyFromHumans = ModConstants.DefaultMinCombatPowerToDefendPreyFromHumans;
         private int _minCombatPowerToDefendYoungFromHumansAndMechanoids = ModConstants.DefaultMinCombatPowerToDefendYoungFromHumans;
 
@@ -170,7 +175,28 @@ namespace ZoologyMod
                 ModConstants.MaxWildAnimalReproductionEcosystemLimitFactor);
         }
 
-        private bool UsesWildAnimalEcosystemLimit => LimitWildAnimalReproductionByEcosystem || ForceWildAnimalsToLeaveOnEcosystemOverload;
+        public int WildAnimalSpeciesLimit
+        {
+            get => _wildAnimalSpeciesLimit;
+            set => _wildAnimalSpeciesLimit = Mathf.Clamp(value,
+                ModConstants.MinWildAnimalSpeciesLimit,
+                ModConstants.MaxWildAnimalSpeciesLimit);
+        }
+
+        public float AnimalBarnMaximumBodySize
+        {
+            get => _animalBarnMaximumBodySize;
+            set => _animalBarnMaximumBodySize = float.IsNaN(value)
+                || float.IsInfinity(value)
+                ? ModConstants.DefaultAnimalBarnMaximumBodySize
+                : Mathf.Clamp(value,
+                    ModConstants.MinAnimalBarnMaximumBodySize,
+                    ModConstants.MaxAnimalBarnMaximumBodySize);
+        }
+
+        private bool UsesWildAnimalEcosystemLimit =>
+            EnableWildAnimalReproduction && LimitWildAnimalReproductionByEcosystem
+            || ForceWildAnimalsToLeaveOnEcosystemOverload;
 
         public int MinCombatPowerToDefendPreyFromHumans
         {
@@ -391,13 +417,15 @@ namespace ZoologyMod
                 case SettingsPage.Combat:
                     return 580f;
                 case SettingsPage.OtherBehavior:
-                    return 1970f
+                    return 2180f
                         + ((EnablePetPlay || EnablePetBonding) ? 96f : 0f)
                         + (EnableCustomFleeDanger ? 170f : 0f)
                         + (EnableIgnoreSmallPetsByRaiders ? 200f : 0f)
                         + (AnimalsFreeFromHumans ? 130f : 0f)
-                        + (EnableWildAnimalReproduction ? 120f : 0f)
-                        + (EnableWildAnimalReproduction && UsesWildAnimalEcosystemLimit ? 70f : 0f);
+                        + (EnableWildAnimalReproduction ? 60f : 0f)
+                        + 60f
+                        + (UsesWildAnimalEcosystemLimit ? 70f : 0f)
+                        + 55f + (LimitWildAnimalsPerSpecies ? 65f : 0f);
                 case SettingsPage.Dev:
                 default:
                     return 2110f;
@@ -633,6 +661,38 @@ namespace ZoologyMod
                 ref OrphanedRaidAnimalsBecomeWild,
                 "Zoology_OrphanedRaidAnimalsBecomeWild_Desc".Translate());
 
+#if RIMWORLD17
+            list.GapLine(12f);
+            list.CheckboxLabeled(
+                "Zoology_EnableAnimalBarn_Label".Translate(),
+                ref EnableAnimalBarn,
+                "Zoology_EnableAnimalBarn_Desc".Translate());
+
+            if (EnableAnimalBarn)
+            {
+                list.GapLine(6f);
+                list.Label("Zoology_AnimalBarnMaximumBodySize_Label".Translate(
+                    AnimalBarnMaximumBodySize.ToString("0.#")));
+                AnimalBarnMaximumBodySize = Mathf.Round(
+                    list.Slider(AnimalBarnMaximumBodySize,
+                        ModConstants.MinAnimalBarnMaximumBodySize,
+                        ModConstants.MaxAnimalBarnMaximumBodySize) * 2f) / 2f;
+
+                list.GapLine(6f);
+                list.CheckboxLabeled(
+                    "Zoology_HideBarnAnimalsFromAnimalTab_Label".Translate(),
+                    ref HideBarnAnimalsFromAnimalTab,
+                    "Zoology_HideBarnAnimalsFromAnimalTab_Desc".Translate());
+            }
+
+#else
+            list.GapLine(12f);
+            list.CheckboxLabeled(
+                "Zoology_HideBarnAnimalsFromAnimalTab_Label".Translate(),
+                ref HideBarnAnimalsFromAnimalTab,
+                "Zoology_HideBarnAnimalsFromAnimalTab_Desc".Translate());
+#endif
+
             list.GapLine(12f);
             list.CheckboxLabeled(
                 "Zoology_EnablePetPlay_Label".Translate(),
@@ -757,27 +817,44 @@ namespace ZoologyMod
                     ref LimitWildAnimalReproductionByEcosystem,
                     "Zoology_LimitWildAnimalReproductionByEcosystem_Desc".Translate()
                 );
+            }
 
+            // Ecological emigration regulates the existing wild population.
+            // It must remain configurable when modded reproduction is off.
+            list.GapLine(6f);
+            list.CheckboxLabeled(
+                "Zoology_ForceWildAnimalsToLeaveOnEcosystemOverload_Label".Translate(),
+                ref ForceWildAnimalsToLeaveOnEcosystemOverload,
+                "Zoology_ForceWildAnimalsToLeaveOnEcosystemOverload_Desc".Translate()
+            );
+
+            if (UsesWildAnimalEcosystemLimit)
+            {
                 list.GapLine(6f);
-                list.CheckboxLabeled(
-                    "Zoology_ForceWildAnimalsToLeaveOnEcosystemOverload_Label".Translate(),
-                    ref ForceWildAnimalsToLeaveOnEcosystemOverload,
-                    "Zoology_ForceWildAnimalsToLeaveOnEcosystemOverload_Desc".Translate()
-                );
+                list.Label(string.Format(
+                    "Zoology_WildAnimalReproductionEcosystemLimit_Label".Translate(),
+                    WildAnimalReproductionEcosystemLimitFactor,
+                    ModConstants.MinWildAnimalReproductionEcosystemLimitFactor,
+                    ModConstants.MaxWildAnimalReproductionEcosystemLimitFactor));
+                WildAnimalReproductionEcosystemLimitFactor = list.Slider(
+                    WildAnimalReproductionEcosystemLimitFactor,
+                    ModConstants.MinWildAnimalReproductionEcosystemLimitFactor,
+                    ModConstants.MaxWildAnimalReproductionEcosystemLimitFactor);
+            }
 
-                if (UsesWildAnimalEcosystemLimit)
-                {
-                    list.GapLine(6f);
-                    list.Label(string.Format(
-                        "Zoology_WildAnimalReproductionEcosystemLimit_Label".Translate(),
-                        WildAnimalReproductionEcosystemLimitFactor,
-                        ModConstants.MinWildAnimalReproductionEcosystemLimitFactor,
-                        ModConstants.MaxWildAnimalReproductionEcosystemLimitFactor));
-                    WildAnimalReproductionEcosystemLimitFactor = list.Slider(
-                        WildAnimalReproductionEcosystemLimitFactor,
-                        ModConstants.MinWildAnimalReproductionEcosystemLimitFactor,
-                        ModConstants.MaxWildAnimalReproductionEcosystemLimitFactor);
-                }
+            list.GapLine(12f);
+            list.CheckboxLabeled(
+                "Zoology_LimitWildAnimalsPerSpecies_Label".Translate(),
+                ref LimitWildAnimalsPerSpecies,
+                "Zoology_LimitWildAnimalsPerSpecies_Desc".Translate());
+
+            if (LimitWildAnimalsPerSpecies)
+            {
+                list.GapLine(6f);
+                list.Label("Zoology_WildAnimalSpeciesLimit_Label".Translate(WildAnimalSpeciesLimit,
+                    ModConstants.MinWildAnimalSpeciesLimit, ModConstants.MaxWildAnimalSpeciesLimit));
+                WildAnimalSpeciesLimit = Mathf.RoundToInt(list.Slider(WildAnimalSpeciesLimit,
+                    ModConstants.MinWildAnimalSpeciesLimit, ModConstants.MaxWildAnimalSpeciesLimit));
             }
 
             list.GapLine(6f);
@@ -937,14 +1014,10 @@ namespace ZoologyMod
 
         private void DrawLactationSettings(Listing_Standard list)
         {
-            if (EnableMammalLactation)
-            {
-                list.CheckboxLabeled("Zoology_EnableHandlerBabyFeeding_Label".Translate(), ref EnableHandlerBabyFeeding, "Zoology_EnableHandlerBabyFeeding_Desc".Translate());
-            }
-            else
-            {
-                EnableHandlerBabyFeeding = false;
-            }
+            bool previousGuiEnabled = GUI.enabled;
+            GUI.enabled = previousGuiEnabled && EnableMammalLactation;
+            list.CheckboxLabeled("Zoology_EnableHandlerBabyFeeding_Label".Translate(), ref EnableHandlerBabyFeeding, "Zoology_EnableHandlerBabyFeeding_Desc".Translate());
+            GUI.enabled = previousGuiEnabled;
 
             list.GapLine(12f);
             list.Label("Zoology_LactationAutoSlaughter_Label".Translate());
@@ -1009,6 +1082,8 @@ namespace ZoologyMod
             EnableWildAnimalReproduction = ModConstants.DefaultEnableWildAnimalReproduction;
             LimitWildAnimalReproductionByEcosystem = ModConstants.DefaultLimitWildAnimalReproductionByEcosystem;
             ForceWildAnimalsToLeaveOnEcosystemOverload = ModConstants.DefaultForceWildAnimalsToLeaveOnEcosystemOverload;
+            LimitWildAnimalsPerSpecies = ModConstants.DefaultLimitWildAnimalsPerSpecies;
+            _wildAnimalSpeciesLimit = ModConstants.DefaultWildAnimalSpeciesLimit;
             _wildAnimalReproductionEcosystemLimitFactor = ModConstants.DefaultWildAnimalReproductionEcosystemLimitFactor;
             EnableCannotChewExtension = ModConstants.DefaultEnableCannotChewExtension;
             EnablePredatorDefendCorpse = ModConstants.DefaultEnablePredatorDefendCorpse;
@@ -1048,6 +1123,9 @@ namespace ZoologyMod
             EnableInsectCocoonSpawnFix = ModConstants.DefaultEnableInsectCocoonSpawnFix;
             EnableRaidAnimals = ModConstants.DefaultEnableRaidAnimals;
             OrphanedRaidAnimalsBecomeWild = ModConstants.DefaultOrphanedRaidAnimalsBecomeWild;
+            EnableAnimalBarn = ModConstants.DefaultEnableAnimalBarn;
+            AnimalBarnMaximumBodySize = ModConstants.DefaultAnimalBarnMaximumBodySize;
+            HideBarnAnimalsFromAnimalTab = false;
             ClampFleeAndThreatSettings();
             ApplyRuntimeDefOverrides();
 
@@ -1096,6 +1174,9 @@ namespace ZoologyMod
             Scribe_Values.Look(ref EnableWildAnimalReproduction, "EnableWildAnimalReproduction", ModConstants.DefaultEnableWildAnimalReproduction);
             Scribe_Values.Look(ref LimitWildAnimalReproductionByEcosystem, "LimitWildAnimalReproductionByEcosystem", ModConstants.DefaultLimitWildAnimalReproductionByEcosystem);
             Scribe_Values.Look(ref ForceWildAnimalsToLeaveOnEcosystemOverload, "ForceWildAnimalsToLeaveOnEcosystemOverload", ModConstants.DefaultForceWildAnimalsToLeaveOnEcosystemOverload);
+            Scribe_Values.Look(ref LimitWildAnimalsPerSpecies, "LimitWildAnimalsPerSpecies", ModConstants.DefaultLimitWildAnimalsPerSpecies);
+            Scribe_Values.Look(ref _wildAnimalSpeciesLimit, "WildAnimalSpeciesLimit", ModConstants.DefaultWildAnimalSpeciesLimit);
+            WildAnimalSpeciesLimit = _wildAnimalSpeciesLimit;
             Scribe_Values.Look(ref _wildAnimalReproductionEcosystemLimitFactor, "WildAnimalReproductionEcosystemLimitFactor", ModConstants.DefaultWildAnimalReproductionEcosystemLimitFactor);
             Scribe_Values.Look(ref EnableAgroAtSlaughter, "EnableAgroAtSlaughter", ModConstants.DefaultEnableAgroAtSlaughter);
             Scribe_Values.Look(ref EnableMammalLactation, "EnableMammalLactation", ModConstants.DefaultEnableMammalLactation);
@@ -1129,6 +1210,12 @@ namespace ZoologyMod
             Scribe_Values.Look(ref EnableInsectCocoonSpawnFix, "EnableInsectCocoonSpawnFix", ModConstants.DefaultEnableInsectCocoonSpawnFix);
             Scribe_Values.Look(ref EnableRaidAnimals, "EnableRaidAnimals", ModConstants.DefaultEnableRaidAnimals);
             Scribe_Values.Look(ref OrphanedRaidAnimalsBecomeWild, "OrphanedRaidAnimalsBecomeWild", ModConstants.DefaultOrphanedRaidAnimalsBecomeWild);
+            Scribe_Values.Look(ref EnableAnimalBarn, "EnableAnimalBarn",
+                ModConstants.DefaultEnableAnimalBarn);
+            Scribe_Values.Look(ref _animalBarnMaximumBodySize, "AnimalBarnMaximumBodySize",
+                ModConstants.DefaultAnimalBarnMaximumBodySize);
+            AnimalBarnMaximumBodySize = _animalBarnMaximumBodySize;
+            Scribe_Values.Look(ref HideBarnAnimalsFromAnimalTab, "HideBarnAnimalsFromAnimalTab", false);
 
             EnsureCollectionsInitialized();
             Scribe_Collections.Look(ref AnimalsFreeFromHumansPerAnimal, "AnimalsFreeFromHumansPerAnimal", LookMode.Value, LookMode.Value);
@@ -1142,7 +1229,6 @@ namespace ZoologyMod
 
             if (!EnableMammalLactation)
             {
-                EnableHandlerBabyFeeding = false;
                 AllowSlaughterLactating = ModConstants.DefaultAllowSlaughterLactating;
             }
 
@@ -1182,6 +1268,8 @@ namespace ZoologyMod
                 hash = hash * 31 + (EnableInsectCocoonSpawnFix ? 1 : 0);
                 hash = hash * 31 + (EnableRaidAnimals ? 1 : 0);
                 hash = hash * 31 + (OrphanedRaidAnimalsBecomeWild ? 1 : 0);
+                hash = hash * 31 + (EnableAnimalBarn ? 1 : 0);
+                hash = hash * 31 + (HideBarnAnimalsFromAnimalTab ? 1 : 0);
                 hash = hash * 31 + (EnableCustomFleeDanger ? 1 : 0);
                 hash = hash * 31 + (EnableIgnoreSmallPetsByRaiders ? 1 : 0);
                 hash = hash * 31 + (EnableSmallPetNoMeleeRetaliation ? 1 : 0);
@@ -1189,6 +1277,10 @@ namespace ZoologyMod
                 hash = hash * 31 + (AnimalsFleeFromNonHostlePredators ? 1 : 0);
                 hash = hash * 31 + (AnimalsFreeFromHumans ? 1 : 0);
                 hash = hash * 31 + (EnableWildAnimalReproduction ? 1 : 0);
+                // These switches determine whether the wildlife spawn and
+                // mating Harmony hooks should be installed at all.
+                hash = hash * 31 + (LimitWildAnimalsPerSpecies ? 1 : 0);
+                hash = hash * 31 + (LimitWildAnimalReproductionByEcosystem ? 1 : 0);
                 hash = hash * 31 + (EnablePackHunt ? 1 : 0);
                 hash = hash * 31 + (EnableAdvancedPredationLogic ? 1 : 0);
                 hash = hash * 31 + (EnableAgroAtSlaughter ? 1 : 0);
@@ -1202,7 +1294,6 @@ namespace ZoologyMod
                 hash = hash * 31 + (EnablePredatorDefendCorpse ? 1 : 0);
                 hash = hash * 31 + (EnableScavengering ? 1 : 0);
                 hash = hash * 31 + (EnableMammalLactation ? 1 : 0);
-                hash = hash * 31 + (EnableHandlerBabyFeeding ? 1 : 0);
                 hash = hash * 31 + (EnableAnimalChildcare ? 1 : 0);
                 hash = hash * 31 + (EnableAnimalEggProtection ? 1 : 0);
                 hash = hash * 31 + (PreventFleeFromHumansWhileProtectingYoung ? 1 : 0);
@@ -1658,6 +1749,9 @@ namespace ZoologyMod
             ClampFleeAndThreatSettings();
             ZoologyRuntimeAnimalOverrides.ApplyAll(this);
             ZoologyNpcGroupOptionRegistry.ApplySettings(this);
+#if RIMWORLD17
+            Building_AnimalBarn.SyncConstructionAvailability();
+#endif
             if (DisableAllRuntimePatches)
             {
                 NpcAnimalCompanionManager.Current?.DetachAllToOwnerLords();

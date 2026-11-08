@@ -15,8 +15,7 @@ The `Animal textiles` tab contains one row per material `ThingDef`:
 `StuffPower_Armor_Blunt`, `StuffPower_Armor_Heat`,
 `StuffPower_Insulation_Cold`, `StuffPower_Insulation_Heat`,
 `Flammability factor`, `Color hex`, `CE Armor Sharp`,
-`CE Armor Blunt`, `CE Armor Heat`. The provenance column is documentary,
-not an input to the material generation algorithm.
+`CE Armor Blunt`, `CE Armor Heat`. The `Source mod` column determines the material owner and output route.
 
 The supported original groups are Core, Odyssey, AlphaAnimals, Megafauna and
 Vanilla Animals Expanded. Only those groups receive a generated XML route.
@@ -25,14 +24,12 @@ Missing source definitions are errors, not invitations to create new materials.
 ## Refresh and generate
 
 Use `reference_sync_gui.py` to preview and apply upstream reference XML for
-the installed game, DLCs, optional mods and Combat Extended. Both leather and
-textile material XML go into the existing source-relative `_Leathers`
-reference directories. These are input snapshots and are not loaded by RimWorld.
+the installed game, DLCs, optional mods and Combat Extended. All upstream ThingDefs, including materials, are stored under their **local-only** source-relative paths in `OriginalXML/<source>/`, without additional material folders. CE patch references reside under `OriginalXML/CEPatches/`. These snapshots are not stored in Git and must be refreshed on each installation. These are input snapshots and are not loaded by RimWorld.
 
 From the `checker` directory:
 
 ```powershell
-py rimworld_patch_generator.py --category textiles --source "D:\Data\AnimalStats.xlsx"
+py rimworld_patch_generator.py --category textiles --source "gsheet:1BsPzRPFLFx2HL4UdlVo058kryub3C4a9ezQ54CnGEB4"
 py rimworld_patch_generator.py --preview
 py rimworld_patch_generator.py --deploy --yes
 ```
@@ -58,7 +55,7 @@ is therefore necessary before deploying the textile category.
 
 ```powershell
 cd checker
-py -m pytest tests/test_animal_textiles.py tests/test_reference_sync_auto.py tests/test_leather_original_overrides.py -q
+py -m pytest tests/test_animal_textiles.py tests/test_reference_sync_auto.py tests/test_leather_routing.py tests/test_cross_mod_leather_fallbacks.py -q
 ```
 
 Isolated tests from the imported v4 prototype passed, but they used a stub
@@ -92,6 +89,11 @@ actual owner: `Core`, `Odyssey`, `AlphaAnimals`, `Dinosauria`, `Megafauna`,
 Zoology leathers), or `External` (other projects not patched by Zoology).
 
 This is checked against the owning upstream ThingDef in `OriginalXML`.
+For example, `Leather_AlphaThrumbo` belongs to **Odyssey**, not Alpha
+Animals, even though the animal name contains "Alpha". The reference
+directory and the `Source mod` value must agree. If generation fails on
+outdated local values, download the latest AnimalStats workbook rather than
+changing a verified source ownership to hide a missing reference.
 A missing or mismatched original fails generation, rather than routing
 a skin to an unrelated mod or silently skipping it. Source-specific output
 is placed only in `generation.json`-registered paths; both Vanilla material
@@ -105,10 +107,20 @@ equal the original. CE reassertions are retained when a preceding Vanilla
 override requires them. Empty generated material outputs are not deployed:
 their registered destinations appear as explicit DELETE operations in the
 staged deployment preview, with checksum checks for previously deployed files.
-Handcrafted and conditional fallback XML are never deleted by this cleanup.
+Handcrafted XML is not deleted by this cleanup. Generated conditional fallback operations
+are retained whenever the source workbook declares a consumer.
 
 If you have an older local `.xlsx` without `Source mod`, download a fresh
 copy of the live AnimalStats spreadsheet before using `--category leathers`.
 The source workbook and the installed mod tree must be synchronized separately;
 `--preview` only reviews staged XML and does not write it.
 
+
+For leathers, the only checked-in material definitions are the four Zoology-native ThingDefs. All upstream material stats, including vanilla and CE armor, are generated into owner-specific XML. Legacy handwritten leather templates remain removed. Odyssey-owned leathers
+referenced by animals from other mods are an exception to the no-fallback rule:
+Checker derives consumers from `Animals.LeatherDef`, `Animals.MayRequire`,
+`Leathers.Source mod` and the registered routes. It emits guarded `ThingDef`
+creation inside each consumer mod's leather patch only when Odyssey is absent.
+If multiple consumers are installed, the runtime existence check prevents
+creating duplicate material definitions. Other absent-material assignments
+remain protected by the animal leatherDef guards.

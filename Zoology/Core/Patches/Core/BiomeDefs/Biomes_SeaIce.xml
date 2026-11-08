@@ -1,18 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
-<Patch>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/BiomeDef[defName="SeaIce"]/wildAnimals</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/BiomeDef[defName="SeaIce"]/wildAnimals</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/BiomeDef[defName="SeaIce"]</xpath>
-    <value>
-      <wildAnimals/>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
+<Patch><Operation Class="PatchOperationReplace"><xpath>/Defs/BiomeDef[defName="SeaIce"]/wildAnimals</xpath><value><wildAnimals/>
+    </value></Operation><Operation Class="PatchOperationConditional">
     <xpath>/Defs/BiomeDef[defName="SeaIce"]/pollutionWildAnimals</xpath>
     <match Class="PatchOperationRemove">
       <xpath>/Defs/BiomeDef[defName="SeaIce"]/pollutionWildAnimals</xpath>
@@ -24,28 +12,8 @@
       <pollutionWildAnimals/>
     </value>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/BiomeDef[defName="SeaIce"]/coastalWildAnimals</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/BiomeDef[defName="SeaIce"]/coastalWildAnimals</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/BiomeDef[defName="SeaIce"]</xpath>
-    <value>
-      <coastalWildAnimals/>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/BiomeDef[defName="SeaIce"]/allowedPackAnimals</xpath>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/BiomeDef[defName="SeaIce"]</xpath>
-      <value>
-        <allowedPackAnimals/>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
+  <Operation Class="PatchOperationReplace"><xpath>/Defs/BiomeDef[defName="SeaIce"]/coastalWildAnimals</xpath><value><coastalWildAnimals/>
+    </value></Operation><Operation Class="PatchOperationAdd">
     <xpath>/Defs/BiomeDef[defName="SeaIce"]/wildAnimals</xpath>
     <value>
       <Bear_Polar>0.05</Bear_Polar>
@@ -114,15 +82,6 @@
       <xpath>/Defs/BiomeDef[defName="SeaIce"]/allowedPackAnimals</xpath>
       <value>
         <li MayRequire="sarg.alphaanimals">AA_Radyak</li>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/BiomeDef[defName="SeaIce"]/allowedPackAnimals/li[text()="Muffalo"]</xpath>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/BiomeDef[defName="SeaIce"]/allowedPackAnimals</xpath>
-      <value>
-        <li>Muffalo</li>
       </value>
     </nomatch>
   </Operation>

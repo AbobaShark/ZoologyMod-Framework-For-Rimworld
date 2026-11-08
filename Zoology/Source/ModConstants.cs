@@ -36,6 +36,10 @@ namespace ZoologyMod
         public const bool DefaultEnableWildAnimalReproduction = true;
         public const bool DefaultLimitWildAnimalReproductionByEcosystem = true;
         public const bool DefaultForceWildAnimalsToLeaveOnEcosystemOverload = true;
+        public const bool DefaultLimitWildAnimalsPerSpecies = true;
+        public const int DefaultWildAnimalSpeciesLimit = 30;
+        public const int MinWildAnimalSpeciesLimit = 10;
+        public const int MaxWildAnimalSpeciesLimit = 100;
         public const bool DefaultEnableCannotChewExtension = true;
         public const bool DefaultEnablePredatorDefendCorpse = true;
         public const bool DefaultEnablePredatorDefendPreyFromHumansAndMechanoids = true;
@@ -43,6 +47,10 @@ namespace ZoologyMod
         public const bool DefaultAllowSlaughterLactating = false;
         public const bool DefaultDisableAllRuntimePatches = false;
         public const bool DefaultEnableInsectCocoonSpawnFix = true;
+        public const bool DefaultEnableAnimalBarn = true;
+        public const float DefaultAnimalBarnMaximumBodySize = 32.5f;
+        public const float MinAnimalBarnMaximumBodySize = 10f;
+        public const float MaxAnimalBarnMaximumBodySize = 100f;
         public const bool DefaultEnableRaidAnimals = true;
         public const bool DefaultOrphanedRaidAnimalsBecomeWild = false;
         public const bool DefaultEnableAnimalDamageReduction = true;

@@ -1137,7 +1137,7 @@ namespace ZoologyMod
             FactionDef def = faction.def;
             if (def != null
                 && def.defName != null
-                && def.defName.Equals("Photonozoa", StringComparison.OrdinalIgnoreCase))
+                && def.defName.Equals("Spectrobionta", StringComparison.OrdinalIgnoreCase))
             {
                 return null;
             }
@@ -2628,7 +2628,7 @@ namespace ZoologyMod
             FactionDef def = protector.Faction.def;
             if (def != null
                 && def.defName != null
-                && def.defName.Equals("Photonozoa", StringComparison.OrdinalIgnoreCase))
+                && def.defName.Equals("Spectrobionta", StringComparison.OrdinalIgnoreCase))
             {
                 return false;
             }

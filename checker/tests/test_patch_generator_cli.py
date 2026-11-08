@@ -20,6 +20,35 @@ class UnifiedEntryPointTests(unittest.TestCase):
             app.return_value.mainloop.assert_called_once_with()
             cli.assert_not_called()
 
+    def test_worker_reports_full_traceback_instead_of_just_exception(self):
+        import queue
+        class Worker:
+            def __init__(self):
+                self.messages = queue.Queue()
+        worker = Worker()
+        failure = TypeError("'NoneType' object has no attribute 'startswith'")
+        with patch.object(entry, 'stage_pipeline', side_effect=failure):
+            entry.PatchGeneratorApp._worker(worker, {})
+        kind, summary, details = worker.messages.get_nowait()
+        self.assertEqual(kind, 'error')
+        self.assertIn("startswith", summary)
+        self.assertIn("Traceback (most recent call last)", details)
+        self.assertIn("TypeError:", details)
+        self.assertIn("_worker", details)
+
+    def test_cli_errors_write_full_traceback_log(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as directory:
+            with patch.object(entry, 'ROOT', Path(directory)), \
+                 patch.object(entry, 'cli_main', side_effect=ValueError('generation failed')):
+                with self.assertRaisesRegex(ValueError, 'generation failed'):
+                    entry.main(['--all'])
+            details = (Path(directory) / 'output' / 'generation-error.log').read_text(
+                encoding='utf-8')
+            self.assertIn('Traceback (most recent call last)', details)
+            self.assertIn('ValueError: generation failed', details)
+
+
     def test_flags_open_cli_without_gui(self):
         with patch.object(entry, 'PatchGeneratorApp') as app, patch.object(entry, 'stage_pipeline', return_value=Path('manifest.json')) as stage, \
              patch.object(entry, 'load', return_value={}), \
@@ -40,7 +69,7 @@ class UnifiedEntryPointTests(unittest.TestCase):
     def test_all_uses_all_categories_and_defaults_from_config(self):
         cfg = {'vanilla_tsv': 'gsheet:main', 'sheet_sources': {'Bionics': 'gsheet:bionics'},
                'generation_config': '/tmp/generation.json', 'original_xml_dir': '/tmp/original',
-               'original_patches_dir': '/tmp/patches', 'enable_ce': False, 'optimize': False}
+               'ce_patches_dir': '/tmp/patches', 'enable_ce': False, 'optimize': False}
         with patch.object(entry, 'stage_pipeline', return_value=Path('manifest.json')) as stage, \
              patch.object(entry, 'load', return_value=cfg), \
              patch.object(entry, 'find_project_root', return_value=Path('/tmp/project')):
@@ -75,7 +104,7 @@ class UnifiedEntryPointTests(unittest.TestCase):
                                            Path('/tmp/project'), dry_run=False)
 
     def test_check_audits_all_routes_without_generating_or_deploying(self):
-        result = {'destinations':134, 'missing_static':[]}
+        result = {'destinations':147, 'missing_static':[]}
         with patch.object(entry,'audit_routes',return_value=result) as audit, \
              patch.object(entry,'stage_pipeline') as stage, \
              patch.object(entry,'deploy') as deploy, \
@@ -83,7 +112,7 @@ class UnifiedEntryPointTests(unittest.TestCase):
              patch.object(entry,'find_project_root',return_value=Path('/tmp/project')):
             with contextlib.redirect_stdout(io.StringIO()) as output:
                 entry.main(['--check'])
-            self.assertIn('134',output.getvalue())
+            self.assertIn('147',output.getvalue())
             audit.assert_called_once()
             self.assertTrue(audit.call_args.kwargs['require_static_sources'])
             stage.assert_not_called()

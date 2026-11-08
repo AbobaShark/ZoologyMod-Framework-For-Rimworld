@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+  <!-- Both Alpha Animals lions use regular Zoology beastmastery Draft.
+       SentienceCatalyst removes only the command-radius restriction:
+       a present, capable master is still required. -->
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/ThingDef[defName="AA_ArcticLion" or defName="AA_SandLion"]/modExtensions</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_AnimalDraftRules, ZoologyMod">
+        <unlimitedRangeHediffDefName>SentienceCatalyst</unlimitedRangeHediffDefName>
+      </li>
+    </value>
+  </Operation>
+
+  <!-- Sand lions do not originally have a beastmastery special trainable,
+       unlike arctic lions. Add Zoology's only when Odyssey is available. -->
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/TrainableDef[defName="Zoology_Beastmastery"]</xpath>
+    <match Class="PatchOperationConditional">
+      <xpath>/Defs/ThingDef[defName="AA_SandLion"]/race/specialTrainables/li[text()="Zoology_Beastmastery"]</xpath>
+      <nomatch Class="PatchOperationAdd">
+        <xpath>/Defs/ThingDef[defName="AA_SandLion"]/race/specialTrainables</xpath>
+        <value>
+          <li>Zoology_Beastmastery</li>
+        </value>
+      </nomatch>
+    </match>
+  </Operation>
+</Patch>

@@ -910,18 +910,9 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Heron"]/race/roamMtbDays</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Heron"]/race/roamMtbDays</xpath>
-      <value>
-        <roamMtbDays>4</roamMtbDays>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Heron"]/race</xpath>
-      <value>
-        <roamMtbDays>4</roamMtbDays>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Heron"]/race/leatherDef</xpath>
@@ -1517,18 +1508,9 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Flamingo"]/race/roamMtbDays</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Flamingo"]/race/roamMtbDays</xpath>
-      <value>
-        <roamMtbDays>4</roamMtbDays>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Flamingo"]/race</xpath>
-      <value>
-        <roamMtbDays>4</roamMtbDays>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Flamingo"]/race/leatherDef</xpath>
@@ -1988,20 +1970,11 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Penguin"]/race/roamMtbDays</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Penguin"]/race/roamMtbDays</xpath>
-      <value>
-        <roamMtbDays>2</roamMtbDays>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Penguin"]/race</xpath>
-      <value>
-        <roamMtbDays>2</roamMtbDays>
-      </value>
-    </nomatch>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationConditional"><xpath>/Defs/ThingDef[defName="Leather_Bird"]</xpath><match Class="PatchOperationSequence"><operations><li Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Penguin"]/race/leatherDef</xpath>
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Penguin"]/race/leatherDef</xpath>
@@ -2015,14 +1988,14 @@
         <leatherDef>Leather_Bird</leatherDef>
       </value>
     </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
+  </li>
+  <li Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Penguin"]/race/useLeatherFrom</xpath>
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Penguin"]/race/useLeatherFrom</xpath>
     </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
+  </li>
+  </operations></match></Operation><Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Penguin"]/race/manhunterOnTameFailChance</xpath>
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Penguin"]/race/manhunterOnTameFailChance</xpath>

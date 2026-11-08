@@ -694,13 +694,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AEXP_Chihuahua"]/race/manhunterOnDamageChance</xpath>
       <value>
-        <manhunterOnDamageChance>0</manhunterOnDamageChance>
+        <manhunterOnDamageChance>0.1</manhunterOnDamageChance>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AEXP_Chihuahua"]/race</xpath>
       <value>
-        <manhunterOnDamageChance>0</manhunterOnDamageChance>
+        <manhunterOnDamageChance>0.1</manhunterOnDamageChance>
       </value>
     </nomatch>
   </Operation>
@@ -1173,13 +1173,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AEXP_Corgi"]/race/manhunterOnDamageChance</xpath>
       <value>
-        <manhunterOnDamageChance>0</manhunterOnDamageChance>
+        <manhunterOnDamageChance>0.1</manhunterOnDamageChance>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AEXP_Corgi"]/race</xpath>
       <value>
-        <manhunterOnDamageChance>0</manhunterOnDamageChance>
+        <manhunterOnDamageChance>0.1</manhunterOnDamageChance>
       </value>
     </nomatch>
   </Operation>
@@ -1652,13 +1652,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AEXP_FrenchBulldog"]/race/manhunterOnDamageChance</xpath>
       <value>
-        <manhunterOnDamageChance>0</manhunterOnDamageChance>
+        <manhunterOnDamageChance>0.1</manhunterOnDamageChance>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AEXP_FrenchBulldog"]/race</xpath>
       <value>
-        <manhunterOnDamageChance>0</manhunterOnDamageChance>
+        <manhunterOnDamageChance>0.1</manhunterOnDamageChance>
       </value>
     </nomatch>
   </Operation>
@@ -2099,19 +2099,19 @@
       <xpath>/Defs/ThingDef[defName = "AEXP_GermanShepherd"]/race/roamMtbDays</xpath>
     </match>
   </Operation>
-  <Operation Class="PatchOperationReplace">
+  <Operation Class="PatchOperationConditional"><xpath>/Defs/ThingDef[defName="Leather_Dog"]</xpath><match Class="PatchOperationSequence"><operations><li Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_GermanShepherd"]/race/leatherDef</xpath>
     <value>
       <leatherDef>Leather_Dog</leatherDef>
     </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
+  </li>
+  <li Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AEXP_GermanShepherd"]/race/useLeatherFrom</xpath>
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "AEXP_GermanShepherd"]/race/useLeatherFrom</xpath>
     </match>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
+  </li>
+  </operations></match></Operation><Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_GermanShepherd"]/race/manhunterOnTameFailChance</xpath>
     <value>
       <manhunterOnTameFailChance>0</manhunterOnTameFailChance>
@@ -3480,13 +3480,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AEXP_Pug"]/race/manhunterOnDamageChance</xpath>
       <value>
-        <manhunterOnDamageChance>0</manhunterOnDamageChance>
+        <manhunterOnDamageChance>0.1</manhunterOnDamageChance>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AEXP_Pug"]/race</xpath>
       <value>
-        <manhunterOnDamageChance>0</manhunterOnDamageChance>
+        <manhunterOnDamageChance>0.1</manhunterOnDamageChance>
       </value>
     </nomatch>
   </Operation>
@@ -4410,13 +4410,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AEXP_Shih-Tzu"]/race/manhunterOnDamageChance</xpath>
       <value>
-        <manhunterOnDamageChance>0</manhunterOnDamageChance>
+        <manhunterOnDamageChance>0.1</manhunterOnDamageChance>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AEXP_Shih-Tzu"]/race</xpath>
       <value>
-        <manhunterOnDamageChance>0</manhunterOnDamageChance>
+        <manhunterOnDamageChance>0.1</manhunterOnDamageChance>
       </value>
     </nomatch>
   </Operation>

@@ -33,6 +33,9 @@ namespace ZoologyMod
             {
                 Settings?.CleanupInvalidAnimalOverrides();
                 Settings?.ApplyRuntimeDefOverrides();
+#if RIMWORLD17
+                AnimalBarnWorkPriority.MatchVanillaPens();
+#endif
                 AnimalDraftControlDefNormalizer.NormalizeDefs();
                 SyncRuntimePatchesWithSettings(forceRebuild: true);
 

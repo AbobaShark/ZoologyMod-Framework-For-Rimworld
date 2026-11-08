@@ -179,7 +179,7 @@ namespace ZoologyMod
                     
                     if (throwMessages)
                     {
-                        const string key = "PhotonozoaCannotBeTargetedByPsychicSlaughter";
+                        const string key = "SpectrobiontaCannotBeTargetedByPsychicSlaughter";
                         string text = key.Translate(pawn.Named("PAWN"));
                         if (text == key) 
                         {

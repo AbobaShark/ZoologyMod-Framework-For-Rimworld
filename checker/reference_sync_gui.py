@@ -1,6 +1,8 @@
 """Reviewed auto-sync GUI for the existing Checker upstream reference corpus."""
 from __future__ import annotations
 import json
+import os
+import tempfile
 from pathlib import Path
 import queue
 import threading
@@ -11,7 +13,62 @@ from tools import reference_sync_auto as sync
 
 ROOT = Path(__file__).resolve().parent
 DEFAULT = ROOT / 'reference_sources.auto.json'
-LOCAL = ROOT / 'output' / 'reference_sources.local.json'  # output is gitignored
+SETTINGS = ROOT / 'checker.local.json'
+
+def _load_reference_config():
+    """Always use current versioned source paths, never local copies of them."""
+    config = sync.read_config(DEFAULT)
+    if not SETTINGS.is_file():
+        return config
+    document = json.loads(SETTINGS.read_text(encoding='utf-8-sig'))
+    local = document.get('reference_sync', {})
+    if not isinstance(local, dict) or not isinstance(local.get('mods', {}), dict):
+        raise ValueError('checker.local.json: invalid reference_sync settings')
+    config['steam_root'] = local.get('steam_root', '')
+    edits = local.get('mods', {})
+    for spec in config['mods']:
+        override = edits.get(spec['id'], {})
+        if not isinstance(override, dict):
+            raise ValueError('checker.local.json: invalid reference_sync mod settings')
+        if 'enabled' in override:
+            spec['enabled'] = bool(override['enabled'])
+        if 'github' in override:
+            spec['github'] = override['github']
+    return config
+
+
+def _save_reference_config(config):
+    """Persist only preferences in shared local config, never reference paths."""
+    baseline = sync.read_config(DEFAULT)
+    originals = {spec['id']: spec for spec in baseline['mods']}
+    overrides = {}
+    for spec in config['mods']:
+        original = originals[spec['id']]
+        changed = {}
+        for key in ('enabled', 'github'):
+            if spec.get(key) != original.get(key):
+                changed[key] = spec.get(key)
+        if changed:
+            overrides[spec['id']] = changed
+    document = json.loads(SETTINGS.read_text(encoding='utf-8-sig')) if SETTINGS.is_file() else {}
+    state = {'mods': overrides}
+    if config.get('steam_root', '').strip():
+        state['steam_root'] = config['steam_root'].strip()
+    if overrides or 'steam_root' in state:
+        document['reference_sync'] = state
+    else:
+        document.pop('reference_sync', None)
+    SETTINGS.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.NamedTemporaryFile('w', encoding='utf-8', dir=SETTINGS.parent,
+                                     prefix='.checker-sync-', suffix='.tmp', delete=False) as output:
+        temporary = Path(output.name)
+        json.dump(document, output, ensure_ascii=False, indent=2)
+        output.write('\n')
+    try:
+        os.replace(temporary, SETTINGS)
+    finally:
+        temporary.unlink(missing_ok=True)
+
 
 
 class App:
@@ -19,8 +76,7 @@ class App:
         self.root = root
         root.title('Checker — Upstream Reference Sync')
         root.geometry('1190x770')
-        self.path = LOCAL if LOCAL.is_file() else DEFAULT
-        self.config = sync.read_config(self.path)
+        self.config = _load_reference_config()
         self.steam = tk.StringVar(value=self.config.get('steam_root', ''))
         self.github = tk.BooleanVar(value=True)
         self.mod_enabled = tk.BooleanVar()
@@ -31,6 +87,7 @@ class App:
         self.warnings = []
         self.q = queue.Queue()
         self.busy = False
+        self.cancel_event = threading.Event()
         self._create()
         self._refresh_sources()
         root.after(150, self._poll)
@@ -42,7 +99,7 @@ class App:
         top.pack(fill='x')
         ttk.Entry(top, textvariable=self.steam).pack(side='left', fill='x', expand=True)
         ttk.Button(top, text='Browse…', command=self._browse).pack(side='left', padx=6)
-        ttk.Checkbutton(top, text='Prefer GitHub', variable=self.github).pack(side='left')
+        ttk.Checkbutton(top, text='GitHub fallback for missing mods', variable=self.github).pack(side='left')
         ttk.Label(outer, text='Configured mods: select one to edit. Enabled is saved immediately; GitHub fields use Update selected. Blank branch uses the latest default branch.').pack(anchor='w', pady=(8,2))
         upper = ttk.Frame(outer); upper.pack(fill='both', expand=False)
         self.mods = ttk.Treeview(upper, columns=('github','workshop'), show='tree headings', height=10)
@@ -73,12 +130,15 @@ class App:
         actions = ttk.Frame(outer); actions.pack(fill='x', pady=(0,6))
         self.preview_button = ttk.Button(actions, text='Preview (read only)', command=self._preview)
         self.preview_button.pack(side='left')
+        self.cancel_button = ttk.Button(actions, text='Cancel preview',
+                                        command=self._cancel_preview, state='disabled')
+        self.cancel_button.pack(side='left', padx=(6, 0))
         self.apply_button = ttk.Button(actions, text='Apply reviewed changes', command=self._apply, state='disabled')
         self.apply_button.pack(side='left', padx=10)
         ttk.Button(actions, text='Open backup folder', command=self._open_backups).pack(side='left')
-        self.status = tk.StringVar(value='Ready. Preview never writes into OriginalXML / OriginalPatches.')
+        self.status = tk.StringVar(value='Ready. Preview discovers upstream Defs and CE patches without modifying the reference cache.')
         ttk.Label(actions, textvariable=self.status).pack(side='left', padx=12)
-        ttk.Label(outer, text='Reference changes (MISSING / REVIEW / HISTORICAL are never written)').pack(anchor='w')
+        ttk.Label(outer, text='COPY = new; REPLACE = changed; DELETE = obsolete. No files change before Apply.').pack(anchor='w')
         box = ttk.Frame(outer); box.pack(fill='both', expand=True)
         cols = ('status','reference','source')
         self.results = ttk.Treeview(box, columns=cols, show='headings', height=14)
@@ -141,10 +201,8 @@ class App:
     def _save_config(self):
         if not self._save_selected():return
         self.config['steam_root'] = self.steam.get().strip()
-        LOCAL.parent.mkdir(parents=True, exist_ok=True)
-        LOCAL.write_text(json.dumps(self.config, indent=2, ensure_ascii=False)+'\n', encoding='utf8')
-        self.path = LOCAL
-        self.status.set('Saved: '+str(LOCAL))
+        _save_reference_config(self.config)
+        self.status.set('Saved: '+str(SETTINGS))
 
     def _invalidate(self):
         self.entries = None
@@ -155,41 +213,59 @@ class App:
         self._save_config()
         self._invalidate()
         self.results.delete(*self.results.get_children())
-        self._set_busy(True)
+        self.cancel_event.clear()
+        self._set_busy(True, preview=True)
         cfg = json.loads(json.dumps(self.config))
         steam, github = self.steam.get().strip(), self.github.get()
         def worker():
             try:
                 results, warnings = sync.discover(cfg, steam=steam, github=github,
-                                                   progress=lambda msg:self.q.put(('status', msg)))
+                                                   progress=lambda msg:self.q.put(('status', msg)),
+                                                   cancelled=self.cancel_event)
                 self.q.put(('preview', (results, warnings)))
+            except InterruptedError:
+                self.q.put(('cancelled', None))
             except Exception as ex:
                 self.q.put(('error', str(ex)))
         threading.Thread(target=worker, daemon=True).start()
 
+    def _cancel_preview(self):
+        if self.busy:
+            self.cancel_event.set()
+            self.status.set('Cancelling upstream preview...')
+
     def _apply(self):
         if self.busy or not self.entries:return
-        changes = [x for x in self.entries if x['status'] in ('REPLACE','COPY')]
+        changes = [x for x in self.entries if x['status'] in ('REPLACE','COPY','DELETE')]
         if not changes:return
-        if not messagebox.askyesno('Apply changes', f'Overwrite {len(changes)} reviewed reference files?\n'
-                                            'Each previous file will be backed up.\n'
-                                            'Unmatched and historical references remain untouched.'):
+        new_files = sum(x['status'] == 'COPY' for x in changes)
+        updated_files = sum(x['status'] == 'REPLACE' for x in changes)
+        deleted_files = sum(x['status'] == 'DELETE' for x in changes)
+        if not messagebox.askyesno('Apply changes',
+                f'Import {new_files} new reference file(s) and update '
+                f'{updated_files} existing file(s) and remove {deleted_files} obsolete file(s)?\n'
+                'Replaced and removed files are backed up.\n'
+                'Nothing changes until Apply is confirmed.'):
             return
         self._set_busy(True)
         try:
             backup = sync.apply(self.entries)
-            self.status.set(f'Updated {len(changes)} files. Backup: {backup}')
-            messagebox.showinfo('Completed', f'Updated {len(changes)} reference files.\nBackup: {backup}\nRegenerate and validate Zoology patches before deployment.')
+            self.status.set(f'Imported {new_files}, updated {updated_files}, removed {deleted_files}. Backup: {backup}')
+            messagebox.showinfo('Completed', f'Imported {new_files} new reference files, '
+                f'updated {updated_files} and removed {deleted_files} obsolete files.\nBackup: {backup}\n'
+                'Material definitions are now available for the generator. '
+                'Regenerate and validate Zoology patches before deployment.')
             self._invalidate()
         except Exception as ex:
             messagebox.showerror('Apply failed', str(ex))
         finally:
             self._set_busy(False)
 
-    def _set_busy(self, state):
+    def _set_busy(self, state, *, preview=False):
         self.busy = state
+        self.cancel_button.configure(state='normal' if state and preview else 'disabled')
         self.preview_button.configure(state='disabled' if state else 'normal')
-        self.apply_button.configure(state='disabled' if state or not self.entries or not any(i['status'] in ('COPY','REPLACE') for i in self.entries) else 'normal')
+        self.apply_button.configure(state='disabled' if state or not self.entries or not any(i['status'] in ('COPY','REPLACE','DELETE') for i in self.entries) else 'normal')
 
     def _poll(self):
         try:
@@ -199,13 +275,37 @@ class App:
                     self.status.set(data)
                 elif kind == 'preview':
                     self.entries, self.warnings = data
-                    for i, ent in enumerate(self.entries):
-                        self.results.insert('', 'end', iid=str(i), values=(ent['status'],ent['destination'],ent.get('source_file','')))
-                    counts = {k:sum(x['status']==k for x in self.entries) for k in ('REPLACE','SKIP','MISSING','REVIEW','HISTORICAL')}
-                    self.status.set('Preview: '+', '.join(f'{k} {v}' for k,v in counts.items())+'; warnings: '+str(len(self.warnings)))
+                    priority = {'COPY': 0, 'REPLACE': 1, 'DELETE': 2, 'MISSING': 3,
+                                'REVIEW': 4, 'SKIP': 5}
+                    ordered = sorted(enumerate(self.entries),
+                                     key=lambda e: (priority.get(e[1]['status'], 6),
+                                                    e[1]['destination'].casefold()))
+                    for i, ent in ordered:
+                        self.results.insert('', 'end', iid=str(i),
+                                            values=(ent['status'], ent['destination'],
+                                                    ent.get('source_file','')))
+                    counts = {k: sum(x['status'] == k for x in self.entries)
+                              for k in ('COPY','REPLACE','DELETE','SKIP','MISSING','REVIEW')}
+                    pending = counts['COPY'] + counts['REPLACE'] + counts['DELETE']
+                    self.status.set('Preview: '+', '.join(f'{k} {v}' for k,v in counts.items())
+                                    + f'; warnings: {len(self.warnings)}')
+                    if pending:
+                        message = (f'Not yet synchronized: {counts["COPY"]} new and '
+                                   f'{counts["REPLACE"]} updated, {counts["DELETE"]} removed reference file(s). '
+                                   'Click Apply reviewed changes to synchronize them.')
+                    else:
+                        message = ('No new or updated upstream files found. '
+                                   'MISSING 0 alone does not validate the complete '
+                                   'material reference corpus.')
                     if self.warnings:
-                        self.info.set('Warnings (first 3): '+' | '.join(self.warnings[:3]))
+                        message += ' Warnings: ' + ' | '.join(self.warnings[:3])
+                    self.info.set(message)
+                    self.apply_button.configure(text=f'Apply ({counts["COPY"]} new, '
+                                                         f'{counts["REPLACE"]} updated, {counts["DELETE"]} removed)')
                     self._set_busy(False)
+                elif kind == 'cancelled':
+                    self._set_busy(False)
+                    self.status.set('Preview cancelled; no references changed.')
                 elif kind == 'error':
                     self._set_busy(False)
                     messagebox.showerror('Preview failed', data)

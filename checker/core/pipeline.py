@@ -26,6 +26,54 @@ STAGE=ROOT/'output/staged'
 CATEGORIES=('animals','venom','biomes','products','bionics','life-stages','leathers','textiles')
 
 
+def _guard_leather_assignments(payload):
+    """Leave existing race leather unchanged when a referenced material is absent.
+
+    This removes any need to define extra or fallback leather ThingDefs for
+    Odyssey, VAE Waste or other optional material providers.
+    """
+    root = E.fromstring(payload)
+    if root.tag != 'Patch':
+        return payload
+    changed = False
+    for operation in list(root):
+        if not isinstance(operation.tag, str) or operation.tag != 'Operation':
+            continue
+        xpaths = operation.xpath('./xpath/text() | ./match/xpath/text() | ./nomatch/xpath/text()')
+        if not any('/race/leatherDef' in xpath for xpath in xpaths):
+            continue
+        materials = {str(value).strip() for value in operation.xpath(
+            './value//leatherDef/text() | ./match/value//leatherDef/text() | '
+            './nomatch/value//leatherDef/text()')}
+        if not materials:
+            continue
+        if len(materials) != 1:
+            raise ValueError(f'Conflicting leatherDef assignment: {sorted(materials)}')
+        name = materials.pop()
+        if not re.fullmatch(r'[A-Za-z][A-Za-z0-9_]*', name):
+            raise ValueError(f'Invalid assigned leatherDef: {name!r}')
+        idx = root.index(operation)
+        guard = E.Element('Operation', Class='PatchOperationConditional')
+        E.SubElement(guard, 'xpath').text = f'/Defs/ThingDef[defName="{name}"]'
+        seq = E.SubElement(E.SubElement(guard, 'match', Class='PatchOperationSequence'), 'operations')
+        root.remove(operation)
+        operation.tag = 'li'
+        seq.append(operation)
+        # The neighboring useLeatherFrom removal is part of this reassignment.
+        if idx < len(root):
+            following = root[idx]
+            if (isinstance(following.tag, str) and following.tag == 'Operation'
+                and any('/race/useLeatherFrom' in xpath for xpath in
+                        following.xpath('./xpath/text() | ./match/xpath/text()'))):
+                root.remove(following)
+                following.tag = 'li'
+                seq.append(following)
+        root.insert(idx, guard)
+        changed = True
+    return E.tostring(root, xml_declaration=True, encoding='utf-8',
+                      pretty_print=True) if changed else payload
+
+
 def _data_as_entry(mod,rel,category,requires=None):
     return target_entry(mod,rel,category,requires)
 
@@ -48,8 +96,6 @@ def stage_pipeline(source, *, root=None, registry_path=None, sheet_sources=None,
     registered_outputs={entry['destination']:entry for entry in registry['outputs']}
     animal_group_destinations={group['destination'] for group in registry['groups']}
     declared_routes={entry['destination']:(section,entry) for section in ('groups','biomes','shared_defs','outputs') for entry in registry[section]}
-    leather_destinations={e['destination'] for e in outputs_for(registry,'leathers')}
-    textile_destinations={e['destination'] for e in outputs_for(registry,'textiles')}
     cats=set(categories)
     if cats-set(CATEGORIES):raise ValueError(f'Unknown categories: {cats-set(CATEGORIES)}')
     sheets=dict(sheet_sources or {})
@@ -68,13 +114,15 @@ def stage_pipeline(source, *, root=None, registry_path=None, sheet_sources=None,
     # Verify all retained staged files before generating or pruning anything.
     for e in old['files']:
         if e['destination'] not in declared_routes:
-            raise ValueError(f'Staged destination not present in generation.json: {e["destination"]}. Review/clear old output/staged first.')
+            if e.get('pipeline_category') in cats:
+                continue  # Retired category output is not retained in the next stage.
+            raise ValueError(f'Staged destination not present in generation.json: {e["destination"]}. Regenerate its category.')
         p=stage/e['source']
         if not p.is_file() or digest(p)!=e.get('sha256'):raise ValueError(f'Staged file changed externally: {p}')
     entry_by_dest={}
     remove_generated=set()
     postprocessor=PatchPostprocessor(original_xml=original_xml or ROOT/'OriginalXML',
-        original_patches=original_patches or ROOT/'OriginalPatches',
+        original_patches=(original_patches or ROOT/'OriginalXML/CEPatches') if ce else None,
         preserve_guards=preserve_runtime_preconditions) if optimize else None
     with tempfile.TemporaryDirectory(prefix='.zoology-stage-',dir=stage.parent) as temp:
         temp=Path(temp)
@@ -89,11 +137,13 @@ def stage_pipeline(source, *, root=None, registry_path=None, sheet_sources=None,
             expected_category = 'biome_patch' if declared_section=='biomes' else ('animal_patch' if declared_section=='groups' else declared['category'])
             if expected_category!=category or declared.get('requires')!=requires:
                 raise ValueError(f'Output category or requirement differs from generation.json: {dest}')
-            if postprocessor is not None and category.endswith('patch') and dest not in animal_group_destinations and dest not in leather_destinations and dest not in textile_destinations:
+            if postprocessor is not None and category.endswith('patch') and dest not in animal_group_destinations:
                 if postprocessor.index is None and generator is not None:
                     postprocessor.index=getattr(generator,'_original_xml_index',None)
                 data=postprocessor.process(data,destination=dest)
             entry=_data_as_entry(mod,dest,category,requires)
+            if dest in animal_group_destinations:
+                data=_guard_leather_assignments(data)
             xml=E.fromstring(data)
             if xml.tag!=('Defs' if category.endswith('defs') else 'Patch'):
                 raise ValueError(f'{dest}: incorrect XML root {xml.tag}')
@@ -108,6 +158,8 @@ def stage_pipeline(source, *, root=None, registry_path=None, sheet_sources=None,
         selection_dest={e['destination'] for e in registry['shared_defs']} if 'venom' in cats else set()
         selection_dest |= {x['destination'] for x in registry['biomes']} if 'biomes' in cats else set()
         for e in old['files']:
+            if e['destination'] not in declared_routes:
+                continue
             c=e.get('pipeline_category')
             selected=(c in cats and (c!='animals' or groups is None or e['destination'] in active_groups))
             if selected:continue
@@ -129,7 +181,7 @@ def stage_pipeline(source, *, root=None, registry_path=None, sheet_sources=None,
         if cats & {'animals','venom','biomes'}:
             generator=PatchGenerator(source, None, [],
                 original_xml_dir=original_xml or ROOT/'OriginalXML',
-                original_patches_dir=original_patches or ROOT/'OriginalPatches',
+                original_patches_dir=original_patches or ROOT/'OriginalXML/CEPatches',
                 preserve_runtime_preconditions=preserve_runtime_preconditions,
                 venom_profile_source=venom_source or sheets.get('Venom profiles'),
                 source_map=sheets,enable_ce=ce,optimize=optimize,
@@ -210,7 +262,7 @@ def stage_pipeline(source, *, root=None, registry_path=None, sheet_sources=None,
             entries=outputs_for(registry,'leathers')
             if not entries:raise ValueError('No leathers outputs registered in generation.json')
             leather_source=sheets.get('Leathers') or source
-            rendered, report=render_leather_outputs(leather_source,mod,entries,ce=ce,original_xml=original_xml or ROOT/'OriginalXML',original_patches=original_patches or ROOT/'OriginalPatches')
+            rendered, report=render_leather_outputs(leather_source,mod,entries,ce=ce,original_xml=original_xml or ROOT/'OriginalXML',original_patches=original_patches or ROOT/'OriginalXML/CEPatches',animals_source=sheets.get('Animals') or (source if source != leather_source else None))
             from core.leather_overrides import GROUP_ROUTES as LEATHER_ROUTES
             from core.leather_generation import CE_DEST as LEATHER_CE_DEST
             for dest,payload in rendered:
@@ -228,7 +280,7 @@ def stage_pipeline(source, *, root=None, registry_path=None, sheet_sources=None,
             textile_source=sheets.get('Animal textiles') or source
             rendered,report=render_textile_outputs(textile_source,entries,ce=ce,
                 original_xml=original_xml or ROOT/'OriginalXML',
-                original_patches=original_patches or ROOT/'OriginalPatches')
+                original_patches=original_patches or ROOT/'OriginalXML/CEPatches')
             for dest,payload in rendered:
                 if not len(E.fromstring(payload)):
                     remove_generated.add(dest)

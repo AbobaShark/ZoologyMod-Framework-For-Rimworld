@@ -1337,7 +1337,7 @@ namespace ZoologyMod
                 if (!object.ReferenceEquals(fa, fb)) return false;
 
                 var defName = fa.def?.defName;
-                if (!string.IsNullOrEmpty(defName) && string.Equals(defName, "Photonozoa", StringComparison.OrdinalIgnoreCase))
+                if (!string.IsNullOrEmpty(defName) && string.Equals(defName, "Spectrobionta", StringComparison.OrdinalIgnoreCase))
                 {
                     return false;
                 }

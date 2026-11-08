@@ -59,7 +59,7 @@ class RouteAudit(unittest.TestCase):
 
     def test_whole_registry_and_every_static_category(self):
         reg = load_registry(CHECKER/'generation.json', self.mod)
-        self.assertEqual((len(reg['groups']), len(reg['biomes']), len(reg['shared_defs'])), (81, 31, 3))
+        self.assertEqual((len(reg['groups']), len(reg['biomes']), len(reg['shared_defs'])), (81, 29, 3))
         self.assertEqual(len(outputs_for(reg,'products')), 15)
         seen = set()
         category_paths = []
@@ -67,14 +67,14 @@ class RouteAudit(unittest.TestCase):
         category_paths.extend((x['destination'],'biome_patch',x.get('requires')) for x in reg['biomes'])
         category_paths.extend((x['destination'],x['category'],x.get('requires')) for x in reg['shared_defs'])
         category_paths.extend((x['destination'],x['category'],x.get('requires')) for x in reg['outputs'])
-        self.assertEqual(len(category_paths), 134)
+        self.assertEqual(len(category_paths), 147)
         for dest, category, required in category_paths:
             with self.subTest(destination=dest):
                 self.assertNotIn(dest.lower(), seen)
                 seen.add(dest.lower())
                 self.assertEqual(route_dependency(self.mod,dest,preferred=required),required)
                 self.assertEqual(validate_target(self.mod,{'destination':dest,'category':category,'requires':required}).as_posix(),dest)
-        self.assertEqual(len(seen), 134)
+        self.assertEqual(len(seen), 147)
 
     def test_all_real_reproduction_paths_include_core_and_odyssey_hatchers(self):
         products=[e['destination'] for e in load_registry(CHECKER/'generation.json',self.mod)['outputs'] if e['pipeline_category']=='products']
@@ -160,7 +160,7 @@ class RoutingAuditExtensions(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             mod=Path(tmp)/'Zoology';mod.mkdir();write_loadfolders(mod)
             report=audit_routes(CHECKER/'generation.json',mod)
-            self.assertEqual(report['destinations'],134)
+            self.assertEqual(report['destinations'],147)
             self.assertEqual(len(report['missing_static']),18)
             with self.assertRaisesRegex(ValueError,'Missing installed static XML'):
                 audit_routes(CHECKER/'generation.json',mod,require_static_sources=True)

@@ -2,6 +2,7 @@
 from __future__ import annotations
 import json
 from pathlib import Path
+from xml.etree import ElementTree as ET
 from core.xml_routing import safe_relative, validate_target
 
 
@@ -76,7 +77,50 @@ def load_registry(path,mod):
     actual={e['id'] for e in obj['outputs']}
     if not required_ids <= actual or not any(e['pipeline_category']=='products' for e in obj['outputs']):
         raise ValueError('Missing required named static outputs')
+    # Validate playable XML only. Source/ contains benchmark archives and
+    # upstream snapshots that are not loaded as patches by RimWorld.
+    if (Path(mod) / 'LoadFolders.xml').is_file():
+        allowed = {e['destination'] for e in obj['outputs']
+                   if e['pipeline_category'] in ('leathers', 'textiles')}
+        forbidden = _unregistered_material_xml(mod, allowed)
+        if forbidden:
+            raise ValueError('Handwritten or unregistered material XML forbidden: '
+                             + ', '.join(forbidden))
     return obj
+
+
+
+def _unregistered_material_xml(mod, allowed):
+    """Check active Defs/Patches roots, not Source/ archives or test fixtures.
+
+    LoadFolders entries are paths containing the actual Defs/ and Patches/
+    subdirectories. Its '/' entry refers to the top-level mod Defs/Patches,
+    not an instruction to recursively scan Source/, assets, or old builds.
+    """
+    mod = Path(mod)
+    tree = ET.parse(mod / 'LoadFolders.xml')
+    roots = {mod / name for name in ('Defs', 'Patches')}
+    for item in tree.getroot().iter('li'):
+        prefix = (item.text or '').strip().strip('/')
+        if not prefix:
+            continue
+        segment = Path(prefix.replace('\\', '/'))
+        if segment.is_absolute() or '..' in segment.parts:
+            raise ValueError(f'Unsafe LoadFolders entry: {prefix!r}')
+        for kind in ('Defs', 'Patches'):
+            roots.add(mod / segment / kind)
+    forbidden = set()
+    for directory in roots:
+        if not directory.is_dir():
+            continue
+        for candidate in directory.rglob('*.xml'):
+            name = candidate.name.casefold()
+            if 'leather' not in name and 'animaltextiles' not in name:
+                continue
+            relative = candidate.relative_to(mod).as_posix()
+            if relative not in allowed:
+                forbidden.add(relative)
+    return sorted(forbidden)
 
 
 def output_by_id(registry, ident):

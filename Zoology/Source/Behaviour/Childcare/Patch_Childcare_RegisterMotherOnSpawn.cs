@@ -31,6 +31,11 @@ namespace ZoologyMod
                 }
 
                 ChildcareUtility.RegisterObservedMother(pawn, mother);
+                if (mother != null && AnimalEffectiveArea.TryGetFollowingMother(pawn, out Pawn currentMother)
+                    && ReferenceEquals(currentMother, mother))
+                {
+                    AnimalEffectiveArea.SyncWithMother(pawn, mother);
+                }
             }
             catch (System.Exception ex)
             {

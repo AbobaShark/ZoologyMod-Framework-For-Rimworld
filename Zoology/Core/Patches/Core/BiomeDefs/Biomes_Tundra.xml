@@ -1,51 +1,8 @@
 <?xml version='1.0' encoding='utf-8'?>
-<Patch>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/BiomeDef[defName="Tundra"]/wildAnimals</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/BiomeDef[defName="Tundra"]/wildAnimals</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/BiomeDef[defName="Tundra"]</xpath>
-    <value>
-      <wildAnimals/>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/BiomeDef[defName="Tundra"]/pollutionWildAnimals</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/BiomeDef[defName="Tundra"]/pollutionWildAnimals</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/BiomeDef[defName="Tundra"]</xpath>
-    <value>
-      <pollutionWildAnimals/>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/BiomeDef[defName="Tundra"]/coastalWildAnimals</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/BiomeDef[defName="Tundra"]/coastalWildAnimals</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
-    <xpath>/Defs/BiomeDef[defName="Tundra"]</xpath>
-    <value>
-      <coastalWildAnimals/>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/BiomeDef[defName="Tundra"]/allowedPackAnimals</xpath>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/BiomeDef[defName="Tundra"]</xpath>
-      <value>
-        <allowedPackAnimals/>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationAdd">
+<Patch><Operation Class="PatchOperationReplace"><xpath>/Defs/BiomeDef[defName="Tundra"]/wildAnimals</xpath><value><wildAnimals/>
+    </value></Operation><Operation Class="PatchOperationReplace"><xpath>/Defs/BiomeDef[defName="Tundra"]/pollutionWildAnimals</xpath><value><pollutionWildAnimals/>
+    </value></Operation><Operation Class="PatchOperationReplace"><xpath>/Defs/BiomeDef[defName="Tundra"]/coastalWildAnimals</xpath><value><coastalWildAnimals/>
+    </value></Operation><Operation Class="PatchOperationAdd">
     <xpath>/Defs/BiomeDef[defName="Tundra"]/wildAnimals</xpath>
     <value>
       <Bear_Polar>0.05</Bear_Polar>
@@ -106,15 +63,6 @@
       <Walrus MayRequire="Ludeon.RimWorld.Odyssey">0.05</Walrus>
       <AEXP_RockhopperPenguin MayRequire="VanillaExpanded.VAEEndAndExt">0.045</AEXP_RockhopperPenguin>
     </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/BiomeDef[defName="Tundra"]/allowedPackAnimals/li[text()="Muffalo"]</xpath>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/BiomeDef[defName="Tundra"]/allowedPackAnimals</xpath>
-      <value>
-        <li>Muffalo</li>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/BiomeDef[defName="Tundra"]/allowedPackAnimals/li[text()="Mastodon"]</xpath>

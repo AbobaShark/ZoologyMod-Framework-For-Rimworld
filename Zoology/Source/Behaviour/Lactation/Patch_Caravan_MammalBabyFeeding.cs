@@ -98,14 +98,12 @@ namespace ZoologyMod
 
         private static void HandleMammalBabyFoodNeed(Caravan caravan, Pawn pawn, Need_Food food, int delta, CaravanLactationScanCache cache)
         {
-            EnsureBiologicalMotherLactationInCaravan(caravan, pawn);
-
             if (cache.HungryBabyIds.Contains(pawn.thingIDNumber))
             {
                 Pawn feeder = FindBestFeederInCaravan(cache.FeederCandidates, pawn);
                 if (feeder != null)
                 {
-                    SuckleInCaravan(pawn, feeder, delta);
+                    AnimalLactationUtility.SuckleFromLactatingPawn(pawn, feeder, delta);
                 }
             }
 
@@ -214,7 +212,7 @@ namespace ZoologyMod
 
                     if (AnimalLactationUtility.ChildWantsSuckle(caravanPawn))
                     {
-                        EnsureBiologicalMotherLactationInCaravan(caravan, caravanPawn);
+                        AnimalLactationUtility.MaintainKnownMotherLactationForBaby(caravanPawn);
                         cache.HungryBabyIds.Add(caravanPawn.thingIDNumber);
                     }
                 }
@@ -235,47 +233,6 @@ namespace ZoologyMod
             }
 
             return cache;
-        }
-
-        private static void EnsureBiologicalMotherLactationInCaravan(Caravan caravan, Pawn baby)
-        {
-            Pawn mother = TryGetBiologicalMother(baby);
-            if (mother == null
-                || mother.Dead
-                || mother.Destroyed
-                || mother.gender != Gender.Female
-                || !mother.IsMammal()
-                || !AnimalLactationUtility.IsCrossBreedCompatible(mother, baby))
-            {
-                return;
-            }
-
-            if (!ReferenceEquals(mother.GetCaravan(), caravan) || !ReferenceEquals(baby.GetCaravan(), caravan))
-            {
-                return;
-            }
-
-            AnimalLactationUtility.EnsureLactatingHediff(mother);
-        }
-
-        private static Pawn TryGetBiologicalMother(Pawn baby)
-        {
-            List<DirectPawnRelation> relations = baby?.relations?.DirectRelations;
-            if (relations == null)
-            {
-                return null;
-            }
-
-            for (int i = 0; i < relations.Count; i++)
-            {
-                DirectPawnRelation relation = relations[i];
-                if (relation.def == PawnRelationDefOf.Parent && relation.otherPawn?.gender == Gender.Female)
-                {
-                    return relation.otherPawn;
-                }
-            }
-
-            return null;
         }
 
         private static Pawn FindBestFeederInCaravan(List<Pawn> pawns, Pawn baby)
@@ -342,70 +299,6 @@ namespace ZoologyMod
                 || mom.HostFaction == pupHost;
         }
 
-        private static bool SuckleInCaravan(Pawn pup, Pawn mom, int deltaTicks)
-        {
-            if (pup == null || mom == null || pup.Dead || mom.Dead || mom.Downed)
-            {
-                return false;
-            }
 
-            if (!AnimalLactationUtility.IsCrossBreedCompatible(mom, pup))
-            {
-                return false;
-            }
-
-            if (!AnimalLactationUtility.MotherHasSufficientNutrition(mom))
-            {
-                return false;
-            }
-
-            HediffDef lactDef = AnimalLactationUtility.LactatingHediffDef;
-            if (lactDef == null)
-            {
-                return false;
-            }
-
-            Hediff lact = mom.health?.hediffSet?.GetFirstHediffOfDef(lactDef);
-            if (lact == null)
-            {
-                return false;
-            }
-
-            Need_Food momFood = mom.needs?.food;
-            Need_Food pupFood = pup.needs?.food;
-            if (momFood == null || pupFood == null)
-            {
-                return false;
-            }
-
-            float nutritionWanted = pupFood.NutritionWanted;
-            if (nutritionWanted <= 0f)
-            {
-                return true;
-            }
-
-            int safeDelta = Math.Max(1, deltaTicks);
-            float perTick = pupFood.MaxLevel / AnimalLactationUtility.FullFeedSessionTicks;
-            float providedRequested = perTick * safeDelta;
-            float provided = Math.Min(nutritionWanted, providedRequested);
-            float momDeduct = Math.Min(momFood.CurLevel, provided);
-            if (momDeduct <= 0f)
-            {
-                return false;
-            }
-
-            momFood.CurLevel = Math.Max(0f, momFood.CurLevel - momDeduct);
-            pupFood.CurLevel = Math.Min(pupFood.MaxLevel, pupFood.CurLevel + momDeduct);
-
-            try
-            {
-                lact.Severity = 1f;
-            }
-            catch
-            {
-            }
-
-            return pupFood.CurLevel >= pupFood.MaxLevel * 0.99f;
-        }
     }
 }

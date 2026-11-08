@@ -1,9 +1,6 @@
 # Automatic upstream reference sync (RimWorld 1.7)
 
-Copy `reference_sync_gui.py`, `START_REFERENCE_SYNC.bat`,
-`reference_sources.auto.json` to `checker/` and
-`tools/reference_sync_auto.py` to `checker/tools/`.
-These files are additions: do not replace the existing `tools/reference_sync.py`.
+Reference Sync is included in current Checker; no manual copying or obsolete updater is required.
 
 Double-click `START_REFERENCE_SYNC.bat` or run `py reference_sync_gui.py`.
 Enter any of these locations: Steam root, Steam library, `steamapps`, RimWorld
@@ -11,16 +8,45 @@ installation directory, or `steamapps/workshop/content/294100`. The scanner
 uses `About/About.xml`, Workshop item IDs and game `Data/` subfolders. If Steam
 has extra libraries, their `libraryfolders.vdf` entries are used when found.
 The GitHub URLs of supported repositories are prefilled and editable. Blank
-branch means the latest default branch, not a fixed SHA. You can optionally
-enter a branch or a 40-digit pinned SHA. GitHub takes precedence; if its XML
-cannot be matched or GitHub cannot be reached, a detected local copy is tried.
+branch means the latest default branch, not a fixed SHA. GitHub repositories
+are indexed through the GitHub API without creating a temporary Git checkout;
+relevant XML files are downloaded with bounded parallel requests. Preview
+shows per-source file counts and progress, and can be cancelled without
+changing any references. You can optionally
+enter a branch or a 40-digit pinned SHA. **Installed Workshop and game files take precedence:** for an installed mod Reference Sync reads local XML without contacting GitHub. The `GitHub fallback for missing mods` option only requests GitHub when the mod is absent locally or its local XML cannot be used.
 
-Select `Preview` to compare; inspect `MISSING`, `REVIEW`, and the origin SHA
-of each proposed change. `Apply` replaces only matched, validated changed
-files after confirmation, with previous file backups and a JSON report in
-`checker/output/reference-backups/`. `HISTORICAL` version snapshots are never
-replaced. No upstream files are deleted. Unknown/new filenames are *not*
-automatically added. Local UI settings are stored under gitignored `output/`.
+Select `Preview` first. `COPY` means **new reference XML not yet imported**
+and `REPLACE` means a previously imported reference has changed. Both are
+included by **Apply reviewed changes**, with prior-file backups and a JSON
+report under `checker/output/reference-backups/`. Complete source Definition XML and relevant CE patch XML are discovered
+without pre-existing reference files. After applying, rerun Preview: those references should
+normally change from `COPY` to `SKIP`.
+
+`DELETE` identifies an existing reference that does not belong to the current source snapshot. Deletions require explicit Apply and are backed up along with replacements. `MISSING` denotes a reference that cannot be resolved to a source. Reference Sync
+also imports newly discovered `Defs` XML from game Core/DLC installations and
+third-party mods even if `OriginalXML/` is initially empty. It imports race,
+PawnKind, biome, egg/item, wool/silk/leather, inherited base and relevant CE
+patch XML under source-specific paths. Exact upstream relative paths are
+retained directly under `OriginalXML/<owner>/`, or under `OriginalXML/CEPatches/` for CE. The game version is read from the installed RimWorld `Version.txt`. For each mod, only the highest compatible versioned directory and shared unversioned XML are imported; this automatically supports future minor releases such as 1.8, without a hardcoded version allowlist. If no game version is detected, the newest available mod version is chosen and a warning is displayed.
+
+The source configuration includes Alpha Biomes, Alpha Animals, Vanilla Animals
+Expanded modules and Combat Extended through their GitHub repositories and/or
+Workshop IDs. Dinosauria and Megafauna have Workshop IDs and are read from
+local installations. Disabled or unavailable sources cannot be reconstructed:
+review every warning, especially missing registered DefNames. This is a source
+coverage check, not proof of complete RimWorld patch-load-order semantics.
+
+Reference Sync filters source XML by the current `generation.json` registry:
+registered races/PawnKinds and biome DefNames, abstract race parents, animal
+materials (leathers, wool, silk), eggs/hatchers, animal life stages and relevant
+animal health definitions. It excludes unrelated buildings, plants, human
+PawnKindDefs and CE patches whose targets are outside that set. The inventory
+stores whole upstream files, not altered fragments, so mixed XML may also
+contain unrelated sibling definitions.
+
+Review COPY/REPLACE/DELETE entries before applying. Preview never modifies files. Apply archives overwritten or removed XML; if the registered DefName coverage is incomplete, unrelated old snapshots are retained and a warning is shown. Machine
+preferences live in ignored `checker.local.json`; upstream source paths are
+versioned in `reference_sources.auto.json`.
 
 The tool is intentionally independent of patch generation. After applying
 reference changes, regenerate patches with Checker's existing generator,
@@ -33,14 +59,12 @@ py -m tools.reference_sync_auto --config reference_sources.auto.json --steam "D:
 py -m tools.reference_sync_auto --config reference_sources.auto.json --steam "D:\\SteamLibrary" --apply
 ```
 
-`--no-github` uses only installed mods; with GitHub enabled the newest default
-branch is fetched each time without changing your Zoology Git checkout.
+`--no-github` uses only installed mods. With GitHub enabled, missing or unusable local mod sources are fetched through the GitHub API. A locally installed mod never triggers a GitHub request when its XML can be read. Partial remote downloads are discarded; no destructive changes are planned for a missing source. The optional `GITHUB_TOKEN` environment variable increases GitHub API rate limits.
 
 **Limitations**: Discovery is conservative, not a RimWorld XML load-order
-interpreter. Identical filenames with several different plausible sources
-are marked `MISSING` (reason: ambiguous) rather than silently chosen. Files
+interpreter. Files
 whose upstream filenames or Def identities have changed radically require
-manual review. Existing historical Megafauna strata are protected. GitHub
+manual review. GitHub
 branches are not guaranteed to correspond to the most recent Steam Workshop
 release; inspect source provenance before accepting replacements. A local
 Steam game/mod may still be outdated. The UI reports missing local sources.

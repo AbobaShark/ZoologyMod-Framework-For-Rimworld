@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 LOCAL_NAME = 'checker.local.json'
 SECTIONS = {'patch_generator': 'rimworld_patch_generator_config.json',
             'xml_generator': 'rimworld_xml_generator_config.json'}
-PATH_FIELDS = {'patch_generator': ('vanilla_tsv','ce_tsv','venom_profiles_source','egg_milk_tsv','generation_config','original_xml_dir','original_patches_dir'),
+PATH_FIELDS = {'patch_generator': ('vanilla_tsv','ce_tsv','venom_profiles_source','egg_milk_tsv','generation_config','original_xml_dir','ce_patches_dir'),
                'xml_generator': ('xlsx','out_dir','existing_xml','game_root_dir','core_thingdefs_dir')}
 
 

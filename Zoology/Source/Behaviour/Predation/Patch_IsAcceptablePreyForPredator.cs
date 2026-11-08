@@ -29,7 +29,7 @@ namespace ZoologyMod
             return predator != null
                 && predator.RaceProps?.predator == true
                 && predator.BodySize >= LargeMammalPredatorMinBodySize
-                && (predator.IsMammal() || ZoologyCacheUtility.IsPhotonozoa(predator.def));
+                && (predator.IsMammal() || ZoologyCacheUtility.IsSpectrobionta(predator.def));
         }
 
         public static float GetThreatSizeFactor(Pawn predator, Pawn prey)
@@ -494,9 +494,9 @@ namespace ZoologyMod
             Pawn predator,
             Pawn prey,
             float preyCombatPowerAdjusted,
-            bool photonozoaPairInTheirFaction)
+            bool spectrobiontaPairInTheirFaction)
         {
-            if (photonozoaPairInTheirFaction)
+            if (spectrobiontaPairInTheirFaction)
             {
                 return true;
             }
@@ -523,7 +523,7 @@ namespace ZoologyMod
             Pawn predator,
             Pawn prey,
             float preyCombatPowerAdjusted,
-            bool photonozoaPairInTheirFaction)
+            bool spectrobiontaPairInTheirFaction)
         {
             float predatorCombatPower = AnimalCombatPowerUtility.GetAdjustedCombatPower(predator);
             bool useLargeMammalSizing = !prey.Downed && LargeMammalPredationUtility.UsesLargeMammalSizing(predator);
@@ -596,7 +596,7 @@ namespace ZoologyMod
                 }
             }
 
-            if (photonozoaPairInTheirFaction)
+            if (spectrobiontaPairInTheirFaction)
             {
                 return true;
             }
@@ -627,13 +627,13 @@ namespace ZoologyMod
                 || CannotChewUtility.IsPreyTooLargeForPredator(predator, prey) || IsMammalBaby(predator)) return false;
             if (ChildcareUtility.HasChildcareExtension(predator) && ChildcareUtility.HasChildcareExtension(prey)
                 && (predator.def == prey.def || ZoologyCacheUtility.AreCrossbreedRelated(predator.def, prey.def))) return false;
-            bool photonozoa = ZoologyCacheUtility.IsPhotonozoa(predator.def);
-            if (!photonozoa && ZoologyCacheUtility.IsPhotonozoa(prey.def)) return false;
+            bool spectrobionta = ZoologyCacheUtility.IsSpectrobionta(predator.def);
+            if (!spectrobionta && ZoologyCacheUtility.IsSpectrobionta(prey.def)) return false;
             return EvaluateCustomAcceptablePrey(predator, prey, PreyCombatPowerUtility.GetAdjustedCombatPower(prey),
-                photonozoa && ZoologyCacheUtility.IsPhotonozoaPairInTheirFaction(predator, prey));
+                spectrobionta && ZoologyCacheUtility.IsSpectrobiontaPairInTheirFaction(predator, prey));
         }
 
-        internal static bool IsAcceptablePhotonozoaPreyForFlee(Pawn predator, Pawn prey)
+        internal static bool IsAcceptableSpectrobiontaPreyForFlee(Pawn predator, Pawn prey)
         {
             try
             {
@@ -652,7 +652,7 @@ namespace ZoologyMod
                     return false;
                 }
 
-                if (!ZoologyCacheUtility.IsPhotonozoa(predator.def) || !ZoologyCacheUtility.IsPhotonozoa(prey.def))
+                if (!ZoologyCacheUtility.IsSpectrobionta(predator.def) || !ZoologyCacheUtility.IsSpectrobionta(prey.def))
                 {
                     return false;
                 }
@@ -836,21 +836,21 @@ namespace ZoologyMod
                     return false;
                 }
 
-                bool predIsPhotonozoa = ZoologyCacheUtility.IsPhotonozoa(predator.def);
-                bool preyIsPhotonozoa = ZoologyCacheUtility.IsPhotonozoa(prey.def);
+                bool predIsSpectrobionta = ZoologyCacheUtility.IsSpectrobionta(predator.def);
+                bool preyIsSpectrobionta = ZoologyCacheUtility.IsSpectrobionta(prey.def);
 
-                if (preyIsPhotonozoa && !predIsPhotonozoa)
+                if (preyIsSpectrobionta && !predIsSpectrobionta)
                 {
                     __result = false;
                     StoreAcceptablePreyResult(predator, prey, false, usePackHuntHotCache, currentTick);
                     return false;
                 }
 
-                bool photonozoaPairInTheirFaction = predIsPhotonozoa
-                    && preyIsPhotonozoa
-                    && ZoologyCacheUtility.IsPhotonozoaPairInTheirFaction(predator, prey);
+                bool spectrobiontaPairInTheirFaction = predIsSpectrobionta
+                    && preyIsSpectrobionta
+                    && ZoologyCacheUtility.IsSpectrobiontaPairInTheirFaction(predator, prey);
 
-                if (!photonozoaPairInTheirFaction)
+                if (!spectrobiontaPairInTheirFaction)
                 {
                     if (ChildcareUtility.HasChildcareExtension(predator) && ChildcareUtility.HasChildcareExtension(prey))
                     {
@@ -924,7 +924,7 @@ namespace ZoologyMod
                     }
                 }
 
-                bool acceptable = EvaluateCustomAcceptablePrey(predator, prey, preyCombatPowerAdjusted, photonozoaPairInTheirFaction);
+                bool acceptable = EvaluateCustomAcceptablePrey(predator, prey, preyCombatPowerAdjusted, spectrobiontaPairInTheirFaction);
                 __result = acceptable;
                 StoreAcceptablePreyResult(predator, prey, __result, usePackHuntHotCache, currentTick);
                 return false;
