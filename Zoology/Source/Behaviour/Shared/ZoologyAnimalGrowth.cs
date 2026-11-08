@@ -211,28 +211,38 @@ namespace ZoologyMod
                     segment.to.hungerRateFactor, fraction);
                 snapshot.marketRatio = LerpRatio(segment.from.marketValueFactor,
                     segment.to.marketValueFactor, fraction);
-                snapshot.drawRatio = GraphicScale(pawn.kindDef, stageIndex, fraction);
+                snapshot.drawRatio = GraphicScale(pawn, stageIndex, segment, fraction);
             }
             return true;
         }
 
-        private static Vector2 GraphicScale(PawnKindDef kind, int index, float t)
+        private static Vector2 GraphicScale(Pawn pawn, int index, Segment segment, float t)
         {
-            if (kind?.lifeStages == null || index < 0 || index + 1 >= kind.lifeStages.Count)
+            PawnKindDef kind = pawn.kindDef;
+            var stages = kind?.lifeStages;
+            var ages = pawn.RaceProps.lifeStageAges;
+            if (stages == null || ages == null || index < 0
+                || index >= stages.Count || stages.Count != ages.Count)
                 return Vector2.one;
 
-            var first = kind.lifeStages[index]?.bodyGraphicData;
-            var next = kind.lifeStages[index + 1]?.bodyGraphicData;
-            if (first == null || next == null
-                || !Positive(first.drawSize.x) || !Positive(first.drawSize.y)
-                || !Positive(next.drawSize.x) || !Positive(next.drawSize.y))
+            var currentGraphic = stages[index]?.bodyGraphicData;
+            var adultGraphic = stages[stages.Count - 1]?.bodyGraphicData;
+            var adultStage = ages[ages.Count - 1]?.def;
+            if (currentGraphic == null || adultGraphic == null || adultStage == null
+                || !Positive(currentGraphic.drawSize.x) || !Positive(currentGraphic.drawSize.y)
+                || !Positive(adultGraphic.drawSize.x) || !Positive(adultGraphic.drawSize.y)
+                || !Positive(adultStage.bodySizeFactor))
                 return Vector2.one;
 
-            // Interpolate the actual per-stage art dimensions, not BodySize in kg.
-            // This makes the rendered footprint continuous when the art switches.
+            // Define one continuous visible footprint relative to adult art.
+            // Root scale compensates for different native Baby/Juvenile textures.
+            // Game BodySize is a visual balance measure, NOT kilograms.
+            float bodyFactor = Mathf.Lerp(segment.from.bodySizeFactor,
+                segment.to.bodySizeFactor, t);
+            float linearScale = Mathf.Sqrt(bodyFactor / adultStage.bodySizeFactor);
             return new Vector2(
-                Mathf.Lerp(first.drawSize.x, next.drawSize.x, t) / first.drawSize.x,
-                Mathf.Lerp(first.drawSize.y, next.drawSize.y, t) / first.drawSize.y);
+                adultGraphic.drawSize.x * linearScale / currentGraphic.drawSize.x,
+                adultGraphic.drawSize.y * linearScale / currentGraphic.drawSize.y);
         }
 
         private static float LerpRatio(float from, float to, float t)
