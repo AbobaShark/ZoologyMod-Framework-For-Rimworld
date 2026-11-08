@@ -33,6 +33,7 @@ namespace ZoologyMod
             {
                 Settings?.CleanupInvalidAnimalOverrides();
                 Settings?.ApplyRuntimeDefOverrides();
+                ZoologyLifeStageProfileInstaller.ApplyOnce();
 #if RIMWORLD17
                 AnimalBarnWorkPriority.MatchVanillaPens();
 #endif
@@ -204,9 +205,6 @@ namespace ZoologyMod
                         typeof(Patch_CompPawnSpawnOnWakeup_InsectCocoonBudget),
                         nameof(Patch_CompPawnSpawnOnWakeup_InsectCocoonBudget.Prefix)));
             }
-
-            if (!settings.EnableOverrideCEPenetration)
-                TryUnpatchHarmonyId("com.abobashark.zoology.mod.melee");
 
             if (!settings.EnableAnimalDamageReduction || settings.DisableAllRuntimePatches)
                 global::ZoologyMod.Patches.DamageReduction_AnimalTypes_PawnTakeDamage.EnsureUnpatched();

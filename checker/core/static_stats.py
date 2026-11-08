@@ -1,22 +1,15 @@
-"""Stage bionic values and regenerate LifeStage XML from AnimalStats.
-
-Never infer missing table entries; the staged files are installed only by the
-validated deployment pipeline.
-"""
+"""Regenerate animal bionic values from AnimalStats."""
 from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
 import re
 import pandas as pd
-from lxml import etree as E
 from core.animalstats_source import is_multisheet_source, read_google_sheet, read_excel_cached
 from core.xml_routing import find_project_root, digest
-from core.life_stages import REQUIRED_COLUMNS, render_life_stages
 import core.checker_config as checker_config
 
-SHEET_REQUIRED={'Bionics':('Weapon','Damage','Attack interval'),
-                'LifeStages':tuple(sorted(REQUIRED_COLUMNS))}
+SHEET_REQUIRED={'Bionics':('Weapon','Damage','Attack interval')}
 
 def read_table(source,sheet):
     if not is_multisheet_source(source):
@@ -77,16 +70,3 @@ def update_bionics(tree,table):
     missing=set(defs).intersection({f'{kind}_Animal_{size}' for kind in ('BionicArm','BionicLeg','BionicJaw','ArchotechArm','ArchotechLeg') for size in ('VerySmall','Small','Medium','Large','VeryLarge','Huge')})-seen
     if missing: raise ValueError(f'Spreadsheet has no entries for existing bionic variants: {sorted(missing)}')
     return changes,warnings
-
-
-def update_life_stages(tree, table, ce=False):
-    """Regenerate all life-stage factors from the table, not the installed XML.
-
-    The caller's element tree is replaced atomically so stale values or invalid
-    PatchOperation XPaths cannot survive a generation pass.
-    """
-    updated = E.fromstring(render_life_stages(table, ce=ce))
-    before = E.tostring(tree.getroot(), encoding='utf-8')
-    after = E.tostring(updated, encoding='utf-8')
-    tree._setroot(updated)
-    return ([{'regenerated': 'life-stages.ce' if ce else 'life-stages.vanilla'}] if before != after else []), []

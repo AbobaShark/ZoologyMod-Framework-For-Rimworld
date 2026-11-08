@@ -6,7 +6,7 @@ Unsupported/ambiguous targets are preserved and reported, never guessed.
 """
 from __future__ import annotations
 
-from decimal import Decimal, InvalidOperation
+from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 from pathlib import Path
 import json
 import os
@@ -47,6 +47,19 @@ def _value(cell, *, integer=False):
 def _format(value):
     if value == value.to_integral_value(): return format(value.quantize(Decimal('1')),'f')
     return format(value.normalize(),'f')
+
+
+def _integer_comp_quantity(value):
+    """Serialize a calculated production quantity into a RimWorld Int32.
+
+    The AnimalStats daily rate and the reproduction interval retain their
+    fractional precision; only the discrete item count is rounded.
+    Decimal ROUND_HALF_UP avoids Python's banker's rounding at half-items.
+    """
+    amount = value.to_integral_value(rounding=ROUND_HALF_UP)
+    if amount > 2147483647:
+        raise ValueError(f'Comp production amount exceeds Int32: {value!r}')
+    return _format(amount)
 
 
 def _defname(xml):
@@ -154,14 +167,14 @@ def refresh_tree(tree,tables):
                         values=[v.text for x in matching for v in _value_nodes(x,'milkIntervalDays')]
                     else: values=[v.text for v in interval_nodes]
                     if not values or len(set(values))!=1: raise ValueError('Ambiguous milk interval')
-                    desired=_format(_value(row.get('N'))*_value(values[0]))
+                    desired=_integer_comp_quantity(_value(row.get('N'))*_value(values[0]))
                 else:
                     matching=op.xpath('./match/value//*[local-name()="shearIntervalDays"] | ./nomatch/value//*[local-name()="shearIntervalDays"]')
                     values=[n.text for n in matching]
                     if not values or len(set(values))!=1:
                         warnings.append(f'{original}: missing explicit shear interval; retained')
                         continue
-                    desired=_format(_value(row.get('T'))*_value(values[0]))
+                    desired=_integer_comp_quantity(_value(row.get('T'))*_value(values[0]))
             except ValueError as exc:
                 raise ValueError(f'{REPRODUCTION_SHEET} {name}, {field}: {exc}') from exc
             nodes=_value_nodes(op,field)

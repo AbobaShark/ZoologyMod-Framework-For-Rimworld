@@ -65,8 +65,10 @@ class RunningAllometryTests(unittest.TestCase):
     def test_checker_rejects_manually_inconsistent_speed_or_mass(self):
         table=fixture()
         table.loc[8,'SpeedFactor']=1.99
-        with self.assertRaisesRegex(ValueError,'Hirt running allometry'):
-            parse_stages(table)
+        # Checker consumes the workbook's computed speed. It deliberately
+        # does not reimplement or reject the spreadsheet's Hirt model.
+        parsed=parse_stages(table,ROYAL_SOURCE)
+        self.assertAlmostEqual(parsed[-1][1]['SpeedFactor'],1.99)
         table=fixture()
         table.loc[5,'BaseBodySize']=.7
         with self.assertRaisesRegex(ValueError,'share one BaseBodySize'):

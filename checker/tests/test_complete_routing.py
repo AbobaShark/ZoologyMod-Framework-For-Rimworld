@@ -67,14 +67,14 @@ class RouteAudit(unittest.TestCase):
         category_paths.extend((x['destination'],'biome_patch',x.get('requires')) for x in reg['biomes'])
         category_paths.extend((x['destination'],x['category'],x.get('requires')) for x in reg['shared_defs'])
         category_paths.extend((x['destination'],x['category'],x.get('requires')) for x in reg['outputs'])
-        self.assertEqual(len(category_paths), 151)
+        self.assertEqual(len(category_paths), 146)
         for dest, category, required in category_paths:
             with self.subTest(destination=dest):
                 self.assertNotIn(dest.lower(), seen)
                 seen.add(dest.lower())
                 self.assertEqual(route_dependency(self.mod,dest,preferred=required),required)
                 self.assertEqual(validate_target(self.mod,{'destination':dest,'category':category,'requires':required}).as_posix(),dest)
-        self.assertEqual(len(seen), 151)
+        self.assertEqual(len(seen), 146)
 
     def test_all_real_reproduction_paths_include_core_and_odyssey_hatchers(self):
         products=[e['destination'] for e in load_registry(CHECKER/'generation.json',self.mod)['outputs'] if e['pipeline_category']=='products']
@@ -114,55 +114,41 @@ class RouteAudit(unittest.TestCase):
         self.assertEqual([a[0] for a in actions],['replace']*3)
         self.assertIn('Operation', (self.mod/targets[0]).read_text())  # staging did not deploy
 
-    def test_static_categories_include_the_ce_outputs(self):
-        names=['Core/Defs/HediffDefs/BionicAnimalVariants.xml',
-               'Core/Patches/Core/LifeStageDefs/LifeStages.xml',
-               'Core/Patches/Core/LifeStageDefs/CombatPowerFactors.xml',
-               'ModPatches/CombatExtended/Patches/LifeStageDefs/LifeStages_CE.xml']
-        for dest in names:
-            f=self.mod/dest; f.parent.mkdir(parents=True,exist_ok=True)
-            f.write_text('<Defs/>' if '/Defs/' in dest else '<Patch/>',encoding='utf8')
-        with patch('core.pipeline.read_table',return_value=pd.DataFrame()), \
-             patch('core.pipeline.update_bionics',return_value=([],[])), \
-             patch('core.pipeline.update_life_stages',return_value=([],[])), \
-             patch('core.pipeline.render_life_stage_combat_power',return_value=b'<Patch/>'), \
-             patch('core.pipeline.render_life_stages',return_value=b'<Patch/>'), \
-             patch('core.ce_bionics.render_ce_bionics',return_value=b'<Patch/>'):
-            out=stage_pipeline('unused-source',root=self.root,registry_path=CHECKER/'generation.json',
-                               output_dir=self.stage,categories=('bionics','life-stages'),ce=True)
-        entries={x['destination']:x for x in json.loads(out.read_text())['files']}
-        self.assertEqual(len(entries),8)
-        for dest, entry in entries.items():
-            self.assertEqual(entry['requires'],route_dependency(self.mod,dest))
-        self.assertEqual(len(plan(out,self.root)[0]),8)
+    def test_only_evaluated_species_profiles_are_life_stage_outputs(self):
+        outputs=outputs_for(load_registry(CHECKER/'generation.json',self.mod),'life-stages')
+        self.assertEqual({e['id'] for e in outputs},
+                         {'life-stages.species','life-stages.attacks.cs'})
+        self.assertEqual(len(outputs),2)
+        self.assertFalse(any('LifeStageDefs/LifeStages' in e['destination'] for e in outputs))
 
-    def test_no_ce_does_not_stage_or_install_stale_ce_life_stage_xml(self):
+    def test_generation_never_reintroduces_legacy_life_stage_xml(self):
+        from core.generated_source_contract import LIFE_STAGE_ATTACK_CSHARP_HEADER
         from core.xml_routing import deploy
-        from unittest.mock import patch
-        paths=[
-            'Core/Patches/Core/LifeStageDefs/LifeStages.xml',
-            'Core/Patches/Core/LifeStageDefs/CombatPowerFactors.xml',
-            'ModPatches/CombatExtended/Patches/LifeStageDefs/LifeStages_CE.xml',
-        ]
-        for destination in paths:
-            path=self.mod/destination
-            path.parent.mkdir(parents=True,exist_ok=True)
-            path.write_text('<Patch><existing/></Patch>',encoding='utf8')
+        old=('Core/Patches/Core/LifeStageDefs/LifeStages.xml',
+             'Core/Patches/Core/LifeStageDefs/CombatPowerFactors.xml',
+             'ModPatches/CombatExtended/Patches/LifeStageDefs/LifeStages_CE.xml')
+        for destination in old:
+            target=self.mod/destination
+            target.parent.mkdir(parents=True,exist_ok=True)
+            target.write_text('<Patch><existing/></Patch>',encoding='utf-8')
+        cs=(LIFE_STAGE_ATTACK_CSHARP_HEADER
+            +'\nnamespace ZoologyMod { internal static class ZoologyGeneratedLifeStageAttacks {} }\n').encode()
         with (patch('core.pipeline.read_table',return_value=pd.DataFrame()),
-              patch('core.pipeline.update_life_stages',return_value=([],[])),
-              patch('core.pipeline.render_life_stages',return_value=b'<Patch/>'),
-              patch('core.pipeline.render_life_stage_combat_power',return_value=b'<Patch><fresh/></Patch>')):
-            result=stage_pipeline('dummy',root=self.root,registry_path=CHECKER/'generation.json',
-                    output_dir=self.stage,categories=('life-stages',),ce=False)
+              patch('core.pipeline.render_species_life_stage_profiles',
+                    return_value=(b'<Defs/>',{})),
+              patch('core.pipeline.render_life_stage_attack_profiles_cs',
+                    return_value=(cs,{}))):
+            result=stage_pipeline('test',root=self.root,registry_path=CHECKER/'generation.json',
+                                  output_dir=self.stage,categories=('life-stages',),ce=True)
         manifest=json.loads(result.read_text())
-        self.assertEqual(set(manifest['generated_this_run']),set(paths[:2]) | {
-            'ModPatches/VanillaAnimalsExpandedRoyal/Patches/LifeStageDefs/LifeStages_VAER.xml',
-            'ModPatches/VanillaAnimalsExpandedRoyal/Patches/LifeStageDefs/CombatPowerFactors_VAER.xml',
-        })
-        self.assertNotIn(paths[2],manifest['generated_this_run'])
+        self.assertEqual(len(manifest['generated_this_run']),2)
+        self.assertFalse(set(old)&set(manifest['generated_this_run']))
+        self.assertEqual(len(manifest['remove']),6)
         deploy(result,self.root,current_run_only=True)
-        self.assertIn('existing',(self.mod/paths[2]).read_text())
-        self.assertIn('fresh',(self.mod/paths[1]).read_text())
+        for destination in old:
+            self.assertFalse((self.mod/destination).exists())
+        self.assertTrue((self.mod/'Core/Defs/Misc/LifeStageProfiles_Generated.xml').is_file())
+        self.assertTrue((self.mod/'Source/Behaviour/Shared/ZoologyLifeStageAttackProfiles_Generated.cs').is_file())
 
     def test_partial_generation_keeps_staged_reproduction_when_static_changed(self):
         product='DLC/Odyssey/Patches/Misc/CompProperties_EggLayer_Odyssey.xml'
@@ -191,8 +177,8 @@ class RoutingAuditExtensions(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             mod=Path(tmp)/'Zoology';mod.mkdir();write_loadfolders(mod)
             report=audit_routes(CHECKER/'generation.json',mod)
-            self.assertEqual(report['destinations'],151)
-            self.assertEqual(len(report['missing_static']),19)
+            self.assertEqual(report['destinations'],145)
+            self.assertEqual(len(report['missing_static']),16)
             with self.assertRaisesRegex(ValueError,'Missing installed static XML'):
                 audit_routes(CHECKER/'generation.json',mod,require_static_sources=True)
 

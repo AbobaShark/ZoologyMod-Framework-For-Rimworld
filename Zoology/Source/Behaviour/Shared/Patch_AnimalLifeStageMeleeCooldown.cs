@@ -5,18 +5,6 @@ using Verse;
 
 namespace ZoologyMod
 {
-    // Only configured animal melee attacks use this stat. No global tick hook.
-    [DefOf]
-    internal static class ZoologyLifeStageStatDefOf
-    {
-        public static StatDef Zoology_MeleeCooldownFactor;
-
-        static ZoologyLifeStageStatDefOf()
-        {
-            DefOfHelper.EnsureInitializedInCtor(typeof(ZoologyLifeStageStatDefOf));
-        }
-    }
-
     [HarmonyPatch(typeof(VerbProperties), nameof(VerbProperties.AdjustedCooldown),
         new Type[] { typeof(Tool), typeof(Pawn), typeof(Thing) })]
     internal static class Patch_AnimalLifeStageMeleeCooldown
@@ -27,32 +15,52 @@ namespace ZoologyMod
             return settings == null || !settings.DisableAllRuntimePatches;
         }
 
-        private static void Postfix(Tool tool, Pawn attacker, ref float __result)
+        private static void Postfix(Tool tool, Pawn attacker, Thing equipment, ref float __result)
         {
-            if (tool == null || attacker == null || !attacker.RaceProps.Animal)
+            if (tool == null || attacker?.RaceProps?.Animal != true
+                || (equipment != null && equipment != attacker))
             {
                 return;
             }
 
-            var stage = attacker.ageTracker?.CurLifeStage;
-            if (stage == null)
+            // Never apply a blanket cooldown to all natural or equipped tools.
+            // Species/tool coefficients are absolute stage-to-adult ratios,
+            // not residual multipliers on a second generic age factor.
+            ZoologyLifeStageToolFactor toolFactor;
+            if (ZoologyLifeStageProfileInstaller.TryGetToolFactor(attacker, tool, out toolFactor))
             {
-                return;
+                __result *= CEChecker.IsCEInstalled()
+                    ? toolFactor.ceCooldownFactor
+                    : toolFactor.vanillaCooldownFactor;
             }
+        }
+    }
 
-            StatDef stat = ZoologyLifeStageStatDefOf.Zoology_MeleeCooldownFactor;
-            if (stat == null)
-            {
+
+    // Apply only to natural attacks, never equipped weapons or hediff verbs.
+    [HarmonyPatch(typeof(VerbProperties), nameof(VerbProperties.AdjustedMeleeDamageAmount),
+        new Type[] { typeof(Tool), typeof(Pawn), typeof(Thing), typeof(HediffComp_VerbGiver) })]
+    internal static class Patch_AnimalLifeStageToolDamage
+    {
+        private static bool Prepare()
+        {
+            var settings = ZoologyModSettings.Instance;
+            return settings == null || !settings.DisableAllRuntimePatches;
+        }
+
+        private static void Postfix(Tool tool, Pawn attacker, Thing equipment,
+            HediffComp_VerbGiver hediffCompSource, ref float __result)
+        {
+            if (attacker?.RaceProps?.Animal != true || hediffCompSource != null
+                || (equipment != null && equipment != attacker))
                 return;
-            }
 
-            // StatWorker.GetValueUnfinalized multiplies this special stat by
-            // stage.statFactors. CE calls VerbProperties.AdjustedCooldownTicks
-            // too, so both vanilla and CE share this correctly applied factor.
-            float factor = attacker.GetStatValue(stat);
-            if (factor > 0f && !float.IsInfinity(factor) && !float.IsNaN(factor))
+            ZoologyLifeStageToolFactor factor;
+            if (ZoologyLifeStageProfileInstaller.TryGetToolFactor(attacker, tool, out factor))
             {
-                __result *= factor;
+                __result *= CEChecker.IsCEInstalled()
+                    ? factor.ceDamageFactor
+                    : factor.vanillaDamageFactor;
             }
         }
     }

@@ -33,18 +33,11 @@ namespace ZoologyMod
                     return;
                 }
 
-                if (settings != null && !settings.EnableOverrideCEPenetration)
-                {
-                    return;
-                }
-
-                patched = true;
-                var harmony = new Harmony("com.abobashark.zoology.mod.melee");
                 Type ceVerbType = AccessTools.TypeByName("CombatExtended.Verb_MeleeAttackCE");
                 if (ceVerbType == null)
-                {
                     return;
-                }
+
+                var harmony = new Harmony("com.abobashark.zoology.mod.melee");
 
                 MethodInfo sharpGetter = TryGetPropertyGetter(ceVerbType, "ArmorPenetrationSharp")
                     ?? FindMethodByNameCandidates(ceVerbType, new[] { "get_ArmorPenetrationSharp" });
@@ -52,14 +45,16 @@ namespace ZoologyMod
                     ?? FindMethodByNameCandidates(ceVerbType, new[] { "get_ArmorPenetrationBlunt" });
 
                 if (sharpGetter != null)
-                {
-                    harmony.Patch(sharpGetter, prefix: new HarmonyMethod(typeof(CEPatches_Melee).GetMethod(nameof(Prefix_ArmorPenetrationSharp), BindingFlags.Static | BindingFlags.NonPublic)));
-                }
+                    harmony.Patch(sharpGetter, postfix: new HarmonyMethod(
+                        typeof(CEPatches_Melee).GetMethod(nameof(Postfix_ArmorPenetrationSharp),
+                            BindingFlags.Static | BindingFlags.NonPublic)));
 
                 if (bluntGetter != null)
-                {
-                    harmony.Patch(bluntGetter, prefix: new HarmonyMethod(typeof(CEPatches_Melee).GetMethod(nameof(Prefix_ArmorPenetrationBlunt), BindingFlags.Static | BindingFlags.NonPublic)));
-                }
+                    harmony.Patch(bluntGetter, postfix: new HarmonyMethod(
+                        typeof(CEPatches_Melee).GetMethod(nameof(Postfix_ArmorPenetrationBlunt),
+                            BindingFlags.Static | BindingFlags.NonPublic)));
+
+                patched = sharpGetter != null || bluntGetter != null;
             }
             catch (Exception ex)
             {
@@ -77,81 +72,79 @@ namespace ZoologyMod
             return CEChecker.IsCEInstalled();
         }
 
-        private static bool Prefix_ArmorPenetrationSharp(object __instance, ref float __result)
+        private static void Postfix_ArmorPenetrationSharp(object __instance, ref float __result)
         {
-            try { return Prefix_ArmorPenetrationGeneric(__instance, ref __result, true); }
-            catch (Exception ex) { Log.ErrorOnce($"[Zoology] Exception Sharp prefix: {ex}", ERR_PREFIX); return true; }
-        }
-
-        private static bool Prefix_ArmorPenetrationBlunt(object __instance, ref float __result)
-        {
-            try { return Prefix_ArmorPenetrationGeneric(__instance, ref __result, false); }
-            catch (Exception ex) { Log.ErrorOnce($"[Zoology] Exception Blunt prefix: {ex}", ERR_PREFIX); return true; }
-        }
-
-        private static bool Prefix_ArmorPenetrationGeneric(object verbInstance, ref float __result, bool isSharp)
-        {
-            var settings = ZoologyModSettings.Instance;
-            if (settings == null || !settings.EnableOverrideCEPenetration)
+            try { ApplyArmorPenetration(__instance, ref __result, true); }
+            catch (Exception ex)
             {
-                return true;
+                Log.ErrorOnce("[Zoology] Exception in sharp natural-attack AP: " + ex, ERR_PREFIX);
             }
+        }
 
+        private static void Postfix_ArmorPenetrationBlunt(object __instance, ref float __result)
+        {
+            try { ApplyArmorPenetration(__instance, ref __result, false); }
+            catch (Exception ex)
+            {
+                Log.ErrorOnce("[Zoology] Exception in blunt natural-attack AP: " + ex, ERR_PREFIX + 1);
+            }
+        }
+
+        private static void ApplyArmorPenetration(object verbInstance, ref float result, bool sharp)
+        {
             if (verbInstance == null)
-            {
-                return true;
-            }
+                return;
+
+            var settings = ZoologyModSettings.Instance;
+            if (settings != null && settings.DisableAllRuntimePatches)
+                return;
 
             Pawn caster = CEReflectionUtility.GetCasterPawn(verbInstance);
-            if (caster == null)
+            if (caster?.RaceProps?.Animal != true)
+                return;
+
+            // CE may use CasterPawn as the equipment source for natural verbs.
+            // Actual equipped weapons and Hediff-granted attacks are excluded.
+            object equipment = CEReflectionUtility.GetEquipmentSource(verbInstance);
+            if (equipment != null && !ReferenceEquals(equipment, caster))
+                return;
+
+            object toolObj;
+            if (!CEReflectionUtility.TryGetVerbTool(verbInstance, out toolObj))
+                return;
+
+            ZoologyLifeStageToolFactor factors;
+            if (ZoologyLifeStageProfileInstaller.TryGetToolFactor(caster,
+                    toolObj as Tool, out factors))
             {
-                try
-                {
-                    if (Find.Selector?.SingleSelectedThing is Pawn selectedPawn)
-                    {
-                        caster = selectedPawn;
-                    }
-                }
-                catch
-                {
-                    caster = null;
-                }
+                // The CE getter's native computation already includes natural
+                // pawn stat, skill and any other external modifiers. Apply
+                // AnimalStats' final stage/adult Tool ratio exactly once.
+                result *= sharp ? factors.ceSharpPenetrationFactor
+                    : factors.ceBluntPenetrationFactor;
+                return;
             }
 
-            if (!CEReflectionUtility.TryGetVerbTool(verbInstance, out object toolObj))
-            {
-                return true;
-            }
+            // Optional legacy generic penetration override for attacks without
+            // generated species profiles. It must not affect generated attacks.
+            if (settings == null || !settings.EnableOverrideCEPenetration)
+                return;
 
-            float toolAP;
-            bool hasToolAp = isSharp
-                ? CEReflectionUtility.TryReadSharpToolPenetration(toolObj, out toolAP)
-                : CEReflectionUtility.TryReadBluntToolPenetration(toolObj, out toolAP);
-            if (!hasToolAp)
-            {
-                return true;
-            }
+            float toolAp;
+            bool hasAp = sharp
+                ? CEReflectionUtility.TryReadSharpToolPenetration(toolObj, out toolAp)
+                : CEReflectionUtility.TryReadBluntToolPenetration(toolObj, out toolAp);
+            if (!hasAp)
+                return;
 
-            float extFactor = 1f;
-            try
-            {
-                var lifeDef = LifeStageUtility.GetPenetrationDefForPawn(caster);
-                if (lifeDef != null)
-                {
-                    extFactor = isSharp ? lifeDef.meleePenetrationSharpFactor : lifeDef.meleePenetrationBluntFactor;
-                }
-            }
-            catch
-            {
-                extFactor = 1f;
-            }
+            var lifeDef = LifeStageUtility.GetPenetrationDefForPawn(caster);
+            if (lifeDef == null)
+                return;
 
-            float statPow = CEReflectionUtility.GetMeleeDamageFactorStatPow(caster);
-            float skillMult = CEReflectionUtility.GetPenetrationSkillMultiplier(verbInstance);
-            float equipmentMult = CEReflectionUtility.GetEquipmentPenetrationFactor(CEReflectionUtility.GetEquipmentSource(verbInstance));
-
-            __result = toolAP * statPow * extFactor * skillMult * equipmentMult;
-            return false;
+            float factor = sharp ? lifeDef.meleePenetrationSharpFactor
+                : lifeDef.meleePenetrationBluntFactor;
+            if (!float.IsNaN(factor) && !float.IsInfinity(factor) && factor >= 0f)
+                result *= factor;
         }
 
         private static MethodInfo TryGetPropertyGetter(Type type, string propName)

@@ -2,6 +2,7 @@
 """Zoology Patch Generator: table-driven generation from an explicit group registry."""
 from __future__ import annotations
 import argparse
+import json
 import sys
 import queue
 import threading
@@ -15,12 +16,47 @@ from core.pipeline import stage_pipeline,CATEGORIES,STAGE
 from core.generation_registry import load_registry,audit_routes
 from core.xml_routing import plan,deploy,find_project_root
 
-SHEETS=('Animals','Animals CE','Bionics','LifeStages','EggMilkWool','Venom profiles','Biomes','Leathers','Animal textiles')
+SHEETS=('Animals','Animals CE','Base stats','Groups','Bionics','LifeStages',
+        'SERVICE_BodySizeMassBands','LifeStageProfiles',
+        'EggMilkWool','Venom profiles','Biomes',
+        'Leathers','Animal textiles')
 LABELS={'animals':'Animal patches (Vanilla + CE)','venom':'Venom, antivenoms and recipes',
         'biomes':'Biome animal populations','products':'Eggs, hatchers, milk and wool',
-        'bionics':'Bionic implants (Vanilla + CE)','life-stages':'Life-stage factors (Vanilla + CE)',
+        'bionics':'Bionic implants (Vanilla + CE)','life-stages':'Life-stage factors and species profiles (Vanilla + CE)',
         'leathers':'Leather stats and custom defs (Vanilla + CE)',
         'textiles':'Wool and animal silk (Vanilla + CE)'}
+
+def life_stage_generation_summary():
+    """Summarize only the diagnostics produced by the current successful stage pass."""
+    path = STAGE / 'static-report.json'
+    if not path.is_file():
+        return []
+    try:
+        report = json.loads(path.read_text(encoding='utf-8'))
+    except (OSError, ValueError):
+        return []
+    for artifact in report:
+        for change in artifact.get('changes', []):
+            if change.get('regenerated') != 'life-stages.species':
+                continue
+            info = change.get('diagnostics') or {}
+            ready = info.get('species_rows_ready', 0)
+            incomplete = info.get('species_rows_incomplete', 0)
+            invalid = info.get('species_rows_invalid_source', 0)
+            registered = info.get('profiles', 0)
+            lines = [
+                f'LifeStageProfiles: {ready} READY rows, {incomplete} INCOMPLETE, '
+                f'{invalid} source errors; {registered} specialized stage registrations.'
+            ]
+            for example in info.get('incomplete_examples', []):
+                lines.append(
+                    f'  NOT INSTALLED: row {example["row"]}: '
+                    f'{", ".join(example["animal"])} / {example["stage"]} '
+                    f'({example["reason"]})'
+                )
+            return lines
+    return []
+
 
 class PatchGeneratorApp(tk.Tk):
     def __init__(self):
@@ -160,6 +196,8 @@ class PatchGeneratorApp(tk.Tk):
                 self.busy=False
                 if kind=='ok':
                     self._note(f'Generation successful: {result}.')
+                    for message in life_stage_generation_summary():
+                        self._note(message)
                 else:
                     log_path=ROOT/'output'/'generation-error.log'
                     self._note('ERROR: '+result)
@@ -259,6 +297,8 @@ def cli_main(argv=None):
        original_patches=resolve_path(args.ce_patches) if args.ce_patches else cfg.get('ce_patches_dir') or ROOT/'OriginalXML/CEPatches',
        venom_source=cfg.get('venom_profiles_source') or None,
        preserve_runtime_preconditions=cfg.get('preserve_runtime_preconditions',True))
+    for message in life_stage_generation_summary():
+        print(message)
     if cfg.get('auto_deploy',True) if args.auto_deploy is None else args.auto_deploy:
         ops=deploy(STAGE/'generation-manifest.json',root,current_run_only=True)
         print('Generated and installed:',result,'XML changes:',sum(action!='skip' for action,*_ in ops))

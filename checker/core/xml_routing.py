@@ -6,6 +6,11 @@ from pathlib import Path, PurePosixPath
 import shutil
 import tempfile
 from lxml import etree as E
+from core.generated_source_contract import (
+    LIFE_STAGE_ATTACK_CSHARP_HEADER,
+    LIFE_STAGE_ATTACK_CSHARP_CLASS,
+    LIFE_STAGE_ATTACK_CSHARP_NAMESPACE,
+)
 
 STATE_NAME = '.zoology-generated-manifest.json'
 
@@ -44,6 +49,10 @@ def route_dependency(mod, destination, *, preferred=None):
     in LoadFolders unless the caller explicitly supplies a valid alias.
     """
     target = safe_relative(destination).as_posix()
+    if target == 'Source/Behaviour/Shared/ZoologyLifeStageAttackProfiles_Generated.cs':
+        if preferred is not None:
+            raise ValueError("Generated C# cannot declare a mod dependency")
+        return None
     version_options = []
     for version, roots in load_rules(mod).items():
         matches = [(name, dep) for name, dep in roots if target.startswith(name + '/')]
@@ -76,6 +85,12 @@ def route_dependency(mod, destination, *, preferred=None):
 def validate_target(mod, entry):
     target = safe_relative(entry['destination'])
     category = entry.get('category')
+    if category == 'source_code':
+        if (target.as_posix() !=
+                'Source/Behaviour/Shared/ZoologyLifeStageAttackProfiles_Generated.cs'
+                or entry.get('requires') is not None):
+            raise ValueError(f'Unapproved source-code output: {target}')
+        return target
     if category not in ('animal_patch', 'biome_patch', 'common_defs', 'ce_patch', 'ce_defs'):
         raise ValueError(f'Unknown XML category: {category!r}')
     pathparts = target.parts
@@ -96,6 +111,15 @@ def validate_target(mod, entry):
             raise ValueError(f'{target}: dependency {required!r} is not enforced by LoadFolders')
     return target
 
+
+RETIRED_LIFE_STAGE_OUTPUTS = frozenset((
+    "Core/Patches/Core/LifeStageDefs/LifeStages.xml",
+    "Core/Patches/Core/LifeStageDefs/CombatPowerFactors.xml",
+    "ModPatches/CombatExtended/Patches/LifeStageDefs/LifeStages_CE.xml",
+    "ModPatches/VanillaAnimalsExpandedRoyal/Patches/LifeStageDefs/LifeStages_VAER.xml",
+    "ModPatches/VanillaAnimalsExpandedRoyal/Patches/LifeStageDefs/CombatPowerFactors_VAER.xml",
+    "ModPatches/CombatExtended/Patches/LifeStageDefs/LifeStages_VAER_CE.xml",
+))
 
 def plan(manifest_path, root, *, current_run_only=False):
     root = Path(root).resolve(); mod = root/'Zoology'
@@ -122,9 +146,18 @@ def plan(manifest_path, root, *, current_run_only=False):
         if key.casefold() in {s.casefold() for s in desired}: raise ValueError(f'Duplicate destination: {key}')
         source = (manifest_path.parent/safe_relative(entry['source'])).resolve()
         if not source.is_relative_to(manifest_path.parent) or not source.is_file(): raise ValueError(f'Missing or unsafe source: {source}')
-        xml = E.parse(str(source)).getroot()
-        expected = 'Defs' if entry['category'].endswith('defs') else 'Patch'
-        if xml.tag != expected: raise ValueError(f'{source}: expected {expected}, got {xml.tag}')
+        if entry['category'] == 'source_code':
+            source_text = source.read_text(encoding='utf-8')
+            if (not source_text.startswith(
+                    LIFE_STAGE_ATTACK_CSHARP_HEADER)
+                    or LIFE_STAGE_ATTACK_CSHARP_CLASS not in source_text
+                    or LIFE_STAGE_ATTACK_CSHARP_NAMESPACE not in source_text):
+                raise ValueError(f'{source}: unsafe or malformed generated C#')
+        else:
+            xml = E.parse(str(source)).getroot()
+            expected = 'Defs' if entry['category'].endswith('defs') else 'Patch'
+            if xml.tag != expected:
+                raise ValueError(f'{source}: expected {expected}, got {xml.tag}')
         target = (mod/rel).resolve()
         if not target.is_relative_to(mod.resolve()): raise ValueError(f'Output escapes mod: {target}')
         new_hash = digest(source)
@@ -152,7 +185,7 @@ def plan(manifest_path, root, *, current_run_only=False):
     }
     for name in removals:
         rel = safe_relative(name)
-        if rel.name not in generated_names or name in desired:
+        if (rel.name not in generated_names and name not in RETIRED_LIFE_STAGE_OUTPUTS) or name in desired:
             raise ValueError(f'Unsafe or conflicting generated XML removal: {name}')
         target = (mod/rel).resolve()
         if not target.is_relative_to(mod.resolve()):
