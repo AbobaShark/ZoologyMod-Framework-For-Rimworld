@@ -17,27 +17,30 @@ namespace ZoologyMod
 
         // Only kinds actually rendered while growing are examined. Neither
         // the texture nor the kind is rescanned for subsequent pawns/days.
-        private static readonly Dictionary<PawnKindDef, float[]> ByKind =
-            new Dictionary<PawnKindDef, float[]>();
+        private static readonly Dictionary<PawnKindDef, float[][]> ByKind =
+            new Dictionary<PawnKindDef, float[][]>();
         private static readonly Dictionary<Texture, float> ByTexture =
             new Dictionary<Texture, float>();
 
-        internal static float StageFactor(PawnKindDef kind, int stageIndex)
+        internal static float StageFactor(PawnKindDef kind, int stageIndex, bool female)
         {
             if (kind?.lifeStages == null || stageIndex < 0
                 || stageIndex >= kind.lifeStages.Count)
                 return 1f;
 
-            float[] factors;
-            if (!ByKind.TryGetValue(kind, out factors))
+            float[][] variants;
+            if (!ByKind.TryGetValue(kind, out variants))
             {
-                factors = Build(kind);
-                ByKind.Add(kind, factors);
+                variants = new float[2][];
+                ByKind.Add(kind, variants);
             }
-            return factors[stageIndex];
+            int variant = female ? 1 : 0;
+            if (variants[variant] == null)
+                variants[variant] = Build(kind, female);
+            return variants[variant][stageIndex];
         }
 
-        private static float[] Build(PawnKindDef kind)
+        private static float[] Build(PawnKindDef kind, bool female)
         {
             var stages = kind.lifeStages;
             int count = stages.Count;
@@ -55,6 +58,11 @@ namespace ZoologyMod
                 factors[i] = factors[i + 1];
                 GraphicData from = stages[i]?.bodyGraphicData;
                 GraphicData to = stages[i + 1]?.bodyGraphicData;
+                if (female)
+                {
+                    from = stages[i]?.femaleGraphicData ?? from;
+                    to = stages[i + 1]?.femaleGraphicData ?? to;
+                }
                 if (from == null || to == null
                     || string.IsNullOrEmpty(from.texPath)
                     || string.IsNullOrEmpty(to.texPath)
