@@ -26,13 +26,20 @@ namespace ZoologyMod
             // Never apply a blanket cooldown to all natural or equipped tools.
             // Species/tool coefficients are absolute stage-to-adult ratios,
             // not residual multipliers on a second generic age factor.
+            bool ce = CEChecker.IsCEInstalled();
+            float interpolated;
+            if (ZoologyAnimalGrowth.TryGetToolFactor(attacker, tool,
+                    ce ? ZoologyAnimalGrowth.GrowthToolFactor.CeCooldown
+                       : ZoologyAnimalGrowth.GrowthToolFactor.VanillaCooldown,
+                    out interpolated))
+            {
+                __result *= interpolated;
+                return;
+            }
+
             ZoologyLifeStageToolFactor toolFactor;
             if (ZoologyLifeStageProfileInstaller.TryGetToolFactor(attacker, tool, out toolFactor))
-            {
-                __result *= CEChecker.IsCEInstalled()
-                    ? toolFactor.ceCooldownFactor
-                    : toolFactor.vanillaCooldownFactor;
-            }
+                __result *= ce ? toolFactor.ceCooldownFactor : toolFactor.vanillaCooldownFactor;
         }
     }
 
@@ -55,13 +62,20 @@ namespace ZoologyMod
                 || (equipment != null && equipment != attacker))
                 return;
 
+            bool ce = CEChecker.IsCEInstalled();
+            float interpolated;
+            if (ZoologyAnimalGrowth.TryGetToolFactor(attacker, tool,
+                    ce ? ZoologyAnimalGrowth.GrowthToolFactor.CeDamage
+                       : ZoologyAnimalGrowth.GrowthToolFactor.VanillaDamage,
+                    out interpolated))
+            {
+                __result *= interpolated;
+                return;
+            }
+
             ZoologyLifeStageToolFactor factor;
             if (ZoologyLifeStageProfileInstaller.TryGetToolFactor(attacker, tool, out factor))
-            {
-                __result *= CEChecker.IsCEInstalled()
-                    ? factor.ceDamageFactor
-                    : factor.vanillaDamageFactor;
-            }
+                __result *= ce ? factor.ceDamageFactor : factor.vanillaDamageFactor;
         }
     }
 }
