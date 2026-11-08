@@ -99,7 +99,7 @@ Dedicated conditional patch folders or integration are present for:
 
 Additional runtime interoperability exists where Zoology can detect another drafting implementation or an optional health-system hook without taking ownership of that mod's behavior.
 
-Zoology is declared incompatible with Animals Are Fun Continued because both mods implement overlapping animal-interaction and recreation behavior.
+**Animals Are Fun! (Continued):** There is no known technical incompatibility between the two mods. Both add recreational interactions between colonists and pets, so some functionality overlaps. You can use them together, or disable Zoology's **Pet recreation** setting if you prefer the activities provided by Animals Are Fun! (Continued).
 
 When Combat Extended is active, Zoology uses CE-specific animal combat data and disables its non-CE animal damage-reduction system. Combat Extended remains the combat backend; the optional Zoology override adds life-stage penetration handling for animal melee.
 

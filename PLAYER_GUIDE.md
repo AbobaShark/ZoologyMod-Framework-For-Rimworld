@@ -1084,7 +1084,7 @@ Dinosauria receives race balance plus dedicated animal graphics/shadow correctio
 
 Megafauna currently uses the generated race patch set.
 
-Animals Are Fun Continued is declared incompatible because its animal-interaction/recreation systems overlap Zoology's pet systems.
+**Animals Are Fun! (Continued):** There is no known technical incompatibility between the two mods, but both implement recreational interactions between colonists and pets. They can be used together, although some activities overlap. If you prefer the interactions from Animals Are Fun! (Continued), disable **Pet recreation** in Zoology's mod settings. This does not require disabling Zoology's separate bonding options.
 
 Zoology also detects supported external animal-drafting ownership and optional health-system hooks so overlapping runtime behavior can defer to the installed integration.
 
