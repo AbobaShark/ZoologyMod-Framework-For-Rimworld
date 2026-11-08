@@ -41,7 +41,10 @@ namespace ZoologyMod
                 if (exists)
                     continue;
 
-                stat.parts.Add(new ZoologyAnimalGrowthStatPart
+                // Stage multiplier replacement must precede the generated
+                // absolute armor offset StatPart. Otherwise the offset would
+                // be multiplied twice as the animal grows.
+                stat.parts.Insert(0, new ZoologyAnimalGrowthStatPart
                 {
                     parentStat = stat,
                     marketValue = stat == market
