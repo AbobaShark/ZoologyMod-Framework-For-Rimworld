@@ -68,11 +68,14 @@ namespace ZoologyMod
             }
 
             float offset;
-            if (ZoologyLifeStageProfileInstaller.TryGetArmorOffset(
-                    pawn.ageTracker?.CurLifeStage, sharp, out offset))
+            if (ZoologyAnimalGrowth.TryGetArmorOffset(pawn, sharp, out offset))
             {
                 val += offset;
+                return;
             }
+            if (ZoologyLifeStageProfileInstaller.TryGetArmorOffset(
+                    pawn.ageTracker?.CurLifeStage, sharp, out offset))
+                val += offset;
         }
 
         public override string ExplanationPart(StatRequest req)
@@ -83,11 +86,12 @@ namespace ZoologyMod
                 return null;
             }
             float offset;
+            if (ZoologyAnimalGrowth.TryGetArmorOffset(pawn, sharp, out offset))
+                return offset > 0f ? "Zoology: growing natural armor +"
+                    + offset.ToString("0.###") : null;
             if (ZoologyLifeStageProfileInstaller.TryGetArmorOffset(
                     pawn.ageTracker?.CurLifeStage, sharp, out offset))
-            {
                 return "Zoology: life-stage natural armor +" + offset.ToString("0.###");
-            }
             return null;
         }
     }
