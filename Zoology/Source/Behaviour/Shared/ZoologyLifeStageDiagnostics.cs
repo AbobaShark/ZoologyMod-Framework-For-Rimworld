@@ -85,6 +85,13 @@ namespace ZoologyMod
                         ?? "unknown reason")
                     .AppendLine();
 
+            // Explicit developer inspection also reports the alpha
+            // calibration used by the actual PawnKind graphic transition.
+            // This may populate the per-kind texture cache once, but never
+            // runs on ordinary ticks or during rendering for adults.
+            ZoologyAnimalGraphicCalibration.AppendDiagnostics(
+                pawn.kindDef, pawn.gender == Gender.Female, output);
+
             output.Append("Effective CombatPower: ")
                 .Append(AnimalCombatPowerUtility.GetAdjustedCombatPower(pawn))
                 .AppendLine();
