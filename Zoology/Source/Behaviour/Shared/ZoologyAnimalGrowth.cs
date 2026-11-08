@@ -47,6 +47,8 @@ namespace ZoologyMod
             internal float hungerRatio = 1f;
             internal float marketRatio = 1f;
             internal Vector2 drawRatio = Vector2.one;
+            internal float graphicCalibration = 1f;
+            internal bool graphicCalibrationReady;
         }
 
         private static readonly Dictionary<ThingDef, Segment[]> RaceSegments =
@@ -187,6 +189,7 @@ namespace ZoologyMod
                 snapshot.stageIndex = stageIndex;
                 snapshot.biologicalDay = biologicalDay;
                 snapshot.kind = pawn.kindDef;
+                snapshot.graphicCalibrationReady = false;
 
                 long sampled = biologicalDay * TicksPerBiologicalDay;
                 float t = (float)((double)(sampled - segment.startTick)
@@ -310,7 +313,20 @@ namespace ZoologyMod
         internal static Vector2 DrawRatio(Pawn pawn)
         {
             Snapshot state;
-            return TryGetSnapshot(pawn, out state) ? state.drawRatio : Vector2.one;
+            if (!TryGetSnapshot(pawn, out state))
+                return Vector2.one;
+
+            if (!state.graphicCalibrationReady)
+            {
+                // Only a rendered animal needs its graphic inspected. Matching
+                // texture paths retain exactly the existing interpolation.
+                // Distinct graphics use a per-kind, once-calculated silhouette
+                // correction shared by every pawn with this PawnKindDef.
+                state.graphicCalibration = ZoologyAnimalGraphicCalibration.StageFactor(
+                    pawn.kindDef, state.stageIndex);
+                state.graphicCalibrationReady = true;
+            }
+            return state.drawRatio * state.graphicCalibration;
         }
 
         internal static bool TryGetStatRatio(Pawn pawn, StatDef stat, out float ratio)
