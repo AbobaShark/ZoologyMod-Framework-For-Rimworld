@@ -43,6 +43,8 @@ the runtime finds contiguous runs of stages with identical `texPath`.
 A run with no graphic change retains the original interpolation unchanged.
 For a change of texPath, the outgoing and incoming artwork receive a
 per-run **uniform** scale calibration based on their visible alpha footprints.
+When a stage has `femaleGraphicData`, female graphics are calibrated
+independently of the default body art.
 The final/adult run is the anchor (scale 1); preceding runs are calibrated
 backwards. Consequently an earlier artwork reaches the same *estimated
 visible size* that the next artwork has at the stage boundary. Two adjacent
