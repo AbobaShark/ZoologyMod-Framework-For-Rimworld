@@ -100,13 +100,28 @@ namespace ZoologyMod
                         sharpFactor = 1f,
                         bluntFactor = 1f
                     };
-                    ZoologyLifeStageToolFactor stageTool;
-                    if (ZoologyLifeStageProfileInstaller.TryGetToolFactor(pawn,
-                            tool, out stageTool))
+                    float sharpInterpolated, bluntInterpolated;
+                    if (ZoologyAnimalGrowth.TryGetToolFactor(pawn, tool,
+                            ZoologyAnimalGrowth.GrowthToolFactor.CeSharpPenetration,
+                            out sharpInterpolated)
+                        && ZoologyAnimalGrowth.TryGetToolFactor(pawn, tool,
+                            ZoologyAnimalGrowth.GrowthToolFactor.CeBluntPenetration,
+                            out bluntInterpolated))
                     {
-                        entry.sharpFactor = stageTool.ceSharpPenetrationFactor;
-                        entry.bluntFactor = stageTool.ceBluntPenetrationFactor;
+                        entry.sharpFactor = sharpInterpolated;
+                        entry.bluntFactor = bluntInterpolated;
                         hasLifeStageProfile = true;
+                    }
+                    else
+                    {
+                        ZoologyLifeStageToolFactor stageTool;
+                        if (ZoologyLifeStageProfileInstaller.TryGetToolFactor(pawn,
+                                tool, out stageTool))
+                        {
+                            entry.sharpFactor = stageTool.ceSharpPenetrationFactor;
+                            entry.bluntFactor = stageTool.ceBluntPenetrationFactor;
+                            hasLifeStageProfile = true;
+                        }
                     }
                     entries.Add(entry);
                     weightSum += tool.chanceFactor;
