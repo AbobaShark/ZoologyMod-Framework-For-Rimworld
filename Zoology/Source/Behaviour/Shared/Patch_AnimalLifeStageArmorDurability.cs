@@ -46,8 +46,9 @@ namespace ZoologyMod
                 return;
 
             float factor;
-            bool scaled = ZoologyLifeStageProfileInstaller.TryGetArmorDurabilityFactor(
-                pawn, out factor);
+            bool scaled = ZoologyAnimalGrowth.TryGetDurability(pawn, out factor)
+                || ZoologyLifeStageProfileInstaller.TryGetArmorDurabilityFactor(
+                    pawn, out factor);
             Snapshot snapshot;
             if (!Snapshots.TryGetValue(__instance, out snapshot) && !scaled)
                 return;
