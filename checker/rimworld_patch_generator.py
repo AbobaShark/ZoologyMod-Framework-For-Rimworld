@@ -2,6 +2,7 @@
 """Zoology Patch Generator: table-driven generation from an explicit group registry."""
 from __future__ import annotations
 import argparse
+import json
 import sys
 import queue
 import threading
@@ -15,12 +16,47 @@ from core.pipeline import stage_pipeline,CATEGORIES,STAGE
 from core.generation_registry import load_registry,audit_routes
 from core.xml_routing import plan,deploy,find_project_root
 
-SHEETS=('Animals','Animals CE','Bionics','LifeStages','EggMilkWool','Venom profiles','Biomes','Leathers','Animal textiles')
+SHEETS=('Animals','Animals CE','Base stats','Groups','Bionics','LifeStages',
+        'SERVICE_BodySizeMassBands','LifeStageProfiles',
+        'EggMilkWool','Venom profiles','Biomes',
+        'Leathers','Animal textiles')
 LABELS={'animals':'Animal patches (Vanilla + CE)','venom':'Venom, antivenoms and recipes',
         'biomes':'Biome animal populations','products':'Eggs, hatchers, milk and wool',
-        'bionics':'Bionic implants (Vanilla + CE)','life-stages':'Life-stage factors (Vanilla + CE)',
+        'bionics':'Bionic implants (Vanilla + CE)','life-stages':'Life-stage factors and species profiles (Vanilla + CE)',
         'leathers':'Leather stats and custom defs (Vanilla + CE)',
         'textiles':'Wool and animal silk (Vanilla + CE)'}
+
+def life_stage_generation_summary():
+    """Summarize only the diagnostics produced by the current successful stage pass."""
+    path = STAGE / 'static-report.json'
+    if not path.is_file():
+        return []
+    try:
+        report = json.loads(path.read_text(encoding='utf-8'))
+    except (OSError, ValueError):
+        return []
+    for artifact in report:
+        for change in artifact.get('changes', []):
+            if change.get('regenerated') != 'life-stages.species':
+                continue
+            info = change.get('diagnostics') or {}
+            ready = info.get('species_rows_ready', 0)
+            incomplete = info.get('species_rows_incomplete', 0)
+            invalid = info.get('species_rows_invalid_source', 0)
+            registered = info.get('profiles', 0)
+            lines = [
+                f'LifeStageProfiles: {ready} READY rows, {incomplete} INCOMPLETE, '
+                f'{invalid} source errors; {registered} specialized stage registrations.'
+            ]
+            for example in info.get('incomplete_examples', []):
+                lines.append(
+                    f'  NOT INSTALLED: row {example["row"]}: '
+                    f'{", ".join(example["animal"])} / {example["stage"]} '
+                    f'({example["reason"]})'
+                )
+            return lines
+    return []
+
 
 class PatchGeneratorApp(tk.Tk):
     def __init__(self):
@@ -34,6 +70,7 @@ class PatchGeneratorApp(tk.Tk):
         self.orig_patch=tk.StringVar(value=self.cfg.get('ce_patches_dir') or str(ROOT/'OriginalXML/CEPatches'))
         self.ce=tk.BooleanVar(value=bool(self.cfg.get('enable_ce',True)))
         self.optimize=tk.BooleanVar(value=bool(self.cfg.get('optimize',True)))
+        self.auto_deploy=tk.BooleanVar(value=bool(self.cfg.get('auto_deploy',True)))
         self.sheets={name:tk.StringVar(value=self.cfg.get('sheet_sources',{}).get(name,'')) for name in SHEETS}
         if self.cfg.get('ce_tsv') and not self.sheets['Animals CE'].get():self.sheets['Animals CE'].set(self.cfg['ce_tsv'])
         if self.cfg.get('egg_milk_tsv') and not self.sheets['EggMilkWool'].get():self.sheets['EggMilkWool'].set(self.cfg['egg_milk_tsv'])
@@ -82,8 +119,9 @@ class PatchGeneratorApp(tk.Tk):
             ttk.Button(originals,text='Browse',command=lambda var=var:self._folder(var)).grid(row=row,column=2,padx=5)
         opt=ttk.Frame(panel);opt.pack(fill='x',pady=8)
         ttk.Checkbutton(opt,text='Generate Combat Extended patches',variable=self.ce).pack(side='left',padx=(0,20))
-        ttk.Checkbutton(opt,text='Optimize patches against OriginalXML',variable=self.optimize).pack(side='left')
-        frame=ttk.LabelFrame(panel,text='3 · Generate (stage only, no files in Zoology are modified)');frame.pack(fill='x',pady=5)
+        ttk.Checkbutton(opt,text='Optimize patches against OriginalXML',variable=self.optimize).pack(side='left',padx=(0,20))
+        ttk.Checkbutton(opt,text='Automatically install generated XML',variable=self.auto_deploy).pack(side='left')
+        frame=ttk.LabelFrame(panel,text='3 · Generate (validated staging, optional automatic installation)');frame.pack(fill='x',pady=5)
         for idx,key in enumerate(CATEGORIES):
             ttk.Button(frame,text=LABELS[key],command=lambda key=key:self._stage((key,))).grid(row=idx//2,column=idx%2,sticky='ew',padx=6,pady=6)
         frame.columnconfigure(0,weight=1);frame.columnconfigure(1,weight=1)
@@ -105,7 +143,7 @@ class PatchGeneratorApp(tk.Tk):
     def _settings(self):
         self.cfg.update({'vanilla_tsv':self.source.get().strip(),'generation_config':self.registry.get().strip(),
             'original_xml_dir':self.orig_xml.get().strip(),'ce_patches_dir':self.orig_patch.get().strip(),
-            'enable_ce':self.ce.get(),'optimize':self.optimize.get(),
+            'enable_ce':self.ce.get(),'optimize':self.optimize.get(),'auto_deploy':self.auto_deploy.get(),
             'sheet_sources':{name:v.get().strip() for name,v in self.sheets.items() if v.get().strip()},
             'ce_tsv':'','venom_profiles_source':'','egg_milk_tsv':''})
         return self.cfg
@@ -133,12 +171,18 @@ class PatchGeneratorApp(tk.Tk):
                 categories=categories,groups=ids or None,ce=self.ce.get(),optimize=self.optimize.get(),
                 original_xml=resolve_path(self.orig_xml.get()),original_patches=resolve_path(self.orig_patch.get()))
             self.busy=True;self._note('Generating '+', '.join(categories)+' ...')
-            threading.Thread(target=self._worker,args=(args,),daemon=True).start()
+            threading.Thread(target=self._worker,args=(args,self.auto_deploy.get()),daemon=True).start()
         except Exception as exc:messagebox.showerror('Cannot generate',str(exc))
 
-    def _worker(self,args):
+    def _worker(self,args,auto_deploy):
         try:
-            self.messages.put(('ok',stage_pipeline(**args),None))
+            generated=stage_pipeline(**args)
+            if auto_deploy:
+                ops=deploy(STAGE/'generation-manifest.json',args['root'])
+                updated=sum(a!='skip' for a,*_ in ops)
+                self.messages.put(('ok',f'{generated}; installed {updated} XML changes',None))
+            else:
+                self.messages.put(('ok',f'{generated}; staged only',None))
         except Exception as exc:
             # The full traceback is essential: GUI message boxes previously
             # hid the crashing file and line, making unrelated guesses likely.
@@ -151,7 +195,9 @@ class PatchGeneratorApp(tk.Tk):
                 kind,result,details=self.messages.get_nowait()
                 self.busy=False
                 if kind=='ok':
-                    self._note(f'Staged successfully: {result}. Preview before deploying.')
+                    self._note(f'Generation successful: {result}.')
+                    for message in life_stage_generation_summary():
+                        self._note(message)
                 else:
                     log_path=ROOT/'output'/'generation-error.log'
                     self._note('ERROR: '+result)
@@ -170,9 +216,9 @@ class PatchGeneratorApp(tk.Tk):
 
     def _preview(self):
         try:
-            ops,_=plan(STAGE/'generation-manifest.json',find_project_root(ROOT))
+            ops,_=plan(STAGE/'generation-manifest.json',find_project_root(ROOT),current_run_only=True)
             counts={k:sum(o[0]==k for o in ops) for k in ('copy','replace','skip','delete','rmdir')}
-            self._note('Validated deployment plan: '+str(counts))
+            self._note('Validated current-generation deployment plan: '+str(counts))
             for action,_,_,dest in ops:
                 if action!='skip':self._note(f' {action.upper()}: {dest}')
         except Exception as e:messagebox.showerror('Preview failed',str(e))
@@ -181,11 +227,11 @@ class PatchGeneratorApp(tk.Tk):
         if self.busy:return
         try:
             root=find_project_root(ROOT);path=STAGE/'generation-manifest.json'
-            ops,_=plan(path,root)
+            ops,_=plan(path,root,current_run_only=True)
             changes=[op for op in ops if op[0]!='skip']
             if not messagebox.askyesno('Deploy XML',f'Apply {len(changes)} changes to Zoology? Includes {sum(op[0]=="delete" for op in changes)} deletions.\n\nStaged checksums and destination paths will be revalidated. Existing XML may be overwritten.'):
                 return
-            deploy(path,root);self._note(f'Deployed {len(changes)} modifications successfully')
+            deploy(path,root,current_run_only=True);self._note(f'Deployed {len(changes)} current-generation modifications successfully')
         except Exception as e:messagebox.showerror('Deployment failed',str(e))
 
 # The GUI and command-line interface share the same staging and routing engine.
@@ -207,10 +253,17 @@ def cli_main(argv=None):
     p.add_argument('--preview',action='store_true',help='Validate staged manifest and print deployment plan')
     p.add_argument('--deploy',action='store_true',help='Deploy validated staged files to Zoology')
     p.add_argument('--yes',action='store_true',help='Required confirmation for --deploy')
+    p.add_argument('--all-staged',action='store_true',help='Explicitly include retained previous-generation XML in --preview or --deploy')
+    autodeploy=p.add_mutually_exclusive_group()
+    autodeploy.add_argument('--auto-deploy',dest='auto_deploy',action='store_true',help='Install generated files after a successful staging pass')
+    autodeploy.add_argument('--stage-only',dest='auto_deploy',action='store_false',help='Keep generated XML in staging for manual review')
+    p.set_defaults(auto_deploy=None)
     args=p.parse_args(argv)
     # Validate potentially destructive actions before inspecting the project.
     if args.preview and args.deploy:
         p.error('--preview and --deploy conflict')
+    if args.all_staged and not (args.preview or args.deploy):
+        p.error('--all-staged requires --preview or --deploy')
     if args.deploy and not args.yes:
         p.error('--deploy requires --yes')
     cfg=load('patch_generator')
@@ -224,7 +277,7 @@ def cli_main(argv=None):
         print('Routing and static sources verified:', result)
         return
     if args.preview or args.deploy:
-        deploy(output,root,dry_run=not args.deploy)
+        deploy(output,root,dry_run=not args.deploy,current_run_only=not args.all_staged)
         return
     overrides=dict(cfg.get('sheet_sources',{}))
     for pair in args.sheet:
@@ -244,8 +297,14 @@ def cli_main(argv=None):
        original_patches=resolve_path(args.ce_patches) if args.ce_patches else cfg.get('ce_patches_dir') or ROOT/'OriginalXML/CEPatches',
        venom_source=cfg.get('venom_profiles_source') or None,
        preserve_runtime_preconditions=cfg.get('preserve_runtime_preconditions',True))
-    print('Generated files staged, not deployed:',result)
-    print('Inspect with --preview, then apply with --deploy --yes.')
+    for message in life_stage_generation_summary():
+        print(message)
+    if cfg.get('auto_deploy',True) if args.auto_deploy is None else args.auto_deploy:
+        ops=deploy(STAGE/'generation-manifest.json',root,current_run_only=True)
+        print('Generated and installed:',result,'XML changes:',sum(action!='skip' for action,*_ in ops))
+    else:
+        print('Generated files staged, not deployed:',result)
+        print('Inspect with --preview, then apply with --deploy --yes.')
 
 
 def main(argv=None):

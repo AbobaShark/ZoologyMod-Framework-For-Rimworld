@@ -2006,6 +2006,14 @@ class PatchGenerator:
                 parent_common_map,
                 pawn_parent_common_map
             )
+            if def_name in self._group_overrides.get('preserve_life_stages',()):
+                # Megachicken has five intentionally distinct vanilla-royal
+                # growth stages. Do not collapse them into a generic three-age
+                # replacement when rebuilding its other animal stats.
+                def_ops = [op for op in def_ops if not any(
+                    '/race/lifeStageAges' in xpath
+                    for xpath in op.xpath('.//xpath/text()')
+                )]
             wrapped_def_ops = self._wrap_ops_in_mod_conflict(def_ops, def_mod_conflicts.get(def_name), as_li=False)
             new_operations.extend(wrapped_def_ops)
 

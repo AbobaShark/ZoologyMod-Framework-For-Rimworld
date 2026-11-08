@@ -11,8 +11,11 @@
   <Operation Class="PatchOperationRemove">
     <xpath>/Defs/ThingDef[@Name = "BaseBear"]/statBases/Wildness</xpath>
   </Operation>
-  <Operation Class="PatchOperationRemove">
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[@Name = "BaseBear"]/statBases/FilthRate</xpath>
+    <value>
+      <FilthRate>2</FilthRate>
+    </value>
   </Operation>
   <Operation Class="PatchOperationRemove">
     <xpath>/Defs/ThingDef[@Name = "BaseBear"]/statBases/ComfyTemperatureMin</xpath>
@@ -255,13 +258,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Bear_Polar"]/statBases/MarketValue</xpath>
       <value>
-        <MarketValue>1025</MarketValue>
+        <MarketValue>975</MarketValue>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Bear_Polar"]/statBases</xpath>
       <value>
-        <MarketValue>1025</MarketValue>
+        <MarketValue>975</MarketValue>
       </value>
     </nomatch>
   </Operation>
@@ -280,20 +283,17 @@
       </value>
     </nomatch>
   </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Bear_Polar"]/statBases/Wildness</xpath>
+    <value>
+      <Wildness>0.8</Wildness>
+    </value>
+  </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Bear_Polar"]/statBases/FilthRate</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Bear_Polar"]/statBases/FilthRate</xpath>
-      <value>
-        <FilthRate>3</FilthRate>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Bear_Polar"]/statBases</xpath>
-      <value>
-        <FilthRate>3</FilthRate>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Bear_Polar"]/statBases/ComfyTemperatureMin</xpath>
@@ -418,13 +418,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Bear_Polar"]/race/baseBodySize</xpath>
       <value>
-        <baseBodySize>2.25</baseBodySize>
+        <baseBodySize>1.9</baseBodySize>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Bear_Polar"]/race</xpath>
       <value>
-        <baseBodySize>2.25</baseBodySize>
+        <baseBodySize>1.9</baseBodySize>
       </value>
     </nomatch>
   </Operation>
@@ -433,13 +433,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Bear_Polar"]/race/baseHealthScale</xpath>
       <value>
-        <baseHealthScale>2.7</baseHealthScale>
+        <baseHealthScale>2.55</baseHealthScale>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Bear_Polar"]/race</xpath>
       <value>
-        <baseHealthScale>2.7</baseHealthScale>
+        <baseHealthScale>2.55</baseHealthScale>
       </value>
     </nomatch>
   </Operation>
@@ -448,13 +448,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Bear_Polar"]/race/baseHungerRate</xpath>
       <value>
-        <baseHungerRate>0.95</baseHungerRate>
+        <baseHungerRate>0.85</baseHungerRate>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Bear_Polar"]/race</xpath>
       <value>
-        <baseHungerRate>0.95</baseHungerRate>
+        <baseHungerRate>0.85</baseHungerRate>
       </value>
     </nomatch>
   </Operation>
@@ -586,13 +586,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Bear_Polar"]/race/maxPreyBodySize</xpath>
       <value>
-        <maxPreyBodySize>4</maxPreyBodySize>
+        <maxPreyBodySize>3.25</maxPreyBodySize>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Bear_Polar"]/race</xpath>
       <value>
-        <maxPreyBodySize>4</maxPreyBodySize>
+        <maxPreyBodySize>3.25</maxPreyBodySize>
       </value>
     </nomatch>
   </Operation>
@@ -754,13 +754,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "Bear_Polar"]/combatPower</xpath>
       <value>
-        <combatPower>280</combatPower>
+        <combatPower>270</combatPower>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "Bear_Polar"]</xpath>
       <value>
-        <combatPower>280</combatPower>
+        <combatPower>270</combatPower>
       </value>
     </nomatch>
   </Operation>
@@ -769,13 +769,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "Bear_Polar"]/ecoSystemWeight</xpath>
       <value>
-        <ecoSystemWeight>1.2</ecoSystemWeight>
+        <ecoSystemWeight>1.05</ecoSystemWeight>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "Bear_Polar"]</xpath>
       <value>
-        <ecoSystemWeight>1.2</ecoSystemWeight>
+        <ecoSystemWeight>1.05</ecoSystemWeight>
       </value>
     </nomatch>
   </Operation>
@@ -813,13 +813,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Bear_Grizzly"]/statBases/MarketValue</xpath>
       <value>
-        <MarketValue>875</MarketValue>
+        <MarketValue>850</MarketValue>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Bear_Grizzly"]/statBases</xpath>
       <value>
-        <MarketValue>875</MarketValue>
+        <MarketValue>850</MarketValue>
       </value>
     </nomatch>
   </Operation>
@@ -840,18 +840,9 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Bear_Grizzly"]/statBases/FilthRate</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Bear_Grizzly"]/statBases/FilthRate</xpath>
-      <value>
-        <FilthRate>2</FilthRate>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Bear_Grizzly"]/statBases</xpath>
-      <value>
-        <FilthRate>2</FilthRate>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Bear_Grizzly"]/statBases/ComfyTemperatureMin</xpath>
@@ -985,13 +976,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Bear_Grizzly"]/race/baseBodySize</xpath>
       <value>
-        <baseBodySize>1.9</baseBodySize>
+        <baseBodySize>1.7</baseBodySize>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Bear_Grizzly"]/race</xpath>
       <value>
-        <baseBodySize>1.9</baseBodySize>
+        <baseBodySize>1.7</baseBodySize>
       </value>
     </nomatch>
   </Operation>
@@ -1015,13 +1006,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Bear_Grizzly"]/race/baseHungerRate</xpath>
       <value>
-        <baseHungerRate>0.85</baseHungerRate>
+        <baseHungerRate>0.8</baseHungerRate>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Bear_Grizzly"]/race</xpath>
       <value>
-        <baseHungerRate>0.85</baseHungerRate>
+        <baseHungerRate>0.8</baseHungerRate>
       </value>
     </nomatch>
   </Operation>
@@ -1153,13 +1144,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Bear_Grizzly"]/race/maxPreyBodySize</xpath>
       <value>
-        <maxPreyBodySize>3.25</maxPreyBodySize>
+        <maxPreyBodySize>3</maxPreyBodySize>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Bear_Grizzly"]/race</xpath>
       <value>
-        <maxPreyBodySize>3.25</maxPreyBodySize>
+        <maxPreyBodySize>3</maxPreyBodySize>
       </value>
     </nomatch>
   </Operation>
@@ -1344,13 +1335,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "Bear_Grizzly"]/ecoSystemWeight</xpath>
       <value>
-        <ecoSystemWeight>1.05</ecoSystemWeight>
+        <ecoSystemWeight>1</ecoSystemWeight>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "Bear_Grizzly"]</xpath>
       <value>
-        <ecoSystemWeight>1.05</ecoSystemWeight>
+        <ecoSystemWeight>1</ecoSystemWeight>
       </value>
     </nomatch>
   </Operation>
@@ -1517,6 +1508,12 @@
     <xpath>/Defs/ThingDef[defName = "Raccoon"]/race/baseBodySize</xpath>
     <value>
       <baseBodySize>0.35</baseBodySize>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Raccoon"]/race/baseHealthScale</xpath>
+    <value>
+      <baseHealthScale>0.45</baseHealthScale>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -2124,14 +2121,14 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Bear_Polar"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]/Durability</xpath>
             <value>
-              <Durability>1250</Durability>
+              <Durability>1125</Durability>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Bear_Polar"]/comps</xpath>
             <value>
               <li Class="CombatExtended.CompProperties_ArmorDurability">
-                <Durability>1250</Durability>
+                <Durability>1125</Durability>
                 <Regenerates>true</Regenerates>
                 <RegenInterval>600</RegenInterval>
                 <RegenValue>5</RegenValue>
@@ -2359,14 +2356,14 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Bear_Grizzly"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]/Durability</xpath>
             <value>
-              <Durability>1050</Durability>
+              <Durability>1000</Durability>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Bear_Grizzly"]/comps</xpath>
             <value>
               <li Class="CombatExtended.CompProperties_ArmorDurability">
-                <Durability>1050</Durability>
+                <Durability>1000</Durability>
                 <Regenerates>true</Regenerates>
                 <RegenInterval>600</RegenInterval>
                 <RegenValue>5</RegenValue>

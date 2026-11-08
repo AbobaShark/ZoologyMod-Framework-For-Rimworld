@@ -1,4 +1,5 @@
 using RimWorld;
+using UnityEngine;
 using Verse;
 
 namespace ZoologyMod
@@ -12,7 +13,9 @@ namespace ZoologyMod
                 return 0f;
             }
 
-            return GetAdjustedCombatPower(pawn.kindDef, pawn.ageTracker?.CurLifeStage);
+            float basePower = pawn.kindDef.combatPower;
+            float factor = GetLifeStageCombatPowerFactor(pawn);
+            return basePower > 0f && factor > 0f ? basePower * factor : 0f;
         }
 
         public static float GetAdjustedCombatPower(PawnKindDef kindDef, LifeStageDef lifeStage)
@@ -50,6 +53,13 @@ namespace ZoologyMod
                 return 1f;
             }
 
+            LifeStageDef current, next;
+            float t;
+            if (ZoologyAnimalGrowth.TryGetStages(pawn, out current, out next, out t))
+            {
+                return Mathf.Lerp(GetLifeStageCombatPowerFactor(current),
+                    GetLifeStageCombatPowerFactor(next), t);
+            }
             return GetLifeStageCombatPowerFactor(pawn.ageTracker?.CurLifeStage);
         }
 

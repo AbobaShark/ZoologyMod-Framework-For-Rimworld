@@ -102,6 +102,37 @@ class ReproductiveValuesTests(unittest.TestCase):
         self.assertEqual(c[0]['new'],'135')
         self.assertEqual(tree.findtext('.//woolDef'),'WoolCamel')
 
+    def test_half_item_wool_and_milk_yields_serialize_as_int32(self):
+        tables = _tables()
+        tables["EggMilk"].loc[0, "T"] = "8.5"
+        tables["EggMilk"].loc[0, "N"] = "8.5"
+        source = '''<Patch>
+          <Operation Class="PatchOperationConditional">
+            <xpath>/Defs/ThingDef[defName="Dromedary"]/comps/li[Class="CompProperties_Shearable"]</xpath>
+            <match Class="PatchOperationReplace"><value>
+              <li Class="CompProperties_Shearable"><shearIntervalDays>15</shearIntervalDays>
+                <woolAmount>135</woolAmount></li>
+            </value></match>
+          </Operation>
+          <Operation Class="PatchOperationConditional">
+            <xpath>/Defs/ThingDef[defName="Cow"]/comps/li[Class="CompProperties_Milkable"]</xpath>
+            <match Class="PatchOperationReplace"><value>
+              <li Class="CompProperties_Milkable"><milkIntervalDays>15</milkIntervalDays>
+                <milkAmount>120</milkAmount></li>
+            </value></match>
+          </Operation>
+        </Patch>'''
+        tree = _tree(source)
+        changes, warnings, touched = refresh_tree(tree, tables)
+        self.assertEqual(
+            tree.xpath('string(//li[@Class="CompProperties_Shearable"]/woolAmount)'),
+            "128")
+        self.assertEqual(
+            tree.xpath('string(//li[@Class="CompProperties_Milkable"]/milkAmount)'),
+            "128")
+        self.assertEqual({c["new"] for c in changes}, {"128"})
+        self.assertFalse(warnings)
+
     def test_full_eggmilk_tsv_can_be_loaded_independently(self):
         with tempfile.TemporaryDirectory() as tmp:
             path=Path(tmp)/'EggMilkWool.tsv'

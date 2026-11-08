@@ -3,6 +3,12 @@
   <!---->
   <!-- Monkey -->
   <!-- Monkey StatBases -->
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Monkey"]/statBases/MarketValue</xpath>
+    <value>
+      <MarketValue>125</MarketValue>
+    </value>
+  </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Monkey"]/statBases/MoveSpeed</xpath>
     <match Class="PatchOperationReplace">
@@ -119,15 +125,21 @@
   </Operation>
   <!-- Monkey RaceProperties -->
   <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "Monkey"]/race/baseBodySize</xpath>
+    <value>
+      <baseBodySize>0.4</baseBodySize>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Monkey"]/race/baseHealthScale</xpath>
     <value>
-      <baseHealthScale>0.35</baseHealthScale>
+      <baseHealthScale>0.4</baseHealthScale>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Monkey"]/race/baseHungerRate</xpath>
     <value>
-      <baseHungerRate>0.3</baseHungerRate>
+      <baseHungerRate>0.35</baseHungerRate>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -425,6 +437,12 @@
     </match>
   </Operation>
   <!-- Monkey PawnKindDef -->
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/PawnKindDef[defName = "Monkey"]/ecoSystemWeight</xpath>
+    <value>
+      <ecoSystemWeight>0.35</ecoSystemWeight>
+    </value>
+  </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/PawnKindDef[defName = "Monkey"]/canArriveManhunter</xpath>
     <match Class="PatchOperationReplace">
@@ -564,14 +582,14 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Monkey"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]/Durability</xpath>
             <value>
-              <Durability>175</Durability>
+              <Durability>200</Durability>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Monkey"]/comps</xpath>
             <value>
               <li Class="CombatExtended.CompProperties_ArmorDurability">
-                <Durability>175</Durability>
+                <Durability>200</Durability>
                 <Regenerates>true</Regenerates>
                 <RegenInterval>600</RegenInterval>
                 <RegenValue>5</RegenValue>

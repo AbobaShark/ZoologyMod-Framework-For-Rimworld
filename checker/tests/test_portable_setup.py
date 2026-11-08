@@ -8,6 +8,8 @@ import pandas as pd
 from lxml import etree as E
 import core.checker_config as checker_config
 from core.static_stats import update_bionics, update_life_stages
+from core.life_stages import REQUIRED_COLUMNS
+from tests.test_life_stages import fixture as full_life_stages_fixture
 from core.xml_routing import plan
 
 
@@ -82,17 +84,27 @@ class StaticStatsTests(unittest.TestCase):
         self.assertEqual(len(warnings),2)
 
     def test_life_stage_vanilla_changes_but_ce_only_uses_ce_column(self):
-        xml='''<Patch><Operation Class="PatchOperationConditional">
-        <xpath>/Defs/LifeStageDef[defName="AnimalJuvenile" or defName="EusocialInsectJuvenile"]/meleeDamageFactor</xpath>
-        <match Class="PatchOperationReplace"><xpath>unused</xpath><value><meleeDamageFactor>0.5</meleeDamageFactor></value></match>
-        <nomatch Class="PatchOperationAdd"><xpath>unused</xpath><value><meleeDamageFactor>0.5</meleeDamageFactor></value></nomatch>
-        </Operation></Patch>'''
-        df=pd.DataFrame([{'Life stage':'AnimalJuvenile or EusocialInsectJuvenile',
-                 'meleeDamageFactor':'0.65','meleeDamageFactor(CE)':'0.45'}])
-        vanilla=E.ElementTree(E.fromstring(xml)); ce=E.ElementTree(E.fromstring(xml))
-        update_life_stages(vanilla,df)
-        update_life_stages(ce,df,ce=True)
-        self.assertEqual([x.text for x in vanilla.xpath('//value/meleeDamageFactor')],['0.65','0.65'])
-        self.assertEqual([x.text for x in ce.xpath('//value/meleeDamageFactor')],['0.45','0.45'])
+        df=full_life_stages_fixture()
+        df.loc[1,'meleeDamageFactor']=.65
+        df.loc[1,'meleeDamageFactor(CE)']=.45
+        df.loc[1,'MeleeAttackIntervalFactor']=.9
+        df.loc[1,'MeleeAttackIntervalFactor(CE)']=.8
+        df.loc[1,'MeleeCritChance']=.9
+        df.loc[1,'MeleeParryChance']=.9
+        df.loc[1,'foodMaxFactor']=1
+        df.loc[1,'FilthRate']=.5
+        vanilla = E.ElementTree(E.fromstring('<Patch/>'))
+        ce = E.ElementTree(E.fromstring('<Patch/>'))
+        update_life_stages(vanilla, df)
+        update_life_stages(ce, df, ce=True)
+        self.assertIn('0.65', vanilla.xpath('//value/meleeDamageFactor/text()'))
+        self.assertIn('0.45', ce.xpath('//value/meleeDamageFactor/text()'))
+        self.assertIn('0.9', vanilla.xpath('//value/Zoology_MeleeCooldownFactor/text()'))
+        self.assertIn('0.8', ce.xpath('//value/Zoology_MeleeCooldownFactor/text()'))
+        self.assertIn('0.5', vanilla.xpath('//value/FilthRate/text()'))
+        self.assertIn('0.9', ce.xpath('//value/MeleeCritChance/text()'))
+        self.assertFalse(vanilla.xpath('//value/MeleeCritChance'))
+        self.assertFalse(ce.xpath('//value/FilthRate'))
+
 
 if __name__=='__main__': unittest.main()

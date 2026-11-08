@@ -498,7 +498,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Porcupine"]/statBases/Wildness</xpath>
     <value>
-      <Wildness>0.6</Wildness>
+      <Wildness>0.65</Wildness>
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
@@ -590,19 +590,19 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Porcupine"]/race/baseBodySize</xpath>
     <value>
-      <baseBodySize>0.45</baseBodySize>
+      <baseBodySize>0.5</baseBodySize>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Porcupine"]/race/baseHealthScale</xpath>
     <value>
-      <baseHealthScale>0.45</baseHealthScale>
+      <baseHealthScale>0.5</baseHealthScale>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Porcupine"]/race/baseHungerRate</xpath>
     <value>
-      <baseHungerRate>0.35</baseHungerRate>
+      <baseHungerRate>0.4</baseHungerRate>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -697,13 +697,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Porcupine"]/race/nuzzleMtbHours</xpath>
       <value>
-        <nuzzleMtbHours>36</nuzzleMtbHours>
+        <nuzzleMtbHours>48</nuzzleMtbHours>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Porcupine"]/race</xpath>
       <value>
-        <nuzzleMtbHours>36</nuzzleMtbHours>
+        <nuzzleMtbHours>48</nuzzleMtbHours>
       </value>
     </nomatch>
   </Operation>
@@ -857,27 +857,10 @@
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Porcupine"]/race/specialTrainables/li[text()="SludgeSpew" or text()="EggSpew" or text()="TerrorRoar" or text()="WarTrumpet" or text()="Forage" or text()="Comfort" or text()="AttackTarget" or text()="Dig"]</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Porcupine"]/race/specialTrainables/li[text()="SludgeSpew" or text()="EggSpew" or text()="TerrorRoar" or text()="WarTrumpet" or text()="Forage" or text()="Comfort" or text()="AttackTarget" or text()="Dig"]</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Porcupine"]/race/specialTrainables</xpath>
-    <match Class="PatchOperationAdd">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Porcupine"]/race/specialTrainables</xpath>
-      <value>
-        <li MayRequire="Ludeon.RimWorld.Odyssey">Comfort</li>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Porcupine"]/race</xpath>
-      <value>
-        <specialTrainables>
-          <li MayRequire="Ludeon.RimWorld.Odyssey">Comfort</li>
-        </specialTrainables>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationRemove">
     <xpath>/Defs/ThingDef[defName = "Porcupine"]/tradeTags/li[text()='AnimalUncommon']</xpath>
@@ -940,7 +923,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "Porcupine"]/ecoSystemWeight</xpath>
     <value>
-      <ecoSystemWeight>0.35</ecoSystemWeight>
+      <ecoSystemWeight>0.4</ecoSystemWeight>
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
@@ -975,7 +958,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Megavole"]/statBases/MarketValue</xpath>
     <value>
-      <MarketValue>150</MarketValue>
+      <MarketValue>175</MarketValue>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -1070,13 +1053,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Megavole"]/race/baseBodySize</xpath>
     <value>
-      <baseBodySize>0.95</baseBodySize>
-    </value>
-  </Operation>
-  <Operation Class="PatchOperationReplace">
-    <xpath>/Defs/ThingDef[defName = "Megavole"]/race/baseHealthScale</xpath>
-    <value>
-      <baseHealthScale>0.95</baseHealthScale>
+      <baseBodySize>1</baseBodySize>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -1382,7 +1359,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "Megavole"]/combatPower</xpath>
     <value>
-      <combatPower>80</combatPower>
+      <combatPower>85</combatPower>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -1726,14 +1703,14 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Porcupine"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]/Durability</xpath>
             <value>
-              <Durability>225</Durability>
+              <Durability>250</Durability>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Porcupine"]/comps</xpath>
             <value>
               <li Class="CombatExtended.CompProperties_ArmorDurability">
-                <Durability>225</Durability>
+                <Durability>250</Durability>
                 <Regenerates>true</Regenerates>
                 <RegenInterval>600</RegenInterval>
                 <RegenValue>5</RegenValue>
@@ -1922,14 +1899,14 @@
           <match Class="PatchOperationReplace">
             <xpath>Defs/ThingDef[defName="Megavole"]/comps/li[@Class="CombatExtended.CompProperties_ArmorDurability"]/Durability</xpath>
             <value>
-              <Durability>475</Durability>
+              <Durability>500</Durability>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>Defs/ThingDef[defName="Megavole"]/comps</xpath>
             <value>
               <li Class="CombatExtended.CompProperties_ArmorDurability">
-                <Durability>475</Durability>
+                <Durability>500</Durability>
                 <Regenerates>true</Regenerates>
                 <RegenInterval>600</RegenInterval>
                 <RegenValue>5</RegenValue>

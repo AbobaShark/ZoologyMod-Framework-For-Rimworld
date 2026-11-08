@@ -15,6 +15,7 @@ namespace ZoologyMod
         public static bool IsAnimalInfantLifeStage(LifeStageDef stage)
         {
             if (stage == null) return false;
+            stage = stage.GetModExtension<ZoologyLifeStageOrigin>()?.sourceStage ?? stage;
 
             var baby = animalBabyLifeStageDef ?? (animalBabyLifeStageDef = DefDatabase<LifeStageDef>.GetNamedSilentFail("AnimalBaby"));
             if (stage == baby || string.Equals(stage.defName, "AnimalBaby", StringComparison.OrdinalIgnoreCase))
@@ -29,12 +30,15 @@ namespace ZoologyMod
             }
 
             var larva = eusocialLarvaLifeStageDef ?? (eusocialLarvaLifeStageDef = DefDatabase<LifeStageDef>.GetNamedSilentFail("EusocialInsectLarva"));
-            return stage == larva || string.Equals(stage.defName, "EusocialInsectLarva", StringComparison.OrdinalIgnoreCase);
+            return stage == larva
+                || string.Equals(stage.defName, "EusocialInsectLarva", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(stage.defName, "VAERoy_AnimalBaby", StringComparison.Ordinal);
         }
 
         public static bool IsAnimalJuvenileLifeStage(LifeStageDef stage)
         {
             if (stage == null) return false;
+            stage = stage.GetModExtension<ZoologyLifeStageOrigin>()?.sourceStage ?? stage;
 
             var juvenile = animalJuvenileLifeStageDef ?? (animalJuvenileLifeStageDef = DefDatabase<LifeStageDef>.GetNamedSilentFail("AnimalJuvenile"));
             if (stage == juvenile || string.Equals(stage.defName, "AnimalJuvenile", StringComparison.OrdinalIgnoreCase))
@@ -43,7 +47,9 @@ namespace ZoologyMod
             }
 
             var eusocial = eusocialJuvenileLifeStageDef ?? (eusocialJuvenileLifeStageDef = DefDatabase<LifeStageDef>.GetNamedSilentFail("EusocialInsectJuvenile"));
-            return stage == eusocial || string.Equals(stage.defName, "EusocialInsectJuvenile", StringComparison.OrdinalIgnoreCase);
+            return stage == eusocial
+                || string.Equals(stage.defName, "EusocialInsectJuvenile", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(stage.defName, "VAERoy_AnimalJuvenile", StringComparison.Ordinal);
         }
 
         public static bool IsAnimalChildLifeStage(LifeStageDef stage)

@@ -39,6 +39,11 @@ def load_registry(path,mod):
             animal_names[name]=ident
         if dest.casefold() in seen: raise ValueError(f'Duplicate destination: {dest}')
         seen.add(dest.casefold())
+    for group in groups:
+        preserved=(group.get('overrides') or {}).get('preserve_life_stages',[])
+        if not isinstance(preserved,list) or len(preserved)!=len(set(preserved)) or any(
+                not isinstance(name,str) or name not in group['defs'] for name in preserved):
+            raise ValueError(f"{group['id']}: preserve_life_stages must be registered in the same group")
     for section in ('biomes','shared_defs','outputs'):
         if not isinstance(obj.get(section),list): raise ValueError(f'Missing registry section {section}')
         for entry in obj[section]:
@@ -73,10 +78,10 @@ def load_registry(path,mod):
         raise ValueError('Duplicate registered biome DefName')
     overlap=marker_names & {name.casefold() for name in biome_names}
     if overlap:raise ValueError(f'Biomes cannot be registered and reference-only: {sorted(overlap)}')
-    required_ids={'bionics.vanilla','bionics.ce','life-stages.vanilla','life-stages.ce'}
+    required_ids={'bionics.vanilla','bionics.ce','life-stages.species','life-stages.attacks.cs'}
     actual={e['id'] for e in obj['outputs']}
     if not required_ids <= actual or not any(e['pipeline_category']=='products' for e in obj['outputs']):
-        raise ValueError('Missing required named static outputs')
+        raise ValueError('Missing required outputs')
     # Validate playable XML only. Source/ contains benchmark archives and
     # upstream snapshots that are not loaded as patches by RimWorld.
     if (Path(mod) / 'LoadFolders.xml').is_file():

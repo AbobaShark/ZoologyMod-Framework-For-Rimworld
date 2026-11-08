@@ -28,7 +28,7 @@ class UnifiedEntryPointTests(unittest.TestCase):
         worker = Worker()
         failure = TypeError("'NoneType' object has no attribute 'startswith'")
         with patch.object(entry, 'stage_pipeline', side_effect=failure):
-            entry.PatchGeneratorApp._worker(worker, {})
+            entry.PatchGeneratorApp._worker(worker, {}, False)
         kind, summary, details = worker.messages.get_nowait()
         self.assertEqual(kind, 'error')
         self.assertIn("startswith", summary)
@@ -51,7 +51,7 @@ class UnifiedEntryPointTests(unittest.TestCase):
 
     def test_flags_open_cli_without_gui(self):
         with patch.object(entry, 'PatchGeneratorApp') as app, patch.object(entry, 'stage_pipeline', return_value=Path('manifest.json')) as stage, \
-             patch.object(entry, 'load', return_value={}), \
+             patch.object(entry, 'load', return_value={'auto_deploy': False}), \
              patch.object(entry, 'find_project_root', return_value=Path('/tmp/project')):
             with contextlib.redirect_stdout(io.StringIO()):
                 entry.main(['--source', 'gsheet:animalstats', '--category', 'animals', '--no-ce', '--no-optimize',
@@ -69,7 +69,7 @@ class UnifiedEntryPointTests(unittest.TestCase):
     def test_all_uses_all_categories_and_defaults_from_config(self):
         cfg = {'vanilla_tsv': 'gsheet:main', 'sheet_sources': {'Bionics': 'gsheet:bionics'},
                'generation_config': '/tmp/generation.json', 'original_xml_dir': '/tmp/original',
-               'ce_patches_dir': '/tmp/patches', 'enable_ce': False, 'optimize': False}
+               'ce_patches_dir': '/tmp/patches', 'enable_ce': False, 'optimize': False, 'auto_deploy': False}
         with patch.object(entry, 'stage_pipeline', return_value=Path('manifest.json')) as stage, \
              patch.object(entry, 'load', return_value=cfg), \
              patch.object(entry, 'find_project_root', return_value=Path('/tmp/project')):
@@ -82,13 +82,27 @@ class UnifiedEntryPointTests(unittest.TestCase):
             self.assertFalse(kwargs['ce'])
             self.assertFalse(kwargs['optimize'])
 
+
+    def test_generation_auto_deploy_and_stage_only(self):
+        with patch.object(entry, 'stage_pipeline', return_value=Path('manifest.json')), \
+             patch.object(entry, 'deploy', return_value=[('replace', None, None, 'path')]) as deploy, \
+             patch.object(entry, 'load', return_value={'auto_deploy': True}), \
+             patch.object(entry, 'find_project_root', return_value=Path('/tmp/project')):
+            with contextlib.redirect_stdout(io.StringIO()):
+                entry.main(['--source', 'gsheet:test', '--category', 'life-stages'])
+            deploy.assert_called_once_with(entry.STAGE/'generation-manifest.json', Path('/tmp/project'),current_run_only=True)
+            deploy.reset_mock()
+            with contextlib.redirect_stdout(io.StringIO()):
+                entry.main(['--source', 'gsheet:test', '--category', 'life-stages', '--stage-only'])
+            deploy.assert_not_called()
+
     def test_preview_is_dry_run_and_never_stages(self):
         with patch.object(entry, 'deploy') as deploy, patch.object(entry, 'stage_pipeline') as stage, \
              patch.object(entry, 'load', return_value={}), \
              patch.object(entry, 'find_project_root', return_value=Path('/tmp/project')):
             entry.main(['--preview'])
             deploy.assert_called_once_with(entry.ROOT/'output/staged/generation-manifest.json',
-                                           Path('/tmp/project'), dry_run=True)
+                                           Path('/tmp/project'), dry_run=True, current_run_only=True)
             stage.assert_not_called()
 
     def test_deploy_requires_confirmation_flag(self):
@@ -101,7 +115,14 @@ class UnifiedEntryPointTests(unittest.TestCase):
             deploy.assert_not_called()
             entry.main(['--deploy', '--yes'])
             deploy.assert_called_once_with(entry.ROOT/'output/staged/generation-manifest.json',
-                                           Path('/tmp/project'), dry_run=False)
+                                           Path('/tmp/project'), dry_run=False, current_run_only=True)
+
+    def test_deploy_all_staged_is_explicit_opt_in(self):
+        with patch.object(entry, 'deploy') as deploy, patch.object(entry, 'load',return_value={}), \
+             patch.object(entry,'find_project_root',return_value=Path('/tmp/project')):
+            entry.main(['--preview','--all-staged'])
+            deploy.assert_called_once_with(entry.ROOT/'output/staged/generation-manifest.json',
+                                           Path('/tmp/project'),dry_run=True,current_run_only=False)
 
     def test_check_audits_all_routes_without_generating_or_deploying(self):
         result = {'destinations':147, 'missing_static':[]}
