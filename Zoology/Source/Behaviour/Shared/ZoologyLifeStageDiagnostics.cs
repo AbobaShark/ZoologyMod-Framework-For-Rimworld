@@ -53,6 +53,22 @@ namespace ZoologyMod
                 .Append("; hungerRateFactor: ").Append(stage.hungerRateFactor)
                 .Append("; marketValueFactor: ").Append(stage.marketValueFactor)
                 .AppendLine();
+            float growthProgress;
+            if (ZoologyAnimalGrowth.TryGetProgress(pawn, out growthProgress))
+            {
+                var drawScale = ZoologyAnimalGrowth.DrawRatio(pawn);
+                output.Append("Daily growth interval: ")
+                    .Append((growthProgress * 100f).ToString("0.#"))
+                    .Append("%; BodySize ratio x").Append(ZoologyAnimalGrowth.BodyRatio(pawn).ToString("0.####"))
+                    .Append("; HealthScale ratio x").Append(ZoologyAnimalGrowth.HealthRatio(pawn).ToString("0.####"))
+                    .Append("; graphic root scale (")
+                    .Append(drawScale.x.ToString("0.####")).Append(", ")
+                    .Append(drawScale.y.ToString("0.####")).Append(")")
+                    .AppendLine();
+            }
+            else
+                output.AppendLine("Daily growth: inactive (adult or unprofiled interval)");
+
             output.Append("Effective CombatPower: ")
                 .Append(AnimalCombatPowerUtility.GetAdjustedCombatPower(pawn))
                 .AppendLine();
