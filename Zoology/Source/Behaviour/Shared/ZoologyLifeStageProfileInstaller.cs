@@ -102,6 +102,10 @@ namespace ZoologyMod
                 ZoologyLifeStageArmorStatPart.Install();
             }
 
+            // All race stages have now been replaced by their calculated
+            // profiles. Resolve daily interpolation against these final defs.
+            ZoologyAnimalGrowth.Install(catalogs);
+
             timer.Stop();
             if (unresolvedToolMappings > 0)
             {
@@ -121,9 +125,15 @@ namespace ZoologyMod
             if (pawn?.RaceProps?.Animal != true || tool == null)
                 return false;
 
-            var stage = pawn.ageTracker?.CurLifeStage;
+            return TryGetToolFactor(pawn.ageTracker?.CurLifeStage, tool, out factor);
+        }
+
+        internal static bool TryGetToolFactor(
+            LifeStageDef stage, Tool tool, out ZoologyLifeStageToolFactor factor)
+        {
+            factor = null;
             Dictionary<Tool, ZoologyLifeStageToolFactor> mapped;
-            if (stage == null || !toolFactorsByStage.TryGetValue(stage, out mapped))
+            if (stage == null || tool == null || !toolFactorsByStage.TryGetValue(stage, out mapped))
                 return false;
 
             if (mapped.TryGetValue(tool, out factor))
@@ -165,8 +175,12 @@ namespace ZoologyMod
 
         internal static bool TryGetArmorDurabilityFactor(Pawn pawn, out float factor)
         {
+            return TryGetArmorDurabilityFactor(pawn?.ageTracker?.CurLifeStage, out factor);
+        }
+
+        internal static bool TryGetArmorDurabilityFactor(LifeStageDef stage, out float factor)
+        {
             factor = 1f;
-            var stage = pawn?.ageTracker?.CurLifeStage;
             return stage != null && armorDurabilityByStage.TryGetValue(stage, out factor);
         }
 
