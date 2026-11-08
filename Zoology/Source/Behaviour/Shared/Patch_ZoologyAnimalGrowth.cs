@@ -49,13 +49,17 @@ namespace ZoologyMod
 
     // Modify the root render transform exactly once, not each child mesh.
     // All descendant body parts inherit this scale and no graphics are rebuilt.
-    [HarmonyPatch(typeof(PawnRenderNodeWorker), "ScaleFor")]
+    [HarmonyPatch(typeof(PawnRenderNodeWorker), "ScaleFor",
+        new Type[] { typeof(PawnRenderNode), typeof(PawnDrawParms) })]
     internal static class Patch_ZoologyDailyAnimalRenderScale
     {
         private static readonly FieldInfo RootField =
-            AccessTools.Field(typeof(PawnRenderTree), "rootNode");
+            AccessTools.Field(typeof(PawnRenderTree), "rootNode")
+            ?? AccessTools.Field(typeof(PawnRenderTree), "root");
         private static readonly PropertyInfo RootProperty = RootField == null
-            ? AccessTools.Property(typeof(PawnRenderTree), "RootNode") : null;
+            ? AccessTools.Property(typeof(PawnRenderTree), "RootNode")
+              ?? AccessTools.Property(typeof(PawnRenderTree), "rootNode")
+            : null;
 
         private static bool Prepare()
         {
