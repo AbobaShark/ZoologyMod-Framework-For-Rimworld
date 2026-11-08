@@ -45,26 +45,38 @@ For a change of texPath, the outgoing and incoming artwork receive a
 per-run **uniform** scale calibration based on their visible alpha footprints.
 When a stage has `femaleGraphicData`, female graphics are calibrated
 independently of the default body art.
-The final/adult run is the anchor (scale 1); preceding runs are calibrated
-backwards. Consequently an earlier artwork reaches the same *estimated
-visible size* that the next artwork has at the stage boundary. Two adjacent
-stages with the same graphic retain their original relative scaling, even
-when a later change of artwork requires a common calibration for that run.
-The original authored graphics, proportions, stage boundaries and biology
-are not modified.
+The last/adult run anchors the calculation (scale 1). Earlier artwork
+runs are calibrated backwards. At a switch of texture, the calibration
+compares **each corresponding cardinal facing**, not the median across
+facings. Three independent visible dimensions are evaluated: horizontal
+extent, vertical extent, and the square root of opaque pixel area. The
+smallest of the corresponding new/old dimension ratios is applied when
+below 1; ratios above 1 remain at 1. Thus an outgoing sprite is reduced
+where necessary to avoid an apparent size decrease at the switch. An
+increase in apparent size may still occur when the new art is already
+larger in all measured dimensions. There is no aspect-ratio distortion:
+the correction is a single uniform factor. Two stages with the same
+texture retain the existing growth interpolation and relative sizes,
+although an entire earlier same-art run may share a correction needed
+at its later artwork switch.
 
-The visual footprint of each artwork is the median over the four directions
-of the geometric mean of the alpha silhouette's trimmed horizontal and
-vertical extents. Each edge discards 1% of cumulative alpha weight, to
-reduce interference from isolated pixels and thin trailing elements. These
-measurements estimate apparent size, not anatomical body length; dissimilar
-poses or shapes can still show a small visual difference. When alpha is
-unavailable, the original uncalibrated graphic scaling is used for that
-boundary. A texture is inspected at most once and measurements are cached
-across animals. CPU-readable textures are sampled directly; others receive
-a bounded 192x192 GPU readback. This occurs only when that PawnKindDef first
-needs rendering during growth, never every tick or every biological day.
-The runtime never rebuilds the graphics or changes the textures.
+The horizontal and vertical extents exclude 1% of cumulative alpha mass
+from each side. Opaque area also responds to thick bodies versus sparse
+silhouettes with long tails or feathers; comparing bounding rectangles
+alone missed this distinction. The alpha measurements are proxies for
+apparent size, not anatomical length. Failure to read the artwork leaves
+the original drawSize-based scaling for that boundary. A texture is
+inspected at most once, cached across pawns and kinds. CPU-readable
+textures are sampled directly; other textures receive a bounded 192x192
+GPU readback. The runtime never rebuilds graphics, modifies textures, or
+performs pixel inspection every tick or day.
+
+The debug action **Zoology -> Inspect animal life-stage profile** prints
+the per-stage visual factors and each actual texture transition, including
+its measured ratio, applied correction and comparable facings. This
+distinguishes missing alpha data from valid calibration and disabled
+render scaling. The original authored graphics, stage boundaries,
+proportions and biological stats are unchanged.
 
 Spectrobionta are interpolated between consecutive life stages *within the
 same race*: e.g. small -> medium -> large predimago when those stages exist
@@ -112,7 +124,11 @@ interactions with external performance mods.
    For every graphic transition, compare the last day of the old artwork
    against the first day of the new, from multiple viewing directions.
    Confirm that shared-texPath intervals retain their original growth curve.
-   Changing silhouettes may not match perfectly in every direction.
+   The inspection should report a numeric silhouette ratio and an
+   applied factor at each changed texPath; unavailable measurements are
+   explicitly reported. Confirm that a graphic change never makes its old
+   silhouette larger in any measured width, height or occupied-area diameter.
+   Unusual shapes can still differ in perceived body size.
    For Spectrobionta, verify daily changes between small, medium and large
    predimago (where defined) and between larval size stages, without
    interpolating the cross-race metamorphosis. Verify that stage-gated
