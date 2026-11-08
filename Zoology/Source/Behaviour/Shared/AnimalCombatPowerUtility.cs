@@ -13,7 +13,9 @@ namespace ZoologyMod
                 return 0f;
             }
 
-            return pawn.kindDef.combatPower * GetLifeStageCombatPowerFactor(pawn);
+            float basePower = pawn.kindDef.combatPower;
+            float factor = GetLifeStageCombatPowerFactor(pawn);
+            return basePower > 0f && factor > 0f ? basePower * factor : 0f;
         }
 
         public static float GetAdjustedCombatPower(PawnKindDef kindDef, LifeStageDef lifeStage)
