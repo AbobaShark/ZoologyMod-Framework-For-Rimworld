@@ -74,16 +74,21 @@ namespace ZoologyMod
             Pawn pawn = parms.pawn;
             if (pawn == null || pawn.RaceProps?.Animal != true)
                 return;
+            // Return before reflection for every adult, unsupported animal or
+            // day with native scale. Only growing animals pay the render cost.
+            Vector2 scale = ZoologyAnimalGrowth.DrawRatio(pawn);
+            if (Mathf.Abs(scale.x - 1f) < 0.000001f
+                && Mathf.Abs(scale.y - 1f) < 0.000001f)
+                return;
+
             var tree = pawn.Drawer?.renderer?.renderTree;
             if (tree == null)
                 return;
-
             object root = RootField != null ? RootField.GetValue(tree)
                 : RootProperty.GetValue(tree, null);
             if (!ReferenceEquals(root, node))
                 return;
 
-            Vector2 scale = ZoologyAnimalGrowth.DrawRatio(pawn);
             __result.x *= scale.x;
             __result.z *= scale.y;
         }
