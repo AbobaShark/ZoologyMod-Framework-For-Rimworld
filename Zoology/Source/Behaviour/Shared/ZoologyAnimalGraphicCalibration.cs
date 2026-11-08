@@ -80,6 +80,14 @@ namespace ZoologyMod
             try
             {
                 Graphic graphic = data.Graphic;
+                if (graphic == null && data.graphicClass == null)
+                {
+                    // Some animal graphics omit graphicClass in XML. The
+                    // normal animal body renderer uses a directional graphic;
+                    // resolve that texture without changing the original def.
+                    graphic = GraphicDatabase.Get<Graphic_Multi>(
+                        data.texPath, ShaderDatabase.Cutout, data.drawSize, data.color);
+                }
                 if (graphic == null)
                     return false;
 
