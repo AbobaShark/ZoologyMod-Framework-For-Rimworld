@@ -229,15 +229,17 @@ namespace ZoologyMod
                 long sampled = biologicalDay * TicksPerBiologicalDay;
                 float t = (float)((double)(sampled - segment.startTick)
                     / (segment.endTick - segment.startTick));
-                snapshot.progress = Mathf.Clamp01(t);
-                // The last biological day must be the visual endpoint,
-                // not an arbitrary fraction below it. Keep the original
-                // progress for biological stats and same-artwork growth.
-                snapshot.graphicProgress = segment.lastSampleTick > segment.firstSampleTick
+                // All age-dependent values use the same daily samples,
+                // including their last day before the next LifeStageDef.
+                // This avoids the visual size reaching the next stage while
+                // speed, BodySize, health, hunger or combat stats lag behind.
+                float dailyProgress = segment.lastSampleTick > segment.firstSampleTick
                     ? Mathf.Clamp01((float)((double)(sampled - segment.firstSampleTick)
                         / (segment.lastSampleTick - segment.firstSampleTick)))
-                    : snapshot.progress;
-                float fraction = snapshot.progress;
+                    : Mathf.Clamp01(t);
+                snapshot.progress = dailyProgress;
+                snapshot.graphicProgress = dailyProgress;
+                float fraction = dailyProgress;
 
                 snapshot.bodyRatio = LerpRatio(segment.from.bodySizeFactor,
                     segment.to.bodySizeFactor, fraction);
