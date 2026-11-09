@@ -15,6 +15,7 @@ CORE = {
     "AnimalAdult or EusocialInsectAdult": ("Adult", 2),
     "AnimalJuvenile or EusocialInsectJuvenile": ("Juvenile", 1),
     "AnimalBaby or EusocialInsectLarva": ("Baby", 0),
+    "AnimalLargeAdult": ("LargeAdult", 3),
 }
 ROYAL = (
     "VAERoy_AnimalBaby", "VAERoy_AnimalJuvenile", "VAERoy_AnimalAdult",
@@ -122,6 +123,8 @@ def audit_mass_profiles(profiles, *, require_complete=False):
             # forms while other Carnophagidae retain their three-stage cycle.
             expected = [0, 1, 2, 3] if 1 in ranks else [0, 2, 3]
             adult_rank = 3
+        elif family == "Core":
+            expected, adult_rank = ([0, 1, 2, 3] if 3 in ranks else [0, 1, 2]), 2
         else:
             expected, adult_rank = [0, 1, 2], 2
         if sorted(ranks) != expected:
