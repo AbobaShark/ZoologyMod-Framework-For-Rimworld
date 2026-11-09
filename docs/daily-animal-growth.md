@@ -30,41 +30,53 @@ CE/vanilla stage coefficient is interpolated by Tool and attack component
 (damage, cooldown, sharp AP, blunt AP); the shared Tool or LifeStageDef is
 never mutated. Adult pawns retain the original behavior.
 
-The graphic's root transform interpolates a size-normalized footprint
-between the current and next stage. For each endpoint, divide the authored
-`bodyGraphicData.drawSize` by the square root of that stage's game
-`bodySizeFactor`; interpolate these normalized dimensions and multiply by
-the square root of the interpolated body factor. This is a visual convention,
-not a conversion of kilograms to BodySize.
+For consecutive stages using the **same artwork**, the root transform keeps
+the original BodySize-normalized interpolation of authored
+`bodyGraphicData.drawSize`. No pixel measurement is required for that
+transition.
 
-**Different body textures are subject to a direct size limit.** The
-unaltered daily growth formula still calculates the current stage's proposed
-root render scale. If the next stage uses a different texPath, the renderer
-compares the visible pixel bounds of the two sprites for each of the four
-facings. Bounds are converted to world units using the respective
-bodyGraphicData.drawSize. The *already scaled* current artwork is allowed
-to grow only while its visible width and height remain no greater than
-those of the next artwork at its actual stage-start size (including any
-limit required by its own following graphic transition).
+For a **change of artwork**, the visible alpha bounding rectangle is
+measured separately for North, East, South and West. Its width and height
+are multiplied by the corresponding graphic's authored drawSize to
+express visible dimensions in world units. The largest permitted scale
+of the outgoing graphic is calculated once: the minimum of the ratios
+between the next graphic's starting visible width/height and the
+outgoing graphic's unscaled visible width/height across all facings.
+One uniform scale is used in both dimensions, without distortion.
 
-For each view and dimension the maximum permitted uniform multiplier is
-nextVisibleSizeAtStageStart / currentVisibleSize. The smallest multiplier (capped at
-1) is applied to both root-scale axes, preserving the artwork's aspect
-ratio. No bounding-box area, silhouette area, median, backward per-stage
-factor propagation or hardcoded species-specific ratios are involved.
-Identical-texPath transitions return the original scale unchanged.
+Crucially, this is the **last-day target**, not a clamp evaluated on
+every day. The outgoing graphic interpolates from its starting scale
+to that target over the entire interval. Progress for visual interpolation
+is normalized to the first and last *actual biological-day samples*
+before the transition, so the last day reaches the target rather than
+stopping one fraction short. The limiting width or height may exactly
+equal that of the next stage at the transition; the other dimensions
+are no larger.
+
+If the outgoing artwork is too large even at its original stage start,
+the starting scale must also be reduced or the interval would require
+the animal to shrink. The reduction is based on the ratio of the
+installed starting and ending life-stage BodySize factors. Where this
+also affects preceding stages using identical artwork, they retain
+the same original growth curve multiplied by one shared factor,
+avoiding an additional jump at their common graphic boundary.
+For consecutive changes of artwork, the next stage's *actual adjusted
+starting scale* is used rather than assuming it must always be 1.
 
 The alpha bounding box uses pixels with alpha >= 12/255. CPU-readable
 textures are measured directly; non-readable textures receive a one-time
-256x256 GPU readback. Each texture and kind/sex transition is cached; no
-pixel work is performed during recurring draws or biological-day updates.
-The debug action **Zoology -> Inspect animal life-stage profile** reports
-the current and next sprite's absolute visible widths/heights in world
-units, the original growth scale, the next stage's initial scale, and the final
-capped scale. If artwork
-cannot be inspected, original scaling remains active and diagnostics
-explicitly report missing alpha bounds. The original textures, life-stage
-boundaries, biology and authored drawSize values remain unmodified.
+256x256 GPU readback. Texture measurements and the stage endpoint plan
+are cached per texture and kind/sex respectively. No texture processing
+runs each biological day or each rendered frame. If a graphic cannot
+be measured, its transition retains the original interpolated scale.
+No artwork dimensions, biological parameters, life-stage definitions,
+or textures are mutated.
+
+The debug action **Zoology -> Inspect animal life-stage profile** prints
+the absolute current/next sprite widths and heights, the calculated
+starting scale, last-day target, visual progress and current interpolated
+scale. These values can distinguish a bad texture measurement from a
+rendering hook that failed to apply the calculated scale.
 
 Spectrobionta are interpolated between consecutive life stages *within the
 same race*: e.g. small -> medium -> large predimago when those stages exist
@@ -77,8 +89,9 @@ retain vanilla behavior. Actual stage transitions remain discrete.
 ## Performance design
 
 - One per-pawn snapshot is lazily recomputed once per biological day
-  or after a change of current stage/kind. The visible size cap is computed
-  once per pawn/day on demand from cached per-kind texture bounds.
+  or after a change of current stage/kind. The visual size endpoint plan
+  is calculated once per PawnKindDef/sex; daily visual interpolation uses
+  only two cached scale endpoints and the current biological day.
 - Snapshots use weak keys, with no world or map-wide pawn scan, polling
   component, persistent save data, LINQ, or per-tick allocation.
 - Species stage intervals and stat-factor dictionaries are built once
@@ -109,13 +122,16 @@ interactions with external performance mods.
    the following day, and match stage endpoints at transitions.
 4. Specifically exercise tiny baby birds, swine, the Royal megachicken with
    five stages, a large theropod, crocodiles and a Spectrobionta animal.
-   Test the last biological day before a graphic switch and the first day
-   afterward, from North, East, South and West. The current visible width
-   and height must not exceed the new art's visible dimensions in any
-   measured facing. Inspect the diagnostics if a change appears unbounded.
-   Intervals whose texPath is unchanged must keep the original daily
-   interpolation. For Spectrobionta, verify growth within each race without
-   interpolating metamorphosis to another race/PawnKindDef.
+   Test the first, middle and last biological days of each interval with
+   a different texPath, as well as the first day of the next stage, in all
+   four facings. Visible sprite dimensions should grow on each daily step
+   and the last day must not exceed the subsequent sprite's starting
+   visible width or height. Confirm there is no early plateau. Compare
+   the diagnostic start/end scales and measured visible dimensions when
+   behavior differs. Unchanged-texPath intervals must retain the original
+   interpolation curve, up to any necessary shared group multiplier.
+   For Spectrobionta, verify growth inside each race without interpolating
+   metamorphosis into a different race/PawnKindDef.
 
 5. With and without Combat Extended, compare actual natural attack damage,
    cooldown, both armor penetrations and CE armor durability at young and
