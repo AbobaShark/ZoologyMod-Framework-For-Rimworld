@@ -5,6 +5,7 @@ stage, never a fourth age or an independent numerical model.
 """
 STAGE_GROUPS = (
     ("AnimalAdult", "EusocialInsectAdult"),
+    ("AnimalLargeAdult",),
     ("AnimalJuvenile", "EusocialInsectJuvenile"),
     ("AnimalBaby", "EusocialInsectLarva"),
 )
