@@ -419,8 +419,7 @@ namespace ZoologyMod
         protected override IEnumerable<Toil> MakeNewToils()
         {
             this.FailOnDespawnedOrNull(TargetIndex.A);
-            this.FailOn(() => pawn.Downed || pawn.InMentalState || TargetA.Pawn.Dead
-                || AnimalDefense.IsInTree(TargetA.Pawn));
+            this.FailOn(() => pawn.Downed || pawn.InMentalState || TargetA.Pawn.Dead);
             Toil stalk = new Toil { defaultCompleteMode = ToilCompleteMode.Never };
             stalk.initAction = () =>
             {
@@ -442,7 +441,7 @@ namespace ZoologyMod
                 Pawn prey = TargetA.Pawn;
                 CompAnimalStrategyState state = pawn.TryGetComp<CompAnimalStrategyState>();
                 if (prey?.Spawned != true || state == null || state.ambushPrey != prey
-                    || state.revealed || now >= state.ambushUntil)
+                    || state.revealed || now >= state.ambushUntil || AnimalDefense.IsInTree(prey))
                 {
                     FailAmbush(prey);
                     return;
