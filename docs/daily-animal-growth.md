@@ -63,8 +63,12 @@ L_{stage} = L_{adult}\left(\frac{M_{stage}}{M_{adult}}\right)^{1/3}.
 `SERVICE_LifeStageCalculations!W:Z` provides the stage-specific
 values to the attack damage and Combat Extended penetration formulas.
 Downstream bite, claw, limb and specialized-attack calculations refer
-to these cells rather than rereading adult lengths. The mass-dependent
-physical models and adult source values are otherwise preserved.
+to these cells rather than rereading adult lengths. Horn and tusk attack
+cycles also use the stage's physical movement speed
+(`SERVICE_LifeStageCalculations!DZ`), rather than the adult's absolute
+movement speed; their adult calibration remains unchanged. The
+mass-dependent physical models and adult source values are otherwise
+preserved.
 
 Contact-width formulas in `CC` and `CM` retain their existing 0.05
 quantization when it produces a positive result. Where that
