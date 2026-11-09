@@ -21,6 +21,8 @@ namespace ZoologyMod
         public float bodySizeFactor = -1f;
         public float healthScaleFactor = -1f;
         public float foodMaxFactor = -1f;
+        // -1: keep the species default, 0: grounded, 1: flight permitted.
+        public int canFly = -1;
         public float meleeDamageFactor = -1f;
         public float ceArmorDurabilityFactor = -1f;
 
