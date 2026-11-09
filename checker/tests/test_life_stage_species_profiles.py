@@ -60,8 +60,9 @@ def with_tools(args, records, stage_row=2):
     return args
 
 
-def render(*args, ce=True):
-    return render_species_life_stage_profiles(*args, ce=ce)
+def render(*args, ce=True, sex_dimorphism=None):
+    return render_species_life_stage_profiles(*args, ce=ce,
+                                              sex_dimorphism=sex_dimorphism)
 
 
 def nodes(xml):
@@ -70,6 +71,50 @@ def nodes(xml):
 
 
 class SpeciesLifeStageProfilesTests(unittest.TestCase):
+    def test_late_adult_has_calculated_game_age(self):
+        profiles, attacks, animals = sources()
+        late = profiles.iloc[[0]].copy()
+        late["LifeStageDef"] = "AnimalLargeAdult"
+        late["BiologicalStageMass_kg"] = 15
+        late["StageBodySize"] = 1.5
+        late["bodySizeFactor"] = 1.5
+        profiles = pd.concat([profiles, late], ignore_index=True)
+        sex = pd.DataFrame([{
+            "XML name": "<li>TestAnimal</li>",
+            "SexualDimorphism": False, "ProlongedAdultGrowth": True,
+            "MaleMin_kg": 8, "MaleMean_kg": 10, "MaleMax_kg": 12,
+            "FemaleMin_kg": 8, "FemaleMean_kg": 10, "FemaleMax_kg": 12,
+            "LargeAdultRimworldAge_years": 5,
+        }])
+        payload, diag = render(profiles, profiles, animals, sex_dimorphism=sex)
+        matching = [n for n in nodes(payload)
+                    if n.findtext("sourceStageDefName") == "AnimalLargeAdult"]
+        self.assertEqual(len(matching), 1)
+        self.assertEqual(matching[0].findtext("minAge"), "5")
+        self.assertEqual(diag["profiles"], 5)
+
+    def test_late_adult_rejects_missing_calculated_game_age(self):
+        profiles, attacks, animals = sources()
+        late = profiles.iloc[[0]].copy()
+        late["LifeStageDef"] = "AnimalLargeAdult"
+        profiles = pd.concat([profiles, late], ignore_index=True)
+        with self.assertRaisesRegex(ValueError, "LargeAdult without SexDimorphism age"):
+            render(profiles, profiles, animals)
+
+    def test_sex_dimorphism_rejects_duplicate_thingdef(self):
+        profiles, attacks, animals = sources()
+        record = {
+            "XML name": "<li>TestAnimal</li>",
+            "SexualDimorphism": False, "ProlongedAdultGrowth": False,
+            "MaleMin_kg": 8, "MaleMean_kg": 10, "MaleMax_kg": 12,
+            "FemaleMin_kg": 8, "FemaleMean_kg": 10, "FemaleMax_kg": 12,
+            "LargeAdultRimworldAge_years": "",
+        }
+        with self.assertRaisesRegex(ValueError, "duplicate ThingDef"):
+            render(profiles, attacks, animals,
+                   sex_dimorphism=pd.DataFrame([record, record]))
+
+
     def test_can_fly_is_species_stage_specific_and_keeps_adult_def(self):
         args = list(sources())
         args[0] = args[0].copy()

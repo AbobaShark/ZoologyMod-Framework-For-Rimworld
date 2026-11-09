@@ -297,6 +297,19 @@ namespace ZoologyMod
                 return false;
             }
 
+            // A mature animal remains adult when a later growth stage exists.
+            var stage = pawn.ageTracker.CurLifeStage;
+            var source = stage?.GetModExtension<ZoologyLifeStageOrigin>()?.sourceStage ?? stage;
+            switch (source?.defName)
+            {
+                case "AnimalAdult":
+                case "EusocialInsectAdult":
+                case "VAERoy_AnimalAdult":
+                case "VAERoy_AnimalAdultIntermediate":
+                case "VAERoy_AnimalAdultMax":
+                case "SpectrobiontaImago":
+                    return false;
+            }
             var lifeStageAges = pawn.RaceProps?.lifeStageAges;
             if (lifeStageAges != null && lifeStageAges.Count > 0)
             {

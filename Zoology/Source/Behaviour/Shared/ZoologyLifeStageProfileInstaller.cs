@@ -45,6 +45,11 @@ namespace ZoologyMod
             new Dictionary<ThingDef, List<LifeStageAge>>();
         private static readonly Dictionary<ThingDef, List<LifeStageAge>> GeneratedRaceStages =
             new Dictionary<ThingDef, List<LifeStageAge>>();
+        private static readonly HashSet<ThingDef> LateAdultRaces = new HashSet<ThingDef>();
+        private static readonly Dictionary<PawnKindDef, List<PawnKindLifeStage>> OriginalKindStages =
+            new Dictionary<PawnKindDef, List<PawnKindLifeStage>>();
+        private static readonly Dictionary<PawnKindDef, List<PawnKindLifeStage>> GeneratedKindStages =
+            new Dictionary<PawnKindDef, List<PawnKindLifeStage>>();
         private static bool applied;
         private static bool generatedStagesActive = true;
         private static int mappedNaturalTools;
@@ -122,6 +127,8 @@ namespace ZoologyMod
                 ZoologyLifeStageArmorStatPart.Install();
             }
 
+            InstallLateAdultKindStages();
+
             // Capture the installed stage sequences while they are still active.
             // The daily interpolation tables always reference generated defs,
             // but original definitions can be restored without rerunning the
@@ -179,7 +186,40 @@ namespace ZoologyMod
                     continue;
                 animal.race.lifeStageAges = enabled ? entry.Value : original;
             }
+            foreach (var entry in GeneratedKindStages)
+            {
+                List<PawnKindLifeStage> original;
+                if (OriginalKindStages.TryGetValue(entry.Key, out original))
+                    entry.Key.lifeStages = enabled ? entry.Value : original;
+            }
+            ZoologyAnimalGraphicBounds.InvalidateKinds();
             generatedStagesActive = enabled;
+        }
+
+        // Append one reused adult artwork entry per matching PawnKindDef.
+        // Neither the original kind list nor any shared GraphicData is mutated.
+        private static void InstallLateAdultKindStages()
+        {
+            if (LateAdultRaces.Count == 0)
+                return;
+            foreach (var kind in DefDatabase<PawnKindDef>.AllDefsListForReading)
+            {
+                if (kind?.race == null || !LateAdultRaces.Contains(kind.race)
+                    || kind.lifeStages == null)
+                    continue;
+                int targetCount = kind.race.race.lifeStageAges.Count;
+                if (kind.lifeStages.Count != targetCount - 1 || targetCount < 2)
+                {
+                    Log.Warning("[Zoology] Cannot append LargeAdult artwork for "
+                        + kind.defName + ": stage count mismatch.");
+                    continue;
+                }
+                OriginalKindStages.Add(kind, kind.lifeStages);
+                var stages = new List<PawnKindLifeStage>(kind.lifeStages);
+                stages.Add(ShallowClone(stages[stages.Count - 1]));
+                kind.lifeStages = stages;
+                GeneratedKindStages.Add(kind, stages);
+            }
         }
 
         private static void RegisterFlightRule(ZoologyLifeStageProfile profile)
@@ -297,6 +337,7 @@ namespace ZoologyMod
             }
 
             var ages = animal.race.lifeStageAges;
+            bool lateAdult = profile.sourceStageDefName == "AnimalLargeAdult";
             int stageIndex = -1;
             LifeStageDef original = null;
             for (int i = 0; i < ages.Count; i++)
@@ -319,12 +360,29 @@ namespace ZoologyMod
                 }
             }
 
-            if (original == null)
+            // Only AnimalLargeAdult may append a stage not present in the race.
+            // It is cloned from the last existing, already mature AnimalAdult.
+            if (lateAdult && original != null)
+                return false;
+            if (original == null && lateAdult && ages.Count > 0)
             {
-                return false; // Do not manufacture stages the race does not use.
+                int last = ages.Count - 1;
+                var current = ages[last]?.def;
+                var source = current?.GetModExtension<ZoologyLifeStageOrigin>()?.sourceStage ?? current;
+                if (source != null && source.defName == "AnimalAdult")
+                {
+                    stageIndex = last;
+                    original = source;
+                }
             }
+            if (original == null)
+                return false;
+            if (lateAdult && (!IsFinitePositive(profile.minAge)
+                || profile.minAge <= ages[stageIndex].minAge))
+                return false;
 
-            string generatedName = "ZoologyStage_" + animal.defName + "_" + original.defName;
+            string generatedName = "ZoologyStage_" + animal.defName + "_"
+                + (lateAdult ? "AnimalLargeAdult" : original.defName);
             if (DefDatabase<LifeStageDef>.GetNamedSilentFail(generatedName) != null)
             {
                 Log.Warning("[Zoology] Duplicate generated life-stage DefName: " + generatedName);
@@ -340,7 +398,7 @@ namespace ZoologyMod
             // before applying the numerically complete AnimalStats profile.
             // Otherwise a foreign Baby/Tiny/CE source def can multiply the
             // already mass-scaled Tool stats for a second time.
-            bool changed = false;
+            bool changed = lateAdult;
             replacement.statFactors = new List<StatModifier>();
             if (original.statFactors != null)
             {
@@ -600,7 +658,13 @@ namespace ZoologyMod
             var copiedAges = new List<LifeStageAge>(ages);
             var copiedAge = ShallowClone(ages[stageIndex]);
             copiedAge.def = replacement;
-            copiedAges[stageIndex] = copiedAge;
+            if (lateAdult)
+            {
+                copiedAge.minAge = profile.minAge;
+                copiedAges.Add(copiedAge);
+            }
+            else
+                copiedAges[stageIndex] = copiedAge;
 
             // Do not expose a new Def to a race unless it has a valid hash.
             int nextIndex = DefDatabase<LifeStageDef>.AllDefsListForReading.Count;
@@ -622,6 +686,8 @@ namespace ZoologyMod
             if (!OriginalRaceStages.ContainsKey(animal))
                 OriginalRaceStages.Add(animal, ages);
             animal.race.lifeStageAges = copiedAges;
+            if (lateAdult)
+                LateAdultRaces.Add(animal);
             if (sharpOffset > 0f || bluntOffset > 0f)
             {
                 armorOffsetsByStage.Add(replacement,

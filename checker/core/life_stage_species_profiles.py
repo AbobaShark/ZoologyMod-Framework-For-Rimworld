@@ -14,7 +14,7 @@ from collections import Counter, defaultdict
 from lxml import etree as E
 
 from core.life_stages import (
-    STAGE_GROUPS, ROYAL_STAGES, SPECTROBIONTA_STAGES)
+    STAGE_GROUPS, LATE_ADULT_STAGES, ROYAL_STAGES, SPECTROBIONTA_STAGES)
 from core.generated_source_contract import LIFE_STAGE_ATTACK_CSHARP_HEADER
 
 _XML_NAMES = re.compile(r"<li>\s*([^<>]+?)\s*</li>")
@@ -147,7 +147,7 @@ def _tool_profiles(table, diagnostics):
         name = names[0]
         stage = str(row.get("LifeStageDef", "")).strip()
         sources = tuple(x.strip() for x in stage.split(" or "))
-        legal = (*STAGE_GROUPS, *ROYAL_STAGES, *SPECTROBIONTA_STAGES)
+        legal = (*STAGE_GROUPS, *LATE_ADULT_STAGES, *ROYAL_STAGES, *SPECTROBIONTA_STAGES)
         if not sources or not (any(set(sources) == set(group) for group in legal)
                               or len(sources) == 1 and any(sources[0] in group for group in legal)):
             raise ValueError(f"LifeStageProfiles row {number}: unknown stage {stage!r}")
@@ -225,8 +225,69 @@ def _tool_profiles(table, diagnostics):
     return output
 
 
+def _late_adult_ages(sex_dimorphism, animals):
+    """Check every ThingDef and accept only calculated RimWorld-age thresholds."""
+    if sex_dimorphism is None:
+        return {}
+    required = {
+        "XML name", "SexualDimorphism", "ProlongedAdultGrowth",
+        "MaleMin_kg", "MaleMean_kg", "MaleMax_kg",
+        "FemaleMin_kg", "FemaleMean_kg", "FemaleMax_kg",
+        "LargeAdultRimworldAge_years",
+    }
+    missing = required - set(sex_dimorphism.columns)
+    if missing:
+        raise ValueError(f"SexDimorphism missing columns: {sorted(missing)}")
+    adults = _adult_rows(animals)
+    seen = set()
+    ages = {}
+    for number, (_, record) in enumerate(sex_dimorphism.iterrows(), start=2):
+        if _is_empty(record.get("XML name")):
+            continue
+        names = _xml_names(record["XML name"])
+        if len(names) != 1:
+            raise ValueError(f"SexDimorphism row {number}: expected one ThingDef")
+        name = names[0]
+        if name in seen:
+            raise ValueError(f"SexDimorphism duplicate ThingDef {name}")
+        seen.add(name)
+        if name not in adults:
+            raise ValueError(f"SexDimorphism unknown ThingDef {name}")
+        bounds = {}
+        for sex in ("Male", "Female"):
+            low, mean, high = (
+                _required(record.get(f"{sex}{suffix}_kg"),
+                          f"{name}/{sex}{suffix}_kg")
+                for suffix in ("Min", "Mean", "Max")
+            )
+            if not low <= mean <= high:
+                raise ValueError(f"{name}: invalid {sex} mass bounds")
+            bounds[sex] = (low, mean, high)
+        dimorphic = _optional_flight(record.get("SexualDimorphism"),
+                                    f"{name}/SexualDimorphism")
+        prolonged = _optional_flight(record.get("ProlongedAdultGrowth"),
+                                    f"{name}/ProlongedAdultGrowth")
+        if dimorphic is None or prolonged is None:
+            raise ValueError(f"{name}: missing sex or adult growth flag")
+        if not dimorphic and bounds["Male"] != bounds["Female"]:
+            raise ValueError(f"{name}: monomorphic sexes have different mass bounds")
+        if prolonged:
+            age = _required(record.get("LargeAdultRimworldAge_years"),
+                            f"{name}/LargeAdultRimworldAge_years")
+            adult_age = _number(adults[name].get("Adult age"),
+                                f"{name}/Adult age", positive=False)
+            if adult_age is not None and age <= adult_age:
+                raise ValueError(f"{name}: LargeAdult must follow Adult")
+            ages[name] = age
+    if seen != set(adults):
+        raise ValueError("SexDimorphism/Animals ThingDef mismatch: "
+                         f"missing={sorted(set(adults)-seen)[:12]}, "
+                         f"extra={sorted(seen-set(adults))[:12]}")
+    return ages
+
+
 def render_species_life_stage_profiles(species_profiles, attacks,
-                                       animals, *, ce=True):
+                                       animals, *, ce=True, sex_dimorphism=None):
     """Render XML from *evaluated* LifeStageProfiles/AttackProfiles.
 
     Missing biomechanical outputs remain absent: no universal power law or
@@ -245,8 +306,10 @@ def render_species_life_stage_profiles(species_profiles, attacks,
     if missing:
         raise ValueError(f"LifeStageProfiles missing columns: {sorted(missing)}")
     adults = _adult_rows(animals)
+    late_ages = _late_adult_ages(sex_dimorphism, animals)
+    rendered_late = set()
     stage_groups = {" or ".join(group): group for group in (
-        *STAGE_GROUPS, *ROYAL_STAGES, *SPECTROBIONTA_STAGES)}
+        *STAGE_GROUPS, *LATE_ADULT_STAGES, *ROYAL_STAGES, *SPECTROBIONTA_STAGES)}
     diagnostics = Counter()
     tool_profiles = _tool_profiles(species_profiles, diagnostics)
     diagnostics["species_rows_total"] = 0
@@ -272,6 +335,9 @@ def render_species_life_stage_profiles(species_profiles, attacks,
         if label not in stage_groups:
             raise ValueError(f"LifeStageProfiles row {number}: unknown LifeStageDef {label!r}")
         sources = stage_groups[label]
+        if label == "AnimalLargeAdult":
+            if len(names) != 1 or names[0] not in late_ages:
+                raise ValueError(f"LifeStageProfiles row {number}: LargeAdult without SexDimorphism age")
         status = str(row.get("CalculationStatus", "")).strip().upper()
         if status == "SOURCE ERROR":
             diagnostics["species_rows_invalid_source"] += 1
@@ -291,6 +357,8 @@ def render_species_life_stage_profiles(species_profiles, attacks,
             continue
         if len(names) != 1:
             raise ValueError(f"LifeStageProfiles row {number}: expected one species")
+        if label == "AnimalLargeAdult":
+            rendered_late.add(names[0])
         adult = adults.get(names[0])
         if adult is None:
             raise ValueError(f"LifeStageProfiles unknown species {names[0]!r}")
@@ -400,6 +468,8 @@ def render_species_life_stage_profiles(species_profiles, attacks,
                     ("meleeDamageFactor", "1"),
                 ):
                     E.SubElement(node, tag).text = value
+                if label == "AnimalLargeAdult":
+                    E.SubElement(node, "minAge").text = _source_number(late_ages[name])
                 if flight_allowed is not None:
                     E.SubElement(node, "canFly").text = "1" if flight_allowed else "0"
                 if food_max is not None:
@@ -431,6 +501,9 @@ def render_species_life_stage_profiles(species_profiles, attacks,
                 if tools:
                     diagnostics["profiles_with_compiled_attacks"] += 1
                 diagnostics["profiles"] += 1
+    if sex_dimorphism is not None and set(late_ages) != rendered_late:
+        raise ValueError('Missing READY AnimalLargeAdult profiles: '
+                         + repr(sorted(set(late_ages) - rendered_late)))
     unconsumed = set(tool_profiles) - rendered
     if unconsumed:
         raise ValueError("Unmatched READY attack profile stages: "

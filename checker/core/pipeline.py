@@ -362,6 +362,7 @@ def stage_pipeline(source, *, root=None, registry_path=None, sheet_sources=None,
                     profile_table,
                     sheet_frame('Animals'),
                     ce=ce,
+                    sex_dimorphism=sheet_frame('SexDimorphism'),
                 )
                 if mass_diagnostics is not None:
                     diagnostics['biological_mass_coverage'] = mass_diagnostics

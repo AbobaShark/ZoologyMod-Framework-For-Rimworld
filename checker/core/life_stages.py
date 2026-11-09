@@ -8,6 +8,8 @@ STAGE_GROUPS = (
     ("AnimalJuvenile", "EusocialInsectJuvenile"),
     ("AnimalBaby", "EusocialInsectLarva"),
 )
+LATE_ADULT_STAGES = (("AnimalLargeAdult",),)
+
 ROYAL_STAGES = tuple((name,) for name in (
     "VAERoy_AnimalBaby",
     "VAERoy_AnimalJuvenile",

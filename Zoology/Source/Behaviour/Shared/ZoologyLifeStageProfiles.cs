@@ -18,6 +18,7 @@ namespace ZoologyMod
         public string sourceStageDefName;
         public float expectedBaseBodySize = -1f;
         public float expectedBaseHungerRate = -1f;
+        public float minAge = -1f; // Calculated RimWorld years for AnimalLargeAdult.
         public float bodySizeFactor = -1f;
         public float healthScaleFactor = -1f;
         public float foodMaxFactor = -1f;

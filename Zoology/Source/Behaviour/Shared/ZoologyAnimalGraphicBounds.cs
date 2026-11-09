@@ -43,6 +43,8 @@ namespace ZoologyMod
         private static readonly Dictionary<PawnKindDef, KindBoundsData[]> KindBounds =
             new Dictionary<PawnKindDef, KindBoundsData[]>();
 
+        internal static void InvalidateKinds() => KindBounds.Clear();
+
         internal static Vector2 Interpolate(PawnKindDef kind, int index, bool female,
             Vector2 originalScale, float progress)
         {
