@@ -16,6 +16,13 @@ TSV override:
 
 Columns CalculationStatus and ToolStatus must both equal READY. Otherwise
 that stage is omitted with a diagnostic; missing coefficients do not become 1.
+The optional `CanFly` column accepts TRUE/FALSE for a specific species and
+life stage. Checker exports a flight-permission rule without changing flight
+speed or granting flight to flightless races. Adult rules are registered without
+cloning the adult LifeStageDef. If `CanFly` is empty, avian newborn stages
+explicitly marked by Zoology remain grounded while unmarked animals, including
+pterosaurs, retain their normal stage-dependent flight behavior.
+
 The existing Adult LifeStageDef is retained: its AnimalStats row validates
 the biological adult baseline, but Checker creates no species-specific Adult
 clone for the ordinary AnimalAdult/EusocialInsectAdult family. The Royal
