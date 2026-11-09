@@ -7,10 +7,10 @@ from core.life_stages import STAGE_GROUPS, ROYAL_STAGES, SPECTROBIONTA_STAGES
 ROOT = Path(__file__).resolve().parents[2]
 
 class StageTopologyTests(unittest.TestCase):
-    def test_core_has_exactly_three_semantic_stages(self):
-        self.assertEqual(len(STAGE_GROUPS), 3)
+    def test_core_has_three_young_or_regular_stages_and_one_optional_late_stage(self):
+        self.assertEqual(len(STAGE_GROUPS), 4)
         self.assertEqual([x[0] for x in STAGE_GROUPS],
-                         ["AnimalAdult", "AnimalJuvenile", "AnimalBaby"])
+                         ["AnimalAdult", "AnimalLargeAdult", "AnimalJuvenile", "AnimalBaby"])
         self.assertNotIn("AnimalBabyTiny", repr(STAGE_GROUPS))
 
     def test_no_static_life_stage_outputs_registered(self):
@@ -69,7 +69,8 @@ class StageTopologyTests(unittest.TestCase):
         self.assertIn("source.defName, profile.sourceStageDefName", source)
         self.assertIn('profile.sourceStageDefName == "AnimalBaby" && source.defName == "AnimalBabyTiny"', source)
         self.assertIn("var ages = animal.race.lifeStageAges;", source)
-        self.assertIn("return false; // Do not manufacture stages the race does not use.", source)
+        self.assertIn("if (original == null && additionalAdult)", source)
+        self.assertIn("copiedAges.Insert(stageIndex + 1, copiedAge);", source)
 
 if __name__ == "__main__":
     unittest.main()
