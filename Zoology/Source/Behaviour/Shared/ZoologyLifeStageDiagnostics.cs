@@ -92,7 +92,8 @@ namespace ZoologyMod
             ZoologyAnimalGraphicBounds.AppendDiagnostics(
                 pawn.kindDef, pawn.ageTracker.CurLifeStageIndex,
                 pawn.gender == Gender.Female,
-                ZoologyAnimalGrowth.RawDrawRatio(pawn), output);
+                ZoologyAnimalGrowth.RawDrawRatio(pawn),
+                ZoologyAnimalGrowth.GraphicProgress(pawn), output);
 
             output.Append("Effective CombatPower: ")
                 .Append(AnimalCombatPowerUtility.GetAdjustedCombatPower(pawn))
