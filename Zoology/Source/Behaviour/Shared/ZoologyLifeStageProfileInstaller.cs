@@ -45,6 +45,10 @@ namespace ZoologyMod
             new Dictionary<ThingDef, List<LifeStageAge>>();
         private static readonly Dictionary<ThingDef, List<LifeStageAge>> GeneratedRaceStages =
             new Dictionary<ThingDef, List<LifeStageAge>>();
+        private static readonly Dictionary<PawnKindDef, List<PawnKindLifeStage>> OriginalKindStages =
+            new Dictionary<PawnKindDef, List<PawnKindLifeStage>>();
+        private static readonly Dictionary<PawnKindDef, List<PawnKindLifeStage>> GeneratedKindStages =
+            new Dictionary<PawnKindDef, List<PawnKindLifeStage>>();
         private static bool applied;
         private static bool generatedStagesActive = true;
         private static int mappedNaturalTools;
@@ -179,6 +183,12 @@ namespace ZoologyMod
                     continue;
                 animal.race.lifeStageAges = enabled ? entry.Value : original;
             }
+            foreach (var entry in GeneratedKindStages)
+            {
+                List<PawnKindLifeStage> original;
+                if (OriginalKindStages.TryGetValue(entry.Key, out original))
+                    entry.Key.lifeStages = enabled ? entry.Value : original;
+            }
             generatedStagesActive = enabled;
         }
 
@@ -296,6 +306,11 @@ namespace ZoologyMod
                 return false;
             }
 
+            bool additionalAdult = profile.sourceStageDefName == "AnimalLargeAdult";
+            if (additionalAdult && (!IsFinitePositive(profile.minAgeYears)
+                || animal.defName == "VAERoy_Megachicken"))
+                return false;
+
             var ages = animal.race.lifeStageAges;
             int stageIndex = -1;
             LifeStageDef original = null;
@@ -319,12 +334,28 @@ namespace ZoologyMod
                 }
             }
 
-            if (original == null)
+            if (original == null && additionalAdult)
             {
-                return false; // Do not manufacture stages the race does not use.
+                // The extra age is species-specific. Clone only that race's
+                // existing reproductive Adult, never a shared global Def.
+                for (int i = ages.Count - 1; i >= 0; i--)
+                {
+                    var source = ages[i]?.def?.GetModExtension<ZoologyLifeStageOrigin>()?.sourceStage
+                        ?? ages[i]?.def;
+                    if (source?.defName != "AnimalAdult")
+                        continue;
+                    if (profile.minAgeYears <= ages[i].minAge)
+                        return false;
+                    stageIndex = i;
+                    original = source;
+                    break;
+                }
             }
+            if (original == null)
+                return false;
 
-            string generatedName = "ZoologyStage_" + animal.defName + "_" + original.defName;
+            string generatedName = "ZoologyStage_" + animal.defName + "_"
+                + (additionalAdult ? "AnimalLargeAdult" : original.defName);
             if (DefDatabase<LifeStageDef>.GetNamedSilentFail(generatedName) != null)
             {
                 Log.Warning("[Zoology] Duplicate generated life-stage DefName: " + generatedName);
@@ -592,15 +623,19 @@ namespace ZoologyMod
                 }
             }
 
-            if (!changed)
-            {
-                return false; // Keep the vanilla def reference when nothing changes.
-            }
+            if (!changed && !additionalAdult)
+                return false;
 
             var copiedAges = new List<LifeStageAge>(ages);
             var copiedAge = ShallowClone(ages[stageIndex]);
             copiedAge.def = replacement;
-            copiedAges[stageIndex] = copiedAge;
+            if (additionalAdult)
+            {
+                copiedAge.minAge = profile.minAgeYears;
+                copiedAges.Insert(stageIndex + 1, copiedAge);
+            }
+            else
+                copiedAges[stageIndex] = copiedAge;
 
             // Do not expose a new Def to a race unless it has a valid hash.
             int nextIndex = DefDatabase<LifeStageDef>.AllDefsListForReading.Count;
@@ -622,6 +657,8 @@ namespace ZoologyMod
             if (!OriginalRaceStages.ContainsKey(animal))
                 OriginalRaceStages.Add(animal, ages);
             animal.race.lifeStageAges = copiedAges;
+            if (additionalAdult)
+                InsertKindStage(animal, stageIndex, ages.Count);
             if (sharpOffset > 0f || bluntOffset > 0f)
             {
                 armorOffsetsByStage.Add(replacement,
@@ -638,6 +675,25 @@ namespace ZoologyMod
                 mappedNaturalTools += selectedTools.Count;
             }
             return true;
+        }
+
+        private static void InsertKindStage(ThingDef animal, int adultIndex, int oldCount)
+        {
+            foreach (var kind in DefDatabase<PawnKindDef>.AllDefsListForReading)
+            {
+                if (kind?.race != animal || kind.lifeStages == null
+                    || kind.lifeStages.Count != oldCount)
+                    continue;
+
+                if (!OriginalKindStages.ContainsKey(kind))
+                    OriginalKindStages.Add(kind, kind.lifeStages);
+                var stages = new List<PawnKindLifeStage>(kind.lifeStages);
+                // GraphicData and PawnKindLifeStage may be shared by other kinds.
+                // Keep both objects untouched until per-kind graphics are prepared.
+                stages.Insert(adultIndex + 1, ShallowClone(stages[adultIndex]));
+                kind.lifeStages = stages;
+                GeneratedKindStages[kind] = stages;
+            }
         }
 
         internal static bool TryGetArmorOffset(LifeStageDef stage, bool sharp, out float value)
