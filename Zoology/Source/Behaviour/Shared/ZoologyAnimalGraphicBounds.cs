@@ -68,7 +68,7 @@ namespace ZoologyMod
 
         private static KindBoundsData GetOrBuild(PawnKindDef kind, bool female)
         {
-            if (kind?.lifeStages == null)
+            if (kind?.lifeStages == null || kind.lifeStages.Count == 0)
                 return null;
 
             KindBoundsData[] variants;
