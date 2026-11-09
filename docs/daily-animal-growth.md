@@ -30,6 +30,21 @@ CE/vanilla stage coefficient is interpolated by Tool and attack component
 (damage, cooldown, sharp AP, blunt AP); the shared Tool or LifeStageDef is
 never mutated. Adult pawns retain the original behavior.
 
+Maximum nutrition is **not** a separate interpolation. RimWorld's
+`Need_Food.MaxLevel` already derives from the live `Pawn.BodySize` and the
+life-stage `foodMaxFactor`. The animal's BodySize grows every biological day;
+therefore `foodMaxFactor` must stay at 1 for the generated animal stages.
+Applying `BiologicalStageMass_kg / AdultMass_kg` as an additional
+`foodMaxFactor` double-counts growth: a medium predimago Harpactotyrannus
+at BodySize 2.99 previously had maximum nutrition around 0.15 because
+the old factor was 0.05. The same formula produced huge multipliers for
+large Royal megachicken stages. AnimalStats now supplies unity throughout
+`LifeStageProfiles!J2:J1246`; Checker rejects non-unity factors, and
+the runtime installer neutralizes any obsolete values in locally cached
+generated XML and inherited generic animal life stages. This needs a new
+DLL but does **not** require a second MaxLevel Harmony postfix. The
+developer inspection action prints the live food maximum and the factor.
+
 For consecutive stages using the **same artwork**, the root transform keeps
 the original BodySize-normalized interpolation of authored
 `bodyGraphicData.drawSize`. No pixel measurement is required for that
@@ -117,7 +132,10 @@ interactions with external performance mods.
    reports biological stage progression, BodySize/HealthScale multipliers,
    visual root scale and actual stage/combat stats.
 3. Compare BodySize, HealthScale, MoveSpeed, MarketValue, hunger-rate
-   behavior and sprite footprint before/after biological-day boundaries.
+   behavior, actual `Need_Food.MaxLevel` and sprite footprint before/after
+   biological-day boundaries. Nutrition capacity should follow the live
+   animal BodySize, including the day before a stage transition, without
+   additional mass-fraction suppression or huge Royal megachicken factors.
    Values must remain unchanged within the same biological day, change on
    the following day, and match stage endpoints at transitions.
 4. Specifically exercise tiny baby birds, swine, the Royal megachicken with
