@@ -62,7 +62,13 @@ namespace ZoologyMod
             if (marketValue)
                 ratio = ZoologyAnimalGrowth.MarketRatio(pawn);
             else if (!ZoologyAnimalGrowth.TryGetStatRatio(pawn, parentStat, out ratio))
-                return;
+            {
+                if (ZoologyLifeStageProfileInstaller.HasZeroStatFactor(
+                        pawn.ageTracker?.CurLifeStage, parentStat))
+                    ratio = 0f;
+                else
+                    return;
+            }
 
             if (Math.Abs(ratio - 1f) > 0.000001f)
                 val *= ratio;
@@ -77,7 +83,13 @@ namespace ZoologyMod
             if (marketValue)
                 ratio = ZoologyAnimalGrowth.MarketRatio(pawn);
             else if (!ZoologyAnimalGrowth.TryGetStatRatio(pawn, parentStat, out ratio))
-                return null;
+            {
+                if (ZoologyLifeStageProfileInstaller.HasZeroStatFactor(
+                        pawn.ageTracker?.CurLifeStage, parentStat))
+                    ratio = 0f;
+                else
+                    return null;
+            }
 
             return Math.Abs(ratio - 1f) > 0.000001f
                 ? "Zoology: daily growth x" + ratio.ToString("0.###") : null;
