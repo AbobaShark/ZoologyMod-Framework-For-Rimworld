@@ -451,42 +451,22 @@ These Combat Power factors are separate from Combat Extended's `meleeDamageFacto
 
 This adjusted combat power is used by behavior systems such as targeted flee and predator/prey comparisons. It is not a replacement for the PawnKindDef combatPower field stored in XML.
 
-### Combat Extended life-stage penetration Def
+### Combat Extended animal life-stage penetration
 
-Class:
+Combat Extended's natural-attack armor penetration uses the per-tool, per-species
+factors generated from the AnimalStats LifeStageProfiles catalog. During
+dynamic growth the factors are interpolated daily between adjacent life stages.
+The original CE getter retains its penetration, skill and equipment modifiers;
+Zoology multiplies the final natural-attack result by the appropriate stage
+ratio once. The stat display shows the corresponding values.
 
-    ZoologyMod.LifeStagePenetrationDef
-
-Base class:
-
-    Verse.Def
-
-Fields:
-
-| Field | Type | Default |
-| --- | --- | --- |
-| meleePenetrationSharpFactor | float | 1 |
-| meleePenetrationBluntFactor | float | 1 |
-
-This Def is used only by Zoology's Combat Extended penetration override. Resolution first tries an exact `defName` match, then a case-insensitive `defName` match, then a case-insensitive match between the life-stage `defName` and the penetration Def label, and finally a partial-name fallback. Matching `defName` values are the recommended unambiguous configuration.
-
-The shipped CE patch currently defines:
-
-- AnimalBabyTiny: sharp 0.05, blunt 0.05;
-- AnimalBaby: sharp 0.15, blunt 0.10;
-- AnimalJuvenile: sharp 0.65, blunt 0.40;
-- EusocialInsectLarva: sharp 0.15, blunt 0.10;
-- EusocialInsectJuvenile: sharp 0.65, blunt 0.40.
-
-Example:
-
-    <LifeStagePenetrationDef Class="ZoologyMod.LifeStagePenetrationDef, ZoologyMod">
-      <defName>AnimalJuvenile</defName>
-      <meleePenetrationSharpFactor>0.65</meleePenetrationSharpFactor>
-      <meleePenetrationBluntFactor>0.40</meleePenetrationBluntFactor>
-    </LifeStagePenetrationDef>
-
-When the override is enabled, CEPatches_Melee multiplies CE tool penetration by the normal CE/stat factors and the matching life-stage factor. CEPatches_UI also replaces the CE penetration explanation/final display so the same life-stage factors are visible in the stat UI.
+The generic `LifeStagePenetrationDef` lookup and its optional CE penetration
+override have been removed. There is no second life-stage penetration model.
+The **Dynamic animal growth** setting is enabled by default and governs
+runtime body-size, health, hunger, graphical scale, natural attacks, CE
+penetration and durability, and other supported age-related stat modifiers.
+Disabling it leaves the authored LifeStageDefs in place, while restoring
+stepwise changes at the life-stage boundaries.
 
 CEChecker detects CE by its runtime types and package ID, while CEReflectionUtility isolates the reflection-based access to CE internals. This avoids a hard compile-time dependency on CE.
 
