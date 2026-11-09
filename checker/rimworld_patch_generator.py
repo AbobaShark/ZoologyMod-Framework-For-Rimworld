@@ -16,8 +16,8 @@ from core.pipeline import stage_pipeline,CATEGORIES,STAGE
 from core.generation_registry import load_registry,audit_routes
 from core.xml_routing import plan,deploy,find_project_root
 
-SHEETS=('Animals','Animals CE','Base stats','Groups','Bionics','LifeStages',
-        'SERVICE_BodySizeMassBands','LifeStageProfiles',
+SHEETS=('Animals','Animals CE','Base stats','Groups','Bionics',
+        'SERVICE_BodySizeMassBands','LifeStageProfiles','SexDimorphism',
         'EggMilkWool','Venom profiles','Biomes',
         'Leathers','Animal textiles')
 LABELS={'animals':'Animal patches (Vanilla + CE)','venom':'Venom, antivenoms and recipes',
