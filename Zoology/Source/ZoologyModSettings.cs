@@ -410,7 +410,7 @@ namespace ZoologyMod
                         + (EnablePreyFleeFromPredators ? 150f : 0f)
                         + (EnablePredatorDefendCorpse ? 156f : 0f);
                 case SettingsPage.Physiology:
-                    return 1410f
+                    return 1470f
                         + (EnableAnimalChildcare && AnimalsFreeFromHumans ? 90f : 0f);
                 case SettingsPage.Combat:
                     return 580f;
@@ -507,6 +507,12 @@ namespace ZoologyMod
         private void DrawPhysiologySettings(Listing_Standard list)
         {
             list.GapLine(8f);
+            list.CheckboxLabeled(
+                "Zoology_DynamicAnimalGrowth_Label".Translate(),
+                ref EnableDynamicAnimalGrowth,
+                "Zoology_DynamicAnimalGrowth_Desc".Translate()
+            );
+            list.GapLine(12f);
             bool oldMammalLactationEnabled = EnableMammalLactation;
             list.CheckboxLabeled("Zoology_EnableMammalLactation_Label".Translate(), ref EnableMammalLactation, "Zoology_EnableMammalLactation_Desc".Translate());
             if (oldMammalLactationEnabled != EnableMammalLactation)
@@ -601,12 +607,6 @@ namespace ZoologyMod
         private void DrawCombatSettings(Listing_Standard list)
         {
             list.GapLine(8f);
-            list.CheckboxLabeled(
-                "Zoology_DynamicAnimalGrowth_Label".Translate(),
-                ref EnableDynamicAnimalGrowth,
-                "Zoology_DynamicAnimalGrowth_Desc".Translate()
-            );
-
             list.GapLine(12f);
             list.CheckboxLabeled(
                 "Zoology_EnableAnimalDraftControl_Label".Translate(),
