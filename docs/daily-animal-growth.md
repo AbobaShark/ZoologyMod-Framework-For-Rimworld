@@ -44,10 +44,11 @@ compares the visible pixel bounds of the two sprites for each of the four
 facings. Bounds are converted to world units using the respective
 bodyGraphicData.drawSize. The *already scaled* current artwork is allowed
 to grow only while its visible width and height remain no greater than
-those of the next artwork at its original stage-start size.
+those of the next artwork at its actual stage-start size (including any
+limit required by its own following graphic transition).
 
 For each view and dimension the maximum permitted uniform multiplier is
-nextVisibleSize / currentVisibleSize. The smallest multiplier (capped at
+nextVisibleSizeAtStageStart / currentVisibleSize. The smallest multiplier (capped at
 1) is applied to both root-scale axes, preserving the artwork's aspect
 ratio. No bounding-box area, silhouette area, median, backward per-stage
 factor propagation or hardcoded species-specific ratios are involved.
@@ -59,7 +60,8 @@ textures are measured directly; non-readable textures receive a one-time
 pixel work is performed during recurring draws or biological-day updates.
 The debug action **Zoology -> Inspect animal life-stage profile** reports
 the current and next sprite's absolute visible widths/heights in world
-units, the original growth scale and the final capped scale. If artwork
+units, the original growth scale, the next stage's initial scale, and the final
+capped scale. If artwork
 cannot be inspected, original scaling remains active and diagnostics
 explicitly report missing alpha bounds. The original textures, life-stage
 boundaries, biology and authored drawSize values remain unmodified.
