@@ -28,6 +28,8 @@ namespace ZoologyMod
             new Dictionary<LifeStageDef, float>();
         private static readonly Dictionary<LifeStageDef, Dictionary<Tool, ZoologyLifeStageToolFactor>>
             resolvedToolCopiesByStage = new Dictionary<LifeStageDef, Dictionary<Tool, ZoologyLifeStageToolFactor>>();
+        private static readonly Dictionary<ThingDef, Dictionary<string, bool>> flightRulesBySpecies =
+            new Dictionary<ThingDef, Dictionary<string, bool>>();
         private static int unresolvedToolMappings;
         private static readonly List<string> unresolvedToolExamples = new List<string>();
 
@@ -87,6 +89,7 @@ namespace ZoologyMod
 
                     try
                     {
+                        RegisterFlightRule(profile);
                         if (TryInstall(profile))
                         {
                             installed++;
@@ -121,6 +124,31 @@ namespace ZoologyMod
                 + mappedNaturalTools + " individually mapped natural tools in "
                 + timer.ElapsedMilliseconds + " ms (" + skipped
                 + " invalid catalog entries; absent optional species and neutral stages are not errors).");
+        }
+
+        private static void RegisterFlightRule(ZoologyLifeStageProfile profile)
+        {
+            if (profile.canFly != 0 && profile.canFly != 1) return;
+            ThingDef animal = DefDatabase<ThingDef>.GetNamedSilentFail(profile.animalDefName);
+            if (animal?.race?.Animal != true) return;
+            if (!flightRulesBySpecies.TryGetValue(animal, out var rules))
+            {
+                rules = new Dictionary<string, bool>(StringComparer.Ordinal);
+                flightRulesBySpecies.Add(animal, rules);
+            }
+            rules[profile.sourceStageDefName] = profile.canFly == 1;
+        }
+
+        internal static bool TryGetFlightRule(Pawn pawn, out bool allowed)
+        {
+            allowed = true;
+            if (pawn?.def == null || pawn.ageTracker?.CurLifeStage == null
+                || !flightRulesBySpecies.TryGetValue(pawn.def, out var rules))
+                return false;
+            LifeStageDef current = pawn.ageTracker.CurLifeStage;
+            LifeStageDef source = current.GetModExtension<ZoologyLifeStageOrigin>()?.sourceStage ?? current;
+            if (rules.TryGetValue(source.defName, out allowed)) return true;
+            return source.defName == "AnimalBabyTiny" && rules.TryGetValue("AnimalBaby", out allowed);
         }
 
         public static bool TryGetToolFactor(Pawn pawn, Tool tool, out ZoologyLifeStageToolFactor factor)
