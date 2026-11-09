@@ -53,6 +53,20 @@ namespace ZoologyMod
                 .Append("; hungerRateFactor: ").Append(stage.hungerRateFactor)
                 .Append("; marketValueFactor: ").Append(stage.marketValueFactor)
                 .AppendLine();
+            // Check the actual need getter rather than inferring its result
+            // from stage definitions. This exposes stale DLLs, other-mod
+            // modifiers and any future RimWorld changes to MaxLevel.
+            Need_Food food = pawn.needs?.food;
+            if (food != null)
+            {
+                output.Append("Food nutrition: ")
+                    .Append(food.CurLevel.ToString("0.####"))
+                    .Append(" / ").Append(food.MaxLevel.ToString("0.####"))
+                    .Append("; BodySize x stage foodMaxFactor: ")
+                    .Append((pawn.BodySize * stage.foodMaxFactor).ToString("0.####"))
+                    .AppendLine();
+            }
+
             output.Append("Biological age ticks: ")
                 .Append(pawn.ageTracker.AgeBiologicalTicks)
                 .Append("; biological day: ")
