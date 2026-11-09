@@ -206,6 +206,22 @@ namespace ZoologyMod
             }
         }
 
+        // A revealed stalk uses the same predator/prey cooldown as an abandoned
+        // chase; neither failure can immediately restart against that prey.
+        public void BlockPursuit(Pawn predator, Pawn prey)
+        {
+            if (predator?.Map == null || prey?.Map != predator.Map) return;
+            long key = KeyFor(predator, prey);
+            if (key == 0L) return;
+            long now = Find.TickManager?.TicksGame ?? 0L;
+            lock (dictLock)
+            {
+                blockedUntil[key] = now + (long)CHASE_TIMEOUT * BLOCK_MULTIPLIER;
+                allowedUntil.Remove(key);
+                chaseStart.Remove(key);
+            }
+        }
+
         public void AllowPursuit(Pawn predator, Pawn prey, int durationLongTicks)
         {
             if (predator == null || prey == null)
