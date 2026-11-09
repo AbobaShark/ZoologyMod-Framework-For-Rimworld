@@ -225,8 +225,52 @@ def _tool_profiles(table, diagnostics):
     return output
 
 
+
+def _sex_rows(sex_profiles, adults):
+    """Validate canonical sex/growth records by XML animal identity."""
+    if sex_profiles is None:
+        raise ValueError("SexDimorphism is required for life-stage generation")
+    required = {
+        "XML name", "SexualDimorphism", "ProlongedAdultGrowth",
+        "MaleMean_kg", "FemaleMean_kg", "MaleMin_kg", "FemaleMin_kg",
+        "MaleMax_kg", "FemaleMax_kg", "LargeAdultAge_years",
+        "LargeAdultRimworldAge_years",
+    }
+    missing = required - set(sex_profiles.columns)
+    if missing:
+        raise ValueError(f"SexDimorphism missing columns: {sorted(missing)}")
+    rows = {}
+    for number, (_, record) in enumerate(sex_profiles.iterrows(), 2):
+        row = record.to_dict()
+        if _is_empty(row.get("XML name")):
+            continue
+        for name in _xml_names(row["XML name"]):
+            if name not in adults:
+                raise ValueError(f"SexDimorphism row {number}: unknown XML name {name!r}")
+            if name in rows:
+                raise ValueError(f"SexDimorphism row {number}: duplicate XML name {name!r}")
+            for sex in ("Male", "Female"):
+                low = _required(row.get(f"{sex}Min_kg"), f"{name}/{sex}Min_kg")
+                middle = _required(row.get(f"{sex}Mean_kg"), f"{name}/{sex}Mean_kg")
+                high = _required(row.get(f"{sex}Max_kg"), f"{name}/{sex}Max_kg")
+                if low > middle or middle > high:
+                    raise ValueError(f"SexDimorphism row {number}: invalid {sex} mass order")
+            if str(row.get("ProlongedAdultGrowth", "")).strip().lower() in ("true", "1"):
+                game_age = _required(row.get("LargeAdultRimworldAge_years"),
+                                     f"{name}/LargeAdultRimworldAge_years")
+                adult_age = _required(adults[name].get("Adult age"),
+                                      f"{name}/Animals Adult age")
+                if game_age <= adult_age:
+                    raise ValueError(
+                        f"{name}: late age {game_age} must exceed adult age {adult_age}")
+            rows[name] = row
+    if set(rows) != set(adults):
+        missing = sorted(set(adults) - set(rows))
+        raise ValueError(f"SexDimorphism missing XML animal identities: {missing[:20]}")
+    return rows
+
 def render_species_life_stage_profiles(species_profiles, attacks,
-                                       animals, *, ce=True):
+                                        animals, sex_profiles=None, *, ce=True):
     """Render XML from *evaluated* LifeStageProfiles/AttackProfiles.
 
     Missing biomechanical outputs remain absent: no universal power law or
@@ -245,6 +289,7 @@ def render_species_life_stage_profiles(species_profiles, attacks,
     if missing:
         raise ValueError(f"LifeStageProfiles missing columns: {sorted(missing)}")
     adults = _adult_rows(animals)
+    sex_rows = _sex_rows(sex_profiles, adults)
     stage_groups = {" or ".join(group): group for group in (
         *STAGE_GROUPS, *ROYAL_STAGES, *SPECTROBIONTA_STAGES)}
     diagnostics = Counter()
@@ -361,6 +406,14 @@ def render_species_life_stage_profiles(species_profiles, attacks,
         flight_allowed = _optional_flight(
             row.get("CanFly"), f"{label} row {number}")
         diagnostics["species_rows_ready"] += 1
+        if label == "AnimalLargeAdult":
+            sex_row = sex_rows[names[0]]
+            if str(sex_row.get("ProlongedAdultGrowth", "")).strip().lower() not in ("true", "1"):
+                raise ValueError(f"{names[0]}: AnimalLargeAdult requires ProlongedAdultGrowth")
+            extra_age = _required(sex_row.get("LargeAdultRimworldAge_years"),
+                                  f"{names[0]}/LargeAdultRimworldAge_years")
+        else:
+            extra_age = None
         if label == "AnimalAdult or EusocialInsectAdult":
             # Adult stages remain unmodified. A flight-only catalog record
             # supplies a per-species rule without cloning their LifeStageDef.
@@ -400,6 +453,8 @@ def render_species_life_stage_profiles(species_profiles, attacks,
                     ("meleeDamageFactor", "1"),
                 ):
                     E.SubElement(node, tag).text = value
+                if extra_age is not None:
+                    E.SubElement(node, "minAgeYears").text = _source_number(extra_age)
                 if flight_allowed is not None:
                     E.SubElement(node, "canFly").text = "1" if flight_allowed else "0"
                 if food_max is not None:
