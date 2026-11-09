@@ -289,7 +289,7 @@ def render_species_life_stage_profiles(species_profiles, attacks,
     if missing:
         raise ValueError(f"LifeStageProfiles missing columns: {sorted(missing)}")
     adults = _adult_rows(animals)
-    sex_rows = _sex_rows(sex_profiles, adults)
+    sex_rows = _sex_rows(sex_profiles, adults) if sex_profiles is not None else {}
     stage_groups = {" or ".join(group): group for group in (
         *STAGE_GROUPS, *ROYAL_STAGES, *SPECTROBIONTA_STAGES)}
     diagnostics = Counter()
