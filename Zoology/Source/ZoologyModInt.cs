@@ -71,6 +71,12 @@ namespace ZoologyMod
                 return;
             }
 
+            // Switch the actual LifeStageDefs as well as their Harmony hooks.
+            // When disabled, vanilla and modded stage modifiers are restored;
+            // enabling reuses the previously generated species profiles.
+            ZoologyLifeStageProfileInstaller.SyncProfileStages(
+                ZoologyAnimalGrowth.Enabled);
+
             PetPlayUtility.SyncJoyGiverDefAvailability(settings);
 
             if (forceRebuild)
