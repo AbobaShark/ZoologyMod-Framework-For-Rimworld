@@ -55,7 +55,7 @@ namespace ZoologyMod
         public const bool DefaultOrphanedRaidAnimalsBecomeWild = false;
         public const bool DefaultEnableAnimalDamageReduction = true;
         public const bool DefaultEnableAnimalDraftControl = true;
-        public const bool DefaultEnableOverrideCEPenetration = false;
+        public const bool DefaultEnableDynamicAnimalGrowth = true;
         public const bool DefaultEnablePetPlay = true;
         public const bool DefaultEnablePetBonding = true;
         public const bool DefaultEnableAnimalBonding = false;
