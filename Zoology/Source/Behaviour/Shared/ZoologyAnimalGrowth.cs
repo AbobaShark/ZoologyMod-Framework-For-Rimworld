@@ -30,11 +30,13 @@ namespace ZoologyMod
         {
             internal readonly float from;
             internal readonly float to;
+            internal readonly float installedFrom;
 
-            internal FactorPair(float from, float to)
+            internal FactorPair(float from, float to, float installedFrom)
             {
                 this.from = from;
                 this.to = to;
+                this.installedFrom = installedFrom;
             }
         }
 
@@ -138,6 +140,7 @@ namespace ZoologyMod
                 RaceSegments[race] = intervals;
             }
 
+            ZoologyLifeStageProfileInstaller.AddZeroStatFactors(affectedStats);
             ZoologyAnimalGrowthStatPart.Install(affectedStats);
             Log.Message("[Zoology] Daily growth initialized for " + RaceSegments.Count
                 + " animal races and " + segments + " growth intervals.");
@@ -159,20 +162,30 @@ namespace ZoologyMod
 
             foreach (var stat in candidates)
             {
-                // LifeStageDef is applied before a StatPart. A zero current
-                // factor cannot be corrected using a multiplicative ratio.
                 float first = GetDefinedStatFactor(from, stat);
                 float second = GetDefinedStatFactor(to, stat);
-                if (!Positive(first) || !FiniteNonnegative(second)
-                    || Math.Abs(first - second) < 0.000001f)
+                // A stage authored with zero is installed with one and the
+                // required exact zero is applied by our StatPart instead.
+                float installed = GetInstalledStatFactor(from, stat);
+                if (!FiniteNonnegative(first) || !FiniteNonnegative(second)
+                    || !Positive(installed)
+                    || (Math.Abs(first - second) < 0.000001f
+                        && Math.Abs(first - installed) < 0.000001f))
                     continue;
-                result.Add(stat, new FactorPair(first, second));
+                result.Add(stat, new FactorPair(first, second, installed));
                 affected.Add(stat);
             }
             return result;
         }
 
         private static float GetDefinedStatFactor(LifeStageDef stage, StatDef stat)
+        {
+            if (ZoologyLifeStageProfileInstaller.HasZeroStatFactor(stage, stat))
+                return 0f;
+            return GetInstalledStatFactor(stage, stat);
+        }
+
+        private static float GetInstalledStatFactor(LifeStageDef stage, StatDef stat)
         {
             if (stage?.statFactors != null)
                 for (int i = 0; i < stage.statFactors.Count; i++)
@@ -384,7 +397,7 @@ namespace ZoologyMod
             FactorPair pair;
             if (!state.segment.statFactors.TryGetValue(stat, out pair))
                 return false;
-            ratio = Mathf.Lerp(pair.from, pair.to, state.progress) / pair.from;
+            ratio = Mathf.Lerp(pair.from, pair.to, state.progress) / pair.installedFrom;
             return true;
         }
 
