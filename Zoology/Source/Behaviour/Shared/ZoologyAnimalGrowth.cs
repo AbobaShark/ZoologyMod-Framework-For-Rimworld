@@ -47,8 +47,8 @@ namespace ZoologyMod
             internal float hungerRatio = 1f;
             internal float marketRatio = 1f;
             internal Vector2 drawRatio = Vector2.one;
-            internal float graphicCalibration = 1f;
-            internal bool graphicCalibrationReady;
+            internal Vector2 boundedDrawRatio = Vector2.one;
+            internal bool boundsReady;
             internal Gender graphicGender;
         }
 
@@ -190,7 +190,7 @@ namespace ZoologyMod
                 snapshot.stageIndex = stageIndex;
                 snapshot.biologicalDay = biologicalDay;
                 snapshot.kind = pawn.kindDef;
-                snapshot.graphicCalibrationReady = false;
+                snapshot.boundsReady = false;
 
                 long sampled = biologicalDay * TicksPerBiologicalDay;
                 float t = (float)((double)(sampled - segment.startTick)
@@ -219,8 +219,12 @@ namespace ZoologyMod
                 || index + 1 >= stages.Count || stages.Count != ages.Count)
                 return Vector2.one;
 
-            var currentGraphic = stages[index]?.bodyGraphicData;
-            var nextGraphic = stages[index + 1]?.bodyGraphicData;
+            var currentGraphic = pawn.gender == Gender.Female
+                ? stages[index]?.femaleGraphicData ?? stages[index]?.bodyGraphicData
+                : stages[index]?.bodyGraphicData;
+            var nextGraphic = pawn.gender == Gender.Female
+                ? stages[index + 1]?.femaleGraphicData ?? stages[index + 1]?.bodyGraphicData
+                : stages[index + 1]?.bodyGraphicData;
             if (currentGraphic == null || nextGraphic == null
                 || !Positive(currentGraphic.drawSize.x) || !Positive(currentGraphic.drawSize.y)
                 || !Positive(nextGraphic.drawSize.x) || !Positive(nextGraphic.drawSize.y)
@@ -317,18 +321,15 @@ namespace ZoologyMod
             if (!TryGetSnapshot(pawn, out state))
                 return Vector2.one;
 
-            if (!state.graphicCalibrationReady || state.graphicGender != pawn.gender)
+            if (!state.boundsReady || state.graphicGender != pawn.gender)
             {
-                // Only a rendered animal needs its graphic inspected. Matching
-                // texture paths retain exactly the existing interpolation.
-                // Distinct graphics use a per-kind, once-calculated silhouette
-                // correction shared by every pawn with this PawnKindDef/sex.
-                state.graphicCalibration = ZoologyAnimalGraphicCalibration.StageFactor(
-                    pawn.kindDef, state.stageIndex, pawn.gender == Gender.Female);
+                state.boundedDrawRatio = ZoologyAnimalGraphicBounds.Clamp(
+                    pawn.kindDef, state.stageIndex, pawn.gender == Gender.Female,
+                    state.drawRatio);
                 state.graphicGender = pawn.gender;
-                state.graphicCalibrationReady = true;
+                state.boundsReady = true;
             }
-            return state.drawRatio * state.graphicCalibration;
+            return state.boundedDrawRatio;
         }
 
         internal static bool TryGetStatRatio(Pawn pawn, StatDef stat, out float ratio)
