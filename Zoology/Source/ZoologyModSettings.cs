@@ -10,7 +10,7 @@ namespace ZoologyMod
     {
         public static ZoologyModSettings Instance;
 
-        public bool EnableOverrideCEPenetration;
+        public bool EnableDynamicAnimalGrowth = ModConstants.DefaultEnableDynamicAnimalGrowth;
 
         public bool EnableCustomFleeDanger = ModConstants.DefaultEnableCustomFleeDanger;
         public bool EnableIgnoreSmallPetsByRaiders = ModConstants.DefaultEnableIgnoreSmallPetsByRaiders;
@@ -305,8 +305,6 @@ namespace ZoologyMod
             Instance = this;
 
             _cePresent = AccessTools.TypeByName("CombatExtended.Verb_MeleeAttackCE") != null;
-            EnableOverrideCEPenetration = _cePresent ? true : false;
-
             EnableAnimalDamageReduction = !_cePresent;
 
             EnsureCollectionsInitialized();
@@ -603,20 +601,11 @@ namespace ZoologyMod
         private void DrawCombatSettings(Listing_Standard list)
         {
             list.GapLine(8f);
-            if (_cePresent)
-            {
-                list.CheckboxLabeled(
-                    "Zoology_OverrideCEPenetration_Label".Translate(),
-                    ref EnableOverrideCEPenetration,
-                    "Zoology_OverrideCEPenetration_Desc".Translate()
-                );
-            }
-            else
-            {
-                list.Label("Zoology_CENotDetected".Translate());
-                list.GapLine(6f);
-                EnableOverrideCEPenetration = false;
-            }
+            list.CheckboxLabeled(
+                "Zoology_DynamicAnimalGrowth_Label".Translate(),
+                ref EnableDynamicAnimalGrowth,
+                "Zoology_DynamicAnimalGrowth_Desc".Translate()
+            );
 
             list.GapLine(12f);
             list.CheckboxLabeled(
@@ -1118,7 +1107,7 @@ namespace ZoologyMod
             AnimalFeatureFloatParameterOverrides.Clear();
             EnableAnimalDamageReduction = !_cePresent;
             EnableAnimalDraftControl = ModConstants.DefaultEnableAnimalDraftControl;
-            EnableOverrideCEPenetration = _cePresent ? true : false;
+            EnableDynamicAnimalGrowth = ModConstants.DefaultEnableDynamicAnimalGrowth;
             DisableAllRuntimePatches = ModConstants.DefaultDisableAllRuntimePatches;
             EnableInsectCocoonSpawnFix = ModConstants.DefaultEnableInsectCocoonSpawnFix;
             EnableRaidAnimals = ModConstants.DefaultEnableRaidAnimals;
@@ -1239,11 +1228,7 @@ namespace ZoologyMod
             }
 
             Scribe_Values.Look(ref EnableAnimalDraftControl, "EnableAnimalDraftControl", ModConstants.DefaultEnableAnimalDraftControl);
-            Scribe_Values.Look(ref EnableOverrideCEPenetration, "EnableOverrideCEPenetration", ModConstants.DefaultEnableOverrideCEPenetration);
-            if (!_cePresent)
-            {
-                EnableOverrideCEPenetration = false;
-            }
+            Scribe_Values.Look(ref EnableDynamicAnimalGrowth, "EnableDynamicAnimalGrowth", ModConstants.DefaultEnableDynamicAnimalGrowth);
 
             ClampFleeAndThreatSettings();
             WildAnimalReproductionEcosystemLimitFactor = _wildAnimalReproductionEcosystemLimitFactor;
@@ -1305,7 +1290,7 @@ namespace ZoologyMod
                 hash = hash * 31 + (EnableNoPorcupineQuillPatch ? 1 : 0);
                 hash = hash * 31 + (EnableAnimalDamageReduction ? 1 : 0);
                 hash = hash * 31 + (EnableAnimalDraftControl ? 1 : 0);
-                hash = hash * 31 + (EnableOverrideCEPenetration ? 1 : 0);
+                hash = hash * 31 + (EnableDynamicAnimalGrowth ? 1 : 0);
                 hash = hash * 31 + (EnablePetPlay ? 1 : 0);
                 hash = hash * 31 + (EnablePetBonding ? 1 : 0);
                 hash = hash * 31 + (EnableAnimalBonding ? 1 : 0);
