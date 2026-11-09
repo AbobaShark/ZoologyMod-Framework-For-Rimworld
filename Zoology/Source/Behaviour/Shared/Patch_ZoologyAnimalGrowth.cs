@@ -10,6 +10,8 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(Pawn), "get_BodySize")]
     internal static class Patch_ZoologyDailyBodySize
     {
+        private static bool Prepare() => ZoologyAnimalGrowth.Enabled;
+
         private static void Postfix(Pawn __instance, ref float __result)
         {
             // Preserve vanilla, gene, hediff and other-mod modifiers on the
@@ -21,6 +23,8 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(Pawn), "get_HealthScale")]
     internal static class Patch_ZoologyDailyHealthScale
     {
+        private static bool Prepare() => ZoologyAnimalGrowth.Enabled;
+
         private static void Postfix(Pawn __instance, ref float __result)
         {
             __result *= ZoologyAnimalGrowth.HealthRatio(__instance);
@@ -37,7 +41,8 @@ namespace ZoologyMod
 
         private static bool Prepare()
         {
-            return AccessTools.PropertyGetter(typeof(Need_Food), "FoodFallPerTick") != null;
+            return ZoologyAnimalGrowth.Enabled
+                && AccessTools.PropertyGetter(typeof(Need_Food), "FoodFallPerTick") != null;
         }
 
         private static MethodBase TargetMethod()
@@ -72,6 +77,8 @@ namespace ZoologyMod
 
         private static bool Prepare()
         {
+            if (!ZoologyAnimalGrowth.Enabled)
+                return false;
             if (RootField == null && RootProperty == null)
             {
                 Log.Warning("[Zoology] PawnRenderTree root node not found; "
