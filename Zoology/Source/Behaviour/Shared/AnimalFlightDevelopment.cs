@@ -33,6 +33,8 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(Pawn_FlightTracker), "get_CanEverFly")]
     internal static class Patch_AnimalLifeStageCanEverFly
     {
+        static bool Prepare() => AccessTools.PropertyGetter(typeof(Pawn_FlightTracker), "CanEverFly") != null;
+
         static void Postfix(Pawn_FlightTracker __instance, ref bool __result)
         {
             if (__result && !AnimalFlightDevelopment.PermitsFlight(__instance)) __result = false;
@@ -42,6 +44,8 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(Pawn_FlightTracker), "get_CanFlyNow")]
     internal static class Patch_AnimalLifeStageCanFlyNow
     {
+        static bool Prepare() => AccessTools.PropertyGetter(typeof(Pawn_FlightTracker), "CanFlyNow") != null;
+
         static void Postfix(Pawn_FlightTracker __instance, ref bool __result)
         {
             if (__result && !AnimalFlightDevelopment.PermitsFlight(__instance)) __result = false;
@@ -53,6 +57,8 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(Pawn_FlightTracker), "StartFlyingInternal")]
     internal static class Patch_AnimalLifeStageStartFlyingInternal
     {
+        static bool Prepare() => AccessTools.Method(typeof(Pawn_FlightTracker), "StartFlyingInternal") != null;
+
         static bool Prefix(Pawn_FlightTracker __instance)
             => AnimalFlightDevelopment.PermitsFlight(__instance);
     }
