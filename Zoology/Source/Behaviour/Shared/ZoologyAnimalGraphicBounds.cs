@@ -46,6 +46,10 @@ namespace ZoologyMod
             // Compare against the actual size of the current stage *after*
             // the daily draw ratio has been applied. Never stretch artwork:
             // a single correction is shared by width and height.
+            // A later artwork switch can already limit the next stage on
+            // its first day. Compare against that actual starting scale,
+            // not an incorrectly assumed unscaled next graphic.
+            float nextStart = Clamp(kind, index + 1, female, Vector2.one).x;
             float limit = 1f;
             for (int i = 0; i < 4; i++)
             {
@@ -54,9 +58,9 @@ namespace ZoologyMod
                 if (!oldSize.Valid || !newSize.Valid)
                     continue;
                 if (scale.x > 0f)
-                    limit = Mathf.Min(limit, newSize.width / (oldSize.width * scale.x));
+                    limit = Mathf.Min(limit, (nextStart * newSize.width) / (oldSize.width * scale.x));
                 if (scale.y > 0f)
-                    limit = Mathf.Min(limit, newSize.height / (oldSize.height * scale.y));
+                    limit = Mathf.Min(limit, (nextStart * newSize.height) / (oldSize.height * scale.y));
             }
             return scale * Mathf.Clamp01(limit);
         }
@@ -94,6 +98,9 @@ namespace ZoologyMod
                     .AppendLine(")");
             }
             Vector2 bounded = Clamp(kind, index, female, rawScale);
+            output.Append("  next-stage starting scale x")
+                .Append(Clamp(kind, index + 1, female, Vector2.one).x.ToString("0.####"))
+                .AppendLine();
             output.Append("  final root scale (")
                 .Append(bounded.x.ToString("0.####")).Append(", ")
                 .Append(bounded.y.ToString("0.####")).AppendLine(")");
