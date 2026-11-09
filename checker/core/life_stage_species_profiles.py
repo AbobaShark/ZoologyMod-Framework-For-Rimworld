@@ -75,6 +75,17 @@ def _number(value, context, *, positive=True):
     return number
 
 
+def _optional_flight(value, context):
+    if value is None or str(value).strip().lower() in ("", "none", "nan"):
+        return None
+    choice = str(value).strip().lower()
+    if choice in ("true", "1", "yes", "да"):
+        return True
+    if choice in ("false", "0", "no", "нет"):
+        return False
+    raise ValueError(f"{context}: CanFly must be TRUE or FALSE, got {value!r}")
+
+
 def _required(value, context, *, positive=True):
     number = _number(value, context, positive=positive)
     if number is None:
@@ -347,12 +358,19 @@ def render_species_life_stage_profiles(species_profiles, attacks,
                                f"{label} row {number} MarketValueFactor")
         if status == "READY" and (combat_power is None or market_value is None):
             raise ValueError(f"{label} row {number}: READY profile has missing outputs")
+        flight_allowed = _optional_flight(
+            row.get("CanFly"), f"{label} row {number}")
         diagnostics["species_rows_ready"] += 1
         if label == "AnimalAdult or EusocialInsectAdult":
-            # The existing adult Def uses Animals' patched absolute stats.
-            # Keep its row as a mass/size validation reference only: cloning
-            # it adds no information and needlessly replaces foreign Defs.
+            # Adult stages remain unmodified. A flight-only catalog record
+            # supplies a per-species rule without cloning their LifeStageDef.
             diagnostics["adult_reference_rows"] += 1
+            if flight_allowed is not None:
+                for source in sources:
+                    node = E.SubElement(stage_nodes, "li")
+                    E.SubElement(node, "animalDefName").text = names[0]
+                    E.SubElement(node, "sourceStageDefName").text = source
+                    E.SubElement(node, "canFly").text = "1" if flight_allowed else "0"
             continue
         for name in names:
             adult = adults.get(name)
@@ -382,6 +400,8 @@ def render_species_life_stage_profiles(species_profiles, attacks,
                     ("meleeDamageFactor", "1"),
                 ):
                     E.SubElement(node, tag).text = value
+                if flight_allowed is not None:
+                    E.SubElement(node, "canFly").text = "1" if flight_allowed else "0"
                 if food_max is not None:
                     E.SubElement(node, "foodMaxFactor").text = _text_number(food_max)
                 if durability_factor is not None:
