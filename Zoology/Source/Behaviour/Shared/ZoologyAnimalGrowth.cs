@@ -30,6 +30,8 @@ namespace ZoologyMod
         {
             internal long startTick;
             internal long endTick;
+            internal long firstSampleTick;
+            internal long lastSampleTick;
             internal LifeStageDef from;
             internal LifeStageDef to;
             internal Dictionary<StatDef, FactorPair> statFactors;
@@ -42,12 +44,13 @@ namespace ZoologyMod
             internal long biologicalDay = long.MinValue;
             internal PawnKindDef kind;
             internal float progress;
+            internal float graphicProgress;
             internal float bodyRatio = 1f;
             internal float healthRatio = 1f;
             internal float hungerRatio = 1f;
             internal float marketRatio = 1f;
             internal Vector2 drawRatio = Vector2.one;
-            internal Vector2 boundedDrawRatio = Vector2.one;
+            internal Vector2 interpolatedDrawRatio = Vector2.one;
             internal bool boundsReady;
             internal Gender graphicGender;
         }
@@ -109,6 +112,10 @@ namespace ZoologyMod
                     {
                         startTick = start,
                         endTick = end,
+                        firstSampleTick = ((start + TicksPerBiologicalDay - 1L)
+                            / TicksPerBiologicalDay) * TicksPerBiologicalDay,
+                        lastSampleTick = ((end - 1L) / TicksPerBiologicalDay)
+                            * TicksPerBiologicalDay,
                         from = current,
                         to = next,
                         statFactors = BuildStatFactors(current, next, affectedStats)
@@ -184,18 +191,27 @@ namespace ZoologyMod
             long ticks = pawn.ageTracker.AgeBiologicalTicks;
             long biologicalDay = ticks >= 0 ? ticks / TicksPerBiologicalDay : 0L;
             if (snapshot.segment != segment || snapshot.stageIndex != stageIndex
-                || snapshot.biologicalDay != biologicalDay || snapshot.kind != pawn.kindDef)
+                || snapshot.biologicalDay != biologicalDay || snapshot.kind != pawn.kindDef
+                || snapshot.graphicGender != pawn.gender)
             {
                 snapshot.segment = segment;
                 snapshot.stageIndex = stageIndex;
                 snapshot.biologicalDay = biologicalDay;
                 snapshot.kind = pawn.kindDef;
+                snapshot.graphicGender = pawn.gender;
                 snapshot.boundsReady = false;
 
                 long sampled = biologicalDay * TicksPerBiologicalDay;
                 float t = (float)((double)(sampled - segment.startTick)
                     / (segment.endTick - segment.startTick));
                 snapshot.progress = Mathf.Clamp01(t);
+                // The last biological day must be the visual endpoint,
+                // not an arbitrary fraction below it. Keep the original
+                // progress for biological stats and same-artwork growth.
+                snapshot.graphicProgress = segment.lastSampleTick > segment.firstSampleTick
+                    ? Mathf.Clamp01((float)((double)(sampled - segment.firstSampleTick)
+                        / (segment.lastSampleTick - segment.firstSampleTick)))
+                    : snapshot.progress;
                 float fraction = snapshot.progress;
 
                 snapshot.bodyRatio = LerpRatio(segment.from.bodySizeFactor,
@@ -299,6 +315,12 @@ namespace ZoologyMod
             return TryGetSnapshot(pawn, out state) ? state.drawRatio : Vector2.one;
         }
 
+        internal static float GraphicProgress(Pawn pawn)
+        {
+            Snapshot state;
+            return TryGetSnapshot(pawn, out state) ? state.graphicProgress : 0f;
+        }
+
         internal static float BodyRatio(Pawn pawn)
         {
             Snapshot state;
@@ -331,13 +353,13 @@ namespace ZoologyMod
 
             if (!state.boundsReady || state.graphicGender != pawn.gender)
             {
-                state.boundedDrawRatio = ZoologyAnimalGraphicBounds.Clamp(
+                state.interpolatedDrawRatio = ZoologyAnimalGraphicBounds.Interpolate(
                     pawn.kindDef, state.stageIndex, pawn.gender == Gender.Female,
-                    state.drawRatio);
+                    state.drawRatio, state.graphicProgress);
                 state.graphicGender = pawn.gender;
                 state.boundsReady = true;
             }
-            return state.boundedDrawRatio;
+            return state.interpolatedDrawRatio;
         }
 
         internal static bool TryGetStatRatio(Pawn pawn, StatDef stat, out float ratio)
