@@ -11,6 +11,18 @@ namespace ZoologyMod
     // No defs are mutated after installation; one snapshot per biological day per young pawn.
     internal static class ZoologyAnimalGrowth
     {
+        // A single gate for daily interpolation and optional age-specific
+        // runtime modifiers. Authored LifeStageDefs stay installed.
+        internal static bool Enabled
+        {
+            get
+            {
+                var settings = ZoologyMod.Settings ?? ZoologyModSettings.Instance;
+                return settings == null ||
+                    (!settings.DisableAllRuntimePatches && settings.EnableDynamicAnimalGrowth);
+            }
+        }
+
         private const long TicksPerBiologicalDay = 60000L;
         private const double TicksPerBiologicalYear = 3600000d;
 
@@ -173,7 +185,7 @@ namespace ZoologyMod
         {
             snapshot = null;
             if (pawn?.ageTracker == null || pawn.def == null
-                || (ZoologyMod.Settings != null && ZoologyMod.Settings.DisableAllRuntimePatches))
+                || !Enabled)
                 return false;
 
             Segment[] intervals;
@@ -279,8 +291,8 @@ namespace ZoologyMod
             if (pawn?.ageTracker == null || pawn.def == null)
                 return "pawn has no initialized biological age";
 
-            if (ZoologyMod.Settings?.DisableAllRuntimePatches == true)
-                return "runtime Harmony patches are disabled in Zoology settings";
+            if (!Enabled)
+                return "dynamic animal growth is disabled in Zoology settings";
 
             if (RaceSegments.Count == 0)
                 return "no calculated growth intervals installed; verify the generated "
