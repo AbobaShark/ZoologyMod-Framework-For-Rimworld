@@ -34,6 +34,7 @@ namespace ZoologyMod
                 Settings?.CleanupInvalidAnimalOverrides();
                 Settings?.ApplyRuntimeDefOverrides();
                 ZoologyLifeStageProfileInstaller.ApplyOnce();
+                ZoologySexSizeMechanics.Install();
 #if RIMWORLD17
                 AnimalBarnWorkPriority.MatchVanillaPens();
 #endif
