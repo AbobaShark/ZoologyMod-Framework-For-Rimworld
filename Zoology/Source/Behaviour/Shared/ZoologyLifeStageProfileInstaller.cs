@@ -283,18 +283,10 @@ namespace ZoologyMod
                 : new List<DefModExtension>(original.modExtensions);
             replacement.modExtensions.Add(new ZoologyLifeStageOrigin { sourceStage = original });
 
-            // Need_Food.MaxLevel already uses Pawn.BodySize, which Zoology
-            // interpolates every biological day. Re-applying the stage's
-            // mass fraction as foodMaxFactor would double-scale stomach
-            // capacity (and can explode it for stages larger than the
-            // species' baseline, e.g. Royal megachickens).
-            //
-            // Neutralize inherited vanilla Baby/Juvenile factors as well,
-            // and ignore obsolete generated catalogs with non-unity values.
-            // This makes existing local generated XML safe after a DLL rebuild.
-            if (Math.Abs(replacement.foodMaxFactor - 1f) > 0.000001f)
+            if (IsFinitePositive(profile.foodMaxFactor)
+                && Math.Abs(replacement.foodMaxFactor - profile.foodMaxFactor) > 0.000001f)
             {
-                replacement.foodMaxFactor = 1f;
+                replacement.foodMaxFactor = profile.foodMaxFactor;
                 changed = true;
             }
             if (IsFinitePositive(profile.meleeDamageFactor)
