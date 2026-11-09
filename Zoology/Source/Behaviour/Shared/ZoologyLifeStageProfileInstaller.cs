@@ -90,7 +90,7 @@ namespace ZoologyMod
                     try
                     {
                         RegisterFlightRule(profile);
-                        if (TryInstall(profile))
+                        if (profile.bodySizeFactor > 0f && TryInstall(profile))
                         {
                             installed++;
                         }
