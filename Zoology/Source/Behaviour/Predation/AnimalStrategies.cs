@@ -386,7 +386,16 @@ namespace ZoologyMod
                 return;
             }
             if (!AnimalHuntStrategy.TryFindApproachCell(___pawn, prey, distance, out IntVec3 cell))
+            {
+                // An inaccessible striking position must not silently turn a
+                // slow ambusher into a futile open-ground pursuit.
+                state.ambushPhase = 0;
+                state.ambushUntil = 0;
+                state.revealed = true;
+                ZoologyPursuitGameComponent.Instance?.BlockPursuit(___pawn, prey);
+                newJob = JobMaker.MakeJob(JobDefOf.Wait, ZoologyTickLimiter.Pursuit.StopPredatorWaitTicks);
                 return;
+            }
             state.ambushPhase = 1;
             newJob = JobMaker.MakeJob(DefDatabase<JobDef>.GetNamed("Zoology_AnimalStalk"), prey, cell);
             newJob.locomotionUrgency = LocomotionUrgency.Amble;
