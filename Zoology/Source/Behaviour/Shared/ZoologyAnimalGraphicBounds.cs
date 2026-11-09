@@ -7,9 +7,9 @@ using Verse;
 
 namespace ZoologyMod
 {
-    // Restrict the *rendered* width and height only when the next stage
-    // switches body artwork. All values are in world units, not PNG pixels.
-    // No changes to the original same-texture growth interpolation.
+    // For artwork switches, interpolate between a stage's starting scale
+    // and the largest scale that fits the next sprite's visible dimensions.
+    // Measure only once per texture; growth itself performs no pixel work.
     internal static class ZoologyAnimalGraphicBounds
     {
         private const byte VisibleAlpha = 12;
@@ -31,48 +31,72 @@ namespace ZoologyMod
             internal int views;
         }
 
+        private sealed class KindBoundsData
+        {
+            internal Transition[] transitions;
+            internal float[] startScales;
+            internal float[] endScales;
+        }
+
         private static readonly Dictionary<Texture, Size> TextureBounds =
             new Dictionary<Texture, Size>();
-        private static readonly Dictionary<PawnKindDef, Transition[][]> KindBounds =
-            new Dictionary<PawnKindDef, Transition[][]>();
+        private static readonly Dictionary<PawnKindDef, KindBoundsData[]> KindBounds =
+            new Dictionary<PawnKindDef, KindBoundsData[]>();
 
-        internal static Vector2 Clamp(PawnKindDef kind, int index, bool female, Vector2 scale)
+        internal static Vector2 Interpolate(PawnKindDef kind, int index, bool female,
+            Vector2 originalScale, float progress)
         {
-            Transition transition = GetTransition(kind, index, female);
-            if (transition == null || transition.views == 0)
-                return scale;
+            KindBoundsData data = GetOrBuild(kind, female);
+            if (data == null || index < 0 || index >= data.startScales.Length)
+                return originalScale;
 
-            // The next stage starts with its authored graphic at root scale 1.
-            // Compare against the actual size of the current stage *after*
-            // the daily draw ratio has been applied. Never stretch artwork:
-            // a single correction is shared by width and height.
-            // A later artwork switch can already limit the next stage on
-            // its first day. Compare against that actual starting scale,
-            // not an incorrectly assumed unscaled next graphic.
-            float nextStart = Clamp(kind, index + 1, female, Vector2.one).x;
-            float limit = 1f;
-            for (int i = 0; i < 4; i++)
+            Transition transition = data.transitions[index];
+            if (transition == null || transition.views == 0)
             {
-                Size oldSize = transition.from[i];
-                Size newSize = transition.to[i];
-                if (!oldSize.Valid || !newSize.Valid)
-                    continue;
-                if (scale.x > 0f)
-                    limit = Mathf.Min(limit, (nextStart * newSize.width) / (oldSize.width * scale.x));
-                if (scale.y > 0f)
-                    limit = Mathf.Min(limit, (nextStart * newSize.height) / (oldSize.height * scale.y));
+                // Identical artwork retains the original growth curve.
+                // A shared group multiplier is only needed if a later
+                // artwork switch requires a smaller starting size.
+                return originalScale * data.startScales[index];
             }
-            return scale * Mathf.Clamp01(limit);
+
+            // No per-day clamping: the bound is an endpoint. Reach it on
+            // the final biological day, with a change on every earlier day.
+            float scale = Mathf.Lerp(data.startScales[index],
+                data.endScales[index], Mathf.Clamp01(progress));
+            return new Vector2(scale, scale);
+        }
+
+        private static KindBoundsData GetOrBuild(PawnKindDef kind, bool female)
+        {
+            if (kind?.lifeStages == null)
+                return null;
+
+            KindBoundsData[] variants;
+            if (!KindBounds.TryGetValue(kind, out variants))
+            {
+                variants = new KindBoundsData[2];
+                KindBounds.Add(kind, variants);
+            }
+
+            int variant = female ? 1 : 0;
+            if (variants[variant] == null)
+                variants[variant] = Build(kind, female);
+            return variants[variant];
         }
 
         // Called only from the existing developer inspection action.
         internal static void AppendDiagnostics(PawnKindDef kind, int index,
-            bool female, Vector2 rawScale, StringBuilder output)
+            bool female, Vector2 rawScale, float progress, StringBuilder output)
         {
-            Transition transition = GetTransition(kind, index, female);
+            KindBoundsData data = GetOrBuild(kind, female);
+            if (data == null || index < 0 || index >= data.startScales.Length)
+                return;
+
+            Transition transition = data.transitions[index];
             if (transition == null)
             {
-                output.AppendLine("Graphic switch: none (original growth scale).");
+                output.Append("Graphic switch: none (same artwork); group factor x")
+                    .Append(data.startScales[index].ToString("0.####")).AppendLine();
                 return;
             }
             output.Append("Graphic switch: ").Append(transition.fromPath)
@@ -97,37 +121,29 @@ namespace ZoologyMod
                     .Append(", ").Append(newSize.height.ToString("0.###"))
                     .AppendLine(")");
             }
-            Vector2 bounded = Clamp(kind, index, female, rawScale);
-            output.Append("  next-stage starting scale x")
-                .Append(Clamp(kind, index + 1, female, Vector2.one).x.ToString("0.####"))
+            Vector2 result = Interpolate(kind, index, female, rawScale, progress);
+            output.Append("  start x").Append(data.startScales[index].ToString("0.####"))
+                .Append("; end x").Append(data.endScales[index].ToString("0.####"))
+                .Append("; last-day progress ").Append(progress.ToString("0.####"))
                 .AppendLine();
-            output.Append("  final root scale (")
-                .Append(bounded.x.ToString("0.####")).Append(", ")
-                .Append(bounded.y.ToString("0.####")).AppendLine(")");
+            output.Append("  next-stage starting scale x")
+                .Append(data.startScales[index + 1].ToString("0.####"))
+                .AppendLine();
+            output.Append("  interpolated root scale (")
+                .Append(result.x.ToString("0.####")).Append(", ")
+                .Append(result.y.ToString("0.####")).AppendLine(")");
         }
 
-        private static Transition GetTransition(PawnKindDef kind, int index, bool female)
-        {
-            var stages = kind?.lifeStages;
-            if (stages == null || index < 0 || index + 1 >= stages.Count)
-                return null;
-
-            Transition[][] variants;
-            if (!KindBounds.TryGetValue(kind, out variants))
-            {
-                variants = new Transition[2][];
-                KindBounds.Add(kind, variants);
-            }
-            int variant = female ? 1 : 0;
-            if (variants[variant] == null)
-                variants[variant] = Build(kind, female);
-            return variants[variant][index];
-        }
-
-        private static Transition[] Build(PawnKindDef kind, bool female)
+        private static KindBoundsData Build(PawnKindDef kind, bool female)
         {
             var stages = kind.lifeStages;
-            var transitions = new Transition[stages.Count];
+            var data = new KindBoundsData
+            {
+                transitions = new Transition[stages.Count],
+                startScales = new float[stages.Count],
+                endScales = new float[stages.Count]
+            };
+            var transitions = data.transitions;
             for (int i = 0; i + 1 < stages.Count; i++)
             {
                 GraphicData from = StageGraphic(stages[i], female);
@@ -181,7 +197,87 @@ namespace ZoologyMod
                     }
                 }
             }
-            return transitions;
+            // The final artwork is never rescaled. Earlier stages use the
+            // start of their successor as the actual visible-size target.
+            // This also handles several consecutive artwork changes.
+            data.startScales[stages.Count - 1] = 1f;
+            data.endScales[stages.Count - 1] = 1f;
+            var ages = kind.race?.race?.lifeStageAges;
+            for (int i = stages.Count - 2; i >= 0; i--)
+            {
+                Transition transition = transitions[i];
+                GraphicData current = StageGraphic(stages[i], female);
+                GraphicData next = StageGraphic(stages[i + 1], female);
+                bool sameArtwork = current != null && next != null
+                    && !string.IsNullOrEmpty(current.texPath)
+                    && string.Equals(current.texPath, next.texPath, StringComparison.Ordinal);
+
+                if (sameArtwork)
+                {
+                    // The original interpolation already joins two stages
+                    // sharing an image. Preserve its shape and, when needed,
+                    // carry the same uniform multiplier across their boundary.
+                    data.startScales[i] = data.startScales[i + 1];
+                    data.endScales[i] = data.startScales[i + 1];
+                    continue;
+                }
+
+                if (transition == null || transition.views == 0)
+                {
+                    data.startScales[i] = 1f;
+                    data.endScales[i] = 1f;
+                    continue;
+                }
+
+                float nextStart = data.startScales[i + 1];
+                float endpoint = float.PositiveInfinity;
+                for (int direction = 0; direction < 4; direction++)
+                {
+                    Size oldSize = transition.from[direction];
+                    Size newSize = transition.to[direction];
+                    if (!oldSize.Valid || !newSize.Valid)
+                        continue;
+                    endpoint = Mathf.Min(endpoint,
+                        nextStart * newSize.width / oldSize.width);
+                    endpoint = Mathf.Min(endpoint,
+                        nextStart * newSize.height / oldSize.height);
+                }
+
+                if (!(endpoint > 0f) || float.IsNaN(endpoint)
+                    || float.IsInfinity(endpoint))
+                {
+                    // An unreadable transition must not introduce an
+                    // arbitrary graphical correction.
+                    transition.views = 0;
+                    data.startScales[i] = 1f;
+                    data.endScales[i] = 1f;
+                    continue;
+                }
+
+                data.endScales[i] = endpoint;
+                if (endpoint > 1f)
+                {
+                    data.startScales[i] = 1f;
+                }
+                else
+                {
+                    // The next picture can be smaller even than the old
+                    // picture at the *beginning* of this stage. Rescale the
+                    // start as well; otherwise the image would shrink during
+                    // the interval. The ratio comes from the actual
+                    // biological stage factors, not a guessed constant.
+                    float growth = 1f;
+                    if (ages != null && i + 1 < ages.Count)
+                    {
+                        float fromBody = ages[i]?.def?.bodySizeFactor ?? 0f;
+                        float toBody = ages[i + 1]?.def?.bodySizeFactor ?? 0f;
+                        if (fromBody > 0f && toBody > fromBody)
+                            growth = Mathf.Sqrt(fromBody / toBody);
+                    }
+                    data.startScales[i] = endpoint * growth;
+                }
+            }
+            return data;
         }
 
         private static GraphicData StageGraphic(PawnKindLifeStage stage, bool female)
