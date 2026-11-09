@@ -48,6 +48,8 @@ namespace ZoologyMod
 
         public static float GetLifeStageCombatPowerFactor(Pawn pawn)
         {
+            if (!ZoologyAnimalGrowth.Enabled)
+                return 1f;
             if (pawn == null)
             {
                 return 1f;
@@ -65,6 +67,9 @@ namespace ZoologyMod
 
         public static float GetLifeStageCombatPowerFactor(LifeStageDef stage)
         {
+            if (!ZoologyAnimalGrowth.Enabled)
+                return 1f;
+
             LifeStageCombatPowerExtension extension = stage?.GetModExtension<LifeStageCombatPowerExtension>();
             if (extension != null)
             {
