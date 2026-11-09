@@ -297,16 +297,8 @@ namespace ZoologyMod
                 return false;
             }
 
-            var lifeStageAges = pawn.RaceProps?.lifeStageAges;
-            if (lifeStageAges != null && lifeStageAges.Count > 0)
-            {
-                int curIndex = pawn.ageTracker.CurLifeStageIndex;
-                if (curIndex >= 0 && curIndex < lifeStageAges.Count - 1)
-                {
-                    return true;
-                }
-            }
-
+            // A species may have a reproductive LargeAdult stage after Adult.
+            // Stage position is not a reliable test of developmental maturity.
             return AnimalLifeStageUtility.IsAnimalChildLifeStage(pawn.ageTracker.CurLifeStage);
         }
 
