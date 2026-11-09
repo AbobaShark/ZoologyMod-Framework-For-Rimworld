@@ -308,8 +308,17 @@ def render_species_life_stage_profiles(species_profiles, attacks,
                              if ce and status == "READY" else None)
         hunger = _required(row.get("HungerRateFactor"),
                            f"{label} row {number} stage hunger factor")
-        food_max = _number(row.get("FoodMaxFactor"),
-                           f"{label} row {number} FoodMaxFactor")
+        food_max = _required(row.get("FoodMaxFactor"),
+                             f"{label} row {number} FoodMaxFactor")
+        # Need_Food.MaxLevel is already proportional to Pawn.BodySize,
+        # including Zoology's daily BodySize interpolation. Mass/adultMass
+        # is not a second food capacity factor. Refuse obsolete cached
+        # LifeStageProfiles instead of silently exporting double scaling.
+        if not math.isclose(food_max, 1.0, rel_tol=0, abs_tol=1e-6):
+            raise ValueError(
+                f"{label} row {number}: FoodMaxFactor must be 1; "
+                "MaxLevel already scales with BodySize. Refresh AnimalStats."
+            )
         _required(row.get("SpeedFactor"),
                   f"{label} row {number} Vanilla speed factor")
         if ce:
@@ -382,8 +391,7 @@ def render_species_life_stage_profiles(species_profiles, attacks,
                     ("meleeDamageFactor", "1"),
                 ):
                     E.SubElement(node, tag).text = value
-                if food_max is not None:
-                    E.SubElement(node, "foodMaxFactor").text = _text_number(food_max)
+                E.SubElement(node, "foodMaxFactor").text = "1"
                 if durability_factor is not None:
                     E.SubElement(node, "ceArmorDurabilityFactor").text = _text_number(durability_factor)
                 if market_value is not None:
