@@ -33,7 +33,15 @@ namespace ZoologyMod
         private static int unresolvedToolMappings;
         private static readonly List<string> unresolvedToolExamples = new List<string>();
 
+        // Preserve the unmodified race age definitions so disabling the
+        // growth feature also disables the generated stage stat modifiers.
+        // Age thresholds and ordering do not change across toggles.
+        private static readonly Dictionary<ThingDef, List<LifeStageAge>> OriginalRaceStages =
+            new Dictionary<ThingDef, List<LifeStageAge>>();
+        private static readonly Dictionary<ThingDef, List<LifeStageAge>> GeneratedRaceStages =
+            new Dictionary<ThingDef, List<LifeStageAge>>();
         private static bool applied;
+        private static bool generatedStagesActive = true;
         private static int mappedNaturalTools;
         private static bool nativeHashAllocatorAvailable = true;
         private static HashSet<ushort> fallbackUsedHashes;
@@ -109,9 +117,14 @@ namespace ZoologyMod
                 ZoologyLifeStageArmorStatPart.Install();
             }
 
-            // All race stages have now been replaced by their calculated
-            // profiles. Resolve daily interpolation against these final defs.
+            // Capture the installed stage sequences while they are still active.
+            // The daily interpolation tables always reference generated defs,
+            // but original definitions can be restored without rerunning the
+            // catalog installer or changing age thresholds.
+            foreach (var entry in OriginalRaceStages)
+                GeneratedRaceStages[entry.Key] = entry.Key.race.lifeStageAges;
             ZoologyAnimalGrowth.Install(catalogs);
+            SyncProfileStages(ZoologyAnimalGrowth.Enabled);
 
             timer.Stop();
             if (unresolvedToolMappings > 0)
@@ -124,6 +137,30 @@ namespace ZoologyMod
                 + mappedNaturalTools + " individually mapped natural tools in "
                 + timer.ElapsedMilliseconds + " ms (" + skipped
                 + " invalid catalog entries; absent optional species and neutral stages are not errors).");
+        }
+
+        // Synchronously exchange the original and generated life stages when
+        // the user changes the growth setting. This also switches vanilla
+        // LifeStageDef fields (bodySizeFactor, healthScaleFactor,
+        // foodMaxFactor, hungerRateFactor and statFactors), which a Harmony
+        // postfix alone cannot suppress.
+        internal static void SyncProfileStages(bool enabled)
+        {
+            if (!applied || GeneratedRaceStages.Count == 0
+                || generatedStagesActive == enabled)
+                return;
+
+            foreach (var entry in GeneratedRaceStages)
+            {
+                var animal = entry.Key;
+                if (animal?.race == null)
+                    continue;
+                List<LifeStageAge> original;
+                if (!OriginalRaceStages.TryGetValue(animal, out original))
+                    continue;
+                animal.race.lifeStageAges = enabled ? entry.Value : original;
+            }
+            generatedStagesActive = enabled;
         }
 
         private static void RegisterFlightRule(ZoologyLifeStageProfile profile)
@@ -550,6 +587,8 @@ namespace ZoologyMod
                 return false;
             }
             DefDatabase<LifeStageDef>.Add(replacement);
+            if (!OriginalRaceStages.ContainsKey(animal))
+                OriginalRaceStages.Add(animal, ages);
             animal.race.lifeStageAges = copiedAges;
             if (sharpOffset > 0f || bluntOffset > 0f)
             {
