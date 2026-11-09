@@ -52,7 +52,8 @@ namespace ZoologyMod
             if (!Snapshots.TryGetValue(__instance, out snapshot) && !scaled)
                 return;
 
-            float maximum = __result * (scaled ? factor : 1f);
+            float maximum = __result * (scaled ? factor : 1f)
+                * ZoologySexSizeMechanics.DurabilityRatio(pawn);
             // A legitimate MROUND-to-25 in AnimalStats can produce zero.
             if (maximum < 0f || float.IsNaN(maximum) || float.IsInfinity(maximum))
                 return;
