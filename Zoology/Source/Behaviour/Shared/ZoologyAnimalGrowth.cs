@@ -291,6 +291,14 @@ namespace ZoologyMod
             return null;
         }
 
+        // Debug-only access to the unbounded daily scale for comparison
+        // with the visible bounds of the next stage.
+        internal static Vector2 RawDrawRatio(Pawn pawn)
+        {
+            Snapshot state;
+            return TryGetSnapshot(pawn, out state) ? state.drawRatio : Vector2.one;
+        }
+
         internal static float BodyRatio(Pawn pawn)
         {
             Snapshot state;
