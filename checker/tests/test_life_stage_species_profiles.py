@@ -70,6 +70,33 @@ def nodes(xml):
 
 
 class SpeciesLifeStageProfilesTests(unittest.TestCase):
+    def test_can_fly_is_species_stage_specific_and_keeps_adult_def(self):
+        args = list(sources())
+        args[0] = args[0].copy()
+        args[0]["CanFly"] = ["TRUE", "true", "FALSE"]
+        args[1] = args[0]
+        xml, _ = render(*args)
+        stages = nodes(xml)
+        baby = [n for n in stages if n.findtext("sourceStageDefName") == "AnimalBaby"][0]
+        juvenile = [n for n in stages if n.findtext("sourceStageDefName") == "AnimalJuvenile"][0]
+        adult = [n for n in stages if n.findtext("sourceStageDefName") == "AnimalAdult"][0]
+        self.assertEqual(baby.findtext("canFly"), "0")
+        self.assertEqual(juvenile.findtext("canFly"), "1")
+        self.assertEqual(adult.findtext("canFly"), "1")
+        self.assertIsNone(adult.find("bodySizeFactor"))
+
+    def test_invalid_can_fly_value_is_rejected(self):
+        args = list(sources())
+        args[0] = args[0].copy()
+        args[0].at[2, "CanFly"] = "sometimes"
+        args[1] = args[0]
+        with self.assertRaisesRegex(ValueError, "CanFly must be"):
+            render(*args)
+
+    def test_missing_can_fly_preserves_race_default(self):
+        xml, _ = render(*sources())
+        self.assertEqual(E.fromstring(xml).xpath(".//canFly"), [])
+
     def test_custom_spectrobiont_stage_can_compile_species_factors(self):
         args = list(sources())
         args[0] = args[0].copy()
