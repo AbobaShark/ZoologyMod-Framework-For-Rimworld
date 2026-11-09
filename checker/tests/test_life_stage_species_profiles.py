@@ -41,7 +41,7 @@ def sources(base_size=1):
         "ToolStatus": "READY",
         "ToolCount": 0,
         "ToolRecordsV2": "",
-    } for i, group in enumerate(STAGE_GROUPS)])
+    } for i, group in enumerate(group for group in STAGE_GROUPS if group[0] != "AnimalLargeAdult")])
     return profiles, profiles, animals
 
 
