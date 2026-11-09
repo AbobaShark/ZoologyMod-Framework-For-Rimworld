@@ -27,10 +27,9 @@ namespace ZoologyMod
 
         private static bool Prepare()
         {
-            var settings = ZoologyModSettings.Instance;
             return CEChecker.IsCEInstalled() && CECompType != null && CurrentField != null
                 && AccessTools.PropertyGetter(CECompType, "maxDurability") != null
-                && (settings == null || !settings.DisableAllRuntimePatches);
+                && ZoologyAnimalGrowth.Enabled;
         }
 
         private static MethodBase TargetMethod()
@@ -102,10 +101,9 @@ namespace ZoologyMod
 
         private static bool Prepare()
         {
-            var settings = ZoologyModSettings.Instance;
             return CEChecker.IsCEInstalled() && CECompType != null
                 && AccessTools.PropertyGetter(CECompType, "curDurabilityPercent") != null
-                && (settings == null || !settings.DisableAllRuntimePatches);
+                && ZoologyAnimalGrowth.Enabled;
         }
 
         private static MethodBase TargetMethod()
