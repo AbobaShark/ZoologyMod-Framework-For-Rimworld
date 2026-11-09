@@ -37,46 +37,32 @@ between the current and next stage. For each endpoint, divide the authored
 the square root of the interpolated body factor. This is a visual convention,
 not a conversion of kilograms to BodySize.
 
-**Graphic changes are calibrated separately.** Authored drawSize describes
-the full texture quad, including transparent borders. For each PawnKindDef,
-the runtime finds contiguous runs of stages with identical `texPath`.
-A run with no graphic change retains the original interpolation unchanged.
-For a change of texPath, the outgoing and incoming artwork receive a
-per-run **uniform** scale calibration based on their visible alpha footprints.
-When a stage has `femaleGraphicData`, female graphics are calibrated
-independently of the default body art.
-The last/adult run anchors the calculation (scale 1). Earlier artwork
-runs are calibrated backwards. At a switch of texture, the calibration
-compares **each corresponding cardinal facing**, not the median across
-facings. Three independent visible dimensions are evaluated: horizontal
-extent, vertical extent, and the square root of opaque pixel area. The
-smallest of the corresponding new/old dimension ratios is applied when
-below 1; ratios above 1 remain at 1. Thus an outgoing sprite is reduced
-where necessary to avoid an apparent size decrease at the switch. An
-increase in apparent size may still occur when the new art is already
-larger in all measured dimensions. There is no aspect-ratio distortion:
-the correction is a single uniform factor. Two stages with the same
-texture retain the existing growth interpolation and relative sizes,
-although an entire earlier same-art run may share a correction needed
-at its later artwork switch.
+**Different body textures are subject to a direct size limit.** The
+unaltered daily growth formula still calculates the current stage's proposed
+root render scale. If the next stage uses a different texPath, the renderer
+compares the visible pixel bounds of the two sprites for each of the four
+facings. Bounds are converted to world units using the respective
+bodyGraphicData.drawSize. The *already scaled* current artwork is allowed
+to grow only while its visible width and height remain no greater than
+those of the next artwork at its original stage-start size.
 
-The horizontal and vertical extents exclude 1% of cumulative alpha mass
-from each side. Opaque area also responds to thick bodies versus sparse
-silhouettes with long tails or feathers; comparing bounding rectangles
-alone missed this distinction. The alpha measurements are proxies for
-apparent size, not anatomical length. Failure to read the artwork leaves
-the original drawSize-based scaling for that boundary. A texture is
-inspected at most once, cached across pawns and kinds. CPU-readable
-textures are sampled directly; other textures receive a bounded 192x192
-GPU readback. The runtime never rebuilds graphics, modifies textures, or
-performs pixel inspection every tick or day.
+For each view and dimension the maximum permitted uniform multiplier is
+nextVisibleSize / currentVisibleSize. The smallest multiplier (capped at
+1) is applied to both root-scale axes, preserving the artwork's aspect
+ratio. No bounding-box area, silhouette area, median, backward per-stage
+factor propagation or hardcoded species-specific ratios are involved.
+Identical-texPath transitions return the original scale unchanged.
 
-The debug action **Zoology -> Inspect animal life-stage profile** prints
-the per-stage visual factors and each actual texture transition, including
-its measured ratio, applied correction and comparable facings. This
-distinguishes missing alpha data from valid calibration and disabled
-render scaling. The original authored graphics, stage boundaries,
-proportions and biological stats are unchanged.
+The alpha bounding box uses pixels with alpha >= 12/255. CPU-readable
+textures are measured directly; non-readable textures receive a one-time
+256x256 GPU readback. Each texture and kind/sex transition is cached; no
+pixel work is performed during recurring draws or biological-day updates.
+The debug action **Zoology -> Inspect animal life-stage profile** reports
+the current and next sprite's absolute visible widths/heights in world
+units, the original growth scale and the final capped scale. If artwork
+cannot be inspected, original scaling remains active and diagnostics
+explicitly report missing alpha bounds. The original textures, life-stage
+boundaries, biology and authored drawSize values remain unmodified.
 
 Spectrobionta are interpolated between consecutive life stages *within the
 same race*: e.g. small -> medium -> large predimago when those stages exist
@@ -89,8 +75,8 @@ retain vanilla behavior. Actual stage transitions remain discrete.
 ## Performance design
 
 - One per-pawn snapshot is lazily recomputed once per biological day
-  or after a change of current stage/kind. Graphic calibration is resolved
-  once per pawn/day from the shared per-kind cache on its first render.
+  or after a change of current stage/kind. The visible size cap is computed
+  once per pawn/day on demand from cached per-kind texture bounds.
 - Snapshots use weak keys, with no world or map-wide pawn scan, polling
   component, persistent save data, LINQ, or per-tick allocation.
 - Species stage intervals and stat-factor dictionaries are built once
@@ -121,19 +107,14 @@ interactions with external performance mods.
    the following day, and match stage endpoints at transitions.
 4. Specifically exercise tiny baby birds, swine, the Royal megachicken with
    five stages, a large theropod, crocodiles and a Spectrobionta animal.
-   For every graphic transition, compare the last day of the old artwork
-   against the first day of the new, from multiple viewing directions.
-   Confirm that shared-texPath intervals retain their original growth curve.
-   The inspection should report a numeric silhouette ratio and an
-   applied factor at each changed texPath; unavailable measurements are
-   explicitly reported. Confirm that a graphic change never makes its old
-   silhouette larger in any measured width, height or occupied-area diameter.
-   Unusual shapes can still differ in perceived body size.
-   For Spectrobionta, verify daily changes between small, medium and large
-   predimago (where defined) and between larval size stages, without
-   interpolating the cross-race metamorphosis. Verify that stage-gated
-   behaviors and graphics identities do not change before the original
-   stage boundaries.
+   Test the last biological day before a graphic switch and the first day
+   afterward, from North, East, South and West. The current visible width
+   and height must not exceed the new art's visible dimensions in any
+   measured facing. Inspect the diagnostics if a change appears unbounded.
+   Intervals whose texPath is unchanged must keep the original daily
+   interpolation. For Spectrobionta, verify growth within each race without
+   interpolating metamorphosis to another race/PawnKindDef.
+
 5. With and without Combat Extended, compare actual natural attack damage,
    cooldown, both armor penetrations and CE armor durability at young and
    adult stages, and confirm there is no double scaling.
@@ -146,7 +127,7 @@ interactions with external performance mods.
    comparing the same save with and without this runtime feature.
 
 Source locations: `ZoologyAnimalGrowth.cs`,
-`ZoologyAnimalGraphicCalibration.cs`,
+`ZoologyAnimalGraphicBounds.cs`,
 `ZoologyAnimalGrowthStatPart.cs`,
 `Patch_ZoologyAnimalGrowth.cs`, and the existing
 `ZoologyLifeStageProfileInstaller.cs`.
