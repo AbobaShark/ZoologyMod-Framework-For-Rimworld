@@ -23,7 +23,7 @@ def sources(base_size=1):
         "bodySizeFactor": (1, .5, .2)[i],
         "SpeedFactor": (1, .85, .65)[i],
         "CE_SpeedFactor": (1, .9, .62)[i],
-        "FoodMaxFactor": (1, .2, .005)[i],
+        "FoodMaxFactor": 1,
         "StageHealthScaleFactor": (1, .5, .2)[i],
         "CE_ArmorDurabilityFactor": (1, .5, .2)[i],
         "HungerRateFactor": (1, .6, .3)[i],
@@ -259,7 +259,6 @@ class SpeciesLifeStageProfilesTests(unittest.TestCase):
         args[2].at[0, "baseHungerRate"] = baseline
         args[0] = args[0].copy()
         args[0].at[2, "HungerRateFactor"] = .0652173913
-        args[0].at[2, "FoodMaxFactor"] = .00000027314
         args[0].at[2, "StageHealthScaleFactor"] = .00327145
         args[1] = args[0]
         xml, _ = render(*args)
@@ -267,11 +266,24 @@ class SpeciesLifeStageProfilesTests(unittest.TestCase):
                 if node.findtext("sourceStageDefName") == "AnimalBaby"][0]
         self.assertEqual(baby.findtext("hungerRateFactor"), "0.07")
         self.assertEqual(baby.findtext("healthScaleFactor"), "0.0033")
-        self.assertEqual(baby.findtext("foodMaxFactor"), "0.00000027")
+        self.assertEqual(baby.findtext("foodMaxFactor"), "1")
         # The installer checks these against Animals with a 0.001 tolerance:
         # reducing precision here would skip legitimate species.
         self.assertEqual(baby.findtext("expectedBaseBodySize"), "0.0652173913")
         self.assertEqual(baby.findtext("expectedBaseHungerRate"), "0.0652173913")
+
+    def test_food_capacity_requires_neutral_factor(self):
+        args = list(sources())
+        args[0] = args[0].copy()
+        args[0].at[1, "FoodMaxFactor"] = .05
+        args[1] = args[0]
+        with self.assertRaisesRegex(ValueError, "FoodMaxFactor must be 1"):
+            render(*args)
+
+    def test_generated_stages_use_unity_food_capacity(self):
+        xml, _ = render(*sources())
+        for stage in nodes(xml):
+            self.assertEqual(stage.findtext("foodMaxFactor"), "1")
 
     def test_attack_rounding_omits_newly_neutral_factors(self):
         args = with_tools(sources(), [
