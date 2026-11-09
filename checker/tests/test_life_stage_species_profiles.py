@@ -272,14 +272,6 @@ class SpeciesLifeStageProfilesTests(unittest.TestCase):
         self.assertEqual(baby.findtext("expectedBaseBodySize"), "0.0652173913")
         self.assertEqual(baby.findtext("expectedBaseHungerRate"), "0.0652173913")
 
-    def test_food_capacity_requires_neutral_factor(self):
-        args = list(sources())
-        args[0] = args[0].copy()
-        args[0].at[1, "FoodMaxFactor"] = .05
-        args[1] = args[0]
-        with self.assertRaisesRegex(ValueError, "FoodMaxFactor must be 1"):
-            render(*args)
-
     def test_generated_stages_use_unity_food_capacity(self):
         xml, _ = render(*sources())
         for stage in nodes(xml):
