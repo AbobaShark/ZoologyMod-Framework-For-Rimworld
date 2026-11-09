@@ -39,6 +39,7 @@ namespace ZoologyMod
     {
         public Pawn ambushPrey;
         public int ambushPhase, ambushUntil, sprintStart;
+        public float ambushApproachDistance = 1f;
         public bool suppressReaction, revealed;
         public Pawn lastRangedSource;
         public int lastRangedTick = -60000;
@@ -58,6 +59,7 @@ namespace ZoologyMod
             Scribe_References.Look(ref ambushPrey, "ambushPrey");
             Scribe_Values.Look(ref ambushPhase, "ambushPhase");
             Scribe_Values.Look(ref ambushUntil, "ambushUntil");
+            Scribe_Values.Look(ref ambushApproachDistance, "ambushApproachDistance", 1f);
             Scribe_Values.Look(ref sprintStart, "sprintStart");
             Scribe_Values.Look(ref suppressReaction, "suppressReaction");
             Scribe_Values.Look(ref revealed, "ambushRevealed");
@@ -205,20 +207,107 @@ namespace ZoologyMod
             && (pawn.jobs.curDriver is JobDriver_PredatorHunt || pawn.jobs.curDriver is JobDriver_Constrict);
         public static int ChaseLimit(Pawn pawn) => For(pawn) == PredationStrategy.Ambush || For(pawn) == PredationStrategy.WaterAmbush
             ? ZoologyTickLimiter.Pursuit.ChaseTimeoutTicks / 2 : ZoologyTickLimiter.Pursuit.ChaseTimeoutTicks;
-        public static float NoReactionChance(float distance) => Mathf.Clamp01((11f - Mathf.Clamp(distance, 4f, 10f)) / 10f);
+        // A chase is unnecessary when prey is much slower. Otherwise a predator
+        // must approach closely enough to attack before a faster animal can escape.
+        public static float DesiredApproachDistance(Pawn predator, Pawn prey)
+        {
+            float hunterSpeed = AnimalLocomotion.SpeedAt(predator, prey.Position);
+            float preySpeed = AnimalLocomotion.SpeedAt(prey, prey.Position);
+            if (hunterSpeed <= 0f || preySpeed <= 0f) return 0f;
+            if (preySpeed < hunterSpeed * 0.65f) return 0f;
+
+            float approach = Mathf.Clamp(1f + 3f * hunterSpeed / preySpeed, 1f, 6f);
+            if (prey.flight?.CanFlyNow == true || prey.Flying)
+                approach = Mathf.Min(approach, 1.5f);
+
+            // The refuge index is already maintained for fleeing animals. Inspect
+            // nearby candidates once at the start, never on every stalking tick.
+            var index = prey.Map?.GetComponent<AnimalRefugeMapComponent>();
+            if (index != null && AnimalDefense.CanUseShelter(prey))
+            {
+                float nearest = float.MaxValue;
+                bool climber = DefModExtensionCache<ModExtension_TreeClimber>.Has(prey);
+                bool burrower = DefModExtensionCache<ModExtension_Burrower>.Has(prey);
+                if (climber || burrower)
+                    foreach (Thing refuge in index.Nearby(prey.Position, 12))
+                    {
+                        bool usable = (climber && refuge is Plant tree && AnimalDefense.UsableTree(prey, tree))
+                            || (burrower && refuge is Building_AnimalBurrow burrow && burrow.Accepts(prey));
+                        if (!usable) continue;
+                        float distance = (refuge.Position - prey.Position).LengthHorizontal;
+                        if (distance < nearest) nearest = distance;
+                    }
+                if (nearest < float.MaxValue)
+                    approach = Mathf.Min(approach, Mathf.Max(1f, nearest - 1f));
+            }
+            return approach;
+        }
+
+        // At most four path queries, only when starting or replanning a stalk.
+        public static bool TryFindApproachCell(Pawn predator, Pawn prey, float distance, out IntVec3 result)
+        {
+            result = IntVec3.Invalid;
+            if (predator?.Map == null || predator.Map != prey?.Map) return false;
+            var candidates = new List<IntVec3>(8);
+            var scores = new List<float>(8);
+            float currentDistanceSq = (predator.Position - prey.Position).LengthHorizontalSquared;
+            foreach (IntVec3 cell in GenRadial.RadialCellsAround(prey.Position, distance + 2f, false))
+            {
+                float rangeSq = (cell - prey.Position).LengthHorizontalSquared;
+                if (rangeSq < distance * distance || rangeSq > (distance + 1.5f) * (distance + 1.5f)
+                    || !cell.InBounds(prey.Map) || !cell.Standable(prey.Map) || cell.IsForbidden(predator))
+                    continue;
+                float pathEstimate = (cell - predator.Position).LengthHorizontalSquared;
+                if (pathEstimate >= currentDistanceSq && currentDistanceSq > (distance + 2f) * (distance + 2f))
+                    continue;
+                int insert = 0;
+                while (insert < scores.Count && pathEstimate >= scores[insert]) insert++;
+                if (insert >= 8) continue;
+                candidates.Insert(insert, cell);
+                scores.Insert(insert, pathEstimate);
+                if (candidates.Count > 8) { candidates.RemoveAt(8); scores.RemoveAt(8); }
+            }
+            for (int i = 0; i < Mathf.Min(4, candidates.Count); i++)
+                if (predator.CanReach(candidates[i], PathEndMode.OnCell, Danger.Some))
+                {
+                    result = candidates[i];
+                    return true;
+                }
+            return false;
+        }
+
+        // Per-interval hazard, not a per-check fixed chance: longer intervals
+        // preserve the same chance of detection over the same elapsed time.
+        public static bool DetectedWhileStalking(Pawn predator, Pawn prey, int elapsedTicks)
+        {
+            if (prey?.Awake() != true || prey.Downed) return false;
+            float distance = (predator.Position - prey.Position).LengthHorizontal;
+            float size = Mathf.Sqrt(Mathf.Max(0.05f, predator.BodySize));
+            float proximity = Mathf.Lerp(0.25f, 2.5f, Mathf.Clamp01((10f - distance) / 9f));
+            float ectotherm = ZoologyCacheUtility.HasEctothermicExtension(predator.def) ? 0.35f : 1f;
+            float moving = predator.pather?.Moving == true ? 1f : 0.3f;
+            float visibility = GenSight.LineOfSight(predator.Position, prey.Position, predator.Map) ? 1f : 0.2f;
+            float hazard = 0.00015f * size * proximity * ectotherm * moving * visibility;
+            return Rand.Chance(1f - Mathf.Exp(-hazard * Mathf.Max(1, elapsedTicks)));
+        }
+
         public static bool HiddenFrom(Pawn predator, Pawn prey)
         {
             PredationStrategy strategy = For(predator);
             if (strategy != PredationStrategy.Ambush && strategy != PredationStrategy.WaterAmbush) return false;
-            if (predator == null || prey == null || predator.InMentalState || !predator.Spawned || !prey.Spawned) return false;
+            if (predator == null || prey == null || predator.InMentalState || !predator.Spawned || !prey.Spawned
+                || predator.Map != prey.Map) return false;
             if (strategy == PredationStrategy.WaterAmbush) return predator.Position.GetTerrain(predator.Map).IsWater
                 && !prey.Position.GetTerrain(prey.Map).IsWater;
-            if (predator.Position.AdjacentTo8WayOrInside(prey.Position)) return false;
+
             CompAnimalStrategyState state = predator.TryGetComp<CompAnimalStrategyState>();
-            return state?.ambushPrey?.Spawned == true && !state.revealed
-                && state.ambushUntil > GenTicks.TicksGame
-                && ((state.ambushPhase == 1 && predator.jobs.curDriver is JobDriver_AnimalStalk)
-                    || (state.ambushPhase == 2 && state.suppressReaction && IsHunt(predator, state.ambushPrey)));
+            if (state?.ambushPrey != prey || state.revealed || state.ambushUntil <= GenTicks.TicksGame)
+                return false;
+            // Preserve concealment across the stalk-to-hunt job boundary. The
+            // successful approach remains undetected until the first hit.
+            return (state.ambushPhase == 1 && predator.jobs.curDriver is JobDriver_AnimalStalk)
+                || (state.ambushPhase == 2 && state.suppressReaction
+                    && (predator.jobs.curDriver is JobDriver_AnimalStalk || IsHunt(predator, prey)));
         }
         public static bool IsFleeing(Job job) => job?.def == JobDefOf.Flee || job?.def.defName == "Zoology_EnvironmentFlee";
         public static bool HopelessPursuit(Pawn predator, Pawn prey)
@@ -277,40 +366,41 @@ namespace ZoologyMod
         {
             if (newJob?.def != JobDefOf.PredatorHunt || !(newJob.targetA.Thing is Pawn prey)
                 || AnimalHuntStrategy.For(___pawn) != PredationStrategy.Ambush) return;
+            if (ZoologyPursuitGameComponent.Instance?.IsPairBlockedNow(___pawn, prey) == true) return;
             CompAnimalStrategyState state = ___pawn.TryGetComp<CompAnimalStrategyState>();
             if (state == null || (state.ambushPrey == prey && state.ambushUntil > GenTicks.TicksGame)) return;
+
+            float distance = AnimalHuntStrategy.DesiredApproachDistance(___pawn, prey);
+            if (distance <= 0f) return; // A much slower prey needs no stalking.
             state.ambushPrey = prey;
-            state.ambushPhase = 2; // Failed approaches continue ordinary hunting, without repeated rerolls.
-            state.ambushUntil = GenTicks.TicksGame + 5000;
+            state.ambushPhase = 2;
+            state.ambushUntil = GenTicks.TicksGame + 10000;
             state.suppressReaction = false;
             state.revealed = false;
-            List<IntVec3> cells = new List<IntVec3>();
-            foreach (IntVec3 c in GenRadial.RadialCellsAround(prey.Position, 10f, false))
-                if ((c - prey.Position).LengthHorizontalSquared >= 16 && c.InBounds(prey.Map) && c.Standable(prey.Map)
-                    && !c.IsForbidden(___pawn) && (c - ___pawn.Position).LengthHorizontalSquared < (prey.Position - ___pawn.Position).LengthHorizontalSquared)
-                    cells.Add(c);
-            cells.Shuffle();
-            for (int i = 0; i < Math.Min(cells.Count, 8); i++)
-                if (___pawn.CanReach(cells[i], PathEndMode.OnCell, Danger.Some))
-                {
-                    state.ambushPhase = 1;
-                    newJob = JobMaker.MakeJob(DefDatabase<JobDef>.GetNamed("Zoology_AnimalStalk"), prey, cells[i]);
-                    newJob.locomotionUrgency = LocomotionUrgency.Amble;
-                    break;
-                }
+            state.ambushApproachDistance = distance;
+
+            if (___pawn.Position.InHorDistOf(prey.Position, distance))
+            {
+                state.suppressReaction = true;
+                state.ambushUntil = GenTicks.TicksGame + AnimalHuntStrategy.ChaseLimit(___pawn);
+                return;
+            }
+            if (!AnimalHuntStrategy.TryFindApproachCell(___pawn, prey, distance, out IntVec3 cell))
+                return;
+            state.ambushPhase = 1;
+            newJob = JobMaker.MakeJob(DefDatabase<JobDef>.GetNamed("Zoology_AnimalStalk"), prey, cell);
+            newJob.locomotionUrgency = LocomotionUrgency.Amble;
         }
+
         static void Postfix(Pawn ___pawn)
         {
             var state = ___pawn?.TryGetComp<CompAnimalStrategyState>();
-            if (state != null)
+            if (state != null && AnimalHuntStrategy.IsFleeing(___pawn.CurJob))
             {
-                if (AnimalHuntStrategy.IsFleeing(___pawn.CurJob))
-                {
-                    Pawn source = ___pawn.CurJob.targetB.Pawn;
-                    if (state.fleeingSince < 0 || state.fleeThreat != source || GenTicks.TicksGame - state.fleeingSince >= 3000)
-                        state.fleeingSince = GenTicks.TicksGame;
-                    state.fleeThreat = source;
-                }
+                Pawn source = ___pawn.CurJob.targetB.Pawn;
+                if (state.fleeingSince < 0 || state.fleeThreat != source || GenTicks.TicksGame - state.fleeingSince >= 3000)
+                    state.fleeingSince = GenTicks.TicksGame;
+                state.fleeThreat = source;
             }
             if (___pawn?.CurJob?.def == JobDefOf.PredatorHunt && AnimalHuntStrategy.For(___pawn) != PredationStrategy.No
                 && ___pawn.flight?.CanFlyNow == true) ___pawn.flight.StartFlying();
@@ -319,31 +409,95 @@ namespace ZoologyMod
 
     public class JobDriver_AnimalStalk : JobDriver
     {
+        private int nextCheckTick;
+        private int lastCheckTick;
+        private int nextRepathTick;
+        private IntVec3 lastPreyPosition = IntVec3.Invalid;
+
         public override bool TryMakePreToilReservations(bool errorOnFailed) => true;
+
         protected override IEnumerable<Toil> MakeNewToils()
         {
             this.FailOnDespawnedOrNull(TargetIndex.A);
-            this.FailOn(() => TargetA.Pawn.Dead || pawn.Downed || pawn.InMentalState
-                || (TargetA.Cell - TargetB.Cell).LengthHorizontalSquared > 100
-                || (TargetA.Cell - TargetB.Cell).LengthHorizontalSquared < 16
-                || pawn.TryGetComp<CompAnimalStrategyState>().revealed || AnimalDefense.IsInTree(TargetA.Pawn));
-            yield return Toils_Goto.GotoCell(TargetIndex.B, PathEndMode.OnCell);
-            yield return Toils_General.Do(() =>
+            this.FailOn(() => pawn.Downed || pawn.InMentalState || TargetA.Pawn.Dead
+                || AnimalDefense.IsInTree(TargetA.Pawn));
+            Toil stalk = new Toil { defaultCompleteMode = ToilCompleteMode.Never };
+            stalk.initAction = () =>
             {
-                var state = pawn.TryGetComp<CompAnimalStrategyState>();
-                state.ambushPhase = 2;
-                state.sprintStart = GenTicks.TicksGame;
-                state.ambushUntil = GenTicks.TicksGame + AnimalHuntStrategy.ChaseLimit(pawn);
-                state.suppressReaction = Rand.Chance(AnimalHuntStrategy.NoReactionChance((pawn.Position - TargetA.Cell).LengthHorizontal));
-                Job hunt = JobMaker.MakeJob(JobDefOf.PredatorHunt, TargetA);
-                pawn.jobs.jobQueue.EnqueueFirst(hunt);
-            });
+                lastPreyPosition = TargetA.Pawn.Position;
+                lastCheckTick = GenTicks.TicksGame;
+                nextCheckTick = lastCheckTick;
+                nextRepathTick = lastCheckTick + 300;
+                if (TargetB.Cell.IsValid && TargetB.Cell != pawn.Position)
+                    pawn.pather.StartPath(TargetB.Cell, PathEndMode.OnCell);
+            };
+            stalk.tickAction = () =>
+            {
+                int now = GenTicks.TicksGame;
+                if (now < nextCheckTick) return;
+                int elapsed = Mathf.Max(1, now - lastCheckTick);
+                lastCheckTick = now;
+                nextCheckTick = now + 120;
+
+                Pawn prey = TargetA.Pawn;
+                CompAnimalStrategyState state = pawn.TryGetComp<CompAnimalStrategyState>();
+                if (prey?.Spawned != true || state == null || state.ambushPrey != prey
+                    || state.revealed || now >= state.ambushUntil)
+                {
+                    FailAmbush(prey);
+                    return;
+                }
+                if (pawn.Position.InHorDistOf(prey.Position, Mathf.Max(1f, state.ambushApproachDistance)))
+                {
+                    state.ambushPhase = 2;
+                    state.suppressReaction = true;
+                    state.ambushUntil = now + AnimalHuntStrategy.ChaseLimit(pawn);
+                    pawn.jobs.jobQueue.EnqueueFirst(JobMaker.MakeJob(JobDefOf.PredatorHunt, prey));
+                    EndJobWith(JobCondition.Succeeded);
+                    return;
+                }
+                if (AnimalHuntStrategy.DetectedWhileStalking(pawn, prey, elapsed))
+                {
+                    FailAmbush(prey);
+                    return;
+                }
+                if (now < nextRepathTick) return;
+                bool preyMoved = (prey.Position - lastPreyPosition).LengthHorizontalSquared >= 4;
+                if (!preyMoved && pawn.pather.Moving) return;
+                nextRepathTick = now + 300;
+                if (!AnimalHuntStrategy.TryFindApproachCell(pawn, prey,
+                    Mathf.Max(1f, state.ambushApproachDistance), out IntVec3 cell))
+                {
+                    FailAmbush(prey);
+                    return;
+                }
+                lastPreyPosition = prey.Position;
+                job.targetB = cell;
+                if (cell != pawn.Position)
+                    pawn.pather.StartPath(cell, PathEndMode.OnCell);
+            };
+            yield return stalk;
         }
+
+        private void FailAmbush(Pawn prey)
+        {
+            var state = pawn.TryGetComp<CompAnimalStrategyState>();
+            if (state != null)
+            {
+                state.revealed = true;
+                state.suppressReaction = false;
+                state.ambushPhase = 0;
+                state.ambushUntil = 0;
+            }
+            if (prey?.Spawned == true && prey.Map == pawn.Map)
+                ZoologyPursuitGameComponent.Instance?.BlockPursuit(pawn, prey);
+            EndJobWith(JobCondition.Incompletable);
+        }
+
         public override void Notify_DamageTaken(DamageInfo dinfo)
         {
             base.Notify_DamageTaken(dinfo);
-            pawn.TryGetComp<CompAnimalStrategyState>().revealed = true;
-            EndJobWith(JobCondition.InterruptForced);
+            FailAmbush(TargetA.Pawn);
         }
     }
 }
