@@ -8,14 +8,6 @@ namespace ZoologyMod
     // hatchlings (including pterosaurs) retain the normal flight mechanics.
     public sealed class ModExtension_FlightDevelopment : DefModExtension { }
 
-    // A species-specific LifeStageProfiles CanFly value takes precedence over
-    // the race-level hatchling default. An explicit true never grants flight
-    // to a race that cannot otherwise fly.
-    public sealed class ZoologyLifeStageFlightOverride : DefModExtension
-    {
-        public bool canFly;
-    }
-
     internal static class AnimalFlightDevelopment
     {
         private static readonly AccessTools.FieldRef<Pawn_FlightTracker, Pawn> PawnField =
@@ -28,9 +20,11 @@ namespace ZoologyMod
             LifeStageDef stage = pawn.ageTracker?.CurLifeStage;
             if (stage == null) return true;
 
-            ZoologyLifeStageFlightOverride specialized =
-                stage.GetModExtension<ZoologyLifeStageFlightOverride>();
-            if (specialized != null) return specialized.canFly;
+            // A species-specific LifeStageProfiles rule takes precedence over
+            // the race-level hatchling default. True only removes the Zoology
+            // restriction; it never creates a flight ability.
+            if (ZoologyLifeStageProfileInstaller.TryGetFlightRule(pawn, out bool allowed))
+                return allowed;
             return !DefModExtensionCache<ModExtension_FlightDevelopment>.Has(pawn)
                 || !AnimalLifeStageUtility.IsAnimalInfantLifeStage(stage);
         }
