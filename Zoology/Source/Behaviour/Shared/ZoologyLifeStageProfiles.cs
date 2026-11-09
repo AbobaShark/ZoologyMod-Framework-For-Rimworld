@@ -16,6 +16,8 @@ namespace ZoologyMod
     {
         public string animalDefName;
         public string sourceStageDefName;
+        // An additional reproductive age, in RimWorld biological years, evaluated in AnimalStats.
+        public float minAgeYears = -1f;
         public float expectedBaseBodySize = -1f;
         public float expectedBaseHungerRate = -1f;
         public float bodySizeFactor = -1f;
