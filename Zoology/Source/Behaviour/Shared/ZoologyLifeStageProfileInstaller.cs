@@ -36,6 +36,11 @@ namespace ZoologyMod
         // Preserve the unmodified race age definitions so disabling the
         // growth feature also disables the generated stage stat modifiers.
         // Age thresholds and ordering do not change across toggles.
+        // The vanilla stat-factor pipeline multiplies by zero before our
+        // StatPart can interpolate it. Keep an installed neutral factor of one
+        // for these stages, and apply the intended zero in the StatPart.
+        private static readonly Dictionary<LifeStageDef, HashSet<StatDef>> ZeroStageStatFactors =
+            new Dictionary<LifeStageDef, HashSet<StatDef>>();
         private static readonly Dictionary<ThingDef, List<LifeStageAge>> OriginalRaceStages =
             new Dictionary<ThingDef, List<LifeStageAge>>();
         private static readonly Dictionary<ThingDef, List<LifeStageAge>> GeneratedRaceStages =
@@ -144,6 +149,20 @@ namespace ZoologyMod
         // LifeStageDef fields (bodySizeFactor, healthScaleFactor,
         // foodMaxFactor, hungerRateFactor and statFactors), which a Harmony
         // postfix alone cannot suppress.
+        internal static bool HasZeroStatFactor(LifeStageDef stage, StatDef stat)
+        {
+            HashSet<StatDef> zeroStats;
+            return stage != null && stat != null
+                && ZeroStageStatFactors.TryGetValue(stage, out zeroStats)
+                && zeroStats.Contains(stat);
+        }
+
+        internal static void AddZeroStatFactors(HashSet<StatDef> destination)
+        {
+            foreach (var entry in ZeroStageStatFactors)
+                destination.UnionWith(entry.Value);
+        }
+
         internal static void SyncProfileStages(bool enabled)
         {
             if (!applied || GeneratedRaceStages.Count == 0
@@ -407,6 +426,7 @@ namespace ZoologyMod
             }
 
             bool hasCe = CEChecker.IsCEInstalled();
+            var zeroFactors = new HashSet<StatDef>();
             if (profile.statFactors != null)
             {
                 foreach (var entry in profile.statFactors)
@@ -433,19 +453,29 @@ namespace ZoologyMod
                         }
                     }
 
+                    // An installed zero would annihilate the stat before a
+                    // StatPart can interpolate it to a nonzero next stage.
+                    // Store the authored zero separately and let the StatPart
+                    // reproduce it exactly (including at the stage boundary).
+                    bool zero = entry.factor == 0f;
+                    if (zero)
+                        zeroFactors.Add(stat);
+                    float installed = zero ? 1f : entry.factor;
                     float oldValue = existing?.value ?? 1f;
-                    if (Math.Abs(oldValue - entry.factor) < 0.000001f)
+                    if (Math.Abs(oldValue - installed) < 0.000001f)
                     {
+                        if (zero)
+                            changed = true;
                         continue;
                     }
 
                     if (existing != null)
                     {
-                        existing.value = entry.factor;
+                        existing.value = installed;
                     }
                     else
                     {
-                        replacement.statFactors.Add(new StatModifier { stat = stat, value = entry.factor });
+                        replacement.statFactors.Add(new StatModifier { stat = stat, value = installed });
                     }
                     changed = true;
                 }
@@ -587,6 +617,8 @@ namespace ZoologyMod
                 return false;
             }
             DefDatabase<LifeStageDef>.Add(replacement);
+            if (zeroFactors.Count > 0)
+                ZeroStageStatFactors.Add(replacement, zeroFactors);
             if (!OriginalRaceStages.ContainsKey(animal))
                 OriginalRaceStages.Add(animal, ages);
             animal.race.lifeStageAges = copiedAges;
