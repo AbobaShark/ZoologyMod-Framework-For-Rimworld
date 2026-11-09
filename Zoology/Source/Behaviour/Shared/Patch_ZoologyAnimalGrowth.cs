@@ -16,7 +16,8 @@ namespace ZoologyMod
         {
             // Preserve vanilla, gene, hediff and other-mod modifiers on the
             // original result. Only replace the already applied stage factor.
-            __result *= ZoologyAnimalGrowth.BodyRatio(__instance);
+            __result *= ZoologyAnimalGrowth.BodyRatio(__instance)
+                * ZoologySexSizeMechanics.BodyRatio(__instance);
         }
     }
 
@@ -27,7 +28,8 @@ namespace ZoologyMod
 
         private static void Postfix(Pawn __instance, ref float __result)
         {
-            __result *= ZoologyAnimalGrowth.HealthRatio(__instance);
+            __result *= ZoologyAnimalGrowth.HealthRatio(__instance)
+                * ZoologySexSizeMechanics.HealthRatio(__instance);
         }
     }
 
@@ -57,7 +59,8 @@ namespace ZoologyMod
 
             Pawn pawn = NeedPawnRef(__instance);
             if (pawn != null)
-                __result *= ZoologyAnimalGrowth.HungerRatio(pawn);
+                __result *= ZoologyAnimalGrowth.HungerRatio(pawn)
+                    * ZoologySexSizeMechanics.HungerRatio(pawn);
         }
     }
 
@@ -96,7 +99,8 @@ namespace ZoologyMod
                 return;
             // Return before reflection for every adult, unsupported animal or
             // day with native scale. Only growing animals pay the render cost.
-            Vector2 scale = ZoologyAnimalGrowth.DrawRatio(pawn);
+            Vector2 scale = ZoologyAnimalGrowth.DrawRatio(pawn)
+                * ZoologySexSizeMechanics.DrawRatio(pawn);
             if (Mathf.Abs(scale.x - 1f) < 0.000001f
                 && Mathf.Abs(scale.y - 1f) < 0.000001f)
                 return;
