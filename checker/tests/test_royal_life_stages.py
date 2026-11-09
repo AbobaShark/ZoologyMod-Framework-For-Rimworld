@@ -21,7 +21,7 @@ class RoyalLifeStageTests(unittest.TestCase):
             "bodySizeFactor":factor,
             "StageHealthScaleFactor":factor,
             "HungerRateFactor":factor,
-            "FoodMaxFactor":mass/25,
+            "FoodMaxFactor":1,
             "SpeedFactor":factor,
             "CE_SpeedFactor":factor,
             "CombatPowerFactor":factor,
@@ -39,6 +39,7 @@ class RoyalLifeStageTests(unittest.TestCase):
         self.assertEqual(diagnostic["species_rows_ready"],5)
         self.assertEqual([x.findtext("sourceStageDefName") for x in stages],[s[0] for s in ROYAL_STAGES])
         self.assertEqual([float(x.findtext("bodySizeFactor")) for x in stages],list(factors))
+        self.assertTrue(all(x.findtext("foodMaxFactor") == "1" for x in stages))
         self.assertEqual(root.xpath(".//expectedBodySizeFactor"),[])
 
 if __name__ == "__main__":
