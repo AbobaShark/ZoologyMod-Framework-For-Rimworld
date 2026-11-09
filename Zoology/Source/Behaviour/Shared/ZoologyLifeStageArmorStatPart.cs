@@ -62,7 +62,7 @@ namespace ZoologyMod
         public override void TransformValue(StatRequest req, ref float val)
         {
             var pawn = req.Thing as Pawn;
-            if (pawn?.RaceProps?.Animal != true)
+            if (pawn?.RaceProps?.Animal != true || !ZoologyAnimalGrowth.Enabled)
             {
                 return;
             }
@@ -81,7 +81,7 @@ namespace ZoologyMod
         public override string ExplanationPart(StatRequest req)
         {
             var pawn = req.Thing as Pawn;
-            if (pawn?.RaceProps?.Animal != true)
+            if (pawn?.RaceProps?.Animal != true || !ZoologyAnimalGrowth.Enabled)
             {
                 return null;
             }
