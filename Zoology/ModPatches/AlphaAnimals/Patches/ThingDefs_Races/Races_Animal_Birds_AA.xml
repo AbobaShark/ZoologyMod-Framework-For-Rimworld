@@ -1367,8 +1367,16 @@
       <lifeExpectancy>40</lifeExpectancy>
     </value>
   </Operation>
-  <Operation Class="PatchOperationRemove">
+  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_FrostAve"]/race/gestationPeriodDays</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName = "AA_FrostAve"]/race/gestationPeriodDays</xpath>
+      <value><gestationPeriodDays>6.66</gestationPeriodDays></value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName = "AA_FrostAve"]/race</xpath>
+      <value><gestationPeriodDays>6.66</gestationPeriodDays></value>
+    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_FrostAve"]/race/herdMigrationAllowed</xpath>
