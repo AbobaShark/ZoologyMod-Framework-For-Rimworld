@@ -256,7 +256,14 @@ namespace ZoologyMod
         internal static string Tooltip(Pawn pawn)
         {
             float extra = ExtraPerDay(pawn);
-            return extra > 0f ? "Zoology_ReproductionExtraNutrition".Translate(extra.ToString("0.###")).ToString() : "";
+            if (extra <= 0f || pawn?.ageTracker == null) return "";
+            float baseline = 1.6f * pawn.RaceProps.baseHungerRate * pawn.ageTracker.CurLifeStage.hungerRateFactor;
+            if (ZoologyAnimalGrowth.Enabled || ZoologySexAdultProfiles.Enabled)
+                baseline *= ZoologyAnimalGrowth.HungerRatio(pawn);
+            baseline *= AnimalWinterDormancy.BasalHungerFactor(pawn);
+            if (baseline <= 0f) return "";
+            return "Zoology_ReproductionExtraNutrition".Translate(
+                (100f * extra / baseline).ToString("0.#"), extra.ToString("0.###")).ToString();
         }
     }
 
