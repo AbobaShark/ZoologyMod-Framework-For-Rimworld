@@ -495,12 +495,16 @@ def read_table(source_path: str, sheet_name: Optional[str] = None) -> pd.DataFra
 
 
 def generate_litter_curve(mean_litter: float) -> Optional[List[Tuple[float, float]]]:
-    if mean_litter is None or mean_litter <= 1:
+    if mean_litter is None or mean_litter < 1:
         return None
-    template_points = [(0.5, 0), (1, 0.2), (2, 1), (3, 1), (4, 0.2), (4.5, 0)]
-    original_mean = 2.5
-    scale = mean_litter / original_mean
-    return [(x * scale, y) for x, y in template_points]
+    # A symmetric density around the evaluated mean, with no support
+    # below the rounding boundary for a single offspring.
+    if mean_litter == 1:
+        return [(0.5, 0), (1, 1), (1.5, 0)]
+    width = min(0.8 * mean_litter, mean_litter - 0.5)
+    template_points = [(-1, 0), (-0.75, 0.2), (-0.25, 1),
+                       (0.25, 1), (0.75, 0.2), (1, 0)]
+    return [(mean_litter + x * width, y) for x, y in template_points]
 
 
 def add_litter_curve(parent_el: LET._Element, mean_litter: float):
@@ -1669,7 +1673,7 @@ def build_thingdef_from_row(
             ma = try_parse_number(p[1])
             if mi is not None and ma is not None:
                 mean = (mi + ma) / 2.0
-        if mean is not None and mean > 1:
+        if mean is not None and mean >= 1:
             add_litter_curve(race, mean)
 
     trade_tags = split_and_strip(get_row_value(row, "TradeTags"))
@@ -2135,7 +2139,7 @@ def update_thingdef_inplace(
     elif litter is not None and str(litter).strip() != "":
         mean = _parse_litter_mean(litter)
         _remove_from_container(race, "litterSizeCurve")
-        if mean is not None and mean > 1:
+        if mean is not None and mean >= 1:
             add_litter_curve(race, mean)
 
     trade_raw = get_row_value(row, "TradeTags")

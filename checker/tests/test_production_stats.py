@@ -12,9 +12,9 @@ from core.xml_routing import plan
 
 def _tables():
     egg=pd.DataFrame([
-        {'F':'<li>Ostrich</li>','C':'7','D':'18.81533101','E':'6~12',
-         'K':'Cow','N':'22','P':'Dromedary','T':'9'},
-        {'F':'<li>AEXP_Crocodile</li>','C':'17','D':'60','E':'35~65'},
+        {'Def name':'<li>Ostrich</li>','hatcherDaystoHatch':'7','eggLayIntervalDays':'18.81533101','eggCountRange':'6~12',
+         'Milk animal':'Cow','Milk yield':'22','Wool animal':'Dromedary','Wool yield per day':'9'},
+        {'Def name':'<li>AEXP_Crocodile</li>','hatcherDaystoHatch':'17','eggLayIntervalDays':'60','eggCountRange':'35~65'},
     ])
     animals=pd.DataFrame([
         {'XML name':'<li>Ostrich</li>','Common name':'Ostrich'},
@@ -72,6 +72,26 @@ class ReproductiveValuesTests(unittest.TestCase):
         self.assertEqual(tree.findtext('.//eggCountRange'),'6~12')
         self.assertFalse(warnings)
 
+    def test_direct_grouped_replacements_resolve_per_species(self):
+        tree = _tree('''<Patch><Operation Class="PatchOperationReplace">
+        <xpath>/Defs/ThingDef[defName="Ostrich" or defName="AEXP_Crocodile"]/comps/li[@Class="CompProperties_EggLayer"]/eggCountRange</xpath>
+        <value><eggCountRange>1~2</eggCountRange></value>
+        </Operation></Patch>''')
+        changes, warnings, touched = refresh_tree(tree, _tables())
+        self.assertEqual([x['new'] for x in changes], ['6~12', '35~65'])
+        self.assertEqual(tree.xpath('//Operation/value/eggCountRange/text()'), ['6~12', '35~65'])
+        self.assertFalse(warnings)
+        self.assertEqual(len(touched), 2)
+
+    def test_direct_single_replacement(self):
+        tree = _tree('''<Patch><Operation Class="PatchOperationReplace">
+        <xpath>/Defs/ThingDef[defName="Ostrich"]/comps/li[@Class="CompProperties_EggLayer"]/eggCountRange</xpath>
+        <value><eggCountRange>10~15</eggCountRange></value>
+        </Operation></Patch>''')
+        changes, warnings, _ = refresh_tree(tree, _tables())
+        self.assertEqual(changes[0]['new'], '6~12')
+        self.assertFalse(warnings)
+
     def test_hatcher_egg_name_resolution_uses_exact_normalized_def(self):
         self.assertEqual(_hatcher_animal('AEXP_EggCrocodileFertilized',{'AEXP_Crocodile':{}}),'AEXP_Crocodile')
         self.assertEqual(_hatcher_animal('EggAEXP_RockhopperPenguinFertilized',{'AEXP_RockhopperPenguin':{}}),'AEXP_RockhopperPenguin')
@@ -104,8 +124,8 @@ class ReproductiveValuesTests(unittest.TestCase):
 
     def test_half_item_wool_and_milk_yields_serialize_as_int32(self):
         tables = _tables()
-        tables["EggMilk"].loc[0, "T"] = "8.5"
-        tables["EggMilk"].loc[0, "N"] = "8.5"
+        tables["EggMilk"].loc[0, "Wool yield per day"] = "8.5"
+        tables["EggMilk"].loc[0, "Milk yield"] = "8.5"
         source = '''<Patch>
           <Operation Class="PatchOperationConditional">
             <xpath>/Defs/ThingDef[defName="Dromedary"]/comps/li[Class="CompProperties_Shearable"]</xpath>
@@ -146,11 +166,43 @@ class ReproductiveValuesTests(unittest.TestCase):
                 w=csv.writer(f,delimiter='\t');w.writerow(headers)
                 w.writerow(['Ostrich','',7,'18.81533101','6~12','<li>Ostrich</li>']+['']*15)
             frame=pd_egg_map(_read_repro(path,'EggMilkWool'))
-            self.assertEqual(frame.iloc[0]['D'],'18.81533101')
-            self.assertEqual(frame.iloc[0]['F'],'<li>Ostrich</li>')
+            self.assertEqual(frame.iloc[0]['eggLayIntervalDays'],'18.81533101')
+            self.assertEqual(frame.iloc[0]['Def name'],'<li>Ostrich</li>')
+
+    def test_relocated_production_sections_ignore_extra_columns(self):
+        headers = [
+            'Name', 'Species', 'hatcherDaystoHatch', 'eggLayIntervalDays',
+            'eggCountRange', 'Def name', 'Incubation time real life (days)',
+            'Eggs/year', 'Clutch size', 'Nutrition (per ovum)',
+            'Formation cost / clutch (N)', 'Gravid extra feed (N/d)', '',
+            'Name', 'Food consumption (Nutrition/day)', 'Milk fraction', 'Milk yield', '',
+            'Name', 'Food consumption (Nutrition/day)', 'Wool type', 'Wool fraction',
+            'Wool yield per day', 'Wool yield per 10 days',
+        ]
+        values = ['Ostrich', '', 7, 18.81533101, '2~3', '<li>Ostrich</li>',
+                  45, 28.7, 9, 2.29, 5.73, 0.61, '',
+                  'Cow', 1.68, 0.55, 18, '',
+                  'Dromedary', 1.68, 'Wool_Camel', 0.25, 8.5, 85]
+        frame = pd.DataFrame([values], columns=headers)
+        expected = pd_egg_map(frame).iloc[0].to_dict()
+        self.assertEqual(expected['eggCountRange'], '2~3')
+        self.assertEqual(expected['Milk animal'], 'Cow')
+        self.assertEqual(expected['Milk yield'], 18)
+        self.assertEqual(expected['Wool animal'], 'Dromedary')
+        self.assertEqual(expected['Wool yield per day'], 8.5)
+        # Moving complete blocks, or adding columns between blocks, is safe.
+        moved = frame.iloc[:, list(range(18, 24)) + [17] + list(range(13, 17)) + [12] + list(range(12))]
+        self.assertEqual(pd_egg_map(moved).iloc[0].to_dict(), expected)
+
+    def test_missing_production_header_is_rejected(self):
+        headers = ['Name', 'Species', 'hatcherDaystoHatch', 'eggLayIntervalDays',
+                   'eggCountRange', 'Def name', 'Incubation time real life (days)',
+                   'Eggs/year', 'Clutch size']
+        with self.assertRaisesRegex(ValueError, 'unambiguous'):
+            pd_egg_map(pd.DataFrame(columns=headers))
 
     def test_formula_error_prevents_invalid_xml_export(self):
-        tables=_tables();tables['EggMilk'].loc[0,'D']='#ERROR!'
+        tables=_tables();tables['EggMilk'].loc[0,'eggLayIntervalDays']='#ERROR!'
         tree=_tree('''<Patch><Operation><xpath>/Defs/ThingDef[defName="Ostrich"]/comps/li[@Class="CompProperties_EggLayer"]/eggLayIntervalDays</xpath>
         <match><value><eggLayIntervalDays>15.6</eggLayIntervalDays></value></match></Operation></Patch>''')
         with self.assertRaisesRegex(ValueError,'Formula error'):
