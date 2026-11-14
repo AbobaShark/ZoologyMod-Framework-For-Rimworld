@@ -107,7 +107,12 @@ namespace ZoologyMod
                 return baseHunger;
             float growth = ZoologyAnimalGrowth.Enabled || ZoologySexAdultProfiles.Enabled
                 ? ZoologyAnimalGrowth.HungerRatio(pawn) : 1f;
-            return baseHunger * growth * AnimalWinterDormancy.BasalHungerFactor(pawn);
+            float result = baseHunger * growth * AnimalWinterDormancy.BasalHungerFactor(pawn);
+            float extra = ZoologyReproductiveEnergetics.ExtraPerDay(pawn);
+            if (extra <= 0f) return result;
+            float dailyBaseline = 1.6f * pawn.RaceProps.baseHungerRate
+                * pawn.ageTracker.CurLifeStage.hungerRateFactor;
+            return dailyBaseline > 0f ? result + baseHunger * extra / dailyBaseline : result;
         }
     }
 

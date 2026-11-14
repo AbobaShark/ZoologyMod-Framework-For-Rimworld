@@ -212,6 +212,9 @@ namespace ZoologyMod
         private int initialTadpoles = -1;
         private int frogletTarget = -1;
         private int frogletsReleased;
+        private int recruitmentTarget = -1;
+        private int biologicalMetamorphsReleased = -1;
+        private const int BiologicalMetamorphsPerPawn = 100;
 
         private CompProperties_Tadpole Props => (CompProperties_Tadpole)props;
         internal ThingDef ParentRace => Props.pawnKind?.race;
@@ -271,7 +274,8 @@ namespace ZoologyMod
                 int surviving = Mathf.Max(frogletTarget,
                     initialTadpoles - Mathf.RoundToInt(
                         (initialTadpoles - frogletTarget) * Mathf.Clamp01(progress)));
-                return Mathf.Max(0, surviving - frogletsReleased);
+                int releasedBiological = biologicalMetamorphsReleased < 0 ? frogletsReleased : biologicalMetamorphsReleased;
+                return Mathf.Max(0, surviving - releasedBiological);
             }
         }
 
@@ -283,6 +287,8 @@ namespace ZoologyMod
             Scribe_Values.Look(ref initialTadpoles, "zoologyTadpoleInitialCohort", -1);
             Scribe_Values.Look(ref frogletTarget, "zoologyTadpoleFrogletTarget", -1);
             Scribe_Values.Look(ref frogletsReleased, "zoologyTadpoleFrogletsReleased");
+            Scribe_Values.Look(ref recruitmentTarget, "zoologyTadpoleRecruitmentTarget", -1);
+            Scribe_Values.Look(ref biologicalMetamorphsReleased, "zoologyTadpoleBiologicalReleased", -1);
             Scribe_References.Look(ref mother, "zoologyTadpoleMother");
             Scribe_References.Look(ref father, "zoologyTadpoleFather");
             Scribe_References.Look(ref faction, "zoologyTadpoleFaction");
@@ -357,7 +363,13 @@ namespace ZoologyMod
         private void ReleaseOneFroglet()
         {
             if (Props.pawnKind == null) return;
-            if (frogletsReleased >= frogletTarget || WildSpeciesAtCapacity(parent.Map))
+            if (recruitmentTarget < 0)
+            {
+                if (biologicalMetamorphsReleased < 0) biologicalMetamorphsReleased = frogletsReleased;
+                int remaining = Math.Max(0, frogletTarget - biologicalMetamorphsReleased);
+                recruitmentTarget = frogletsReleased + GenMath.RoundRandom(remaining / (float)BiologicalMetamorphsPerPawn);
+            }
+            if (frogletsReleased >= recruitmentTarget || WildSpeciesAtCapacity(parent.Map))
             {
                 parent.Destroy(DestroyMode.Vanish);
                 return;
@@ -374,7 +386,8 @@ namespace ZoologyMod
             if (father != null && father != mother && frog.RaceProps.IsFlesh)
                 frog.relations.AddDirectRelation(PawnRelationDefOf.Parent, father);
             frogletsReleased++;
-            if (frogletsReleased >= frogletTarget)
+            biologicalMetamorphsReleased = Math.Min(frogletTarget, biologicalMetamorphsReleased + BiologicalMetamorphsPerPawn);
+            if (frogletsReleased >= recruitmentTarget)
                 parent.Destroy(DestroyMode.Vanish);
         }
 

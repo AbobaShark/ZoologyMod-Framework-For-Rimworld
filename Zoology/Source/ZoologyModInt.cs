@@ -36,6 +36,7 @@ namespace ZoologyMod
                 Settings?.ApplyRuntimeDefOverrides();
                 ZoologyLifeStageProfileInstaller.ApplyOnce();
                 ZoologySexAdultProfiles.Install();
+                ZoologyReproductiveEnergetics.Install();
 #if RIMWORLD17
                 AnimalBarnWorkPriority.MatchVanillaPens();
 #endif
@@ -79,6 +80,7 @@ namespace ZoologyMod
             ZoologyLifeStageProfileInstaller.SyncProfileStages(
                 ZoologyAnimalGrowth.Enabled);
             ZoologySexAdultProfiles.SyncGraphics(ZoologySexAdultProfiles.Enabled);
+            ZoologyReproductiveEnergetics.SyncSettings();
 
             PetPlayUtility.SyncJoyGiverDefAvailability(settings);
             CompAnimalPouch.ReleaseDisabledCaravanPouches();

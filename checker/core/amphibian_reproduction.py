@@ -321,6 +321,7 @@ def render_roe_defs(xml_tree, species):
                 _neutralize_cloned_color(node)
             _set(node, 'defName', name)
             if phase == 'tadpole':
+                _set(node, 'thingClass', 'ZoologyMod.Thing_ColossusToadTadpoles' if race == 'ColossusToad' else 'ThingWithComps')
                 c = _tad_comp(node)
                 _set(c, 'pawnKind', race)
                 _set(c, 'daysToMetamorphosis', row['larval_days'])

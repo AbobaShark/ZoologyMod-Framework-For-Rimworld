@@ -25,7 +25,8 @@ from core.sex_dimorphism import audit_mean_sex_dimorphism
 from core.sex_adult_profiles import audit_sex_adult_profiles
 from core.sex_adult_export import render_sex_adult_profiles
 from core.animalstats_source import is_multisheet_source
-from core.production_stats import render_reproduction
+from core.production_stats import render_reproduction, _read_repro
+from core.energetics_profiles import render_energetics_profiles, OUTPUT_ID as ENERGETICS_OUTPUT_ID
 from core.checker_config import ROOT
 from core.patch_postprocess import PatchPostprocessor
 from core.leather_generation import render_leather_outputs
@@ -263,7 +264,7 @@ def stage_pipeline(source, *, root=None, registry_path=None, sheet_sources=None,
             outputs, report=render_reproduction(source,root,egg_milk_source=sheets.get('EggMilkWool'),
                                                  animals_source=sheets.get('Animals'),
                                                  animals_frame=generator.vanilla_df if generator is not None else None,
-                                                 destinations=[entry['destination'] for entry in product_entries])
+                                                 destinations=[entry['destination'] for entry in product_entries if entry['source']=='installed_xml'])
             # Current mixed handcrafted XML remains the baseline, not generated_patches.
             unknown={d for d,_ in outputs}-{e['destination'] for e in product_entries}
             if unknown:raise ValueError(f'Unregistered products path: {unknown}')
@@ -273,6 +274,12 @@ def stage_pipeline(source, *, root=None, registry_path=None, sheet_sources=None,
                 e=registered_outputs[dest]
                 emit(dest,e['category'],payload,e.get('requires'))
                 entry_by_dest[dest]['pipeline_category']='products'
+            energetics = output_by_id(registry, ENERGETICS_OUTPUT_ID)
+            source_table = _read_repro(sheets.get('EnergeticsProfiles') or source, 'EnergeticsProfiles')
+            payload, energetics_report = render_energetics_profiles(source_table)
+            emit(energetics['destination'], energetics['category'], payload, energetics.get('requires'))
+            entry_by_dest[energetics['destination']]['pipeline_category']='products'
+            report.append({'target': energetics['destination'], 'status':'generated', 'diagnostics':energetics_report})
             (temp/'products-report.json').write_text(json.dumps(report,indent=2,ensure_ascii=False)+'\n',encoding='utf8')
 
         if 'leathers' in cats:
