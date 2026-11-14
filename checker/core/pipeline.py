@@ -25,7 +25,7 @@ from core.sex_dimorphism import audit_mean_sex_dimorphism
 from core.sex_adult_profiles import audit_sex_adult_profiles
 from core.sex_adult_export import render_sex_adult_profiles
 from core.animalstats_source import is_multisheet_source
-from core.production_stats import render_reproduction, _read_repro
+from core.production_stats import render_reproduction, _read_repro, EGG_COUNTS_DESTINATION
 from core.energetics_profiles import render_energetics_profiles, OUTPUT_ID as ENERGETICS_OUTPUT_ID
 from core.checker_config import ROOT
 from core.patch_postprocess import PatchPostprocessor
@@ -149,7 +149,7 @@ def stage_pipeline(source, *, root=None, registry_path=None, sheet_sources=None,
             expected_category = 'biome_patch' if declared_section=='biomes' else ('animal_patch' if declared_section=='groups' else declared['category'])
             if expected_category!=category or declared.get('requires')!=requires:
                 raise ValueError(f'Output category or requirement differs from generation.json: {dest}')
-            if postprocessor is not None and category.endswith('patch') and dest not in animal_group_destinations and dest not in life_stage_destinations:
+            if postprocessor is not None and category.endswith('patch') and dest not in animal_group_destinations and dest not in life_stage_destinations and dest != EGG_COUNTS_DESTINATION:
                 if postprocessor.index is None and generator is not None:
                     postprocessor.index=getattr(generator,'_original_xml_index',None)
                 data=postprocessor.process(data,destination=dest)
@@ -264,7 +264,8 @@ def stage_pipeline(source, *, root=None, registry_path=None, sheet_sources=None,
             outputs, report=render_reproduction(source,root,egg_milk_source=sheets.get('EggMilkWool'),
                                                  animals_source=sheets.get('Animals'),
                                                  animals_frame=generator.vanilla_df if generator is not None else None,
-                                                 destinations=[entry['destination'] for entry in product_entries if entry['source']=='installed_xml'])
+                                                 destinations=[entry['destination'] for entry in product_entries if entry['source']=='installed_xml'],
+                                                 include_missing_egg_counts=True)
             # Current mixed handcrafted XML remains the baseline, not generated_patches.
             unknown={d for d,_ in outputs}-{e['destination'] for e in product_entries}
             if unknown:raise ValueError(f'Unregistered products path: {unknown}')

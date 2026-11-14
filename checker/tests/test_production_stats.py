@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 import pandas as pd
 from lxml import etree as E
-from core.production_stats import refresh_tree, _hatcher_animal, _read_repro, pd_egg_map, render_reproduction, REPRODUCTION_SHEET
+from core.production_stats import refresh_tree, _hatcher_animal, _read_repro, pd_egg_map, render_reproduction, render_missing_egg_counts, REPRODUCTION_SHEET
 from core.xml_routing import plan
 
 
@@ -193,6 +193,15 @@ class ReproductiveValuesTests(unittest.TestCase):
         # Moving complete blocks, or adding columns between blocks, is safe.
         moved = frame.iloc[:, list(range(18, 24)) + [17] + list(range(13, 17)) + [12] + list(range(12))]
         self.assertEqual(pd_egg_map(moved).iloc[0].to_dict(), expected)
+
+    def test_uncovered_egg_layers_have_guarded_count_patches(self):
+        table = _tables()['EggMilk']
+        payload, names = render_missing_egg_counts(table, {'Ostrich'})
+        tree = E.fromstring(payload)
+        self.assertEqual(names, ['AEXP_Crocodile'])
+        self.assertEqual(tree.xpath('//eggCountRange/text()'), ['35~65', '35~65'])
+        self.assertEqual(len(tree.xpath('./Operation[@Class="PatchOperationConditional"]')), 1)
+        self.assertNotIn('Ostrich', payload.decode('utf-8'))
 
     def test_missing_production_header_is_rejected(self):
         headers = ['Name', 'Species', 'hatcherDaystoHatch', 'eggLayIntervalDays',

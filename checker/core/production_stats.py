@@ -25,6 +25,7 @@ from core.amphibian_reproduction import (
 
 # Spreadsheet tab name; the stable legacy manifest marker 'EggMilk' is NOT a sheet name.
 REPRODUCTION_SHEET = 'EggMilkWool'
+EGG_COUNTS_DESTINATION = 'Core/Patches/Core/Misc/EggCounts_Generated.xml'
 
 # Exact previously hand-authored locations (not filename-derived routing).
 
@@ -239,7 +240,42 @@ def _read_repro(source,sheet):
     raise ValueError(f'{sheet}: requires an XLSX/Google source or an explicit TSV')
 
 
-def render_reproduction(source,root,egg_milk_source=None,animals_source=None,animals_frame=None,*,destinations):
+def render_missing_egg_counts(egg, covered):
+    root = E.Element('Patch')
+    seen = set()
+    generated = []
+    for _, row in egg.iterrows():
+        name = _defname(row.get('Def name', ''))
+        if not name:
+            continue
+        if not re.fullmatch(r'[A-Za-z_][A-Za-z_0-9.]*', name) or name in seen:
+            raise ValueError(f'Invalid or duplicate egg-layer DefName: {name!r}')
+        seen.add(name)
+        if name in covered:
+            continue
+        raw = str(row.get('eggCountRange', '')).strip()
+        if not RANGE.fullmatch(raw):
+            raw = _format(_value(raw, integer=True))
+        bounds = [int(x) for x in raw.split('~')]
+        if bounds[0] < 1 or bounds[-1] < bounds[0] or bounds[-1] > 2147483647:
+            raise ValueError(f'{name}: invalid eggCountRange {raw!r}')
+        xpath = f'/Defs/ThingDef[defName="{name}"]/comps/li[@Class="CompProperties_EggLayer" or @Class="RimWorld.CompProperties_EggLayer"]'
+        outer = E.SubElement(root, 'Operation', Class='PatchOperationConditional')
+        E.SubElement(outer, 'xpath').text = xpath
+        inner = E.SubElement(outer, 'match', Class='PatchOperationConditional')
+        E.SubElement(inner, 'xpath').text = xpath + '/eggCountRange'
+        for tag, operation, target in (
+            ('match', 'PatchOperationReplace', xpath + '/eggCountRange'),
+            ('nomatch', 'PatchOperationAdd', xpath),
+        ):
+            branch = E.SubElement(inner, tag, Class=operation)
+            E.SubElement(branch, 'xpath').text = target
+            E.SubElement(E.SubElement(branch, 'value'), 'eggCountRange').text = raw
+        generated.append(name)
+    return E.tostring(root, encoding='utf-8', xml_declaration=True, pretty_print=True), generated
+
+
+def render_reproduction(source,root,egg_milk_source=None,animals_source=None,animals_frame=None,*,destinations,include_missing_egg_counts=False):
     root=Path(root).resolve();mod=root/'Zoology'
     if not (mod/'LoadFolders.xml').is_file(): raise ValueError('Missing Zoology/LoadFolders.xml')
     # The egg/milk/wool tables and the amphibian subtable have independent
@@ -279,6 +315,17 @@ def render_reproduction(source,root,egg_milk_source=None,animals_source=None,ani
         report.append({'target':dest,'status':'changed' if changes else 'unchanged',
                        'source_sha256':digest(original),'changes':changes,'warnings':sorted(set(warnings)),
                        'matched':touched})
+    if include_missing_egg_counts:
+        covered = set(amphibians)
+        for item in report:
+            for pair in item.get('matched', ()):
+                name, field = pair.rsplit(':', 1)
+                if field == 'eggCountRange':
+                    covered.add(name)
+        payload, generated = render_missing_egg_counts(egg, covered)
+        outputs.append((EGG_COUNTS_DESTINATION, payload))
+        report.append({'target': EGG_COUNTS_DESTINATION, 'status': 'generated',
+                       'guarded_standard_layers': generated, 'warnings': [], 'matched': []})
     return outputs,report
 
 
