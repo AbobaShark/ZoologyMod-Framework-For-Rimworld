@@ -18,7 +18,8 @@ from core.static_stats import read_table
 from core.xml_routing import digest
 from core.checker_config import ROOT
 from core.amphibian_reproduction import (
-    AMBI_DEFS, AMBI_PATCH, external_roe_rows, render_roe_defs, render_roe_patch,
+    AMBI_DEFS, AMBI_PATCH, EGG_FIELDS, external_roe_rows, render_roe_defs, render_roe_patch,
+    _find_section, _normalize_header,
 )
 
 # Spreadsheet tab name; the stable legacy manifest marker 'EggMilk' is NOT a sheet name.
@@ -77,11 +78,11 @@ def _index(tables):
         name=str(r.get('Common name','')).strip().casefold(); slug=_defname(r.get('XML name',''))
         if name and slug: by_common.setdefault(name,set()).add(slug)
     for _,r in egg.iterrows():
-        slug=_defname(r.get('F',''))
+        slug=_defname(r.get('Def name',''))
         if slug:
             if slug in by_egg: raise ValueError(f'Duplicate EggMilkWool Def name: {slug}')
             by_egg[slug]=dict(r)
-        for namecol,target in [('K',milk),('P',wool)]:
+        for namecol,target in [('Milk animal',milk),('Wool animal',wool)]:
             name=str(r.get(namecol,'')).strip().casefold()
             if not name or name in ('none','no','nan'): continue
             if name in target: raise ValueError(f'Duplicate EggMilkWool name: {name}')
@@ -148,11 +149,11 @@ def refresh_tree(tree,tables):
                 warnings.append(f'{original}: {field} not covered in EggMilkWool; retained')
                 continue
             try:
-                if field=='eggLayIntervalDays': desired=_format(_value(row.get('D')))
+                if field=='eggLayIntervalDays': desired=_format(_value(row.get('eggLayIntervalDays')))
                 elif field=='eggCountRange':
-                    desired=str(row.get('E','')).strip()
+                    desired=str(row.get('eggCountRange','')).strip()
                     if not RANGE.fullmatch(desired): raise ValueError(f'Invalid eggCountRange: {desired!r}')
-                elif field=='hatcherDaystoHatch': desired=_format(_value(row.get('C'),integer=True))
+                elif field=='hatcherDaystoHatch': desired=_format(_value(row.get('hatcherDaystoHatch'),integer=True))
                 elif field=='milkAmount':
                     # Chemfuel-producing and other exotic milkable comps are NOT
                     # ordinary milk; their values are intentionally hand-maintained.
@@ -170,14 +171,14 @@ def refresh_tree(tree,tables):
                         values=[v.text for x in matching for v in _value_nodes(x,'milkIntervalDays')]
                     else: values=[v.text for v in interval_nodes]
                     if not values or len(set(values))!=1: raise ValueError('Ambiguous milk interval')
-                    desired=_integer_comp_quantity(_value(row.get('N'))*_value(values[0]))
+                    desired=_integer_comp_quantity(_value(row.get('Milk yield'))*_value(values[0]))
                 else:
                     matching=op.xpath('./match/value//*[local-name()="shearIntervalDays"] | ./nomatch/value//*[local-name()="shearIntervalDays"]')
                     values=[n.text for n in matching]
                     if not values or len(set(values))!=1:
                         warnings.append(f'{original}: missing explicit shear interval; retained')
                         continue
-                    desired=_integer_comp_quantity(_value(row.get('T'))*_value(values[0]))
+                    desired=_integer_comp_quantity(_value(row.get('Wool yield per day'))*_value(values[0]))
             except ValueError as exc:
                 raise ValueError(f'{REPRODUCTION_SHEET} {name}, {field}: {exc}') from exc
             nodes=_value_nodes(op,field)
@@ -250,29 +251,24 @@ def render_reproduction(source,root,egg_milk_source=None,animals_source=None,ani
 
 
 def pd_egg_map(frame):
-    """Map the three independent EggMilkWool header grids onto stable Excel letters.
-
-    read_excel uses the first row as names; source field references are the
-    actual observed Excel column positions, *not* invented semantic columns.
-    """
-    cols=list(frame.columns)
-    required={0:'Name',2:'hatcherDaystoHatch',3:'eggLayIntervalDays',4:'eggCountRange',
-              5:'Def name',13:'Milk yield',
-              17:'Wool type',19:'Wool yield per day'}
-    if len(cols)<20 or any(str(cols[i]).strip()!=name for i,name in required.items()):
-        raise ValueError(f'{REPRODUCTION_SHEET} layout changed; review column mapping before generation')
-    def column_label(one_based):
-        label = ''
-        while one_based:
-            one_based, remainder = divmod(one_based - 1, 26)
-            label = chr(65 + remainder) + label
-        return label
-
-    # Duplicate section headers ("Name", "Food consumption") exist in this
-    # worksheet. A dict-based rename maps ALL duplicates to the last column
-    # and silently destroys the data alignment. Assign names positionally.
-    mapped = frame.copy()
-    mapped.columns = [column_label(i + 1) for i in range(len(cols))]
-    return mapped
-
-
+    """Resolve independent production tables by semantic section headers."""
+    headers = [_normalize_header(value) for value in frame.columns]
+    egg = _find_section(headers, EGG_FIELDS)
+    milk = _find_section(headers, (
+        'Name', 'Food consumption (Nutrition/day)', 'Milk fraction', 'Milk yield',
+    ))
+    wool = _find_section(headers, (
+        'Name', 'Food consumption (Nutrition/day)', 'Wool type', 'Wool fraction',
+        'Wool yield per day', 'Wool yield per 10 days',
+    ))
+    positions = {
+        'Def name': egg['Def name'],
+        'hatcherDaystoHatch': egg['hatcherDaystoHatch'],
+        'eggLayIntervalDays': egg['eggLayIntervalDays'],
+        'eggCountRange': egg['eggCountRange'],
+        'Milk animal': milk['Name'],
+        'Milk yield': milk['Milk yield'],
+        'Wool animal': wool['Name'],
+        'Wool yield per day': wool['Wool yield per day'],
+    }
+    return frame.iloc[:, list(positions.values())].set_axis(list(positions), axis=1)
