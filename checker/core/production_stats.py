@@ -6,6 +6,7 @@ Unsupported/ambiguous targets are preserved and reported, never guessed.
 """
 from __future__ import annotations
 
+from copy import deepcopy
 from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 from pathlib import Path
 import json
@@ -110,19 +111,45 @@ def _hatcher_animal(defname, egg_map):
 
 
 def _value_nodes(op,field):
-    """All match/nomatch values, including vanilla text() and full li replacements."""
+    """Replacement values, including guarded branches, text() and full comps."""
     found=[]
-    for value in op.xpath('./match/value | ./nomatch/value'):
+    for value in op.xpath('./value | ./match/value | ./nomatch/value'):
         if len(value)==0: found.append(value)
         found.extend(value.xpath('.//*[local-name()=$name]',name=field))
     return found
+
+
+def _production_operations(tree):
+    """Expand direct replacement operations whose race predicate is a pure DefName union."""
+    selector = './/Operation[xpath] | .//li[@Class and xpath]'
+    for op in list(tree.getroot().xpath(selector)):
+        xpath = op.findtext('xpath') or ''
+        names = PATH_NAME.findall(xpath)
+        if len(set(names)) <= 1:
+            continue
+        if op.get('Class') != 'PatchOperationReplace' or not TAG.search(xpath):
+            continue
+        predicate = re.search(r'(?:ThingDef)\[([^\]]+)\]', xpath)
+        if not predicate:
+            continue
+        clauses = re.split(r'\s+or\s+', predicate[1].strip())
+        if len(clauses) != len(names) or not all(PATH_NAME.fullmatch(clause.strip()) for clause in clauses):
+            continue
+        parent = op.getparent()
+        ix = parent.index(op)
+        for offset, clause in enumerate(clauses):
+            clone = deepcopy(op)
+            clone.find('xpath').text = xpath[:predicate.start(1)] + clause.strip() + xpath[predicate.end(1):]
+            parent.insert(ix + offset, clone)
+        parent.remove(op)
+    return tree.getroot().xpath(selector)
 
 
 def refresh_tree(tree,tables):
     eggs,milk,wool,ambiguous=_index(tables)
     changes=[];warnings=[]; touched=set()
     if ambiguous: warnings.extend(f'Ambiguous {kind} {name}: matching Animals defs={names}' for kind,name,names in ambiguous)
-    for op in tree.getroot().findall('.//Operation'):
+    for op in _production_operations(tree):
         xpath=op.findtext('xpath') or ''
         hit=TAG.search(xpath)
         # A full CompProperties_* replacement may contain fields but no field name
@@ -131,7 +158,7 @@ def refresh_tree(tree,tables):
         names=PATH_NAME.findall(xpath)
         if len(set(names))!=1: continue
         original=names[0]
-        refs=sorted({f for val in op.xpath('./match/value | ./nomatch/value')
+        refs=sorted({f for val in op.xpath('./value | ./match/value | ./nomatch/value')
                      for f in KINDS if val.xpath('.//*[local-name()=$name]', name=f)})
         fields=[kind] if kind else refs
         if not fields: continue
@@ -153,18 +180,23 @@ def refresh_tree(tree,tables):
                 elif field=='eggCountRange':
                     desired=str(row.get('eggCountRange','')).strip()
                     if not RANGE.fullmatch(desired): raise ValueError(f'Invalid eggCountRange: {desired!r}')
+                    bounds = [int(x) for x in desired.split('~')]
+                    if bounds[-1] < bounds[0] or bounds[-1] > 2147483647:
+                        raise ValueError(f'Invalid eggCountRange: {desired!r}')
                 elif field=='hatcherDaystoHatch': desired=_format(_value(row.get('hatcherDaystoHatch'),integer=True))
                 elif field=='milkAmount':
                     # Chemfuel-producing and other exotic milkable comps are NOT
                     # ordinary milk; their values are intentionally hand-maintained.
-                    if any(v.xpath('.//*[local-name()="milkDef" and text()!="Milk"]') for v in op.xpath('./match/value | ./nomatch/value')):
+                    if any(v.xpath('.//*[local-name()="milkDef" and text()!="Milk"]') for v in op.xpath('./value | ./match/value | ./nomatch/value')):
                         warnings.append(f'{original}: special non-milk production retained')
                         continue
-                    interval_nodes=op.xpath('./match/value//*[local-name()="milkIntervalDays"] | ./nomatch/value//*[local-name()="milkIntervalDays"]')
+                    interval_nodes=op.xpath('./value//*[local-name()="milkIntervalDays"] | ./match/value//*[local-name()="milkIntervalDays"] | ./nomatch/value//*[local-name()="milkIntervalDays"]')
                     if not interval_nodes:
                         # Separate milkAmount replacement uses one game day interval;
                         # determine from separate explicit XML operation if available.
-                        matching=tree.xpath('//Operation[xpath[contains(text(), $prefix) and contains(text(), "milkIntervalDays")]]',prefix=f'defName="{original}"')
+                        matching=[candidate for candidate in tree.getroot().xpath('.//Operation[xpath] | .//li[@Class and xpath]')
+                                  if original in PATH_NAME.findall(candidate.findtext('xpath') or '')
+                                  and 'milkIntervalDays' in (candidate.findtext('xpath') or '')]
                         if not matching:
                             warnings.append(f'{original}: milk interval not explicit in same patch; retained')
                             continue
@@ -173,7 +205,7 @@ def refresh_tree(tree,tables):
                     if not values or len(set(values))!=1: raise ValueError('Ambiguous milk interval')
                     desired=_integer_comp_quantity(_value(row.get('Milk yield'))*_value(values[0]))
                 else:
-                    matching=op.xpath('./match/value//*[local-name()="shearIntervalDays"] | ./nomatch/value//*[local-name()="shearIntervalDays"]')
+                    matching=op.xpath('./value//*[local-name()="shearIntervalDays"] | ./match/value//*[local-name()="shearIntervalDays"] | ./nomatch/value//*[local-name()="shearIntervalDays"]')
                     values=[n.text for n in matching]
                     if not values or len(set(values))!=1:
                         warnings.append(f'{original}: missing explicit shear interval; retained')

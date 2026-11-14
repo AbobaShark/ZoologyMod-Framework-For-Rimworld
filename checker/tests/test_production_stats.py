@@ -72,6 +72,26 @@ class ReproductiveValuesTests(unittest.TestCase):
         self.assertEqual(tree.findtext('.//eggCountRange'),'6~12')
         self.assertFalse(warnings)
 
+    def test_direct_grouped_replacements_resolve_per_species(self):
+        tree = _tree('''<Patch><Operation Class="PatchOperationReplace">
+        <xpath>/Defs/ThingDef[defName="Ostrich" or defName="AEXP_Crocodile"]/comps/li[@Class="CompProperties_EggLayer"]/eggCountRange</xpath>
+        <value><eggCountRange>1~2</eggCountRange></value>
+        </Operation></Patch>''')
+        changes, warnings, touched = refresh_tree(tree, _tables())
+        self.assertEqual([x['new'] for x in changes], ['6~12', '35~65'])
+        self.assertEqual(tree.xpath('//Operation/value/eggCountRange/text()'), ['6~12', '35~65'])
+        self.assertFalse(warnings)
+        self.assertEqual(len(touched), 2)
+
+    def test_direct_single_replacement(self):
+        tree = _tree('''<Patch><Operation Class="PatchOperationReplace">
+        <xpath>/Defs/ThingDef[defName="Ostrich"]/comps/li[@Class="CompProperties_EggLayer"]/eggCountRange</xpath>
+        <value><eggCountRange>10~15</eggCountRange></value>
+        </Operation></Patch>''')
+        changes, warnings, _ = refresh_tree(tree, _tables())
+        self.assertEqual(changes[0]['new'], '6~12')
+        self.assertFalse(warnings)
+
     def test_hatcher_egg_name_resolution_uses_exact_normalized_def(self):
         self.assertEqual(_hatcher_animal('AEXP_EggCrocodileFertilized',{'AEXP_Crocodile':{}}),'AEXP_Crocodile')
         self.assertEqual(_hatcher_animal('EggAEXP_RockhopperPenguinFertilized',{'AEXP_RockhopperPenguin':{}}),'AEXP_RockhopperPenguin')
