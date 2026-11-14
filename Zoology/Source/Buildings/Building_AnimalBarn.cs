@@ -1026,7 +1026,11 @@ namespace ZoologyMod
                     // Keep vanilla's normal egg-progress logic (including
                     // VEF's ProduceEgg crossbreeding patch) intact.
                     eggLayer.CompTick();
-                    if (eggLayer.CanLayNow)
+                    // Aquatic roe must be laid by the real water-seeking LayEgg
+                    // job. Keep the mature clutch in CompEggLayer until the
+                    // player releases the mother; a barn is not a water cell.
+                    if (eggLayer.CanLayNow
+                        && AnimalOffspringShelter.For(animal.def) != OffspringShelterMode.AQUATIC_CLUTCH)
                     {
                         AnimalBarnEggUtility.DepositLaidEgg(this, eggLayer.ProduceEgg());
                     }
@@ -1234,12 +1238,12 @@ namespace ZoologyMod
 
             yield return new Command_Action
             {
-                defaultLabel = "DEV: Barn intake",
+                defaultLabel = "Zoology_DevBarnIntake".Translate(),
                 action = ShowDebugIntakeMenu
             };
             yield return new Command_Action
             {
-                defaultLabel = "DEV: Load barn food",
+                defaultLabel = "Zoology_DevBarnFood".Translate(),
                 action = ShowDebugFoodMenu
             };
         }
@@ -1298,7 +1302,7 @@ namespace ZoologyMod
 
             if (options.Count == 0)
             {
-                options.Add(new FloatMenuOption("No edible items on this map", null));
+                options.Add(new FloatMenuOption("Zoology_BarnNoEdibleItems".Translate(), null));
             }
 
             Find.WindowStack.Add(new FloatMenu(options));

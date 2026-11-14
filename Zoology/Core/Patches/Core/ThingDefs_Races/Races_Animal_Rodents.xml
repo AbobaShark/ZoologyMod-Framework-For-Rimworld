@@ -485,6 +485,26 @@
       <xpath>/Defs/ThingDef[defName = "Rat"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_VenomSample, ZoologyMod"]</xpath>
     </match>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Rat"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_OffspringShelter, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Rat"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_OffspringShelter, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "Rat"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_OffspringShelter, ZoologyMod">
+        <mode>DEN</mode>
+      </li>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Rat"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Rat"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
   <!-- Rat PawnKindDef -->
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "Rat"]/combatPower</xpath>
@@ -998,6 +1018,18 @@
       <xpath>/Defs/ThingDef[defName = "Squirrel"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_VenomSample, ZoologyMod"]</xpath>
     </match>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Squirrel"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_OffspringShelter, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Squirrel"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_OffspringShelter, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Squirrel"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Squirrel"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
   <!-- Squirrel PawnKindDef -->
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "Squirrel"]/combatPower</xpath>
@@ -1467,6 +1499,18 @@
     <xpath>/Defs/ThingDef[defName = "GuineaPig"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_VenomSample, ZoologyMod"]</xpath>
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "GuineaPig"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_VenomSample, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "GuineaPig"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_OffspringShelter, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "GuineaPig"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_OffspringShelter, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "GuineaPig"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "GuineaPig"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
     </match>
   </Operation>
   <!-- GuineaPig PawnKindDef -->
@@ -1940,6 +1984,18 @@
       <xpath>/Defs/ThingDef[defName = "Chinchilla"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_VenomSample, ZoologyMod"]</xpath>
     </match>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Chinchilla"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_OffspringShelter, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Chinchilla"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_OffspringShelter, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Chinchilla"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Chinchilla"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
   <!-- Chinchilla PawnKindDef -->
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "Chinchilla"]/combatPower</xpath>
@@ -2009,7 +2065,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Capybara"]/statBases/ComfyTemperatureMax</xpath>
     <value>
-      <ComfyTemperatureMax>40</ComfyTemperatureMax>
+      <ComfyTemperatureMax>45</ComfyTemperatureMax>
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
@@ -2371,6 +2427,18 @@
     <xpath>/Defs/ThingDef[defName = "Capybara"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_VenomSample, ZoologyMod"]</xpath>
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Capybara"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_VenomSample, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Capybara"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_OffspringShelter, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Capybara"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_OffspringShelter, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Capybara"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Capybara"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
     </match>
   </Operation>
   <!-- Capybara PawnKindDef -->
@@ -2896,6 +2964,18 @@
       <xpath>/Defs/ThingDef[defName = "Alphabeaver"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_VenomSample, ZoologyMod"]</xpath>
     </match>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Alphabeaver"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_OffspringShelter, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Alphabeaver"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_OffspringShelter, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Alphabeaver"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Alphabeaver"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
   <!-- Alphabeaver PawnKindDef -->
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "Alphabeaver"]/combatPower</xpath>
@@ -3417,6 +3497,26 @@
     <xpath>/Defs/ThingDef[defName = "Boomrat"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_VenomSample, ZoologyMod"]</xpath>
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Boomrat"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_VenomSample, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Boomrat"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_OffspringShelter, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Boomrat"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_OffspringShelter, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "Boomrat"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_OffspringShelter, ZoologyMod">
+        <mode>DEN</mode>
+      </li>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Boomrat"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Boomrat"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
     </match>
   </Operation>
   <!-- Boomrat PawnKindDef -->

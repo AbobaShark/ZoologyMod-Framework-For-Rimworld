@@ -54,14 +54,21 @@ namespace ZoologyMod
 
         public override void TransformValue(StatRequest req, ref float val)
         {
-            if (!(req.Thing is Pawn pawn) || pawn.RaceProps?.Animal != true)
+            if (!(req.Thing is Pawn pawn) || pawn.RaceProps?.Animal != true
+                || !(ZoologyAnimalGrowth.Enabled || ZoologySexAdultProfiles.Enabled))
                 return;
 
             float ratio;
             if (marketValue)
                 ratio = ZoologyAnimalGrowth.MarketRatio(pawn);
             else if (!ZoologyAnimalGrowth.TryGetStatRatio(pawn, parentStat, out ratio))
-                return;
+            {
+                if (ZoologyLifeStageProfileInstaller.HasZeroStatFactor(
+                        pawn.ageTracker?.CurLifeStage, parentStat))
+                    ratio = 0f;
+                else
+                    return;
+            }
 
             if (Math.Abs(ratio - 1f) > 0.000001f)
                 val *= ratio;
@@ -69,16 +76,30 @@ namespace ZoologyMod
 
         public override string ExplanationPart(StatRequest req)
         {
-            if (!(req.Thing is Pawn pawn) || pawn.RaceProps?.Animal != true)
+            if (!(req.Thing is Pawn pawn) || pawn.RaceProps?.Animal != true
+                || !(ZoologyAnimalGrowth.Enabled || ZoologySexAdultProfiles.Enabled))
                 return null;
             float ratio;
             if (marketValue)
                 ratio = ZoologyAnimalGrowth.MarketRatio(pawn);
             else if (!ZoologyAnimalGrowth.TryGetStatRatio(pawn, parentStat, out ratio))
-                return null;
+            {
+                if (ZoologyLifeStageProfileInstaller.HasZeroStatFactor(
+                        pawn.ageTracker?.CurLifeStage, parentStat))
+                    ratio = 0f;
+                else
+                    return null;
+            }
 
-            return Math.Abs(ratio - 1f) > 0.000001f
-                ? "Zoology: daily growth x" + ratio.ToString("0.###") : null;
+            if (Math.Abs(ratio - 1f) <= 0.000001f)
+                return null;
+            bool sexSpecific = marketValue
+                ? ZoologyAnimalGrowth.IsSexSpecificMarketValue(pawn)
+                : ZoologyAnimalGrowth.IsSexSpecificStat(pawn, parentStat);
+            string key = sexSpecific
+                ? "Zoology_StatAgeAndSexFactor"
+                : "Zoology_StatAgeFactor";
+            return key.Translate(ratio.ToString("0.###"));
         }
     }
 }

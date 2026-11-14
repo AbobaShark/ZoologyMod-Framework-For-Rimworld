@@ -158,6 +158,15 @@ namespace ZoologyMod
 
             float maxPreyBodySize = predator.RaceProps?.maxPreyBodySize ?? float.MaxValue;
             float result = maxPreyBodySize;
+            // maxPreyBodySize is authored for the canonical mean adult body
+            // size. Express that capacity at the individual's current
+            // BodySize (which already includes stage, sex, daily growth and
+            // permanent size variation). The conversion uses no new species
+            // constants and leaves the engine's unbounded sentinel intact.
+            float adultBaselineSize = predator.RaceProps?.baseBodySize ?? 0f;
+            if (maxPreyBodySize > 0f && maxPreyBodySize < 99999f
+                && adultBaselineSize > 0f && bodySize > 0f)
+                result = maxPreyBodySize * (bodySize / adultBaselineSize);
             if (!HasCannotChew(predator))
             {
                 StoreBodySizeLimit(predatorId, predator, lifeStageIndex, bodySize, result);
@@ -167,7 +176,7 @@ namespace ZoologyMod
             if (IsNonAdultGrowthStage(predator))
             {
                 float currentBodySize = bodySize;
-                result = currentBodySize < maxPreyBodySize ? currentBodySize : maxPreyBodySize;
+                result = currentBodySize < result ? currentBodySize : result;
             }
 
             StoreBodySizeLimit(predatorId, predator, lifeStageIndex, bodySize, result);
@@ -297,6 +306,19 @@ namespace ZoologyMod
                 return false;
             }
 
+            // A mature animal remains adult when a later growth stage exists.
+            var stage = pawn.ageTracker.CurLifeStage;
+            var source = stage?.GetModExtension<ZoologyLifeStageOrigin>()?.sourceStage ?? stage;
+            switch (source?.defName)
+            {
+                case "AnimalAdult":
+                case "EusocialInsectAdult":
+                case "VAERoy_AnimalAdult":
+                case "VAERoy_AnimalAdultIntermediate":
+                case "VAERoy_AnimalAdultMax":
+                case "SpectrobiontaImago":
+                    return false;
+            }
             var lifeStageAges = pawn.RaceProps?.lifeStageAges;
             if (lifeStageAges != null && lifeStageAges.Count > 0)
             {

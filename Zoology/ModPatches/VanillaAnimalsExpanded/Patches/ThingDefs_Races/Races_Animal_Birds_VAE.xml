@@ -32,13 +32,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AEXP_WildGoose"]/statBases/ComfyTemperatureMax</xpath>
       <value>
-        <ComfyTemperatureMax>35</ComfyTemperatureMax>
+        <ComfyTemperatureMax>45</ComfyTemperatureMax>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AEXP_WildGoose"]/statBases</xpath>
       <value>
-        <ComfyTemperatureMax>35</ComfyTemperatureMax>
+        <ComfyTemperatureMax>45</ComfyTemperatureMax>
       </value>
     </nomatch>
   </Operation>
@@ -397,6 +397,26 @@
     <xpath>/Defs/ThingDef[defName = "AEXP_WildGoose"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_VenomSample, ZoologyMod"]</xpath>
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "AEXP_WildGoose"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_VenomSample, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AEXP_WildGoose"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_OffspringShelter, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AEXP_WildGoose"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_OffspringShelter, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "AEXP_WildGoose"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_OffspringShelter, ZoologyMod">
+        <mode>GROUND_NEST_PRECOCIAL</mode>
+      </li>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AEXP_WildGoose"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AEXP_WildGoose"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
     </match>
   </Operation>
   <!-- AEXP_WildGoose PawnKindDef -->

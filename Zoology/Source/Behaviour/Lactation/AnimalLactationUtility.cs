@@ -780,6 +780,25 @@ namespace ZoologyMod
                         && ReferenceEquals(barn, ThingOwnerUtility.GetAnyParent<Building_AnimalBarn>(mom));
                 }
 #endif
+                if (!canNurse && mom.TryGetComp<CompAnimalPouch>()?.Contains(pup) == true)
+                    canNurse = true;
+                if (!canNurse && ThingOwnerUtility.GetAnyParent<Building_AnimalNursery>(pup)
+                    is Building_AnimalNursery nursery && nursery.OwnedBy(mom)
+                    && mom.Spawned && mom.Map == nursery.Map
+                    && mom.Position.InHorDistOf(nursery.Position, 2f))
+                    canNurse = true;
+                if (!canNurse)
+                {
+                    Building_AnimalBurrow burrow =
+                        ThingOwnerUtility.GetAnyParent<Building_AnimalBurrow>(pup);
+                    canNurse = burrow != null
+                        && (burrow.Contains(mom)
+                            // The mother may nurse her own held babies from
+                            // outside, at the entrance, without being housed.
+                            || mom.Spawned && mom.Map == burrow.Map
+                                && burrow.IsFamilyDenFor(mom)
+                                && mom.Position.InHorDistOf(burrow.Position, 4f));
+                }
                 if (!canNurse)
                 {
                     Caravan caravan = pup.GetCaravan();

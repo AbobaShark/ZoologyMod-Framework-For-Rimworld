@@ -201,6 +201,8 @@ COLUMN_ALIASES = {
     'TreeClimber': ['TreeClimber', 'Tree Climber'],
     'Constrictor': ['Constrictor'],
     'Venom sample producer': ['Venom sample producer'],
+    'OffspringShelter': ['OffspringShelter'],
+    'WinterDormancy': ['WinterDormancy'],
 }
 
 # New extensions intentionally live on concrete ThingDefs only. Sharing one on
@@ -211,8 +213,15 @@ CONCRETE_MOD_EXTENSIONS = {
     'TreeClimber': 'ZoologyMod.ModExtension_TreeClimber, ZoologyMod',
     'Constrictor': 'ZoologyMod.ModExtension_Constrictor, ZoologyMod',
     'Venom sample producer': 'ZoologyMod.ModExtension_VenomSample, ZoologyMod',
+    'OffspringShelter': 'ZoologyMod.ModExtension_OffspringShelter, ZoologyMod',
+    'WinterDormancy': 'ZoologyMod.ModExtension_WinterDormancy, ZoologyMod',
 }
 PREDATION_STRATEGIES = {'chasing': 'Chasing', 'waterambush': 'WaterAmbush', 'ambush': 'Ambush'}
+ANIMAL_BEHAVIOR_MODES = {
+    'OffspringShelter': frozenset(('POUCH', 'DEN', 'GROUND_NEST_ALTRICIAL', 'TREE_NEST_ALTRICIAL', 'GROUND_NEST_PRECOCIAL', 'TREE_NEST_PRECOCIAL', 'AQUATIC_CLUTCH')),
+    'WinterDormancy': frozenset(('HIBERNATION', 'WINTER_REST', 'DENNING', 'MATERNITY_DENNING')),
+}
+
 
 
 def find_alias_in_row(row, candidates):
@@ -2548,7 +2557,14 @@ class PatchGenerator:
             raw = get_row_value(row, col)
             value = '' if raw is None else str(raw).strip()
             strategy = None
-            if col == 'PredationStrategy':
+            mode = None
+            if col in ANIMAL_BEHAVIOR_MODES:
+                if value.lower() in ('', 'no', 'none', 'nan'):
+                    continue
+                mode = value.upper()
+                if mode not in ANIMAL_BEHAVIOR_MODES[col]:
+                    raise ValueError(f'Unknown {col} for {def_name}: {value!r}')
+            elif col == 'PredationStrategy':
                 # Runtime extension is meaningful only for RaceProperties.predator.
                 if str(get_row_value(row, 'predator')).strip().lower() not in ('true','1','yes','y','t'):
                     continue
@@ -2566,6 +2582,8 @@ class PatchGenerator:
             li = LET.SubElement(v, 'li', Class=class_str)
             if strategy is not None:
                 LET.SubElement(li, 'strategy').text = strategy
+            if mode is not None:
+                LET.SubElement(li, 'mode').text = mode
             if col == 'Venom sample producer':
                 sample = row.get('_ZoologyVenomSample')
                 if not sample:

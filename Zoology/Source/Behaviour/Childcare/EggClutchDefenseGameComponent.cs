@@ -21,7 +21,6 @@ namespace ZoologyMod
             }
         }
 
-        private static readonly Dictionary<int, long> notificationSuppressedUntil = new Dictionary<int, long>(64);
         private static readonly List<Pawn> ownerScratch = new List<Pawn>(4);
 
         private static EggClutchDefenseGameComponent singleton;
@@ -66,7 +65,6 @@ namespace ZoologyMod
             ownershipRecords.Clear();
             recordByEggId.Clear();
             eggIdsByMotherId.Clear();
-            notificationSuppressedUntil.Clear();
         }
 
         public override void LoadedGame()
@@ -443,50 +441,6 @@ namespace ZoologyMod
             }
 
             return bestEgg;
-        }
-
-        public static void MarkProtectionNotificationSentForEgg(int eggThingId)
-        {
-            if (eggThingId <= 0)
-            {
-                return;
-            }
-
-            try
-            {
-                long now = Find.TickManager?.TicksGame ?? 0L;
-                notificationSuppressedUntil[eggThingId] = now + ZoologyTickLimiter.PreyProtection.NotificationSuppressionTicks;
-            }
-            catch
-            {
-            }
-        }
-
-        public static bool IsProtectionNotificationSuppressedForEgg(int eggThingId)
-        {
-            if (eggThingId <= 0)
-            {
-                return false;
-            }
-
-            try
-            {
-                long now = Find.TickManager?.TicksGame ?? 0L;
-                if (notificationSuppressedUntil.TryGetValue(eggThingId, out long until))
-                {
-                    if (until >= now)
-                    {
-                        return true;
-                    }
-
-                    notificationSuppressedUntil.Remove(eggThingId);
-                }
-            }
-            catch
-            {
-            }
-
-            return false;
         }
 
         private void RebuildRuntimeIndex()

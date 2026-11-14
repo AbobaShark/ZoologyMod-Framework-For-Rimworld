@@ -51,6 +51,10 @@ namespace ZoologyMod
             }
 
             if (ageInterval != null) ageInterval(pawn.ageTracker, 1); else ageLegacy?.Invoke(pawn.ageTracker);
+            // The pouch of a parent held inside a barn/den still requires
+            // manual offspring physiology. The parent's normal CompTick does
+            // not run while it is unspawned.
+            pawn.TryGetComp<CompAnimalPouch>()?.TickContainedPhysiology();
         }
         public static PawnPath FindPath(Pawn pawn, IntVec3 target)
         {

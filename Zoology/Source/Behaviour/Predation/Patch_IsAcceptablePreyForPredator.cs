@@ -212,27 +212,62 @@ namespace ZoologyMod
 
                 if (!LargeMammalPredationUtility.UsesLargeMammalSizing(predator) || prey == null || predator?.kindDef == null || prey.kindDef == null)
                 {
-                    if (!Mathf.Approximately(childcareDelta, 0f))
+                    // Vanilla 1.7 ranks ordinary predators with static
+                    // PawnKindDef.combatPower and lifeStage.bodySizeFactor,
+                    // ignoring sex and continuous growth. Preserve its
+                    // distance, faction and fence adjustments, replacing
+                    // only the stale vulnerability term.
+                    if (predator?.kindDef != null && prey?.kindDef != null
+                        && prey.ageTracker?.CurLifeStage != null
+                        && (ZoologyAnimalGrowth.Enabled || ZoologySexAdultProfiles.Enabled))
                     {
-                        __result += childcareDelta;
+                        float oldPredatorPower = predator.kindDef.combatPower;
+                        float oldPreyPower = prey.kindDef.combatPower;
+                        float predatorPower =
+                            AnimalCombatPowerUtility.GetAdjustedCombatPower(predator);
+                        float preyPower =
+                            AnimalCombatPowerUtility.GetAdjustedCombatPower(prey);
+                        float adultBaselineSize = prey.RaceProps?.baseBodySize ?? 0f;
+                        if (oldPredatorPower > 0f && oldPreyPower >= 0f
+                            && predatorPower > 0f && preyPower >= 0f
+                            && adultBaselineSize > 0f)
+                        {
+                            float nativeBodyFactor =
+                                prey.ageTracker.CurLifeStage.bodySizeFactor;
+                            float actualBodyFactor = prey.BodySize / adultBaselineSize;
+                            float health = prey.health?.summaryHealth?.SummaryHealthPercent ?? 1f;
+                            if (prey.Downed)
+                                health = Mathf.Min(health, 0.2f);
+                            __result += 56f * health * health
+                                * (oldPreyPower / oldPredatorPower * nativeBodyFactor
+                                    - preyPower / predatorPower * actualBodyFactor);
+                        }
                     }
+                    if (!Mathf.Approximately(childcareDelta, 0f))
+                        __result += childcareDelta;
+                    __result += PredatorFoodChoiceUtility.GetPreyOpportunityAdjustment(predator, prey);
                     return;
                 }
 
-                if (PredationDecisionCache.TryGetPreyScore(predator, prey, out float cachedScore))
+                // Cache the stable biological component, not distance:
+                // the latter changes while the predator and prey move.
+                float distance = predator.Spawned && prey.Spawned && predator.Map == prey.Map
+                    ? (predator.Position - prey.Position).LengthHorizontal : 0f;
+                if (PredationDecisionCache.TryGetPreyScore(predator, prey, out float cachedBenefit))
                 {
-                    __result = cachedScore;
+                    __result = cachedBenefit - distance;
                 }
                 else
                 {
                     __result = LargeMammalPredationUtility.GetPreySelectionScore(predator, prey);
-                    PredationDecisionCache.StorePreyScore(predator, prey, __result);
+                    PredationDecisionCache.StorePreyScore(predator, prey, __result + distance);
                 }
 
                 if (!Mathf.Approximately(childcareDelta, 0f))
                 {
                     __result += childcareDelta;
                 }
+                __result += PredatorFoodChoiceUtility.GetPreyOpportunityAdjustment(predator, prey);
             }
             catch (Exception ex)
             {
@@ -461,6 +496,17 @@ namespace ZoologyMod
             PredationDecisionCache.StoreAcceptablePrey(predator, prey, value);
         }
 
+        // A newly blocked pursuit must override any positive answer left in
+        // either short-lived prey cache, without clearing unrelated pairs.
+        internal static void CacheBlockedPair(Pawn predator, Pawn prey)
+        {
+            if (predator == null || prey == null) return;
+            int now = Find.TickManager?.TicksGame ?? 0;
+            EnsureRuntimeCacheState(now);
+            StorePackHuntHotCachedAcceptablePrey(predator, prey, now, false);
+            PredationDecisionCache.StoreAcceptablePrey(predator, prey, false);
+        }
+
         private static void EnsurePackSupport(Pawn predator, Pawn prey, ref bool packSupportChecked, ref bool packSupport, ref float packMultiplier)
         {
             if (packSupportChecked)
@@ -515,6 +561,16 @@ namespace ZoologyMod
             {
                 return true;
             }
+
+            // An adult male or female predator can have the vanilla prey's
+            // combat power while still needing its OWN sex-specific power
+            // for prey acceptability; otherwise the code falls back to
+            // RimWorld's static kindDef.combatPower.
+            if (predator?.kindDef != null
+                && !Mathf.Approximately(
+                    AnimalCombatPowerUtility.GetAdjustedCombatPower(predator),
+                    predator.kindDef.combatPower))
+                return true;
 
             return HasAdjustedPreyCombatPower(prey, preyCombatPowerAdjusted);
         }
@@ -611,7 +667,6 @@ namespace ZoologyMod
             return hostileToPreyFactionOrMissing
                 && hostileToHostFactionOrMissing
                 && (predator.Faction != Faction.OfPlayer || prey.Faction != Faction.OfPlayer)
-                && (!predator.RaceProps.herdAnimal || predator.def != prey.def)
                 && !prey.IsHiddenFromPlayer()
                 && !prey.IsPsychologicallyInvisible()
                 && (!ModsConfig.AnomalyActive || !prey.IsMutant || prey.mutant.Def.canBleed);
@@ -620,15 +675,16 @@ namespace ZoologyMod
         // Container safety needs physical prey suitability before applying the resident mother's protection.
         internal static bool IsSuitableWithoutYoungProtection(Pawn predator, Pawn prey)
         {
-            if (predator == null || prey == null || predator == prey || predator.Dead || prey.Dead
-                || predator.RaceProps.predator != true || predator.kindDef == null || prey.kindDef == null
+            if (predator == null || prey == null || predator == prey || predator.def == prey.def
+                || predator.Dead || prey.Dead || predator.RaceProps.predator != true || predator.kindDef == null || prey.kindDef == null
                 || !prey.RaceProps.IsFlesh || !prey.RaceProps.canBePredatorPrey
                 || !Find.Storyteller.difficulty.predatorsHuntHumanlikes && prey.RaceProps.Humanlike
                 || CannotChewUtility.IsPreyTooLargeForPredator(predator, prey) || IsMammalBaby(predator)) return false;
             if (ChildcareUtility.HasChildcareExtension(predator) && ChildcareUtility.HasChildcareExtension(prey)
-                && (predator.def == prey.def || ZoologyCacheUtility.AreCrossbreedRelated(predator.def, prey.def))) return false;
+                && ZoologyCacheUtility.AreCrossbreedRelated(predator.def, prey.def)) return false;
             bool spectrobionta = ZoologyCacheUtility.IsSpectrobionta(predator.def);
             if (!spectrobionta && ZoologyCacheUtility.IsSpectrobionta(prey.def)) return false;
+            EnsureRuntimeCacheState(Find.TickManager?.TicksGame ?? 0);
             return EvaluateCustomAcceptablePrey(predator, prey, PreyCombatPowerUtility.GetAdjustedCombatPower(prey),
                 spectrobionta && ZoologyCacheUtility.IsSpectrobiontaPairInTheirFaction(predator, prey));
         }
@@ -637,7 +693,7 @@ namespace ZoologyMod
         {
             try
             {
-                if (predator == null || prey == null)
+                if (predator == null || prey == null || predator.def == prey.def)
                 {
                     return false;
                 }
@@ -765,6 +821,15 @@ namespace ZoologyMod
                 int currentTick = Find.TickManager?.TicksGame ?? 0;
                 EnsureRuntimeCacheState(currentTick);
 
+                // Sex-specific size and combat power never permit hunting one's own species.
+                // Check before hot and standard caches, which may contain older decisions.
+                if (predator != null && prey != null && predator.def == prey.def)
+                {
+                    __result = false;
+                    PredationDecisionCache.StoreAcceptablePrey(predator, prey, false);
+                    return false;
+                }
+
                 bool usePackHuntHotCache = UsesPackHuntHotCache(predator, prey, settings);
 
                 if (usePackHuntHotCache
@@ -854,7 +919,7 @@ namespace ZoologyMod
                 {
                     if (ChildcareUtility.HasChildcareExtension(predator) && ChildcareUtility.HasChildcareExtension(prey))
                     {
-                        if (predator.def == prey.def || ZoologyCacheUtility.AreCrossbreedRelated(predator.def, prey.def))
+                        if (ZoologyCacheUtility.AreCrossbreedRelated(predator.def, prey.def))
                         {
                             __result = false;
                             StoreAcceptablePreyResult(predator, prey, false, usePackHuntHotCache, currentTick);

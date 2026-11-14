@@ -409,6 +409,26 @@
       <xpath>/Defs/ThingDef[defName = "AA_DarkVandal"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_VenomSample, ZoologyMod"]</xpath>
     </match>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_DarkVandal"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_OffspringShelter, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_DarkVandal"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_OffspringShelter, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "AA_DarkVandal"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_OffspringShelter, ZoologyMod">
+        <mode>DEN</mode>
+      </li>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_DarkVandal"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_DarkVandal"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
   <!-- AA_DarkVandal PawnKindDef -->
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "AA_DarkVandal"]/combatPower</xpath>

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using RimWorld;
 using Verse;
+using Verse.AI;
 
 namespace ZoologyMod
 {
@@ -59,11 +60,106 @@ namespace ZoologyMod
             return exemplar.LabelShortCap;
         }
 
-        public static void TryNotifyProtectionEnded(Pawn protector, Pawn aggressor, Thing protectedThing)
+        public static bool IsActiveProtection(Pawn protector, Pawn aggressor, Thing protectedThing)
         {
-            if (protector == null
-                || protector.Dead
-                || protector.Destroyed
+            if (protector == null || aggressor == null || protectedThing == null
+                || !protector.Spawned || protector.Dead || protector.Downed
+                || protector.Destroyed || protector.InMentalState
+                || !aggressor.Spawned || aggressor.Dead || aggressor.Downed
+                || protector.Map != aggressor.Map)
+            {
+                return false;
+            }
+
+            Job job = protector.CurJob;
+            if (job == null || !ReferenceEquals(job.GetTarget(TargetIndex.A).Thing, aggressor))
+                return false;
+
+            Thing currentProtectedThing = job.GetTarget(TargetIndex.B).Thing;
+            if (currentProtectedThing == null || currentProtectedThing.Destroyed
+                || currentProtectedThing.MapHeld != protector.Map
+                || (currentProtectedThing is Pawn child && child.Dead))
+                return false;
+
+            if (protectedThing is Corpse)
+            {
+                return ReferenceEquals(currentProtectedThing, protectedThing)
+                    && (job.def == JobDefOf.AttackMelee || ProtectPreyState.IsProtectPreyJob(protector));
+            }
+
+            // A parent already confronting this attacker is defending the same family.
+            return !(currentProtectedThing is Corpse)
+                && (job.def == JobDefOf.AttackMelee || ProtectYoungUtility.IsProtectYoungJob(job, protector));
+        }
+
+        public static void TryNotifyProtectionStarted(
+            Pawn aggressor, Thing protectedThing, IReadOnlyList<Pawn> protectors,
+            bool alreadyActive, bool eggClutch = false)
+        {
+            if (alreadyActive || aggressor?.Faction != Faction.OfPlayer
+                || protectedThing == null || protectors == null || protectors.Count == 0)
+                return;
+
+            try
+            {
+                Pawn exemplar = protectors[0];
+                bool pack = protectors.Count > 1;
+                bool prey = protectedThing is Corpse;
+                string key = prey ? "PredatorProtectingPrey"
+                    : eggClutch ? "AnimalProtectingEggs" : "MotherProtectingYoung";
+                string labelKey = "LetterLabel" + key + (pack ? "Pack" : "");
+                string textKey = "Letter" + key + (pack ? "Pack" : "");
+                string collectiveLabel = GetCollectiveAnimalLabel(exemplar, protectors.Count);
+                string subjectName = prey ? "PREDATOR" : "PARENT";
+                string aggressorName = prey || eggClutch ? "PREY" : "ATTACKER";
+                string label = pack
+                    ? labelKey.Translate(collectiveLabel)
+                    : labelKey.Translate(exemplar.LabelShort, aggressor.LabelDefinite(),
+                        exemplar.Named(subjectName), aggressor.Named(aggressorName));
+                string text = pack
+                    ? textKey.Translate(collectiveLabel, aggressor.LabelDefinite())
+                    : textKey.Translate(exemplar.LabelIndefinite(), aggressor.LabelDefinite(),
+                        exemplar.Named(subjectName), aggressor.Named(aggressorName));
+                string subject = pack ? collectiveLabel : exemplar.LabelShort;
+                string protectedLabel = prey ? (pack ? "their prey" : "its prey")
+                    : eggClutch ? (pack ? "a clutch" : "its clutch")
+                    : (pack ? "their young" : "its young");
+                string fallback = subject + (pack ? " are protecting " : " is protecting ") + protectedLabel;
+                if (label.NullOrEmpty() || label.Contains(labelKey))
+                    label = fallback;
+                if (text.NullOrEmpty() || text.Contains(textKey))
+                    text = fallback + (pack ? " and are attacking " : " and is attacking ") + aggressor.LabelDefinite() + ".";
+
+                LookTargets lookTargets = CreateLookTargets(protectors, protectedThing);
+                if (PawnThreatUtility.IsHumanlikeOrMechanoid(aggressor))
+                {
+                    Find.LetterStack.ReceiveLetter(label.CapitalizeFirst(), text.CapitalizeFirst(),
+                        pack ? LetterDefOf.ThreatBig : LetterDefOf.ThreatSmall, lookTargets);
+                }
+                else
+                {
+                    Messages.Message(text.CapitalizeFirst(), lookTargets,
+                        pack ? MessageTypeDefOf.ThreatBig : MessageTypeDefOf.ThreatSmall, true);
+                }
+            }
+            catch (System.Exception ex)
+            {
+                Log.Warning($"Zoology: protection notification failed: {ex}");
+            }
+        }
+
+        // Only a completed, non-interrupted defense whose aggressor
+        // actually retreated is a calm-down event. A job ending because its
+        // actor was injured, incapacitated, killed or entered a mental state
+        // must never announce that the animal has calmed down.
+        public static void TryNotifyProtectionEnded(
+            Pawn protector, Pawn aggressor, Thing protectedThing,
+            JobCondition condition, bool threatRetreated)
+        {
+            if (condition != JobCondition.Succeeded || !threatRetreated
+                || protector?.Spawned != true || protector.Dead
+                || protector.Downed || protector.Destroyed
+                || protector.InMentalState
                 || aggressor?.Faction != Faction.OfPlayer)
             {
                 return;

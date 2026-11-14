@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using Verse;
 using RimWorld;
-using HarmonyLib;
 
 namespace ZoologyMod
 {
@@ -10,7 +9,9 @@ namespace ZoologyMod
     {
         public static ZoologyModSettings Instance;
 
-        public bool EnableOverrideCEPenetration;
+        public bool EnableDynamicAnimalGrowth = ModConstants.DefaultEnableDynamicAnimalGrowth;
+        public bool EnableSexualDimorphism = ModConstants.DefaultEnableSexualDimorphism;
+        public bool EnableAutomaticJuvenileSpriteScaling = ModConstants.DefaultEnableAutomaticJuvenileSpriteScaling;
 
         public bool EnableCustomFleeDanger = ModConstants.DefaultEnableCustomFleeDanger;
         public bool EnableIgnoreSmallPetsByRaiders = ModConstants.DefaultEnableIgnoreSmallPetsByRaiders;
@@ -19,6 +20,8 @@ namespace ZoologyMod
         public bool AnimalsFleeFromNonHostlePredators = ModConstants.DefaultAnimalsFleeFromNonHostilePredators;
         public bool EnablePackHunt = ModConstants.DefaultEnablePackHunt;
         public bool EnableAdvancedPredationLogic = ModConstants.DefaultEnableAdvancedPredationLogic;
+        public bool EnableAnimalFoodChoice = ModConstants.DefaultEnableAnimalFoodChoice;
+        public bool EnableWildAnimalForage = ModConstants.DefaultEnableWildAnimalForage;
         public bool EnableHumanBionicOnAnimal = ModConstants.DefaultEnableHumanBionicOnAnimal;
         public bool EnableAgroAtSlaughter = ModConstants.DefaultEnableAgroAtSlaughter;
         public bool AnimalsFreeFromHumans = ModConstants.DefaultAnimalsFreeFromHumans;
@@ -37,6 +40,10 @@ namespace ZoologyMod
         public static bool EnableMammalLactation = ModConstants.DefaultEnableMammalLactation;
         public bool EnableHandlerBabyFeeding = ModConstants.DefaultEnableHandlerBabyFeeding;
         public bool EnableAnimalChildcare = ModConstants.DefaultEnableAnimalChildcare;
+        public bool EnableAdvancedReproductiveBehavior = ModConstants.DefaultEnableAdvancedReproductiveBehavior;
+        public bool EnableAdvancedThreatAvoidance = ModConstants.DefaultEnableAdvancedThreatAvoidance;
+        public bool EnableWaterHabitatBehavior = ModConstants.DefaultEnableWaterHabitatBehavior;
+        public bool EnableWinterDormancy = ModConstants.DefaultEnableWinterDormancy;
         public bool EnableAnimalEggProtection = ModConstants.DefaultEnableAnimalEggProtection;
         public bool PreventFleeFromHumansWhileProtectingYoung = ModConstants.DefaultPreventFleeFromHumansWhileProtectingYoung;
         public bool PreventFleeFromHumansWhileProtectingEggClutches = ModConstants.DefaultPreventFleeFromHumansWhileProtectingEggClutches;
@@ -304,9 +311,10 @@ namespace ZoologyMod
         {
             Instance = this;
 
-            _cePresent = AccessTools.TypeByName("CombatExtended.Verb_MeleeAttackCE") != null;
-            EnableOverrideCEPenetration = _cePresent ? true : false;
-
+            // A CE assembly may already be loaded even when its mod is
+            // inactive. The UI must follow the active mod list, not TypeByName.
+            _cePresent = ModLister.GetActiveModWithIdentifier("CETeam.CombatExtended") != null
+                || ModLister.GetActiveModWithIdentifier("CETeam.CombatExtended_copy") != null;
             EnableAnimalDamageReduction = !_cePresent;
 
             EnsureCollectionsInitialized();
@@ -317,6 +325,9 @@ namespace ZoologyMod
             var prevFont = Text.Font;
             var prevAnchor = Text.Anchor;
             int runtimePatchToggleHashBefore = GetRuntimePatchToggleHash();
+            bool wildForageBefore = EnableWildAnimalForage;
+            int behaviorToggleMaskBefore = GetBehaviorToggleMask();
+            bool damageReductionBefore = EnableAnimalDamageReduction;
 
             Text.Font = GameFont.Medium;
             Text.Anchor = TextAnchor.MiddleLeft;
@@ -379,12 +390,29 @@ namespace ZoologyMod
             list.End();
             Widgets.EndScrollView();
 
-            int runtimePatchToggleHashAfter = GetRuntimePatchToggleHash();
-            if (runtimePatchToggleHashBefore != runtimePatchToggleHashAfter)
+            // These four behavior switches are read directly by job givers
+            // and components. Rebuilding all Def overrides and Harmony hooks
+            // for them would cause a long stall in the settings window.
+            if ((behaviorToggleMaskBefore & 1) != (GetBehaviorToggleMask() & 1))
+                CompAnimalPouch.ReleaseDisabledCaravanPouches();
+
+            if (runtimePatchToggleHashBefore != GetRuntimePatchToggleHash())
             {
                 ApplyRuntimeDefOverrides();
                 ZoologyMod.SyncRuntimePatchesWithSettings(forceRebuild: true);
             }
+            else if (damageReductionBefore != EnableAnimalDamageReduction)
+            {
+                // This is the only patch set affected by the setting.
+                // Never reapply every Def override or rebuild all Harmony
+                // patches for this one checkbox.
+                global::ZoologyMod.Patches.DamageReduction_AnimalTypes_PawnTakeDamage.SyncPatchState();
+            }
+
+            // Wild Forage is gated directly at job selection and execution.
+            // It has no standalone Harmony patches to rebuild.
+            if (wildForageBefore != EnableWildAnimalForage)
+                Write();
 
             Text.Font = prevFont;
             Text.Anchor = prevAnchor;
@@ -412,12 +440,12 @@ namespace ZoologyMod
                         + (EnablePreyFleeFromPredators ? 150f : 0f)
                         + (EnablePredatorDefendCorpse ? 156f : 0f);
                 case SettingsPage.Physiology:
-                    return 1410f
+                    return 1665f
                         + (EnableAnimalChildcare && AnimalsFreeFromHumans ? 90f : 0f);
                 case SettingsPage.Combat:
                     return 580f;
                 case SettingsPage.OtherBehavior:
-                    return 2180f
+                    return 2450f
                         + ((EnablePetPlay || EnablePetBonding) ? 96f : 0f)
                         + (EnableCustomFleeDanger ? 170f : 0f)
                         + (EnableIgnoreSmallPetsByRaiders ? 200f : 0f)
@@ -509,6 +537,27 @@ namespace ZoologyMod
         private void DrawPhysiologySettings(Listing_Standard list)
         {
             list.GapLine(8f);
+            list.CheckboxLabeled(
+                "Zoology_DynamicAnimalGrowth_Label".Translate(),
+                ref EnableDynamicAnimalGrowth,
+                "Zoology_DynamicAnimalGrowth_Desc".Translate()
+            );
+            list.CheckboxLabeled(
+                "Zoology_SexualDimorphism_Label".Translate(),
+                ref EnableSexualDimorphism,
+                "Zoology_SexualDimorphism_Desc".Translate()
+            );
+            list.CheckboxLabeled(
+                "Zoology_AutomaticJuvenileSpriteScaling_Label".Translate(),
+                ref EnableAutomaticJuvenileSpriteScaling,
+                "Zoology_AutomaticJuvenileSpriteScaling_Desc".Translate()
+            );
+            list.GapLine(12f);
+            list.CheckboxLabeled(
+                "Zoology_EnableAdvancedReproduction_Label".Translate(),
+                ref EnableAdvancedReproductiveBehavior,
+                "Zoology_EnableAdvancedReproduction_Desc".Translate());
+            list.GapLine(12f);
             bool oldMammalLactationEnabled = EnableMammalLactation;
             list.CheckboxLabeled("Zoology_EnableMammalLactation_Label".Translate(), ref EnableMammalLactation, "Zoology_EnableMammalLactation_Desc".Translate());
             if (oldMammalLactationEnabled != EnableMammalLactation)
@@ -603,21 +652,6 @@ namespace ZoologyMod
         private void DrawCombatSettings(Listing_Standard list)
         {
             list.GapLine(8f);
-            if (_cePresent)
-            {
-                list.CheckboxLabeled(
-                    "Zoology_OverrideCEPenetration_Label".Translate(),
-                    ref EnableOverrideCEPenetration,
-                    "Zoology_OverrideCEPenetration_Desc".Translate()
-                );
-            }
-            else
-            {
-                list.Label("Zoology_CENotDetected".Translate());
-                list.GapLine(6f);
-                EnableOverrideCEPenetration = false;
-            }
-
             list.GapLine(12f);
             list.CheckboxLabeled(
                 "Zoology_EnableAnimalDraftControl_Label".Translate(),
@@ -628,30 +662,40 @@ namespace ZoologyMod
             list.GapLine(12f);
             if (_cePresent)
             {
-                EnableAnimalDamageReduction = false;
-            }
-
-            bool prevGuiEnabled = GUI.enabled;
-            if (_cePresent) GUI.enabled = false;
-
-            list.CheckboxLabeled(
-                "Zoology_EnableAnimalDamageReduction_Label".Translate(),
-                ref EnableAnimalDamageReduction,
-                "Zoology_EnableAnimalDamageReduction_Desc".Translate()
-            );
-
-            GUI.enabled = prevGuiEnabled;
-
-            if (_cePresent)
-            {
+                // This feature is incompatible with CE. Render a label,
+                // not a disabled checkbox: no click handling and, crucially,
+                // no mutation of settings from the GUI draw pass.
+                list.Label("\u2610 " + "Zoology_EnableAnimalDamageReduction_Label".Translate());
                 list.Label("Zoology_CENotAvailable".Translate());
                 list.GapLine(6f);
+            }
+            else
+            {
+                list.CheckboxLabeled(
+                    "Zoology_EnableAnimalDamageReduction_Label".Translate(),
+                    ref EnableAnimalDamageReduction,
+                    "Zoology_EnableAnimalDamageReduction_Desc".Translate());
             }
         }
 
         private void DrawOtherBehaviorSettings(Listing_Standard list)
         {
             list.GapLine(8f);
+            list.CheckboxLabeled(
+                "Zoology_EnableAnimalFoodChoice_Label".Translate(),
+                ref EnableAnimalFoodChoice,
+                "Zoology_EnableAnimalFoodChoice_Desc".Translate());
+
+            list.GapLine(8f);
+            bool previousEnabled = GUI.enabled;
+            GUI.enabled = previousEnabled && EnableAnimalFoodChoice && ModsConfig.OdysseyActive;
+            list.CheckboxLabeled(
+                "Zoology_EnableWildAnimalForage_Label".Translate(),
+                ref EnableWildAnimalForage,
+                "Zoology_EnableWildAnimalForage_Desc".Translate());
+            GUI.enabled = previousEnabled;
+
+            list.GapLine(12f);
             list.CheckboxLabeled(
                 "Zoology_EnableRaidAnimals_Label".Translate(),
                 ref EnableRaidAnimals,
@@ -737,6 +781,18 @@ namespace ZoologyMod
                 list.GapLine(12f);
             }
 
+            list.GapLine(12f);
+            list.CheckboxLabeled("Zoology_EnableAdvancedThreatAvoidance_Label".Translate(),
+                ref EnableAdvancedThreatAvoidance,
+                "Zoology_EnableAdvancedThreatAvoidance_Desc".Translate());
+            list.GapLine(12f);
+            list.CheckboxLabeled("Zoology_EnableWaterHabitatBehavior_Label".Translate(),
+                ref EnableWaterHabitatBehavior,
+                "Zoology_EnableWaterHabitatBehavior_Desc".Translate());
+            list.GapLine(12f);
+            list.CheckboxLabeled("Zoology_EnableWinterDormancy_Label".Translate(),
+                ref EnableWinterDormancy,
+                "Zoology_EnableWinterDormancy_Desc".Translate());
             list.GapLine(12f);
             list.CheckboxLabeled("Zoology_EnableCustomFleeDanger_Label".Translate(), ref EnableCustomFleeDanger, "Zoology_EnableCustomFleeDanger_Desc".Translate());
 
@@ -1057,6 +1113,8 @@ namespace ZoologyMod
             AnimalsFleeFromNonHostlePredators = ModConstants.DefaultAnimalsFleeFromNonHostilePredators;
             EnablePackHunt = ModConstants.DefaultEnablePackHunt;
             EnableAdvancedPredationLogic = ModConstants.DefaultEnableAdvancedPredationLogic;
+            EnableAnimalFoodChoice = ModConstants.DefaultEnableAnimalFoodChoice;
+            EnableWildAnimalForage = ModConstants.DefaultEnableWildAnimalForage;
             EnableHumanBionicOnAnimal = ModConstants.DefaultEnableHumanBionicOnAnimal;
             EnableAgroAtSlaughter = ModConstants.DefaultEnableAgroAtSlaughter;
             AnimalsFreeFromHumans = ModConstants.DefaultAnimalsFreeFromHumans;
@@ -1075,6 +1133,10 @@ namespace ZoologyMod
             EnableMammalLactation = ModConstants.DefaultEnableMammalLactation;
             EnableHandlerBabyFeeding = ModConstants.DefaultEnableHandlerBabyFeeding;
             EnableAnimalChildcare = ModConstants.DefaultEnableAnimalChildcare;
+            EnableAdvancedReproductiveBehavior = ModConstants.DefaultEnableAdvancedReproductiveBehavior;
+            EnableAdvancedThreatAvoidance = ModConstants.DefaultEnableAdvancedThreatAvoidance;
+            EnableWaterHabitatBehavior = ModConstants.DefaultEnableWaterHabitatBehavior;
+            EnableWinterDormancy = ModConstants.DefaultEnableWinterDormancy;
             EnableAnimalEggProtection = ModConstants.DefaultEnableAnimalEggProtection;
             PreventFleeFromHumansWhileProtectingYoung = ModConstants.DefaultPreventFleeFromHumansWhileProtectingYoung;
             PreventFleeFromHumansWhileProtectingEggClutches = ModConstants.DefaultPreventFleeFromHumansWhileProtectingEggClutches;
@@ -1118,7 +1180,9 @@ namespace ZoologyMod
             AnimalFeatureFloatParameterOverrides.Clear();
             EnableAnimalDamageReduction = !_cePresent;
             EnableAnimalDraftControl = ModConstants.DefaultEnableAnimalDraftControl;
-            EnableOverrideCEPenetration = _cePresent ? true : false;
+            EnableDynamicAnimalGrowth = ModConstants.DefaultEnableDynamicAnimalGrowth;
+            EnableSexualDimorphism = ModConstants.DefaultEnableSexualDimorphism;
+            EnableAutomaticJuvenileSpriteScaling = ModConstants.DefaultEnableAutomaticJuvenileSpriteScaling;
             DisableAllRuntimePatches = ModConstants.DefaultDisableAllRuntimePatches;
             EnableInsectCocoonSpawnFix = ModConstants.DefaultEnableInsectCocoonSpawnFix;
             EnableRaidAnimals = ModConstants.DefaultEnableRaidAnimals;
@@ -1147,6 +1211,8 @@ namespace ZoologyMod
             Scribe_Values.Look(ref AnimalsFleeFromNonHostlePredators, "AnimalsFleeFromNonHostlePredators", ModConstants.DefaultAnimalsFleeFromNonHostilePredators);
             Scribe_Values.Look(ref EnablePackHunt, "EnablePackHunt", ModConstants.DefaultEnablePackHunt);
             Scribe_Values.Look(ref EnableAdvancedPredationLogic, "EnableAdvancedPredationLogic", ModConstants.DefaultEnableAdvancedPredationLogic);
+            Scribe_Values.Look(ref EnableAnimalFoodChoice, "EnableAnimalFoodChoice", ModConstants.DefaultEnableAnimalFoodChoice);
+            Scribe_Values.Look(ref EnableWildAnimalForage, "EnableWildAnimalForage", ModConstants.DefaultEnableWildAnimalForage);
             bool legacyAdvancedPredation = EnableAdvancedPredationLogic;
             Scribe_Values.Look(ref legacyAdvancedPredation, "EnablePredatorOnPredatorHuntCheck", EnableAdvancedPredationLogic);
             if (!legacyAdvancedPredation)
@@ -1182,6 +1248,10 @@ namespace ZoologyMod
             Scribe_Values.Look(ref EnableMammalLactation, "EnableMammalLactation", ModConstants.DefaultEnableMammalLactation);
             Scribe_Values.Look(ref EnableHandlerBabyFeeding, "EnableHandlerBabyFeeding", ModConstants.DefaultEnableHandlerBabyFeeding);
             Scribe_Values.Look(ref EnableAnimalChildcare, "EnableAnimalChildcare", ModConstants.DefaultEnableAnimalChildcare);
+            Scribe_Values.Look(ref EnableAdvancedReproductiveBehavior, "EnableAdvancedReproductiveBehavior", ModConstants.DefaultEnableAdvancedReproductiveBehavior);
+            Scribe_Values.Look(ref EnableAdvancedThreatAvoidance, "EnableAdvancedThreatAvoidance", ModConstants.DefaultEnableAdvancedThreatAvoidance);
+            Scribe_Values.Look(ref EnableWaterHabitatBehavior, "EnableWaterHabitatBehavior", ModConstants.DefaultEnableWaterHabitatBehavior);
+            Scribe_Values.Look(ref EnableWinterDormancy, "EnableWinterDormancy", ModConstants.DefaultEnableWinterDormancy);
             Scribe_Values.Look(ref EnableAnimalEggProtection, "EnableAnimalEggProtection", ModConstants.DefaultEnableAnimalEggProtection);
             Scribe_Values.Look(ref PreventFleeFromHumansWhileProtectingYoung, "PreventFleeFromHumansWhileProtectingYoung", ModConstants.DefaultPreventFleeFromHumansWhileProtectingYoung);
             Scribe_Values.Look(ref PreventFleeFromHumansWhileProtectingEggClutches, "PreventFleeFromHumansWhileProtectingEggClutches", ModConstants.DefaultPreventFleeFromHumansWhileProtectingEggClutches);
@@ -1239,11 +1309,9 @@ namespace ZoologyMod
             }
 
             Scribe_Values.Look(ref EnableAnimalDraftControl, "EnableAnimalDraftControl", ModConstants.DefaultEnableAnimalDraftControl);
-            Scribe_Values.Look(ref EnableOverrideCEPenetration, "EnableOverrideCEPenetration", ModConstants.DefaultEnableOverrideCEPenetration);
-            if (!_cePresent)
-            {
-                EnableOverrideCEPenetration = false;
-            }
+            Scribe_Values.Look(ref EnableDynamicAnimalGrowth, "EnableDynamicAnimalGrowth", ModConstants.DefaultEnableDynamicAnimalGrowth);
+            Scribe_Values.Look(ref EnableSexualDimorphism, "EnableSexualDimorphism", ModConstants.DefaultEnableSexualDimorphism);
+            Scribe_Values.Look(ref EnableAutomaticJuvenileSpriteScaling, "EnableAutomaticJuvenileSpriteScaling", ModConstants.DefaultEnableAutomaticJuvenileSpriteScaling);
 
             ClampFleeAndThreatSettings();
             WildAnimalReproductionEcosystemLimitFactor = _wildAnimalReproductionEcosystemLimitFactor;
@@ -1257,6 +1325,14 @@ namespace ZoologyMod
                 // Invalid per-animal keys are cleaned after long events finish.
                 EnsureCollectionsInitialized();
             }
+        }
+
+        private int GetBehaviorToggleMask()
+        {
+            return (EnableAdvancedReproductiveBehavior ? 1 : 0)
+                | (EnableAdvancedThreatAvoidance ? 2 : 0)
+                | (EnableWaterHabitatBehavior ? 4 : 0)
+                | (EnableWinterDormancy ? 8 : 0);
         }
 
         private int GetRuntimePatchToggleHash()
@@ -1283,6 +1359,7 @@ namespace ZoologyMod
                 hash = hash * 31 + (LimitWildAnimalReproductionByEcosystem ? 1 : 0);
                 hash = hash * 31 + (EnablePackHunt ? 1 : 0);
                 hash = hash * 31 + (EnableAdvancedPredationLogic ? 1 : 0);
+                hash = hash * 31 + (EnableAnimalFoodChoice ? 1 : 0);
                 hash = hash * 31 + (EnableAgroAtSlaughter ? 1 : 0);
                 hash = hash * 31 + (EnableCannotBeMutatedProtection ? 1 : 0);
                 hash = hash * 31 + (EnableCannotBeAugmentedProtection ? 1 : 0);
@@ -1303,9 +1380,10 @@ namespace ZoologyMod
                 hash = hash * 31 + (EnableAgelessPatch ? 1 : 0);
                 hash = hash * 31 + (EnableDrugsImmunePatch ? 1 : 0);
                 hash = hash * 31 + (EnableNoPorcupineQuillPatch ? 1 : 0);
-                hash = hash * 31 + (EnableAnimalDamageReduction ? 1 : 0);
                 hash = hash * 31 + (EnableAnimalDraftControl ? 1 : 0);
-                hash = hash * 31 + (EnableOverrideCEPenetration ? 1 : 0);
+                hash = hash * 31 + (EnableDynamicAnimalGrowth ? 1 : 0);
+                hash = hash * 31 + (EnableSexualDimorphism ? 1 : 0);
+                hash = hash * 31 + (EnableAutomaticJuvenileSpriteScaling ? 1 : 0);
                 hash = hash * 31 + (EnablePetPlay ? 1 : 0);
                 hash = hash * 31 + (EnablePetBonding ? 1 : 0);
                 hash = hash * 31 + (EnableAnimalBonding ? 1 : 0);

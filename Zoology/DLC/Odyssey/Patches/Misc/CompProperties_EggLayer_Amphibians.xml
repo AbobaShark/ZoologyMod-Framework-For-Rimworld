@@ -1,0 +1,91 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Patch>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="Bullfrog"]/comps/li[@Class="CompProperties_EggLayer"]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName="Bullfrog"]/comps/li[@Class="CompProperties_EggLayer"]</xpath>
+      <value>
+        <li Class="CompProperties_EggLayer">
+          <eggLayIntervalDays>56.15384615384615</eggLayIntervalDays>
+          <eggCountRange>9110~16920</eggCountRange>
+          <eggFertilizationCountMax>0</eggFertilizationCountMax>
+          <eggUnfertilizedDef>EggBullfrogUnfertilized</eggUnfertilizedDef>
+          <eggFertilizedDef>EggBullfrogFertilized</eggFertilizedDef>
+        </li>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationConditional">
+      <xpath>/Defs/ThingDef[defName="Bullfrog"]/comps</xpath>
+      <match Class="PatchOperationAdd">
+        <xpath>/Defs/ThingDef[defName="Bullfrog"]/comps</xpath>
+        <value>
+          <li Class="CompProperties_EggLayer">
+            <eggLayIntervalDays>56.15384615384615</eggLayIntervalDays>
+            <eggCountRange>9110~16920</eggCountRange>
+            <eggFertilizationCountMax>0</eggFertilizationCountMax>
+            <eggUnfertilizedDef>EggBullfrogUnfertilized</eggUnfertilizedDef>
+            <eggFertilizedDef>EggBullfrogFertilized</eggFertilizedDef>
+          </li>
+        </value>
+      </match>
+      <nomatch Class="PatchOperationAdd">
+        <xpath>/Defs/ThingDef[defName="Bullfrog"]</xpath>
+        <value>
+          <comps>
+            <li Class="CompProperties_EggLayer">
+              <eggLayIntervalDays>56.15384615384615</eggLayIntervalDays>
+              <eggCountRange>9110~16920</eggCountRange>
+              <eggFertilizationCountMax>0</eggFertilizationCountMax>
+              <eggUnfertilizedDef>EggBullfrogUnfertilized</eggUnfertilizedDef>
+              <eggFertilizedDef>EggBullfrogFertilized</eggFertilizedDef>
+            </li>
+          </comps>
+        </value>
+      </nomatch>
+    </nomatch>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="ColossusToad"]/comps/li[@Class="CompProperties_EggLayer"]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName="ColossusToad"]/comps/li[@Class="CompProperties_EggLayer"]</xpath>
+      <value>
+        <li Class="CompProperties_EggLayer">
+          <eggLayIntervalDays>60</eggLayIntervalDays>
+          <eggCountRange>21000~39000</eggCountRange>
+          <eggFertilizationCountMax>0</eggFertilizationCountMax>
+          <eggUnfertilizedDef>EggColossusToadUnfertilized</eggUnfertilizedDef>
+          <eggFertilizedDef>EggColossusToadFertilized</eggFertilizedDef>
+        </li>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationConditional">
+      <xpath>/Defs/ThingDef[defName="ColossusToad"]/comps</xpath>
+      <match Class="PatchOperationAdd">
+        <xpath>/Defs/ThingDef[defName="ColossusToad"]/comps</xpath>
+        <value>
+          <li Class="CompProperties_EggLayer">
+            <eggLayIntervalDays>60</eggLayIntervalDays>
+            <eggCountRange>21000~39000</eggCountRange>
+            <eggFertilizationCountMax>0</eggFertilizationCountMax>
+            <eggUnfertilizedDef>EggColossusToadUnfertilized</eggUnfertilizedDef>
+            <eggFertilizedDef>EggColossusToadFertilized</eggFertilizedDef>
+          </li>
+        </value>
+      </match>
+      <nomatch Class="PatchOperationAdd">
+        <xpath>/Defs/ThingDef[defName="ColossusToad"]</xpath>
+        <value>
+          <comps>
+            <li Class="CompProperties_EggLayer">
+              <eggLayIntervalDays>60</eggLayIntervalDays>
+              <eggCountRange>21000~39000</eggCountRange>
+              <eggFertilizationCountMax>0</eggFertilizationCountMax>
+              <eggUnfertilizedDef>EggColossusToadUnfertilized</eggUnfertilizedDef>
+              <eggFertilizedDef>EggColossusToadFertilized</eggFertilizedDef>
+            </li>
+          </comps>
+        </value>
+      </nomatch>
+    </nomatch>
+  </Operation>
+</Patch>

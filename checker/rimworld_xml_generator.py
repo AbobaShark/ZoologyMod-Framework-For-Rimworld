@@ -118,6 +118,8 @@ COLUMN_ALIASES = {
     "TreeClimber": ["TreeClimber", "Tree Climber"],
     "Constrictor": ["Constrictor"],
     "Venom sample producer": ["Venom sample producer"],
+    "OffspringShelter": ["OffspringShelter"],
+    "WinterDormancy": ["WinterDormancy"],
 }
 
 MOD_EXTENSION_CLASS_MAP = {
@@ -135,16 +137,23 @@ MOD_EXTENSION_CLASS_MAP = {
     "TreeClimber": "ZoologyMod.ModExtension_TreeClimber, ZoologyMod",
     "Constrictor": "ZoologyMod.ModExtension_Constrictor, ZoologyMod",
     "Venom sample producer": "ZoologyMod.ModExtension_VenomSample, ZoologyMod",
+    "OffspringShelter": "ZoologyMod.ModExtension_OffspringShelter, ZoologyMod",
+    "WinterDormancy": "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod",
 }
 
 # These three extensions always belong to concrete ThingDefs: inheriting them from
 # an abstract can accidentally grant a different hunting or hiding ability.
-CONCRETE_ONLY_MOD_EXTENSIONS = frozenset(("PredationStrategy", "Burrower", "TreeClimber", "Constrictor", "Venom sample producer"))
+CONCRETE_ONLY_MOD_EXTENSIONS = frozenset(("PredationStrategy", "Burrower", "TreeClimber", "Constrictor", "Venom sample producer", "OffspringShelter", "WinterDormancy"))
 PREDATION_STRATEGIES = {
     "chasing": "Chasing",
     "waterambush": "WaterAmbush",
     "ambush": "Ambush",
 }
+ANIMAL_BEHAVIOR_MODES = {
+    "OffspringShelter": frozenset(("POUCH", "DEN", "GROUND_NEST_ALTRICIAL", "TREE_NEST_ALTRICIAL", "GROUND_NEST_PRECOCIAL", "TREE_NEST_PRECOCIAL", "AQUATIC_CLUTCH")),
+    "WinterDormancy": frozenset(("HIBERNATION", "WINTER_REST", "DENNING", "MATERNITY_DENNING")),
+}
+
 
 
 
@@ -1122,6 +1131,15 @@ def _append_mod_extension(mod_extensions_el: LET._Element, col: str, raw_value) 
     s = str(raw_value).strip()
     if s == "" or s.lower() in ("no", "none", "nan"):
         return False
+    if col in ANIMAL_BEHAVIOR_MODES:
+        mode = s.upper()
+        if mode == "NONE":
+            return False
+        if mode not in ANIMAL_BEHAVIOR_MODES[col]:
+            raise ValueError(f"Unknown {col}: {s!r}")
+        li = LET.SubElement(mod_extensions_el, "li", Class=class_str)
+        LET.SubElement(li, "mode").text = mode
+        return True
     if col == "PredationStrategy":
         if s.lower() not in PREDATION_STRATEGIES:
             raise ValueError(f"Unknown PredationStrategy: {s!r}")

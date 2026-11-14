@@ -1,27 +1,28 @@
 # Zoology Framework Reference
 
-This document describes the current public XML-facing surface of Zoology, the integration rules implemented by the RimWorld 1.6 codebase and the data pipeline that produces the animal patches.
+This document describes the current public XML-facing surface of Zoology, the integration rules implemented for RimWorld 1.6 and 1.7 and the data pipeline that produces the animal patches.
 
 It is a reference for mod authors and maintainers. Player-facing settings and gameplay behavior are documented in PLAYER_GUIDE.md. The Python generation toolchain is documented in CHECKER.md.
 
-## 1. Runtime architecture
+## Runtime architecture
 
 Zoology has two distinct layers.
 
-The static layer consists of Defs and patches under Zoology/1.6, conditional DLC folders and conditional third-party ModPatches folders. This layer supplies race values, bodies, life stages, biome data, items/products, melee tools, jobs, think-tree insertions, sounds and other XML data.
+The static layer contains versioned Defs and patches under `Zoology/1.6` or `Zoology/1.7`, shared Core/Common content, conditional DLC folders, and conditional third-party `ModPatches` folders. This layer supplies race values, bodies, life stages, biome data, items/products, melee tools, jobs, think-tree insertions, sounds and other XML data.
 
 The runtime layer is the ZoologyMod assembly. Harmony patches and GameComponents implement behavior that cannot be represented reliably by static XML alone: predation decisions, pack hunting, fleeing, corpse defense, childcare, lactation, wild reproduction, pet systems, NPC companions, bionic expansion and runtime species overrides.
 
 The supported modder-facing surface consists primarily of the XML Def, DefModExtension, CompProperties and Tool types documented below. Internal runtime utility classes are implementation details.
 
-## 2. Load structure
+## Load structure
 
 The current LoadFolders.xml loads:
 
 - the mod root;
-- Zoology/1.6;
-- Zoology/Common;
-- DLC/Biotech when Ludeon.Rimworld.Biotech is active;
+- `Zoology/1.6` or `Zoology/1.7`, according to the game version;
+- `Zoology/Core` and `Zoology/Common`;
+- `DLC/Biotech` when Biotech is active;
+- `DLC/Royalty` when Royalty is active;
 - DLC/Odyssey when Ludeon.Rimworld.Odyssey is active;
 - Combat Extended patches;
 - Vanilla Expanded Framework patches;
@@ -34,11 +35,11 @@ The current LoadFolders.xml loads:
 - Megafauna patches;
 - Alpha Biomes patches.
 
-`Zoology/DLC/Royalty` is not referenced by the current `LoadFolders.xml` and is therefore not part of the active XML load surface.
+`Zoology/DLC/Royalty` is included conditionally in both `v1.6` and `v1.7` load folder lists.
 
-The mod metadata declares RimWorld 1.6 and Harmony as the hard requirements. It also declares load ordering after the supported game/DLC and animal/combat frameworks.
+The mod metadata supports RimWorld 1.6 and 1.7 and requires Harmony. It also declares load ordering after the supported game/DLC and animal/combat frameworks.
 
-## 3. ThingDef marker extensions
+## ThingDef marker extensions
 
 Zoology marker extensions are attached through the normal ThingDef modExtensions list.
 
@@ -129,7 +130,7 @@ Fields: none.
 
 Meaning: enables swallow-whole restrictions for the marked animal.
 
-The extension does not define its own prey-size field. Zoology uses the race's maxPreyBodySize, and for non-adult growth stages additionally caps the effective limit by current BodySize.
+The extension does not define its own prey-size field. Under advanced predation, Zoology interprets the race's `maxPreyBodySize` as the mean-adult reference and scales the effective limit by `pawn.BodySize / pawn.RaceProps.baseBodySize`. This incorporates sex, life stage, daily growth and individual size modifiers without new per-species constants. Unlimited race limits remain unlimited. For a non-adult animal marked CannotChew, the scaled limit is additionally capped by its current BodySize.
 
 This marker affects corpse eating, scavenging and predation acceptability through the shared CannotChewUtility.
 
@@ -221,7 +222,7 @@ A carrier is considered only when it is a valid spawned pawn on the same map, is
 
 The settings editor supports ranges 1-60 for radius, 0-20 for body-size limit and 1-80 for flee distance.
 
-## 4. ThingDef comps
+## ThingDef comps
 
 The public XML type is the CompProperties class. The ThingComp class listed here is the runtime implementation.
 
@@ -332,7 +333,7 @@ The comp caches thresholds from the race's baseBodySize multiplied by those frac
 
 The current settings UI has a global regeneration toggle but no per-species regeneration selector.
 
-## 5. Mammal infant feeding integration
+## Mammal infant feeding integration
 
 The mammal marker is also the entry point for Zoology's newborn feeding systems. A third-party animal does not need a separate "handler feeding" marker: if the animal is recognized as a mammal, is in a baby life stage and otherwise passes the food rules, the lactation/feeding systems can use it.
 
@@ -392,7 +393,7 @@ The caravan patch runs the same biological model without map jobs. It can ensure
 
 When `AllowSlaughterLactating` is false, Zoology adjusts auto-slaughter counts and rejects lactating animals in the auto-slaughter WorkGiver. This is specifically automatic herd management; it is distinct from a player's explicit slaughter designation and from `ModExtension_AgroAtSlaughter`.
 
-## 6. Gender-restricted melee tools
+## Gender-restricted melee tools
 
 Class:
 
@@ -420,7 +421,7 @@ The Harmony patch checks Zoology's own ToolWithGender directly. It also recogniz
 
 This feature is controlled by the Gender-restricted attacks Dev setting.
 
-## 7. Life-stage combat power
+## Life-stage combat power
 
 Class:
 
@@ -447,50 +448,30 @@ Example:
 
 AnimalCombatPowerUtility uses the explicit extension when present. If it is absent, the utility falls back to Zoology's infant/juvenile recognition and then to factor 1 for other stages.
 
-These Combat Power factors are separate from Combat Extended's `meleeDamageFactor`. The shipped CE life-stage patch sets `AnimalBabyTiny` to 0.15, `AnimalBaby` and `EusocialInsectLarva` to 0.2, and `AnimalJuvenile` and `EusocialInsectJuvenile` to 0.5. In particular, `AnimalBabyTiny` has a 0.2 Combat Power factor but a 0.15 CE melee-damage factor.
+Combat Power and Combat Extended melee-damage factors are different quantities. The runtime fallback is 0.2 for babies and 0.5 for juveniles, while per-species LifeStageProfiles and CE-specific generated data provide the supported species' precise stage and tool values. Do not interpret the fallback as a universal CE penetration or natural-attack multiplier.
 
 This adjusted combat power is used by behavior systems such as targeted flee and predator/prey comparisons. It is not a replacement for the PawnKindDef combatPower field stored in XML.
 
-### Combat Extended life-stage penetration Def
+### Combat Extended animal life-stage penetration
 
-Class:
+Combat Extended's natural-attack armor penetration uses the per-tool, per-species
+factors generated from the AnimalStats LifeStageProfiles catalog. During
+dynamic growth the factors are interpolated daily between adjacent life stages.
+The original CE getter retains its penetration, skill and equipment modifiers;
+Zoology multiplies the final natural-attack result by the appropriate stage
+ratio once. The stat display shows the corresponding values.
 
-    ZoologyMod.LifeStagePenetrationDef
-
-Base class:
-
-    Verse.Def
-
-Fields:
-
-| Field | Type | Default |
-| --- | --- | --- |
-| meleePenetrationSharpFactor | float | 1 |
-| meleePenetrationBluntFactor | float | 1 |
-
-This Def is used only by Zoology's Combat Extended penetration override. Resolution first tries an exact `defName` match, then a case-insensitive `defName` match, then a case-insensitive match between the life-stage `defName` and the penetration Def label, and finally a partial-name fallback. Matching `defName` values are the recommended unambiguous configuration.
-
-The shipped CE patch currently defines:
-
-- AnimalBabyTiny: sharp 0.05, blunt 0.05;
-- AnimalBaby: sharp 0.15, blunt 0.10;
-- AnimalJuvenile: sharp 0.65, blunt 0.40;
-- EusocialInsectLarva: sharp 0.15, blunt 0.10;
-- EusocialInsectJuvenile: sharp 0.65, blunt 0.40.
-
-Example:
-
-    <LifeStagePenetrationDef Class="ZoologyMod.LifeStagePenetrationDef, ZoologyMod">
-      <defName>AnimalJuvenile</defName>
-      <meleePenetrationSharpFactor>0.65</meleePenetrationSharpFactor>
-      <meleePenetrationBluntFactor>0.40</meleePenetrationBluntFactor>
-    </LifeStagePenetrationDef>
-
-When the override is enabled, CEPatches_Melee multiplies CE tool penetration by the normal CE/stat factors and the matching life-stage factor. CEPatches_UI also replaces the CE penetration explanation/final display so the same life-stage factors are visible in the stat UI.
+The generic `LifeStagePenetrationDef` lookup and its optional CE penetration
+override have been removed. There is no second life-stage penetration model.
+The **Dynamic animal growth** setting is enabled by default and governs
+runtime body-size, health, hunger, graphical scale, natural attacks, CE
+penetration and durability, and other supported age-related stat modifiers.
+Disabling it leaves the authored LifeStageDefs in place, while restoring
+stepwise changes at the life-stage boundaries.
 
 CEChecker detects CE by its runtime types and package ID, while CEReflectionUtility isolates the reflection-based access to CE internals. This avoids a hard compile-time dependency on CE.
 
-## 8. NPC pawn-group marker
+## NPC pawn-group marker
 
 Class:
 
@@ -512,7 +493,7 @@ The generic companion-safety system does not require this marker. It evaluates a
 
 `ZoologyMod.ZoologyPawnGenOption_WildBoarReplacement` is a second, specialized XML option type derived from `ZoologyPawnGenOption`. The Core NPC-group patch uses it to replace specific `WildBoar` options with `Wolf_Timber` for Yttakin pirates, preserving their selection weights. Unlike ordinary Zoology-added options, these replacements remain in the group when Animals in NPC groups is disabled: the runtime registry restores their `WildBoar` kind when that PawnKindDef is available. No additional XML fields are defined by this subclass.
 
-## 9. Beastmastery and direct-control interoperability
+## Beastmastery and direct-control interoperability
 
 Zoology recognizes these trainable names in its runtime compatibility layer:
 
@@ -528,7 +509,7 @@ The runtime detects supported external drafting ownership. When another supporte
 
 This is interoperability, not an invitation to call AnimalDraftControlUtility directly: the implementation class is internal.
 
-## 10. Animal bionics
+## Animal bionics
 
 The Enable human bionics on animals feature is implemented by runtime Def patchers, not by a generic public registration API.
 
@@ -555,7 +536,7 @@ ModExtension_CannotBeAugmented is the supported XML opt-out.
 
 Because these patchers mutate DefDatabase content during initialization, the user-facing bionics toggle is restart-sensitive.
 
-## 11. Runtime species overrides
+## Runtime species overrides
 
 ZoologyRuntimeAnimalOverrides is an internal implementation service used by the settings UI. It is not a public C# API.
 
@@ -586,9 +567,77 @@ Supported editable parameters are:
 - drugs-immune cleanupIntervalTicks;
 - clotting checkInterval and tending-quality min/max.
 
-Regeneration is not in this runtime feature catalog.
+## Growth, reproduction and shelter contracts
 
-## 12. Static XML surface shipped by Zoology
+### Species-specific life stages and continuous growth
+
+`LifeStageProfiles` provides the concrete young/special-stage endpoints for each supported race; the species-specific installer retains the original `LifeStageAge` metadata, merges defined stats and attacks and leaves unrelated stages unchanged. `ZoologyAnimalGrowth` reads a cached biological-day snapshot, interpolating health, hunger, body size, natural attacks, armor and drawn size when the corresponding setting is enabled.
+
+`SexAdultProfiles_Generated.xml` supplies male and female **adult** endpoints. `ZoologySexAdultProfiles` selects the endpoint for the pawn's gender; if dynamic growth is on, the same juvenile-to-adult interval approaches that endpoint. Adults remain on the final normal adult life stage. `EnableSexualDimorphism` and `EnableDynamicAnimalGrowth` are separate runtime settings. The optional `EnableAutomaticJuvenileSpriteScaling` uses stage mass to replace inconsistent young sprite sizes. An existing distinct female texture is retained; art scaling does not require duplicating a texture.
+
+With Combat Extended active, supported natural attacks use generated CE life-stage and adult-sex attack and armor values.
+
+### Animal offspring shelter markers
+
+`ModExtension_OffspringShelter` is a race-specific data-driven marker. The supported values in the generator include `POUCH`, `DEN`, `GROUND_NEST_ALTRICIAL`, `TREE_NEST_ALTRICIAL`, `GROUND_NEST_PRECOCIAL`, `TREE_NEST_PRECOCIAL`, and `AQUATIC_CLUTCH`. Source ownership is in AnimalStats, not hardcoded DefName switches in Checker.
+
+- `CompAnimalStrategyState` tracks applicable strategy decisions and planned searches.
+- `Building_AnimalBurrow` and `AnimalNursery` implement shared shelters, family occupancy and natural bird nests.
+- `CompAnimalNestEggContainer` retains fertilized eggs and young as genuine held Things; rendering and interaction follow the visual canopy where a tree nest is placed.
+- `AnimalOffspringPouch` handles dependent marsupial offspring.
+- `CompAmphibianRoe`, `CompTadpole` and `JobDriver_FertilizeAmphibianRoe` model externally fertilized aquatic clutches and larval cohorts using one Thing per group with cohort mass and nutrition. The shipped aquatic definitions and egg-layer patches are Odyssey-gated.
+
+Nests and dens are natural animal structures. `AnimalTreeSelection` connects the selected tree to its current perched animals and anchored nests through vanilla-style selection gizmos; occupants are resolved through the refuge map component. The tree claim enforces a shared BodySize budget.
+
+### Runtime behavior gates and feature combinations
+
+`ModConstants.AdvancedReproduction`, `AdvancedThreatAvoidance`, `WaterHabitatBehavior` and `WinterDormancy` provide constant-time gates sourced from the corresponding persisted `ZoologyModSettings` flags. Each gate also checks `DisableAllRuntimePatches`. They are checked at ThinkTree job-giver entry, before any target or path search, and at the existing periodic ThingComp processing intervals.
+
+`AnimalOffspringShelter.For` returns `NONE` for specialized reproductive shelter modes when advanced reproduction is disabled. **DEN is additionally disabled unless advanced threat avoidance is enabled.** `AnimalPouchBootstrap` uses the ungated configured mode only to install the component once, preserving safe live toggles. Winter denning does not depend on threat avoidance and is controlled exclusively by its own seasonal gate. Water seeking and dry-ground recovery are separate from choosing emergency water refuges.
+
+When switches are disabled during an existing game, previously contained offspring must not be discarded: nests eject their real eggs and chicks, pouches release babies to the map or caravan, and family burrows release non-dormant residents. Already spawned amphibian clutches/tadpole cohorts retain their saved progress while the advanced reproduction switch is off. No map-wide periodic scan is added by these settings.
+
+The developer master switch unpatches known Harmony IDs and checks remaining Harmony patch methods belonging to this assembly **once at disable time**. However, disabling Harmony patches alone cannot remove injected ThinkTree nodes, CompProperties or already loaded XML definitions. All new behavior entrypoints must therefore also honor the runtime gates. Mammalian nursing interacts with mother and dependent-young holders. The physical shelter, visible sprite and click target must remain consistent.
+
+### Winter dormancy and refuges
+
+`ModExtension_WinterDormancy.mode` accepts `NONE`, `HIBERNATION`, `WINTER_REST`, `DENNING` and `MATERNITY_DENNING`. Runtime entry requires suitable wild animals during winter with food level at least 80%; maternity denning requires pregnancy or dependent young. Basal hunger factors are 0.04 for hibernation, 0.25 for denning/maternity denning and 1 for winter rest. The system can reuse compatible burrows and makes decisions in idle job scheduling. Ectotherm idle behavior and habitat selection are implemented separately. Refuge decision-making uses actual visible and overt threat information, movement speed and shelter reachability.
+
+### Wild population, predation and husbandry
+
+The `WildAnimalEcosystemUtility` and per-species limit handle wild-only population capacity; the default optional species limit is **30** (10–100). WildAnimalOverpopulationExitMapComponent prioritizes species over their count limit and then species with excess ecosystem-weight contribution relative to the expected biome composition, subject to family/dependent-young constraints. Predation uses current pawn characteristics, herd awareness and chase state. Escape into tree crowns, water and burrows is threat-dependent rather than a universal response to all nearby hostile races.
+
+The 1.7 `Building_AnimalBarn` is a different system from natural burrows and nests. It holds pawns and real food stacks, filters intake by animal/sex/age and nursing requirements and has a configurable total base-BodySize budget (10–100, default **32.5**). It is gated by `EnableAnimalBarn`. The barn stores up to 18 food stacks. `AnimalBarnReproduction` uses species mating intervals and vanilla mate/birth handling; the barn routes produced eggs via `AnimalBarnEggUtility` to adjacent egg boxes, held contents or food storage as appropriate. Aquatic clutch producers retain mature roe until released to lay in water. `HideBarnAnimalsFromAnimalTab` controls the livestock display.
+
+## Hunting strategies, feeding and venom extensions
+
+### Predation and refuge extensions
+
+These `ThingDef` mod extensions are exported from species data and consumed by the strategy, refuge and natural-combat systems.
+
+| Extension | Fields | Semantics |
+| --- | --- | --- |
+| `ModExtension_PredationStrategy` | `strategy`, optional `lifeStageIndices` | `No`, `Chasing`, `WaterAmbush`, `Ambush`; restrict to the listed native life-stage indices when provided. |
+| `ModExtension_Burrower` | `maxBodySize` (2) | Burrow/refuge use up to the configured current BodySize; enables digging for suitable prey. |
+| `ModExtension_TreeClimber` | `maxBodySize` (2), `minTreeGrowth` (0.65) | Tree refuge eligibility by animal size and tree growth. |
+| `ModExtension_Constrictor` | `maxPreySizeRatio` (1), `severityPerSecond` (0.025), `ectothermFactor` (0.25) | Constriction after eligible natural attacks, maximum prey-to-snake BodySize ratio and severity progression. |
+| `ModExtension_FlightDevelopment` | Marker | Blocks flight in the infant stage; a species-specific generated flight rule takes precedence. |
+
+`AnimalHuntStrategy` and `AnimalLocomotion` resolve pursuit, concealment and terrain-dependent speed. `AnimalBurrowHunt` selects eligible held prey, nest contents and edible grave corpses; grave excavation requires a suitable digging animal of current BodySize at least 1.
+
+### Food selection
+
+`EnableAnimalFoodChoice` gates the unified food-source and food-job patches. With advanced predation enabled, predators compare live prey, available food, fishing and shelter raids. Food-source ranking prefers suitable raw food and accessible carrion; harvesting is available to animals with both Meat and VegetableOrFruit diet flags. Plant work speed and yield use vanilla Plants-5 stat curves and expected edible crop yield.
+
+`EnableWildAnimalForage` requires advanced food selection and Odyssey. It gates `JobDriver_WildAnimalForage` for factionless animals whose race has the Forage trainable and can eat the biome's foraged food. The job produces 2–5 units in 240 ticks; its score uses expected nutrition relative to food capacity, work and distance. Fishing is scored separately using FishingSpeed. Food acquisition uses existing food decisions and bounded searches. Both settings are persisted, enabled by default and honor the runtime master gate; disabling the food feature or wild foraging interrupts affected custom jobs safely.
+
+### Venom and constriction
+
+`Hediff_AnimalVenom` applies venom from the corresponding natural-attack DamageDef, with dose computed using penetrating damage and the configured victim scaling. Applicable body capacities and flesh status determine susceptibility. `Hediff_AnimalConstriction` tracks a constricting predator and accumulating severity. Delayed predation attribution connects deaths caused by these effects to the original hunter.
+
+`ModExtension_VenomSample.sample` specifies the ThingDef obtained when an eligible reproductive-stage animal is butchered. The `IngestionOutcomeDoer_AnimalAntivenom.venom` field identifies the venom HediffDef removed by that drug. The `Venom profiles` table maps tool capacities to venom effects, sample items and matching antivenom recipes; generated sample, drug and recipe Defs reside in Core.
+
+## Static XML surface shipped by Zoology
 
 The main 1.6 Def layer contains:
 
@@ -620,28 +669,16 @@ Core patches cover:
 - meat;
 - pregnancy.
 
-The code additionally performs several runtime corrections that are not separate public extension types:
+Runtime safeguards include:
 
-- replacement of guinea-pig leather references with squirrel leather;
 - Biotech insect-cocoon spawn-budget protection;
 - cleanup of invalid stored job-giver think-tree keys during save loading.
 
-These are implementation safeguards or global corrections, not framework markers for third-party XML.
+### Validation scope
 
-### Runtime regression tests
+Automated tests under `checker/tests` exercise source data, generated XML and deployment rules. Build the C# assembly for the target game version and validate CE combat, animation, selection, AI jobs and pathfinding in RimWorld.
 
-The gameplay/runtime code has a separate test directory at `Zoology/Tests`, independent of `checker/tests`.
-
-Current runtime-oriented tests cover:
-
-- `test_animal_draft_compatibility.py` — direct-control interoperability;
-- `test_handler_baby_feeding.py` — WorkGiver/JobDriver registration, gating, baby eligibility, food selection and feeding behavior;
-- `test_npc_animal_companion_hot_path.py` — NPC companion hot-path behavior;
-- `test_runtime_patch_registration.py` — runtime patch registration/rebuild coverage.
-
-These tests provide regression coverage for the runtime contracts described above.
-
-## 13. Conditional DLC patches
+## Conditional DLC patches
 
 ### Biotech
 
@@ -673,7 +710,7 @@ The loaded Odyssey folder contains:
 
 `Zoology_Beastmastery` is also Odyssey-gated.
 
-## 14. Conditional third-party patch sets
+## Conditional third-party patch sets
 
 The active `LoadFolders.xml` conditionally loads the integration folders below.
 
@@ -748,7 +785,7 @@ Dinosauria receives generated race patches plus dedicated animal graphic and sha
 
 Megafauna currently uses its generated race patch set.
 
-## 15. Working data pipeline
+## Working data pipeline
 
 The production animal data are split between two Google Sheets.
 
@@ -767,7 +804,12 @@ Current sheets:
 | Animals CE | Final Combat Extended production table consumed alongside Animals. |
 | Biomes | Per-animal biome distribution/output data. |
 | Leathers | Leather market, armor and insulation data. |
-| EggMilk | Egg incubation/laying, milk and wool production reference/output data. |
+| EggMilkWool | Independently keyed egg, milk, wool and amphibian reproduction output tables. |
+| Animal textiles | Wool and silk material stats and source-mod ownership. |
+| Venom profiles | Natural-attack capacity mappings, venom effects, sample producers and antivenom definitions. |
+| LifeStageProfiles | Species-specific young/special life-stage stat, attack and graphic endpoints. |
+| SexDimorphism | Species-level adult female/male mass input, preserving mean baseline mass. |
+| SexAdultProfiles | Final male/female adult stat, natural-attack and graphics endpoints. |
 | Meat | Meat yield and food-consumption/profitability calculations. |
 | LifeStages | Shared life-stage factors for body size, health, hunger, melee and CE values. |
 | Bionics | Size-based bionic combat values used by the animal bionic definitions. |
@@ -805,13 +847,14 @@ The production flow is:
         -> Calculations / SERVICE_ProductionExport
         -> AnimalStats / SERVICE_CalculationCache
         -> Groups + Base stats + Species overrides
-        -> Animals + Animals CE + Biomes/products
+        -> Animals + Animals CE + LifeStageProfiles + SexAdultProfiles
+        -> Biomes + products + reproduction
         -> checker
-        -> generated RimWorld XML
+        -> generated RimWorld XML and C# profiles
 
 AnimalStats imports the production export from Calculations with IMPORTRANGE. Calculations is therefore an upstream model workbook, while AnimalStats is the species/game-production workbook.
 
-## 16. Model/data maintenance rules
+## Model/data maintenance rules
 
 Generated race patches are downstream artifacts. Biological values, model changes and group/species rules are maintained in the relevant workbook source/model/override and then regenerated into XML.
 
@@ -823,9 +866,10 @@ For the actual generation commands, Google authorization, OriginalXML simulation
 
 ### Life-stage source ownership
 
-Checker reads the `Source mod` column of `LifeStages` to distinguish the
-vanilla/eusocial Core life-stage factors from five growth stages in Vanilla
-Animals Expanded — Royal Animals. The Royal source retains its own native
+Checker reads source-mod ownership and the stage identity from `LifeStages`
+and `LifeStageProfiles`. Ordinary Core/eusocial stages use the compatible
+species-specific endpoints; Vanilla Animals Expanded — Royal Animals retains
+its five native Megachicken stages. The Royal source retains its own native
 Megachicken age thresholds and graphics. Zoology regenerates only the
 stage-stat factors and stage combat-power extension, with CE-specific values
 loaded in the CE folder after Royal Animals.
@@ -840,12 +884,51 @@ body-mass range midpoints using `SERVICE_BodySizeMassBands`. Hirt's
 terrestrial maximum-running-speed curve is applied to the *mapped* masses;
 bodySizeFactor is never substituted for a physical mass multiplier.
 
-Shared Core LifeStageDefs cannot carry species-specific empirical mass
-curves: their stat scaling is relative to `bodySizeFactor` and avoids any
-assumed 70 kg adult. Vanilla `PriceUtility.PawnQualityPriceFactor`
+Shared Core LifeStageDefs provide stage identities; `LifeStageProfiles` and
+`ZoologyLifeStageProfileInstaller` install the corresponding species-specific
+factors while preserving the native age-stage topology. These stage endpoints
+are derived from the relevant species masses, not a universal reference adult. Vanilla `PriceUtility.PawnQualityPriceFactor`
 handles marketValueFactor as its own life-stage multiplier, separate from
 health and capacities. Engine cooldown does not read the nonexistent pawn
 `MeleeCooldownFactor` stat: Zoology declares `Zoology_MeleeCooldownFactor`
 and applies it to real natural melee-tool cooldowns via a Harmony postfix.
 CE armor penetration already includes the stage melee-damage multiplier
 raised to 0.75 and age-specific AP factors compensate it explicitly.
+
+## Water-dependent natural wild spawns
+
+The shared `Zoology_WaterBodySpawnRequirements` Def in
+`Zoology/Core/Defs/Misc/WaterBodySpawnRequirements.xml` lists
+water-dependent noncoastal wildlife, with optional missing mods ignored.
+The requirements use final, XML-patched in-game `race.baseBodySize`
+and `ModExtension_Ectothermic`, not the AnimalStats workbook.
+
+The existing `WildAnimalSpawner.CommonalityOfAnimalNow` Postfix adjusts
+weights of natural map-generation and subsequent wildlife spawns.
+Explicit PawnKinds supplied by quests, incidents or developer commands
+are unchanged. Only species with positive `coastalWildAnimals`
+commonality in the current biome are exempt from these changes.
+Species listed in `pollutionWildAnimals` follow normal inland-water
+weighting, so rats and other ordinary animals are not exempted
+merely for tolerating polluted environments.
+
+A single four-connected flood fill measures all non-ocean water
+components, including `Marsh`, and caches their sizes `A_i`, total
+water area `A`, largest component `L`, and eligible map area
+`N = map cells - ocean cells`. Wetness `D = (A + L)/(2N)` gives
+`T = clamp((D - 0.01)/0.11, 0, 1)`. Ordinary non-water-dependent
+animals have their selection weight multiplied by `1/(1+2*T)`,
+ranging from 1 to 1/3.
+
+For each water-dependent animal, `B = race.baseBodySize` and
+`R = 150*B*B*(ectothermic ? 1 : 2)`. The area contribution of each
+water component is `A_i*min(1, A_i/R)`; summed over all components
+this yields `H`. If `L < R/3`, the species is excluded from natural
+spawns on that map. Otherwise its spawn-weight multiplier is
+`(1+2*T)*min(1, H/R)`, ranging from 0 to 3.
+
+A `ConditionalWeakTable<Map, MapWaterCache>` keeps map scores
+and per-race factors for 15,000 ticks. Scan buffers are reused on
+refresh, and the hot path uses only biome pool checks, an O(1)
+dictionary lookup and a multiplication. No new Harmony hook, job,
+or periodic tick-based scanner is introduced. Biome eligibility, temperature checks and VEF river-list compatibility also apply.

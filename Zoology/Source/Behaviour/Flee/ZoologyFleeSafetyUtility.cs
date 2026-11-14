@@ -84,6 +84,7 @@ namespace ZoologyMod
                 && !threat.Dead
                 && !threat.Destroyed
                 && !threat.Downed
+                && threat.Awake()
                 && threat.Map != null
                 && threat.Map == prey.Map;
         }

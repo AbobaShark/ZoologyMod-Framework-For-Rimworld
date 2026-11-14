@@ -27,11 +27,8 @@ namespace ZoologyMod
 
             try
             {
-                var settings = ZoologyModSettings.Instance;
-                if (settings != null && settings.DisableAllRuntimePatches)
-                {
+                if (!(ZoologyAnimalGrowth.Enabled || ZoologySexAdultProfiles.Enabled))
                     return;
-                }
 
                 Type ceVerbType = AccessTools.TypeByName("CombatExtended.Verb_MeleeAttackCE");
                 if (ceVerbType == null)
@@ -95,8 +92,7 @@ namespace ZoologyMod
             if (verbInstance == null)
                 return;
 
-            var settings = ZoologyModSettings.Instance;
-            if (settings != null && settings.DisableAllRuntimePatches)
+            if (!(ZoologyAnimalGrowth.Enabled || ZoologySexAdultProfiles.Enabled))
                 return;
 
             Pawn caster = CEReflectionUtility.GetCasterPawn(verbInstance);
@@ -135,26 +131,7 @@ namespace ZoologyMod
                 return;
             }
 
-            // Optional legacy generic penetration override for attacks without
-            // generated species profiles. It must not affect generated attacks.
-            if (settings == null || !settings.EnableOverrideCEPenetration)
-                return;
 
-            float toolAp;
-            bool hasAp = sharp
-                ? CEReflectionUtility.TryReadSharpToolPenetration(toolObj, out toolAp)
-                : CEReflectionUtility.TryReadBluntToolPenetration(toolObj, out toolAp);
-            if (!hasAp)
-                return;
-
-            var lifeDef = LifeStageUtility.GetPenetrationDefForPawn(caster);
-            if (lifeDef == null)
-                return;
-
-            float factor = sharp ? lifeDef.meleePenetrationSharpFactor
-                : lifeDef.meleePenetrationBluntFactor;
-            if (!float.IsNaN(factor) && !float.IsInfinity(factor) && factor >= 0f)
-                result *= factor;
         }
 
         private static MethodInfo TryGetPropertyGetter(Type type, string propName)

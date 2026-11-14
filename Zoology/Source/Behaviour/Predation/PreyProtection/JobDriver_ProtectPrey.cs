@@ -12,7 +12,8 @@ namespace ZoologyMod
         private static int MAX_DISTANCE_SQ => PreyProtectionUtility.GetProtectionRangeSquared();
 
         private int startTickLocal = -1;
-        private bool notifiedPlayer = false;
+        // Set only if the attacker retreats beyond the protected prey.
+        private bool threatRetreated;
 
         public Pawn TargetPawn => this.job.GetTarget(TargetIndex.A).Thing as Pawn;
         public Corpse PreyCorpse => this.job.GetTarget(TargetIndex.B).Thing as Corpse;
@@ -22,7 +23,6 @@ namespace ZoologyMod
         {
             base.ExposeData();
             Scribe_Values.Look(ref startTickLocal, "startTickLocal", -1, false);
-            Scribe_Values.Look(ref notifiedPlayer, "notifiedPlayer", false, false);
             if (Scribe.mode == LoadSaveMode.PostLoadInit)
             {
                 try
@@ -86,7 +86,9 @@ namespace ZoologyMod
                 try
                 {
                     ProtectPreyState.NotifyProtectPreyJobEnded(actorPawn, this.job);
-                    ZoologyNotificationUtility.TryNotifyProtectionEnded(actorPawn, this.TargetPawn, this.PreyCorpse ?? (Thing)this.ProtectedPawn);
+                    ZoologyNotificationUtility.TryNotifyProtectionEnded(
+                        actorPawn, this.TargetPawn, this.PreyCorpse ?? (Thing)this.ProtectedPawn,
+                        cond, threatRetreated);
                     if (actorPawn != null && actorPawn.Map != null)
                         actorPawn.Map.attackTargetsCache.UpdateTarget(actorPawn);
                 }
@@ -123,10 +125,6 @@ namespace ZoologyMod
                         catch { /* non-fatal */ }
                     }
 
-                    if (corpse != null)
-                    {
-                        TryWarnPlayer();
-                    }
                     startTickLocal = Find.TickManager?.TicksGame ?? 0;
                     try
                     {
@@ -263,6 +261,7 @@ namespace ZoologyMod
 
                     if (!PreyProtectionUtility.IsPawnWithinProtectionRange(targ, anchorMap, anchorPos, MAX_DISTANCE_SQ))
                     {
+                        threatRetreated = true;
                         actorPawn?.jobs?.EndCurrentJob(JobCondition.Succeeded, true, true);
                         return;
                     }
@@ -286,60 +285,6 @@ namespace ZoologyMod
             yield return attackToil;
 
             yield break;
-        }
-
-        private void TryWarnPlayer()
-        {
-            try
-            {
-                if (this.notifiedPlayer) return;
-                Pawn targ = this.TargetPawn;
-                Corpse corpse = this.PreyCorpse;
-                if (targ == null || corpse == null) return;
-
-                
-                
-                try
-                {
-                    if (PredatorPreyPairGameComponent.IsProtectionNotificationSuppressedForCorpse(corpse.thingIDNumber))
-                    {
-                        this.notifiedPlayer = true;
-                        return;
-                    }
-                }
-                catch { /* ignore suppression errors */ }
-                
-
-                
-                if (!targ.Spawned) return;
-                if (targ.Faction != null && targ.Faction == Faction.OfPlayer)
-                {
-                    
-                    string label = "LetterLabelPredatorProtectingPrey".Translate(this.pawn.LabelShort, targ.LabelDefinite(), this.pawn.Named("PREDATOR"), targ.Named("PREY"));
-                    string text = "LetterPredatorProtectingPrey".Translate(this.pawn.LabelIndefinite(), targ.LabelDefinite(), this.pawn.Named("PREDATOR"), targ.Named("PREY"));
-                    
-                    if (label.NullOrEmpty() || label.Contains("LetterLabelPredatorProtectingPrey"))
-                        label = $"{this.pawn.LabelShort} is protecting its prey";
-                    if (text.NullOrEmpty() || text.Contains("LetterPredatorProtectingPrey"))
-                        text = $"{this.pawn.LabelShort} is protecting its prey and is attacking {targ.LabelDefinite()}.";
-
-                    if (targ.RaceProps.Humanlike)
-                    {
-                        Find.LetterStack.ReceiveLetter(label.CapitalizeFirst(), text.CapitalizeFirst(), LetterDefOf.ThreatBig, this.pawn, null, null, null, null, 0, true);
-                    }
-                    else
-                    {
-                        Messages.Message(text.CapitalizeFirst(), this.pawn, MessageTypeDefOf.ThreatBig, true);
-                    }
-
-                    this.pawn.mindState.Notify_PredatorHuntingPlayerNotification();
-                    this.notifiedPlayer = true;
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Warning($"Zoology: JobDriver_ProtectPrey TryWarnPlayer exception: {ex}");
-            }
         }
     }
 }

@@ -494,6 +494,34 @@
       <xpath>/Defs/ThingDef[defName = "AEXP_BlackBear"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_VenomSample, ZoologyMod"]</xpath>
     </match>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AEXP_BlackBear"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_OffspringShelter, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AEXP_BlackBear"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_OffspringShelter, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "AEXP_BlackBear"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_OffspringShelter, ZoologyMod">
+        <mode>DEN</mode>
+      </li>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AEXP_BlackBear"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AEXP_BlackBear"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "AEXP_BlackBear"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_WinterDormancy, ZoologyMod">
+        <mode>DENNING</mode>
+      </li>
+    </value>
+  </Operation>
   <!-- AEXP_BlackBear PawnKindDef -->
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/PawnKindDef[defName = "AEXP_BlackBear"]/combatPower</xpath>

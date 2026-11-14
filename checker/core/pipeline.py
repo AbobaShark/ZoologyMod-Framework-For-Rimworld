@@ -18,8 +18,12 @@ from core.xml_routing import digest,find_project_root,route_dependency,RETIRED_L
 from core.generated_source_contract import LIFE_STAGE_ATTACK_CSHARP_HEADER
 from core.static_stats import read_table,update_bionics,SHEET_REQUIRED
 from core.life_stage_species_profiles import (
-    render_species_life_stage_profiles, render_life_stage_attack_profiles_cs)
+    render_species_life_stage_profiles, render_life_stage_attack_profiles_cs,
+    render_juvenile_graphic_profiles)
 from core.life_stage_mass_contract import audit_mass_profiles
+from core.sex_dimorphism import audit_mean_sex_dimorphism
+from core.sex_adult_profiles import audit_sex_adult_profiles
+from core.sex_adult_export import render_sex_adult_profiles
 from core.animalstats_source import is_multisheet_source
 from core.production_stats import render_reproduction
 from core.checker_config import ROOT
@@ -365,12 +369,41 @@ def stage_pipeline(source, *, root=None, registry_path=None, sheet_sources=None,
                 )
                 if mass_diagnostics is not None:
                     diagnostics['biological_mass_coverage'] = mass_diagnostics
+                # Validate the native evaluated mean-sex inputs. This audit
+                # does not create incomplete male/female combat endpoints:
+                # those must be calculated by AnimalStats before deployment.
+                if sheets.get('SexDimorphism') or is_multisheet_source(source):
+                    sex = sheet_frame('SexDimorphism')
+                    animals = sheet_frame('Animals')
+                    baseline = (sheet_frame('Base stats')
+                                if sheets.get('Base stats') or is_multisheet_source(source)
+                                else None)
+                    diagnostics['sex_dimorphism_means'] = audit_mean_sex_dimorphism(
+                        sex, animals, baseline)
+                    diagnostics['sex_adult_endpoints'] = audit_sex_adult_profiles(
+                        sheet_frame('SexAdultProfiles'), sex, animals,
+                        base_stats=baseline)
+                    sex_payload, sex_diagnostics = render_sex_adult_profiles(
+                        sheet_frame('SexAdultProfiles'), sex, animals,
+                        sheet_frame('Animals CE'), profile_table, base_stats=baseline)
+                    diagnostics['sex_adult_export'] = sex_diagnostics
+                    sex_output = output_by_id(registry, 'life-stages.sex')
+                    emit(sex_output['destination'], sex_output['category'],
+                         sex_payload, sex_output.get('requires'))
+                    entry_by_dest[sex_output['destination']]['pipeline_category'] = 'life-stages'
                 e=output_by_id(registry,'life-stages.species')
                 emit(e['destination'],e['category'],payload,e.get('requires'))
                 entry_by_dest[e['destination']]['pipeline_category']='life-stages'
                 results.append({'destination':e['destination'],
                                 'changes':[{'regenerated':'life-stages.species',
                                             'diagnostics':diagnostics}],'warnings':[]})
+                juvenile_payload, juvenile_diagnostics = render_juvenile_graphic_profiles(
+                    profile_table)
+                juvenile_output = output_by_id(registry, 'life-stages.juvenile-graphics')
+                emit(juvenile_output['destination'], juvenile_output['category'],
+                     juvenile_payload, juvenile_output.get('requires'))
+                entry_by_dest[juvenile_output['destination']]['pipeline_category'] = 'life-stages'
+                diagnostics['juvenile_graphics'] = juvenile_diagnostics
                 attack_code, attack_diagnostics = render_life_stage_attack_profiles_cs(
                     sheet_frame('LifeStageProfiles'))
                 e = output_by_id(registry, 'life-stages.attacks.cs')

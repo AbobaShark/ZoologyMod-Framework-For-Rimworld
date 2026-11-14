@@ -13,6 +13,9 @@ namespace ZoologyMod
 
         private int startTickLocal = -1;
         private int nextRetargetTickLocal = -1;
+        // True only after the attacker leaves the guarded territory. The
+        // finish callback also checks the actual job termination condition.
+        private bool threatRetreated;
 
         private Pawn TargetPawn => job.GetTarget(TargetIndex.A).Thing as Pawn;
         private Thing ProtectedThing => job.GetTarget(TargetIndex.B).Thing;
@@ -33,11 +36,12 @@ namespace ZoologyMod
         {
             Pawn actorPawn = pawn;
 
-            AddFinishAction(delegate
+            AddFinishAction(delegate (JobCondition condition)
             {
                 try
                 {
-                    ZoologyNotificationUtility.TryNotifyProtectionEnded(actorPawn, TargetPawn, ProtectedThing);
+                    ZoologyNotificationUtility.TryNotifyProtectionEnded(
+                        actorPawn, TargetPawn, ProtectedThing, condition, threatRetreated);
                     actorPawn?.Map?.attackTargetsCache?.UpdateTarget(actorPawn);
                 }
                 catch (Exception ex)
@@ -133,6 +137,9 @@ namespace ZoologyMod
                             return;
                         }
 
+                        // The threat has genuinely withdrawn; unlike the
+                        // other success/interrupt paths, calm is appropriate.
+                        threatRetreated = true;
                         actorPawn?.jobs?.EndCurrentJob(JobCondition.Succeeded, true, true);
                         return;
                     }

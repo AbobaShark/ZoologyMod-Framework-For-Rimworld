@@ -119,9 +119,9 @@ namespace ZoologyMod
                 newRemove.workerClass = typeof(Recipe_RemoveImplant);
                 newRemove.removesHediff = hediff;
                 newRemove.addsHediff = null;
-                newRemove.label = $"remove {hediff.label.ToLower()} (animal)";
-                newRemove.description = $"Remove {hediff.label} (for animals).";
-                newRemove.jobString = $"Removing {hediff.label}.";
+                newRemove.label = "Zoology_RemoveAnimalImplant_Label".Translate(hediff.label).ToString();
+                newRemove.description = "Zoology_RemoveAnimalImplant_Desc".Translate(hediff.label).ToString();
+                newRemove.jobString = "Zoology_RemoveAnimalImplant_Job".Translate(hediff.label).ToString();
                 if (hediff.spawnThingOnRemoved != null)
                 {
                     newRemove.descriptionHyperlinks = new List<DefHyperlink> { new DefHyperlink(hediff.spawnThingOnRemoved) };
@@ -138,8 +138,8 @@ namespace ZoologyMod
         {
             var clone = DeepCloneDef(source);
             clone.defName = newDefName;
-            clone.label = source.label + " (animal)";
-            clone.description = source.description + " (for animals)";
+            clone.label = "Zoology_AnimalImplantRecipe_Label".Translate(source.label).ToString();
+            clone.description = source.description;
             clone.appliedOnFixedBodyParts = newParts;
             clone.addsHediff = newHediff ?? source.addsHediff;
             clone.recipeUsers = newUsers;

@@ -1,120 +1,95 @@
 # Zoology: Realistic Animal Overhaul
 
-<img src="https://i.ibb.co/ZpLXjc8Z/Preview.png">
+<img src="https://i.ibb.co/ZpLXjc8Z/Preview.png" alt="Zoology preview">
 
-Zoology is a data-driven animal overhaul for RimWorld 1.6. It replaces broad vanilla animal assumptions with species-specific statistics, ecology and behavior derived from zoological data, then maps those inputs into RimWorld-compatible gameplay.
+Zoology overhauls animals in **RimWorld 1.6 and 1.7**, combining zoological species data, generated XML definitions, and C# behavior systems. Its goal is biologically plausible ecology, development, predation, reproduction, and animal husbandry within RimWorld's gameplay.
 
-The project combines generated XML patches with runtime systems. The generated layer handles animal statistics, life stages, biome placement, products, anatomy and combat definitions; the runtime layer handles behavior that cannot be expressed reliably through static Def patches alone.
+**Animal barns and some other features require RimWorld 1.7.**
 
-## What Zoology changes
+## Features
 
-Zoology changes animal statistics, ecology, behavior, products, anatomy and combat. Depending on the species and installed content, it can change:
+### Animal biology and growth
 
-- body size, health scale, movement, hunger and carrying-related values;
-- growth, life stages, gestation, litter or clutch behavior and wild reproduction;
-- biome distribution, ecosystem weight and other ecological placement;
-- combat power, melee tools, attack cooldowns and life-stage combat scaling;
-- vanilla and Combat Extended melee balance from biomechanical inputs;
-- meat, leather, eggs, milk and wool-related production;
-- anatomy, body definitions, graphics and selected sound assignments;
-- predation, pack hunting, prey fleeing, scavenging and corpse defense;
-- mammal lactation, newborn nursing and handler feeding of hungry mammal babies;
-- childcare, egg-clutch protection and incubation;
-- pet recreation, expanded bonding and direct animal control;
-- NPC animal companions in standard mixed human groups;
-- ectothermy, wound licking and several species-specific physiological rules;
-- per-species runtime feature assignment, human-directed fleeing and roamer/trainability settings.
+- Species-specific body mass, BodySize, health, movement, hunger, lifespan, and ecological properties.
+- Species-specific daily growth in body size and characteristics when **Dynamic animal growth** is enabled.
+- **Sexual dimorphism**: male and female differences in adult body size, characteristics and appearance, developing during maturation.
+- **Automatic young-animal sprite scaling** based on juvenile and adult body mass.
+- Data-derived natural attacks, armor, Combat Power, cooldowns, and Combat Extended values, including stage- and sex-dependent differences.
+- Revised anatomy, meat, leather, wool, milk, eggs, and biome assignments for supported animals.
 
-The target is biological plausibility inside RimWorld's mechanics, not literal simulation. Game-facing quantities such as Combat Power remain separate from the underlying biological inputs so encounter generation and pawn-group budgets remain usable.
+### Ecology and survival
 
-## Requirements
+- Prey selection using current size, strength, age, protective adults, and species-specific feeding restrictions.
+- Pack hunting, stalking, land and water ambushes, herd warning, and pursuit limits.
+- Food selection across live prey, carrion, fishing, plant harvesting and shelter raids; wild animal foraging with Odyssey.
+- Constriction, animal venoms, venom samples and craftable antivenoms.
+- Flight from credible threats, including water escape, climbing into trees, and entering burrows; concealed or sufficiently slow predators do not automatically provoke every shelter response.
+- Predators defending kills; scavengers consuming suitable carrion; specialist animals raiding nests, excavating burrows and digging up graves.
+- Wild mating, ecosystem-capacity controls, **per-species wild population limits**, and family-aware departures from overcrowded maps.
+- Ectotherm behavior, optional **water-habitat seeking**, wound licking (including colony animals assigned No medical care), and separately configurable **winter dormancy**.
+- Inland water habitat influences natural animal spawning, favoring suitable aquatic and wetland species.
 
-- RimWorld 1.6
-- Harmony
+### Reproduction and offspring care
 
-Official DLC-dependent behavior is enabled only when the relevant content is present. The current load configuration contains dedicated conditional patch folders for Biotech and Odyssey; other DLC-dependent runtime branches are gated by the APIs they use.
+- Mammalian lactation, nursing, milk-dependent young, and handler feeding.
+- Childcare, parent/offspring association, cooperative defense, and clutch guarding.
+- Bird **tree and ground nests** for eggs and chicks; tree nests appear in the canopy. Flight develops with age in supported birds.
+- **Shared animal burrows and maternity dens** for hiding, nursing young and defending offspring from intruders.
+- **Marsupial pouches** for dependent offspring.
+- Amphibian **external fertilization** (Odyssey) of aquatic roe; each clutch develops into a swimming tadpole group, which later releases young frogs. Roe and tadpole groups are not consumed by their own species.
+
+### Husbandry and colony interaction
+
+- The **animal barn** (RimWorld 1.7) houses animals and stores feed, with a configurable total BodySize capacity (default **32.5**) and species, sex, age, lactation, and dependent-young filters.
+- Barn and pen handling, nutrition allocation, nursing-mother balancing, breeding, egg production, and auto-slaughter for stored animals.
+- Pet recreation, bonding, animal training and direct-control interoperability.
+- NPC animal companions in compatible human pawn groups, plus protections for small noncombatant pets.
+- Optional animal bionics, species-specific physiological extensions, and compatibility fixes.
+
+## Behavior settings
+
+The following behaviors can be configured in the mod settings:
+
+- **Advanced animal food selection:** nutritional value, accessibility and effort influence feeding choices.
+- **Wild animal foraging (Odyssey):** suitable hungry wild animals gather local food.
+- **Advanced threat avoidance:** tree, burrow and terrain refuges during predator encounters.
+- **Advanced reproductive behavior:** bird nests, marsupial pouches, amphibian roe/tadpole development and related offspring shelter care.
+- **Water habitat behavior:** idle movement toward appropriate water and dry-land exits.
+- **Winter dormancy:** species-specific seasonal torpor and winter denning.
+
+**Family dens require both advanced reproductive behavior and advanced threat avoidance.**
+
+## Requirements and compatibility
+
+- RimWorld **1.6 or 1.7**;
+- [Harmony](https://github.com/pardeike/HarmonyRimWorld).
+
+Zoology includes conditional patches or runtime integration for **Biotech**, **Odyssey**, **Royalty**, **Combat Extended**, **Vanilla Expanded Framework**, **Vanilla Animals Expanded** (including Royal, Endangered, and Waste Animals), **Alpha Animals**, **Alpha Biomes**, **Dinosauria**, and **Megafauna**. Optional content is loaded only when the corresponding mod or DLC is present.
+
+With Combat Extended, Zoology uses specialized animal attack, armor and penetration data.
 
 ## Installation
 
-Install Zoology like any other RimWorld mod and load it after Harmony. The mod metadata also declares ordering after RimWorld and the supported animal/combat frameworks it patches.
+Install Zoology after Harmony in the RimWorld mod list.
 
-Steam Workshop:
+[Steam Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3679396881)
 
-https://steamcommunity.com/sharedfiles/filedetails/?id=3679396881
+## Animal data and generation
 
-## Major gameplay systems
+The main animal-data workbook is [AnimalStats — WORKING](https://docs.google.com/spreadsheets/d/1BsPzRPFLFx2HL4UdlVo058kryub3C4a9ezQ54CnGEB4/edit). Biomechanical source calculations are maintained in [Calculations — WORKING](https://docs.google.com/spreadsheets/d/1QWEZNRR6mV_5luNib6dS5oy8SzoF4g1XRcIQHOqbdqg/edit).
 
-The main configurable systems are:
+Checker validates these sources and exports XML and generated C# to registered destinations. Numerical source data and calculations belong in their workbooks; changes to generated output files alone may be overwritten during regeneration.
 
-- advanced predation and life-stage-aware threat evaluation;
-- coordinated pack hunting;
-- prey fleeing from active and non-hostile predators;
-- custom size-aware flee behavior and configurable fleeing from humans;
-- predator ownership and defense of kills;
-- scavenging, including optional access to very rotten remains;
-- swallow-whole restrictions for animals that cannot chew;
-- wild mating, ecosystem-capacity limits and overpopulation departure;
-- mammal lactation and nursing, including handler-fed mammal babies when nursing is unavailable;
-- childcare, family following, egg incubation and clutch defense;
-- pet recreation and expanded bonding;
-- Odyssey-gated Beastmastery-based direct control of eligible trained animals;
-- handler-bound NPC animal companions;
-- small-pet protection from inappropriate raid targeting;
-- human bionics on compatible animals;
-- slaughter aggression;
-- wound licking;
-- non-CE size-aware damage reduction;
-- ectothermic cold handling;
-- configurable roamers and trainability.
+## Documentation
 
-The complete settings reference, defaults, ranges, dependencies and restart-sensitive behavior are documented in [PLAYER_GUIDE.md](PLAYER_GUIDE.md).
-
-## Data-driven combat and statistics
-
-Animal values are produced from two working Google Sheets:
-
-- AnimalStats — WORKING  
-  https://docs.google.com/spreadsheets/d/1BsPzRPFLFx2HL4UdlVo058kryub3C4a9ezQ54CnGEB4/edit
-- Calculations — WORKING  
-  https://docs.google.com/spreadsheets/d/1QWEZNRR6mV_5luNib6dS5oy8SzoF4g1XRcIQHOqbdqg/edit
-
-Calculations contains the biomechanical source models used for bite force, tooth or appendage geometry, limb force and ramming calculations. Its production export is imported into AnimalStats, where those outputs are combined with species data, group defaults and explicit species overrides. AnimalStats then produces the final vanilla and Combat Extended tables consumed by the checker.
-
-The workbook structure and public modder-facing XML surface are documented in [FRAMEWORK.md](FRAMEWORK.md). The generation and validation toolchain is documented in [CHECKER.md](CHECKER.md).
-
-## Compatibility
-
-Dedicated conditional patch folders or integration are present for:
-
-- Combat Extended;
-- Vanilla Expanded Framework;
-- Vanilla Animals Expanded;
-- Vanilla Animals Expanded - Royal Animals;
-- Vanilla Animals Expanded - Endangered;
-- Vanilla Animals Expanded - Waste Animals;
-- Alpha Animals;
-- Alpha Biomes;
-- Dinosauria;
-- Megafauna.
-
-Additional runtime interoperability exists where Zoology can detect another drafting implementation or an optional health-system hook without taking ownership of that mod's behavior.
-
-**Animals Are Fun! (Continued):** There is no known technical incompatibility between the two mods. Both add recreational interactions between colonists and pets, so some functionality overlaps. You can use them together, or disable Zoology's **Pet recreation** setting if you prefer the activities provided by Animals Are Fun! (Continued).
-
-When Combat Extended is active, Zoology uses CE-specific animal combat data and disables its non-CE animal damage-reduction system. Combat Extended remains the combat backend; the optional Zoology override adds life-stage penetration handling for animal melee.
-
-## Repository documentation
-
-- [PLAYER_GUIDE.md](PLAYER_GUIDE.md) — gameplay behavior and every user-facing setting.
-- [FRAMEWORK.md](FRAMEWORK.md) — XML extensions, comps, interoperability and the spreadsheet/data model.
-- [CHECKER.md](CHECKER.md) — data-source loading, XML generation, patch fixing, reference simulation, optimization, compaction and tests.
+- [PLAYER_GUIDE.md](PLAYER_GUIDE.md) — gameplay mechanics, player controls, defaults, and husbandry.
+- [FRAMEWORK.md](FRAMEWORK.md) — modder-facing extensions, integration, and runtime architecture.
+- [CHECKER.md](CHECKER.md) — source-data ownership, Checker setup, generation, routing, and validation.
 
 ## Contributing
 
-Changes to generated animal statistics should be made at the source-data or model layer whenever possible. Direct edits to generated race patches can be overwritten by later regeneration.
-
-Useful contributions include better biological sources, corrections to species data, compatibility patches, additional animal datasets, code fixes, performance improvements and reproducible bug reports.
+Contributions should target the actual source of a behavior or statistic: the source workbook, generator, XML definition, or C# implementation as appropriate. Validate generated output and affected game behavior; text-matching source tests do not substitute for running RimWorld.
 
 ## License
 
-MIT License
+MIT License.

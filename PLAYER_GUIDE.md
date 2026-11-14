@@ -1,12 +1,12 @@
 # Zoology Player Guide
 
-Zoology changes much more than animal numbers. It combines a large generated rebalance of animal Defs with runtime behavior systems for predation, reproduction, parenting, feeding, pets, combat and NPC animal companions.
+This guide describes the currently implemented Zoology features in RimWorld 1.6/1.7. Some buildings are available only in RimWorld 1.7.
 
-This guide is organized by what a player actually sees in a colony or ecosystem. The complete settings reference is at the end. That separation is intentional: the behavior sections explain what the systems do and how they interact; the settings section tells you how to enable, disable or tune them.
+Zoology combines species-specific animal biology with predation, reproduction, parental care, feeding, husbandry, combat and interactions with people.
 
-## 1. The data-driven animal overhaul
+The settings reference is at the end of the guide.
 
-A large part of Zoology is active before any runtime behavior is considered. Animal race patches are generated from the project's species data and calculation workbooks and then loaded by RimWorld as ordinary XML.
+## Animal biology and development
 
 ### Species statistics
 
@@ -29,7 +29,7 @@ Biological measurements are converted into game-facing quantities so that encoun
 
 ### Anatomy and attack tools
 
-Zoology ships additional or corrected animal body definitions and body-part groups for animals whose anatomy cannot be represented well by the limited vanilla body templates. Supported mod animals can receive the same treatment.
+Animal anatomy and natural attacks reflect the species' body plan.
 
 Melee tools are also species-specific. A bite, horn strike, claw swipe, kick or other attack can have its own damage, cooldown, selection weight and, when Combat Extended is present, its own penetration values.
 
@@ -39,10 +39,25 @@ Sex-restricted melee tools expose sexually dimorphic attacks only to the appropr
 
 Zoology gives babies and juveniles distinct life-stage factors for body size, health, hunger, movement, armor and melee performance, and it uses separate life-stage factors when behavior systems compare Combat Power. A juvenile predator, a newborn prey animal and an adult of the same species can therefore make different decisions because their effective body size and combat strength differ.
 
+### Daily animal growth
+
+With **Dynamic animal growth** enabled (default: on), young animals gradually increase in size and develop their species-specific characteristics each biological day, including their health, hunger, armor, movement and natural attacks. With growth disabled, these characteristics change at life-stage transitions.
+
+### Sexual dimorphism
+
+With **Sexual dimorphism** enabled (default: on), supported species have distinct male and female adult sizes, appearance and characteristics. Differences develop during the juvenile-to-adult interval when dynamic growth is active. The two settings can be configured independently.
+
+### Flight development
+
+Flight availability depends on biological age in supported flying species. Hatchlings of species that develop flight later acquire the ability as they mature.
+
+### Automatic young-animal graphics
+
+**Automatic juvenile sprite scaling** is a separate enabled-by-default option. Zoology scales baby and juvenile graphics using their body masses relative to adults. Female-specific textures are used when the animal has separate artwork; otherwise a common texture is scaled to the animal's size. Dynamic growth applies its day-by-day visual interpolation separately.
 
 ### Pregnancy and animal products
 
-The static patch layer also changes husbandry-related values. Examples include:
+Species-specific husbandry characteristics include:
 
 - pregnancy increases hunger progressively through its stages;
 - egg-laying intervals and clutch sizes are species-specific;
@@ -53,8 +68,6 @@ The static patch layer also changes husbandry-related values. Examples include:
 - leather market, protection and insulation values are rebalanced;
 - chitin and other non-mammalian materials are handled separately where the animal data require it.
 
-These changes are independent of the optional runtime lactation system. A cow's ordinary milkable comp, for example, is a production mechanic; Zoology's lactation system is about nursing newborn mammals.
-
 ### Biomes and ecology
 
 Supported animals receive revised biome commonality and ecological placement. Zoology patches Core biomes, Odyssey biomes and compatible third-party biome/animal mods.
@@ -63,19 +76,38 @@ The same ecological data also matter to Zoology's wild-reproduction capacity sys
 
 Wild population management also includes an independent, optional per-species cap (30 by default, configurable from 10 to 100). The cap counts wild animals of each race on the map, not owned animals. Wild breeding and routine wildlife spawning avoid species at capacity. Over-limit populations are encouraged to leave using the existing family-aware departure jobs; dependent young do not leave their mother behind. When the total ecosystem-weight limit is exceeded, departure favors species that contribute most to the excess instead of picking a uniformly random animal. Scripted and quest-related spawns are not rejected by the cap.
 
+### Natural spawns of water-dependent species
+
+Natural wild animal spawning responds to inland water, including
+rivers, lakes, ponds, and marsh terrain. Ocean water is excluded. The size
+and connectivity of all inland water areas are evaluated together.
+Smaller water-dependent animals can spawn near smaller ponds, whereas
+giant crocodilians and hippopotamuses require substantial connected
+water habitats. Requirements use the final in-game body size and
+ectothermic classification, not a fixed common water-cell threshold.
+
+On very wet maps, water-dependent wildlife can gain up to three times
+its usual spawning selection weight; ordinary land wildlife can fall
+to one-third of its usual weight. Only animals included in a biome's
+coastal spawn pool are exempt. Species in pollution spawn pools are
+also weighted according to inland water habitat.
+Normal biome eligibility, temperatures, group sizes and other
+game spawning restrictions still apply. Incidents, quests, and
+explicitly spawned animals are unchanged.
+
 ### Cross-breeding and related species
 
 Zoology adds selected cross-breeding relationships where the underlying animals are treated as compatible. In Core, the shipped patches include Arctic/Timber wolf compatibility and, when the relevant expanded-animal package is absent, Labrador/Husky compatibility.
 
-The same race-level compatibility is reused by several runtime systems. A compatible lactating female can nurse a compatible cross-bred baby, and the wild-mating system can search allowed cross-breed targets.
+Compatible species can also nurse related cross-bred offspring and mate in the wild.
 
-### Other static corrections
+### Other animal characteristics
 
-The XML layer also contains smaller corrections that are visible in normal play, including selected animal graphics, shadows, sounds, caravan carrier choices, body-clock data, egg/hatcher definitions and compatibility-specific race patches.
+Selected animals have revised graphics, sounds, day/night activity and caravan roles.
 
-For example, the Core caravan patch assigns Horse and Donkey carrier entries to Outlander and tribal trader groups.
+Outlander and tribal traders can use horses and donkeys as pack animals.
 
-## 2. Predation is based on the actual predator and prey
+## Predation is based on the actual predator and prey
 
 Zoology extends prey selection with size, health, life stage and danger checks after RimWorld determines that a target is legal food.
 
@@ -110,11 +142,41 @@ Default: enabled.
 
 Pack hunting provides additional support when a herd/pack predator encounters prey that would be too dangerous for one hunter. Nearby supported pack participation contributes additional combat strength to prey-selection and pack-hunt decisions around the selected prey.
 
+### Hunting strategies
+
+Different predators hunt in different ways. A wolf relies on pursuit, a cougar tries to get close before its prey reacts, and an alligator can exploit the water to surprise animals on the shore. The effectiveness of these strategies depends on the actual individuals involved: a young, injured or exhausted predator may be much less capable than a healthy adult.
+
+| Strategy | How the animal hunts | Examples |
+| --- | --- | --- |
+| Pursuit | Approaches and chases prey directly, relying on movement speed and combat ability. | Timber and arctic wolves, red foxes, grizzly bears |
+| Land ambush | Tries to approach undetected before rushing into melee range. | Cougars, panthers, lynxes, cobras |
+| Water ambush | Uses water for concealment and considers whether prey can be caught on land or near the shore. | Alligators and bullfrogs (Odyssey); crocodiles (Vanilla Animals Expanded) |
+
+#### Stalking and the final attack
+
+A stalking predator tries to reach a position close to its chosen prey before launching the attack. A very slow target may be approached directly, whereas a fast or flying target encourages a closer stealth approach. The presence of a nearby tree or burrow that the prey can use also influences how close the predator needs to get.
+
+While stalking, the hunter may be hidden from potential prey. Detection is more likely for a large, moving predator at close range with a clear line of sight. A motionless hunter is less conspicuous, and stalking ectotherms are harder to detect. Sleeping or downed animals do not act as alert observers.
+
+Nearby alert members of the intended prey's species can detect the hunter and warn their group. Unrelated animals can notice the same predator and flee independently. Prey that recently escaped a hunter can remain alert to it.
+
+Once detected, the predator may continue the hunt as an ordinary chase. If the prey is already much faster or has escaped into a tree, the predator may abandon the attempt instead. For a successful hidden approach, the hunter retains its concealment into the initial attack.
+
+#### Water ambushes
+
+A water-ambushing predator can remain concealed from animals on dry land while it is in water. Swimming ability, land speed and the location of the prey matter. A fast terrestrial animal far from water is a poor target for a slow water specialist; prey at the shoreline or in water may be much easier to catch.
+
+Animals that reach the water are therefore not automatically safe. Water can be an escape route from a land hunter and a dangerous place when an aquatic predator is nearby.
+
+#### What this means for your colony
+
+Treat different predators as different hazards. A visible wolf on open ground may give its prey time to run; a stalking cat or a concealed alligator can get much closer before an attack. Keep vulnerable livestock away from dangerous shorelines and pay attention to the current activity of nearby predators.
+
 ### Chase limits
 
-Zoology tracks predator-prey pursuits. If a hunt turns into a prolonged chase and the predator is still not in immediate melee range, the pursuit can be stopped and that predator/prey pair temporarily blocked.
+An unsuccessful hunt consumes time and leaves the predator hungry. Zoology tracks individual pursuits and can terminate a chase when the hunter has failed to reach melee distance within the allowed time. Ambush hunters have a shorter pursuit limit than direct chasers.
 
-Prolonged unsuccessful chases therefore end instead of continuing indefinitely.
+A fleeing animal that is more than 50% faster than its pursuer in the relevant terrain can be recognized as impractical to catch. Injury, flight and the terrain can change that assessment. An abandoned pursuit temporarily discourages the same predator from selecting the same prey again.
 
 ### Protected young affect prey choice
 
@@ -122,7 +184,31 @@ The childcare system feeds back into predation. A baby or juvenile with a credib
 
 That does not make young completely immune. Protection depends on the actual protector, threat and childcare settings.
 
-## 3. Prey fleeing and threat awareness
+## Prey fleeing and threat awareness
+
+### Stalking, herd awareness and escape routes
+
+With **Advanced threat avoidance** enabled, an animal can choose an escape route suited to its species rather than simply running across open ground. Squirrels and raccoons can climb trees; burrowing species such as rats and foxes can hide underground; suitable swimmers can retreat into water.
+
+Refuges are selected in response to credible danger. A sleeping, incapacitated or undetected predator does not automatically send nearby animals into hiding. A much faster animal can often continue ordinary escape behavior instead of hiding from a slower predator. A predator that is actively attacking or has approached within striking distance can still provoke a refuge response.
+
+#### Climbing trees
+
+Suitable animals can climb a sufficiently grown, accessible tree. Both the animal's current BodySize and the space remaining in the crown matter. Several small animals can occupy one tree if its canopy has room. A tree already occupied by a nest has less space available.
+
+While at canopy height, the animal is protected from melee attacks by creatures that cannot climb that tree or fly. Climbing or flying predators and ranged attacks remain dangerous. An animal can also sleep in a tree or lick its wounds while sheltering there.
+
+A hiding animal reassesses nearby danger before descending. It normally waits until the area has remained clear for three consecutive checks (180 ticks). Hunger below 20% or a threat capable of reaching the animal can make it descend and attempt a ground escape. An animal sleeping in a tree can descend when rested.
+
+To inspect a perched animal, select its visible sprite in the canopy or select the tree and use the selection commands for its occupants. A selected perched animal or tree nest also provides a command to select the supporting tree. Cutting down a tree removes the refuge and destroys any attached nest.
+
+#### Burrows and escape into water
+
+Animals can use accessible burrows with suitable entrances and sufficient room. Some animals dig their own burrows during safe periods and later use them for rest or emergency shelter. Underground refuges can be shared, but their occupants may be vulnerable to specialist digging predators.
+
+An animal that moves particularly well in water may flee toward water instead of running away on land. Conversely, a land animal in water can seek a safer dry escape route. The relative movement abilities of the prey and its pursuer influence which escape route is useful.
+
+**Advanced threat avoidance** controls these specialized escapes. The predator-fleeing and human-fleeing options control which ordinary encounters provoke flight.
 
 ### Fleeing from an active predator
 
@@ -186,7 +272,7 @@ These are RimWorld BodySize values, not kilograms. Player animals at or above th
 
 The Dev feature "Flying flee start" enables Zoology's special flee-start handling for supported flying animals so their escape behavior can begin through the appropriate flight path.
 
-## 4. Predators can own and defend a kill
+## Predators can own and defend a kill
 
 Default: enabled.
 
@@ -216,7 +302,124 @@ This Combat Power test uses Zoology's life-stage-aware combat values where appro
 
 A predator that has committed to defending food may temporarily stop using ordinary flee behavior while contesting the protected corpse.
 
-## 5. Scavengers are adapted to carrion
+### Defense warnings
+
+When animals become aggressive toward a colonist or another colony member while defending a kill, young, eggs, a nest or a family den, the game warns you. Defense by several animals together is reported as a major threat.
+
+## Animal food selection and foraging
+
+**Advanced animal food selection** (on by default, under Other behavior) gives animals a broader choice of ways to obtain food. An animal can pass up a nearby but unrewarding option for a more useful one. The preferred food is not necessarily the same for every individual, even within one species.
+
+### How animals choose food
+
+Food must be edible for the species and life stage, accessible, and suitable under the normal feeding restrictions. Among available alternatives, Zoology considers the value of the food and how difficult it is to obtain.
+
+| Food source | What makes it attractive |
+| --- | --- |
+| Live prey | Suitable prey size, low danger, vulnerability, a favorable pursuit and the ability to consume the prey |
+| Unclaimed carcass | Edible meat that can be reached without catching and killing a living animal |
+| Raw food | Suitable available meat, fruit or other raw food; favored over prepared meals when access is comparable |
+| Plant harvest | A useful edible crop yield relative to the harvesting effort and the animal's food capacity |
+| Fishing (Odyssey) | Accessible fishing water and sufficiently fast fishing for the animal |
+| Shelter raid | Edible eggs, prey or carrion worth the effort of accessing a nest, burrow or grave |
+| Wild foraging (Odyssey) | A small nutritious supply of local biome food relative to the gathering effort |
+
+The predator-specific comparisons use **Advanced predation logic** together with advanced food selection. For a hunting predator, a vulnerable nearby prey animal may be more attractive than a distant carcass; a free carcass can be more attractive than a dangerous chase. A guarded carcass can provoke aggression, so another reachable food source may be the better choice.
+
+The preference for raw food applies to both wild and owned animals. Keep suitable animal food available separately from colonist meals. Animals can still eat prepared meals if those are suitable for their diet and the available feeding options favor them.
+
+### Plant harvesting
+
+Omnivorous animals that can eat both meat and vegetables or fruit may harvest edible products from mature plants. This lets a suitable animal obtain berries or another harvestable crop rather than simply eating the plant itself.
+
+The estimated edible yield depends on plant maturity and condition. Harvesting also costs time: the game uses the work speed and yield associated with a Plants skill of 5 as the productivity reference. A plant that yields more food for the same amount of work is more attractive than a damaged or low-yield plant. The same harvest can be a substantial meal for a small animal and a poor investment for a large hungry bear.
+
+Animals harvest edible products, so crops accessible to wildlife may be lost to animal feeding. Fences and appropriate allowed areas can help control access by colony animals.
+
+### Fishing (Odyssey)
+
+Animals able to fish can compare a fishing trip against accessible prey, carrion and other food. Fishing requires a usable body of water containing fish. Fishing Speed determines the work required after the animal reaches its target. A proficient fisher near water can spend less time obtaining its food than a predator facing a difficult chase.
+
+Fishing, plant harvesting and wild foraging each use their own work and food-value estimates. No fixed order makes one of these activities the best food source for every animal.
+
+### Wild foraging (Odyssey)
+
+**Wild animal foraging (Odyssey)** allows hungry, factionless animals whose species supports the Forage ability to gather local food. The current biome must supply foraged food that the animal can eat. Suitable animals can use this ability without a player training them.
+
+A successful gathering job takes 240 ticks of work and produces 2–5 units of the biome's food. It uses the expected nutrition relative to the animal's food capacity, gathering effort and travel distance to compete with other feeding options. A small animal can obtain a useful portion from the same amount of food that barely feeds a large animal.
+
+Wild foraging requires Odyssey and advanced food selection. Both options can be changed during play.
+
+### Raiding shelters and graves
+
+Some food is protected by a natural structure rather than lying in the open. A sufficiently hungry predator may choose to access that food, provided its abilities and the target's suitability allow it.
+
+- **Burrows:** predators capable of digging, such as foxes, can excavate a burrow to reach suitable prey. The prey must still satisfy the predator's size and danger restrictions. A mother's protection of dependent young can make a family den a poor target.
+- **Nests:** predators that can reach a nest can attack it to obtain edible eggs or hatchlings. A tree nest is harder to access for a ground-bound animal.
+- **Graves:** sufficiently large animals capable of excavating soil (current BodySize of at least 1) can dig up edible corpses from ordinary graves. Grizzly bears are among the animals able to excavate. A sarcophagus is not an ordinary grave and does not provide this food source.
+
+Breaking into a shelter takes time, and prey inside may be guarded by a parent. A hungry animal can therefore prefer ordinary food, hunting or fishing if that offers a better opportunity.
+
+Keep vulnerable livestock and burial sites away from animals that can reach them. An occupied natural refuge offers protection, not guaranteed immunity from predation.
+
+## Constriction and venom
+
+Some animals use specialized natural weapons to disable or kill other creatures. These abilities matter both during wildlife encounters and when a colonist or owned animal fights the species.
+
+### Constriction
+
+Constrictors such as the anaconda from Vanilla Animals Expanded can seize prey following a successful nearby natural attack. The prey needs compatible anatomy and must be within the snake's maximum constrictible BodySize. The standard limit is the snake's own current BodySize. A smaller victim is easier to seize than a large one.
+
+The chance of grabbing a suitable target after an eligible attack depends on the relative sizes of the snake and its victim. For two animals of equal BodySize, the chance is 50% during hunting. Constriction is much less likely during ordinary combat outside a hunt.
+
+Once the snake takes hold, both animals occupy the same cell and the victim is immobilized or severely restricted. Its Health tab shows the **constriction** condition, which progresses through circulatory and respiratory impairment.
+
+| Constriction severity | Effect |
+| --- | --- |
+| Initial hold | Movement capacity capped at 15%; the hold restricts escape. |
+| 25% | Blood pumping and breathing become impaired. |
+| 55% | Severe circulatory impairment, reduced breathing and consciousness. |
+| 85% | Critical, life-threatening impairment. |
+| 100% and above | Circulatory collapse; continued constriction can kill the victim. |
+
+With the standard constriction profile, severity rises by 2.5 percentage points per real-time second at normal game speed. For ectothermic prey the standard rate is one quarter as fast. A conscious victim can periodically struggle free, with its relative size and consciousness affecting its chance.
+
+Attacking the constrictor can break its hold. More damaging hits relative to the snake's health scale are more likely to force a release. Killing or removing the snake also releases the victim. If a colonist or valuable animal is caught, intervening against the snake is therefore more useful than waiting for the victim to walk away.
+
+A predator that kills its prey by constriction can claim the carcass as food.
+
+### Venom
+
+Venom is delivered by designated natural attacks, including bites, stings and certain specialized spurs or other weapons. An attack must penetrate and cause injury for its venom to take effect. The delivered dose depends on the attack's venom profile, the penetrating damage and any applicable size or resistance scaling.
+
+A victim with a compatible biological anatomy can develop an envenomation condition in its Health tab. Different venoms affect different organs and functions. Incapacitation and death can occur after the original attack rather than immediately during combat.
+
+#### Venom types based on real animals
+
+| Animal | Venom type | Main effects | Matching antivenom |
+| --- | --- | --- | --- |
+| Cobra (Core) | Neurotoxic | Progressive weakness, impaired movement and manipulation, respiratory paralysis | Cobra |
+| Rattlesnake (Vanilla Animals Expanded) | Hemotoxic | Bleeding, clotting disturbances and circulatory impairment | Viper |
+| Monitor lizard (Odyssey) | Varanid | Clotting and cardiovascular disturbances | — |
+| Gila monster (Vanilla Animals Expanded) | Gila | Pain, swelling, weakness and reduced consciousness in severe cases | — |
+| Male platypus (Vanilla Animals Expanded) | Platypus | Severe pain, swelling and reduced movement and manipulation | — |
+| Megascorpion (Vanilla Animals Expanded) | Scorpion | Pain, weakness and progressive neuromuscular impairment | Scorpion |
+
+Zoology also supports venomous creatures from **Alpha Animals**, with additional venom profiles, physiological effects and corresponding antivenoms where applicable.
+
+#### Treating envenomation
+
+Inspect the victim's Health tab to identify the venom and current severity. Venom generally progresses before immunity develops; tending reduces progression and can help the patient recover. Severe venom can become lethal before the patient's immunity catches up, especially after repeated attacks.
+
+The correct antivenom removes the corresponding active venom condition when taken. Mismatched antivenom does not treat that condition. Ordinary injuries and other medical conditions still need appropriate care.
+
+#### Obtaining and crafting antivenom
+
+Designated venom-producing animals provide a venom sample when butchered at a reproductive life stage. For example, a rattlesnake yields the sample used for viper antivenom.
+
+Research **Medicine production** and use a drug lab to craft the appropriate antivenom. Each recipe consumes two herbal medicines and one matching venom sample, and uses Intellectual work. Stock the relevant types if venomous wildlife is common near the colony.
+
+## Scavengers are adapted to carrion
 
 Default: enabled for species marked as scavengers.
 
@@ -246,7 +449,7 @@ This immunity is specific to the scavenging system; it is not a blanket immunity
 
 ### Very rotten / desiccated remains
 
-The per-species allowVeryRotten parameter defaults to false.
+The scavenger species editor includes an option to allow consumption of desiccated remains; it is off by default.
 
 When it is enabled, a scavenger can use desiccated remains that would otherwise be rejected. Desiccated carrion is deliberately poor food: the scavenging code reduces its effective nutrition to 10% of the corpse's ordinary nutrition.
 
@@ -254,7 +457,7 @@ When it is enabled, a scavenger can use desiccated remains that would otherwise 
 
 Scavengers still consume the corpse through RimWorld's body-part ingestion model. Zoology does not turn a skeleton into a full fresh carcass or silently restore missing nutrition.
 
-## 6. Animals that cannot chew must swallow prey whole
+## Animals that cannot chew must swallow prey whole
 
 Default global feature: enabled for marked species.
 
@@ -262,9 +465,9 @@ ModExtension_CannotChew represents animals whose feeding strategy cannot reasona
 
 ### Prey-size limit
 
-The base maximum comes from the race's maxPreyBodySize.
+Advanced predation scales the maximum swallowable prey size to the individual's current BodySize relative to the species' average adult. Sex, age and growth therefore affect which prey can be swallowed.
 
-For a non-adult animal, Zoology additionally caps the limit by that individual's current BodySize. A baby of a species that can swallow large prey as an adult therefore cannot immediately consume adult-sized prey just because the race definition has a large maxPreyBodySize.
+For a non-adult animal marked `CannotChew`, the scaled limit is also capped at its current BodySize. A baby that can only swallow prey whole therefore cannot swallow adult-sized prey simply because its species has a large adult limit.
 
 ### Where the limit is used
 
@@ -276,7 +479,7 @@ The same rule is used in:
 
 A corpse that is too large is not made legal just because the eater is a scavenger.
 
-## 7. Mammal reproduction is followed by real nursing behavior
+## Mammal reproduction is followed by real nursing behavior
 
 Default: enabled for species marked as mammals.
 
@@ -285,8 +488,6 @@ Zoology's mammal system is designed so a newborn mammal does not immediately beh
 ### Birth starts lactation
 
 When a supported female mammal gives birth, Zoology applies the lactating hediff and associates the newborns with the birth context where possible.
-
-A backfill system handles already-existing games and cases where mother/newborn state has to be reconstructed after loading.
 
 The lactation state is maintained by nursing. It decays when the mother no longer feeds young and can be lost under severe malnutrition.
 
@@ -329,11 +530,9 @@ If the mother is downed or lying in bed, the baby can go to her and suckle inste
 
 Either side can therefore initiate nursing when its own think tree is evaluated first.
 
-## 8. Handlers can feed hungry mammal babies
+## Handlers can feed hungry mammal babies
 
 Default: enabled while mammal lactation is enabled.
-
-Handler feeding is an independent Handling WorkGiver.
 
 ### What handlers do
 
@@ -368,21 +567,19 @@ This feature does not turn juveniles or adult animals into handler-fed patients.
 
 The handler first checks suitable food already carried in inventory.
 
-If none is available, the WorkGiver searches the map for food the baby can actually eat under Zoology's baby-food rules.
+Otherwise the handler finds suitable baby food on the map.
 
-The search excludes drugs, corpses, food dispensers and opportunistic plant harvesting for this task. The selected food must still pass the baby's race food restrictions and the food's babiesCanIngest flag.
+The food must be suitable both for infants and for the species' diet.
 
 Handler feeding provides suitable food when the mother is absent, inaccessible, no longer lactating or temporarily unable to nurse.
 
 The handler-feeding option is subordinate to the main Mammal lactation setting. Turning lactation off suspends handler feeding but preserves the saved choice, which takes effect again when lactation is re-enabled. Switching handler feeding takes effect immediately and does not disable nursing by mothers.
 
-## 9. Mammal babies use baby food rules
+## Mammal babies use baby food rules
 
 While mammal lactation is active, Zoology changes ordinary food suitability for mammal babies.
 
 A food must be marked as ingestible by babies and must also be a food the animal's race can ever eat.
-
-Newborn mammals therefore use the baby-ingestibility flag in addition to the race's ordinary adult diet.
 
 The baby-specific logic also blocks the fishing job for mammal babies.
 
@@ -390,9 +587,9 @@ If no nursing interaction happens, a baby can still use suitable ordinary baby f
 
 ### Infant training
 
-While this system is active, Zoology suppresses the normal rare training-tracker tick for mammal babies. Infant feeding and survival are therefore not mixed with ordinary adult animal-training maintenance during the baby stage.
+Training maintenance is suspended for mammalian infants while the lactation system is active.
 
-## 10. Mammal babies in caravans
+## Mammal babies in caravans
 
 The nursing system also runs in caravans, where normal map jobs do not exist.
 
@@ -406,17 +603,17 @@ For a mammal baby in a caravan, Zoology:
 
 Caravans therefore preserve the newborn feeding model without map jobs.
 
-## 11. Lactation and auto-slaughter
+## Lactation and auto-slaughter
 
 "Allow slaughtering lactating animals" defaults to off.
 
-When it is off, Zoology removes lactating females from the effective counts used by auto-slaughter and prevents the auto-slaughter WorkGiver from selecting them.
+When it is off, auto-slaughter excludes lactating females from herd limits and slaughter selection.
 
-This protection is aimed at automatic herd management. A deliberate manual slaughter designation is not the same as an auto-slaughter selection and is not silently cancelled by the lactation exclusion.
+This protection is aimed at automatic herd management. A deliberate manual slaughter designation is still possible; the player receives a warning about the dependent young.
 
 This system is separate from the "Aggression at slaughter" feature. A species can have either, both or neither behavior.
 
-## 12. Childcare keeps young associated with adults
+## Childcare keeps young associated with adults
 
 Default: enabled for species marked with Zoology's childcare extension.
 
@@ -430,7 +627,7 @@ The wander behavior uses a short local radius around the mother.
 
 Zoology first tries to use the actual parent relation. If that relation is unavailable, it can reuse a mother observed by the birth/childcare systems, and as a fallback it can infer a nearby compatible adult female of the same species lineage and factional context.
 
-The fallback is used when relation data are incomplete and selects a nearby compatible adult female only when the lineage and faction checks pass.
+Dependent player-owned babies follow their biological mother's allowed area while they remain together. The Animals tab displays the inherited area. A sleeping baby wakes to follow its mother if she moves too far away and can be reached.
 
 ### Adults defend young
 
@@ -458,7 +655,7 @@ Nearby compatible protectors also contribute to predation decisions involving th
 
 A protector already defending young can switch to a more immediate valid aggressor instead of being locked forever to the first threat that triggered the job.
 
-## 13. Egg clutches have ownership, guarding and incubation
+## Egg clutches have ownership, guarding and incubation
 
 Egg protection is a childcare sub-feature and defaults to enabled.
 
@@ -476,7 +673,7 @@ A laying female can wander near her clutch. Compatible herd protectors can also 
 
 Supported animals can receive an incubation job for a nearby clutch. The childcare code searches locally for an incubation target and keeps the incubator at the egg for the configured incubation job duration.
 
-Completing the incubation job restores the egg's hit points to its maximum. The egg's normal hatching comp and overall days-to-hatch value remain unchanged.
+Incubation restores egg hit points.
 
 ### Defending eggs
 
@@ -486,7 +683,204 @@ The same minimum Combat Power setting used for protection from humans and mechan
 
 "Do not flee from humans while protecting clutch" defaults to on, so an animal that has actually qualified to defend its eggs does not immediately abandon them through the separate human-flee system.
 
-## 14. Family-aware wild departures
+## Reproduction shelters, aquatic development and husbandry
+
+### Tree and ground nests
+
+With **Advanced reproductive behavior** enabled, nesting birds can prepare a natural nest before laying their eggs. The kind of nest follows the species' reproductive strategy and normal habitat.
+
+| Nesting strategy | Examples | Hatchling behavior |
+| --- | --- | --- |
+| Tree nest, dependent (altricial) young | Sparrows, bluebirds, crows and macaws (Odyssey) | Chicks remain in the nest and receive food from parents. |
+| Ground nest, mobile (precocial) young | Chickens, ducks, geese, ostriches; quail (Odyssey) | Hatchlings leave the egg and can move and feed independently. |
+
+#### Building and laying
+
+A bird looks for a suitable reachable nest location. Tree-nesting birds need an appropriate living tree, and ground-nesting birds use a suitable site on the ground. A nest can be prepared before the female's eggs are fertilized. Only fertilized eggs are accepted into the nest. If the bird cannot find a usable nest or build one, it can lay its eggs outside.
+
+Tree nests appear in the crown and follow the tree's swaying movement. Select the nest itself to inspect its contents or select the supporting tree to access its attached nests.
+
+#### Incubation and parental care
+
+The nest holds the eggs, which develop according to their species' normal incubation period. Adults with egg care can incubate and defend them. Incubation repairs damaged eggs while the normal hatching progress continues.
+
+For altricial species, hatchlings can remain inside the nest until the next life stage. Both parents can feed their dependent offspring if they are mobile and have enough food. A parent with at least 55% of its food need filled can go to feed a chick whose food level is below 55%. Feeding transfers actual nutrition from the parent, leaving the adult with at least 35% of its food need. If several chicks are hungry, the available nutrition is shared according to their needs.
+
+Precocial hatchlings are not kept inside the nest for this feeding stage. They can begin moving and obtaining suitable food after hatching, even if their flight ability is still developing.
+
+#### Protecting nests
+
+Predators may attack accessible nests to reach eggs or chicks. Both parents can come to the defense of their offspring if they are nearby and able to fight. Protecting a breeding area and its food supply is particularly useful for tamed nesting birds with dependent young.
+
+Nests are natural structures. They gradually deteriorate after becoming empty, and a tree nest depends on its supporting tree. If a nest is destroyed or the tree is cut down, eggs and surviving young are released. A natural nest cannot be deconstructed as an ordinary player building.
+
+### Shared burrows and maternity dens
+
+Burrows and dens serve several purposes: resting, escaping from predators, raising dependent young and, for certain species, spending the winter underground.
+
+Ordinary refuge behavior requires **Advanced threat avoidance**. Family denning requires both **Advanced threat avoidance** and **Advanced reproductive behavior**. Winter denning has its own seasonal setting.
+
+#### Creating and sharing a shelter
+
+Capable animals dig natural shelters on suitable ground. Foxes and rats are examples of burrowing species; wolves and bears can use family dens. They can also enter a compatible existing refuge instead of digging a new one.
+
+The shelter's entrance size is based on the animal that built it. Its footprint and total capacity depend on the builder's current BodySize:
+
+| Builder BodySize | Shelter footprint |
+| --- | --- |
+| Below 0.5 | 1 × 1 |
+| 0.5 to below 2 | 2 × 2 |
+| 2 or greater | 3 × 3 |
+
+The adult occupancy budget is the entrance BodySize multiplied by the number of cells in the footprint. A small animal may therefore be able to use many more existing shelters than a large one. A family den also accommodates dependent young associated with its mother.
+
+Select the shelter to see its occupants and capacity. Natural shelters gradually lose hit points when unused, and occupied shelters can be maintained. Animals use them for sleep and may seek them when threatened.
+
+#### Maternity dens
+
+Suitable mothers prepare a den for their offspring. After birth they can carry dependent babies into it, where the young are protected while they grow. The mother may nurse while inside or return to the entrance to feed her offspring. A hungry infant can receive milk without forcing its mother to abandon the shelter.
+
+When the mother needs food, she can leave the den and obtain it. Young that reach the juvenile stage can emerge and begin following or feeding outside.
+
+A mother can defend her family den against a predator attempting to dig it open. An attack on the shelter can provoke defense from the beginning of excavation rather than only when the predator reaches a baby.
+
+#### Leaving the refuge
+
+Animals leave an ordinary refuge when hunger drops below 20%, when they have rested and the threat has passed, or when sufficiently urgent medical or reproductive needs require them to emerge. Winter-dormant occupants follow their seasonal exit rules. Destroying a shelter releases surviving occupants.
+
+For colony management, inspect the natural shelter before assuming an animal has disappeared. The occupants are still living animals with their own age, hunger and health.
+
+### Marsupial pouches
+
+With **Advanced reproductive behavior** enabled, pouch-bearing mammals such as kangaroos and koalas from Vanilla Animals Expanded keep their dependent young in a maternal pouch.
+
+A newborn is carried by its mother during its infant stage. It grows, ages and experiences hunger and other physiological needs inside the pouch. Nursing draws nutrition from the mother just as it does for other lactating mammals. A nursing mother therefore needs adequate food even when her offspring are not visibly moving around the map.
+
+Select a female with a pouch and open the **Pouch** tab. It shows the number of young and allows you to select an individual offspring or open its information card.
+
+If a dependent baby is outside the pouch, the mother can retrieve it. Once it grows out of the infant stage, the baby leaves the pouch and begins life outside. A mother's pouch is also functional in caravans, so a travelling infant continues to age and receive milk. If the mother dies, surviving dependent young are released.
+
+Keep lactating pouch-bearing females well fed and protect them from combat; a newborn depends on the mother's mobility, safety and milk supply.
+
+### Amphibian external fertilization (Odyssey)
+
+Bullfrogs and colossus toads reproduce in water with **Advanced reproductive behavior** enabled. Their offspring pass through aquatic egg and tadpole stages before becoming ordinary young amphibians.
+
+#### Egg laying and external fertilization
+
+A mature female develops an egg clutch and seeks suitable water to lay it. The clutch is deposited as unfertilized roe. An eligible male seeks a compatible unfertilized clutch in water and fertilizes it there. Fertilization is a visible activity with a progress bar and heart effects and takes 250 ticks once the male begins the interaction.
+
+The fertilized roe can be selected to inspect its development and egg count. It must remain in water to develop. Roe is protected against deterioration while immersed.
+
+#### Tadpoles and metamorphosis
+
+After incubation, the eggs hatch into a single group of swimming tadpoles. Select the group to see its development percentage, source clutch size, number of living tadpoles and number of metamorphosed young. The group moves between suitable water cells, and development continues as long as it is in water.
+
+The number of larvae declines during development while the surviving tadpoles grow. The group's weight and nutritional value accordingly change. When metamorphosis reaches completion, the group releases individual froglets or toadlets one at a time. They inherit their parents' relationship and faction information. The wild population cap can limit the number released by wild cohorts.
+
+| Species | Egg incubation after fertilization | Tadpole development | Tadpoles at hatching | Young after metamorphosis |
+| --- | --- | --- | --- | --- |
+| Bullfrog | 1 day | 60 days | 200–400 | 10–20 |
+| Colossus toad | 1 day | 8 days | 200–400 | 10–20 |
+
+The counts are the normal generated cohort ranges; losses to other animals or the wild population cap can reduce the eventual number of young.
+
+Adults and young of the same species cannot eat their own species' roe or tadpole groups. Other animals with suitable diets may still consume them. A secluded breeding pool can therefore help protect the developing offspring.
+
+#### Breeding owned amphibians
+
+Provide accessible water and reproductively capable animals of both sexes. If you house amphibians in an animal barn, a female retains her mature clutch while inside. Release her to lay roe in the water and allow a compatible male to access the clutch.
+
+Disabling advanced reproduction pauses the development and swimming of existing aquatic cohorts. Re-enable it to resume their development.
+
+### Seasonal behavior and ectotherms
+
+Animals use different strategies to cope with cold, seasonal food shortages and their preferred habitat. Two independently configurable systems are **Winter dormancy** and **Water habitat behavior**.
+
+#### Winter dormancy
+
+During winter, suitable wild animals can seek or dig a shelter before entering a dormant state. Entry requires an animal with at least 80% of its food need filled, able to reach the shelter and free from immediate threats. A species' winter strategy determines how much energy it saves.
+
+| Winter strategy | Basal hunger while dormant | Description |
+| --- | --- | --- |
+| Deep hibernation | 4% of normal | Very strong energy conservation; for example, hedgehogs from Vanilla Animals Expanded. |
+| Winter rest | 100% of normal | Seasonal resting in a shelter with the normal basal hunger rate. |
+| Denning | 25% of normal | Reduced basal hunger during winter denning, as in grizzly bears. |
+| Maternity denning | 25% of normal | Winter denning of pregnant females or mothers with dependent infants, as in polar bears. |
+
+The basal hunger reduction conserves food reserves. Pregnancy and milk production can have their own nutritional demands. Dormant animals remain in the shelter during ordinary rest recovery and can emerge when winter ends, hunger becomes urgent, they are bleeding, birth approaches or a dangerous ranged threat is present.
+
+Only wild animals enter this seasonal dormancy. Tamed animals continue ordinary activity, making it possible to manage them and feed them through the winter. Suitable mothers can still use family dens for reproduction.
+
+#### Ectotherms and water habitat
+
+Ectothermic animals use their own cold-related physiological handling. Suitable ectotherms can bask on land under appropriate temperature and environmental conditions.
+
+With **Water habitat behavior** active, water-adapted animals may seek water as part of ordinary idle movement. Terrestrial herd animals in water may look for accessible dry ground. This affects everyday habitat use; the water-escape response during an emergency is governed by advanced threat avoidance.
+
+A habitat-adapted species is also more likely to spawn in a suitable environment. See the natural-spawn section for how inland water affects the composition of wildlife.
+
+### Animal barns (RimWorld 1.7)
+
+An **animal barn** is a covered livestock building that houses player-owned roamer animals and stores their feed. It complements ordinary pens and allows livestock to live, eat, grow and breed together indoors.
+
+#### Building a barn
+
+The barn occupies a 3 × 6 footprint and costs 180 units of wood and 40 steel. Leave access to its entrance for animals, handlers and haulers, and provide space for medical care or animal products nearby.
+
+The barn's animal capacity is 32.5 total base BodySize by default. It is configurable from 10 to 100 per barn. Capacity uses the species' typical adult BodySize for each resident, including young animals. For example, ten animals of a species with base BodySize 2 occupy 20 units of capacity, regardless of their temporary growth or pregnancy status.
+
+The barn also holds up to 18 stacks of feed. The inspection panel displays animal count, occupied animal capacity and food-stack usage.
+
+#### Choosing which animals live inside
+
+Use the barn's animal filter to choose the species, sexes, age groups and reproductive states accepted as residents. Relevant filters include lactating females and dependent young. Animals must be owned by the colony, eligible roamers, capable of moving, and have room inside.
+
+Handlers bring qualifying animals into the barn under ordinary animal management. The barn can be used alongside pens; nursing-mother balancing attempts to keep mothers and milk-dependent young together.
+
+To request an individual animal, select the barn and choose **Assign animal loading**, then select an eligible animal. A handler brings it to the entrance. This manual order overrides the normal barn animal filter and pen preference, but still requires appropriate animal eligibility and space. Cancel pending orders with **Cancel animal loading**.
+
+#### Inspecting and releasing residents
+
+Select the barn to open its animal list and contents panel. Residents are individual animals: you can inspect their age, health and other animal information. Use the contents panel to release a particular animal or remove stored items. If you prefer to keep the main Animals tab focused on animals outside, enable **Hide barn animals from Animals tab** in Zoology's settings.
+
+Animals may leave a barn automatically for specific services or if the barn can no longer house them. The barn seeks to accommodate the residents according to its capacity and filters.
+
+#### Feed and nursing
+
+Haulers replenish food that is suitable for the residents. Feed is stored as ordinary items and spoils according to ambient temperature. Different diets need compatible supplies: a carnivore cannot meet its food needs with hay simply because it lives beside herbivores.
+
+Residents consume actual food from storage when hungry. Milk-dependent babies first attempt to nurse from their mother or a compatible lactating resident. If nursing is not possible, suitable stored baby food can provide nutrition.
+
+Pay attention to the warning about barn young without milk. Supply compatible food or move a suitable nursing female into the same barn. Separate large hungry adults from small dependent animals when necessary to ensure adequate supplies.
+
+#### Breeding and births
+
+Compatible fertile males and females housed together can mate at their species' normal reproductive rate. Pregnancy, biological aging and the ordinary physiological requirements continue inside.
+
+Newborn mammals can be admitted to their mother's barn if their group fits the available capacity and passes the admission and nursing requirements. If the barn cannot accommodate the family appropriately, affected animals may be released so that they can be cared for outside.
+
+Ordinary egg-laying animals can produce eggs in the barn. Place an egg box adjacent to the barn to receive suitable eggs. Eggs may otherwise be held by the barn, and suitable food eggs can enter its feed storage. Fertilized hatching eggs are preserved as eggs rather than consumed as ordinary feed. Hatchlings from adjacent egg boxes can enter the barn if they meet its admission requirements.
+
+For bullfrogs and colossus toads, release mature females when they are ready to lay: aquatic roe must be deposited in water and fertilized externally by a male. See the amphibian section for their complete reproductive cycle.
+
+#### Milk, wool and medical care
+
+Residents continue producing applicable animal resources. Animals with harvestable milk or wool may temporarily emerge so a handler can perform normal gathering work. The barn reserves space for the animals awaiting service and tries to return them afterwards. Up to two residents can be outside for routine product collection at once.
+
+Animals that need outside medical care or an active operation are released for normal veterinary treatment. Provide appropriate animal beds and assign colonists to the necessary work.
+
+#### Auto-slaughter
+
+Stored animals count toward ordinary auto-slaughter population management. Use the game's auto-slaughter settings as you would for pen animals. Zoology includes barn residents in the relevant population counts and releases selected animals for slaughter. The lactation setting continues to protect eligible nursing females from automatic slaughter.
+
+#### Practical setup
+
+For long-term husbandry, configure the barn's animal filter, provide suitable feed, assign handlers and haulers, and leave room for births. Place egg boxes beside breeding poultry barns where useful. Use the contents panel to inspect food and livestock regularly, and respond to warnings about dependent young.
+
+An outdoor breeding area is essential for amphibians. Keep suitable water accessible for released females and males, and consider using a separate barn or pen for animals with different dietary requirements.
+
+## Family-aware wild departures
 
 The childcare system also affects ecosystem departures.
 
@@ -494,7 +888,7 @@ When Zoology decides that wild animals should leave an overloaded map, family-aw
 
 A mother actively tied to an egg clutch is protected from ordinary forced-departure selection so population control does not casually break an active clutch-defense state.
 
-## 15. Wild animals reproduce without becoming colony livestock
+## Wild animals reproduce without becoming colony livestock
 
 Default: enabled.
 
@@ -502,7 +896,7 @@ Zoology adds a mating job for compatible factionless wild animals.
 
 ### Finding a mate
 
-The searching pawn is a fertile male animal. It first searches for a valid female of the same race within a local radius, then checks the race's allowed cross-breed defs.
+A fertile wild male searches for a nearby compatible female, preferring its own species before related cross-breeding partners.
 
 The female must still pass RimWorld's normal fertile-mate check and ordinary reachability/interaction restrictions.
 
@@ -535,9 +929,9 @@ With Biotech, heavy pollution reduces the ecosystem capacity used by this system
 
 Default: enabled.
 
-When the ecosystem remains overloaded, Zoology can make random wild animals leave the map. This is population relief, not instant deletion: animals are placed into map-exit behavior subject to the family and clutch safeguards above.
+When the ecosystem remains overloaded, animals from species contributing most to the surplus are prioritized for departure. Species above their individual population cap are considered first. Eligible animals leave the map with dependent family members, subject to the clutch safeguards above.
 
-## 16. Pet recreation gives colonists something to do with pets
+## Pet recreation gives colonists something to do with pets
 
 Default: enabled.
 
@@ -586,7 +980,7 @@ The recreation search uses a maximum pet distance of 30 cells.
 
 Beginning a pet-play session can also attempt to form a bond between the colonist and animal. That is in addition to Zoology's broader optional bonding rules.
 
-## 17. Expanded bonding
+## Expanded bonding
 
 Zoology offers three practical bonding modes.
 
@@ -610,11 +1004,11 @@ Expanded bonding also hooks nuzzling: an eligible nuzzle interaction can attempt
 
 The setting changes who is eligible for the bonding check. It does not make every interaction guarantee a bond.
 
-## 18. Direct control of trained animals
+## Direct control of trained animals
 
 Default: enabled.
 
-Zoology provides Beastmastery-based direct control for eligible player animals when Odyssey is active. Zoology's shipped Beastmastery and legacy draft-control trainables are Odyssey-gated.
+Zoology provides Beastmastery-based direct control for eligible player animals when Odyssey is active. The combat-control trainables require Odyssey.
 
 When the required training exists, the player can draft the animal and give direct movement and attack commands.
 
@@ -629,9 +1023,9 @@ Important restrictions include:
 - no ordinary direct drafting while the animal is dormant, downed, in deathrest or in an incompatible mental state;
 - no new drafting during a ritual.
 
-Zoology also synchronizes compatible Beastmastery/attack training relationships and avoids creating a second drafting path when another supported drafting system already owns the pawn.
+Compatible Beastmastery and attack training are synchronized. Zoology supports interoperability with other recognized animal-drafting systems.
 
-## 19. Roamers and trainability
+## Roamers and trainability
 
 The species editor can mark a race as a roamer.
 
@@ -646,7 +1040,7 @@ A non-roamer can be assigned None, Intermediate or Advanced trainability.
 
 Player-owned roamers have a special close-melee threat correction so the roamer state does not make them ignore an attacker that has just engaged them at close range.
 
-## 20. Small pets are not sensible raid targets
+## Small pets are not sensible raid targets
 
 Default: enabled.
 
@@ -660,7 +1054,7 @@ The same small-pet system can make an eligible pet flee from nearby hostile raid
 
 "Small pets do not retaliate in melee" defaults to enabled. It suppresses automatic melee retaliation while the animal still qualifies for small-pet protection.
 
-## 21. NPC groups can have real animal companions
+## NPC groups can have real animal companions
 
 Default: enabled.
 
@@ -690,7 +1084,7 @@ The replacement spend keeps the generated group from losing the selected animal'
 
 ### Companion AI
 
-A tracked NPC companion uses animal-specific follow/defend behavior around its assigned handler instead of ordinary human Lord-member behavior.
+NPC animal companions follow and defend their assigned handlers.
 
 If the master is lost, Zoology first tries to reassign the animal to another valid handler from the same original generated group.
 
@@ -710,27 +1104,17 @@ The generic safety layer is not limited to animal entries added by Zoology. Comp
 
 All-animal and non-human faction groups are intentionally outside this system.
 
-## 22. Wound licking is animal self-tending
+## Wound licking is animal self-tending
 
 Default: enabled.
 
-Automatic wound licking is available to eligible animals that are not in the player's faction.
+Animals can lick their own bleeding surface wounds to stop bleeding and aid recovery. Wild animals and animals belonging to other factions do this autonomously. For colony animals, select **No medical care** in the medical care menu on the Health tab to allow wound licking. Animals assigned veterinary care, including care without medicine, rely on medical treatment instead.
 
-An animal can lick wounds when it is:
+An animal must be able to act normally and must not be downed. Only bleeding, treatable wounds on external body parts can be licked. Each treatment takes time and provides low-quality tending without medicine. An animal can also lick its wounds while sheltering in a tree.
 
-- alive and spawned;
-- not downed;
-- not in a mental state;
-- not in an aggressive mental state;
-- carrying a tendable bleeding wound that is on a surface body part.
+For serious injuries, internal bleeding or infection, veterinary treatment remains important. To let a colony doctor treat an injured animal, choose an appropriate medical care level in its Health tab.
 
-Internal wounds are excluded: if the injured part is inside the body hierarchy, wound licking does not treat it.
-
-Zoology uses RimWorld's tending utilities to select the wounds that a single treatment should address, applies no medicine, and deliberately uses weak no-skill/self-tend quality assumptions.
-
-It increments normal tending records and marks the animal as self-tended. It is therefore a real low-quality tend, not a hidden regeneration effect.
-
-## 23. Ectotherms use a different cold-injury path
+## Ectotherms use a different cold-injury path
 
 Default: enabled for species marked as ectothermic.
 
@@ -740,25 +1124,23 @@ Instead, it clones the ordinary OrganicStandard hediff-giver set for marked anim
 
 Other organic hediff givers are retained in the cloned set.
 
-Disabling/rebuilding the runtime feature restores the original race hediff-giver sets.
-
 Marked ectotherms remain vulnerable to unsuitable temperatures while using the ectothermic hypothermia path instead of the ordinary warm-blooded animal assumption.
 
-## 24. Animal bionics
+## Animal bionics
 
 Default: enabled.
 
 Zoology extends supported human bionic recipes to compatible animal anatomy during startup.
 
-The patchers check whether an animal has the body part required by a recipe. When an animal uses an alternative corresponding body-part def, Zoology can clone the install/remove recipe for that part.
+Bionic surgery is available for animals with compatible anatomy, including corresponding animal-specific body parts.
 
 Combat-oriented bionic parts have size-dependent animal variants so a tiny animal and a huge animal do not receive the exact same game-facing melee implant.
 
 Animals marked CannotBeAugmented are excluded.
 
-This is a startup DefDatabase modification, which is why changing the bionics setting requires a RimWorld restart to reliably return to a clean definition state.
+Restart RimWorld after changing the animal bionics setting.
 
-## 25. Aggression at slaughter
+## Aggression at slaughter
 
 Default: enabled for marked species.
 
@@ -772,7 +1154,7 @@ By default the same marker also excludes the animal from peaceful ritual animal 
 
 This system is independent of lactation auto-slaughter protection.
 
-## 26. Non-CE size-aware damage reduction
+## Non-CE size-aware damage reduction
 
 Default: enabled when Combat Extended is absent.
 
@@ -793,27 +1175,19 @@ The correction considers predator status and the attacker's and target's base/cu
 
 Combat Extended disables this non-CE size-aware damage-reduction system.
 
-## 27. Combat Extended integration
+## Combat Extended integration
 
-When Combat Extended is active, Zoology loads its CE-specific body and animal combat patches and uses the CE output fields from AnimalStats.
+With Combat Extended active, Zoology uses CE-specific animal combat and armor data.
 
 ### Separate CE attack values
 
 CE damage, penetration and cooldown values are produced separately from the vanilla combat values. The CE integration is therefore not a conversion of the final vanilla damage number.
 
-### Life-stage penetration
+### Life-stage and sex-specific Combat Extended penetration
 
-The optional "Override Combat Extended penetration" setting is enabled by Reset when CE is detected.
+When CE is present, Zoology applies its generated life-stage and applicable adult sex-profile attack factors, including penetration, and presents the corresponding values in CE statistics.
 
-When active, Zoology applies life-stage penetration factors to animal melee tools and replaces the corresponding CE stat explanation/final display so the shown values match the calculation.
-
-The shipped life-stage penetration defs make babies and juveniles substantially less penetrating than adults.
-
-### Non-CE reduction is disabled
-
-The vanilla size-aware animal damage reduction described above is forced off whenever CE is detected.
-
-## 28. Low-level species behavior features
+## Low-level species behavior features
 
 Several Dev-page systems are normally assigned by species markers or comps. They are exposed to users mainly for compatibility or deliberate customization.
 
@@ -823,7 +1197,7 @@ Marked animals can be prevented from ordinary animal flee decisions and supporte
 
 ### Flee from carrier
 
-A marked pawn can make eligible nearby animals flee from the pawn carrying/presenting that threat.
+Animals of threatening species can cause nearby vulnerable animals to flee.
 
 Per-species parameters:
 
@@ -841,19 +1215,19 @@ Prevents marked animals from supported augmentation paths, including Zoology's o
 
 ### Ageless
 
-The ageless comp periodically removes supported age-related hediffs and blocks supported age-heddiff additions.
+Ageless species are protected against supported age-related health conditions.
 
 Default cleanup interval: 6000 ticks. Editor range: 60-120000.
 
 ### Drugs immune
 
-The drugs-immune comp blocks/removes supported drug, addiction and tolerance-related hediffs.
+Drug-immune animals are protected against supported drug effects, addiction and tolerance.
 
 Default cleanup interval: 2000 ticks. Editor range: 60-120000.
 
 ### Animal clotting
 
-The clotting comp periodically self-tends bleeding injuries.
+Animals with enhanced clotting periodically tend their own bleeding injuries.
 
 Default check interval: 360 ticks.
 
@@ -863,39 +1237,19 @@ The editor allows each end of the quality range from 0 to 2 and the interval fro
 
 ### Animal regeneration
 
-The global regeneration toggle enables behavior for races that already have Zoology's regeneration comp in XML.
+The global regeneration setting enables regeneration in eligible species.
 
-The comp can use different regeneration hediffs for baby, juvenile and adult/body-size bands.
-
-The current UI does not provide a per-species regeneration selector.
+Regeneration may vary with age and body size.
 
 ### No porcupine quill
 
 Marked animals are excluded from the supported porcupine-quill hediff path.
 
-## 29. Automatic technical corrections
+## Insect cocoon spawning (Biotech)
 
-Zoology also applies several global runtime corrections that can affect a real save.
+The insect cocoon safeguard allows a cocoon with a positive spawn budget to produce its cheapest available insect when the budget would otherwise be too small.
 
-### Insect cocoon budget safeguard
-
-Biotech only; enabled by default on the Dev page.
-
-If a cocoon has a positive spawn budget but every configured pawn kind costs more than that budget, vanilla can otherwise produce an empty spawn result and consume the cocoon.
-
-Zoology raises that individual cocoon instance's budget to the cheapest valid configured pawn, allowing vanilla to spawn one. Shared defs are not changed by this safeguard.
-
-### Invalid saved think-tree keys
-
-When a saved animal job points to a think-node key that no longer exists in the current think tree, Zoology clears that stale job-giver reference during load.
-
-This is save resilience for changed animal AI trees; it does not rewrite ordinary valid jobs.
-
-### Guinea-pig leather replacement
-
-After defs finish loading, Zoology replaces references to the vanilla guinea-pig leather def with squirrel leather where those ThingDef references occur.
-
-## 30. Settings reference
+## Settings reference
 
 The settings window has five pages. Defaults below are the current build defaults after Reset; CE-dependent defaults are conditional on whether CE is detected.
 
@@ -924,6 +1278,10 @@ The scavenger species editor also exposes allowVeryRotten.
 
 | Setting | Default | Range / dependency |
 | --- | --- | --- |
+| Dynamic animal growth | On | Day-by-day stats and graphic interpolation between stages. |
+| Sexual dimorphism | On | Male/female adult endpoints for configured species. Independent of growth. |
+| Automatic juvenile sprite scaling | On | Mass-based baby/juvenile graphic sizes. |
+| Advanced reproductive behavior | On | Bird nests, marsupial pouches, external amphibian fertilization and tadpole cohorts. Family dens require advanced threat avoidance too. |
 | Enable mammal lactation | On | Mammal species are configurable. |
 | Allow handlers to feed baby mammals | On | Requires mammal lactation; Handling work, direct-orderable, no mechs. |
 | Allow slaughtering lactating animals | Off | Requires lactation; controls auto-slaughter exclusion. |
@@ -933,7 +1291,7 @@ The scavenger species editor also exposes allowVeryRotten.
 | Do not flee from humans while protecting young | Off | Requires childcare + human fleeing. |
 | Enable egg protection | On | Childcare sub-feature. |
 | Do not flee from humans while protecting clutch | On | Requires childcare + egg protection + human fleeing. |
-| Enable wound licking | On | Animal self-tending. |
+| Enable wound licking | On | Animal self-tending; colony animals require No medical care. |
 | Enable ectothermic handling | On | Ectotherm species configurable. |
 
 Turning mammal lactation off suspends handler baby feeding (without clearing its saved checkbox) and disables the lactation auto-slaughter option.
@@ -942,7 +1300,6 @@ Turning mammal lactation off suspends handler baby feeding (without clearing its
 
 | Setting | Default | Range / dependency |
 | --- | --- | --- |
-| Override Combat Extended penetration | On after Reset when CE is present; Off without CE | Hidden/unavailable without CE. |
 | Enable animal draft control | On | Beastmastery/direct-control system; Zoology's shipped trainables require Odyssey. |
 | Enable animal damage reduction | On without CE; forced Off with CE | Non-CE natural-attack size correction. |
 
@@ -950,12 +1307,20 @@ Turning mammal lactation off suspends handler baby feeding (without clearing its
 
 | Setting | Default | Range / dependency |
 | --- | --- | --- |
+| Advanced animal food selection | On | Food preferences, harvesting and comparison of hunting and other food sources. |
+| Wild animal foraging (Odyssey) | On | Requires Odyssey and advanced animal food selection. |
 | Animals in NPC groups | On | Controls Zoology-added NPC animal options. |
 | Orphaned NPC animals become wild | Off | Changes unreassignable companion outcome. |
+| Animal barn (1.7) | On | Enables the animal barn construction and handling system. |
+| Barn total BodySize capacity (1.7) | 32.5 | 10–100, increments of 0.5. |
+| Hide barn animals from Animals tab | Off | Optional display filter for stored livestock. |
 | Pet recreation | On | Enables Zoology pet joy givers. |
 | Maximum pet wildness | 0.2 | 0-1. |
 | Expanded pet bonding | On in default bonding mode | See bonding modes above. |
 | Expanded all-animal bonding | Off in default bonding mode | Broader bonding scope. |
+| Advanced threat avoidance | On | Tree, burrow and water refuges from credible threats; family dens additionally require advanced reproduction. |
+| Water habitat behavior | On | Idle search for suitable water or dry land, independent of threat-driven fleeing. |
+| Winter dormancy | On | Seasonal dormancy and winter dens for configured wild species, independent of threat avoidance. |
 | Custom flee danger | On | Enables home-map race base-BodySize safety thresholds. |
 | Safe predator BodySize | 0.7 | UI slider 0-30. |
 | Safe non-predator BodySize | 3.0 | UI slider 0-30. |
@@ -966,6 +1331,8 @@ Turning mammal lactation off suspends handler baby feeding (without clearing its
 | Human search radius | 12 | 6-24. |
 | Flee distance from human | 16 | 6-40. |
 | Wild animal reproduction | On | Wild mating job. |
+| Limit wild animals per species | On | Maximum wild population for each race; independent of owned animals. |
+| Wild animal species limit | 30 | 10–100, shown when the species cap is enabled. |
 | Limit wild reproduction by ecosystem | On | Requires wild reproduction. |
 | Force wild animals to leave on overload | On | Ecosystem overload relief. |
 | Ecosystem limit factor | 1.2 | 1-3. |
@@ -977,7 +1344,7 @@ Turning mammal lactation off suspends handler baby feeding (without clearing its
 
 | Setting | Default | Notes |
 | --- | --- | --- |
-| Disable all runtime patches | Off | Diagnostic master switch; does not undo already-applied startup Def mutations. |
+| Disable all runtime patches | Off | Disables Zoology's optional runtime behavior; static animal data remain active. |
 | Insect cocoon spawn safeguard | On | Biotech only in effect. |
 | Cannot be mutated | On | Species configurable. |
 | Cannot be augmented | On | Species configurable. |
@@ -988,27 +1355,17 @@ Turning mammal lactation off suspends handler baby feeding (without clearing its
 | Cannot chew | On | Species configurable. |
 | Ageless | On | Species configurable; cleanup interval editable. |
 | Drugs immune | On | Species configurable; cleanup interval editable. |
-| Animal regeneration | On | Global behavior toggle; no current species selector. |
+| Animal regeneration | On | Global behavior toggle. |
 | Animal clotting | On | Species configurable; interval/quality editable. |
 | No porcupine quill | On | Species configurable. |
 
-## 31. Runtime changes versus restart-required changes
+## Changing settings
 
-Most runtime toggles are designed to take effect immediately.
+Most behavior settings, including advanced food selection and wild foraging, apply during play and preserve their values in the mod settings. Disabling a reproductive or refuge feature releases affected held offspring or pauses aquatic development as appropriate.
 
-When a relevant setting changes, Zoology can:
+Restart RimWorld after changing animal bionics. For troubleshooting, a restart after changing low-level Dev settings ensures a clean game initialization.
 
-- reapply per-species Def extensions/comps;
-- rebuild the appropriate Harmony patch set;
-- update dynamic availability such as pet recreation.
-
-Per-species override dialogs also write their changes directly.
-
-The main current exception is animal bionics. Bionic recipe expansion mutates DefDatabase during initialization, so a restart is required to guarantee a clean before/after state.
-
-For heavily modded games, a restart after changing low-level Dev compatibility settings is still the safest diagnostic procedure even when the patch itself supports live rebuilding.
-
-## 32. Compatibility
+## Compatibility
 
 Zoology has dedicated loaded patch sets for:
 
@@ -1023,7 +1380,7 @@ Zoology has dedicated loaded patch sets for:
 - Dinosauria;
 - Megafauna.
 
-Biotech and Odyssey have their own conditional DLC patch folders.
+DLC-specific features require the corresponding expansion.
 
 ### Biotech-specific changes
 
@@ -1046,7 +1403,7 @@ When Vanilla Expanded Framework is also active, Zoology assigns VEF crepuscular/
 
 When VEF is active, Zoology uses VEF systems for several ecological behaviors.
 
-The current patch set includes:
+With VEF, supported animals receive:
 
 - crepuscular/nocturnal body-clock assignments for selected Core, Odyssey and Vanilla Animals Expanded animals;
 - VEF cross-breeding extensions for supported cross-breed pairs;
@@ -1056,7 +1413,7 @@ Examples of the foraging integration include fennec foxes and, when the relevant
 
 ### Vanilla Animals Expanded modules
 
-The VAE patch set is not limited to generated race statistics. Depending on the installed module it also contains:
+Depending on the installed module, the integration includes:
 
 - biome placement;
 - additional body definitions and Odyssey fallback bodies;
@@ -1088,7 +1445,7 @@ Megafauna currently uses the generated race patch set.
 
 Zoology also detects supported external animal-drafting ownership and optional health-system hooks so overlapping runtime behavior can defer to the installed integration.
 
-## 33. Troubleshooting behavior conflicts
+## Troubleshooting behavior conflicts
 
 If one AI behavior looks wrong in a heavily modded game, disable the smallest relevant Zoology feature first.
 
@@ -1100,8 +1457,8 @@ Examples:
 - protected young causing unexpected aggression: inspect childcare/egg protection and the Combat Power thresholds;
 - tiny pets entering combat: inspect small-pet retaliation and whether the pet is actively participating in combat;
 - animal drafting conflicts: test Zoology draft control against the other drafting system;
-- CE melee display/penetration disagreement: test the CE penetration override.
+- CE melee display/penetration disagreement: verify generated CE age/sex profiles, matching compiled assembly, and active CE integration.
 
-The Dev master switch disables Zoology's rebuildable runtime Harmony and AI behavior. Static XML/Def patches remain loaded, and startup DefDatabase mutations that have already run are not rolled back.
+The Dev master switch disables optional runtime behavior while retaining the static animal rebalance.
 
 For XML/framework behavior and the spreadsheet pipeline, see [FRAMEWORK.md](FRAMEWORK.md). For regeneration and patch-generation tooling, see [CHECKER.md](CHECKER.md).

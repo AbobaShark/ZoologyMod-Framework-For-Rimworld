@@ -661,7 +661,8 @@ namespace ZoologyMod
             Pawn aggressor,
             Thing protectedThing,
             Pawn preferredHolder,
-            List<Pawn> protectors)
+            List<Pawn> protectors,
+            bool includeActiveDefense = false)
         {
             if (leader == null
                 || aggressor == null
@@ -672,7 +673,8 @@ namespace ZoologyMod
                 return;
             }
 
-            if (CanProtectorGuardThing(leader, aggressor, protectedThing, preferredHolder, anchorMap, anchorPosition))
+            if (CanProtectorGuardThing(leader, aggressor, protectedThing, preferredHolder, anchorMap, anchorPosition)
+                || (includeActiveDefense && ZoologyNotificationUtility.IsActiveProtection(leader, aggressor, protectedThing)))
             {
                 TryAddUniqueProtector(protectors, leader);
             }
@@ -696,7 +698,8 @@ namespace ZoologyMod
                     continue;
                 }
 
-                if (!CanProtectorGuardThing(candidate, aggressor, protectedThing, preferredHolder, anchorMap, anchorPosition))
+                if (!CanProtectorGuardThing(candidate, aggressor, protectedThing, preferredHolder, anchorMap, anchorPosition)
+                    && !(includeActiveDefense && ZoologyNotificationUtility.IsActiveProtection(candidate, aggressor, protectedThing)))
                 {
                     continue;
                 }
@@ -705,7 +708,7 @@ namespace ZoologyMod
             }
         }
 
-        private static bool TryFillEggProtectors(Thing egg, Pawn aggressor, List<Pawn> protectors)
+        private static bool TryFillEggProtectors(Thing egg, Pawn aggressor, List<Pawn> protectors, bool includeActiveDefense = false)
         {
             protectors?.Clear();
             if (!IsEggProtectionEnabled || egg == null || aggressor == null || protectors == null)
@@ -728,7 +731,7 @@ namespace ZoologyMod
 
                 for (int i = 0; i < childcareOwnerScratch.Count; i++)
                 {
-                    AppendSharedProtectors(childcareOwnerScratch[i], aggressor, egg, aggressor, protectors);
+                    AppendSharedProtectors(childcareOwnerScratch[i], aggressor, egg, aggressor, protectors, includeActiveDefense);
                 }
             }
             finally
@@ -739,11 +742,11 @@ namespace ZoologyMod
             return protectors.Count > 0;
         }
 
-        private static bool TryFillYoungProtectors(Pawn mother, Pawn aggressor, Thing protectedThing, List<Pawn> protectors)
+        private static bool TryFillYoungProtectors(Pawn mother, Pawn aggressor, Thing protectedThing, List<Pawn> protectors, Pawn secondParent)
         {
             protectors?.Clear();
             if (!IsYoungProtectionEnabled
-                || mother == null
+                || (mother == null && secondParent == null)
                 || aggressor == null
                 || protectedThing == null
                 || protectors == null)
@@ -751,7 +754,9 @@ namespace ZoologyMod
                 return false;
             }
 
-            AppendSharedProtectors(mother, aggressor, protectedThing, null, protectors);
+            AppendSharedProtectors(mother, aggressor, protectedThing, null, protectors, includeActiveDefense: true);
+            if (secondParent != null && !ReferenceEquals(mother, secondParent))
+                AppendSharedProtectors(secondParent, aggressor, protectedThing, null, protectors, includeActiveDefense: true);
             return protectors.Count > 0;
         }
 
@@ -1252,56 +1257,9 @@ namespace ZoologyMod
         public static bool TryTriggerEggProtection(Pawn aggressor, Thing egg)
         {
             if (!IsEggProtectionEnabled || aggressor == null || egg == null || !IsFertilizedEgg(egg))
-            {
                 return false;
-            }
 
-            if (!ShouldTriggerEggProtection(aggressor, egg))
-            {
-                return false;
-            }
-
-            int triggeredCount = 0;
-            Pawn exemplar = null;
-            bool anyTriggered = false;
-
-            try
-            {
-                triggeredProtectorsScratch.Clear();
-                if (!TryFillEggProtectors(egg, aggressor, eggProtectorsScratch))
-                {
-                    return false;
-                }
-
-                for (int i = 0; i < eggProtectorsScratch.Count; i++)
-                {
-                    Pawn protector = eggProtectorsScratch[i];
-                    if (!TryTakeProtectionJob(protector, aggressor, egg))
-                    {
-                        continue;
-                    }
-
-                    anyTriggered = true;
-                    triggeredCount++;
-                    exemplar ??= protector;
-                    TryAddUniqueProtector(triggeredProtectorsScratch, protector);
-                }
-            }
-            finally
-            {
-                eggProtectorsScratch.Clear();
-            }
-
-            if (!anyTriggered)
-            {
-                triggeredProtectorsScratch.Clear();
-                return false;
-            }
-
-            RememberEggProtectionTrigger(aggressor, egg);
-            TryNotifyPlayerAboutEggProtection(aggressor, egg, exemplar, triggeredProtectorsScratch, triggeredCount);
-            triggeredProtectorsScratch.Clear();
-            return true;
+            return TryBeginProtection(aggressor, egg, eggClutch: true);
         }
 
         internal static bool ShouldCheckEggFoodOptimality(Pawn eater, Thing foodSource)
@@ -1374,63 +1332,80 @@ namespace ZoologyMod
             return delta;
         }
 
-        public static bool TryOrderProtection(Pawn protector, Pawn aggressor, Thing protectedThing)
+        public static bool TryOrderProtection(Pawn protector, Pawn aggressor, Thing protectedThing,
+            Pawn secondParent = null, bool allowBurrowFallback = false)
         {
-            if (!IsYoungProtectionEnabled
-                || protector == null
-                || aggressor == null
-                || protectedThing == null)
-            {
+            if (!IsYoungProtectionEnabled || (protector == null && secondParent == null)
+                || aggressor == null || protectedThing == null)
                 return false;
-            }
+
+            bool eggClutch = IsEggThing(protectedThing);
+            if (eggClutch && (!IsEggProtectionEnabled || !IsFertilizedEgg(protectedThing)))
+                return false;
 
             RememberActiveYoungProtectionThreat(aggressor, protectedThing);
-            if (!ShouldTriggerYoungProtection(aggressor, protectedThing))
-            {
+            return TryBeginProtection(aggressor, protectedThing, eggClutch,
+                protector, secondParent, allowBurrowFallback);
+        }
+
+        private static bool TryBeginProtection(Pawn aggressor, Thing protectedThing, bool eggClutch,
+            Pawn firstParent = null, Pawn secondParent = null, bool allowBurrowFallback = false)
+        {
+            if (!(eggClutch ? ShouldTriggerEggProtection(aggressor, protectedThing)
+                : ShouldTriggerYoungProtection(aggressor, protectedThing)))
                 return false;
-            }
 
-            int triggeredCount = 0;
-            Pawn exemplar = null;
-            bool anyTriggered = false;
-
+            List<Pawn> candidates = youngProtectorsScratch;
+            bool alreadyActive = false;
             try
             {
                 triggeredProtectorsScratch.Clear();
-                if (!TryFillYoungProtectors(protector, aggressor, protectedThing, youngProtectorsScratch))
+                if (firstParent == null && secondParent == null && eggClutch)
+                    TryFillEggProtectors(protectedThing, aggressor, candidates, includeActiveDefense: true);
+                else
+                    TryFillYoungProtectors(firstParent, aggressor, protectedThing, candidates, secondParent);
+
+                // Snapshot the ongoing defense before any new jobs are started.
+                for (int i = 0; i < candidates.Count; i++)
                 {
-                    return false;
+                    if (ZoologyNotificationUtility.IsActiveProtection(candidates[i], aggressor, protectedThing))
+                        alreadyActive = true;
                 }
 
-                for (int i = 0; i < youngProtectorsScratch.Count; i++)
+                for (int i = 0; i < candidates.Count; i++)
                 {
-                    Pawn youngProtector = youngProtectorsScratch[i];
-                    if (!TryTakeProtectionJob(youngProtector, aggressor, protectedThing))
-                    {
+                    Pawn candidate = candidates[i];
+                    if (ZoologyNotificationUtility.IsActiveProtection(candidate, aggressor, protectedThing))
                         continue;
-                    }
-
-                    anyTriggered = true;
-                    triggeredCount++;
-                    exemplar ??= youngProtector;
-                    TryAddUniqueProtector(triggeredProtectorsScratch, youngProtector);
+                    if (TryTakeProtectionJob(candidate, aggressor, protectedThing))
+                        TryAddUniqueProtector(triggeredProtectorsScratch, candidate);
                 }
+
+                if (!alreadyActive && triggeredProtectorsScratch.Count == 0 && allowBurrowFallback
+                    && firstParent?.Spawned == true && firstParent.Faction == null
+                    && CanProtectorMeetHumanlikeThreatThreshold(firstParent, aggressor)
+                    && TryTakeProtectionJob(firstParent, aggressor, protectedThing, forceMelee: true))
+                {
+                    triggeredProtectorsScratch.Add(firstParent);
+                }
+
+                if (triggeredProtectorsScratch.Count == 0)
+                    return alreadyActive;
+
+                if (eggClutch)
+                    RememberEggProtectionTrigger(aggressor, protectedThing);
+                else
+                    RememberYoungProtectionTrigger(aggressor, protectedThing);
+
+                ZoologyNotificationUtility.TryNotifyProtectionStarted(
+                    aggressor, protectedThing, triggeredProtectorsScratch, alreadyActive, eggClutch);
+                return true;
             }
             finally
             {
-                youngProtectorsScratch.Clear();
-            }
-
-            if (!anyTriggered)
-            {
+                candidates.Clear();
                 triggeredProtectorsScratch.Clear();
-                return false;
             }
-
-            RememberYoungProtectionTrigger(aggressor, protectedThing);
-            TryNotifyPlayerAboutYoungProtection(aggressor, protectedThing, exemplar, triggeredProtectorsScratch, triggeredCount);
-            triggeredProtectorsScratch.Clear();
-            return true;
         }
 
         internal static bool TryRetargetProtectYoungJobToNearestThreat(Pawn protector)
@@ -1922,21 +1897,23 @@ namespace ZoologyMod
             return position.IsValid;
         }
 
-        private static bool TryTakeProtectionJob(Pawn protector, Pawn aggressor, Thing protectedThing)
+        private static bool TryTakeProtectionJob(Pawn protector, Pawn aggressor, Thing protectedThing,
+            bool forceMelee = false)
         {
             try
             {
-                JobDef jobDef = protectYoungJobDef ?? (protectYoungJobDef = DefDatabase<JobDef>.GetNamedSilentFail(ProtectYoungUtility.ProtectYoungDefName));
-                Job job = jobDef != null
-                    ? JobMaker.MakeJob(jobDef, aggressor, protectedThing)
-                    : JobMaker.MakeJob(JobDefOf.AttackMelee, aggressor);
-
-                if (protector.jobs == null)
-                {
+                if (protector?.jobs == null
+                    || ZoologyNotificationUtility.IsActiveProtection(protector, aggressor, protectedThing))
                     return false;
-                }
 
-                ProtectYoungUtility.InterruptRetargetableProtectYoungJob(protector, aggressor, protectedThing);
+                Job current = protector.CurJob;
+                if (current != null && ProtectYoungUtility.IsProtectYoungJob(current, protector)
+                    && !ProtectYoungUtility.CanRetargetProtectYoungJob(protector, current, aggressor, protectedThing))
+                    return false;
+
+                JobDef jobDef = forceMelee ? JobDefOf.AttackMelee
+                    : protectYoungJobDef ?? (protectYoungJobDef = DefDatabase<JobDef>.GetNamedSilentFail(ProtectYoungUtility.ProtectYoungDefName));
+                Job job = JobMaker.MakeJob(jobDef ?? JobDefOf.AttackMelee, aggressor, protectedThing);
                 protector.jobs.StartJob(
                     job,
                     JobCondition.InterruptForced,
@@ -1945,6 +1922,10 @@ namespace ZoologyMod
                     cancelBusyStances: true,
                     null,
                     JobTag.Misc);
+                if (!ReferenceEquals(protector.CurJob, job)
+                    || !ZoologyNotificationUtility.IsActiveProtection(protector, aggressor, protectedThing))
+                    return false;
+
                 TryForceAggressorFleeFromProtectYoung(protector, aggressor);
                 return true;
             }
@@ -2259,147 +2240,6 @@ namespace ZoologyMod
             }
 
             eggTriggerCleanupScratch.Clear();
-        }
-
-        private static void TryNotifyPlayerAboutEggProtection(Pawn aggressor, Thing egg, Pawn exemplar, IReadOnlyList<Pawn> triggeredProtectors, int triggeredCount)
-        {
-            if (aggressor == null
-                || aggressor.Faction != Faction.OfPlayer
-                || exemplar == null
-                || egg == null
-                || EggClutchDefenseGameComponent.IsProtectionNotificationSuppressedForEgg(egg.thingIDNumber))
-            {
-                return;
-            }
-
-            try
-            {
-                bool pack = triggeredCount > 1;
-                string label;
-                string text;
-
-                if (pack)
-                {
-                    string collectiveLabel = ZoologyNotificationUtility.GetCollectiveAnimalLabel(exemplar, triggeredCount);
-                    label = "LetterLabelAnimalProtectingEggsPack".Translate(collectiveLabel);
-                    text = "LetterAnimalProtectingEggsPack".Translate(collectiveLabel, aggressor.LabelDefinite());
-                    if (label.NullOrEmpty() || label.Contains("LetterLabelAnimalProtectingEggsPack"))
-                    {
-                        label = $"{collectiveLabel} are protecting a clutch";
-                    }
-
-                    if (text.NullOrEmpty() || text.Contains("LetterAnimalProtectingEggsPack"))
-                    {
-                        text = $"{collectiveLabel} are protecting a clutch and are attacking {aggressor.LabelDefinite()}.";
-                    }
-                }
-                else
-                {
-                    label = "LetterLabelAnimalProtectingEggs".Translate(exemplar.LabelShort, aggressor.LabelDefinite(), exemplar.Named("PARENT"), aggressor.Named("PREY"));
-                    text = "LetterAnimalProtectingEggs".Translate(exemplar.LabelIndefinite(), aggressor.LabelDefinite(), exemplar.Named("PARENT"), aggressor.Named("PREY"));
-                    if (label.NullOrEmpty() || label.Contains("LetterLabelAnimalProtectingEggs"))
-                    {
-                        label = $"{exemplar.LabelShort} is protecting its clutch";
-                    }
-
-                    if (text.NullOrEmpty() || text.Contains("LetterAnimalProtectingEggs"))
-                    {
-                        text = $"{exemplar.LabelShort} is protecting its clutch and is attacking {aggressor.LabelDefinite()}.";
-                    }
-                }
-
-                if (PawnThreatUtility.IsHumanlikeOrMechanoid(aggressor))
-                {
-                    Find.LetterStack.ReceiveLetter(
-                        label.CapitalizeFirst(),
-                        text.CapitalizeFirst(),
-                        pack ? LetterDefOf.ThreatBig : LetterDefOf.ThreatSmall,
-                        ZoologyNotificationUtility.CreateLookTargets(triggeredProtectors, egg));
-                }
-                else
-                {
-                    Messages.Message(
-                        text.CapitalizeFirst(),
-                        ZoologyNotificationUtility.CreateLookTargets(triggeredProtectors, egg),
-                        pack ? MessageTypeDefOf.ThreatBig : MessageTypeDefOf.ThreatSmall,
-                        true);
-                }
-
-                EggClutchDefenseGameComponent.MarkProtectionNotificationSentForEgg(egg.thingIDNumber);
-            }
-            catch (Exception ex)
-            {
-                Log.Warning($"Zoology: egg protection notification failed: {ex}");
-            }
-        }
-
-        private static void TryNotifyPlayerAboutYoungProtection(Pawn aggressor, Thing protectedYoung, Pawn exemplar, IReadOnlyList<Pawn> triggeredProtectors, int triggeredCount)
-        {
-            if (aggressor == null
-                || aggressor.Faction != Faction.OfPlayer
-                || exemplar == null
-                || protectedYoung == null)
-            {
-                return;
-            }
-
-            try
-            {
-                bool pack = triggeredCount > 1;
-                string label;
-                string text;
-
-                if (pack)
-                {
-                    string collectiveLabel = ZoologyNotificationUtility.GetCollectiveAnimalLabel(exemplar, triggeredCount);
-                    label = "LetterLabelMotherProtectingYoungPack".Translate(collectiveLabel);
-                    text = "LetterMotherProtectingYoungPack".Translate(collectiveLabel, aggressor.LabelDefinite());
-                    if (label.NullOrEmpty() || label.Contains("LetterLabelMotherProtectingYoungPack"))
-                    {
-                        label = $"{collectiveLabel} are protecting their young";
-                    }
-
-                    if (text.NullOrEmpty() || text.Contains("LetterMotherProtectingYoungPack"))
-                    {
-                        text = $"{collectiveLabel} are protecting their young and are attacking {aggressor.LabelDefinite()}.";
-                    }
-                }
-                else
-                {
-                    label = "LetterLabelMotherProtectingYoung".Translate(exemplar.LabelShort, aggressor.LabelDefinite(), exemplar.Named("PARENT"), aggressor.Named("ATTACKER"));
-                    text = "LetterMotherProtectingYoung".Translate(exemplar.LabelIndefinite(), aggressor.LabelDefinite(), exemplar.Named("PARENT"), aggressor.Named("ATTACKER"));
-                    if (label.NullOrEmpty() || label.Contains("LetterLabelMotherProtectingYoung"))
-                    {
-                        label = $"{exemplar.LabelShort} is protecting its young";
-                    }
-
-                    if (text.NullOrEmpty() || text.Contains("LetterMotherProtectingYoung"))
-                    {
-                        text = $"{exemplar.LabelShort} is protecting its young and is attacking {aggressor.LabelDefinite()}.";
-                    }
-                }
-
-                if (PawnThreatUtility.IsHumanlikeOrMechanoid(aggressor))
-                {
-                    Find.LetterStack.ReceiveLetter(
-                        label.CapitalizeFirst(),
-                        text.CapitalizeFirst(),
-                        pack ? LetterDefOf.ThreatBig : LetterDefOf.ThreatSmall,
-                        ZoologyNotificationUtility.CreateLookTargets(triggeredProtectors, protectedYoung));
-                }
-                else
-                {
-                    Messages.Message(
-                        text.CapitalizeFirst(),
-                        ZoologyNotificationUtility.CreateLookTargets(triggeredProtectors, protectedYoung),
-                        pack ? MessageTypeDefOf.ThreatBig : MessageTypeDefOf.ThreatSmall,
-                        true);
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Warning($"Zoology: young protection notification failed: {ex}");
-            }
         }
 
         private static bool IsEggThing(Thing thing)

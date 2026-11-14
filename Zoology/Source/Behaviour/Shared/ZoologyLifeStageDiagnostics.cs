@@ -53,6 +53,33 @@ namespace ZoologyMod
                 .Append("; hungerRateFactor: ").Append(stage.hungerRateFactor)
                 .Append("; marketValueFactor: ").Append(stage.marketValueFactor)
                 .AppendLine();
+            // Check the actual need getter rather than inferring its result
+            // from stage definitions. This exposes stale DLLs, other-mod
+            // modifiers and any future RimWorld changes to MaxLevel.
+            Need_Food food = pawn.needs?.food;
+            if (food != null)
+            {
+                output.Append("Food nutrition: ")
+                    .Append(food.CurLevel.ToString("0.####"))
+                    .Append(" / ").Append(food.MaxLevel.ToString("0.####"))
+                    .Append("; BodySize x stage foodMaxFactor: ")
+                    .Append((pawn.BodySize * stage.foodMaxFactor).ToString("0.####"))
+                    .AppendLine();
+                float hungerRatio = ZoologyAnimalGrowth.HungerRatio(pawn);
+                output.Append("Hunger: stage factor x")
+                    .Append(stage.hungerRateFactor.ToString("0.####"))
+                    .Append("; Zoology daily/sex ratio x")
+                    .Append(hungerRatio.ToString("0.####"))
+                    .Append("; effective Fed consumption/day ")
+                    .Append((food.FoodFallPerTickAssumingCategory(HungerCategory.Fed)
+                        * GenDate.TicksPerDay).ToString("0.####"))
+                    .Append("; shared consumption hook active=")
+                    .Append(HasRuntimeTranspiler(AccessTools.Method(typeof(Need_Food),
+                        nameof(Need_Food.FoodFallPerTickAssumingCategory),
+                        new[] { typeof(HungerCategory), typeof(bool) })))
+                    .AppendLine();
+            }
+
             output.Append("Biological age ticks: ")
                 .Append(pawn.ageTracker.AgeBiologicalTicks)
                 .Append("; biological day: ")
@@ -85,9 +112,32 @@ namespace ZoologyMod
                         ?? "unknown reason")
                     .AppendLine();
 
+            // Explicit developer inspection also reports the alpha
+            // calibration used by the actual PawnKind graphic transition.
+            // This may populate the per-kind texture cache once, but never
+            // runs on ordinary ticks or during rendering for adults.
+            float graphicProgress;
+            ZoologyAnimalGrowth.TryGetProgress(pawn, out graphicProgress);
+            ZoologyAnimalGraphicBounds.AppendDiagnostics(
+                pawn.kindDef, pawn.ageTracker.CurLifeStageIndex,
+                pawn.gender == Gender.Female, graphicProgress, output);
+            ZoologyAnimalGraphics.AppendDiagnostics(
+                pawn.kindDef, pawn.ageTracker.CurLifeStageIndex,
+                pawn.gender == Gender.Female, output);
+            AppendActualBodyGraphicComparison(pawn, output);
+
             output.Append("Effective CombatPower: ")
                 .Append(AnimalCombatPowerUtility.GetAdjustedCombatPower(pawn))
                 .AppendLine();
+            if (pawn.RaceProps.predator)
+                output.Append("Predation size limit: canonical ")
+                    .Append(pawn.RaceProps.maxPreyBodySize.ToString("0.####"))
+                    .Append("; effective ")
+                    .Append(CannotChewUtility.GetPredationBodySizeLimit(pawn)
+                        .ToString("0.####"))
+                    .Append(" (effective BodySize ")
+                    .Append(pawn.BodySize.ToString("0.####"))
+                    .AppendLine(")");
 
             for (int i = 0; i < InspectStats.Length; i++)
             {
@@ -172,6 +222,130 @@ namespace ZoologyMod
         }
 
         // Invoked only when the player explicitly inspects a pawn.
+        // RimWorld renders a mesh from GraphicFor(pawn).drawSize, which
+        // need not match the stage's GraphicData when alternate artwork or
+        // another mod intervenes. Compare the ACTUAL graphic against both
+        // declared stage endpoints; only dev-mode inspection calls this.
+        private static void AppendActualBodyGraphicComparison(Pawn pawn,
+            StringBuilder output)
+        {
+            var kind = pawn.kindDef;
+            var stages = kind?.lifeStages;
+            int index = pawn.ageTracker.CurLifeStageIndex;
+            if (stages == null || index < 0 || index >= stages.Count)
+                return;
+
+            bool female = pawn.gender == Gender.Female;
+            GraphicData current = StageBodyGraphic(stages[index], female);
+            if (current == null)
+                return;
+
+            var renderer = pawn.Drawer?.renderer;
+            renderer?.EnsureGraphicsInitialized();
+            Graphic actual = renderer?.renderTree?.BodyGraphic;
+            var tree = renderer?.renderTree;
+            var root = tree?.rootNode;
+            if (root != null)
+            {
+                try
+                {
+                    var drawParms = new PawnDrawParms
+                    {
+                        pawn = pawn,
+                        facing = pawn.Rotation
+                    };
+                    var actualRootScale = root.Worker.ScaleFor(root, drawParms);
+                    output.Append("Actual render root: ")
+                        .Append(root.GetType().Name)
+                        .Append("; worker ").Append(root.Worker.GetType().Name)
+                        .Append("; ScaleFor (")
+                        .Append(actualRootScale.x.ToString("0.######"))
+                        .Append(", ")
+                        .Append(actualRootScale.z.ToString("0.######"))
+                        .Append("); matched root identity=")
+                        .Append(ReferenceEquals(root.tree?.rootNode, root))
+                        .AppendLine();
+                }
+                catch (Exception ex)
+                {
+                    output.Append("Render root inspection unavailable: ")
+                        .Append(ex.GetType().Name).AppendLine();
+                }
+            }
+            output.Append("Actual body graphic: ")
+                .Append(actual?.path ?? "(missing)")
+                .Append("; mesh drawSize (")
+                .Append(actual?.drawSize.x.ToString("0.######") ?? "?")
+                .Append(", ")
+                .Append(actual?.drawSize.y.ToString("0.######") ?? "?")
+                .Append("); declared stage graphic: ")
+                .Append(current.texPath)
+                .Append(" (")
+                .Append(current.drawSize.x.ToString("0.######"))
+                .Append(", ")
+                .Append(current.drawSize.y.ToString("0.######"))
+                .AppendLine(")");
+
+            if (actual != null
+                && (actual.path != current.texPath
+                    || Math.Abs(actual.drawSize.x - current.drawSize.x) > 0.00001f
+                    || Math.Abs(actual.drawSize.y - current.drawSize.y) > 0.00001f))
+                output.AppendLine("  GRAPHIC MISMATCH: actual render art/mesh differs"
+                    + " from the size used for Zoology's stage calibration.");
+
+            if (index > 0)
+            {
+                GraphicData prior = StageBodyGraphic(stages[index - 1], female);
+                if (prior != null)
+                {
+                    var finalRatio = ZoologyAnimalGraphicBounds.Interpolate(
+                        kind, index - 1, female, 1f);
+                    output.Append("Previous stage at 100%: ")
+                        .Append(prior.texPath)
+                        .Append("; predicted final mesh (")
+                        .Append((prior.drawSize.x * finalRatio.x).ToString("0.######"))
+                        .Append(", ")
+                        .Append((prior.drawSize.y * finalRatio.y).ToString("0.######"))
+                        .Append("); current-stage mesh (")
+                        .Append(current.drawSize.x.ToString("0.######"))
+                        .Append(", ")
+                        .Append(current.drawSize.y.ToString("0.######"))
+                        .AppendLine(")");
+                }
+            }
+
+            if (index + 1 < stages.Count)
+            {
+                GraphicData next = StageBodyGraphic(stages[index + 1], female);
+                if (next != null)
+                {
+                    var finalRatio = ZoologyAnimalGraphicBounds.Interpolate(
+                        kind, index, female, 1f);
+                    output.Append("At next-stage boundary: ")
+                        .Append(current.texPath).Append(" -> ")
+                        .Append(next.texPath)
+                        .Append("; predicted final mesh (")
+                        .Append((current.drawSize.x * finalRatio.x).ToString("0.######"))
+                        .Append(", ")
+                        .Append((current.drawSize.y * finalRatio.y).ToString("0.######"))
+                        .Append("); next-stage mesh (")
+                        .Append(next.drawSize.x.ToString("0.######"))
+                        .Append(", ")
+                        .Append(next.drawSize.y.ToString("0.######"))
+                        .AppendLine(")");
+                }
+            }
+        }
+
+        private static GraphicData StageBodyGraphic(PawnKindLifeStage stage,
+            bool female)
+        {
+            if (stage == null)
+                return null;
+            return female ? stage.femaleGraphicData ?? stage.bodyGraphicData
+                : stage.bodyGraphicData;
+        }
+
         private static bool HasRuntimePostfix(System.Reflection.MethodBase target)
         {
             var info = target == null ? null : Harmony.GetPatchInfo(target);
@@ -183,6 +357,17 @@ namespace ZoologyMod
                 if (patch.owner == "com.abobashark.zoology.bionic")
                     return true;
             }
+            return false;
+        }
+
+        private static bool HasRuntimeTranspiler(System.Reflection.MethodBase target)
+        {
+            var info = target == null ? null : Harmony.GetPatchInfo(target);
+            if (info == null)
+                return false;
+            foreach (var patch in info.Transpilers)
+                if (patch.owner == "com.abobashark.zoology.bionic")
+                    return true;
             return false;
         }
 

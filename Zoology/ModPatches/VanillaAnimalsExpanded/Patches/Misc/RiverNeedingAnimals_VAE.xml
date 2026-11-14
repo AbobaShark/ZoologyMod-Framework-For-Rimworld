@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+  <!-- Remove the river-only rule for Zoology's water-dependent species,
+       including the no-Odyssey hippopotamus list. -->
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/VEF.AnimalBehaviours.RiverNeedingAnimalDef/riverNeedingAnimals/li[. = 'AEXP_Beaver' or . = 'AEXP_Crocodile' or . = 'AEXP_Hippopotamus']</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/VEF.AnimalBehaviours.RiverNeedingAnimalDef/riverNeedingAnimals/li[. = 'AEXP_Beaver' or . = 'AEXP_Crocodile' or . = 'AEXP_Hippopotamus']</xpath>
+    </match>
+  </Operation>
+</Patch>

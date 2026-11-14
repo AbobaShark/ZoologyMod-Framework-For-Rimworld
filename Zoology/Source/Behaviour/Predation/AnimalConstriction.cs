@@ -43,6 +43,27 @@ namespace ZoologyMod
     }
     internal static class AnimalConstriction
     {
+        private static readonly Dictionary<BodyDef, bool> constrictibleBodyCache =
+            new Dictionary<BodyDef, bool>(32);
+
+        internal static bool PreyHasConstrictibleAnatomy(Pawn prey)
+        {
+            BodyDef body = prey?.RaceProps?.body;
+            if (body == null) return false;
+            if (constrictibleBodyCache.TryGetValue(body, out bool result))
+                return result;
+            result = false;
+            List<BodyPartRecord> parts = body.AllParts;
+            for (int i = 0; i < parts.Count; i++)
+                if (parts[i].def.defName == "Heart")
+                {
+                    result = true;
+                    break;
+                }
+            constrictibleBodyCache[body] = result;
+            return result;
+        }
+
         public static void Release(Pawn holder, bool endJob = true)
         {
             var state = holder?.TryGetComp<CompAnimalStrategyState>();
@@ -62,7 +83,7 @@ namespace ZoologyMod
             var ext = DefModExtensionCache<ModExtension_Constrictor>.Get(snake.def);
             return ext != null && prey.Spawned && snake.Map == prey.Map && !prey.Dead && prey.RaceProps.IsFlesh
                 && prey.BodySize <= snake.BodySize * ext.maxPreySizeRatio
-                && prey.RaceProps.body.AllParts.Any(p => p.def.defName == "Heart");
+                && PreyHasConstrictibleAnatomy(prey);
         }
     }
     [HarmonyPatch(typeof(Pawn_HealthTracker), nameof(Pawn_HealthTracker.PostApplyDamage))]

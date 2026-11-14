@@ -42,7 +42,6 @@ namespace ZoologyMod
         {
             public const int DefaultPairTicks = 60 * 60 * 2;
             public const int TickCheckInterval = 250;
-            public const int NotificationSuppressionTicks = 600;
             public const int TriggerCooldownTicks = 250;
             public const long InaccessibleRemoveTicks = 3600;
             public const long UnsuitableRemoveTicks = 1200;
@@ -94,7 +93,6 @@ namespace ZoologyMod
             public const int CorpseCleanupIntervalTicks = 60;
             public const int SearchCooldownTicks = 120;
             public const int SearchCooldownFailTicks = 240;
-            public const int CachedResultTicks = 90;
             public const int MaxScansPerTickPerMap = 2;
         }
 

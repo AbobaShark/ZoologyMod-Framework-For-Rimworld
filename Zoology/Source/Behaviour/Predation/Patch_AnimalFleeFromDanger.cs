@@ -64,6 +64,10 @@ namespace ZoologyMod
         protected override Job TryGiveJob(Pawn pawn)
         {
             Job result = base.TryGiveJob(pawn);
+            // The node replacement is not a Harmony patch and persists when
+            // the master switch unpatches the assembly.
+            if (ModConstants.Settings?.DisableAllRuntimePatches == true)
+                return result;
             Patch_AnimalFleeFromPredators.ApplyZoologyFleeLogic(this, pawn, ref result);
 #if RIMWORLD17
             if (result?.def == JobDefOf.Flee) result = AnimalDefense.Choose(pawn, result);
@@ -729,7 +733,8 @@ namespace ZoologyMod
                     && threat.Spawned
                     && !threat.Dead
                     && !threat.Destroyed
-                    && !threat.Downed;
+                    && !threat.Downed
+                    && threat.Awake();
             }
 
             private static bool IsValidNearbyPrey(Pawn prey, Pawn threat)
@@ -950,7 +955,7 @@ namespace ZoologyMod
             return distance;
         }
 
-        private static float GetPredatorSearchRadius()
+        internal static float GetPredatorSearchRadius()
         {
             ZoologyModSettings settings = ZoologyModSettings.Instance;
             int radius = settings?.PredatorSearchRadius ?? 18;
@@ -1152,12 +1157,13 @@ namespace ZoologyMod
 
         private static bool IsPotentialPredatorThreatSource(Pawn threat)
         {
-            return threat?.RaceProps?.predator == true;
+            return threat?.RaceProps?.predator == true && threat.Awake();
         }
 
         private static bool IsTargetedAnimalThreatSourceForPrey(Pawn threat, Pawn prey)
         {
-            if (threat == null || prey == null || !threat.IsAnimal || AnimalHuntStrategy.HiddenFrom(threat, prey))
+            if (threat == null || prey == null || !threat.IsAnimal || !threat.Awake()
+                || AnimalHuntStrategy.HiddenFrom(threat, prey))
             {
                 return false;
             }
@@ -1172,6 +1178,7 @@ namespace ZoologyMod
             return predator != null
                 && prey != null
                 && predator.RaceProps?.predator == true
+                && predator.Awake()
                 && !AnimalHuntStrategy.HiddenFrom(predator, prey);
         }
 
@@ -1203,6 +1210,7 @@ namespace ZoologyMod
             try
             {
                 ZoologyModSettings settings = ZoologyModSettings.Instance;
+                if (settings?.DisableAllRuntimePatches == true) return;
                 bool fleeFromPredatorsEnabled = settings == null || settings.EnablePreyFleeFromPredators;
                 bool fleeFromHumansEnabled = settings == null || settings.AnimalsFreeFromHumans;
                 bool fleeFromCarriersEnabled = settings == null || settings.EnableFleeFromCarrier;
@@ -1232,8 +1240,13 @@ namespace ZoologyMod
                 // The refuge driver polls the same threat index and owns descent/hunger. Ground
                 // flee planning cannot improve a safe elevated animal and repeats expensive scans.
                 if (AnimalDefense.IsInTree(pawn)) { __result = null; return; }
-                if (__result?.def == JobDefOf.Flee && __result.targetB.Pawn is Pawn hiddenThreat
-                    && AnimalHuntStrategy.HiddenFrom(hiddenThreat, pawn)) __result = null;
+                // Vanilla may already have produced a Flee job for a source
+                // which has since slept, been downed or is concealed by a
+                // Zoology hunting strategy. Such a job must not trigger shelter.
+                if (__result?.def == JobDefOf.Flee && __result.targetB.Pawn is Pawn fleeThreat
+                    && (!ZoologyFleeSafetyUtility.IsValidThreatForFlee(fleeThreat, pawn)
+                        || AnimalHuntStrategy.HiddenFrom(fleeThreat, pawn)))
+                    __result = null;
 
                 bool shouldBlockFleeInMelee = ShouldBlockFleeInMeleeForPawn(pawn);
                 Pawn meleeAttacker = null;
@@ -1451,8 +1464,12 @@ namespace ZoologyMod
             if (prey?.MapHeld == null) return result;
             Map map = prey.MapHeld;
             IntVec3 origin = prey.PositionHeld;
-            if (primary?.Spawned == true && !primary.Dead && !primary.Downed && primary.Map == map && primary.Position.InHorDistOf(origin, 24f)
-                && (elevatedTree == null || ReachesElevatedPrey(primary, prey, elevatedTree)))
+            if (primary?.Spawned == true && !primary.Dead && !primary.Downed && primary.Awake()
+                && primary.Map == map && primary.Position.InHorDistOf(origin, 24f)
+                && !AnimalHuntStrategy.HiddenFrom(primary, prey)
+                && (IsThreatTargetingPawn(primary, prey) || GenSight.LineOfSight(origin, primary.Position, map))
+                && (elevatedTree == null || ReachesElevatedPrey(primary, prey, elevatedTree))
+                && IsRelevantRefugeThreat(primary, prey))
                 result.Add(primary);
             ThreatMapCacheData data = ThreatMapCache.GetOrRefresh(map, GenTicks.TicksGame);
             if (data == null) return result;
@@ -1471,7 +1488,8 @@ namespace ZoologyMod
                         if (sources[source].TryGetValue(MakeThreatBucketKey(x, z), out List<Pawn> bucket))
                             foreach (Pawn threat in bucket)
                             {
-                                if (result.Contains(threat) || threat == null || !threat.Spawned || threat.Dead || threat.Downed || threat.Map != map
+                                if (result.Contains(threat) || threat == null || !threat.Spawned
+                                    || threat.Dead || threat.Downed || !threat.Awake() || threat.Map != map
                                     || !threat.Position.InHorDistOf(origin, 24f)
                                     || (elevatedTree != null && !ReachesElevatedPrey(threat, prey, elevatedTree))
                                     || AnimalHuntStrategy.HiddenFrom(threat, prey)) continue;
@@ -1503,6 +1521,11 @@ namespace ZoologyMod
 
         private static bool IsRelevantRefugeThreat(Pawn threat, Pawn prey)
         {
+            // Every route into the refuge threat list, including the stored
+            // original pursuer, must honor present consciousness and concealment.
+            if (threat == null || prey == null || !threat.Spawned || threat.Downed
+                || threat.Dead || !threat.Awake() || AnimalHuntStrategy.HiddenFrom(threat, prey))
+                return false;
             if (PawnThreatUtility.IsHumanlikeOrMechanoid(threat))
             {
                 if (IsHumanDoingAnimalTamingJob(threat)) return false;
@@ -1513,8 +1536,7 @@ namespace ZoologyMod
             }
             if (IsThreatTargetingPawn(threat, prey)) return true;
             return IsPredatorThreatSourceForPrey(threat, prey) && IsValidNonTargetPredatorFactionContext(threat, prey)
-                && (prey.Spawned ? IsAcceptablePreyForFlee(threat, prey)
-                    : Patch_IsAcceptablePreyForPredator.IsSuitableWithoutYoungProtection(threat, prey));
+                && IsAcceptablePreyForFlee(threat, prey);
         }
 
         private static bool TryHandleImmediateProtectPreyThreat(Pawn pawn, out Job fleeJob)
@@ -1955,6 +1977,145 @@ namespace ZoologyMod
             return protectPreyThreatEntriesScratch;
         }
 
+        // Independent discovery is not a global reveal. The detecting
+        // animal and its local conspecifics can flee; only those that really
+        // start fleeing receive the existing predator/prey pursuit cooldown.
+        internal static void AlertIndependentStalkWitness(Pawn predator, Pawn witness)
+        {
+            if (predator?.Spawned != true || witness?.Spawned != true
+                || predator.Map != witness.Map || witness.RaceProps?.Animal != true)
+                return;
+
+            ZoologyModSettings settings = ZoologyModSettings.Instance;
+            if (settings != null && (!settings.EnablePreyFleeFromPredators
+                || !settings.AnimalsFleeFromNonHostlePredators))
+                return;
+
+            if (witness.RaceProps.herdAnimal != true)
+            {
+                TryFleeDetectedStalker(predator, witness);
+                return;
+            }
+
+            float radius = GetPredatorSearchRadius();
+            float radiusSq = radius * radius;
+            var pawns = predator.Map.mapPawns.AllPawnsSpawned;
+            for (int i = 0; i < pawns.Count; i++)
+            {
+                Pawn member = pawns[i];
+                if (member?.Spawned != true || member.Dead || member.Downed
+                    || !member.Awake() || member.def != witness.def
+                    || member.Faction != witness.Faction
+                    || (member.Position - witness.Position).LengthHorizontalSquared > radiusSq)
+                    continue;
+
+                TryFleeDetectedStalker(predator, member);
+            }
+        }
+
+        private static void TryFleeDetectedStalker(Pawn predator, Pawn observer)
+        {
+            if (!ZoologyFleeSafetyUtility.CanUseForcedThreatFlee(observer)
+                || AnimalHuntStrategy.IsFleeing(observer.CurJob))
+                return;
+
+            // Reuse ordinary non-target flee checks, but skip the generic
+            // HiddenFrom guard for this explicitly detecting observer only.
+            // There is no per-observer awareness field or global reveal.
+            if (!TryBuildPredatorFleeJob(observer, predator,
+                ZoologyCacheUtility.IsSpectrobionta(observer.def),
+                IsFoodSeekingOrEatingJob(observer), out Job flee,
+                detectedStalker: true))
+                return;
+
+            observer.jobs.StartJob(flee, JobCondition.InterruptForced);
+            if (AnimalHuntStrategy.IsFleeing(observer.CurJob)
+                && observer.CurJob.targetB.Pawn == predator)
+                ZoologyPursuitGameComponent.Instance?.BlockPursuit(predator, observer);
+        }
+
+        // A witnessed stalk is an event, not an ambient threat scan.
+        // The same targeted-predator flee builder that the regular AI uses
+        // handles every eligible nearby conspecific, including the target.
+        // No new per-tick group searches or separately modeled fear values.
+        internal static void AlertDetectedAmbush(Pawn predator, Pawn target,
+            Pawn witness, bool targetOutruns)
+        {
+            if (predator?.Spawned != true || target?.Spawned != true
+                || witness?.Spawned != true || predator.Map != witness.Map
+                || ZoologyModSettings.Instance?.EnablePreyFleeFromPredators == false)
+                return;
+
+            var pawns = predator.Map.mapPawns.AllPawnsSpawned;
+            float radius = GetPredatorSearchRadius();
+            float radiusSq = radius * radius;
+            bool group = witness.RaceProps?.herdAnimal == true;
+            var pursuit = ZoologyPursuitGameComponent.Instance;
+            int fleeDistance = GetFleeDistanceTargetPredator();
+            bool allowNonTargetFlee = ZoologyModSettings.Instance == null
+                || ZoologyModSettings.Instance.AnimalsFleeFromNonHostlePredators;
+
+            // A local herd is a same-species, same-faction cluster around
+            // the witness; it never joins unrelated groups map-wide.
+            for (int i = 0; i < pawns.Count; i++)
+            {
+                Pawn member = pawns[i];
+                if (member == null || member == predator || member.Downed
+                    || member.Dead || !member.Awake()
+                    || member.RaceProps?.Animal != true
+                    || !member.RaceProps.canBePredatorPrey
+                    || member.Map != witness.Map)
+                    continue;
+
+                if (member != witness)
+                {
+                    if (!group || member.def != witness.def
+                        || member.Faction != witness.Faction
+                        || (member.Position - witness.Position).LengthHorizontalSquared > radiusSq)
+                        continue;
+                }
+
+                // The actual quarry gets the existing immediate-targeted
+                // flee behavior. Its warned herd mates reuse the ordinary
+                // non-target predator rules (including food-job protection,
+                // suitability, defensive capability and flee settings).
+                // Sharing awareness does not force every gorilla to run.
+                bool fleeingThisPredator = AnimalHuntStrategy.IsFleeing(member.CurJob)
+                    && member.CurJob.targetB.Pawn == predator;
+                if (!fleeingThisPredator && !AnimalHuntStrategy.IsFleeing(member.CurJob))
+                {
+                    bool isTarget = member == target;
+                    Job flee = null;
+                    bool canFlee = isTarget
+                        ? TryBuildImmediateThreatFleeJob(member, predator, fleeDistance, out flee)
+                        : allowNonTargetFlee
+                            && !ZoologyFleeSafetyUtility.IsStandardFleeBlockedByExtensions(member)
+                            && TryBuildPredatorFleeJob(member, predator,
+                                ZoologyCacheUtility.IsSpectrobionta(member.def),
+                                IsFoodSeekingOrEatingJob(member), out flee);
+                    if (canFlee)
+                    {
+                        member.jobs.StartJob(flee, JobCondition.InterruptForced);
+                        fleeingThisPredator = AnimalHuntStrategy.IsFleeing(member.CurJob)
+                            && member.CurJob.targetB.Pawn == predator;
+                    }
+                }
+
+                // In a faster escaping flock every member that actually
+                // flees is excluded from prey selection for the same pair
+                // cooldown as an abandoned chase. Do not block unaware or
+                // sleeping members of the species.
+                bool memberOfFailedTargetHerd = targetOutruns
+                    && target.RaceProps.herdAnimal
+                    && member.def == target.def
+                    && member.Faction == target.Faction;
+                if (fleeingThisPredator
+                    && (memberOfFailedTargetHerd
+                        || AnimalHuntStrategy.OutrunsPredator(predator, member)))
+                    pursuit?.BlockPursuit(predator, member);
+            }
+        }
+
         private static bool TryBuildImmediateThreatFleeJob(Pawn pawn, Pawn threat, int fleeDistance, out Job fleeJob)
         {
             fleeJob = null;
@@ -2145,10 +2306,12 @@ namespace ZoologyMod
             Pawn threat,
             bool preyIsSpectrobionta,
             bool foodJobActive,
-            out Job fleeJob)
+            out Job fleeJob,
+            bool detectedStalker = false)
         {
             fleeJob = null;
-            if (pawn == null || threat == null)
+            if (pawn == null || threat == null || !threat.Awake()
+                || (!detectedStalker && AnimalHuntStrategy.HiddenFrom(threat, pawn)))
             {
                 return false;
             }
@@ -4209,6 +4372,7 @@ namespace ZoologyMod
                 && predator.Map == prey.Map
                 && TryGetThreatTargetPawn(predator, out Pawn targetedPawn)
                 && IsTargetedAnimalThreatSourceForPrey(predator, targetedPawn)
+                && !AnimalHuntStrategy.HiddenFrom(predator, prey)
                 && distanceSquared <= radiusSquared
                 && (ReferenceEquals(targetedPawn, prey)
                     ? HasReachability(predator, prey)
@@ -4622,7 +4786,7 @@ namespace ZoologyMod
             return true;
         }
 
-        private static bool IsThreatTargetingPawn(Pawn predator, Pawn prey)
+        internal static bool IsThreatTargetingPawn(Pawn predator, Pawn prey)
         {
             return IsActivePredatorThreat(predator, prey, out bool targetsPreyDirectly) && targetsPreyDirectly;
         }
@@ -4793,59 +4957,34 @@ namespace ZoologyMod
                 || IsProtectYoungThreatJob(curJob, curDriver);
         }
 
-        private static bool IsAcceptablePrey(Pawn predator, Pawn prey)
+        private static bool IsAcceptablePreyForFlee(Pawn predator, Pawn prey)
         {
-            if (predator == null || prey == null)
-            {
+            if (predator == null || prey == null || predator.def == prey.def)
                 return false;
-            }
 
-            if (ChildcareDefenseUtility.ShouldBlockProtectedYoungPredation(predator, prey))
-            {
-                PredationDecisionCache.StoreAcceptablePrey(predator, prey, false);
-                return false;
-            }
-
-            if (PredationDecisionCache.TryGetAcceptablePrey(predator, prey, out bool cachedAcceptable))
-            {
-                return cachedAcceptable;
-            }
+            // The observer reacts to physical predation risk, not to the
+            // hunter's temporary target-selection eligibility.
+            bool advanced = Patch_IsAcceptablePreyForPredator.Prepare();
+            if (advanced && PredationDecisionCache.TryGetPotentialPreyThreat(predator, prey, out bool cached))
+                return cached;
 
             try
             {
-                bool acceptable = FoodUtility.IsAcceptablePreyFor(predator, prey);
-                if (acceptable && ChildcareDefenseUtility.ShouldBlockProtectedYoungPredation(predator, prey))
-                {
-                    PredationDecisionCache.StoreAcceptablePrey(predator, prey, false);
-                    return false;
-                }
+                bool suitable = advanced || !prey.Spawned
+                    ? Patch_IsAcceptablePreyForPredator.IsSuitableWithoutYoungProtection(predator, prey)
+                    : FoodUtility.IsAcceptablePreyFor(predator, prey);
 
-                return acceptable;
+                if (!suitable && CanUseSpectrobiontaPredatorException(prey, predator))
+                    suitable = Patch_IsAcceptablePreyForPredator.IsAcceptableSpectrobiontaPreyForFlee(predator, prey);
+
+                if (advanced)
+                    PredationDecisionCache.StorePotentialPreyThreat(predator, prey, suitable);
+                return suitable;
             }
             catch
             {
                 return false;
             }
-        }
-
-        private static bool IsAcceptablePreyForFlee(Pawn predator, Pawn prey)
-        {
-            if (predator == null || prey == null)
-            {
-                return false;
-            }
-
-            if (CanUseSpectrobiontaPredatorException(prey, predator))
-            {
-                if (IsAcceptablePrey(predator, prey))
-                {
-                    return true;
-                }
-
-                return Patch_IsAcceptablePreyForPredator.IsAcceptableSpectrobiontaPreyForFlee(predator, prey);
-            }
-
-            return IsAcceptablePrey(predator, prey);
         }
 
         private static bool IsFleeJobThreatMeleeAttackingPawn(Pawn pawn, Job fleeJob)

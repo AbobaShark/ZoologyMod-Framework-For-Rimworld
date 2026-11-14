@@ -17,6 +17,9 @@ from lxml import etree as E
 from core.static_stats import read_table
 from core.xml_routing import digest
 from core.checker_config import ROOT
+from core.amphibian_reproduction import (
+    AMBI_DEFS, AMBI_PATCH, external_roe_rows, render_roe_defs, render_roe_patch,
+)
 
 # Spreadsheet tab name; the stable legacy manifest marker 'EggMilk' is NOT a sheet name.
 REPRODUCTION_SHEET = 'EggMilkWool'
@@ -206,7 +209,8 @@ def _read_repro(source,sheet):
 def render_reproduction(source,root,egg_milk_source=None,animals_source=None,animals_frame=None,*,destinations):
     root=Path(root).resolve();mod=root/'Zoology'
     if not (mod/'LoadFolders.xml').is_file(): raise ValueError('Missing Zoology/LoadFolders.xml')
-    # Banners are absent here, EggMilkWool has 3 disjoint grids on one worksheet.
+    # The egg/milk/wool tables and the amphibian subtable have independent
+    # row indices. Their join is performed strictly by animal DefName.
     frame=_read_repro(egg_milk_source or source,REPRODUCTION_SHEET)
     # Reuse the already validated Animals table during Generate All. Re-reading
     # the large workbook can take disproportionately long and duplicates data.
@@ -215,12 +219,27 @@ def render_reproduction(source,root,egg_milk_source=None,animals_source=None,ani
         raise ValueError('Animals table must contain Common name and XML name columns')
     # Pandas assigns 'Unnamed: 9' and 'Unnamed: 14' to separator columns.
     egg=pd_egg_map(frame)
+    amphibians=(external_roe_rows(frame)
+                if {AMBI_DEFS, AMBI_PATCH} & set(destinations) else {})
     outputs=[];report=[]
     for dest in destinations:
         original=mod/dest
         if not original.exists():
             report.append({'target':dest,'status':'missing','warnings':['File absent; no new patch synthesized']});continue
         tree=E.parse(str(original),E.XMLParser(remove_blank_text=False))
+        if dest in (AMBI_DEFS, AMBI_PATCH):
+            generated=(render_roe_defs(tree, amphibians) if dest==AMBI_DEFS
+                       else render_roe_patch(amphibians))
+            payload=E.tostring(generated,encoding='utf-8',xml_declaration=True,pretty_print=True)
+            changed=payload!=original.read_bytes()
+            if changed:
+                outputs.append((dest,payload))
+            report.append({'target':dest,
+                           'status':'changed' if changed else 'unchanged',
+                           'source_sha256':digest(original),
+                           'generated_species':sorted(amphibians),
+                           'warnings':[], 'matched':[]})
+            continue
         changes,warnings,touched=refresh_tree(tree,{'EggMilk':egg,'Animals':animals})
         if changes:
             outputs.append((dest,E.tostring(tree,encoding='utf-8',xml_declaration=True,pretty_print=False)))
@@ -242,8 +261,18 @@ def pd_egg_map(frame):
               17:'Wool type',19:'Wool yield per day'}
     if len(cols)<20 or any(str(cols[i]).strip()!=name for i,name in required.items()):
         raise ValueError(f'{REPRODUCTION_SHEET} layout changed; review column mapping before generation')
-    from string import ascii_uppercase
-    index=[ascii_uppercase[i] if i<26 else '' for i in range(len(cols))]
-    return frame.rename(columns={cols[i]:index[i] for i in range(len(cols))})
+    def column_label(one_based):
+        label = ''
+        while one_based:
+            one_based, remainder = divmod(one_based - 1, 26)
+            label = chr(65 + remainder) + label
+        return label
+
+    # Duplicate section headers ("Name", "Food consumption") exist in this
+    # worksheet. A dict-based rename maps ALL duplicates to the last column
+    # and silently destroys the data alignment. Assign names positionally.
+    mapped = frame.copy()
+    mapped.columns = [column_label(i + 1) for i in range(len(cols))]
+    return mapped
 
 

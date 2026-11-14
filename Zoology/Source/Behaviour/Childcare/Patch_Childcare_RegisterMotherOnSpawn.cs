@@ -36,6 +36,19 @@ namespace ZoologyMod
                 {
                     AnimalEffectiveArea.SyncWithMother(pawn, mother);
                 }
+                // A newborn may have been spawned next to a barn containing
+                // its mother. Both kinds of owner preserve the newborn Pawn.
+                if (mother != null && mother.gender == Gender.Female
+                    && AnimalOffspringShelter.For(mother.def) == OffspringShelterMode.POUCH)
+                    mother.TryGetComp<CompAnimalPouch>()?.TryStoreBaby(pawn);
+                else if (motherOrEgg is Thing egg && egg.ParentHolder is CompEggContainer eggs
+                    && eggs.parent is Building_AnimalNursery nest)
+                {
+                    CompHatcher hatcher = egg.TryGetComp<CompHatcher>();
+                    nest.AssignParent(hatcher?.hatcheeParent);
+                    nest.AssignParent(hatcher?.otherParent);
+                    nest.TryReceiveBaby(pawn, egg);
+                }
             }
             catch (System.Exception ex)
             {

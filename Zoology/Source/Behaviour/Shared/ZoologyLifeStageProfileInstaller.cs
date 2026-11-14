@@ -28,10 +28,25 @@ namespace ZoologyMod
             new Dictionary<LifeStageDef, float>();
         private static readonly Dictionary<LifeStageDef, Dictionary<Tool, ZoologyLifeStageToolFactor>>
             resolvedToolCopiesByStage = new Dictionary<LifeStageDef, Dictionary<Tool, ZoologyLifeStageToolFactor>>();
+        private static readonly Dictionary<ThingDef, Dictionary<string, bool>> flightRulesBySpecies =
+            new Dictionary<ThingDef, Dictionary<string, bool>>();
         private static int unresolvedToolMappings;
         private static readonly List<string> unresolvedToolExamples = new List<string>();
 
+        // Preserve the unmodified race age definitions so disabling the
+        // growth feature also disables the generated stage stat modifiers.
+        // Age thresholds and ordering do not change across toggles.
+        // The vanilla stat-factor pipeline multiplies by zero before our
+        // StatPart can interpolate it. Keep an installed neutral factor of one
+        // for these stages, and apply the intended zero in the StatPart.
+        private static readonly Dictionary<LifeStageDef, HashSet<StatDef>> ZeroStageStatFactors =
+            new Dictionary<LifeStageDef, HashSet<StatDef>>();
+        private static readonly Dictionary<ThingDef, List<LifeStageAge>> OriginalRaceStages =
+            new Dictionary<ThingDef, List<LifeStageAge>>();
+        private static readonly Dictionary<ThingDef, List<LifeStageAge>> GeneratedRaceStages =
+            new Dictionary<ThingDef, List<LifeStageAge>>();
         private static bool applied;
+        private static bool generatedStagesActive = true;
         private static int mappedNaturalTools;
         private static bool nativeHashAllocatorAvailable = true;
         private static HashSet<ushort> fallbackUsedHashes;
@@ -87,7 +102,8 @@ namespace ZoologyMod
 
                     try
                     {
-                        if (TryInstall(profile))
+                        RegisterFlightRule(profile);
+                        if (profile.bodySizeFactor > 0f && TryInstall(profile))
                         {
                             installed++;
                         }
@@ -106,9 +122,14 @@ namespace ZoologyMod
                 ZoologyLifeStageArmorStatPart.Install();
             }
 
-            // All race stages have now been replaced by their calculated
-            // profiles. Resolve daily interpolation against these final defs.
+            // Capture the installed stage sequences while they are still active.
+            // The daily interpolation tables always reference generated defs,
+            // but original definitions can be restored without rerunning the
+            // catalog installer or changing age thresholds.
+            foreach (var entry in OriginalRaceStages)
+                GeneratedRaceStages[entry.Key] = entry.Key.race.lifeStageAges;
             ZoologyAnimalGrowth.Install(catalogs);
+            SyncProfileStages(ZoologyAnimalGrowth.Enabled);
 
             timer.Stop();
             if (unresolvedToolMappings > 0)
@@ -121,6 +142,69 @@ namespace ZoologyMod
                 + mappedNaturalTools + " individually mapped natural tools in "
                 + timer.ElapsedMilliseconds + " ms (" + skipped
                 + " invalid catalog entries; absent optional species and neutral stages are not errors).");
+        }
+
+        // Synchronously exchange the original and generated life stages when
+        // the user changes the growth setting. This also switches vanilla
+        // LifeStageDef fields (bodySizeFactor, healthScaleFactor,
+        // foodMaxFactor, hungerRateFactor and statFactors), which a Harmony
+        // postfix alone cannot suppress.
+        internal static bool HasZeroStatFactor(LifeStageDef stage, StatDef stat)
+        {
+            HashSet<StatDef> zeroStats;
+            return stage != null && stat != null
+                && ZeroStageStatFactors.TryGetValue(stage, out zeroStats)
+                && zeroStats.Contains(stat);
+        }
+
+        internal static void AddZeroStatFactors(HashSet<StatDef> destination)
+        {
+            foreach (var entry in ZeroStageStatFactors)
+                destination.UnionWith(entry.Value);
+        }
+
+        internal static void SyncProfileStages(bool enabled)
+        {
+            if (!applied || GeneratedRaceStages.Count == 0
+                || generatedStagesActive == enabled)
+                return;
+
+            foreach (var entry in GeneratedRaceStages)
+            {
+                var animal = entry.Key;
+                if (animal?.race == null)
+                    continue;
+                List<LifeStageAge> original;
+                if (!OriginalRaceStages.TryGetValue(animal, out original))
+                    continue;
+                animal.race.lifeStageAges = enabled ? entry.Value : original;
+            }
+            generatedStagesActive = enabled;
+        }
+
+        private static void RegisterFlightRule(ZoologyLifeStageProfile profile)
+        {
+            if (profile.canFly != 0 && profile.canFly != 1) return;
+            ThingDef animal = DefDatabase<ThingDef>.GetNamedSilentFail(profile.animalDefName);
+            if (animal?.race?.Animal != true) return;
+            if (!flightRulesBySpecies.TryGetValue(animal, out var rules))
+            {
+                rules = new Dictionary<string, bool>(StringComparer.Ordinal);
+                flightRulesBySpecies.Add(animal, rules);
+            }
+            rules[profile.sourceStageDefName] = profile.canFly == 1;
+        }
+
+        internal static bool TryGetFlightRule(Pawn pawn, out bool allowed)
+        {
+            allowed = true;
+            if (pawn?.def == null || pawn.ageTracker?.CurLifeStage == null
+                || !flightRulesBySpecies.TryGetValue(pawn.def, out var rules))
+                return false;
+            LifeStageDef current = pawn.ageTracker.CurLifeStage;
+            LifeStageDef source = current.GetModExtension<ZoologyLifeStageOrigin>()?.sourceStage ?? current;
+            if (rules.TryGetValue(source.defName, out allowed)) return true;
+            return source.defName == "AnimalBabyTiny" && rules.TryGetValue("AnimalBaby", out allowed);
         }
 
         public static bool TryGetToolFactor(Pawn pawn, Tool tool, out ZoologyLifeStageToolFactor factor)
@@ -342,6 +426,7 @@ namespace ZoologyMod
             }
 
             bool hasCe = CEChecker.IsCEInstalled();
+            var zeroFactors = new HashSet<StatDef>();
             if (profile.statFactors != null)
             {
                 foreach (var entry in profile.statFactors)
@@ -368,19 +453,29 @@ namespace ZoologyMod
                         }
                     }
 
+                    // An installed zero would annihilate the stat before a
+                    // StatPart can interpolate it to a nonzero next stage.
+                    // Store the authored zero separately and let the StatPart
+                    // reproduce it exactly (including at the stage boundary).
+                    bool zero = entry.factor == 0f;
+                    if (zero)
+                        zeroFactors.Add(stat);
+                    float installed = zero ? 1f : entry.factor;
                     float oldValue = existing?.value ?? 1f;
-                    if (Math.Abs(oldValue - entry.factor) < 0.000001f)
+                    if (Math.Abs(oldValue - installed) < 0.000001f)
                     {
+                        if (zero)
+                            changed = true;
                         continue;
                     }
 
                     if (existing != null)
                     {
-                        existing.value = entry.factor;
+                        existing.value = installed;
                     }
                     else
                     {
-                        replacement.statFactors.Add(new StatModifier { stat = stat, value = entry.factor });
+                        replacement.statFactors.Add(new StatModifier { stat = stat, value = installed });
                     }
                     changed = true;
                 }
@@ -522,6 +617,10 @@ namespace ZoologyMod
                 return false;
             }
             DefDatabase<LifeStageDef>.Add(replacement);
+            if (zeroFactors.Count > 0)
+                ZeroStageStatFactors.Add(replacement, zeroFactors);
+            if (!OriginalRaceStages.ContainsKey(animal))
+                OriginalRaceStages.Add(animal, ages);
             animal.race.lifeStageAges = copiedAges;
             if (sharpOffset > 0f || bluntOffset > 0f)
             {
@@ -653,7 +752,7 @@ namespace ZoologyMod
         // Match by meaningful attack identity, not by the index produced by a
         // particular patch ordering. The recorded index is a last tie-breaker
         // only after a biological signature match.
-        private static Tool ResolveNaturalTool(List<Tool> tools, ZoologyLifeStageToolFactor entry,
+        internal static Tool ResolveNaturalTool(List<Tool> tools, ZoologyLifeStageToolFactor entry,
             int preferredIndex, Dictionary<Tool, ZoologyLifeStageToolFactor> used)
         {
             Tool winner = null;
@@ -697,7 +796,7 @@ namespace ZoologyMod
             return (group ? 8 : 0) + (label ? 4 : 0) + (capacities ? 2 : 0);
         }
 
-        private static int CompareActualTools(Tool first, Tool second)
+        internal static int CompareActualTools(Tool first, Tool second)
         {
             if (first == null || second == null)
                 return 0;

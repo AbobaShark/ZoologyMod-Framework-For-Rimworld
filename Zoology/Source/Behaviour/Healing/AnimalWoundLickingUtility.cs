@@ -43,7 +43,8 @@ namespace ZoologyMod
                 return false;
             }
 
-            return true;
+            return pawn.Faction?.IsPlayer != true
+                || pawn.playerSettings?.medCare == MedicalCareCategory.NoCare;
         }
 
         public static bool HasLickableWounds(Pawn pawn)

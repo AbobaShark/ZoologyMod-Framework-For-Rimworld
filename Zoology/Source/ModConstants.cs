@@ -11,6 +11,8 @@ namespace ZoologyMod
         public const bool DefaultAnimalsFleeFromNonHostilePredators = true;
         public const bool DefaultEnablePackHunt = true;
         public const bool DefaultEnableAdvancedPredationLogic = true;
+        public const bool DefaultEnableAnimalFoodChoice = true;
+        public const bool DefaultEnableWildAnimalForage = true;
         public const bool DefaultEnableHumanBionicOnAnimal = true;
         public const bool DefaultEnableAgroAtSlaughter = true;
         public const bool DefaultAnimalsFreeFromHumans = true;
@@ -29,6 +31,10 @@ namespace ZoologyMod
         public const bool DefaultEnableMammalLactation = true;
         public const bool DefaultEnableHandlerBabyFeeding = true;
         public const bool DefaultEnableAnimalChildcare = true;
+        public const bool DefaultEnableAdvancedReproductiveBehavior = true;
+        public const bool DefaultEnableAdvancedThreatAvoidance = true;
+        public const bool DefaultEnableWaterHabitatBehavior = true;
+        public const bool DefaultEnableWinterDormancy = true;
         public const bool DefaultEnableAnimalEggProtection = true;
         public const bool DefaultPreventFleeFromHumansWhileProtectingYoung = false;
         public const bool DefaultPreventFleeFromHumansWhileProtectingEggClutches = true;
@@ -55,7 +61,9 @@ namespace ZoologyMod
         public const bool DefaultOrphanedRaidAnimalsBecomeWild = false;
         public const bool DefaultEnableAnimalDamageReduction = true;
         public const bool DefaultEnableAnimalDraftControl = true;
-        public const bool DefaultEnableOverrideCEPenetration = false;
+        public const bool DefaultEnableDynamicAnimalGrowth = true;
+        public const bool DefaultEnableSexualDimorphism = true;
+        public const bool DefaultEnableAutomaticJuvenileSpriteScaling = true;
         public const bool DefaultEnablePetPlay = true;
         public const bool DefaultEnablePetBonding = true;
         public const bool DefaultEnableAnimalBonding = false;
@@ -83,6 +91,26 @@ namespace ZoologyMod
         public const float DefaultPetPlayMaxWildness = 0.2f;
 
         public static ZoologyModSettings Settings => ZoologyModSettings.Instance ?? ZoologyMod.Settings;
+
+        // These gates are O(1) settings reads. They are also used by XML
+        // ThinkTree job givers and ThingComps, not only Harmony patches.
+        public static bool AdvancedReproduction =>
+            Settings is ZoologyModSettings s
+                ? !s.DisableAllRuntimePatches && s.EnableAdvancedReproductiveBehavior
+                : DefaultEnableAdvancedReproductiveBehavior;
+        public static bool AdvancedThreatAvoidance =>
+            Settings is ZoologyModSettings s
+                ? !s.DisableAllRuntimePatches && s.EnableAdvancedThreatAvoidance
+                : DefaultEnableAdvancedThreatAvoidance;
+        public static bool WaterHabitatBehavior =>
+            Settings is ZoologyModSettings s
+                ? !s.DisableAllRuntimePatches && s.EnableWaterHabitatBehavior
+                : DefaultEnableWaterHabitatBehavior;
+        public static bool WinterDormancy =>
+            Settings is ZoologyModSettings s
+                ? !s.DisableAllRuntimePatches && s.EnableWinterDormancy
+                : DefaultEnableWinterDormancy;
+        public static bool FamilyDens => AdvancedReproduction && AdvancedThreatAvoidance;
 
         public static float SmallPetBodySizeThreshold => Settings?.SmallPetBodySizeThreshold ?? DefaultSmallPetBodySizeThreshold;
         public static float SafePredatorBodySizeThreshold => Settings?.SafePredatorBodySizeThreshold ?? DefaultSafePredatorBodySizeThreshold;

@@ -11,6 +11,18 @@ namespace ZoologyMod
     // No defs are mutated after installation; one snapshot per biological day per young pawn.
     internal static class ZoologyAnimalGrowth
     {
+        // A single gate for daily interpolation and optional age-specific
+        // runtime modifiers. Authored LifeStageDefs stay installed.
+        internal static bool Enabled
+        {
+            get
+            {
+                var settings = ZoologyMod.Settings ?? ZoologyModSettings.Instance;
+                return settings == null ||
+                    (!settings.DisableAllRuntimePatches && settings.EnableDynamicAnimalGrowth);
+            }
+        }
+
         private const long TicksPerBiologicalDay = 60000L;
         private const double TicksPerBiologicalYear = 3600000d;
 
@@ -18,11 +30,13 @@ namespace ZoologyMod
         {
             internal readonly float from;
             internal readonly float to;
+            internal readonly float installedFrom;
 
-            internal FactorPair(float from, float to)
+            internal FactorPair(float from, float to, float installedFrom)
             {
                 this.from = from;
                 this.to = to;
+                this.installedFrom = installedFrom;
             }
         }
 
@@ -30,6 +44,8 @@ namespace ZoologyMod
         {
             internal long startTick;
             internal long endTick;
+            internal long firstSampleTick;
+            internal long lastSampleTick;
             internal LifeStageDef from;
             internal LifeStageDef to;
             internal Dictionary<StatDef, FactorPair> statFactors;
@@ -47,12 +63,21 @@ namespace ZoologyMod
             internal float hungerRatio = 1f;
             internal float marketRatio = 1f;
             internal Vector2 drawRatio = Vector2.one;
+            internal bool drawRatioReady;
+            internal Gender graphicGender;
+            internal int graphicVersion;
+            internal ZoologySexAdultProfile sexTarget;
         }
 
         private static readonly Dictionary<ThingDef, Segment[]> RaceSegments =
             new Dictionary<ThingDef, Segment[]>();
         private static readonly ConditionalWeakTable<Pawn, Snapshot> Snapshots =
             new ConditionalWeakTable<Pawn, Snapshot>();
+
+        internal static bool HandlesRace(ThingDef race)
+        {
+            return race != null && RaceSegments.ContainsKey(race);
+        }
 
         internal static void Install(List<ZoologyLifeStageProfileCatalogDef> catalogs)
         {
@@ -106,6 +131,10 @@ namespace ZoologyMod
                     {
                         startTick = start,
                         endTick = end,
+                        firstSampleTick = ((start + TicksPerBiologicalDay - 1L)
+                            / TicksPerBiologicalDay) * TicksPerBiologicalDay,
+                        lastSampleTick = ((end - 1L) / TicksPerBiologicalDay)
+                            * TicksPerBiologicalDay,
                         from = current,
                         to = next,
                         statFactors = BuildStatFactors(current, next, affectedStats)
@@ -116,6 +145,7 @@ namespace ZoologyMod
                 RaceSegments[race] = intervals;
             }
 
+            ZoologyLifeStageProfileInstaller.AddZeroStatFactors(affectedStats);
             ZoologyAnimalGrowthStatPart.Install(affectedStats);
             Log.Message("[Zoology] Daily growth initialized for " + RaceSegments.Count
                 + " animal races and " + segments + " growth intervals.");
@@ -137,20 +167,30 @@ namespace ZoologyMod
 
             foreach (var stat in candidates)
             {
-                // LifeStageDef is applied before a StatPart. A zero current
-                // factor cannot be corrected using a multiplicative ratio.
                 float first = GetDefinedStatFactor(from, stat);
                 float second = GetDefinedStatFactor(to, stat);
-                if (!Positive(first) || !FiniteNonnegative(second)
-                    || Math.Abs(first - second) < 0.000001f)
+                // A stage authored with zero is installed with one and the
+                // required exact zero is applied by our StatPart instead.
+                float installed = GetInstalledStatFactor(from, stat);
+                if (!FiniteNonnegative(first) || !FiniteNonnegative(second)
+                    || !Positive(installed)
+                    || (Math.Abs(first - second) < 0.000001f
+                        && Math.Abs(first - installed) < 0.000001f))
                     continue;
-                result.Add(stat, new FactorPair(first, second));
+                result.Add(stat, new FactorPair(first, second, installed));
                 affected.Add(stat);
             }
             return result;
         }
 
         private static float GetDefinedStatFactor(LifeStageDef stage, StatDef stat)
+        {
+            if (ZoologyLifeStageProfileInstaller.HasZeroStatFactor(stage, stat))
+                return 0f;
+            return GetInstalledStatFactor(stage, stat);
+        }
+
+        private static float GetInstalledStatFactor(LifeStageDef stage, StatDef stat)
         {
             if (stage?.statFactors != null)
                 for (int i = 0; i < stage.statFactors.Count; i++)
@@ -163,7 +203,7 @@ namespace ZoologyMod
         {
             snapshot = null;
             if (pawn?.ageTracker == null || pawn.def == null
-                || (ZoologyMod.Settings != null && ZoologyMod.Settings.DisableAllRuntimePatches))
+                || !Enabled)
                 return false;
 
             Segment[] intervals;
@@ -181,65 +221,52 @@ namespace ZoologyMod
             long ticks = pawn.ageTracker.AgeBiologicalTicks;
             long biologicalDay = ticks >= 0 ? ticks / TicksPerBiologicalDay : 0L;
             if (snapshot.segment != segment || snapshot.stageIndex != stageIndex
-                || snapshot.biologicalDay != biologicalDay || snapshot.kind != pawn.kindDef)
+                || snapshot.biologicalDay != biologicalDay || snapshot.kind != pawn.kindDef
+                || snapshot.graphicGender != pawn.gender
+                || snapshot.graphicVersion != ZoologySexAdultProfiles.GraphicVersion)
             {
                 snapshot.segment = segment;
                 snapshot.stageIndex = stageIndex;
                 snapshot.biologicalDay = biologicalDay;
                 snapshot.kind = pawn.kindDef;
+                snapshot.graphicGender = pawn.gender;
+                snapshot.graphicVersion = ZoologySexAdultProfiles.GraphicVersion;
+                ZoologySexAdultProfile target;
+                snapshot.sexTarget = ZoologySexAdultProfiles.TryGet(pawn, true, out target)
+                    ? target : null;
 
                 long sampled = biologicalDay * TicksPerBiologicalDay;
                 float t = (float)((double)(sampled - segment.startTick)
                     / (segment.endTick - segment.startTick));
-                snapshot.progress = Mathf.Clamp01(t);
-                float fraction = snapshot.progress;
+                // All age-dependent values use the same daily samples,
+                // including their last day before the next LifeStageDef.
+                // This avoids the visual size reaching the next stage while
+                // speed, BodySize, health, hunger or combat stats lag behind.
+                float dailyProgress = segment.lastSampleTick > segment.firstSampleTick
+                    ? Mathf.Clamp01((float)((double)(sampled - segment.firstSampleTick)
+                        / (segment.lastSampleTick - segment.firstSampleTick)))
+                    : Mathf.Clamp01(t);
+                snapshot.progress = dailyProgress;
+                float fraction = dailyProgress;
 
+                var sexEnd = snapshot.sexTarget;
                 snapshot.bodyRatio = LerpRatio(segment.from.bodySizeFactor,
-                    segment.to.bodySizeFactor, fraction);
+                    sexEnd != null ? sexEnd.bodySizeFactor : segment.to.bodySizeFactor, fraction);
                 snapshot.healthRatio = LerpRatio(segment.from.healthScaleFactor,
-                    segment.to.healthScaleFactor, fraction);
+                    sexEnd != null ? sexEnd.healthScaleFactor : segment.to.healthScaleFactor, fraction);
                 snapshot.hungerRatio = LerpRatio(segment.from.hungerRateFactor,
-                    segment.to.hungerRateFactor, fraction);
+                    sexEnd != null ? sexEnd.hungerRateFactor : segment.to.hungerRateFactor, fraction);
+                // Follow the canonical age price unless the species explicitly
+                // opts into sex-specific market pricing in Base stats.
                 snapshot.marketRatio = LerpRatio(segment.from.marketValueFactor,
-                    segment.to.marketValueFactor, fraction);
-                snapshot.drawRatio = GraphicScale(pawn, stageIndex, segment, fraction);
+                    sexEnd != null && sexEnd.useSexSpecificMarketValue
+                        ? sexEnd.marketValueFactor : segment.to.marketValueFactor, fraction);
+                // Do not touch sprite assets from physiological/stat queries.
+                // Visible size is resolved lazily by the render-only DrawRatio
+                // getter, never by BodySize, hunger, combat or market value.
+                snapshot.drawRatioReady = false;
             }
             return true;
-        }
-
-        private static Vector2 GraphicScale(Pawn pawn, int index, Segment segment, float t)
-        {
-            var stages = pawn.kindDef?.lifeStages;
-            var ages = pawn.RaceProps.lifeStageAges;
-            if (stages == null || ages == null || index < 0
-                || index + 1 >= stages.Count || stages.Count != ages.Count)
-                return Vector2.one;
-
-            var currentGraphic = stages[index]?.bodyGraphicData;
-            var nextGraphic = stages[index + 1]?.bodyGraphicData;
-            if (currentGraphic == null || nextGraphic == null
-                || !Positive(currentGraphic.drawSize.x) || !Positive(currentGraphic.drawSize.y)
-                || !Positive(nextGraphic.drawSize.x) || !Positive(nextGraphic.drawSize.y)
-                || !Positive(segment.from.bodySizeFactor) || !Positive(segment.to.bodySizeFactor))
-                return Vector2.one;
-
-            // Interpolate the footprint, not just the stage BodySize relative
-            // to adult art: that approach cancelled each stage's drawSize.
-            // Factoring drawSize by sqrt(BodySize) preserves the biological
-            // growth curve while honoring independently authored graphic sizes.
-            // At t=0 this transform is exactly (1,1); at t=1 the resulting
-            // footprint exactly matches the next graphic's native drawSize.
-            // Consequently a stage switch cannot add an artificial size jump.
-            float currentBody = Mathf.Lerp(segment.from.bodySizeFactor,
-                segment.to.bodySizeFactor, t);
-            float bodyScale = Mathf.Sqrt(currentBody);
-            float fromScale = 1f / Mathf.Sqrt(segment.from.bodySizeFactor);
-            float toScale = 1f / Mathf.Sqrt(segment.to.bodySizeFactor);
-            return new Vector2(
-                bodyScale * Mathf.Lerp(currentGraphic.drawSize.x * fromScale,
-                    nextGraphic.drawSize.x * toScale, t) / currentGraphic.drawSize.x,
-                bodyScale * Mathf.Lerp(currentGraphic.drawSize.y * fromScale,
-                    nextGraphic.drawSize.y * toScale, t) / currentGraphic.drawSize.y);
         }
 
         private static float LerpRatio(float from, float to, float t)
@@ -255,8 +282,8 @@ namespace ZoologyMod
             if (pawn?.ageTracker == null || pawn.def == null)
                 return "pawn has no initialized biological age";
 
-            if (ZoologyMod.Settings?.DisableAllRuntimePatches == true)
-                return "runtime Harmony patches are disabled in Zoology settings";
+            if (!Enabled)
+                return "dynamic animal growth is disabled in Zoology settings";
 
             if (RaceSegments.Count == 0)
                 return "no calculated growth intervals installed; verify the generated "
@@ -286,44 +313,121 @@ namespace ZoologyMod
         internal static float BodyRatio(Pawn pawn)
         {
             Snapshot state;
-            return TryGetSnapshot(pawn, out state) ? state.bodyRatio : 1f;
+            if (TryGetSnapshot(pawn, out state))
+                return state.bodyRatio;
+            ZoologySexAdultProfile sex;
+            return ZoologySexAdultProfiles.TryGet(pawn, false, out sex)
+                && Positive(pawn.ageTracker.CurLifeStage.bodySizeFactor)
+                ? sex.bodySizeFactor / pawn.ageTracker.CurLifeStage.bodySizeFactor : 1f;
         }
 
         internal static float HealthRatio(Pawn pawn)
         {
             Snapshot state;
-            return TryGetSnapshot(pawn, out state) ? state.healthRatio : 1f;
+            if (TryGetSnapshot(pawn, out state))
+                return state.healthRatio;
+            ZoologySexAdultProfile sex;
+            return ZoologySexAdultProfiles.TryGet(pawn, false, out sex)
+                && Positive(pawn.ageTracker.CurLifeStage.healthScaleFactor)
+                ? sex.healthScaleFactor / pawn.ageTracker.CurLifeStage.healthScaleFactor : 1f;
         }
 
         internal static float HungerRatio(Pawn pawn)
         {
             Snapshot state;
-            return TryGetSnapshot(pawn, out state) ? state.hungerRatio : 1f;
+            if (TryGetSnapshot(pawn, out state))
+                return state.hungerRatio;
+            ZoologySexAdultProfile sex;
+            return ZoologySexAdultProfiles.TryGet(pawn, false, out sex)
+                && Positive(pawn.ageTracker.CurLifeStage.hungerRateFactor)
+                ? sex.hungerRateFactor / pawn.ageTracker.CurLifeStage.hungerRateFactor : 1f;
         }
 
         internal static float MarketRatio(Pawn pawn)
         {
             Snapshot state;
-            return TryGetSnapshot(pawn, out state) ? state.marketRatio : 1f;
+            if (TryGetSnapshot(pawn, out state))
+                return state.marketRatio;
+            ZoologySexAdultProfile sex;
+            return ZoologySexAdultProfiles.TryGet(pawn, false, out sex)
+                && sex.useSexSpecificMarketValue
+                && Positive(pawn.ageTracker.CurLifeStage.marketValueFactor)
+                ? sex.marketValueFactor / pawn.ageTracker.CurLifeStage.marketValueFactor
+                : 1f;
+        }
+
+        internal static bool IsSexSpecificMarketValue(Pawn pawn)
+        {
+            ZoologySexAdultProfile sex;
+            Snapshot state;
+            if (TryGetSnapshot(pawn, out state))
+                return state.sexTarget != null
+                    && state.sexTarget.useSexSpecificMarketValue;
+            return ZoologySexAdultProfiles.TryGet(pawn, false, out sex)
+                && sex.useSexSpecificMarketValue;
+        }
+
+        // UI explanation only: distinguish an age-only adjustment from
+        // interpolation toward a sex-specific adult stat endpoint.
+        internal static bool IsSexSpecificStat(Pawn pawn, StatDef stat)
+        {
+            if (stat == null)
+                return false;
+            float factor;
+            Snapshot state;
+            if (TryGetSnapshot(pawn, out state))
+                return state.sexTarget != null
+                    && ZoologySexAdultProfiles.TryGetStat(pawn, stat, true, out factor);
+            return ZoologySexAdultProfiles.TryGetStat(pawn, stat, false, out factor);
         }
 
         internal static Vector2 DrawRatio(Pawn pawn)
         {
             Snapshot state;
-            return TryGetSnapshot(pawn, out state) ? state.drawRatio : Vector2.one;
+            if (!TryGetSnapshot(pawn, out state))
+                return Vector2.one;
+            if (!state.drawRatioReady)
+            {
+                state.drawRatio = ZoologyAnimalGraphicBounds.Interpolate(
+                    pawn.kindDef, state.stageIndex, pawn.gender == Gender.Female,
+                    state.progress);
+                state.drawRatioReady = true;
+            }
+            return state.drawRatio;
         }
 
         internal static bool TryGetStatRatio(Pawn pawn, StatDef stat, out float ratio)
         {
             ratio = 1f;
+            if (stat == null)
+                return false;
             Snapshot state;
-            if (stat == null || !TryGetSnapshot(pawn, out state))
+            if (TryGetSnapshot(pawn, out state))
+            {
+                float adult;
+                if (state.sexTarget != null
+                    && ZoologySexAdultProfiles.TryGetStat(pawn, stat, true, out adult))
+                {
+                    float installed = GetInstalledStatFactor(state.segment.from, stat);
+                    if (!Positive(installed))
+                        return false;
+                    float first = GetDefinedStatFactor(state.segment.from, stat);
+                    ratio = Mathf.Lerp(first, adult, state.progress) / installed;
+                    return true;
+                }
+                FactorPair pair;
+                if (!state.segment.statFactors.TryGetValue(stat, out pair))
+                    return false;
+                ratio = Mathf.Lerp(pair.from, pair.to, state.progress) / pair.installedFrom;
+                return true;
+            }
+            float value;
+            if (!ZoologySexAdultProfiles.TryGetStat(pawn, stat, false, out value))
                 return false;
-
-            FactorPair pair;
-            if (!state.segment.statFactors.TryGetValue(stat, out pair))
+            float current = GetInstalledStatFactor(pawn.ageTracker?.CurLifeStage, stat);
+            if (!Positive(current))
                 return false;
-            ratio = Mathf.Lerp(pair.from, pair.to, state.progress) / pair.from;
+            ratio = value / current;
             return true;
         }
 
@@ -344,30 +448,43 @@ namespace ZoologyMod
         internal static bool TryGetArmorOffset(Pawn pawn, bool sharp, out float offset)
         {
             offset = 0f;
-            LifeStageDef from, to;
-            float t;
-            if (!TryGetStages(pawn, out from, out to, out t))
-                return false;
-            float first, second;
-            ZoologyLifeStageProfileInstaller.TryGetArmorOffset(from, sharp, out first);
-            ZoologyLifeStageProfileInstaller.TryGetArmorOffset(to, sharp, out second);
-            offset = Mathf.Lerp(first, second, t);
-            return true;
+            Snapshot state;
+            if (TryGetSnapshot(pawn, out state))
+            {
+                float first, second;
+                ZoologyLifeStageProfileInstaller.TryGetArmorOffset(state.segment.from, sharp, out first);
+                if (state.sexTarget != null)
+                    ZoologySexAdultProfiles.TryGetOffset(pawn, sharp, true, out second);
+                else
+                    ZoologyLifeStageProfileInstaller.TryGetArmorOffset(state.segment.to, sharp, out second);
+                offset = Mathf.Lerp(first, second, state.progress);
+                return true;
+            }
+            return ZoologySexAdultProfiles.TryGetOffset(pawn, sharp, false, out offset);
         }
 
         internal static bool TryGetDurability(Pawn pawn, out float factor)
         {
             factor = 1f;
-            LifeStageDef from, to;
-            float t;
-            if (!TryGetStages(pawn, out from, out to, out t))
+            Snapshot state;
+            if (TryGetSnapshot(pawn, out state))
+            {
+                float first, second;
+                if (!ZoologyLifeStageProfileInstaller.TryGetArmorDurabilityFactor(
+                        state.segment.from, out first))
+                    first = 1f;
+                if (state.sexTarget != null)
+                    second = state.sexTarget.ceArmorDurabilityFactor;
+                else if (!ZoologyLifeStageProfileInstaller.TryGetArmorDurabilityFactor(
+                        state.segment.to, out second))
+                    second = 1f;
+                factor = Mathf.Lerp(first, second, state.progress);
+                return true;
+            }
+            ZoologySexAdultProfile sex;
+            if (!ZoologySexAdultProfiles.TryGet(pawn, false, out sex))
                 return false;
-            float first, second;
-            if (!ZoologyLifeStageProfileInstaller.TryGetArmorDurabilityFactor(from, out first))
-                first = 1f;
-            if (!ZoologyLifeStageProfileInstaller.TryGetArmorDurabilityFactor(to, out second))
-                second = 1f;
-            factor = Mathf.Lerp(first, second, t);
+            factor = sex.ceArmorDurabilityFactor;
             return true;
         }
 
@@ -375,20 +492,27 @@ namespace ZoologyMod
             Pawn pawn, Tool tool, GrowthToolFactor kind, out float factor)
         {
             factor = 1f;
-            LifeStageDef from, to;
-            float t;
-            if (!TryGetStages(pawn, out from, out to, out t))
+            Snapshot state;
+            if (TryGetSnapshot(pawn, out state))
+            {
+                ZoologyLifeStageToolFactor first, second;
+                bool hasFirst = ZoologyLifeStageProfileInstaller.TryGetToolFactor(
+                    state.segment.from, tool, out first);
+                bool hasSecond = state.sexTarget != null
+                    ? ZoologySexAdultProfiles.TryGetTool(pawn, tool, true, out second)
+                    : ZoologyLifeStageProfileInstaller.TryGetToolFactor(
+                        state.segment.to, tool, out second);
+                if (!hasFirst && !hasSecond)
+                    return false;
+                float a = hasFirst ? SelectToolFactor(first, kind) : 1f;
+                float b = hasSecond ? SelectToolFactor(second, kind) : 1f;
+                factor = Mathf.Lerp(a, b, state.progress);
+                return true;
+            }
+            ZoologyLifeStageToolFactor adult;
+            if (!ZoologySexAdultProfiles.TryGetTool(pawn, tool, false, out adult))
                 return false;
-
-            ZoologyLifeStageToolFactor first, second;
-            bool hasFirst = ZoologyLifeStageProfileInstaller.TryGetToolFactor(from, tool, out first);
-            bool hasSecond = ZoologyLifeStageProfileInstaller.TryGetToolFactor(to, tool, out second);
-            if (!hasFirst && !hasSecond)
-                return false;
-
-            float a = hasFirst ? SelectToolFactor(first, kind) : 1f;
-            float b = hasSecond ? SelectToolFactor(second, kind) : 1f;
-            factor = Mathf.Lerp(a, b, t);
+            factor = SelectToolFactor(adult, kind);
             return true;
         }
 

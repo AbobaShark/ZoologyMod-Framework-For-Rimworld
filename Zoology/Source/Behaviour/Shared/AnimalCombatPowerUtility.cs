@@ -48,15 +48,24 @@ namespace ZoologyMod
 
         public static float GetLifeStageCombatPowerFactor(Pawn pawn)
         {
+            if (!ZoologyAnimalGrowth.Enabled && !ZoologySexAdultProfiles.Enabled)
+                return 1f;
             if (pawn == null)
             {
                 return 1f;
             }
 
+            ZoologySexAdultProfile sex;
+            if (ZoologySexAdultProfiles.TryGet(pawn, false, out sex))
+                return sex.combatPowerFactor;
+
             LifeStageDef current, next;
             float t;
             if (ZoologyAnimalGrowth.TryGetStages(pawn, out current, out next, out t))
             {
+                if (ZoologySexAdultProfiles.TryGet(pawn, true, out sex))
+                    return Mathf.Lerp(GetLifeStageCombatPowerFactor(current),
+                        sex.combatPowerFactor, t);
                 return Mathf.Lerp(GetLifeStageCombatPowerFactor(current),
                     GetLifeStageCombatPowerFactor(next), t);
             }
@@ -65,6 +74,9 @@ namespace ZoologyMod
 
         public static float GetLifeStageCombatPowerFactor(LifeStageDef stage)
         {
+            if (!ZoologyAnimalGrowth.Enabled)
+                return 1f;
+
             LifeStageCombatPowerExtension extension = stage?.GetModExtension<LifeStageCombatPowerExtension>();
             if (extension != null)
             {

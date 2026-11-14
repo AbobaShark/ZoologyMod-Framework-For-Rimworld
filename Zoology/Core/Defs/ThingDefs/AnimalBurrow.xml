@@ -1,25 +1,94 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
-  <ThingDef ParentName="BuildingBase">
-    <defName>Zoology_AnimalBurrow</defName>
-    <label>animal burrow</label>
-    <description>A shared underground refuge limited by its entrance size and total occupant body size. Social diggers make larger chambers; mothers expand them for their young. Occupants continue to age, hunger and suffer illness. Use repairs the entrance; unused burrows slowly collapse.</description>
+  <!-- Every burrow, maternity den and winter den shares a single holder. -->
+  <!-- Shared physical refuge. The same C# class stores adults, growing
+       dependent young, sleeping animals and winter-dormant animals. -->
+  <ThingDef Name="Zoology_SharedBurrowBase" ParentName="BuildingBase" Abstract="True">
     <thingClass>ZoologyMod.Building_AnimalBurrow, ZoologyMod</thingClass>
     <containedPawnsSelectable>true</containedPawnsSelectable>
+    <altitudeLayer>FloorEmplacement</altitudeLayer>
+    <useHitPoints>true</useHitPoints>
+    <!-- Natural erosion must not paint artificial building cracks. -->
+    <drawDamagedOverlay>false</drawDamagedOverlay>
+    <terrainAffordanceNeeded>Diggable</terrainAffordanceNeeded>
+    <tickerType>Normal</tickerType>
+    <passability>Standable</passability>
+    <statBases>
+      <MaxHitPoints>60</MaxHitPoints>
+      <Flammability>0</Flammability>
+      <Beauty>0</Beauty>
+    </statBases>
+    <building>
+      <isInert>true</isInert>
+      <expandHomeArea>false</expandHomeArea>
+    </building>
+    <designationCategory IsNull="True" />
+  </ThingDef>
+  <ThingDef ParentName="Zoology_SharedBurrowBase">
+    <defName>Zoology_AnimalBurrow</defName>
+    <label>animal burrow</label>
+    <description>An underground refuge where animals hide from danger, rest and raise their young.</description>
     <graphicData>
       <texPath>Things/Building/Zoology/AnimalBurrow</texPath>
       <graphicClass>Graphic_Single</graphicClass>
       <drawSize>(1,1)</drawSize>
     </graphicData>
-    <altitudeLayer>FloorEmplacement</altitudeLayer>
-    <useHitPoints>true</useHitPoints>
     <size>(1,1)</size>
-    <terrainAffordanceNeeded>Diggable</terrainAffordanceNeeded>
-    <tickerType>Normal</tickerType>
-    <passability>Standable</passability>
-    <statBases><MaxHitPoints>60</MaxHitPoints><Flammability>0</Flammability><Beauty>0</Beauty></statBases>
-    <building><isInert>true</isInert><expandHomeArea>false</expandHomeArea></building>
-    <designationCategory IsNull="True" />
+  </ThingDef>
+  <ThingDef ParentName="Zoology_SharedBurrowBase">
+    <defName>Zoology_AnimalBurrowMedium</defName>
+    <label>animal burrow</label>
+    <description>A spacious underground burrow where animals can rest and take shelter.</description>
+    <graphicData>
+      <texPath>Things/Building/Zoology/AnimalBurrow</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <drawSize>(2,2)</drawSize>
+    </graphicData>
+    <size>(2,2)</size>
+  </ThingDef>
+  <ThingDef ParentName="Zoology_SharedBurrowBase">
+    <defName>Zoology_AnimalBurrowLarge</defName>
+    <label>animal burrow</label>
+    <description>A large underground burrow providing refuge for sizeable animals.</description>
+    <graphicData>
+      <texPath>Things/Building/Zoology/AnimalBurrow</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <drawSize>(3,3)</drawSize>
+    </graphicData>
+    <size>(3,3)</size>
+  </ThingDef>
+  <ThingDef ParentName="Zoology_SharedBurrowBase">
+    <defName>Zoology_AnimalFamilyDen</defName>
+    <label>animal den</label>
+    <description>A sheltered den where animals rest and raise their young.</description>
+    <graphicData>
+      <texPath>Things/Building/Zoology/AnimalDen</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <drawSize>(1,1)</drawSize>
+    </graphicData>
+    <size>(1,1)</size>
+  </ThingDef>
+  <ThingDef ParentName="Zoology_SharedBurrowBase">
+    <defName>Zoology_AnimalFamilyDenMedium</defName>
+    <label>animal den</label>
+    <description>A spacious den sheltering adult animals and their young.</description>
+    <graphicData>
+      <texPath>Things/Building/Zoology/AnimalDen</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <drawSize>(2,2)</drawSize>
+    </graphicData>
+    <size>(2,2)</size>
+  </ThingDef>
+  <ThingDef ParentName="Zoology_SharedBurrowBase">
+    <defName>Zoology_AnimalFamilyDenLarge</defName>
+    <label>animal den</label>
+    <description>A large den suitable for raising young and spending the winter in dormancy.</description>
+    <graphicData>
+      <texPath>Things/Building/Zoology/AnimalDen</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <drawSize>(3,3)</drawSize>
+    </graphicData>
+    <size>(3,3)</size>
   </ThingDef>
   <ZoologyMod.AnimalRefugeDef>
     <defName>Zoology_AnimalRefuges</defName>
@@ -27,10 +96,8 @@
     <digTicks>2500</digTicks>
     <unusedDecayInterval>60000</unusedDecayInterval>
     <occupiedRepairInterval>2500</occupiedRepairInterval>
-    <maxBurrowBodySize>2</maxBurrowBodySize>
     <searchRadius>24</searchRadius>
     <diggableTerrainAffordance>Diggable</diggableTerrainAffordance>
-    <socialCapacityMultiplier>4</socialCapacityMultiplier>
     <hungerExitThreshold>0.2</hungerExitThreshold>
     <foodToReuseShelter>0.35</foodToReuseShelter>
     <forcedExitReentryDelay>2500</forcedExitReentryDelay>

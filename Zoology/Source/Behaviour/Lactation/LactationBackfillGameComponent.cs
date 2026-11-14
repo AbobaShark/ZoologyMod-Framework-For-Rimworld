@@ -33,6 +33,7 @@ namespace ZoologyMod
         {
             base.FinalizeInit();
             ResetLactationRuntimeCaches();
+            CompAnimalPouch.ReleaseDisabledCaravanPouches();
             TryStartBackfill();
         }
 
@@ -40,6 +41,7 @@ namespace ZoologyMod
         {
             base.LoadedGame();
             ResetLactationRuntimeCaches();
+            CompAnimalPouch.ReleaseDisabledCaravanPouches();
             TryStartBackfill();
         }
 
@@ -47,6 +49,7 @@ namespace ZoologyMod
         {
             base.StartedNewGame();
             ResetLactationRuntimeCaches();
+            CompAnimalPouch.ReleaseDisabledCaravanPouches();
             TryStartBackfill();
         }
 

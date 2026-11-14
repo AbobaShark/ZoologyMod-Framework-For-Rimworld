@@ -11,8 +11,7 @@ namespace ZoologyMod
     {
         private static bool Prepare()
         {
-            var settings = ZoologyModSettings.Instance;
-            return settings == null || !settings.DisableAllRuntimePatches;
+            return (ZoologyAnimalGrowth.Enabled || ZoologySexAdultProfiles.Enabled);
         }
 
         private static void Postfix(Tool tool, Pawn attacker, Thing equipment, ref float __result)
@@ -51,8 +50,7 @@ namespace ZoologyMod
     {
         private static bool Prepare()
         {
-            var settings = ZoologyModSettings.Instance;
-            return settings == null || !settings.DisableAllRuntimePatches;
+            return (ZoologyAnimalGrowth.Enabled || ZoologySexAdultProfiles.Enabled);
         }
 
         private static void Postfix(Tool tool, Pawn attacker, Thing equipment,

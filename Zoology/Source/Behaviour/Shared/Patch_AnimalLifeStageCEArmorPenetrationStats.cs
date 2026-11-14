@@ -34,13 +34,12 @@ namespace ZoologyMod
 
         internal static bool CanPatch()
         {
-            var settings = ZoologyModSettings.Instance;
             return CEChecker.IsCEInstalled() && WorkerType != null
                 && FinalDisplayMethod != null && FinalExplanationMethod != null
                 && ExplanationMethod != null
                 && PenetrationFactorMethod != null && SkillFactorMethod != null
                 && OtherFactorsMethod != null
-                && (settings == null || !settings.DisableAllRuntimePatches);
+                && (ZoologyAnimalGrowth.Enabled || ZoologySexAdultProfiles.Enabled);
         }
 
         private sealed class Penetration

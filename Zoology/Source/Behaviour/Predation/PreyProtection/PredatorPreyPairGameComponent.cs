@@ -20,9 +20,6 @@ namespace ZoologyMod
         private const int TICK_CHECK_INTERVAL = ZoologyTickLimiter.PreyProtection.TickCheckInterval;
         private const int POST_LOAD_STABILIZATION_TICKS = ZoologyTickLimiter.PreyProtection.TickCheckInterval * 3;
 
-        private const int NOTIFICATION_SUPPRESSION_TICKS = ZoologyTickLimiter.PreyProtection.NotificationSuppressionTicks; 
-        private static readonly Dictionary<int, long> notificationSuppressedUntil = new Dictionary<int, long>();
-
         
         private static Dictionary<long, long> pairsUntil = new Dictionary<long, long>();
 
@@ -111,6 +108,7 @@ namespace ZoologyMod
             runtimePredatorFactionById.Clear();
             ClearLookupCaches();
             postLoadStabilizationUntilTick = 0L;
+            ResetTransientProtectionState();
             singleton = this;
         }
 
@@ -120,6 +118,7 @@ namespace ZoologyMod
 
             long now = Find.TickManager?.TicksGame ?? 0L;
             RebuildRuntimeMappingsFromPairs(now);
+            ResetTransientProtectionState();
             postLoadStabilizationUntilTick = now + POST_LOAD_STABILIZATION_TICKS;
             singleton = this;
         }
@@ -150,12 +149,23 @@ namespace ZoologyMod
 
                     long now = Find.TickManager?.TicksGame ?? 0L;
                     RebuildRuntimeMappingsFromPairs(now);
+                    ResetTransientProtectionState();
                     postLoadStabilizationUntilTick = now + POST_LOAD_STABILIZATION_TICKS;
                 }
             }
             catch (Exception ex)
             {
                 Log.Warning($"Zoology: ExposeData failed for PredatorPreyPairGameComponent: {ex}");
+            }
+        }
+
+        // Pair assignments are saved. Attempt/notification cooldowns are not:
+        // they must never survive a reload with an earlier game tick.
+        private static void ResetTransientProtectionState()
+        {
+            lock (dictLock)
+            {
+                lastTriggerAttempt.Clear();
             }
         }
 
@@ -597,12 +607,17 @@ namespace ZoologyMod
 
         
 
-        private Pawn FindPawnById(int pid)
+        private Pawn FindPawnById(int pid, bool forceFreshLookup = false)
         {
             if (pid <= 0) return null;
 
             long now = Find.TickManager?.TicksGame ?? 0L;
-            if (pawnNegativeLookupUntil.TryGetValue(pid, out long cooldownUntil) && cooldownUntil > now)
+            // An interaction is evidence that the protected corpse is real.
+            // A negative lookup from map loading must not suppress a nearby
+            // predator for 250 ticks when the corpse is actually stolen.
+            if (!forceFreshLookup
+                && pawnNegativeLookupUntil.TryGetValue(pid, out long cooldownUntil)
+                && cooldownUntil > now)
             {
                 return null;
             }
@@ -837,6 +852,25 @@ namespace ZoologyMod
                 foreach (var kv in pairsUntil)
                 {
                     result.Add(kv);
+                }
+            }
+        }
+
+        // The persisted pair dictionary is authoritative. On a direct theft
+        // event, recover any missing reverse index exactly once rather than
+        // waiting for a food-score query or the periodic maintenance pass.
+        private void RestoreActivePairsForCorpseOnInteraction(int corpseId, long now)
+        {
+            if (corpseId <= 0) return;
+            lock (dictLock)
+            {
+                foreach (KeyValuePair<long, long> pair in pairsUntil)
+                {
+                    if (pair.Value < now || CorpseIdFromKey(pair.Key) != corpseId)
+                        continue;
+                    int predatorId = PredatorIdFromKey(pair.Key);
+                    if (predatorId > 0)
+                        AddRuntimePairMapping(predatorId, corpseId);
                 }
             }
         }
@@ -1400,7 +1434,8 @@ namespace ZoologyMod
             }
         }
 
-        public bool IsCorpseEffectivelyUnownedFor(Pawn eater, Corpse corpse)
+        public bool IsCorpseEffectivelyUnownedFor(
+            Pawn eater, Corpse corpse, Pawn knownPairedOwner = null)
         {
             try
             {
@@ -1416,7 +1451,10 @@ namespace ZoologyMod
                 }
                 catch { /* fail-safe: продолжим обычную логику при ошибках */ }
 
-                var owner = GetOwnerOfCorpse(corpse);
+                // Defending a freshly picked-up corpse already supplies the
+                // paired predator. Resolve ownership from that concrete pawn,
+                // not a possibly stale pawn-ID cache.
+                var owner = knownPairedOwner ?? GetOwnerOfCorpse(corpse);
                 if (owner == null) return true;
                 if (eater != null && owner == eater) return true;
 
@@ -1435,7 +1473,11 @@ namespace ZoologyMod
                 }
                 catch { /* ignore settings errors */ }
 
-                if (eater != null)
+                // Small animal scavengers can sometimes feed without
+                // provoking a vastly larger predator. Humanlike pawns and
+                // mechanoids, however, can carry off the entire corpse:
+                // their BodySize must not make paired prey unprotected.
+                if (eater != null && !PawnThreatUtility.IsHumanlikeOrMechanoid(eater))
                 {
                     float ownerSize = (owner?.BodySize ?? 1f);
                     float eaterSize = eater.BodySize;
@@ -1528,39 +1570,6 @@ namespace ZoologyMod
             }
         }
 
-        
-        public static void MarkProtectionNotificationSentForCorpse(int corpseThingID)
-        {
-            try
-            {
-                long now = Find.TickManager?.TicksGame ?? 0L;
-                lock (dictLock)
-                {
-                    notificationSuppressedUntil[corpseThingID] = now + NOTIFICATION_SUPPRESSION_TICKS;
-                }
-            }
-            catch { }
-        }
-
-        public static bool IsProtectionNotificationSuppressedForCorpse(int corpseThingID)
-        {
-            try
-            {
-                long now = Find.TickManager?.TicksGame ?? 0L;
-                lock (dictLock)
-                {
-                    long until;
-                    if (notificationSuppressedUntil.TryGetValue(corpseThingID, out until))
-                    {
-                        if (until >= now) return true;
-                        notificationSuppressedUntil.Remove(corpseThingID);
-                    }
-                }
-            }
-            catch { }
-            return false;
-        }
-
         public void ClearPairsForPredator(Pawn predator)
         {
             try
@@ -1622,10 +1631,6 @@ namespace ZoologyMod
                     return;
                 }
 
-                
-                if (interrupter != null && IsCorpseEffectivelyUnownedFor(interrupter, corpse))
-                    return;
-
                 int cid = corpse.thingIDNumber;
                 long now = Find.TickManager?.TicksGame ?? 0L;
                 int triggerRangeSquared = PreyProtectionUtility.GetProtectionRangeSquared();
@@ -1641,9 +1646,15 @@ namespace ZoologyMod
                 }
 
                 FillActivePredatorIdsForCorpse(cid, now, activePredatorIdBuffer);
-                if (activePredatorIdBuffer.Count == 0) return;
+                if (activePredatorIdBuffer.Count == 0)
+                {
+                    RestoreActivePairsForCorpseOnInteraction(cid, now);
+                    FillActivePredatorIdsForCorpse(cid, now, activePredatorIdBuffer);
+                    if (activePredatorIdBuffer.Count == 0) return;
+                }
 
                 defendCandidateBuffer.Clear();
+                bool alreadyActive = false;
                 var protectJobDef = protectPreyJobDef ?? (protectPreyJobDef = DefDatabase<JobDef>.GetNamedSilentFail("Zoology_ProtectPrey"));
 
                 for (int i = 0; i < activePredatorIdBuffer.Count; i++)
@@ -1652,10 +1663,15 @@ namespace ZoologyMod
                     long pairKey = PairKeyFor(pairPid, cid);
 
                     Pawn pred = null;
-                    try { pred = FindPawnById(pairPid); } catch { pred = null; }
+                    try { pred = FindPawnById(pairPid, forceFreshLookup: true); }
+                    catch { pred = null; }
                     if (pred == null) continue;
-                    if (interrupter != null && pred == interrupter) continue;
-                    if (humanlikeOrMechanoidInterrupter && !ZoologyModSettings.CanPredatorDefendPreyFromHumansAndMechanoidsNow(pred)) continue;
+                    if (pred == interrupter) continue;
+                    if (humanlikeOrMechanoidInterrupter
+                        && !ZoologyModSettings.CanPredatorDefendPreyFromHumansAndMechanoidsNow(pred))
+                        continue;
+                    if (IsCorpseEffectivelyUnownedFor(interrupter, corpse, pred))
+                        continue;
 
                     try
                     {
@@ -1677,6 +1693,11 @@ namespace ZoologyMod
                         
                         if (corpseMap != null && pred.Map != corpseMap) continue;
                         if (!PreyProtectionUtility.IsPawnWithinProtectionRange(pred, corpseMap, protectionAnchor, triggerRangeSquared)) continue;
+                        if (ZoologyNotificationUtility.IsActiveProtection(pred, interrupter, corpse))
+                        {
+                            alreadyActive = true;
+                            continue;
+                        }
 
                         
                         if (pairKey != 0)
@@ -1715,81 +1736,17 @@ namespace ZoologyMod
 
                 
                 
-                bool shouldNotifyPlayer = defendCandidateBuffer.Count > 0 && interrupter != null && interrupter.Faction == Faction.OfPlayer;
-
-                if (shouldNotifyPlayer)
-                {
-                    try
-                    {
-                        Pawn exemplar = defendCandidateBuffer[0].Predator;
-                        bool pack = defendCandidateBuffer.Count > 1;
-                        string collectiveLabel = ZoologyNotificationUtility.GetCollectiveAnimalLabel(exemplar, defendCandidateBuffer.Count);
-                        string label = pack
-                            ? "LetterLabelPredatorProtectingPreyPack".Translate(collectiveLabel)
-                            : "LetterLabelPredatorProtectingPrey".Translate(exemplar.LabelShort, interrupter.LabelDefinite(), exemplar.Named("PREDATOR"), interrupter.Named("PREY"));
-                        string text = pack
-                            ? "LetterPredatorProtectingPreyPack".Translate(collectiveLabel, interrupter.LabelDefinite())
-                            : "LetterPredatorProtectingPrey".Translate(exemplar.LabelIndefinite(), interrupter.LabelDefinite(), exemplar.Named("PREDATOR"), interrupter.Named("PREY"));
-                        List<Pawn> protectors = new List<Pawn>(defendCandidateBuffer.Count);
-                        for (int protectorIndex = 0; protectorIndex < defendCandidateBuffer.Count; protectorIndex++)
-                        {
-                            Pawn protector = defendCandidateBuffer[protectorIndex].Predator;
-                            if (protector != null)
-                            {
-                                protectors.Add(protector);
-                            }
-                        }
-                        LookTargets lookTargets = ZoologyNotificationUtility.CreateLookTargets(protectors, corpse);
-
-                        if (label.NullOrEmpty() || label.Contains(pack ? "LetterLabelPredatorProtectingPreyPack" : "LetterLabelPredatorProtectingPrey"))
-                        {
-                            label = pack
-                                ? $"{collectiveLabel} are protecting their prey"
-                                : $"{exemplar.LabelShort} is protecting its prey";
-                        }
-
-                        if (text.NullOrEmpty() || text.Contains(pack ? "LetterPredatorProtectingPreyPack" : "LetterPredatorProtectingPrey"))
-                        {
-                            text = pack
-                                ? $"{collectiveLabel} are protecting their prey and are attacking {interrupter.LabelDefinite()}."
-                                : $"{exemplar.LabelShort} is protecting its prey and is attacking {interrupter.LabelDefinite()}.";
-                        }
-
-                        if (PawnThreatUtility.IsHumanlikeOrMechanoid(interrupter))
-                        {
-                            Find.LetterStack.ReceiveLetter(
-                                label.CapitalizeFirst(),
-                                text.CapitalizeFirst(),
-                                pack ? LetterDefOf.ThreatBig : LetterDefOf.ThreatSmall,
-                                lookTargets);
-                        }
-                        else
-                        {
-                            Messages.Message(
-                                text.CapitalizeFirst(),
-                                lookTargets,
-                                pack ? MessageTypeDefOf.ThreatBig : MessageTypeDefOf.ThreatSmall,
-                                true);
-                        }
-
-                        MarkProtectionNotificationSentForCorpse(cid);
-                    }
-                    catch (Exception exNotify)
-                    {
-                        Log.Warning($"Zoology: aggregated notify failed: {exNotify}");
-                    }
-                }
-
-                
+                // A failed TryTakeOrderedJob does not initiate protection.
+                // Never start its cooldown or announce a defense that did not
+                // actually begin. Compact successful candidates in place.
+                int successfulDefenders = 0;
                 for (int i = 0; i < defendCandidateBuffer.Count; i++)
                 {
-                    int pid = defendCandidateBuffer[i].PredatorId;
-                    Pawn pred = defendCandidateBuffer[i].Predator;
-                    long pairKey = defendCandidateBuffer[i].PairKey;
-
+                    DefendCandidate candidate = defendCandidateBuffer[i];
+                    Pawn pred = candidate.Predator;
+                    bool taken = false;
                     try
                     {
-                        bool taken = false;
                         if (protectJobDef != null)
                         {
                             Job protectJob = JobMaker.MakeJob(protectJobDef, interrupter, corpse);
@@ -1798,24 +1755,35 @@ namespace ZoologyMod
 
                         if (!taken)
                         {
-                            Job attackJob = JobMaker.MakeJob(JobDefOf.AttackMelee, interrupter);
-                            pred.jobs.TryTakeOrderedJob(attackJob);
+                            Job attackJob = JobMaker.MakeJob(JobDefOf.AttackMelee, interrupter, corpse);
+                            taken = pred.jobs.TryTakeOrderedJob(attackJob);
                         }
                     }
                     catch (Exception exJob)
                     {
-                        Log.Warning($"Zoology: TryTriggerDefendFor: failed to order job for predator (pid={pid}): {exJob}");
+                        Log.Warning($"Zoology: TryTriggerDefendFor: failed to order job for predator (pid={candidate.PredatorId}): {exJob}");
                     }
 
-                    
-                    try
-                    {
-                        if (pairKey != 0)
-                        {
-                            lastTriggerAttempt[pairKey] = now;
-                        }
-                    }
-                    catch { }
+                    if (!taken) continue;
+                    defendCandidateBuffer[successfulDefenders++] = candidate;
+                    if (candidate.PairKey != 0)
+                        lastTriggerAttempt[candidate.PairKey] = now;
+                }
+
+                if (successfulDefenders < defendCandidateBuffer.Count)
+                    defendCandidateBuffer.RemoveRange(
+                        successfulDefenders, defendCandidateBuffer.Count - successfulDefenders);
+
+                if (defendCandidateBuffer.Count > 0 && interrupter.Faction == Faction.OfPlayer)
+                {
+                    List<Pawn> protectors = new List<Pawn>(defendCandidateBuffer.Count);
+                    for (int i = 0; i < defendCandidateBuffer.Count; i++)
+                        protectors.Add(defendCandidateBuffer[i].Predator);
+
+                    ZoologyNotificationUtility.TryNotifyProtectionStarted(
+                        interrupter, corpse, protectors, alreadyActive);
+                    for (int i = 0; i < protectors.Count; i++)
+                        protectors[i].mindState?.Notify_PredatorHuntingPlayerNotification();
                 }
 
                 activePredatorIdBuffer.Clear();

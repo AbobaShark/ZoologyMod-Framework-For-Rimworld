@@ -45,6 +45,7 @@ namespace ZoologyMod
         private const int PreyScoreHotCacheMask = PreyScoreHotCacheSize - 1;
 
         private static readonly AcceptablePreyCacheEntry[] acceptablePreyHotCacheSlots = new AcceptablePreyCacheEntry[AcceptablePreyHotCacheSize];
+        private static readonly AcceptablePreyCacheEntry[] potentialPreyThreatHotCacheSlots = new AcceptablePreyCacheEntry[AcceptablePreyHotCacheSize];
         private static readonly PreyScoreCacheEntry[] preyScoreHotCacheSlots = new PreyScoreCacheEntry[PreyScoreHotCacheSize];
         private static Game runtimeCacheGame;
         private static int runtimeCacheLastTick = -1;
@@ -52,6 +53,7 @@ namespace ZoologyMod
         public static void ClearAll()
         {
             System.Array.Clear(acceptablePreyHotCacheSlots, 0, acceptablePreyHotCacheSlots.Length);
+            System.Array.Clear(potentialPreyThreatHotCacheSlots, 0, potentialPreyThreatHotCacheSlots.Length);
             System.Array.Clear(preyScoreHotCacheSlots, 0, preyScoreHotCacheSlots.Length);
             runtimeCacheGame = Current.Game;
             runtimeCacheLastTick = Find.TickManager?.TicksGame ?? 0;
@@ -63,6 +65,8 @@ namespace ZoologyMod
             uint id = (uint)prey.thingIDNumber;
             for (int i = 0; i < acceptablePreyHotCacheSlots.Length; i++)
                 if ((uint)acceptablePreyHotCacheSlots[i].PairKey == id) acceptablePreyHotCacheSlots[i] = default;
+            for (int i = 0; i < potentialPreyThreatHotCacheSlots.Length; i++)
+                if ((uint)potentialPreyThreatHotCacheSlots[i].PairKey == id) potentialPreyThreatHotCacheSlots[i] = default;
             for (int i = 0; i < preyScoreHotCacheSlots.Length; i++)
                 if ((uint)preyScoreHotCacheSlots[i].PairKey == id) preyScoreHotCacheSlots[i] = default;
         }
@@ -73,6 +77,12 @@ namespace ZoologyMod
             ^ (uint)((ulong)key >> 32) * 2246822519u) & (uint)mask);
 
         public static bool TryGetAcceptablePrey(Pawn predator, Pawn prey, out bool value)
+            => TryGetPreyDecision(acceptablePreyHotCacheSlots, predator, prey, out value);
+
+        public static bool TryGetPotentialPreyThreat(Pawn predator, Pawn prey, out bool value)
+            => TryGetPreyDecision(potentialPreyThreatHotCacheSlots, predator, prey, out value);
+
+        private static bool TryGetPreyDecision(AcceptablePreyCacheEntry[] slots, Pawn predator, Pawn prey, out bool value)
         {
             value = false;
             long pairKey = PairKey(predator, prey);
@@ -84,7 +94,7 @@ namespace ZoologyMod
             }
 
             int slotIndex = Slot(pairKey, AcceptablePreyHotCacheMask);
-            AcceptablePreyCacheEntry cached = acceptablePreyHotCacheSlots[slotIndex];
+            AcceptablePreyCacheEntry cached = slots[slotIndex];
             if (cached.PairKey != pairKey
                 || currentTick - cached.Tick > AcceptablePreyCacheDurationTicks)
             {
@@ -96,6 +106,12 @@ namespace ZoologyMod
         }
 
         public static void StoreAcceptablePrey(Pawn predator, Pawn prey, bool value)
+            => StorePreyDecision(acceptablePreyHotCacheSlots, predator, prey, value);
+
+        public static void StorePotentialPreyThreat(Pawn predator, Pawn prey, bool value)
+            => StorePreyDecision(potentialPreyThreatHotCacheSlots, predator, prey, value);
+
+        private static void StorePreyDecision(AcceptablePreyCacheEntry[] slots, Pawn predator, Pawn prey, bool value)
         {
             long pairKey = PairKey(predator, prey);
             int currentTick = Find.TickManager?.TicksGame ?? 0;
@@ -106,7 +122,7 @@ namespace ZoologyMod
             }
 
             int slotIndex = Slot(pairKey, AcceptablePreyHotCacheMask);
-            acceptablePreyHotCacheSlots[slotIndex] = new AcceptablePreyCacheEntry(pairKey, value, currentTick);
+            slots[slotIndex] = new AcceptablePreyCacheEntry(pairKey, value, currentTick);
         }
 
         public static bool TryGetPreyScore(Pawn predator, Pawn prey, out float value)
@@ -154,6 +170,7 @@ namespace ZoologyMod
             if (gameChanged || tickRewound)
             {
                 System.Array.Clear(acceptablePreyHotCacheSlots, 0, acceptablePreyHotCacheSlots.Length);
+                System.Array.Clear(potentialPreyThreatHotCacheSlots, 0, potentialPreyThreatHotCacheSlots.Length);
                 System.Array.Clear(preyScoreHotCacheSlots, 0, preyScoreHotCacheSlots.Length);
                 runtimeCacheGame = currentGame;
             }

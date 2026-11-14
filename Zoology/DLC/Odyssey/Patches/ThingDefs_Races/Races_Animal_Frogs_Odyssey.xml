@@ -47,13 +47,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "Bullfrog"]/statBases/ComfyTemperatureMax</xpath>
       <value>
-        <ComfyTemperatureMax>40</ComfyTemperatureMax>
+        <ComfyTemperatureMax>45</ComfyTemperatureMax>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "Bullfrog"]/statBases</xpath>
       <value>
-        <ComfyTemperatureMax>40</ComfyTemperatureMax>
+        <ComfyTemperatureMax>45</ComfyTemperatureMax>
       </value>
     </nomatch>
   </Operation>
@@ -458,6 +458,26 @@
       <xpath>/Defs/ThingDef[defName = "Bullfrog"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_VenomSample, ZoologyMod"]</xpath>
     </match>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Bullfrog"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_OffspringShelter, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_OffspringShelter, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "Bullfrog"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_OffspringShelter, ZoologyMod">
+        <mode>AQUATIC_CLUTCH</mode>
+      </li>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Bullfrog"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
   <!-- Bullfrog PawnKindDef -->
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "Bullfrog"]/combatPower</xpath>
@@ -645,11 +665,8 @@
       <lifeExpectancy>25</lifeExpectancy>
     </value>
   </Operation>
-  <Operation Class="PatchOperationReplace">
+  <Operation Class="PatchOperationRemove">
     <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/gestationPeriodDays</xpath>
-    <value>
-      <gestationPeriodDays>7.5</gestationPeriodDays>
-    </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/herdAnimal</xpath>
@@ -885,39 +902,6 @@
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/litterSizeCurve</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/litterSizeCurve</xpath>
-      <value>
-        <litterSizeCurve Inherit="False">
-          <points>
-            <li>(2.0000, 0)</li>
-            <li>(4.0000, 0.2)</li>
-            <li>(8.0000, 1)</li>
-            <li>(12.0000, 1)</li>
-            <li>(16.0000, 0.2)</li>
-            <li>(18.0000, 0)</li>
-          </points>
-        </litterSizeCurve>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race</xpath>
-      <value>
-        <litterSizeCurve Inherit="False">
-          <points>
-            <li>(2.0000, 0)</li>
-            <li>(4.0000, 0.2)</li>
-            <li>(8.0000, 1)</li>
-            <li>(12.0000, 1)</li>
-            <li>(16.0000, 0.2)</li>
-            <li>(18.0000, 0)</li>
-          </points>
-        </litterSizeCurve>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/specialTrainables</xpath>
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "ColossusToad"]/race/specialTrainables</xpath>
@@ -981,6 +965,26 @@
     <xpath>/Defs/ThingDef[defName = "ColossusToad"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_VenomSample, ZoologyMod"]</xpath>
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "ColossusToad"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_VenomSample, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "ColossusToad"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_OffspringShelter, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_OffspringShelter, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "ColossusToad"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_OffspringShelter, ZoologyMod">
+        <mode>AQUATIC_CLUTCH</mode>
+      </li>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "ColossusToad"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
     </match>
   </Operation>
   <!-- ColossusToad PawnKindDef -->

@@ -1,179 +1,469 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using RimWorld;
 using Verse;
 using Verse.AI;
 
 namespace ZoologyMod
 {
-    public class Building_AnimalBurrow : Building_Casket
+    // The only underground refuge holder. Dens, winter shelters and ordinary
+    // burrows are different defs, not distinct container implementations.
+    public class Building_AnimalBurrow : Building_Casket, IThingHolderTickable
     {
+        public bool ShouldTickContents => false;
+
         private Pawn threat;
+        private Pawn familyMother;
         private int enteredAt;
-        private float entranceBodySize = 2f, totalBodyCapacity = 2f;
-        private ThingDef creatorSpecies;
-        private List<Pawn> expectedYoung = new List<Pawn>();
-        public static AnimalRefugeDef Settings => DefDatabase<AnimalRefugeDef>.GetNamed("Zoology_AnimalRefuges");
-        public IEnumerable<Pawn> Occupants => innerContainer.OfType<Pawn>();
+        private float entranceBodySize = 2f;
+        private float totalBodyCapacity = 2f;
+
+        public static AnimalRefugeDef Settings =>
+            DefDatabase<AnimalRefugeDef>.GetNamed("Zoology_AnimalRefuges");
+
+        public int ContentsCount => innerContainer.Count;
+        public Pawn PawnAt(int index) =>
+            index >= 0 && index < innerContainer.Count
+                ? innerContainer[index] as Pawn : null;
+
         public float TotalBodyCapacity => totalBodyCapacity;
-        public float OccupiedBodySize => Occupants.Sum(BodyUnits);
+        public float OccupiedBodySize
+        {
+            get
+            {
+                float total = 0f;
+                for (int i = 0; i < innerContainer.Count; i++)
+                    if (innerContainer[i] is Pawn occupant)
+                        total += BodyUnits(occupant);
+                return total;
+            }
+        }
+
         private static float BodyUnits(Pawn pawn) => Math.Max(0.001f, pawn.BodySize);
         public bool Contains(Pawn pawn) => pawn != null && innerContainer.Contains(pawn);
         public override AcceptanceReport ClaimableBy(Faction fac) => false;
+        // Natural refuges are never player construction projects, even if
+        // a resident's faction happens to match the colony.
+        public override AcceptanceReport DeconstructibleBy(Faction fac) => false;
+
+        public static bool CanConstructShelter(Pawn pawn)
+        {
+            if (pawn == null) return false;
+            if (DefModExtensionCache<ModExtension_Burrower>.Has(pawn)
+                || AnimalOffspringShelter.For(pawn.def) == OffspringShelterMode.DEN)
+                return true;
+
+            WinterDormancyMode mode = AnimalWinterDormancy.For(pawn.def);
+            return mode == WinterDormancyMode.DENNING
+                || mode == WinterDormancyMode.MATERNITY_DENNING
+                || mode == WinterDormancyMode.HIBERNATION
+                || mode == WinterDormancyMode.WINTER_REST;
+        }
+
+        public static ThingDef SelectDefFor(Pawn builder)
+        {
+            if (builder == null) return null;
+            float size = builder.BodySize;
+            int side = size < 0.5f ? 1 : size < 2f ? 2 : 3;
+            bool burrow = DefModExtensionCache<ModExtension_Burrower>.Has(builder);
+            string name = burrow
+                ? side == 1 ? "Zoology_AnimalBurrow"
+                    : side == 2 ? "Zoology_AnimalBurrowMedium"
+                        : "Zoology_AnimalBurrowLarge"
+                : side == 1 ? "Zoology_AnimalFamilyDen"
+                    : side == 2 ? "Zoology_AnimalFamilyDenMedium"
+                        : "Zoology_AnimalFamilyDenLarge";
+            return DefDatabase<ThingDef>.GetNamedSilentFail(name);
+        }
 
         public void InitializeFor(Pawn creator)
         {
-            creatorSpecies = creator.def;
             entranceBodySize = BodyUnits(creator);
-            totalBodyCapacity = entranceBodySize * (creator.RaceProps.herdAnimal ? Settings.socialCapacityMultiplier : 1f);
+            totalBodyCapacity = entranceBodySize * Math.Max(1, def.size.x * def.size.z);
         }
-        private IEnumerable<Pawn> FollowingYoung(Pawn mother)
+
+        private static bool InfantOf(Pawn infant, Pawn mother)
         {
-            if (mother.gender != Gender.Female || mother.relations == null) yield break;
-            // Relations expose the reverse child links; no map-wide search for babies.
-            foreach (Pawn child in mother.relations.Children)
-                if (child != null && !child.Dead && ChildcareUtility.IsAnimalChild(child)
-                    && child.MapHeld == Map && (Contains(child) || (child.Spawned && child.Position.InHorDistOf(Position, Settings.searchRadius)))
-                    && DefModExtensionCache<ModExtension_Burrower>.Has(child)) yield return child;
+            return infant != null && mother != null && !infant.Dead
+                && infant.def == mother.def
+                && AnimalLifeStageUtility.IsAnimalInfantLifeStage(
+                    infant.ageTracker?.CurLifeStage)
+                && ChildcareUtility.TryGetKnownBiologicalMother(infant, out Pawn parent)
+                && parent == mother;
         }
-        private float FamilyCapacity(Pawn incoming)
+
+        private bool OwnInfant(Pawn infant) => InfantOf(infant, familyMother);
+
+        public bool HasDependentYoung
         {
-            if (incoming.gender != Gender.Female) return totalBodyCapacity;
-            var young = FollowingYoung(incoming).ToList();
-            if (young.Count == 0) return totalBodyCapacity;
-            return Math.Max(totalBodyCapacity, OccupiedBodySize + BodyUnits(incoming)
-                + young.Where(p => !Contains(p)).Sum(BodyUnits));
+            get
+            {
+                for (int i = 0; i < innerContainer.Count; i++)
+                    if (innerContainer[i] is Pawn infant && OwnInfant(infant))
+                        return true;
+                return false;
+            }
         }
+
+        // A family claims its refuge even while the first infant is being
+        // carried to it. After the last infant matures, it becomes freely usable.
+        private bool FamilyNeedsDen
+        {
+            get
+            {
+                Pawn mother = familyMother;
+                if (mother == null || mother.Dead || mother.Destroyed)
+                    return false;
+                if (HasDependentYoung) return true;
+                if (mother.relations == null) return false;
+                foreach (Pawn child in mother.relations.Children)
+                    if (child != null && child.MapHeld == Map && InfantOf(child, mother))
+                        return true;
+                return false;
+            }
+        }
+
+        public bool IsFamilyDenFor(Pawn mother) =>
+            mother != null && mother == familyMother && FamilyNeedsDen;
+
+        public bool CanHouseFamily(Pawn mother)
+        {
+            if (mother?.Spawned != true || mother.gender != Gender.Female
+                || mother.Map != Map || mother.BodySize > entranceBodySize + 0.0001f
+                || (familyMother != null && familyMother != mother && FamilyNeedsDen))
+                return false;
+            for (int i = 0; i < innerContainer.Count; i++)
+                if (innerContainer[i] is Pawn resident
+                    && resident != mother && !(familyMother == mother && OwnInfant(resident)))
+                    return false;
+            return true;
+        }
+
+        public bool TryAssignFamily(Pawn mother)
+        {
+            if (!ModConstants.FamilyDens || !CanHouseFamily(mother)) return false;
+            familyMother = mother;
+            mother.TryGetComp<CompAnimalStrategyState>()?.Remember(this);
+            return true;
+        }
+
+        public bool TryReceiveCarriedBaby(Pawn carrier)
+        {
+            if (!ModConstants.FamilyDens) return false;
+            Pawn baby = carrier?.carryTracker?.CarriedThing as Pawn;
+            if (!Spawned || carrier == null || carrier != familyMother
+                || carrier.Map != Map || !OwnInfant(baby))
+                return false;
+            // The carrying check is intentionally independent of BodySize:
+            // babies may continue growing until they leave the infant stage.
+            return carrier.carryTracker.innerContainer.TryTransferToContainer(
+                baby, innerContainer, 1) == 1;
+        }
+
+        public bool NeedsFeeding(Pawn mother)
+        {
+            if (mother != familyMother || mother?.Spawned != true || !Spawned
+                || mother.needs?.food?.CurLevelPercentage < 0.55f)
+                return false;
+            for (int i = 0; i < innerContainer.Count; i++)
+                if (innerContainer[i] is Pawn infant && OwnInfant(infant)
+                    && infant.needs?.food?.CurLevelPercentage < 0.55f)
+                    return true;
+            return false;
+        }
+
+        public void FeedYoung(Pawn mother)
+        {
+            if (!NeedsFeeding(mother) || !mother.Position.InHorDistOf(Position, 4f))
+                return;
+            for (int i = 0; i < innerContainer.Count; i++)
+                if (innerContainer[i] is Pawn infant && OwnInfant(infant))
+                    AnimalLactationUtility.SuckleFromLactatingPawn(infant, mother, 2500);
+        }
+
+        private static bool Threatens(Pawn hunter, Pawn prey) =>
+            prey != null && !prey.Dead
+            && Patch_IsAcceptablePreyForPredator.IsSuitableWithoutYoungProtection(
+                hunter, prey);
+
         private bool HasResidentMother(Pawn child, out Pawn mother)
         {
             mother = null;
-            return ChildcareUtility.IsAnimalChild(child) && ChildcareUtility.TryGetKnownBiologicalMother(child, out mother) && Contains(mother);
+            return ChildcareUtility.IsAnimalChild(child)
+                && ChildcareUtility.TryGetKnownBiologicalMother(child, out mother)
+                && Contains(mother);
         }
+
         internal bool ProtectedByMotherFrom(Pawn predator, Pawn child)
         {
-            return HasResidentMother(child, out Pawn mother)
-                && !Patch_IsAcceptablePreyForPredator.IsSuitableWithoutYoungProtection(predator, mother);
+            if (ChildcareDefenseUtility.ShouldBlockProtectedYoungPredation(predator, child))
+                return true;
+            Pawn mother = OwnInfant(child) ? familyMother
+                : HasResidentMother(child, out Pawn resident) ? resident : null;
+            return mother != null && !mother.Dead && mother.MapHeld == Map
+                && (Contains(mother)
+                    || mother.Spawned && mother.Position.InHorDistOf(Position, 30f))
+                && !Patch_IsAcceptablePreyForPredator.IsSuitableWithoutYoungProtection(
+                    predator, mother);
         }
-        private static bool Threatens(Pawn predator, Pawn prey) => !prey.Dead
-            && Patch_IsAcceptablePreyForPredator.IsSuitableWithoutYoungProtection(predator, prey);
+
+        // Shared response for the start of digging, an ongoing excavation,
+        // damage, and the final opening. The attacker is always the actual
+        // digger, never an inferred nearby pawn.
+        public void NotifyAttacked(Pawn attacker)
+        {
+            Pawn mother = familyMother;
+            if (!Spawned || attacker?.Spawned != true || attacker.Map != Map
+                || mother == null || mother.Dead || mother.Downed
+                || mother.Destroyed || mother.MapHeld != Map || attacker == mother)
+                return;
+
+            Pawn protectedChild = null;
+            for (int i = 0; i < innerContainer.Count; i++)
+                if (innerContainer[i] is Pawn child && OwnInfant(child))
+                {
+                    protectedChild = child;
+                    break;
+                }
+            if (protectedChild == null) return;
+
+            // A mother sheltering alongside her babies must be able to
+            // confront a digger before the shelter is broken open. Only the
+            // adult emerges; dependent young stay protected inside.
+            if (Contains(mother) && !Drop(mother)) return;
+            if (!mother.Spawned || mother.Map != Map
+                || !mother.Position.InHorDistOf(Position, 30f))
+                return;
+
+            if (ZoologyNotificationUtility.IsActiveProtection(mother, attacker, protectedChild))
+                return;
+
+            ChildcareDefenseUtility.TryOrderProtection(
+                mother, attacker, protectedChild, allowBurrowFallback: true);
+        }
+
         private bool SafeToJoin(Pawn incoming)
         {
-            foreach (Pawn resident in Occupants)
+            for (int i = 0; i < innerContainer.Count; i++)
             {
-                if (resident == incoming || resident.Dead) continue;
-                if (Threatens(resident, incoming)) return false;
-                if (Threatens(incoming, resident) && ProtectedByMotherFrom(incoming, resident)) return false;
-                // A mother must not enter and draw her babies into a resident predator's refuge.
-                foreach (Pawn child in FollowingYoung(incoming))
-                    if (Threatens(resident, child)) return false;
+                if (innerContainer[i] is not Pawn resident
+                    || resident == incoming || resident.Dead)
+                    continue;
+                if (Threatens(resident, incoming)
+                    || Threatens(incoming, resident)
+                        && ProtectedByMotherFrom(incoming, resident))
+                    return false;
+
+                if (incoming == familyMother && incoming.relations != null)
+                    foreach (Pawn infant in incoming.relations.Children)
+                        if (infant != null && InfantOf(infant, incoming)
+                            && Threatens(resident, infant))
+                            return false;
             }
             return true;
         }
-        private void PruneExpectedYoung()
-        {
-            expectedYoung.RemoveAll(p => p == null || p.Dead || p.Destroyed || Contains(p) || !p.Spawned || p.Map != Map
-                || !p.Position.InHorDistOf(Position, Settings.searchRadius)
-                || !ChildcareUtility.TryGetKnownBiologicalMother(p, out Pawn mother) || !Contains(mother));
-        }
+
         public override bool Accepts(Thing thing)
         {
-            if (!(thing is Pawn pawn) || pawn.Dead || Contains(pawn) || !DefModExtensionCache<ModExtension_Burrower>.Has(pawn)
+            if (thing is not Pawn pawn || pawn.Dead || Contains(pawn)
+                || (!ModConstants.AdvancedThreatAvoidance
+                    && !AnimalWinterDormancy.CanUseWinterDen(pawn))
+                || (!ModConstants.FamilyDens && OwnInfant(pawn))
                 || !AnimalDefense.CanUseShelter(pawn)
-                || (pawn.TryGetComp<CompAnimalStrategyState>()?.burrowReentryAfter ?? 0) > GenTicks.TicksGame
-                || pawn.health.hediffSet.hediffs.Any(h => h is Hediff_Pregnant && h.Severity > 0.9f)
-                || pawn.BodySize > Math.Min(Settings.maxBurrowBodySize, DefModExtensionCache<ModExtension_Burrower>.Get(pawn.def).maxBodySize)
-                || !SafeToJoin(pawn)) return false;
-            float capacity = FamilyCapacity(pawn);
-            bool expandingFamily = capacity > totalBodyCapacity;
-            if (pawn.BodySize > entranceBodySize + 0.0001f && !expandingFamily) return false;
-            PruneExpectedYoung();
-            float retained = Occupants.Where(p => !Threatens(pawn, p)).Sum(BodyUnits);
-            float reserved = expectedYoung.Where(p => p != pawn).Sum(BodyUnits);
-            return retained + reserved + BodyUnits(pawn) <= capacity + 0.0001f;
+                || (pawn.TryGetComp<CompAnimalStrategyState>()?.burrowReentryAfter ?? 0)
+                    > GenTicks.TicksGame
+                || !SafeToJoin(pawn))
+                return false;
+
+            foreach (Hediff h in pawn.health.hediffSet.hediffs)
+                if (h is Hediff_Pregnant && h.Severity > 0.9f)
+                    return false;
+
+            bool infant = OwnInfant(pawn);
+            if (FamilyNeedsDen && pawn != familyMother && !infant)
+                return false;
+            if (infant)
+                return true;
+
+            bool burrower = DefModExtensionCache<ModExtension_Burrower>.Has(pawn);
+            bool denSpecies = AnimalOffspringShelter.For(pawn.def) == OffspringShelterMode.DEN;
+            bool winterGuest = AnimalWinterDormancy.CanUseWinterDen(pawn);
+            if (!burrower && !denSpecies && !winterGuest && pawn != familyMother)
+                return false;
+            ModExtension_Burrower digging = burrower
+                ? DefModExtensionCache<ModExtension_Burrower>.Get(pawn.def) : null;
+            if (digging != null && pawn.BodySize > digging.maxBodySize
+                && pawn != familyMother && !winterGuest)
+                return false;
+            if (pawn.BodySize > entranceBodySize + 0.0001f)
+                return false;
+
+            float occupiedAdults = 0f;
+            for (int i = 0; i < innerContainer.Count; i++)
+                if (innerContainer[i] is Pawn resident && !OwnInfant(resident))
+                    occupiedAdults += BodyUnits(resident);
+            return occupiedAdults + BodyUnits(pawn) <= totalBodyCapacity + 0.0001f;
         }
+
         public override bool TryAcceptThing(Thing thing, bool allowSpecialEffects = true)
         {
-            if (!(thing is Pawn pawn) || !Accepts(pawn) || pawn.stances.stunner.Stunned
-                || ZoologyFleeSafetyUtility.IsPawnUnderMeleeAttack(pawn)) return false;
-            var followers = FollowingYoung(pawn).Where(p => p.Spawned).ToList();
-            float capacity = FamilyCapacity(pawn);
-            if (followers.Count > 0)
-            {
-                totalBodyCapacity = capacity;
-                entranceBodySize = Math.Max(entranceBodySize, BodyUnits(pawn));
-            }
-            // Reject unsafe joins before ejecting anyone. Only the entrant's real prey leave.
-            foreach (Pawn resident in Occupants.Where(p => Threatens(pawn, p)).ToList())
-                ExitFamily(resident, pawn, false, true);
+            if (thing is not Pawn pawn || !Accepts(pawn)
+                || pawn.stances.stunner.Stunned
+                || ZoologyFleeSafetyUtility.IsPawnUnderMeleeAttack(pawn))
+                return false;
+
+            // For a prospective parent, remember the fact that newborns can
+            // follow. Do not copy the offspring list or allocate closures.
+            for (int i = innerContainer.Count - 1; i >= 0; i--)
+                if (innerContainer[i] is Pawn resident
+                    && Threatens(pawn, resident))
+                    ExitFamily(resident, pawn, false, true);
+
+            Map originalMap = Map;
+            IntVec3 originalPos = Position;
             if (pawn.Spawned) pawn.DeSpawn();
             if (!base.TryAcceptThing(thing, allowSpecialEffects))
             {
-                if (pawn.holdingOwner == null) GenSpawn.Spawn(pawn, Position, Map);
+                if (pawn.holdingOwner == null)
+                    GenSpawn.Spawn(pawn, originalPos, originalMap);
                 return false;
             }
+
             enteredAt = GenTicks.TicksGame;
             pawn.TryGetComp<CompAnimalStrategyState>()?.Remember(this);
+            AnimalWinterDormancy.Enter(pawn, this);
             AnimalDefense.InvalidatePrey(pawn, Map);
-            foreach (Pawn child in followers)
+
+            if (pawn.relations != null)
+                foreach (Pawn infant in pawn.relations.Children)
+                    if (infant?.Spawned == true && infant.Map == Map
+                        && InfantOf(infant, pawn)
+                        && infant.Position.InHorDistOf(Position, Settings.searchRadius)
+                        && AnimalDefense.CanUseShelter(infant)
+                        && !ZoologyFleeSafetyUtility.IsPawnUnderMeleeAttack(infant)
+                        && infant.CanReserveAndReach(this, PathEndMode.OnCell,
+                            Danger.Some, int.MaxValue, 0))
+                        infant.jobs.StartJob(JobMaker.MakeJob(
+                            DefDatabase<JobDef>.GetNamed("Zoology_EnterBurrow"),
+                            this, threat), JobCondition.InterruptForced);
+            return true;
+        }
+
+        private static bool InFamily(Pawn mother, Pawn member)
+        {
+            if (mother == member) return true;
+            return member != null && mother != null
+                && ChildcareUtility.TryGetKnownBiologicalMother(member, out Pawn parent)
+                && parent == mother;
+        }
+
+        private Pawn ResidentMotherOrSelf(Pawn animal) =>
+            HasResidentMother(animal, out Pawn mother) ? mother : animal;
+
+        private void ExitFamily(Pawn animal, Pawn attacker, bool hungry, bool displaced)
+        {
+            // Ordinary exits must never evict dependent babies. Their need
+            // meters are serviced through the shelter; only an actual attack
+            // that displaces the family, excavation or destruction may release
+            // infants before they reach Juvenile.
+            if (!displaced && AnimalLifeStageUtility.IsAnimalInfantLifeStage(
+                    animal?.ageTracker?.CurLifeStage))
+                return;
+            Pawn mother = ResidentMotherOrSelf(animal);
+            for (int i = innerContainer.Count - 1; i >= 0; i--)
             {
-                if (expectedYoung.Contains(child) || !AnimalDefense.CanUseShelter(child)
-                    || ZoologyFleeSafetyUtility.IsPawnUnderMeleeAttack(child)
-                    || !child.CanReserveAndReach(this, PathEndMode.OnCell, Danger.Some, int.MaxValue, 0)) continue;
-                expectedYoung.Add(child);
-                child.jobs.StartJob(JobMaker.MakeJob(DefDatabase<JobDef>.GetNamed("Zoology_EnterBurrow"), this, threat), JobCondition.InterruptForced);
+                if (i >= innerContainer.Count || innerContainer[i] is not Pawn member
+                    || !InFamily(mother, member)
+                    || !displaced && AnimalLifeStageUtility.IsAnimalInfantLifeStage(
+                        member.ageTracker?.CurLifeStage))
+                    continue;
+                CompAnimalStrategyState state = member.TryGetComp<CompAnimalStrategyState>();
+                if (state != null)
+                {
+                    if (hungry) state.groundEscapeUntilFed = true;
+                    if (displaced)
+                        state.burrowReentryAfter =
+                            GenTicks.TicksGame + Settings.forcedExitReentryDelay;
+                }
+                if (Drop(member) && member.Spawned)
+                    AnimalDefense.StartGroundEscape(member, attacker, hungry);
+            }
+        }
+
+        private bool Drop(Thing thing)
+        {
+            if (!Spawned || thing == null || !innerContainer.Contains(thing))
+                return false;
+            if (!innerContainer.TryDrop(thing, Position, Map, ThingPlaceMode.Near, out _))
+                return false;
+            if (thing is Pawn pawn)
+            {
+                AnimalWinterDormancy.Wake(pawn, Map);
+                ResumeAfterContainer(pawn);
+                PredationDecisionCache.InvalidatePrey(pawn);
             }
             return true;
         }
-        private List<Pawn> FamilyInside(Pawn pawn)
-        {
-            Pawn mother = HasResidentMother(pawn, out Pawn found) ? found : pawn;
-            var family = FollowingYoung(mother).Where(Contains).ToList();
-            if (Contains(mother)) family.Insert(0, mother);
-            if (!family.Contains(pawn) && Contains(pawn)) family.Add(pawn);
-            return family;
-        }
-        private void ExitFamily(Pawn pawn, Pawn source, bool hungry, bool displaced)
-        {
-            foreach (Pawn member in FamilyInside(pawn))
-            {
-                var state = member.TryGetComp<CompAnimalStrategyState>();
-                if (hungry) state.groundEscapeUntilFed = true;
-                if (displaced) state.burrowReentryAfter = GenTicks.TicksGame + Settings.forcedExitReentryDelay;
-                Drop(member);
-                if (member.Spawned) AnimalDefense.StartGroundEscape(member, source, hungry);
-            }
-        }
-        private void Drop(Thing thing)
-        {
-            innerContainer.TryDrop(thing, Position, Map, ThingPlaceMode.Near, out _);
-            if (thing is Pawn pawn) ResumeAfterContainer(pawn);
-            PredationDecisionCache.InvalidatePrey(thing as Pawn);
-        }
+
         private static void ResumeAfterContainer(Pawn pawn)
         {
             if (pawn.Spawned && !pawn.Dead && pawn.CurJob?.def == JobDefOf.Carried)
                 pawn.jobs.EndCurrentJob(JobCondition.InterruptForced, false);
         }
-        public void SetThreat(Pawn source) { threat = source; }
-        public override void Open() => Excavate(null);
+
+        public void SetThreat(Pawn attacker) => threat = attacker;
+
+        // Other mods and vanilla jobs may call Open() directly. Resolve an
+        // actor only when exactly one nearby pawn is actually assigned a job
+        // targeting this refuge; never blame an unrelated nearby colonist.
+        public override void Open()
+        {
+            Pawn opener = null;
+            if (Map?.mapPawns != null)
+                foreach (Pawn candidate in Map.mapPawns.AllPawnsSpawned)
+                {
+                    Job current = candidate.CurJob;
+                    if (current == null || !candidate.Position.InHorDistOf(Position, 3f)
+                        || current.targetA.Thing != this
+                            && current.targetB.Thing != this
+                            && current.targetC.Thing != this)
+                        continue;
+                    if (opener != null)
+                    {
+                        opener = null;
+                        break;
+                    }
+                    opener = candidate;
+                }
+            Excavate(opener);
+        }
+
         public void Excavate(Pawn excavator)
         {
-            var occupants = Occupants.ToList();
-            foreach (Pawn occupant in occupants)
+            if (!Spawned) return;
+            NotifyAttacked(excavator);
+            for (int i = innerContainer.Count - 1; i >= 0; i--)
             {
-                var state = occupant.TryGetComp<CompAnimalStrategyState>();
-                state.burrowReentryAfter = GenTicks.TicksGame + Settings.forcedExitReentryDelay;
-                state.nextDefensePlan = 0;
-            }
-            EjectContents();
-            foreach (Pawn occupant in occupants)
-                if (occupant.Spawned && !occupant.Dead)
+                if (i >= innerContainer.Count || innerContainer[i] is not Pawn resident)
+                    continue;
+                CompAnimalStrategyState state = resident.TryGetComp<CompAnimalStrategyState>();
+                if (state != null)
                 {
-                    if (occupant.CurJob != null) occupant.jobs.EndCurrentJob(JobCondition.InterruptForced, false);
-                    AnimalDefense.StartGroundEscape(occupant, excavator, false);
+                    state.burrowReentryAfter =
+                        GenTicks.TicksGame + Settings.forcedExitReentryDelay;
+                    state.nextDefensePlan = 0;
                 }
+                if (Drop(resident) && resident.Spawned && !resident.Dead)
+                {
+                    if (resident.CurJob != null)
+                        resident.jobs.EndCurrentJob(JobCondition.InterruptForced, false);
+                    AnimalDefense.StartGroundEscape(resident, excavator, false);
+                }
+            }
+            EjectContents(); // Eject non-Pawn contents too, without extra lists.
+
         }
+
         public override void ExposeData()
         {
             base.ExposeData();
@@ -181,80 +471,245 @@ namespace ZoologyMod
             Scribe_Values.Look(ref enteredAt, "enteredAt");
             Scribe_Values.Look(ref entranceBodySize, "entranceBodySize", 2f);
             Scribe_Values.Look(ref totalBodyCapacity, "totalBodyCapacity", 2f);
-            Scribe_Defs.Look(ref creatorSpecies, "creatorSpecies");
-            Scribe_Collections.Look(ref expectedYoung, "expectedYoung", LookMode.Reference);
-            if (Scribe.mode == LoadSaveMode.PostLoadInit) expectedYoung = expectedYoung ?? new List<Pawn>();
+            Scribe_References.Look(ref familyMother, "zoologyFamilyBurrowMother");
         }
+
         protected override void Tick()
         {
             base.Tick();
-            // Reverse iteration tolerates a dying pawn being replaced with its corpse.
             for (int i = innerContainer.Count - 1; i >= 0; i--)
             {
-                if (i >= innerContainer.Count || !(innerContainer[i] is Pawn pawn) || pawn.Dead) continue;
-                // Leave before the health tracker can trigger birth outside a spawned map pawn.
-                // This also covers short gestation periods between the slower refuge decisions.
-                bool needsBirthExit = false;
-                foreach (Hediff condition in pawn.health.hediffSet.hediffs)
-                    if (condition is Hediff_Pregnant && condition.Severity > .9f) { needsBirthExit = true; break; }
-                if (needsBirthExit) { ExitFamily(pawn, threat, false, false); continue; }
+                if (i >= innerContainer.Count || innerContainer[i] is not Pawn pawn
+                    || pawn.Dead)
+                    continue;
+
+                bool aboutToGiveBirth = false;
+                foreach (Hediff h in pawn.health.hediffSet.hediffs)
+                    if (h is Hediff_Pregnant && h.Severity > 0.9f)
+                    {
+                        aboutToGiveBirth = true;
+                        break;
+                    }
+                if (aboutToGiveBirth)
+                {
+                    ExitFamily(pawn, threat, false, false);
+                    continue;
+                }
+
                 AnimalGameApi.TickContainedPhysiology(pawn);
+                if (!pawn.Dead && !AnimalLifeStageUtility.IsAnimalInfantLifeStage(
+                        pawn.ageTracker?.CurLifeStage)
+                    && ChildcareUtility.TryGetKnownBiologicalMother(
+                        pawn, out Pawn parent)
+                    && (parent == familyMother || Contains(parent))
+                    && Contains(pawn))
+                    Drop(pawn);
             }
+
             if (!this.IsHashIntervalTick(250)) return;
-            PruneExpectedYoung();
-            foreach (Corpse corpse in innerContainer.OfType<Corpse>().ToList()) Drop(corpse);
+            // Do not strand previously sheltered pawns after either switch
+            // is disabled. Winter dormancy is independent and can retain its
+            // occupants; everyone else returns to the map safely.
+            bool disableShelter = !ModConstants.AdvancedThreatAvoidance
+                || (!ModConstants.AdvancedReproduction && familyMother != null);
+            if ((disableShelter || !ModConstants.WinterDormancy)
+                && innerContainer.Count > 0)
+            {
+                for (int i = innerContainer.Count - 1; i >= 0; i--)
+                {
+                    if (innerContainer[i] is not Pawn resident) continue;
+                    bool wasDormant = resident.TryGetComp<CompAnimalStrategyState>()
+                        ?.inWinterDormancy == true;
+                    if ((disableShelter && !AnimalWinterDormancy.IsDormant(resident))
+                        || (!ModConstants.WinterDormancy && wasDormant))
+                        Drop(resident);
+                }
+            }
+            for (int i = innerContainer.Count - 1; i >= 0; i--)
+                if (innerContainer[i] is Corpse corpse)
+                    Drop(corpse);
+
+            // A real mother shelters and nurses her young without duplicating
+            // their physiology or creating nutrients.
+            for (int i = 0; i < innerContainer.Count; i++)
+                if (innerContainer[i] is Pawn infant && ChildcareUtility.IsAnimalChild(infant)
+                    && infant.needs?.food?.CurLevelPercentage < 0.7f
+                    && ChildcareUtility.TryGetKnownBiologicalMother(infant, out Pawn mom)
+                    && Contains(mom))
+                    AnimalLactationUtility.SuckleFromLactatingPawn(infant, mom, 250);
+
             if (HasAnyContents)
             {
-                if (GenTicks.TicksGame % Settings.occupiedRepairInterval < 250) HitPoints = Math.Min(MaxHitPoints, HitPoints + 1);
-                foreach (Pawn pawn in Occupants.ToList())
+                if (GenTicks.TicksGame % Settings.occupiedRepairInterval < 250)
+                    HitPoints = Math.Min(MaxHitPoints, HitPoints + 1);
+                for (int i = innerContainer.Count - 1; i >= 0; i--)
                 {
-                    if (!Contains(pawn)) continue;
-                    List<Pawn> dangers = Patch_AnimalFleeFromPredators.RefugeThreats(pawn, threat);
-                    var family = FamilyInside(pawn);
-                    bool hungry = family.Any(p => p.needs?.food?.CurLevelPercentage < Settings.hungerExitThreshold);
-                    bool urgent = pawn.health.hediffSet.BleedRateTotal > 0f
-                        || pawn.health.hediffSet.hediffs.Any(h => h is Hediff_Pregnant && h.Severity > 0.9f);
-                    bool rested = family.All(p => p.needs?.rest == null || p.needs.rest.CurLevelPercentage >= 0.95f);
-                    if (hungry || (dangers.Count == 0 && (urgent || rested || threat != null))
-                        || (urgent && GenTicks.TicksGame - enteredAt > 2500))
-                        ExitFamily(pawn, dangers.FirstOrDefault() ?? threat, hungry, false);
+                    if (i >= innerContainer.Count || innerContainer[i] is not Pawn pawn)
+                        continue;
+                    // Dependents grow and sleep inside regardless of hunger,
+                    // bleeding or the mother's outside threat. They leave
+                    // naturally at the Baby -> Juvenile stage change above.
+                    // This fast path also skips threat/path evaluations.
+                    if (AnimalLifeStageUtility.IsAnimalInfantLifeStage(
+                            pawn.ageTracker?.CurLifeStage))
+                        continue;
+
+                    List<Pawn> dangers = Patch_AnimalFleeFromPredators.RefugeThreats(
+                        pawn, threat);
+                    AnimalDefense.RemoveUncatchablePassiveThreats(pawn, dangers);
+
+                    // Only this adult's needs determine its voluntary exit.
+                    // A hungry baby requests milk; it must not evict its mother.
+                    bool hungry = pawn.needs?.food?.CurLevelPercentage
+                        < Settings.hungerExitThreshold;
+                    bool rested = pawn.needs?.rest == null
+                        || pawn.needs.rest.CurLevelPercentage >= 0.95f;
+                    bool urgent = pawn.health.hediffSet.BleedRateTotal > 0f;
+                    if (!urgent)
+                        foreach (Hediff h in pawn.health.hediffSet.hediffs)
+                            if (h is Hediff_Pregnant && h.Severity > 0.9f)
+                            {
+                                urgent = true;
+                                break;
+                            }
+
+                    Pawn firstThreat = dangers.Count > 0 ? dangers[0] : threat;
+                    if (AnimalWinterDormancy.IsDormant(pawn))
+                    {
+                        bool rangedThreat = false;
+                        for (int j = 0; j < dangers.Count; j++)
+                            if (AnimalDefense.IsRanged(dangers[j]))
+                            {
+                                rangedThreat = true;
+                                break;
+                            }
+                        if (!AnimalWinterDormancy.Winter(Map) || hungry || urgent
+                            || rangedThreat)
+                            ExitFamily(pawn, firstThreat, hungry, false);
+                        continue;
+                    }
+                    if (hungry || dangers.Count == 0
+                            && (urgent || rested || threat != null)
+                        || urgent && GenTicks.TicksGame - enteredAt > 2500)
+                        ExitFamily(pawn, firstThreat, hungry, false);
                 }
                 if (!HasAnyContents) threat = null;
             }
             else if (GenTicks.TicksGame % Settings.unusedDecayInterval < 250)
             {
-                if (HitPoints <= 1) Destroy(); else HitPoints--;
+                if (HitPoints <= 1) Destroy();
+                else HitPoints--;
             }
         }
+
         public override void EjectContents()
         {
             if (!Spawned) return;
-            var released = Occupants.ToList();
-            foreach (Pawn occupant in released) PredationDecisionCache.InvalidatePrey(occupant);
-            innerContainer.TryDropAll(Position, Map, ThingPlaceMode.Near);
-            foreach (Pawn occupant in released) ResumeAfterContainer(occupant);
-            expectedYoung.Clear(); threat = null;
+            for (int i = innerContainer.Count - 1; i >= 0; i--)
+            {
+                if (i >= innerContainer.Count) continue;
+                Drop(innerContainer[i]);
+            }
+            threat = null;
         }
-        public override string GetInspectString() => base.GetInspectString() + "\n"
-            + "Zoology_BurrowCapacity".Translate(OccupiedBodySize.ToString("0.###"), totalBodyCapacity.ToString("0.###"));
+
+        public override string GetInspectString()
+        {
+            string description = base.GetInspectString();
+            if (!Prefs.DevMode) return description;
+            string capacity = "Zoology_BurrowCapacity".Translate(
+                OccupiedBodySize.ToString("0.###"), totalBodyCapacity.ToString("0.###"));
+            return string.IsNullOrWhiteSpace(description)
+                ? capacity : description.TrimEnd() + "\n" + capacity;
+        }
+
+        private void ChooseOpener()
+        {
+            if (!Spawned || Map?.mapPawns == null) return;
+            List<FloatMenuOption> options = new List<FloatMenuOption>();
+            foreach (Pawn colonist in Map.mapPawns.FreeColonistsSpawned)
+            {
+                if (colonist.Dead || colonist.Downed
+                    || colonist.health?.capacities?.CapableOf(
+                        PawnCapacityDefOf.Manipulation) != true
+                    || !colonist.CanReserveAndReach(this, PathEndMode.Touch, Danger.Some))
+                    continue;
+                Pawn opener = colonist;
+                options.Add(new FloatMenuOption(opener.LabelShortCap, () =>
+                {
+                    if (!Spawned || !opener.Spawned
+                        || !opener.CanReserveAndReach(this, PathEndMode.Touch, Danger.Some))
+                        return;
+                    Job job = JobMaker.MakeJob(
+                        DefDatabase<JobDef>.GetNamed("Zoology_OpenAnimalBurrow"), this);
+                    opener.jobs.TryTakeOrderedJob(job);
+                }));
+            }
+            if (options.Count > 0)
+                Find.WindowStack.Add(new FloatMenu(options));
+        }
+
         public override IEnumerable<Gizmo> GetGizmos()
         {
-            foreach (Gizmo gizmo in base.GetGizmos()) yield return gizmo;
-            foreach (Pawn pawn in Occupants.Skip(1))
-            {
-                Gizmo gizmo = Building.SelectContainedItemGizmo(this, pawn);
-                if (gizmo != null) yield return gizmo;
-            }
+            // Suppress the inherited no-actor Open command. Every deliberate
+            // opening has a real colonist and a corresponding job.
+            foreach (Gizmo gizmo in base.GetGizmos())
+                if (gizmo is not Command_Action)
+                    yield return gizmo;
+            if (Spawned && Map?.mapPawns != null)
+                yield return new Command_Action
+                {
+                    defaultLabel = "Zoology_OpenBurrow_Label".Translate(),
+                    defaultDesc = "Zoology_OpenBurrow_Desc".Translate(),
+                    action = ChooseOpener
+                };
+            for (int i = 1; i < innerContainer.Count; i++)
+                if (innerContainer[i] is Pawn occupant)
+                {
+                    Gizmo selection = Building.SelectContainedItemGizmo(this, occupant);
+                    if (selection != null) yield return selection;
+                }
         }
+
         public override void Destroy(DestroyMode mode = DestroyMode.Vanish)
         {
             EjectContents();
-            foreach (Pawn pawn in Occupants.ToList())
-            {
-                innerContainer.Remove(pawn);
-                Find.WorldPawns.PassToWorld(pawn, RimWorld.Planet.PawnDiscardDecideMode.KeepForever);
-            }
+            for (int i = innerContainer.Count - 1; i >= 0; i--)
+                if (innerContainer[i] is Pawn occupant
+                    && !occupant.Dead && !occupant.Destroyed)
+                {
+                    innerContainer.Remove(occupant);
+                    Find.WorldPawns.PassToWorld(
+                        occupant, RimWorld.Planet.PawnDiscardDecideMode.KeepForever);
+                }
             base.Destroy(mode);
+        }
+    }
+
+    // A concrete player pawn performs the opening, allowing the mother to
+    // retaliate against the correct instigator instead of becoming angry at
+    // an unrelated person.
+    public sealed class JobDriver_OpenAnimalBurrow : JobDriver
+    {
+        public override bool TryMakePreToilReservations(bool errorOnFailed) =>
+            pawn.Reserve(TargetA, job, 1, -1, null, errorOnFailed);
+
+        protected override IEnumerable<Toil> MakeNewToils()
+        {
+            this.FailOnDespawnedOrNull(TargetIndex.A);
+            yield return Toils_Goto.GotoThing(TargetIndex.A, PathEndMode.Touch);
+            yield return Toils_General.Do(() =>
+                AnimalBurrowHunt.BeginOpening(pawn, TargetA.Thing));
+            Toil opening = Toils_General.Wait(100, TargetIndex.A)
+                .WithProgressBarToilDelay(TargetIndex.A);
+            opening.AddPreTickAction(() =>
+            {
+                if (pawn.IsHashIntervalTick(60))
+                    AnimalBurrowHunt.BeginOpening(pawn, TargetA.Thing);
+            });
+            yield return opening;
+            yield return Toils_General.Do(() =>
+                (TargetA.Thing as Building_AnimalBurrow)?.Excavate(pawn));
         }
     }
 }

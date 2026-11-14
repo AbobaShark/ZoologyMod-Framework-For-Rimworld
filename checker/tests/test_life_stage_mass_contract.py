@@ -81,11 +81,12 @@ class LifeStageMassContractTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "strictly increase"):
             audit_mass_profiles(rows, require_complete=True)
 
-    def test_juvenile_must_match_arithmetic_midpoint(self):
+    def test_juvenile_can_use_empirical_weaning_mass(self):
         rows = normal()
         rows.at[1, "BiologicalStageMass_kg"] += 1
-        with self.assertRaisesRegex(ValueError, "Baby/Adult midpoint"):
-            audit_mass_profiles(rows, require_complete=True)
+        result = audit_mass_profiles(rows, require_complete=True)
+        self.assertEqual(result["invalid_count"], 0)
+        self.assertEqual(result["complete_mass_series"], 1)
 
     def test_source_and_factor_parity_are_mandatory(self):
         rows = normal()
@@ -153,7 +154,7 @@ class LifeStageMassContractTests(unittest.TestCase):
 
     def test_thrumbo_and_alpha_thrumbo_empirical_ungulate_reconstruction(self):
         # Neonatal estimates use published large-herbivore mass regressions.
-        # Juvenile is defined by the Adult/Baby midpoint, not weaning mass.
+        # The stage mass is an evaluated biological input; this test uses a midpoint.
         cases = (
             ("Thrumbo", 6000, 123.45469675300308, 1202.8051002055142,
              0.24129496465835248, 0.5626975108959649),
@@ -174,7 +175,7 @@ class LifeStageMassContractTests(unittest.TestCase):
 
     def test_lockjaw_crocodilian_birth_and_juvenile_ontogeny(self):
         # Birth: 11 Crocodilia taxa (Myhrvold 2015).
-        # Juvenile: midpoint between modeled hatchling and adult mass.
+        # This canonical input happens to use the arithmetic midpoint.
         series = pd.DataFrame([
             entry("AA_Lockjaw", CORE[0], 1000, .1544824169172378,
                   .020138429632334313, source="GROUP_ALLOMETRY"),

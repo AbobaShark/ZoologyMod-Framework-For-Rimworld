@@ -13,6 +13,7 @@ namespace ZoologyMod
         public static ZoologyModSettings Settings { get; private set; }
         private const string RuntimeHarmonyId = "com.abobashark.zoology.bionic";
         private static bool runtimeAttributePatchesApplied;
+        private static bool runtimeWasDisabled;
 
         public ZoologyMod(ModContentPack content) : base(content)
         {
@@ -34,6 +35,7 @@ namespace ZoologyMod
                 Settings?.CleanupInvalidAnimalOverrides();
                 Settings?.ApplyRuntimeDefOverrides();
                 ZoologyLifeStageProfileInstaller.ApplyOnce();
+                ZoologySexAdultProfiles.Install();
 #if RIMWORLD17
                 AnimalBarnWorkPriority.MatchVanillaPens();
 #endif
@@ -71,7 +73,15 @@ namespace ZoologyMod
                 return;
             }
 
+            // Switch the actual LifeStageDefs as well as their Harmony hooks.
+            // When disabled, vanilla and modded stage modifiers are restored;
+            // enabling reuses the previously generated species profiles.
+            ZoologyLifeStageProfileInstaller.SyncProfileStages(
+                ZoologyAnimalGrowth.Enabled);
+            ZoologySexAdultProfiles.SyncGraphics(ZoologySexAdultProfiles.Enabled);
+
             PetPlayUtility.SyncJoyGiverDefAvailability(settings);
+            CompAnimalPouch.ReleaseDisabledCaravanPouches();
 
             if (forceRebuild)
             {
@@ -89,7 +99,16 @@ namespace ZoologyMod
                 UnpatchAllZoologyHarmonyIds(logSummary: false);
             }
 
+            bool restoreRefugeIndexes = runtimeWasDisabled;
             EnableAllRuntimePatches();
+            runtimeWasDisabled = false;
+            if (restoreRefugeIndexes && Find.Maps != null)
+            {
+                // Rebuild only after a real master-disable transition. This
+                // never adds periodic scans to the simulation.
+                for (int i = 0; i < Find.Maps.Count; i++)
+                    Find.Maps[i].GetComponent<AnimalRefugeMapComponent>()?.RebuildIndexes();
+            }
         }
 
         private static void EnsureRuntimeAttributePatches()
@@ -130,6 +149,9 @@ namespace ZoologyMod
 
         private static void DisableAllRuntimePatches()
         {
+            runtimeWasDisabled = true;
+            ZoologyLifeStageProfileInstaller.SyncProfileStages(false);
+            ZoologyAnimalGraphics.Sync(false, false);
             UnpatchAllZoologyHarmonyIds();
         }
 
@@ -141,6 +163,7 @@ namespace ZoologyMod
                 {
                     RuntimeHarmonyId,
                     "com.abobashark.zoology.predatorpairs",
+                    "com.abobashark.zoology.naturalfood",
                     "com.abobashark.zoology.lactation",
                     "com.abobashark.zoology.ectothermic",
                     "zoology.ageless",
@@ -154,6 +177,10 @@ namespace ZoologyMod
                 {
                     TryUnpatchHarmonyId(ids[i]);
                 }
+
+                // Verify the assembly itself, not only a maintained list of
+                // Harmony IDs. This runs on master disable, never per tick.
+                if (logSummary) UnpatchUnexpectedZoologyPatches();
 
                 PredationHarmonyPatches.ResetPatchedState();
                 LactationPatcher.ResetPatchedState();
@@ -175,12 +202,61 @@ namespace ZoologyMod
             }
         }
 
+        private static void UnpatchUnexpectedZoologyPatches()
+        {
+            try
+            {
+                var assembly = typeof(ZoologyMod).Assembly;
+                var unpatcher = new Harmony("com.abobashark.zoology.unpatcher");
+                int unexpected = 0;
+                // Snapshot: unpatching mutates Harmony's global registry.
+                foreach (var target in Harmony.GetAllPatchedMethods().ToList())
+                {
+                    var info = Harmony.GetPatchInfo(target);
+                    if (info == null) continue;
+                    var patches = info.Prefixes.Concat(info.Postfixes)
+                        .Concat(info.Transpilers).Concat(info.Finalizers).ToList();
+                    for (int i = 0; i < patches.Count; i++)
+                    {
+                        var method = patches[i].PatchMethod;
+                        if (method?.DeclaringType?.Assembly != assembly) continue;
+                        unpatcher.Unpatch(target, method);
+                        unexpected++;
+                    }
+                }
+                if (unexpected > 0)
+                    Log.Warning($"[Zoology] Removed {unexpected} additional Zoology Harmony patches not covered by the known IDs.");
+            }
+            catch (System.Exception ex)
+            {
+                Log.Warning($"[Zoology] Could not verify all installed Harmony methods: {ex}");
+            }
+        }
+
         private static void ApplyDisabledFeatureUnpatches(ZoologyModSettings settings)
         {
             if (settings == null) return;
 
             if (!settings.EnablePredatorDefendCorpse)
                 TryUnpatchHarmonyId("com.abobashark.zoology.predatorpairs");
+
+            // The FoodOptimality postfix also implements guarded-corpse
+            // preferences; retain it if either feature still requires it.
+            if (!settings.EnablePredatorDefendCorpse && !settings.EnableAnimalFoodChoice)
+                TryUnpatchHarmonyId("com.abobashark.zoology.naturalfood");
+
+            // The new food-choice postfixes share the general runtime Harmony
+            // owner. Unpatch only these two methods, preserving scavenging,
+            // childcare and all unrelated food hooks.
+            if (!settings.EnableAnimalFoodChoice)
+            {
+                TryUnpatchSpecificMethod(
+                    AccessTools.Method(typeof(FoodUtility), nameof(FoodUtility.TryFindBestFoodSourceFor)),
+                    AccessTools.Method(typeof(Patch_UnifiedPredatorFoodSource), "Postfix"));
+                TryUnpatchSpecificMethod(
+                    AccessTools.Method(typeof(JobGiver_GetFood), "TryGiveJob"),
+                    AccessTools.Method(typeof(Patch_UnifiedPredatorFoodJobs), "Postfix"));
+            }
 
             if (!ZoologyModSettings.EnableMammalLactation)
                 TryUnpatchHarmonyId("com.abobashark.zoology.lactation");

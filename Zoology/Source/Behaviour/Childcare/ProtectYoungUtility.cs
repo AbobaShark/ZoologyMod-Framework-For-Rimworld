@@ -128,22 +128,6 @@ namespace ZoologyMod
                 && IsValidProtectedThing(currentProtectedThing);
         }
 
-        public static void InterruptRetargetableProtectYoungJob(Pawn pawn, Pawn newAggressor, Thing protectedThing)
-        {
-            if (!CanRetargetProtectYoungJob(pawn, newAggressor, protectedThing))
-            {
-                return;
-            }
-
-            try
-            {
-                pawn.jobs?.EndCurrentJob(JobCondition.InterruptForced, true, true);
-            }
-            catch
-            {
-            }
-        }
-
         private static bool IsActiveThreat(Pawn pawn)
         {
             return pawn != null

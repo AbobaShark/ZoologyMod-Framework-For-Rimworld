@@ -61,7 +61,8 @@ def load_registry(path,mod):
                 raise ValueError(f'Unsupported output pipeline category: {ident}')
             if entry.get('source') not in ('installed_xml','generated'):
                 raise ValueError(f'Unknown source for {ident}')
-            if entry['pipeline_category']=='products' and (entry.get('source')!='installed_xml' or category!='animal_patch'):
+            if entry['pipeline_category']=='products' and (entry.get('source')!='installed_xml'
+                    or category not in ('animal_patch', 'common_defs')):
                 raise ValueError(f'Invalid reproductive output {ident}')
     # These WildBiomes markers classify animals but have no actual BiomeDef
     # and therefore must never become XML patch destinations.

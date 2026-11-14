@@ -79,7 +79,7 @@ namespace ZoologyMod
         private const float OwnedCorpseBonus = 10000f;
         private const float UnpairedCorpseBonus = 300f;
         private const float GuardedCorpsePenalty = -10000f;
-        private const float LiveAcceptablePreyBonus = 600f;
+        private const float NaturalFoodPreference = 12f;
         private const int FoodOptimalityDeltaHotCacheSize = 32768;
         private const int FoodOptimalityDeltaHotCacheMask = FoodOptimalityDeltaHotCacheSize - 1;
         private const int VanillaHuntTargetCacheDurationTicks = 12;
@@ -93,8 +93,6 @@ namespace ZoologyMod
         private static int lastVanillaHuntTargetCleanupTick = -VanillaHuntTargetCacheCleanupIntervalTicks;
         private static int corpseFoodStateBudgetTick = -1;
         private static int corpseFoodStateBudgetRemaining = 0;
-        private static int livePreyBudgetTick = -1;
-        private static int livePreyBudgetRemaining = 0;
         private static int vanillaHuntTargetBudgetTick = -1;
         private static int vanillaHuntTargetBudgetRemaining = 0;
         private static TickManager runtimeCacheTickManager;
@@ -120,13 +118,12 @@ namespace ZoologyMod
                 return;
             }
 
-            if (s != null && !s.EnablePredatorDefendCorpse)
-            {
-                return;
-            }
+            bool defendCorpse = s == null || s.EnablePredatorDefendCorpse;
+            bool foodChoice = s == null || s.EnableAnimalFoodChoice;
 
             patched = true;
             var harmony = new Harmony("com.abobashark.zoology.predatorpairs");
+            var foodHarmony = new Harmony("com.abobashark.zoology.naturalfood");
             try
             {
                 
@@ -134,18 +131,34 @@ namespace ZoologyMod
                 var postfixFood = typeof(PredationHarmonyPatches).GetMethod(nameof(FoodOptimality_Postfix), BindingFlags.Static | BindingFlags.Public);
                 var targetBestFoodSource = AccessTools.Method(typeof(FoodUtility), nameof(FoodUtility.BestFoodSourceOnMap));
                 var postfixBestFoodSource = typeof(PredationHarmonyPatches).GetMethod(nameof(BestFoodSourceOnMap_Postfix), BindingFlags.Static | BindingFlags.Public);
-                if (targetFoodOpt != null && postfixFood != null)
+                if ((defendCorpse || foodChoice) && targetFoodOpt != null && postfixFood != null)
                 {
-                    harmony.Patch(targetFoodOpt, null, new HarmonyMethod(postfixFood));
+                    // A settings rebuild may call EnsurePatched more than once.
+                    // Never apply the same score modifier twice.
+                    if (!HasOwnPostfix(targetFoodOpt, postfixFood))
+                    {
+                        foodHarmony.Patch(targetFoodOpt, null, new HarmonyMethod(postfixFood));
+                    }
                 }
-                else
+                else if (defendCorpse || foodChoice)
                 {
                     Log.Warning("Zoology: FoodUtility.FoodOptimality method or postfix not found; skipping patch.");
                 }
 
+                // Natural raw-food preference applies to all animals, even if
+                // ownership-based carcass defense is disabled.
+                if (!defendCorpse)
+                    return;
+
                 if (targetBestFoodSource != null && postfixBestFoodSource != null)
                 {
-                    harmony.Patch(targetBestFoodSource, null, new HarmonyMethod(postfixBestFoodSource));
+                    // Repeated callbacks can alter the food choice more than once.
+                    // Registration only: preserve the actual postfix unchanged.
+                    if (!HasOwnPostfix(targetBestFoodSource, postfixBestFoodSource))
+                    {
+                        harmony.Patch(targetBestFoodSource, null,
+                            new HarmonyMethod(postfixBestFoodSource) { priority = Priority.Last });
+                    }
                 }
                 else
                 {
@@ -274,6 +287,32 @@ namespace ZoologyMod
             }
         }
 
+        private static bool HasOwnPostfix(MethodBase target, MethodInfo method)
+        {
+            if (target == null || method == null)
+            {
+                return false;
+            }
+
+            var postfixes = Harmony.GetPatchInfo(target)?.Postfixes;
+            if (postfixes == null)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < postfixes.Count; i++)
+            {
+                var patch = postfixes[i];
+                if (patch.owner == "com.abobashark.zoology.predatorpairs"
+                    && patch.PatchMethod == method)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         public static void ResetPatchedState()
         {
             patched = false;
@@ -304,18 +343,19 @@ namespace ZoologyMod
             bool hasDynamicPairSource = corpse != null || livePawn != null;
             if (!hasDynamicPairSource)
             {
-                if (!isPredator)
-                {
-                    return;
-                }
-
-                if (TryGetStaticIngestiblePreferabilityDelta(foodSource, out float staticDelta))
+                if (PredatorFoodChoiceUtility.FoodChoiceEnabled
+                    && TryGetStaticIngestiblePreferabilityDelta(foodSource, out float staticDelta))
                 {
                     __result += staticDelta;
                 }
 
                 return;
             }
+
+            // Live prey scores are handled solely by GetPreyScoreFor.
+            // Avoid any corpse-pair cache or budget work for living pawns.
+            if (corpse == null || !PredationSettingsGate.EnablePredatorDefendCorpse())
+                return;
 
             TickManager tickManager = Find.TickManager;
             int currentTick = tickManager?.TicksGame ?? 0;
@@ -384,40 +424,9 @@ namespace ZoologyMod
                 return;
             }
 
-            if (livePawn != null && !livePawn.Dead)
-            {
-                bool isAcceptable;
-                if (PredationDecisionCache.TryGetAcceptablePrey(eater, livePawn, out bool cachedAcceptable))
-                {
-                    isAcceptable = cachedAcceptable;
-                    if (isAcceptable && ChildcareDefenseUtility.ShouldBlockProtectedYoungPredation(eater, livePawn))
-                    {
-                        isAcceptable = false;
-                        PredationDecisionCache.StoreAcceptablePrey(eater, livePawn, false);
-                    }
-                }
-                else if (TryConsumeBudget(ref livePreyBudgetTick, ref livePreyBudgetRemaining, ZoologyTickLimiter.PredationFood.LivePreyAcceptableBudgetPerTick))
-                {
-                    isAcceptable = FoodUtility.IsAcceptablePreyFor(eater, livePawn);
-                    if (isAcceptable && ChildcareDefenseUtility.ShouldBlockProtectedYoungPredation(eater, livePawn))
-                    {
-                        isAcceptable = false;
-                    }
-
-                    PredationDecisionCache.StoreAcceptablePrey(eater, livePawn, isAcceptable);
-                }
-                else
-                {
-                    return;
-                }
-                if (isAcceptable)
-                {
-                    delta += LiveAcceptablePreyBonus;
-                }
-                StoreFoodOptimalityDelta(currentTick, pairKey, delta);
-                __result += delta;
-                return;
-            }
+            // Live prey is ranked by GetPreyScoreFor, which already includes
+            // ecological fit and the single pursuit-speed adjustment.
+            // FoodOptimality must not contribute a second fixed prey bonus.
         }
 
         public static void WillEat_Postfix(Pawn p, Thing food, Pawn getter, bool careIfNotAcceptableForTitle, bool allowVenerated, ref bool __result)
@@ -439,7 +448,8 @@ namespace ZoologyMod
             }
         }
 
-        public static void BestFoodSourceOnMap_Postfix(Pawn getter, Pawn eater, bool desperate, ref Thing __result, ref ThingDef foodDef)
+        public static void BestFoodSourceOnMap_Postfix(Pawn getter, Pawn eater, bool desperate,
+            bool allowCorpse, ref Thing __result, ref ThingDef foodDef)
         {
             try
             {
@@ -503,24 +513,98 @@ namespace ZoologyMod
                     return;
                 }
 
-                if (!ShouldPreferLivePreyOverCorpse(predator, corpse))
+                // The starvation exception permits an owned corpse, but it must
+                // remain the last-resort meal. Vanilla otherwise chooses the
+                // nearest corpse without considering scores of other food.
+                if (allowCorpse && getter == eater
+                    && CanIgnoreGuardedFoodBecauseOfHunger(predator)
+                    && TryGetCorpseFoodState(comp, predator, corpse, out CorpseFoodStateCacheEntry state)
+                    && !state.IsPaired && !state.IsEffectivelyUnowned
+                    && TryFindPreferredAlternativeToGuardedCorpse(predator, corpse,
+                        desperate, out Thing alternative, out ThingDef alternativeDef))
                 {
-                    return;
+                    __result = alternative;
+                    foodDef = alternativeDef;
                 }
-
-                Pawn huntTarget = TryGetVanillaHuntTarget(predator, desperate);
-                if (huntTarget == null)
-                {
-                    return;
-                }
-
-                __result = null;
-                foodDef = null;
             }
             catch (Exception ex)
             {
                 Log.Warning($"Zoology: BestFoodSourceOnMap_Postfix exception: {ex}");
             }
+        }
+
+        // Invoked only when a starving predator would otherwise eat another
+        // predator's guarded corpse. It is not part of ordinary food searches.
+        private static bool TryFindPreferredAlternativeToGuardedCorpse(
+            Pawn predator, Corpse guarded, bool desperate,
+            out Thing alternative, out ThingDef alternativeDef)
+        {
+            alternative = null;
+            alternativeDef = null;
+            Map map = predator?.Map;
+            if (map == null)
+                return false;
+
+            List<Thing> candidates = map.listerThings.ThingsMatching(
+                ThingRequest.ForGroup(ThingRequestGroup.FoodSource));
+            if (candidates == null)
+                return false;
+
+            const int shortlistSize = 8;
+            Thing[] shortlisted = new Thing[shortlistSize];
+            ThingDef[] defs = new ThingDef[shortlistSize];
+            float[] scores = new float[shortlistSize];
+            int count = 0;
+            float guardedScore = FoodUtility.FoodOptimality(predator, guarded,
+                FoodUtility.GetFinalIngestibleDef(guarded),
+                (predator.Position - guarded.Position).LengthHorizontal);
+
+            for (int i = 0; i < candidates.Count; i++)
+            {
+                Thing food = candidates[i];
+                if (food == null || food == guarded || !food.Spawned
+                    || food.Destroyed || food.def?.IsNutritionGivingIngestible != true
+                    || food.def.IsDrug || !food.IngestibleNow
+                    || food.IsForbidden(predator) || food.IsDessicated()
+                    || (!desperate && food.IsNotFresh())
+                    || !predator.WillEat(food, predator, true, false))
+                    continue;
+
+                ThingDef def = FoodUtility.GetFinalIngestibleDef(food);
+                if (def == null)
+                    continue;
+                float score = FoodUtility.FoodOptimality(predator, food, def,
+                    (predator.Position - food.Position).LengthHorizontal);
+                if (float.IsNaN(score) || score <= guardedScore
+                    || (count == shortlistSize && score <= scores[count - 1]))
+                    continue;
+                int position = count < shortlistSize ? count : shortlistSize - 1;
+                while (position > 0 && score > scores[position - 1])
+                {
+                    shortlisted[position] = shortlisted[position - 1];
+                    defs[position] = defs[position - 1];
+                    scores[position] = scores[position - 1];
+                    position--;
+                }
+                shortlisted[position] = food;
+                defs[position] = def;
+                scores[position] = score;
+                if (count < shortlistSize)
+                    count++;
+            }
+
+            for (int i = 0; i < count; i++)
+            {
+                Thing food = shortlisted[i];
+                if (predator.CanReserveAndReach(food, PathEndMode.OnCell,
+                    Danger.Some, 1, -1, null, false))
+                {
+                    alternative = food;
+                    alternativeDef = defs[i];
+                    return true;
+                }
+            }
+            return false;
         }
 
         private static bool CanIgnoreGuardedFoodBecauseOfHunger(Pawn eater)
@@ -726,18 +810,6 @@ namespace ZoologyMod
             }
         }
 
-        private static bool ShouldPreferLivePreyOverCorpse(Pawn predator, Corpse corpse)
-        {
-            if (predator == null || corpse == null)
-            {
-                return false;
-            }
-
-            return TryGetCorpseFoodState(PredatorPreyPairGameComponent.Instance, predator, corpse, out CorpseFoodStateCacheEntry state)
-                && !state.IsPaired
-                && !state.IsEffectivelyUnowned;
-        }
-
         internal static bool ShouldBlockLivePreyHunt(Pawn predator)
         {
             if (predator == null || predator.RaceProps?.predator != true)
@@ -773,7 +845,7 @@ namespace ZoologyMod
                 && defName.Equals("Spectrobionta", StringComparison.OrdinalIgnoreCase);
         }
 
-        private static Pawn TryGetVanillaHuntTarget(Pawn predator, bool desperate)
+        internal static Pawn TryGetVanillaHuntTarget(Pawn predator, bool desperate)
         {
             if (BestPawnToHuntForPredatorFunc == null || predator == null)
             {
@@ -1068,7 +1140,13 @@ namespace ZoologyMod
                 return false;
             }
 
-            float computed = (float)ingestible.preferability * 4f;
+            // Natural animal preference: raw edible material is preferred
+            // over prepared meals irrespective of taming or corpse ownership.
+            float computed = (ingestible.foodType & FoodTypeFlags.Meal) != 0
+                ? -NaturalFoodPreference
+                : ingestible.preferability == FoodPreferability.RawBad
+                    || ingestible.preferability == FoodPreferability.RawTasty
+                    ? NaturalFoodPreference : 0f;
             bool hasDelta = computed != 0f;
             StoreStaticIngestiblePreferabilityDelta(def, computed, hasDelta);
             delta = computed;
@@ -1184,8 +1262,6 @@ namespace ZoologyMod
                 lastVanillaHuntTargetCleanupTick = -VanillaHuntTargetCacheCleanupIntervalTicks;
                 corpseFoodStateBudgetTick = -1;
                 corpseFoodStateBudgetRemaining = 0;
-                livePreyBudgetTick = -1;
-                livePreyBudgetRemaining = 0;
                 vanillaHuntTargetBudgetTick = -1;
                 vanillaHuntTargetBudgetRemaining = 0;
                 runtimeCacheTickManager = tickManager;

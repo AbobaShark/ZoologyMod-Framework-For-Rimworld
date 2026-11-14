@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <!-- Bird nests are natural, non-claimable shelters. Tree nests coexist with
+       their anchor tree and use its wind deformation and selection position. -->
+  <ThingDef ParentName="BuildingBase">
+    <defName>Zoology_AnimalTreeNest</defName>
+    <label>tree nest</label>
+    <description>A woven bird nest attached to the canopy of a living tree.</description>
+    <thingClass>ZoologyMod.Building_AnimalNursery, ZoologyMod</thingClass>
+    <containedPawnsSelectable>true</containedPawnsSelectable>
+    <graphicData>
+      <texPath>Things/Building/Zoology/AnimalTreeNest</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <shaderType>CutoutPlant</shaderType>
+      <drawSize>(0.42,0.42)</drawSize>
+    </graphicData>
+    <drawerType>RealtimeOnly</drawerType>
+    <altitudeLayer>BuildingOnTop</altitudeLayer>
+    <useHitPoints>true</useHitPoints>
+    <drawDamagedOverlay>false</drawDamagedOverlay>
+    <size>(1,1)</size>
+    <tickerType>Normal</tickerType>
+    <passability>Standable</passability>
+    <statBases>
+      <MaxHitPoints>60</MaxHitPoints>
+      <Flammability>1</Flammability>
+      <Beauty>0</Beauty>
+    </statBases>
+    <building>
+      <isInert>true</isInert>
+      <expandHomeArea>false</expandHomeArea>
+      <claimable>false</claimable>
+    </building>
+    <comps>
+      <li Class="CompProperties_ThingContainer">
+        <compClass>ZoologyMod.CompAnimalNestEggContainer, ZoologyMod</compClass>
+        <stackLimit>50</stackLimit>
+        <minCountToEmpty>1</minCountToEmpty>
+        <drawContainedThing>false</drawContainedThing>
+      </li>
+    </comps>
+    <designationCategory IsNull="True" />
+  </ThingDef>
+  <ThingDef ParentName="BuildingBase">
+    <defName>Zoology_AnimalGroundNest</defName>
+    <label>ground nest</label>
+    <description>A small nest of grass and twigs for ground-nesting birds.</description>
+    <thingClass>ZoologyMod.Building_AnimalNursery, ZoologyMod</thingClass>
+    <containedPawnsSelectable>true</containedPawnsSelectable>
+    <graphicData>
+      <texPath>Things/Building/Zoology/AnimalGroundNest</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <drawSize>(0.70,0.70)</drawSize>
+    </graphicData>
+    <drawerType>MapMeshAndRealTime</drawerType>
+    <altitudeLayer>BuildingOnTop</altitudeLayer>
+    <useHitPoints>true</useHitPoints>
+    <drawDamagedOverlay>false</drawDamagedOverlay>
+    <size>(1,1)</size>
+    <tickerType>Normal</tickerType>
+    <passability>Standable</passability>
+    <statBases>
+      <MaxHitPoints>60</MaxHitPoints>
+      <Flammability>1</Flammability>
+      <Beauty>0</Beauty>
+    </statBases>
+    <building>
+      <isInert>true</isInert>
+      <expandHomeArea>false</expandHomeArea>
+      <claimable>false</claimable>
+    </building>
+    <comps>
+      <li Class="CompProperties_ThingContainer">
+        <compClass>ZoologyMod.CompAnimalNestEggContainer, ZoologyMod</compClass>
+        <stackLimit>50</stackLimit>
+        <minCountToEmpty>1</minCountToEmpty>
+        <drawContainedThing>false</drawContainedThing>
+      </li>
+    </comps>
+    <designationCategory IsNull="True" />
+  </ThingDef>
+</Defs>
