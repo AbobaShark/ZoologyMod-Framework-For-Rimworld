@@ -23,8 +23,8 @@ AMPHIBIAN_FIELDS = (
     'Name', 'Def name',
     'Tadpole development (real days)',
     'Tadpole development (RimWorld days)',
-    'Hatched tadpoles (gameplay count range)',
-    'Froglets per clutch (gameplay count range)',
+    'Embryo survival',
+    'Tadpole survival to metamorphosis',
     'Fertilization mode',
     'Ovum diameter (mm)',
     'Hydrated jelly diameter (mm)',
@@ -53,6 +53,20 @@ def _positive_number(value, label):
         raise ValueError(f'{label}: not numeric: {value!r}') from None
     if not number.is_finite() or number <= 0:
         raise ValueError(f'{label}: expected positive finite number: {value!r}')
+    return number
+
+
+def _survival_fraction(value, label):
+    text = str(value).strip().replace(',', '.')
+    percent = text.endswith('%')
+    try:
+        number = Decimal(text[:-1].strip() if percent else text)
+        if percent:
+            number /= 100
+    except (InvalidOperation, ValueError):
+        raise ValueError(f'{label}: not a survival fraction: {value!r}') from None
+    if not number.is_finite() or not 0 <= number <= 1:
+        raise ValueError(f'{label}: expected survival fraction in [0, 1]: {value!r}')
     return number
 
 
@@ -165,20 +179,15 @@ def external_roe_rows(egg_frame, original_columns=None):
                 'production row in the separate egg table')
         egg = egg_by_def[race]
         eggs = _positive_range(egg['eggCountRange'], f'{race}.eggCountRange')
-        tadpoles = _positive_range(
-            larva['Hatched tadpoles (gameplay count range)'],
-            f'{race}.hatchedTadpoles')
-        froglets = _positive_range(
-            larva['Froglets per clutch (gameplay count range)'],
-            f'{race}.froglets')
+        embryo_survival = _survival_fraction(larva['Embryo survival'], f'{race}.embryoSurvival')
+        tadpole_survival = _survival_fraction(
+            larva['Tadpole survival to metamorphosis'], f'{race}.tadpoleSurvival')
         hatch = _positive_number(egg['hatcherDaystoHatch'], f'{race}.hatchDays')
         interval = _positive_number(egg['eggLayIntervalDays'], f'{race}.eggLayIntervalDays')
         real_larval = _positive_number(
             larva['Tadpole development (real days)'], f'{race}.larvalRealDays')
         game_larval = _positive_number(
             larva['Tadpole development (RimWorld days)'], f'{race}.larvalGameDays')
-        if froglets[0] > tadpoles[1]:
-            raise ValueError(f'{race}: minimum froglets exceeds maximum tadpoles')
         geom = str(larva['Clutch jelly geometry']).strip().upper()
         if geom not in ('SPHERE', 'STRING'):
             raise ValueError(f'{race}: egg jelly geometry must be SPHERE or STRING')
@@ -216,8 +225,8 @@ def external_roe_rows(egg_frame, original_columns=None):
             'race': race,
             'common': str(larva['Name']).strip() or race,
             'egg_range': str(egg['eggCountRange']).strip(),
-            'tadpole_range': str(larva['Hatched tadpoles (gameplay count range)']).strip(),
-            'froglet_range': str(larva['Froglets per clutch (gameplay count range)']).strip(),
+            'embryo_survival': format(embryo_survival.normalize(), 'f'),
+            'tadpole_survival': format(tadpole_survival.normalize(), 'f'),
             'hatch_days': format(hatch.normalize(), 'f'),
             'egg_interval': format(interval.normalize(), 'f'),
             'larval_days': format(game_larval.normalize(), 'f'),
@@ -315,7 +324,9 @@ def render_roe_defs(xml_tree, species):
                 c = _tad_comp(node)
                 _set(c, 'pawnKind', race)
                 _set(c, 'daysToMetamorphosis', row['larval_days'])
-                _set(c, 'frogletCountRange', row['froglet_range'])
+                _remove(c, 'frogletCountRange')
+                _set(c, 'tadpoleSurvival', row['tadpole_survival'])
+                _set(c, 'sourceRoeDef', f'Egg{race}Fertilized')
                 _set(c, 'hatchMassKg', row['hatch_mass_kg'])
                 _set(c, 'metamorphMassKg', row['metamorph_mass_kg'])
                 _set(c, 'grossEnergyMJPerKg', row['tadpole_energy_mj_kg'])
@@ -326,10 +337,8 @@ def render_roe_defs(xml_tree, species):
                     stats = E.SubElement(node, 'statBases')
                 # Meaningful base values for dev-spawned items; per-instance
                 # StatPart uses actual current number, body mass and progress.
-                count_low, count_high = _positive_range(
-                    row['tadpole_range'], f'{race}.hatchedTadpoles')
-                mid_count = Decimal(count_low + count_high) / Decimal('2')
-                seed_mass = Decimal(row['hatch_mass_kg']) * mid_count
+                hatch_count = (Decimal(row['mean_eggs']) * Decimal(row['embryo_survival'])).to_integral_value()
+                seed_mass = Decimal(row['hatch_mass_kg']) * hatch_count
                 seed_energy = (seed_mass * Decimal(row['tadpole_energy_mj_kg'])
                                * Decimal('1000000') / Decimal(row['joules_per_nutrition']))
                 _set(stats, 'Mass', format(seed_mass.normalize(), 'f'))
@@ -356,16 +365,17 @@ def render_roe_defs(xml_tree, species):
                 _set(comp, 'wetMassPerOvumKg', row['mass_per_egg_kg'])
                 _set(comp, 'grossEnergyPerOvumJ', row['energy_per_egg_j'])
                 _set(comp, 'joulesPerNutrition', row['joules_per_nutrition'])
+                _remove(comp, 'hatchlingCountRange')
                 if phase == 'unfertilized':
                     _set(comp, 'fertilizedRoeDef', f'Egg{race}Fertilized')
                     _remove(comp, 'daysToHatch')
                     _remove(comp, 'tadpoleDef')
-                    _remove(comp, 'hatchlingCountRange')
+                    _remove(comp, 'embryoSurvival')
                 else:
                     _remove(comp, 'fertilizedRoeDef')
                     _set(comp, 'daysToHatch', row['hatch_days'])
                     _set(comp, 'tadpoleDef', f'Zoology_{race}Tadpole')
-                    _set(comp, 'hatchlingCountRange', row['tadpole_range'])
+                    _set(comp, 'embryoSurvival', row['embryo_survival'])
     for name, node in list(current.items()):
         if (node.find('./comps/li[@Class="ZoologyMod.CompProperties_AmphibianRoe, ZoologyMod"]') is not None
             or node.find('./comps/li[@Class="ZoologyMod.CompProperties_Tadpole, ZoologyMod"]') is not None):

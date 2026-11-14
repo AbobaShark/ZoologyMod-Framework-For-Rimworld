@@ -56,8 +56,6 @@ def fixture():
 
     amph_start = len(egg) + 1 + len(milk) + 1 + len(wool) + 1
     common = {
-        "Hatched tadpoles (gameplay count range)": "200~400",
-        "Froglets per clutch (gameplay count range)": "10~20",
         "Fertilization mode": "EXTERNAL",
         "Ovum diameter (mm)": 1.45,
         "Ovum gross energy (J)": 19.998268950437325,
@@ -67,6 +65,8 @@ def fixture():
     }
     put(0, amph_start, list(AMPHIBIAN_FIELDS), {
         **common, "Name": "Bullfrog", "Def name": "<li>Bullfrog</li>",
+        "Embryo survival": 0.92,
+        "Tadpole survival to metamorphosis": "5,62%",
         "Tadpole development (real days)": 365,
         "Tadpole development (RimWorld days)": 60,
         "Hydrated jelly diameter (mm)": 8.4, "Clutch jelly geometry": "SPHERE",
@@ -77,6 +77,8 @@ def fixture():
     })
     put(1, amph_start, list(AMPHIBIAN_FIELDS), {
         **common, "Name": "ColossusToad", "Def name": "<li>ColossusToad</li>",
+        "Embryo survival": "71,8%",
+        "Tadpole survival to metamorphosis": 0.05,
         "Tadpole development (real days)": 50,
         "Tadpole development (RimWorld days)": 8,
         "Hydrated jelly diameter (mm)": 3.7, "Clutch jelly geometry": "STRING",
@@ -88,8 +90,8 @@ def fixture():
     })
     # Stale duplicate values deliberately contradict the true amphibian
     # block. They must not influence any output.
-    rows[0][-5:] = [999, 999, "1~1", "1~1", "INTERNAL"]
-    rows[1][-5:] = [999, 999, "1~1", "1~1", "INTERNAL"]
+    rows[0][-5:] = [999, 999, 0, 0, "INTERNAL"]
+    rows[1][-5:] = [999, 999, 0, 0, "INTERNAL"]
     # Simulate pandas' .1 suffixing of repeated source headings.
     counts = {}
     unique_headers = []
@@ -137,7 +139,10 @@ class AmphibianGenerationTests(unittest.TestCase):
         self.assertEqual(species["ColossusToad"]["egg_range"], "21000~39000")
         self.assertEqual(species["ColossusToad"]["mean_eggs"], 30000)
         self.assertEqual(species["ColossusToad"]["larval_days"], "8")
-        self.assertEqual(species["ColossusToad"]["froglet_range"], "10~20")
+        self.assertEqual(species["Bullfrog"]["embryo_survival"], "0.92")
+        self.assertEqual(species["Bullfrog"]["tadpole_survival"], "0.0562")
+        self.assertEqual(species["ColossusToad"]["embryo_survival"], "0.718")
+        self.assertEqual(species["ColossusToad"]["tadpole_survival"], "0.05")
 
     def test_independent_xml_only_for_amphibians(self):
         species = external_roe_rows(fixture())
@@ -147,11 +152,19 @@ class AmphibianGenerationTests(unittest.TestCase):
         bull = defs.find('.//ThingDef[defName="EggBullfrogFertilized"]')
         self.assertEqual(bull.get("ParentName"), "EggUnfertBase")
         self.assertEqual(bull.findtext("./comps/li/defaultOvaCount"), "13014")
-        self.assertEqual(bull.findtext("./comps/li/hatchlingCountRange"), "200~400")
+        self.assertEqual(bull.findtext("./comps/li/embryoSurvival"), "0.92")
         self.assertAlmostEqual(float(bull.findtext("./statBases/Mass")), 4.038752900240475)
         self.assertEqual(bull.findtext("./statBases/DeteriorationRate"), "0")
         tad = defs.find('.//ThingDef[defName="Zoology_BullfrogTadpole"]')
         self.assertEqual(tad.findtext("./comps/li/daysToMetamorphosis"), "60")
+        self.assertEqual(tad.findtext("./comps/li/tadpoleSurvival"), "0.0562")
+        self.assertEqual(tad.findtext("./comps/li/sourceRoeDef"), "EggBullfrogFertilized")
+        self.assertEqual(tad.findtext("./statBases/Mass"), "0.083811")
+        self.assertAlmostEqual(float(tad.findtext("./statBases/Nutrition")), 0.03307569866156788)
+        toad = defs.find('.//ThingDef[defName="Zoology_ColossusToadTadpole"]')
+        self.assertEqual(toad.findtext("./comps/li/tadpoleSurvival"), "0.05")
+        self.assertEqual(toad.findtext("./statBases/Mass"), "0.15078")
+        self.assertEqual(toad.findtext("./comps/li/sourceRoeDef"), "EggColossusToadFertilized")
         self.assertEqual(tad.findtext("./ingestible/foodType"), "Meat")
         patch = render_roe_patch(species)
         self.assertEqual(len(patch.findall("./Operation")), 2)
@@ -180,6 +193,19 @@ class AmphibianGenerationTests(unittest.TestCase):
         self.assertEqual(mapped.iloc[0]["X"], "<li>Bullfrog</li>")
         self.assertEqual(mapped.iloc[0]["R"], "")
         self.assertEqual(set(external_roe_rows(data)), {"Bullfrog", "ColossusToad"})
+
+    def test_survival_probabilities_validate_and_include_endpoints(self):
+        for value in ("", "NaN", "-1%", 1.01, "200~400"):
+            data = fixture()
+            data.iat[0, 26] = value
+            with self.subTest(value=value), self.assertRaisesRegex(ValueError, "embryoSurvival"):
+                external_roe_rows(data)
+        data = fixture()
+        data.iat[0, 26] = 0
+        data.iat[0, 27] = 1
+        species = external_roe_rows(data)
+        self.assertEqual(species["Bullfrog"]["embryo_survival"], "0")
+        self.assertEqual(species["Bullfrog"]["tadpole_survival"], "1")
 
     def test_invalid_unlinked_or_duplicate_species_fail_closed(self):
         missing = fixture()
