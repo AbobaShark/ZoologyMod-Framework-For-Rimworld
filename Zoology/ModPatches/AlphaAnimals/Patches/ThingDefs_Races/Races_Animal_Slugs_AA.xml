@@ -123,6 +123,12 @@
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "AA_Helixien"]/race/baseHungerRate</xpath>
+    <value>
+      <baseHungerRate>0.15</baseHungerRate>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_Helixien"]/race/lifeExpectancy</xpath>
     <value>
       <lifeExpectancy>75</lifeExpectancy>
@@ -318,11 +324,11 @@
         </li>
         <li>
           <def>AnimalJuvenile</def>
-          <minAge>0.4</minAge>
+          <minAge>1</minAge>
         </li>
         <li>
           <def>AnimalAdult</def>
-          <minAge>0.8</minAge>
+          <minAge>2</minAge>
           <soundWounded>AA_Helixien_Angry</soundWounded>
           <soundDeath>AA_Helixien_Death</soundDeath>
           <soundAngry>AA_Helixien_Angry</soundAngry>
@@ -399,13 +405,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "AA_Helixien"]/ecoSystemWeight</xpath>
       <value>
-        <ecoSystemWeight>0.8</ecoSystemWeight>
+        <ecoSystemWeight>0.65</ecoSystemWeight>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "AA_Helixien"]</xpath>
       <value>
-        <ecoSystemWeight>0.8</ecoSystemWeight>
+        <ecoSystemWeight>0.65</ecoSystemWeight>
       </value>
     </nomatch>
   </Operation>
@@ -551,7 +557,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_Plasmorph"]/race/baseHungerRate</xpath>
     <value>
-      <baseHungerRate>0.1</baseHungerRate>
+      <baseHungerRate>0.04</baseHungerRate>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -563,7 +569,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_Plasmorph"]/race/gestationPeriodDays</xpath>
     <value>
-      <gestationPeriodDays>7.5</gestationPeriodDays>
+      <gestationPeriodDays>15</gestationPeriodDays>
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
@@ -762,11 +768,11 @@
         </li>
         <li>
           <def>AnimalJuvenile</def>
-          <minAge>0.4</minAge>
+          <minAge>1.2</minAge>
         </li>
         <li>
           <def>AnimalAdult</def>
-          <minAge>0.8</minAge>
+          <minAge>2.4</minAge>
           <soundWounded>AA_Helixien_Angry</soundWounded>
           <soundDeath>AA_Helixien_Death</soundDeath>
           <soundAngry>AA_Helixien_Angry</soundAngry>
@@ -774,20 +780,8 @@
       </lifeStageAges>
     </value>
   </Operation>
-  <Operation Class="PatchOperationReplace">
+  <Operation Class="PatchOperationRemove">
     <xpath>/Defs/ThingDef[defName = "AA_Plasmorph"]/race/litterSizeCurve</xpath>
-    <value>
-      <litterSizeCurve Inherit="False">
-        <points>
-          <li>(2.0000, 0)</li>
-          <li>(4.0000, 0.2)</li>
-          <li>(8.0000, 1)</li>
-          <li>(12.0000, 1)</li>
-          <li>(16.0000, 0.2)</li>
-          <li>(18.0000, 0)</li>
-        </points>
-      </litterSizeCurve>
-    </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_Plasmorph"]/race/specialTrainables</xpath>
@@ -853,7 +847,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "AA_Plasmorph"]/ecoSystemWeight</xpath>
     <value>
-      <ecoSystemWeight>0.2</ecoSystemWeight>
+      <ecoSystemWeight>0.15</ecoSystemWeight>
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
@@ -992,7 +986,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_SandSquid"]/race/baseHungerRate</xpath>
     <value>
-      <baseHungerRate>0.2</baseHungerRate>
+      <baseHungerRate>0.23</baseHungerRate>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -1222,12 +1216,12 @@
     <value>
       <litterSizeCurve Inherit="False">
         <points>
-          <li>(0.6000, 0)</li>
-          <li>(1.2000, 0.2)</li>
-          <li>(2.4000, 1)</li>
-          <li>(3.6000, 1)</li>
-          <li>(4.8000, 0.2)</li>
-          <li>(5.4000, 0)</li>
+          <li>(0.3000, 0)</li>
+          <li>(0.6000, 0.2)</li>
+          <li>(1.2000, 1)</li>
+          <li>(1.8000, 1)</li>
+          <li>(2.4000, 0.2)</li>
+          <li>(2.7000, 0)</li>
         </points>
       </litterSizeCurve>
     </value>
@@ -1468,7 +1462,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_TarGuzzler"]/race/baseHungerRate</xpath>
     <value>
-      <baseHungerRate>0.2</baseHungerRate>
+      <baseHungerRate>0.23</baseHungerRate>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -1661,11 +1655,11 @@
         </li>
         <li>
           <def>AnimalJuvenile</def>
-          <minAge>0.15</minAge>
+          <minAge>1</minAge>
         </li>
         <li>
           <def>AnimalAdult</def>
-          <minAge>0.3</minAge>
+          <minAge>2</minAge>
           <soundWounded>AA_TarGuzzler_Wounded</soundWounded>
           <soundDeath>AA_TarGuzzler_Death</soundDeath>
           <soundAngry>AA_TarGuzzler_Angry</soundAngry>
@@ -1906,7 +1900,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_TetraSlug"]/race/baseHungerRate</xpath>
     <value>
-      <baseHungerRate>0.85</baseHungerRate>
+      <baseHungerRate>0.4</baseHungerRate>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -2191,13 +2185,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "AA_TetraSlug"]/ecoSystemWeight</xpath>
       <value>
-        <ecoSystemWeight>1.7</ecoSystemWeight>
+        <ecoSystemWeight>1.3</ecoSystemWeight>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "AA_TetraSlug"]</xpath>
       <value>
-        <ecoSystemWeight>1.7</ecoSystemWeight>
+        <ecoSystemWeight>1.3</ecoSystemWeight>
       </value>
     </nomatch>
   </Operation>

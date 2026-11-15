@@ -137,7 +137,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Moose"]/race/baseHungerRate</xpath>
     <value>
-      <baseHungerRate>0.95</baseHungerRate>
+      <baseHungerRate>0.9</baseHungerRate>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -360,36 +360,9 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Moose"]/race/litterSizeCurve</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Moose"]/race/litterSizeCurve</xpath>
-      <value>
-        <litterSizeCurve Inherit="False">
-          <points>
-            <li>(0.2600, 0)</li>
-            <li>(0.5200, 0.2)</li>
-            <li>(1.0400, 1)</li>
-            <li>(1.5600, 1)</li>
-            <li>(2.0800, 0.2)</li>
-            <li>(2.3400, 0)</li>
-          </points>
-        </litterSizeCurve>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Moose"]/race</xpath>
-      <value>
-        <litterSizeCurve Inherit="False">
-          <points>
-            <li>(0.2600, 0)</li>
-            <li>(0.5200, 0.2)</li>
-            <li>(1.0400, 1)</li>
-            <li>(1.5600, 1)</li>
-            <li>(2.0800, 0.2)</li>
-            <li>(2.3400, 0)</li>
-          </points>
-        </litterSizeCurve>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Moose"]/race/specialTrainables</xpath>
@@ -470,7 +443,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "Moose"]/ecoSystemWeight</xpath>
     <value>
-      <ecoSystemWeight>1.2</ecoSystemWeight>
+      <ecoSystemWeight>1.15</ecoSystemWeight>
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
@@ -629,7 +602,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Muskox"]/race/baseHungerRate</xpath>
     <value>
-      <baseHungerRate>0.85</baseHungerRate>
+      <baseHungerRate>0.75</baseHungerRate>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -944,7 +917,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "Muskox"]/ecoSystemWeight</xpath>
     <value>
-      <ecoSystemWeight>1.05</ecoSystemWeight>
+      <ecoSystemWeight>0.95</ecoSystemWeight>
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">

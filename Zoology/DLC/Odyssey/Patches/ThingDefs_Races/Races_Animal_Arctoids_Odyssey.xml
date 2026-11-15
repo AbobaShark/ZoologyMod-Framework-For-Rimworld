@@ -121,7 +121,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Panda"]/race/baseHungerRate</xpath>
     <value>
-      <baseHungerRate>0.65</baseHungerRate>
+      <baseHungerRate>0.6</baseHungerRate>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -356,36 +356,9 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Panda"]/race/litterSizeCurve</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Panda"]/race/litterSizeCurve</xpath>
-      <value>
-        <litterSizeCurve Inherit="False">
-          <points>
-            <li>(0.3000, 0)</li>
-            <li>(0.6000, 0.2)</li>
-            <li>(1.2000, 1)</li>
-            <li>(1.8000, 1)</li>
-            <li>(2.4000, 0.2)</li>
-            <li>(2.7000, 0)</li>
-          </points>
-        </litterSizeCurve>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "Panda"]/race</xpath>
-      <value>
-        <litterSizeCurve Inherit="False">
-          <points>
-            <li>(0.3000, 0)</li>
-            <li>(0.6000, 0.2)</li>
-            <li>(1.2000, 1)</li>
-            <li>(1.8000, 1)</li>
-            <li>(2.4000, 0.2)</li>
-            <li>(2.7000, 0)</li>
-          </points>
-        </litterSizeCurve>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationRemove">
     <xpath>/Defs/ThingDef[defName = "Panda"]/race/specialTrainables</xpath>
@@ -466,7 +439,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "Panda"]/ecoSystemWeight</xpath>
     <value>
-      <ecoSystemWeight>0.8</ecoSystemWeight>
+      <ecoSystemWeight>0.75</ecoSystemWeight>
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">

@@ -585,7 +585,7 @@ With Combat Extended active, supported natural attacks use generated CE life-sta
 - `Building_AnimalBurrow` and `AnimalNursery` implement shared shelters, family occupancy and natural bird nests.
 - `CompAnimalNestEggContainer` retains fertilized eggs and young as genuine held Things; rendering and interaction follow the visual canopy where a tree nest is placed.
 - `AnimalOffspringPouch` handles dependent marsupial offspring.
-- `CompAmphibianRoe`, `CompTadpole` and `JobDriver_FertilizeAmphibianRoe` model externally fertilized aquatic clutches and larval cohorts using one Thing per group with cohort mass and nutrition. The shipped aquatic definitions and egg-layer patches are Odyssey-gated.
+- `CompAmphibianRoe`, `CompTadpole` and `JobDriver_FertilizeAmphibianRoe` model externally fertilized aquatic clutches and larval cohorts using one Thing per group with cohort mass and nutrition. Stage-transition counts are derived from actual clutch size and species-specific embryo and larval survival fractions in `EggMilkWool`. The shipped aquatic definitions and egg-layer patches are Odyssey-gated.
 
 Nests and dens are natural animal structures. `AnimalTreeSelection` connects the selected tree to its current perched animals and anchored nests through vanilla-style selection gizmos; occupants are resolved through the refuge map component. The tree claim enforces a shared BodySize budget.
 

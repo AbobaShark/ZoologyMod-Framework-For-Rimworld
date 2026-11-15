@@ -16,7 +16,7 @@ namespace ZoologyMod
         public ThingDef parentRace;
         public ThingDef tadpoleDef;
         public ThingDef fertilizedRoeDef;
-        public IntRange hatchlingCountRange;
+        public float embryoSurvival;
         // Absolute biological mass/energy of one complete water-bound ovum.
         public int defaultOvaCount;
         public float wetMassPerOvumKg;
@@ -38,7 +38,7 @@ namespace ZoologyMod
         public Pawn father;
         public Faction faction;
         private float progress;
-        private int hatchlingTarget;
+        private int hatchlingTarget = -1;
 
         public CompProperties_AmphibianRoe Props => (CompProperties_AmphibianRoe)props;
 
@@ -104,7 +104,7 @@ namespace ZoologyMod
             base.PostExposeData();
             Scribe_Values.Look(ref eggCount, "zoologyRoeEggCount");
             Scribe_Values.Look(ref progress, "zoologyRoeProgress");
-            Scribe_Values.Look(ref hatchlingTarget, "zoologyRoeHatchlingTarget");
+            Scribe_Values.Look(ref hatchlingTarget, "zoologyRoeHatchlingTarget", -1);
             Scribe_References.Look(ref mother, "zoologyRoeMother");
             Scribe_References.Look(ref father, "zoologyRoeFather");
             Scribe_References.Look(ref faction, "zoologyRoeFaction");
@@ -122,12 +122,11 @@ namespace ZoologyMod
 
         private void EnsureHatchlingTarget()
         {
-            if (hatchlingTarget <= 0)
-                hatchlingTarget = Math.Min(Math.Max(1, eggCount),
-                    Math.Max(1, Props.hatchlingCountRange.RandomInRange));
+            if (hatchlingTarget < 0)
+                hatchlingTarget = AmphibianSurvival.SurvivorCount(eggCount, Props.embryoSurvival);
         }
 
-        private int ViableOva => hatchlingTarget <= 0 ? eggCount
+        private int ViableOva => hatchlingTarget < 0 ? eggCount
             : Mathf.Max(hatchlingTarget, eggCount - Mathf.RoundToInt(
                 (eggCount - hatchlingTarget) * Mathf.Clamp01(progress)));
 
@@ -138,6 +137,11 @@ namespace ZoologyMod
             Map map = parent.Map;
             IntVec3 cell = parent.Position;
             EnsureHatchlingTarget();
+            if (hatchlingTarget == 0)
+            {
+                parent.Destroy(DestroyMode.Vanish);
+                return;
+            }
             Thing hatchling = ThingMaker.MakeThing(Props.tadpoleDef);
             if (hatchling.TryGetComp<CompTadpole>() is not CompTadpole tadpole)
                 return;
@@ -167,10 +171,23 @@ namespace ZoologyMod
         }
     }
 
+    internal static class AmphibianSurvival
+    {
+        internal static int SurvivorCount(int initialCount, float survival)
+        {
+            if (initialCount <= 0 || survival <= 0f || float.IsNaN(survival))
+                return 0;
+            if (survival >= 1f)
+                return initialCount;
+            return (int)Math.Round(initialCount * (double)survival);
+        }
+    }
+
     public sealed class CompProperties_Tadpole : CompProperties
     {
         public PawnKindDef pawnKind;
-        public IntRange frogletCountRange;
+        public float tadpoleSurvival;
+        public ThingDef sourceRoeDef;
         public float hatchMassKg;
         public float metamorphMassKg;
         public float grossEnergyMJPerKg;
@@ -192,9 +209,12 @@ namespace ZoologyMod
         public Pawn father;
         public Faction faction;
         private float progress;
-        private int initialTadpoles;
-        private int frogletTarget;
+        private int initialTadpoles = -1;
+        private int frogletTarget = -1;
         private int frogletsReleased;
+        private int recruitmentTarget = -1;
+        private int biologicalMetamorphsReleased = -1;
+        private const int BiologicalMetamorphsPerPawn = 100;
 
         private CompProperties_Tadpole Props => (CompProperties_Tadpole)props;
         internal ThingDef ParentRace => Props.pawnKind?.race;
@@ -222,27 +242,28 @@ namespace ZoologyMod
                 / Props.joulesPerNutrition
             : 0f;
 
-        // Values are gameplay bounds shared by species, not species lists.
-        // The initial ovum count always comes from CompEggLayer/EggMilkWool.
+        // A cohort's terminal number follows its actual hatchling count.
         internal void InitializeCohort(int ova, int larvae, Pawn dam, Pawn sire, Faction originalFaction)
         {
             eggCount = Math.Max(1, ova);
             mother = dam;
             father = sire;
             faction = originalFaction;
-            initialTadpoles = Mathf.Clamp(larvae, 1, eggCount);
-            frogletTarget = Math.Min(initialTadpoles,
-                Math.Max(1, Props.frogletCountRange.RandomInRange));
+            initialTadpoles = Mathf.Clamp(larvae, 0, eggCount);
+            frogletTarget = AmphibianSurvival.SurvivorCount(initialTadpoles, Props.tadpoleSurvival);
         }
 
         private void EnsureCohort()
         {
-            // Old saves contain eggCount and progress but no cohort counters.
-            if (initialTadpoles <= 0 || frogletTarget <= 0)
-                InitializeCohort(Math.Max(1, eggCount),
-                    Math.Min(Math.Max(1, eggCount),
-                        Math.Max(1, Props.frogletCountRange.max)),
-                    mother, father, faction);
+            if (initialTadpoles < 0)
+            {
+                CompProperties_AmphibianRoe roe = Props.sourceRoeDef?.GetCompProperties<CompProperties_AmphibianRoe>();
+                int ova = eggCount > 0 ? eggCount : Math.Max(0, roe?.defaultOvaCount ?? 0);
+                int larvae = AmphibianSurvival.SurvivorCount(ova, roe?.embryoSurvival ?? 0f);
+                InitializeCohort(ova, larvae, mother, father, faction);
+            }
+            else if (frogletTarget < 0)
+                frogletTarget = AmphibianSurvival.SurvivorCount(initialTadpoles, Props.tadpoleSurvival);
         }
 
         private int LivingTadpoles
@@ -253,7 +274,8 @@ namespace ZoologyMod
                 int surviving = Mathf.Max(frogletTarget,
                     initialTadpoles - Mathf.RoundToInt(
                         (initialTadpoles - frogletTarget) * Mathf.Clamp01(progress)));
-                return Mathf.Max(0, surviving - frogletsReleased);
+                int releasedBiological = biologicalMetamorphsReleased < 0 ? frogletsReleased : biologicalMetamorphsReleased;
+                return Mathf.Max(0, surviving - releasedBiological);
             }
         }
 
@@ -262,9 +284,11 @@ namespace ZoologyMod
             base.PostExposeData();
             Scribe_Values.Look(ref eggCount, "zoologyTadpoleEggCount");
             Scribe_Values.Look(ref progress, "zoologyTadpoleProgress");
-            Scribe_Values.Look(ref initialTadpoles, "zoologyTadpoleInitialCohort");
-            Scribe_Values.Look(ref frogletTarget, "zoologyTadpoleFrogletTarget");
+            Scribe_Values.Look(ref initialTadpoles, "zoologyTadpoleInitialCohort", -1);
+            Scribe_Values.Look(ref frogletTarget, "zoologyTadpoleFrogletTarget", -1);
             Scribe_Values.Look(ref frogletsReleased, "zoologyTadpoleFrogletsReleased");
+            Scribe_Values.Look(ref recruitmentTarget, "zoologyTadpoleRecruitmentTarget", -1);
+            Scribe_Values.Look(ref biologicalMetamorphsReleased, "zoologyTadpoleBiologicalReleased", -1);
             Scribe_References.Look(ref mother, "zoologyTadpoleMother");
             Scribe_References.Look(ref father, "zoologyTadpoleFather");
             Scribe_References.Look(ref faction, "zoologyTadpoleFaction");
@@ -281,6 +305,11 @@ namespace ZoologyMod
             if (grow)
             {
                 EnsureCohort();
+                if (initialTadpoles == 0)
+                {
+                    parent.Destroy(DestroyMode.Vanish);
+                    return;
+                }
                 if (progress < 1f)
                     progress = Math.Min(1f, progress + 250f /
                         (Math.Max(0.01f, Props.daysToMetamorphosis) * GenDate.TicksPerDay));
@@ -334,7 +363,13 @@ namespace ZoologyMod
         private void ReleaseOneFroglet()
         {
             if (Props.pawnKind == null) return;
-            if (frogletsReleased >= frogletTarget || WildSpeciesAtCapacity(parent.Map))
+            if (recruitmentTarget < 0)
+            {
+                if (biologicalMetamorphsReleased < 0) biologicalMetamorphsReleased = frogletsReleased;
+                int remaining = Math.Max(0, frogletTarget - biologicalMetamorphsReleased);
+                recruitmentTarget = frogletsReleased + GenMath.RoundRandom(remaining / (float)BiologicalMetamorphsPerPawn);
+            }
+            if (frogletsReleased >= recruitmentTarget || WildSpeciesAtCapacity(parent.Map))
             {
                 parent.Destroy(DestroyMode.Vanish);
                 return;
@@ -351,7 +386,8 @@ namespace ZoologyMod
             if (father != null && father != mother && frog.RaceProps.IsFlesh)
                 frog.relations.AddDirectRelation(PawnRelationDefOf.Parent, father);
             frogletsReleased++;
-            if (frogletsReleased >= frogletTarget)
+            biologicalMetamorphsReleased = Math.Min(frogletTarget, biologicalMetamorphsReleased + BiologicalMetamorphsPerPawn);
+            if (frogletsReleased >= recruitmentTarget)
                 parent.Destroy(DestroyMode.Vanish);
         }
 

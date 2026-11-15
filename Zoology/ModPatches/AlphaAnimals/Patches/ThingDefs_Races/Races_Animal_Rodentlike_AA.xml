@@ -126,6 +126,12 @@
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/race/baseHungerRate</xpath>
+    <value>
+      <baseHungerRate>0.09</baseHungerRate>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_DuskRat"]/race/lifeExpectancy</xpath>
     <value>
       <lifeExpectancy>3</lifeExpectancy>
@@ -339,12 +345,12 @@
     <value>
       <litterSizeCurve Inherit="False">
         <points>
-          <li>(1.9800, 0)</li>
-          <li>(3.9600, 0.2)</li>
-          <li>(7.9200, 1)</li>
-          <li>(11.8800, 1)</li>
-          <li>(15.8400, 0.2)</li>
-          <li>(17.8200, 0)</li>
+          <li>(0.6000, 0)</li>
+          <li>(1.2000, 0.2)</li>
+          <li>(2.4000, 1)</li>
+          <li>(3.6000, 1)</li>
+          <li>(4.8000, 0.2)</li>
+          <li>(5.4000, 0)</li>
         </points>
       </litterSizeCurve>
     </value>
@@ -462,13 +468,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/PawnKindDef[defName = "AA_DuskRat"]/ecoSystemWeight</xpath>
       <value>
-        <ecoSystemWeight>0.2</ecoSystemWeight>
+        <ecoSystemWeight>0.1</ecoSystemWeight>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/PawnKindDef[defName = "AA_DuskRat"]</xpath>
       <value>
-        <ecoSystemWeight>0.2</ecoSystemWeight>
+        <ecoSystemWeight>0.1</ecoSystemWeight>
       </value>
     </nomatch>
   </Operation>
@@ -623,7 +629,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race/baseHungerRate</xpath>
     <value>
-      <baseHungerRate>0.2</baseHungerRate>
+      <baseHungerRate>0.09</baseHungerRate>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -634,18 +640,9 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race/gestationPeriodDays</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race/gestationPeriodDays</xpath>
-      <value>
-        <gestationPeriodDays>5.5</gestationPeriodDays>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race</xpath>
-      <value>
-        <gestationPeriodDays>5.5</gestationPeriodDays>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race/herdMigrationAllowed</xpath>
@@ -851,39 +848,6 @@
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race/litterSizeCurve</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race/litterSizeCurve</xpath>
-      <value>
-        <litterSizeCurve Inherit="False">
-          <points>
-            <li>(1.4000, 0)</li>
-            <li>(2.8000, 0.2)</li>
-            <li>(5.6000, 1)</li>
-            <li>(8.4000, 1)</li>
-            <li>(11.2000, 0.2)</li>
-            <li>(12.6000, 0)</li>
-          </points>
-        </litterSizeCurve>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race</xpath>
-      <value>
-        <litterSizeCurve Inherit="False">
-          <points>
-            <li>(1.4000, 0)</li>
-            <li>(2.8000, 0.2)</li>
-            <li>(5.6000, 1)</li>
-            <li>(8.4000, 1)</li>
-            <li>(11.2000, 0.2)</li>
-            <li>(12.6000, 0)</li>
-          </points>
-        </litterSizeCurve>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race/specialTrainables/li[text()="SludgeSpew" or text()="EggSpew" or text()="TerrorRoar" or text()="WarTrumpet" or text()="Forage" or text()="Comfort" or text()="AttackTarget" or text()="Dig"]</xpath>
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "AA_FissionMouse"]/race/specialTrainables/li[text()="SludgeSpew" or text()="EggSpew" or text()="TerrorRoar" or text()="WarTrumpet" or text()="Forage" or text()="Comfort" or text()="AttackTarget" or text()="Dig"]</xpath>
@@ -974,6 +938,12 @@
     <xpath>/Defs/PawnKindDef[defName = "AA_FissionMouse"]/combatPower</xpath>
     <value>
       <combatPower>25</combatPower>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/PawnKindDef[defName = "AA_FissionMouse"]/ecoSystemWeight</xpath>
+    <value>
+      <ecoSystemWeight>0.1</ecoSystemWeight>
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
@@ -1112,7 +1082,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race/baseHungerRate</xpath>
     <value>
-      <baseHungerRate>0.2</baseHungerRate>
+      <baseHungerRate>0.09</baseHungerRate>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -1123,18 +1093,9 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race/gestationPeriodDays</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race/gestationPeriodDays</xpath>
-      <value>
-        <gestationPeriodDays>5.5</gestationPeriodDays>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race</xpath>
-      <value>
-        <gestationPeriodDays>5.5</gestationPeriodDays>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race/herdMigrationAllowed</xpath>
@@ -1320,39 +1281,6 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race/litterSizeCurve</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race/litterSizeCurve</xpath>
-      <value>
-        <litterSizeCurve Inherit="False">
-          <points>
-            <li>(1.4000, 0)</li>
-            <li>(2.8000, 0.2)</li>
-            <li>(5.6000, 1)</li>
-            <li>(8.4000, 1)</li>
-            <li>(11.2000, 0.2)</li>
-            <li>(12.6000, 0)</li>
-          </points>
-        </litterSizeCurve>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race</xpath>
-      <value>
-        <litterSizeCurve Inherit="False">
-          <points>
-            <li>(1.4000, 0)</li>
-            <li>(2.8000, 0.2)</li>
-            <li>(5.6000, 1)</li>
-            <li>(8.4000, 1)</li>
-            <li>(11.2000, 0.2)</li>
-            <li>(12.6000, 0)</li>
-          </points>
-        </litterSizeCurve>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race/specialTrainables/li[text()="SludgeSpew" or text()="EggSpew" or text()="TerrorRoar" or text()="WarTrumpet" or text()="Forage" or text()="Comfort" or text()="AttackTarget" or text()="Dig"]</xpath>
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "AA_FissionMouseSecond"]/race/specialTrainables/li[text()="SludgeSpew" or text()="EggSpew" or text()="TerrorRoar" or text()="WarTrumpet" or text()="Forage" or text()="Comfort" or text()="AttackTarget" or text()="Dig"]</xpath>
@@ -1443,6 +1371,12 @@
     <xpath>/Defs/PawnKindDef[defName = "AA_FissionMouseSecond"]/combatPower</xpath>
     <value>
       <combatPower>25</combatPower>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/PawnKindDef[defName = "AA_FissionMouseSecond"]/ecoSystemWeight</xpath>
+    <value>
+      <ecoSystemWeight>0.1</ecoSystemWeight>
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
@@ -1581,7 +1515,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race/baseHungerRate</xpath>
     <value>
-      <baseHungerRate>0.2</baseHungerRate>
+      <baseHungerRate>0.09</baseHungerRate>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -1592,18 +1526,9 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race/gestationPeriodDays</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race/gestationPeriodDays</xpath>
-      <value>
-        <gestationPeriodDays>5.5</gestationPeriodDays>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race</xpath>
-      <value>
-        <gestationPeriodDays>5.5</gestationPeriodDays>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race/herdMigrationAllowed</xpath>
@@ -1789,39 +1714,6 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race/litterSizeCurve</xpath>
-    <match Class="PatchOperationReplace">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race/litterSizeCurve</xpath>
-      <value>
-        <litterSizeCurve Inherit="False">
-          <points>
-            <li>(1.4000, 0)</li>
-            <li>(2.8000, 0.2)</li>
-            <li>(5.6000, 1)</li>
-            <li>(8.4000, 1)</li>
-            <li>(11.2000, 0.2)</li>
-            <li>(12.6000, 0)</li>
-          </points>
-        </litterSizeCurve>
-      </value>
-    </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race</xpath>
-      <value>
-        <litterSizeCurve Inherit="False">
-          <points>
-            <li>(1.4000, 0)</li>
-            <li>(2.8000, 0.2)</li>
-            <li>(5.6000, 1)</li>
-            <li>(8.4000, 1)</li>
-            <li>(11.2000, 0.2)</li>
-            <li>(12.6000, 0)</li>
-          </points>
-        </litterSizeCurve>
-      </value>
-    </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race/specialTrainables/li[text()="SludgeSpew" or text()="EggSpew" or text()="TerrorRoar" or text()="WarTrumpet" or text()="Forage" or text()="Comfort" or text()="AttackTarget" or text()="Dig"]</xpath>
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "AA_FissionMouseThird"]/race/specialTrainables/li[text()="SludgeSpew" or text()="EggSpew" or text()="TerrorRoar" or text()="WarTrumpet" or text()="Forage" or text()="Comfort" or text()="AttackTarget" or text()="Dig"]</xpath>
@@ -1912,6 +1804,12 @@
     <xpath>/Defs/PawnKindDef[defName = "AA_FissionMouseThird"]/combatPower</xpath>
     <value>
       <combatPower>25</combatPower>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationReplace">
+    <xpath>/Defs/PawnKindDef[defName = "AA_FissionMouseThird"]/ecoSystemWeight</xpath>
+    <value>
+      <ecoSystemWeight>0.1</ecoSystemWeight>
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">

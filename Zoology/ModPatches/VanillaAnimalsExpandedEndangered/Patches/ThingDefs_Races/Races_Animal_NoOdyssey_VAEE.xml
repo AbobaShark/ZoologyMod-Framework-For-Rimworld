@@ -207,13 +207,13 @@
           <match Class="PatchOperationReplace">
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/baseHungerRate</xpath>
             <value>
-              <baseHungerRate>0.65</baseHungerRate>
+              <baseHungerRate>0.6</baseHungerRate>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race</xpath>
             <value>
-              <baseHungerRate>0.65</baseHungerRate>
+              <baseHungerRate>0.6</baseHungerRate>
             </value>
           </nomatch>
         </li>
@@ -580,36 +580,9 @@
         </li>
         <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/litterSizeCurve</xpath>
-          <match Class="PatchOperationReplace">
+          <match Class="PatchOperationRemove">
             <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/litterSizeCurve</xpath>
-            <value>
-              <litterSizeCurve Inherit="False">
-                <points>
-                  <li>(0.3000, 0)</li>
-                  <li>(0.6000, 0.2)</li>
-                  <li>(1.2000, 1)</li>
-                  <li>(1.8000, 1)</li>
-                  <li>(2.4000, 0.2)</li>
-                  <li>(2.7000, 0)</li>
-                </points>
-              </litterSizeCurve>
-            </value>
           </match>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race</xpath>
-            <value>
-              <litterSizeCurve Inherit="False">
-                <points>
-                  <li>(0.3000, 0)</li>
-                  <li>(0.6000, 0.2)</li>
-                  <li>(1.2000, 1)</li>
-                  <li>(1.8000, 1)</li>
-                  <li>(2.4000, 0.2)</li>
-                  <li>(2.7000, 0)</li>
-                </points>
-              </litterSizeCurve>
-            </value>
-          </nomatch>
         </li>
         <li Class="PatchOperationConditional">
           <xpath>/Defs/ThingDef[defName = "AEXP_Panda"]/race/specialTrainables</xpath>
@@ -723,13 +696,13 @@
           <match Class="PatchOperationReplace">
             <xpath>/Defs/PawnKindDef[defName = "AEXP_Panda"]/ecoSystemWeight</xpath>
             <value>
-              <ecoSystemWeight>0.8</ecoSystemWeight>
+              <ecoSystemWeight>0.75</ecoSystemWeight>
             </value>
           </match>
           <nomatch Class="PatchOperationAdd">
             <xpath>/Defs/PawnKindDef[defName = "AEXP_Panda"]</xpath>
             <value>
-              <ecoSystemWeight>0.8</ecoSystemWeight>
+              <ecoSystemWeight>0.75</ecoSystemWeight>
             </value>
           </nomatch>
         </li>

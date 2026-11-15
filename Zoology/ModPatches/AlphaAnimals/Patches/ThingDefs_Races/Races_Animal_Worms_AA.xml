@@ -6,7 +6,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_FrostboundBehemoth"]/statBases/MarketValue</xpath>
     <value>
-      <MarketValue>875</MarketValue>
+      <MarketValue>975</MarketValue>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -113,7 +113,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_FrostboundBehemoth"]/race/baseHungerRate</xpath>
     <value>
-      <baseHungerRate>0.35</baseHungerRate>
+      <baseHungerRate>0.36</baseHungerRate>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -125,7 +125,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_FrostboundBehemoth"]/race/gestationPeriodDays</xpath>
     <value>
-      <gestationPeriodDays>12.5</gestationPeriodDays>
+      <gestationPeriodDays>18.5</gestationPeriodDays>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -321,11 +321,11 @@
         </li>
         <li>
           <def>AnimalJuvenile</def>
-          <minAge>0.4</minAge>
+          <minAge>1</minAge>
         </li>
         <li>
           <def>AnimalAdult</def>
-          <minAge>0.8</minAge>
+          <minAge>2</minAge>
           <soundWounded>Pawn_Terramorph_Wounded</soundWounded>
           <soundDeath>Pawn_Terramorph_Death</soundDeath>
           <soundCall>Pawn_Terramorph_Call</soundCall>
@@ -563,7 +563,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_GreatDevourer"]/race/baseHungerRate</xpath>
     <value>
-      <baseHungerRate>0.35</baseHungerRate>
+      <baseHungerRate>0.36</baseHungerRate>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -574,18 +574,9 @@
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_GreatDevourer"]/race/gestationPeriodDays</xpath>
-    <match Class="PatchOperationReplace">
+    <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "AA_GreatDevourer"]/race/gestationPeriodDays</xpath>
-      <value>
-        <gestationPeriodDays>12</gestationPeriodDays>
-      </value>
     </match>
-    <nomatch Class="PatchOperationAdd">
-      <xpath>/Defs/ThingDef[defName = "AA_GreatDevourer"]/race</xpath>
-      <value>
-        <gestationPeriodDays>12</gestationPeriodDays>
-      </value>
-    </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_GreatDevourer"]/race/herdAnimal</xpath>
@@ -789,11 +780,11 @@
         </li>
         <li>
           <def>AnimalJuvenile</def>
-          <minAge>0.5</minAge>
+          <minAge>1</minAge>
         </li>
         <li>
           <def>AnimalAdult</def>
-          <minAge>1</minAge>
+          <minAge>2</minAge>
           <soundWounded>Pawn_BigInsect_Pain</soundWounded>
           <soundDeath>Pawn_BigInsect_Death</soundDeath>
           <soundCall>Pawn_BigInsect_Call</soundCall>
@@ -801,12 +792,6 @@
         </li>
       </lifeStageAges>
     </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "AA_GreatDevourer"]/race/litterSizeCurve</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AA_GreatDevourer"]/race/litterSizeCurve</xpath>
-    </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AA_GreatDevourer"]/race/specialTrainables</xpath>

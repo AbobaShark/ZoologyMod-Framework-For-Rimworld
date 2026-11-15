@@ -12,7 +12,9 @@ from core.amphibian_reproduction import (
     EGG_FIELDS, AMPHIBIAN_FIELDS, external_roe_rows,
     render_roe_defs, render_roe_patch,
 )
-from core.production_stats import pd_egg_map
+from core.production_stats import pd_egg_map, _index
+from core.product_generation import render_products
+from core.animalstats_source import _values_to_dataframe
 
 
 def fixture():
@@ -56,8 +58,6 @@ def fixture():
 
     amph_start = len(egg) + 1 + len(milk) + 1 + len(wool) + 1
     common = {
-        "Hatched tadpoles (gameplay count range)": "200~400",
-        "Froglets per clutch (gameplay count range)": "10~20",
         "Fertilization mode": "EXTERNAL",
         "Ovum diameter (mm)": 1.45,
         "Ovum gross energy (J)": 19.998268950437325,
@@ -67,6 +67,8 @@ def fixture():
     }
     put(0, amph_start, list(AMPHIBIAN_FIELDS), {
         **common, "Name": "Bullfrog", "Def name": "<li>Bullfrog</li>",
+        "Embryo survival": 0.92,
+        "Tadpole survival to metamorphosis": "5,62%",
         "Tadpole development (real days)": 365,
         "Tadpole development (RimWorld days)": 60,
         "Hydrated jelly diameter (mm)": 8.4, "Clutch jelly geometry": "SPHERE",
@@ -77,6 +79,8 @@ def fixture():
     })
     put(1, amph_start, list(AMPHIBIAN_FIELDS), {
         **common, "Name": "ColossusToad", "Def name": "<li>ColossusToad</li>",
+        "Embryo survival": "71,8%",
+        "Tadpole survival to metamorphosis": 0.05,
         "Tadpole development (real days)": 50,
         "Tadpole development (RimWorld days)": 8,
         "Hydrated jelly diameter (mm)": 3.7, "Clutch jelly geometry": "STRING",
@@ -88,8 +92,8 @@ def fixture():
     })
     # Stale duplicate values deliberately contradict the true amphibian
     # block. They must not influence any output.
-    rows[0][-5:] = [999, 999, "1~1", "1~1", "INTERNAL"]
-    rows[1][-5:] = [999, 999, "1~1", "1~1", "INTERNAL"]
+    rows[0][-5:] = [999, 999, 0, 0, "INTERNAL"]
+    rows[1][-5:] = [999, 999, 0, 0, "INTERNAL"]
     # Simulate pandas' .1 suffixing of repeated source headings.
     counts = {}
     unique_headers = []
@@ -137,7 +141,10 @@ class AmphibianGenerationTests(unittest.TestCase):
         self.assertEqual(species["ColossusToad"]["egg_range"], "21000~39000")
         self.assertEqual(species["ColossusToad"]["mean_eggs"], 30000)
         self.assertEqual(species["ColossusToad"]["larval_days"], "8")
-        self.assertEqual(species["ColossusToad"]["froglet_range"], "10~20")
+        self.assertEqual(species["Bullfrog"]["embryo_survival"], "0.92")
+        self.assertEqual(species["Bullfrog"]["tadpole_survival"], "0.0562")
+        self.assertEqual(species["ColossusToad"]["embryo_survival"], "0.718")
+        self.assertEqual(species["ColossusToad"]["tadpole_survival"], "0.05")
 
     def test_independent_xml_only_for_amphibians(self):
         species = external_roe_rows(fixture())
@@ -147,11 +154,19 @@ class AmphibianGenerationTests(unittest.TestCase):
         bull = defs.find('.//ThingDef[defName="EggBullfrogFertilized"]')
         self.assertEqual(bull.get("ParentName"), "EggUnfertBase")
         self.assertEqual(bull.findtext("./comps/li/defaultOvaCount"), "13014")
-        self.assertEqual(bull.findtext("./comps/li/hatchlingCountRange"), "200~400")
+        self.assertEqual(bull.findtext("./comps/li/embryoSurvival"), "0.92")
         self.assertAlmostEqual(float(bull.findtext("./statBases/Mass")), 4.038752900240475)
         self.assertEqual(bull.findtext("./statBases/DeteriorationRate"), "0")
         tad = defs.find('.//ThingDef[defName="Zoology_BullfrogTadpole"]')
         self.assertEqual(tad.findtext("./comps/li/daysToMetamorphosis"), "60")
+        self.assertEqual(tad.findtext("./comps/li/tadpoleSurvival"), "0.0562")
+        self.assertEqual(tad.findtext("./comps/li/sourceRoeDef"), "EggBullfrogFertilized")
+        self.assertEqual(tad.findtext("./statBases/Mass"), "0.083811")
+        self.assertAlmostEqual(float(tad.findtext("./statBases/Nutrition")), 0.03307569866156788)
+        toad = defs.find('.//ThingDef[defName="Zoology_ColossusToadTadpole"]')
+        self.assertEqual(toad.findtext("./comps/li/tadpoleSurvival"), "0.05")
+        self.assertEqual(toad.findtext("./statBases/Mass"), "0.15078")
+        self.assertEqual(toad.findtext("./comps/li/sourceRoeDef"), "EggColossusToadFertilized")
         self.assertEqual(tad.findtext("./ingestible/foodType"), "Meat")
         patch = render_roe_patch(species)
         self.assertEqual(len(patch.findall("./Operation")), 2)
@@ -172,14 +187,36 @@ class AmphibianGenerationTests(unittest.TestCase):
         species1 = external_roe_rows(moved)
         self.assertEqual(species0, species1)
 
+    def test_reordered_amphibian_fields_keep_primary_record(self):
+        base = fixture()
+        headers = list(base.columns)
+        # Move the egg Species field and the aquatic Def name and last field
+        # without crossing the Name-led section boundaries.
+        order = list(range(len(headers)))
+        for a, b in ((1, 7), (23, 38), (24, 40)):
+            order[a], order[b] = order[b], order[a]
+        self.assertEqual(external_roe_rows(base.iloc[:, order]), external_roe_rows(base))
+
     def test_unrelated_egg_layers_and_wool_are_unchanged(self):
         data = fixture()
         mapped = pd_egg_map(data)
-        self.assertEqual(mapped.iloc[0]["F"], "<li>Ostrich</li>")
-        self.assertEqual(mapped.iloc[24]["F"], "<li>Bullfrog</li>")
-        self.assertEqual(mapped.iloc[0]["X"], "<li>Bullfrog</li>")
-        self.assertEqual(mapped.iloc[0]["R"], "")
+        self.assertEqual(mapped.iloc[0]["Def name"], "<li>Ostrich</li>")
+        self.assertEqual(mapped.iloc[24]["Def name"], "<li>Bullfrog</li>")
+        self.assertEqual(mapped.iloc[0]["Wool animal"], "")
         self.assertEqual(set(external_roe_rows(data)), {"Bullfrog", "ColossusToad"})
+
+    def test_survival_probabilities_validate_and_include_endpoints(self):
+        for value in ("", "NaN", "-1%", 1.01, "200~400"):
+            data = fixture()
+            data.iat[0, 26] = value
+            with self.subTest(value=value), self.assertRaisesRegex(ValueError, "embryoSurvival"):
+                external_roe_rows(data)
+        data = fixture()
+        data.iat[0, 26] = 0
+        data.iat[0, 27] = 1
+        species = external_roe_rows(data)
+        self.assertEqual(species["Bullfrog"]["embryo_survival"], "0")
+        self.assertEqual(species["Bullfrog"]["tadpole_survival"], "1")
 
     def test_invalid_unlinked_or_duplicate_species_fail_closed(self):
         missing = fixture()
@@ -208,6 +245,46 @@ class AmphibianGenerationTests(unittest.TestCase):
         absent_header.columns = headers
         with self.assertRaisesRegex(ValueError, "unambiguous"):
             external_roe_rows(absent_header)
+
+    def test_current_eggmilkwool_layout_and_reordered_fields(self):
+        base = fixture()
+        # The sheet has 52 columns: egg outputs, milk item Nutrition,
+        # wool XML identity, aquatic block, and the repeated projection.
+        raw = base.copy()
+        raw.insert(9, 'Nutrition (per ovum)', [0.5] * len(raw))
+        raw.insert(10, 'Formation cost / clutch (N)', [0] * len(raw))
+        raw.insert(11, 'Gravid extra feed (N/d)', [0] * len(raw))
+        raw.insert(12, 'Hatchling XML name', ['<li>Ostrich</li>', '<li>Cassowary</li>'] + [''] * 24)
+        raw.insert(18, 'Milk item Nutrition', [0.05] * len(raw))
+        raw.insert(26, 'Wool XML name', ['<li>Muskox</li>', '<li>AEXP_Muskox</li>'] + [''] * 24)
+        self.assertEqual(len(raw.columns), 52)
+        raw.iat[0, 14] = 'Cow'
+        raw.iat[0, 17] = 18
+        raw.iloc[:2, 20] = ['Muskox', 'Muskox']
+        raw.iloc[:2, 24] = [6, 7]
+        animals = pd.DataFrame([
+            {'Common name': name, 'XML name': f'<li>{slug}</li>'}
+            for name, slug in [('Cow', 'Cow'), ('Muskox', 'Muskox'), ('Muskox', 'AEXP_Muskox')]
+        ])
+        # Google Sheets disambiguates duplicate headings differently from pandas.
+        headers = [str(c).rsplit('.', 1)[0] if str(c).rsplit('.', 1)[-1].isdigit()
+                   else c for c in raw.columns]
+        live = _values_to_dataframe([headers] + raw.values.tolist())
+        amphibians = external_roe_rows(live)
+        xml, records = render_products(live, animals, amphibians)
+        self.assertEqual(set(records), {'Ostrich', 'Cassowary', 'Cow', 'Muskox', 'AEXP_Muskox'})
+        eggs, milk, wool, ambiguous = _index({'EggMilk': pd_egg_map(live), 'Animals': animals})
+        self.assertEqual(set(wool), {'Muskox', 'AEXP_Muskox'})
+        self.assertFalse(ambiguous)
+        # Move fields within each Name-led table, keeping separators.
+        order = list(range(52))
+        for a, b in ((1, 12), (2, 8), (15, 18), (21, 26), (29, 46)):
+            order[a], order[b] = order[b], order[a]
+        moved = live.iloc[:, order]
+        self.assertEqual(external_roe_rows(moved), amphibians)
+        self.assertEqual(render_products(moved, animals, amphibians), (xml, records))
+        self.assertEqual(pd_egg_map(moved).to_dict('records'), pd_egg_map(live).to_dict('records'))
+
 
 
 if __name__ == "__main__":

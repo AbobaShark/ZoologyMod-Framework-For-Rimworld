@@ -109,6 +109,7 @@ namespace ZoologyMod
                 ? ZoologyAnimalGrowth.HungerRatio(pawn) : 1f;
             return baseHunger * growth * AnimalWinterDormancy.BasalHungerFactor(pawn);
         }
+
     }
 
     // RimWorld's nutrition tooltip calculates the baseline from the static

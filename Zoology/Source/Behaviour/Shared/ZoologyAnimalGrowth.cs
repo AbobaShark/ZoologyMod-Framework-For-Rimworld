@@ -40,6 +40,15 @@ namespace ZoologyMod
             }
         }
 
+        private sealed class GrowthEnergetics
+        {
+            internal float exponent;
+            internal float efficiency;
+        }
+
+        private static readonly Dictionary<ThingDef, GrowthEnergetics> Energetics =
+            new Dictionary<ThingDef, GrowthEnergetics>();
+
         private sealed class Segment
         {
             internal long startTick;
@@ -98,6 +107,24 @@ namespace ZoologyMod
                     var race = DefDatabase<ThingDef>.GetNamedSilentFail(name);
                     if (race?.race?.Animal == true)
                         species.Add(race);
+                }
+            }
+
+            foreach (var catalog in DefDatabase<ZoologyEnergeticsCatalogDef>.AllDefsListForReading)
+            {
+                foreach (var profile in catalog.profiles)
+                {
+                    if (profile.growthExponent <= 0f || profile.growthEfficiency <= 0f
+                        || profile.growthEfficiency > 1f) continue;
+                    var race = DefDatabase<ThingDef>.GetNamedSilentFail(profile.animalDefName);
+                    if (race?.race?.Animal != true) continue;
+                    if (Math.Abs(race.race.baseHungerRate - profile.expectedBaseHungerRate) > 0.001f)
+                        continue;
+                    Energetics[race] = new GrowthEnergetics
+                    {
+                        exponent = profile.growthExponent,
+                        efficiency = profile.growthEfficiency
+                    };
                 }
             }
 
@@ -256,6 +283,29 @@ namespace ZoologyMod
                     sexEnd != null ? sexEnd.healthScaleFactor : segment.to.healthScaleFactor, fraction);
                 snapshot.hungerRatio = LerpRatio(segment.from.hungerRateFactor,
                     sexEnd != null ? sexEnd.hungerRateFactor : segment.to.hungerRateFactor, fraction);
+                if (Energetics.TryGetValue(pawn.def, out var energetics)
+                    && Positive(segment.from.hungerRateFactor) && Positive(pawn.RaceProps.baseHungerRate))
+                {
+                    float endpoint = sexEnd != null ? sexEnd.bodySizeFactor : segment.to.bodySizeFactor;
+                    float nextFraction = segment.lastSampleTick > segment.firstSampleTick
+                        ? Mathf.Clamp01((float)((double)(sampled + TicksPerBiologicalDay - segment.firstSampleTick)
+                            / (segment.lastSampleTick - segment.firstSampleTick)))
+                        : Mathf.Clamp01((float)((double)(sampled + TicksPerBiologicalDay - segment.startTick)
+                            / (segment.endTick - segment.startTick)));
+                    float current = Mathf.Lerp(segment.from.bodySizeFactor, endpoint, fraction);
+                    float next = Mathf.Lerp(segment.from.bodySizeFactor, endpoint, nextFraction);
+                    float baseSize = pawn.RaceProps.baseBodySize;
+                    float nutrition = BodyNutrition(pawn.def, current * baseSize);
+                    float adultNutrition = BodyNutrition(pawn.def, baseSize);
+                    if (Positive(adultNutrition))
+                    {
+                        float nominal = Mathf.Pow(nutrition / adultNutrition, energetics.exponent)
+                            * HungerSizeDivisor(baseSize) / HungerSizeDivisor(current * baseSize);
+                        float gain = Mathf.Max(0f, BodyNutrition(pawn.def, next * baseSize) - nutrition);
+                        float growth = gain / (energetics.efficiency * 1.6f * pawn.RaceProps.baseHungerRate);
+                        snapshot.hungerRatio = Mathf.Max(nominal, growth) / segment.from.hungerRateFactor;
+                    }
+                }
                 // Follow the canonical age price unless the species explicitly
                 // opts into sex-specific market pricing in Base stats.
                 snapshot.marketRatio = LerpRatio(segment.from.marketValueFactor,
@@ -267,6 +317,25 @@ namespace ZoologyMod
                 snapshot.drawRatioReady = false;
             }
             return true;
+        }
+
+        private static float HungerSizeDivisor(float size)
+        {
+            return Mathf.Abs(size - 3.5f) < 0.00001f ? 1.5f : size < 3.5f ? 2f : 1.25f;
+        }
+
+        private static float BodyNutrition(ThingDef race, float size)
+        {
+            StatDef stat = StatDefOf.MeatAmount;
+            float raw = stat.defaultBaseValue;
+            if (race.statBases != null)
+                for (int i = 0; i < race.statBases.Count; i++)
+                    if (race.statBases[i].stat == stat)
+                    {
+                        raw = race.statBases[i].value;
+                        break;
+                    }
+            return 0.05f * Mathf.Max(0f, raw * size);
         }
 
         private static float LerpRatio(float from, float to, float t)

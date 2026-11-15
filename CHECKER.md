@@ -62,7 +62,7 @@ For young animals, `foodMaxFactor` must not duplicate the existing BodySize cont
 
 The independent tables inside `EggMilkWool` do **not** have matching row orders. Ordinary egg production, milk, wool and the separate amphibian-development section are joined by explicit species DefName. Only species whose amphibian row declares external aquatic fertilization receive the specialized roe/tadpole definitions.
 
-The calculated aquatic clutch records supply ovum count, wet mass, nutrition/energy, hatching duration, larval biomass and metamorphosis timing; the runtime uses one Thing for each clutch or tadpole group, not thousands of animal Pawns.
+The calculated aquatic clutch records supply ovum count, wet mass, nutrition/energy, hatching duration, embryo and tadpole survival fractions, larval biomass and metamorphosis timing; the runtime uses one Thing for each clutch or tadpole group, not thousands of animal Pawns.
 
 The runtime settings `EnableAdvancedReproductiveBehavior`, `EnableAdvancedThreatAvoidance`, `EnableWaterHabitatBehavior`, and `EnableWinterDormancy` are defined in C# settings, not as per-species spreadsheet columns. They default to enabled. `OffspringShelter=DEN` takes effect for family denning only when both advanced reproduction and advanced threat avoidance are enabled; winter dormancy is independent. Checker must continue exporting the complete source-data profiles irrespective of the player's switches.
 

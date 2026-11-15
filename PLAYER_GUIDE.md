@@ -778,12 +778,12 @@ After incubation, the eggs hatch into a single group of swimming tadpoles. Selec
 
 The number of larvae declines during development while the surviving tadpoles grow. The group's weight and nutritional value accordingly change. When metamorphosis reaches completion, the group releases individual froglets or toadlets one at a time. They inherit their parents' relationship and faction information. The wild population cap can limit the number released by wild cohorts.
 
-| Species | Egg incubation after fertilization | Tadpole development | Tadpoles at hatching | Young after metamorphosis |
+| Species | Egg incubation after fertilization | Tadpole development | Embryo survival | Survival from hatching to metamorphosis |
 | --- | --- | --- | --- | --- |
-| Bullfrog | 1 day | 60 days | 200–400 | 10–20 |
-| Colossus toad | 1 day | 8 days | 200–400 | 10–20 |
+| Bullfrog | 1 day | 60 days | 92% | 5.62% |
+| Colossus toad | 1 day | 8 days | 71.8% | 5% |
 
-The counts are the normal generated cohort ranges; losses to other animals or the wild population cap can reduce the eventual number of young.
+The number of offspring depends on the actual clutch size and the survival rates of the two aquatic stages. Losses to other animals or the wild population cap can reduce the eventual number of young.
 
 Adults and young of the same species cannot eat their own species' roe or tadpole groups. Other animals with suitable diets may still consume them. A secluded breeding pool can therefore help protect the developing offspring.
 

@@ -14,6 +14,8 @@ namespace ZoologyMod
         private const string RuntimeHarmonyId = "com.abobashark.zoology.bionic";
         private static bool runtimeAttributePatchesApplied;
         private static bool runtimeWasDisabled;
+        private static SimpleCurve originalMeatCurve;
+        private static bool linearMeatApplied;
 
         public ZoologyMod(ModContentPack content) : base(content)
         {
@@ -36,6 +38,7 @@ namespace ZoologyMod
                 Settings?.ApplyRuntimeDefOverrides();
                 ZoologyLifeStageProfileInstaller.ApplyOnce();
                 ZoologySexAdultProfiles.Install();
+                ZoologyReproductiveEnergetics.Install();
 #if RIMWORLD17
                 AnimalBarnWorkPriority.MatchVanillaPens();
 #endif
@@ -79,6 +82,8 @@ namespace ZoologyMod
             ZoologyLifeStageProfileInstaller.SyncProfileStages(
                 ZoologyAnimalGrowth.Enabled);
             ZoologySexAdultProfiles.SyncGraphics(ZoologySexAdultProfiles.Enabled);
+            ZoologyReproductiveEnergetics.SyncSettings();
+            SyncLinearMeatAmount(!settings.DisableAllRuntimePatches && settings.EnableLinearMeatAmount);
 
             PetPlayUtility.SyncJoyGiverDefAvailability(settings);
             CompAnimalPouch.ReleaseDisabledCaravanPouches();
@@ -109,6 +114,27 @@ namespace ZoologyMod
                 for (int i = 0; i < Find.Maps.Count; i++)
                     Find.Maps[i].GetComponent<AnimalRefugeMapComponent>()?.RebuildIndexes();
             }
+        }
+
+        internal static void SyncLinearMeatAmount(bool enabled)
+        {
+            if (enabled == linearMeatApplied || StatDefOf.MeatAmount == null)
+                return;
+
+            StatDef stat = StatDefOf.MeatAmount;
+            if (enabled)
+            {
+                originalMeatCurve = stat.postProcessCurve;
+                stat.postProcessCurve = null;
+            }
+            else
+            {
+                // Preserve any curve installed by another mod while this rule was active.
+                if (stat.postProcessCurve == null)
+                    stat.postProcessCurve = originalMeatCurve;
+                originalMeatCurve = null;
+            }
+            linearMeatApplied = enabled;
         }
 
         private static void EnsureRuntimeAttributePatches()
@@ -150,6 +176,8 @@ namespace ZoologyMod
         private static void DisableAllRuntimePatches()
         {
             runtimeWasDisabled = true;
+            SyncLinearMeatAmount(false);
+            ZoologyReproductiveEnergetics.SyncSettings(false);
             ZoologyLifeStageProfileInstaller.SyncProfileStages(false);
             ZoologyAnimalGraphics.Sync(false, false);
             UnpatchAllZoologyHarmonyIds();

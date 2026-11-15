@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+<Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="AEXP_Wildebeest"]/comps/li[@Class="CompProperties_Milkable"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="AEXP_Wildebeest"]/comps/li[@Class="CompProperties_Milkable"]</xpath>
+    </match>
+  </Operation>
+<Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="AEXP_Boombat"]/comps/li[@Class="CompProperties_Milkable"]</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName="AEXP_Boombat"]/comps/li[@Class="CompProperties_Milkable"]</xpath>
+      <value>
+        <li Class="CompProperties_Milkable">
+          <milkDef>Chemfuel</milkDef>
+          <milkIntervalDays>1</milkIntervalDays>
+          <milkAmount>2</milkAmount>
+          <milkFemaleOnly>false</milkFemaleOnly>
+        </li>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName="AEXP_Boombat"]/comps</xpath>
+      <value>
+        <li Class="CompProperties_Milkable">
+          <milkDef>Chemfuel</milkDef>
+          <milkIntervalDays>1</milkIntervalDays>
+          <milkAmount>2</milkAmount>
+          <milkFemaleOnly>false</milkFemaleOnly>
+        </li>
+      </value>
+    </nomatch>
+  </Operation>
+<Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="AEXP_Anaconda" or defName="AEXP_Rattlesnake"]/comps/li[@Class="CompProperties_EggLayer"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName="AEXP_Anaconda" or defName="AEXP_Rattlesnake"]/comps/li[@Class="CompProperties_EggLayer"]</xpath>
+    </match>
+  </Operation>
+<Operation Class="PatchOperationRemove">
+    <xpath>/Defs/ThingDef[defName="AEXP_EggAnacondaUnfertilized" or defName="AEXP_EggAnacondaFertilized" or defName="AEXP_EggRattlesnakeUnfertilized" or defName="AEXP_EggRattlesnakeFertilized"]</xpath>
+  </Operation>
+</Patch>

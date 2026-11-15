@@ -9,6 +9,7 @@ namespace ZoologyMod
     {
         public static ZoologyModSettings Instance;
 
+        public bool EnableLinearMeatAmount = ModConstants.DefaultEnableLinearMeatAmount;
         public bool EnableDynamicAnimalGrowth = ModConstants.DefaultEnableDynamicAnimalGrowth;
         public bool EnableSexualDimorphism = ModConstants.DefaultEnableSexualDimorphism;
         public bool EnableAutomaticJuvenileSpriteScaling = ModConstants.DefaultEnableAutomaticJuvenileSpriteScaling;
@@ -325,6 +326,7 @@ namespace ZoologyMod
             var prevFont = Text.Font;
             var prevAnchor = Text.Anchor;
             int runtimePatchToggleHashBefore = GetRuntimePatchToggleHash();
+            bool linearMeatBefore = EnableLinearMeatAmount;
             bool wildForageBefore = EnableWildAnimalForage;
             int behaviorToggleMaskBefore = GetBehaviorToggleMask();
             bool damageReductionBefore = EnableAnimalDamageReduction;
@@ -411,6 +413,11 @@ namespace ZoologyMod
 
             // Wild Forage is gated directly at job selection and execution.
             // It has no standalone Harmony patches to rebuild.
+            if (linearMeatBefore != EnableLinearMeatAmount)
+            {
+                ZoologyMod.SyncLinearMeatAmount(!DisableAllRuntimePatches && EnableLinearMeatAmount);
+                Write();
+            }
             if (wildForageBefore != EnableWildAnimalForage)
                 Write();
 
@@ -440,7 +447,7 @@ namespace ZoologyMod
                         + (EnablePreyFleeFromPredators ? 150f : 0f)
                         + (EnablePredatorDefendCorpse ? 156f : 0f);
                 case SettingsPage.Physiology:
-                    return 1665f
+                    return 1705f
                         + (EnableAnimalChildcare && AnimalsFreeFromHumans ? 90f : 0f);
                 case SettingsPage.Combat:
                     return 580f;
@@ -537,6 +544,10 @@ namespace ZoologyMod
         private void DrawPhysiologySettings(Listing_Standard list)
         {
             list.GapLine(8f);
+            list.CheckboxLabeled(
+                "Zoology_LinearMeatAmount_Label".Translate(),
+                ref EnableLinearMeatAmount,
+                "Zoology_LinearMeatAmount_Desc".Translate());
             list.CheckboxLabeled(
                 "Zoology_DynamicAnimalGrowth_Label".Translate(),
                 ref EnableDynamicAnimalGrowth,
@@ -1180,6 +1191,7 @@ namespace ZoologyMod
             AnimalFeatureFloatParameterOverrides.Clear();
             EnableAnimalDamageReduction = !_cePresent;
             EnableAnimalDraftControl = ModConstants.DefaultEnableAnimalDraftControl;
+            EnableLinearMeatAmount = ModConstants.DefaultEnableLinearMeatAmount;
             EnableDynamicAnimalGrowth = ModConstants.DefaultEnableDynamicAnimalGrowth;
             EnableSexualDimorphism = ModConstants.DefaultEnableSexualDimorphism;
             EnableAutomaticJuvenileSpriteScaling = ModConstants.DefaultEnableAutomaticJuvenileSpriteScaling;
@@ -1309,6 +1321,7 @@ namespace ZoologyMod
             }
 
             Scribe_Values.Look(ref EnableAnimalDraftControl, "EnableAnimalDraftControl", ModConstants.DefaultEnableAnimalDraftControl);
+            Scribe_Values.Look(ref EnableLinearMeatAmount, "EnableLinearMeatAmount", ModConstants.DefaultEnableLinearMeatAmount);
             Scribe_Values.Look(ref EnableDynamicAnimalGrowth, "EnableDynamicAnimalGrowth", ModConstants.DefaultEnableDynamicAnimalGrowth);
             Scribe_Values.Look(ref EnableSexualDimorphism, "EnableSexualDimorphism", ModConstants.DefaultEnableSexualDimorphism);
             Scribe_Values.Look(ref EnableAutomaticJuvenileSpriteScaling, "EnableAutomaticJuvenileSpriteScaling", ModConstants.DefaultEnableAutomaticJuvenileSpriteScaling);
