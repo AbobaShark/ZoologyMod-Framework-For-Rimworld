@@ -54,7 +54,7 @@ class WaterBodySpawnContractTests(unittest.TestCase):
               <riverNeedingAnimals><li>AEXP_Hippopotamus</li></riverNeedingAnimals>
             </VEF.AnimalBehaviours.RiverNeedingAnimalDef>
         </Defs>""")
-        operation = E.parse(str(VEF_PATCH)).getroot()[0]
+        operation, = E.parse(str(VEF_PATCH)).xpath("/Patch/Operation")
         self.assertEqual(operation.get("Class"), "PatchOperationConditional")
         self.assertEqual(operation.find("match").get("Class"), "PatchOperationRemove")
         path = operation.findtext("xpath")

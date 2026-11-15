@@ -6,7 +6,9 @@ from dataclasses import dataclass
 
 from lxml import etree as LET
 
-from core.rimworld_patch_apply import PatchApplier
+from core.rimworld_patch_apply import PatchApplier, normalize_patch_xpath as normalize_xpath
+from core.reference_projection import ReferenceProjection, patch_targets
+from core.indexed_xpath import indexed_xpath
 from core.rimworld_patch_defaults import (
     PAWN_KIND_FIELD_DEFAULTS,
     RACE_FIELD_DEFAULTS,
@@ -26,13 +28,6 @@ class DefSource:
     attr: str
     name: str
     path: str
-
-
-def normalize_xpath(xpath):
-    text = (xpath or "").strip()
-    if text.startswith("Defs/"):
-        return "/" + text
-    return text
 
 
 def parse_target(xpath):
@@ -69,6 +64,7 @@ class OriginalXmlIndex:
         self.parse_errors = []
         self.patch_errors = []
         self.loaded = False
+        self._reference_projections = {}
 
     def load(self):
         if self.loaded:
@@ -215,11 +211,25 @@ class OriginalXmlIndex:
     def clone_base_root(self):
         return copy.deepcopy(self.base_root)
 
+    def simulation_roots(self, patch_root):
+        targets = patch_targets(patch_root)
+        if targets is None:
+            return self.clone_base_root(), self.clone_root() if self.patches_enabled else None
+
+        def project(root):
+            projection = self._reference_projections.get(root)
+            if projection is None:
+                projection = ReferenceProjection(root)
+                self._reference_projections[root] = projection
+            return projection.clone(targets)
+
+        return project(self.base_root), project(self.root) if self.patches_enabled else None
+
     def xpath(self, xpath, root=None):
         root = root if root is not None else self.root
         text = normalize_xpath(xpath)
         try:
-            return LET.ElementTree(root).xpath(text)
+            return indexed_xpath(root, text)
         except Exception:
             return []
 

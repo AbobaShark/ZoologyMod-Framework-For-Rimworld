@@ -34,7 +34,11 @@ class ProtectionCalmNotificationContracts(unittest.TestCase):
                 src = path.read_text(encoding="utf-8")
                 self.assertIn("private bool threatRetreated;", src)
                 self.assertIn("TryNotifyProtectionEnded(", src)
-                self.assertIn("condition, threatRetreated", src)
+                finish = re.search(
+                    r"AddFinishAction\(delegate \(JobCondition (\w+)\)", src)
+                self.assertIsNotNone(finish)
+                self.assertRegex(src, rf"\b{finish.group(1)},\s*threatRetreated\)")
+
                 self.assertIn("JobCondition.Succeeded", src)
 
     def test_prey_retreat_is_only_normal_exit_with_message(self):

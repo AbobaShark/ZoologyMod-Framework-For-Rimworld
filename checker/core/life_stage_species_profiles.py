@@ -163,8 +163,8 @@ def _tool_profiles(table, diagnostics):
             continue
         if str(row.get("ToolStatus", "")).strip().upper() != "READY":
             raise ValueError(f"LifeStageProfiles row {number}: incomplete attack set marked READY")
-        raw = str(row.get("ToolRecordsV2") or "").strip()
-        records = raw.splitlines() if raw else []
+        raw = str(row.get("ToolRecordsV2") or "").strip("\r\n")
+        records = raw.splitlines() if raw.strip() else []
         expected = _required(row.get("ToolCount"), f"{name}/{stage}/ToolCount", positive=False)
         if not expected.is_integer() or len(records) != int(expected):
             raise ValueError(f"{name}/{stage}: ToolRecordsV2 and ToolCount disagree")

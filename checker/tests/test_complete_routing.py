@@ -60,26 +60,31 @@ class RouteAudit(unittest.TestCase):
     def test_whole_registry_and_every_static_category(self):
         reg = load_registry(CHECKER/'generation.json', self.mod)
         self.assertEqual((len(reg['groups']), len(reg['biomes']), len(reg['shared_defs'])), (81, 29, 3))
-        self.assertEqual(len(outputs_for(reg,'products')), 15)
+        self.assertEqual(len(outputs_for(reg,'products')), 4)
         seen = set()
         category_paths = []
         category_paths.extend((x['destination'],'animal_patch',x.get('requires')) for x in reg['groups'])
         category_paths.extend((x['destination'],'biome_patch',x.get('requires')) for x in reg['biomes'])
         category_paths.extend((x['destination'],x['category'],x.get('requires')) for x in reg['shared_defs'])
         category_paths.extend((x['destination'],x['category'],x.get('requires')) for x in reg['outputs'])
-        self.assertEqual(len(category_paths), 146)
+        self.assertEqual(len(category_paths), 138)
         for dest, category, required in category_paths:
             with self.subTest(destination=dest):
                 self.assertNotIn(dest.lower(), seen)
                 seen.add(dest.lower())
-                self.assertEqual(route_dependency(self.mod,dest,preferred=required),required)
+                if category != 'source_code':
+                    self.assertEqual(route_dependency(self.mod,dest,preferred=required),required)
                 self.assertEqual(validate_target(self.mod,{'destination':dest,'category':category,'requires':required}).as_posix(),dest)
-        self.assertEqual(len(seen), 146)
+        self.assertEqual(len(seen), 138)
 
-    def test_all_real_reproduction_paths_include_core_and_odyssey_hatchers(self):
+    def test_reproduction_paths_cover_energetics_products_and_amphibians(self):
         products=[e['destination'] for e in load_registry(CHECKER/'generation.json',self.mod)['outputs'] if e['pipeline_category']=='products']
-        self.assertIn('Core/Patches/Core/Misc/CompProperties_Hatcher.xml', products)
-        self.assertIn('DLC/Odyssey/Patches/Misc/CompProperties_Hatcher_Odyssey.xml', products)
+        self.assertEqual(set(products), {
+            'Core/Patches/Core/Misc/AnimalProducts_Generated.xml',
+            'Core/Defs/Misc/EnergeticsProfiles_Generated.xml',
+            'DLC/Odyssey/Defs/ThingDefs_Items/AmphibianRoe.xml',
+            'DLC/Odyssey/Patches/Misc/CompProperties_EggLayer_Amphibians.xml',
+        })
         for path in products:
             with self.subTest(path=path):
                 dependency = route_dependency(self.mod,path)
@@ -97,28 +102,35 @@ class RouteAudit(unittest.TestCase):
         self.assertEqual(route_dependency(self.mod,ce),'CETeam.CombatExtended')
 
     def test_reproduction_stages_dependencies_and_can_be_previewed(self):
-        targets = ['Core/Patches/Core/Misc/CompProperties_Milkable.xml',
-                   'DLC/Odyssey/Patches/Misc/CompProperties_EggLayer_Odyssey.xml',
-                   'ModPatches/VanillaAnimalsExpandedRoyal/Patches/Misc/CompProperties_EggLayer_VAER.xml']
-        for dest in targets:
+        targets = {
+            'Core/Patches/Core/Misc/AnimalProducts_Generated.xml': b'<Patch><Operation Class="PatchOperationConditional"/></Patch>',
+            'DLC/Odyssey/Patches/Misc/CompProperties_EggLayer_Amphibians.xml': b'<Patch><Operation Class="PatchOperationConditional"/></Patch>',
+            'DLC/Odyssey/Defs/ThingDefs_Items/AmphibianRoe.xml': b'<Defs><ThingDef/></Defs>',
+        }
+        energetics = 'Core/Defs/Misc/EnergeticsProfiles_Generated.xml'
+        for dest, payload in targets.items():
             f=self.mod/dest; f.parent.mkdir(parents=True,exist_ok=True)
-            f.write_text('<Patch><Operation/></Patch>',encoding='utf8')
-        with patch('core.pipeline.render_reproduction',return_value=([(d,b'<Patch><Operation Class="PatchOperationConditional"/></Patch>') for d in targets],[])):
+            f.write_bytes(b'<Defs/>' if '/Defs/' in dest else b'<Patch/>')
+        with (patch('core.pipeline.render_reproduction',return_value=(list(targets.items()),[])),
+              patch('core.pipeline._read_repro',return_value=pd.DataFrame()),
+              patch('core.pipeline.render_energetics_profiles',return_value=(b'<Defs/>',{}))):
             out=stage_pipeline('unused-source',root=self.root,registry_path=CHECKER/'generation.json',
                                output_dir=self.stage,categories=('products',))
         obj=json.loads(out.read_text(encoding='utf8'))
-        self.assertEqual(len(obj['files']),3)
+        self.assertEqual({e['destination'] for e in obj['files']}, set(targets) | {energetics})
         for entry in obj['files']:
             self.assertEqual(entry['requires'],route_dependency(self.mod,entry['destination']))
         actions,_ = plan(out,self.root)
-        self.assertEqual([a[0] for a in actions],['replace']*3)
-        self.assertIn('Operation', (self.mod/targets[0]).read_text())  # staging did not deploy
+        self.assertEqual({a[3]:a[0] for a in actions},
+                         {**dict.fromkeys(targets,'replace'), energetics:'copy'})
+        self.assertEqual((self.mod/next(iter(targets))).read_bytes(), b'<Patch/>')
 
     def test_only_evaluated_species_profiles_are_life_stage_outputs(self):
         outputs=outputs_for(load_registry(CHECKER/'generation.json',self.mod),'life-stages')
         self.assertEqual({e['id'] for e in outputs},
-                         {'life-stages.species','life-stages.attacks.cs'})
-        self.assertEqual(len(outputs),2)
+                         {'life-stages.species','life-stages.attacks.cs',
+                          'life-stages.sex','life-stages.juvenile-graphics'})
+        self.assertEqual(len(outputs),4)
         self.assertFalse(any('LifeStageDefs/LifeStages' in e['destination'] for e in outputs))
 
     def test_generation_never_reintroduces_legacy_life_stage_xml(self):
@@ -137,11 +149,13 @@ class RouteAudit(unittest.TestCase):
               patch('core.pipeline.render_species_life_stage_profiles',
                     return_value=(b'<Defs/>',{})),
               patch('core.pipeline.render_life_stage_attack_profiles_cs',
-                    return_value=(cs,{}))):
+                    return_value=(cs,{})),
+              patch('core.pipeline.render_juvenile_graphic_profiles',
+                    return_value=(b'<Defs/>',{}))):
             result=stage_pipeline('test',root=self.root,registry_path=CHECKER/'generation.json',
                                   output_dir=self.stage,categories=('life-stages',),ce=True)
         manifest=json.loads(result.read_text())
-        self.assertEqual(len(manifest['generated_this_run']),2)
+        self.assertEqual(len(manifest['generated_this_run']),3)
         self.assertFalse(set(old)&set(manifest['generated_this_run']))
         self.assertEqual(len(manifest['remove']),6)
         deploy(result,self.root,current_run_only=True)
@@ -151,11 +165,13 @@ class RouteAudit(unittest.TestCase):
         self.assertTrue((self.mod/'Source/Behaviour/Shared/ZoologyLifeStageAttackProfiles_Generated.cs').is_file())
 
     def test_partial_generation_keeps_staged_reproduction_when_static_changed(self):
-        product='DLC/Odyssey/Patches/Misc/CompProperties_EggLayer_Odyssey.xml'
+        product='DLC/Odyssey/Patches/Misc/CompProperties_EggLayer_Amphibians.xml'
         p=self.mod/product;p.parent.mkdir(parents=True,exist_ok=True);p.write_text('<Patch/>')
         bionic='Core/Defs/HediffDefs/BionicAnimalVariants.xml'
         b=self.mod/bionic;b.parent.mkdir(parents=True,exist_ok=True);b.write_text('<Defs/>')
-        with patch('core.pipeline.render_reproduction',return_value=([(product,b'<Patch><Operation/></Patch>')],[])):
+        with (patch('core.pipeline.render_reproduction',return_value=([(product,b'<Patch><Operation/></Patch>')],[])),
+              patch('core.pipeline._read_repro',return_value=pd.DataFrame()),
+              patch('core.pipeline.render_energetics_profiles',return_value=(b'<Defs/>',{}))):
             stage_pipeline('unused-source',root=self.root,registry_path=CHECKER/'generation.json',
                            output_dir=self.stage,categories=('products',))
         with patch('core.pipeline.read_table',return_value=pd.DataFrame()), \
@@ -163,10 +179,10 @@ class RouteAudit(unittest.TestCase):
             out=stage_pipeline('unused-source',root=self.root,registry_path=CHECKER/'generation.json',
                                output_dir=self.stage,categories=('bionics',),ce=False)
         entries={x['destination']:x for x in json.loads(out.read_text())['files']}
-        self.assertEqual(len(entries),2)
+        self.assertEqual(len(entries),3)
         self.assertEqual(entries[product]['requires'],'Ludeon.Rimworld.Odyssey')
         self.assertEqual(entries[bionic]['requires'],None)
-        self.assertEqual(len(plan(out,self.root)[0]),2)
+        self.assertEqual(len(plan(out,self.root)[0]),3)
 
 
 if __name__ == '__main__': unittest.main()
@@ -177,8 +193,8 @@ class RoutingAuditExtensions(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             mod=Path(tmp)/'Zoology';mod.mkdir();write_loadfolders(mod)
             report=audit_routes(CHECKER/'generation.json',mod)
-            self.assertEqual(report['destinations'],145)
-            self.assertEqual(len(report['missing_static']),16)
+            self.assertEqual(report['destinations'],138)
+            self.assertEqual(len(report['missing_static']),3)
             with self.assertRaisesRegex(ValueError,'Missing installed static XML'):
                 audit_routes(CHECKER/'generation.json',mod,require_static_sources=True)
 
@@ -188,13 +204,16 @@ class RoutingAuditExtensions(unittest.TestCase):
         from unittest.mock import patch
         with tempfile.TemporaryDirectory() as tmp:
             root=Path(tmp);mod=root/'Zoology';mod.mkdir();write_loadfolders(mod)
-            target='DLC/Odyssey/Patches/Misc/CompProperties_Hatcher_Odyssey.xml'
+            target='DLC/Odyssey/Patches/Misc/CompProperties_EggLayer_Amphibians.xml'
             f=mod/target;f.parent.mkdir(parents=True);f.write_text('<Patch/>')
             stage=root/'staging'
-            with patch('core.pipeline.render_reproduction',return_value=([(target,b'<Patch><li/></Patch>')],[])):
+            with (patch('core.pipeline.render_reproduction',return_value=([(target,b'<Patch><li/></Patch>')],[])),
+                  patch('core.pipeline._read_repro',return_value=pd.DataFrame()),
+                  patch('core.pipeline.render_energetics_profiles',return_value=(b'<Defs/>',{}))):
                 staged=stage_pipeline('dummy',root=root,registry_path=CHECKER/'generation.json',
                         output_dir=stage,categories=('products',))
-            content=json.loads(staged.read_text());content['files'][0]['requires']=None
+            content=json.loads(staged.read_text())
+            next(x for x in content['files'] if x['destination']==target)['requires']=None
             staged.write_text(json.dumps(content))
             # Regenerate a disjoint category; the old staged patch is retained
             # but its conditional LoadFolders requirement is revalidated.
@@ -207,7 +226,7 @@ class RoutingAuditExtensions(unittest.TestCase):
             after=json.loads(staged.read_text())
             self.assertEqual(next(x for x in after['files'] if x['destination']==target)['requires'],
                              'Ludeon.Rimworld.Odyssey')
-            self.assertEqual(len(plan(staged,root)[0]),2)
+            self.assertEqual(len(plan(staged,root)[0]),3)
 
     def test_cached_excel_tabs_are_revision_aware(self):
         from core.animalstats_source import read_excel_cached

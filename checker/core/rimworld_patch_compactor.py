@@ -14,7 +14,9 @@ import copy
 import os
 import re
 import heapq
-from collections import Counter, defaultdict
+from bisect import bisect_left, bisect_right
+from collections import Counter, defaultdict, deque
+from functools import lru_cache
 from dataclasses import dataclass, asdict
 from pathlib import Path
 from typing import Iterable, Optional
@@ -93,6 +95,7 @@ def _norm_xpath(text: Optional[str]) -> str:
     return " ".join((text or "").strip().split())
 
 
+@lru_cache(maxsize=32768)
 def _parse_subject_xpath(text: Optional[str]) -> Optional[SubjectXPath]:
     value = _norm_xpath(text)
     match = _SUBJECT_RE.match(value)
@@ -186,15 +189,17 @@ def _is_patch_operation(node) -> bool:
     return _operation_class(node).startswith(PATCH_PREFIX)
 
 
-def patch_metrics(root) -> dict:
+def patch_metrics(root, *, include_bytes=True) -> dict:
     operations = [node for node in root.iter() if _is_patch_operation(node)]
-    return {
+    metrics = {
         "operations": len(operations),
         "xpaths": sum(1 for node in operations for child in node if child.tag == "xpath"),
         "conditionals": sum(1 for node in operations if node.get("Class") == "PatchOperationConditional"),
         "findmods": sum(1 for node in operations if node.get("Class") == "PatchOperationFindMod"),
-        "bytes": len(LET.tostring(root, encoding="utf-8", pretty_print=False, with_tail=False)),
     }
+    if include_bytes:
+        metrics["bytes"] = len(LET.tostring(root, encoding="utf-8", pretty_print=False, with_tail=False))
+    return metrics
 
 
 @dataclass
@@ -225,10 +230,12 @@ class PatchCompactor:
         self._strip_comments(root)
         previous = None
         for pass_number in range(1, self.max_passes + 1):
-            self._compact_container(root)
+            changed = self._compact_container(root)
             self._strip_comments(root)
-            current = LET.tostring(root, method="c14n", with_comments=False)
             self.passes = pass_number
+            if not changed:
+                break
+            current = LET.tostring(root, method="c14n", with_comments=False)
             if current == previous:
                 break
             previous = current
@@ -255,7 +262,7 @@ class PatchCompactor:
             if _is_patch_operation(child):
                 self._compact_operation(child)
 
-        self._merge_adjacent_same_target_adds(container)
+        changed = self._merge_adjacent_same_target_adds(container)
 
         # Coalesce subject-local operations.  Non-groupable operations are hard
         # barriers, so no operation is moved across a context we cannot prove
@@ -263,10 +270,12 @@ class PatchCompactor:
         children = [child for child in list(container) if _is_patch_operation(child)]
         if children and len(children) == len([c for c in list(container) if isinstance(getattr(c, 'tag', None), str)]):
             new_children = self._coalesce_segments(children)
-            for child in list(container):
-                container.remove(child)
-            for child in new_children:
-                container.append(child)
+            if new_children != list(container):
+                changed = True
+                for child in list(container):
+                    container.remove(child)
+                for child in new_children:
+                    container.append(child)
 
         # Do not merge adjacent PatchOperationFindMod wrappers.  The merge
         # implementation necessarily combines their branches into a Sequence;
@@ -278,7 +287,7 @@ class PatchCompactor:
         for child in list(container):
             if _is_patch_operation(child):
                 self._compact_operation(child)
-        self._merge_adjacent_same_target_adds(container)
+        return self._merge_adjacent_same_target_adds(container) or changed
 
     def _compact_operation(self, node):
         cls = _operation_class(node)
@@ -383,10 +392,11 @@ class PatchCompactor:
             relative = self._relative_target(add_xpath, condition_xpath)
             if not relative:
                 return None
-            if _payload_signature(match) != _payload_signature(nomatch):
-                # Class differs by design, so compare values explicitly below.
-                if self._value_signature(match) != self._value_signature(nomatch):
-                    return None
+            # These classes differ, so their complete canonical payloads
+            # cannot be equal. Compare the value once and reuse its signature.
+            signature = self._value_signature(match)
+            if signature != self._value_signature(nomatch):
+                return None
             key = (
                 "upsert",
                 parsed.def_type,
@@ -394,7 +404,7 @@ class PatchCompactor:
                 parsed.tail,
                 add_parsed.tail,
                 nomatch_cls,
-                self._value_signature(match),
+                signature,
             )
             return _GroupSpec(node, "upsert", key, parsed.subject, condition_xpath, parsed, add_xpath, nomatch_cls)
 
@@ -471,7 +481,7 @@ class PatchCompactor:
             children = [child for child in children if isinstance(getattr(child, "tag", None), str)]
             if len(children) != 1 or children[0].tag != relative:
                 return None
-            return spec.add_xpath, relative, copy.deepcopy(children[0])
+            return spec.add_xpath, relative, children[0]
 
         if spec.kind == "remove_cond":
             target = spec.target_xpath.rstrip("/")
@@ -497,7 +507,9 @@ class PatchCompactor:
         """
         candidates = defaultdict(list)
         infos = {}
+        positions_by_subject = defaultdict(list)
         for index, spec in enumerate(specs):
+            positions_by_subject[spec.subject].append(index)
             info = self._simple_child_batch_info(spec)
             if info is None:
                 continue
@@ -518,8 +530,11 @@ class PatchCompactor:
             first, last = min(indexes), max(indexes)
 
             unsafe = False
-            for pos in range(first, last + 1):
-                if pos in index_set or specs[pos].subject != subject:
+            positions = positions_by_subject[subject]
+            start = bisect_left(positions, first)
+            stop = bisect_right(positions, last)
+            for pos in positions[start:stop]:
+                if pos in index_set:
                     continue
                 tail = specs[pos].parsed_target.tail
                 if tail == parent_tail:
@@ -680,27 +695,37 @@ class PatchCompactor:
         return output
 
     def _coalesce_segment_conservative(self, specs):
+        """Group matching queue heads in the original earliest-first order."""
+        queues = defaultdict(deque)
+        for i, spec in enumerate(specs):
+            queues[spec.subject].append(i)
+
+        ready = defaultdict(dict)
+        for subject, queue in queues.items():
+            i = queue[0]
+            ready[specs[i].key][subject] = i
+
         consumed = set()
         output = []
         for i, anchor in enumerate(specs):
             if i in consumed:
                 continue
-            group = [anchor]
-            group_subjects = {anchor.subject}
-            for j in range(i + 1, len(specs)):
-                if j in consumed:
-                    continue
-                candidate = specs[j]
-                if candidate.key != anchor.key or candidate.subject in group_subjects:
-                    continue
-                if any(
-                    k not in consumed and specs[k].subject == candidate.subject
-                    for k in range(i + 1, j)
-                ):
-                    continue
-                group.append(candidate)
-                group_subjects.add(candidate.subject)
+
+            # A later operation is movable iff it is the first unprocessed
+            # operation for its subject. Freeze the current group before
+            # revealing successors, so a subject appears at most once.
+            heads = ready.pop(anchor.key)
+            indexes = sorted(heads.values())
+            group = [specs[j] for j in indexes]
+            for j in indexes:
+                subject = specs[j].subject
+                queue = queues[subject]
+                queue.popleft()
                 consumed.add(j)
+                if queue:
+                    nxt = queue[0]
+                    ready[specs[nxt].key][subject] = nxt
+
             if len(group) == 1:
                 output.append(anchor.node)
             else:
@@ -769,7 +794,7 @@ class PatchCompactor:
     def _merge_adjacent_same_target_adds(self, container):
         children = list(container)
         if not children:
-            return
+            return False
         output = []
         index = 0
         changed = False
@@ -786,8 +811,8 @@ class PatchCompactor:
                 output.append(current)
                 index += 1
                 continue
-            merged = copy.deepcopy(current)
-            merged_value = merged.find("value")
+            merged = None
+            merged_value = None
             cursor = index + 1
             while cursor < len(children):
                 other = children[cursor]
@@ -796,6 +821,9 @@ class PatchCompactor:
                 other_value = other.find("value")
                 if other_value is None:
                     break
+                if merged is None:
+                    merged = copy.deepcopy(current)
+                    merged_value = merged.find("value")
                 for child in other_value:
                     if isinstance(getattr(child, "tag", None), str):
                         merged_value.append(copy.deepcopy(child))
@@ -808,6 +836,7 @@ class PatchCompactor:
                 container.remove(child)
             for child in output:
                 container.append(child)
+        return changed
 
     def _findmod_key(self, node):
         if _operation_class(node) != "PatchOperationFindMod":

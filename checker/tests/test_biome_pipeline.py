@@ -23,8 +23,8 @@ def test_registry_routes_biomes_to_exact_versioned_path(tmp_path):
                  ('products.test', 'Core/Patches/Core/Misc/Products.xml', 'animal_patch', 'products', 'installed_xml'),
                  ('bionics.vanilla', 'Core/Defs/HediffDefs/BionicAnimalVariants.xml', 'common_defs', 'bionics', 'installed_xml'),
                  ('bionics.ce', 'ModPatches/CombatExtended/Patches/HediffDefs/BionicAnimalVariants_CE.xml', 'ce_patch', 'bionics', 'generated'),
-                 ('life-stages.vanilla', 'Core/Patches/Core/LifeStageDefs/LifeStages.xml', 'animal_patch', 'life-stages', 'installed_xml'),
-                 ('life-stages.ce', 'ModPatches/CombatExtended/Patches/LifeStageDefs/LifeStages_CE.xml', 'ce_patch', 'life-stages', 'installed_xml'),
+                 ('life-stages.species', 'Core/Defs/Misc/LifeStageProfiles_Generated.xml', 'common_defs', 'life-stages', 'generated'),
+                 ('life-stages.attacks.cs', 'Source/Behaviour/Shared/ZoologyLifeStageAttackProfiles_Generated.cs', 'source_code', 'life-stages', 'generated'),
              )]}
     path=tmp_path/'generation.json';path.write_text(json.dumps(reg))
     obj=load_registry(path,mod)

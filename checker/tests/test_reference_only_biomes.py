@@ -21,8 +21,8 @@ def _fixture(tmp_path):
     entries = [
         ("bionics.vanilla", "Core/Patches/Bionics.xml", "animal_patch", "bionics"),
         ("bionics.ce", "ModPatches/CombatExtended/Patches/Bionics.xml", "ce_patch", "bionics"),
-        ("life-stages.vanilla", "Core/Patches/LifeStages.xml", "animal_patch", "life-stages"),
-        ("life-stages.ce", "ModPatches/CombatExtended/Patches/LifeStages.xml", "ce_patch", "life-stages"),
+        ("life-stages.species", "Core/Defs/Misc/LifeStageProfiles_Generated.xml", "common_defs", "life-stages"),
+        ("life-stages.attacks.cs", "Source/Behaviour/Shared/ZoologyLifeStageAttackProfiles_Generated.cs", "source_code", "life-stages"),
         ("products.test", "Core/Patches/Products.xml", "animal_patch", "products"),
     ]
     registry = {
@@ -32,7 +32,7 @@ def _fixture(tmp_path):
         "outputs": [{
             "id": name, "destination": destination, "category": category,
             "pipeline_category": pipeline_category,
-            "source": "installed_xml" if name != "bionics.ce" else "generated",
+            "source": "installed_xml" if not (name == "bionics.ce" or pipeline_category == "life-stages") else "generated",
             "requires": "CETeam.CombatExtended" if category == "ce_patch" else None,
         } for name, destination, category, pipeline_category in entries],
     }

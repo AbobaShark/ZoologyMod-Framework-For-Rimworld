@@ -1278,18 +1278,19 @@ class PatchGenerator:
         vanilla_row: optionally supply vanilla row to reuse label/linked/capacity columns.
         Returns <tools> Element or None.
         """
-        # find CE row by XML name. We assume self.ce_df exists with a column 'XML name'
+        # Preserve source order while avoiding a fresh pandas row scan for every tool.
         ce_row = None
-        if getattr(self, 'ce_df', None) is not None:
-            # try to find row where 'XML name' contains def_name or exact match
-            for _, r in self.ce_df.iterrows():
-                xml_name = r.get('XML name', '')
-                if xml_name is None:
-                    continue
-                txt = str(xml_name)
-                if def_name in txt or f'<li>{def_name}</li>' in txt:
-                    ce_row = r
-                    break
+        rows = getattr(self, '_prepared_ce_tool_rows', None)
+        if rows is None and getattr(self, 'ce_df', None) is not None:
+            rows = (
+                (str(row.get('XML name', '')), row)
+                for _, row in self.ce_df.iterrows()
+                if row.get('XML name', '') is not None
+            )
+        for txt, row in rows or ():
+            if def_name in txt or f'<li>{def_name}</li>' in txt:
+                ce_row = row
+                break
 
         # If no CE row -> nothing to emit
         if ce_row is None:
@@ -1835,15 +1836,9 @@ class PatchGenerator:
 
         return op
 
-    def _build_patch_root(self, original_root, patched_defnames, patched_abstracts):
-        original_root = original_root if original_root is not None else LET.Element("Patch")
-        patched_defnames = {str(name).strip() for name in (patched_defnames or []) if str(name).strip()}
-        patched_abstracts = {str(name).strip() for name in (patched_abstracts or []) if str(name).strip()}
-
+    def _prepare_animal_context(self):
         all_abstract_groups = defaultdict(list)
         def_row_all = {}
-        present_abstract_groups = defaultdict(list)
-        def_to_row = {}
         def_mod_conflicts = {}
 
         if self.vanilla_df is None:
@@ -1864,14 +1859,6 @@ class PatchGenerator:
                         existing_mods.append(mod_name)
             if parent:
                 all_abstract_groups[parent].append(def_name)
-
-        for def_name, row in def_row_all.items():
-            if def_name not in patched_defnames:
-                continue
-            def_to_row[def_name] = row
-            parent = self._get_parent_abstract_from_row(row)
-            if parent:
-                present_abstract_groups[parent].append(def_name)
 
         parent_common_map = {}
         for abstract, children in all_abstract_groups.items():
@@ -1929,6 +1916,41 @@ class PatchGenerator:
         for pawn_parent, children in pawn_parent_groups_all.items():
             if children:
                 first_child_of_pawn_parent[pawn_parent] = children[0]
+
+        return (def_row_all, def_mod_conflicts, parent_common_map, first_child_of_abstract, pawn_parent_common_map, first_child_of_pawn_parent)
+
+    def prepare_generation_context(self):
+        """Prepare shared, read-only row maps for one managed generation run."""
+        self._prepared_animal_context = self._prepare_animal_context()
+        self._prepared_ce_context = None
+        self._prepared_ce_tool_rows = None
+        if self.ce_df is not None and not self.ce_df.empty:
+            self._prepared_ce_context = self._prepare_ce_context()
+            self._prepared_ce_tool_rows = tuple(
+                (str(row.get('XML name', '')), row)
+                for _, row in self.ce_df.iterrows()
+                if row.get('XML name', '') is not None
+            )
+        return frozenset(self._prepared_animal_context[0])
+
+    def _build_patch_root(self, original_root, patched_defnames, patched_abstracts):
+        original_root = original_root if original_root is not None else LET.Element("Patch")
+        patched_defnames = {str(name).strip() for name in (patched_defnames or []) if str(name).strip()}
+        patched_abstracts = {str(name).strip() for name in (patched_abstracts or []) if str(name).strip()}
+
+        context = getattr(self, '_prepared_animal_context', None)
+        if context is None:
+            context = self._prepare_animal_context()
+        (def_row_all, def_mod_conflicts, parent_common_map, first_child_of_abstract, pawn_parent_common_map, first_child_of_pawn_parent) = context
+        present_abstract_groups = defaultdict(list)
+        def_to_row = {}
+        for def_name, row in def_row_all.items():
+            if def_name not in patched_defnames:
+                continue
+            def_to_row[def_name] = row
+            parent = self._get_parent_abstract_from_row(row)
+            if parent:
+                present_abstract_groups[parent].append(def_name)
 
         new_operations = []
 
@@ -3812,15 +3834,7 @@ class PatchGenerator:
         ops.append(add_op)
         return ops
 
-    def generate_ce_block(self, def_to_row, original_root, def_mod_conflicts=None):
-        """
-        Generate Combat Extended specific patches.
-        """
-        if self.ce_df is None or self.ce_df.empty:
-            return LET.Comment(" No CE table provided or empty ")
-        if def_mod_conflicts is None:
-            def_mod_conflicts = {}
-
+    def _prepare_ce_context(self):
         # Build quick lookup of CE rows (all CE TSV rows) by def name
         ce_rows_all = {}
         for _, row in self.ce_df.iterrows():
@@ -3828,20 +3842,6 @@ class PatchGenerator:
             m = re.search(r'<li>(.*?)</li>', xml_name)
             ce_def = m.group(1) if m else xml_name
             ce_rows_all[ce_def] = row
-
-        # A RacePropertiesExtensionCE without bodyShape crashes current CE melee code.
-        # Refuse to generate a partial CE patch instead of silently creating null data.
-        missing_body_shapes = []
-        for def_name in def_to_row:
-            ce_row = ce_rows_all.get(def_name)
-            body_shape = clean_ce_body_shape(ce_row.get('Body shape') if ce_row is not None else None)
-            if body_shape is None:
-                missing_body_shapes.append(def_name)
-        if missing_body_shapes:
-            raise ValueError(
-                "Combat Extended Body shape is required for every generated animal: "
-                + ", ".join(sorted(missing_body_shapes))
-            )
 
         # Build vanilla map for tool signatures (use all vanilla rows)
         vanilla_rows_all = {}
@@ -3953,6 +3953,36 @@ class PatchGenerator:
         for abstract, children in all_abstract_groups.items():
             if children:
                 first_child_of_abstract[abstract] = children[0]
+
+        return (ce_rows_all, vanilla_rows_all, ce_stat_fields, ce_parent_common_map, first_child_of_abstract)
+
+    def generate_ce_block(self, def_to_row, original_root, def_mod_conflicts=None):
+        """
+        Generate Combat Extended specific patches.
+        """
+        if self.ce_df is None or self.ce_df.empty:
+            return LET.Comment(" No CE table provided or empty ")
+        if def_mod_conflicts is None:
+            def_mod_conflicts = {}
+
+        context = getattr(self, '_prepared_ce_context', None)
+        if context is None:
+            context = self._prepare_ce_context()
+        (ce_rows_all, vanilla_rows_all, ce_stat_fields, ce_parent_common_map, first_child_of_abstract) = context
+
+        # A RacePropertiesExtensionCE without bodyShape crashes current CE melee code.
+        # Refuse to generate a partial CE patch instead of silently creating null data.
+        missing_body_shapes = []
+        for def_name in def_to_row:
+            ce_row = ce_rows_all.get(def_name)
+            body_shape = clean_ce_body_shape(ce_row.get('Body shape') if ce_row is not None else None)
+            if body_shape is None:
+                missing_body_shapes.append(def_name)
+        if missing_body_shapes:
+            raise ValueError(
+                "Combat Extended Body shape is required for every generated animal: "
+                + ", ".join(sorted(missing_body_shapes))
+            )
 
         # present_defs = defs we are going to emit CE patches for
         present_defs = set(def_to_row.keys())

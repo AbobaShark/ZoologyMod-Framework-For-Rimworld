@@ -3,6 +3,8 @@ from collections import Counter
 
 from lxml import etree as LET
 
+from core.indexed_xpath import indexed_xpath, before_mutation
+
 
 DIRECT_PATCH_CLASSES = {
     "PatchOperationAdd",
@@ -15,7 +17,7 @@ DIRECT_PATCH_CLASSES = {
 
 def normalize_patch_xpath(xpath):
     text = (xpath or "").strip()
-    if text.startswith("Defs/"):
+    if text == "Defs" or text.startswith("Defs/"):
         return "/" + text
     return text
 
@@ -163,6 +165,7 @@ class PatchApplier:
         if not targets:
             self._record_missing("attribute_set", xpath, source_path)
             return False
+        before_mutation(sim_root, targets, "attribute", attribute=attr_name)
         for target in targets:
             if isinstance(getattr(target, "tag", None), str):
                 target.set(attr_name, "" if value is None else str(value))
@@ -174,6 +177,7 @@ class PatchApplier:
         if not targets:
             self._record_missing("remove", xpath, source_path)
             return False
+        before_mutation(sim_root, targets, "remove")
         removed = 0
         for target in targets:
             parent = target.getparent() if hasattr(target, "getparent") else None
@@ -193,6 +197,7 @@ class PatchApplier:
         if not replacements:
             self.stats["replaces_without_value"] += 1
             return False
+        before_mutation(sim_root, targets, "replace", additions=replacements)
         applied = 0
         for target in targets:
             parent = target.getparent() if hasattr(target, "getparent") else None
@@ -216,6 +221,7 @@ class PatchApplier:
         if not additions:
             self.stats["adds_without_value"] += 1
             return False
+        before_mutation(sim_root, targets, "add", additions=additions)
         applied = 0
         for target in targets:
             if not isinstance(getattr(target, "tag", None), str):
@@ -236,6 +242,7 @@ class PatchApplier:
         if not additions:
             self.stats["add_mod_extensions_without_value"] += 1
             return False
+        before_mutation(sim_root, targets, "add", additions=additions)
         applied = 0
         for target in targets:
             if not isinstance(getattr(target, "tag", None), str):
@@ -257,7 +264,7 @@ class PatchApplier:
     def _xpath(self, sim_root, xpath, source_path):
         text = normalize_patch_xpath(xpath)
         try:
-            return LET.ElementTree(sim_root).xpath(text)
+            return indexed_xpath(sim_root, text)
         except Exception as exc:
             self.stats["xpath_errors"] += 1
             if len(self.errors) < 50:

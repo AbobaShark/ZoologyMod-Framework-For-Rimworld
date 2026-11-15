@@ -5,6 +5,7 @@ from collections import Counter
 from lxml import etree as LET
 
 from core.rimworld_patch_apply import PatchApplier
+from core.indexed_xpath import xpath_scope, before_mutation
 from core.material_colors import xml_color
 from core.rimworld_original_xml import normalize_xpath, parse_target, rel_path_from_target, xpath_literal
 from core.rimworld_patch_defaults import PAWN_KIND_FIELD_DEFAULTS, scalar_values_equal
@@ -30,6 +31,7 @@ class PatchOptimizer:
         self.stats = Counter()
         self._kept_conditional_applier = PatchApplier(record_missing=False)
 
+    @xpath_scope()
     def optimize(self, patch_root):
         if not self.index or not self.index.enabled:
             return patch_root
@@ -46,8 +48,11 @@ class PatchOptimizer:
                     self.stats["semantic_skipped_ambiguous_def"] += 1
                     return patch_root
 
-        sim_root = self.index.clone_base_root() if hasattr(self.index, "clone_base_root") else self.index.clone_root()
-        patched_sim_root = self.index.clone_root() if getattr(self.index, "patches_enabled", False) else None
+        if hasattr(self.index, "simulation_roots"):
+            sim_root, patched_sim_root = self.index.simulation_roots(patch_root)
+        else:
+            sim_root = self.index.clone_base_root() if hasattr(self.index, "clone_base_root") else self.index.clone_root()
+            patched_sim_root = self.index.clone_root() if getattr(self.index, "patches_enabled", False) else None
         optimized = LET.Element(patch_root.tag)
         for key, value in patch_root.attrib.items():
             optimized.set(key, value)
@@ -382,7 +387,7 @@ class PatchOptimizer:
     def _apply_kept_operation_to_sim(self, node, sim_root):
         if sim_root is None:
             return
-        self._kept_conditional_applier.apply_operation(copy.deepcopy(node), sim_root)
+        self._kept_conditional_applier.apply_operation(node, sim_root)
 
     def _should_preserve_conditional_for_volatile_path(self, xpath):
         target = parse_target(xpath)
@@ -671,12 +676,16 @@ class PatchOptimizer:
             value = self._child_text(node, "value")
             if not attr_name:
                 return
-            for target in self.index.direct_nodes(xpath, root=sim_root):
+            targets = self.index.direct_nodes(xpath, root=sim_root)
+            before_mutation(sim_root, targets, "attribute", attribute=attr_name)
+            for target in targets:
                 target.set(attr_name, "" if value is None else str(value))
             return
 
         if cls == "PatchOperationRemove":
-            for target in list(self.index.direct_nodes(xpath, root=sim_root)):
+            targets = list(self.index.direct_nodes(xpath, root=sim_root))
+            before_mutation(sim_root, targets, "remove")
+            for target in targets:
                 parent = target.getparent()
                 if parent is not None:
                     parent.remove(target)
@@ -686,7 +695,9 @@ class PatchOptimizer:
             replacements = self._value_children(node)
             if not replacements:
                 return
-            for target in list(self.index.direct_nodes(xpath, root=sim_root)):
+            targets = list(self.index.direct_nodes(xpath, root=sim_root))
+            before_mutation(sim_root, targets, "replace", additions=replacements)
+            for target in targets:
                 parent = target.getparent()
                 if parent is None:
                     continue
@@ -700,7 +711,9 @@ class PatchOptimizer:
             additions = self._value_children(node)
             if not additions:
                 return
-            for target in self.index.direct_nodes(xpath, root=sim_root):
+            targets = self.index.direct_nodes(xpath, root=sim_root)
+            before_mutation(sim_root, targets, "add", additions=additions)
+            for target in targets:
                 if not isinstance(getattr(target, "tag", None), str):
                     continue
                 for addition in additions:
@@ -710,7 +723,9 @@ class PatchOptimizer:
             additions = self._value_children(node)
             if not additions:
                 return
-            for target in self.index.direct_nodes(xpath, root=sim_root):
+            targets = self.index.direct_nodes(xpath, root=sim_root)
+            before_mutation(sim_root, targets, "add", additions=additions)
+            for target in targets:
                 if not isinstance(getattr(target, "tag", None), str):
                     continue
                 if target.tag == "modExtensions":

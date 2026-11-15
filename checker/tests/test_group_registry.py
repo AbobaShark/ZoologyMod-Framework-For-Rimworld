@@ -30,7 +30,8 @@ def test_group_metadata_contains_only_explicit_references():
         assert all('/' not in def_name for def_name in group['defs'])
         assert group['destination'].endswith('.xml')
         assert group['destination'].startswith(('Core/','DLC/','ModPatches/'))
-        assert all(key in {'sounds','trade_tags_inherit_false'} for key in group.get('overrides',{}))
+        assert all(key in {'sounds','trade_tags_inherit_false','preserve_life_stages'} for key in group.get('overrides',{}))
+        assert set(group.get('overrides',{}).get('preserve_life_stages',[])) <= set(group['defs'])
         assert 'template' not in group
 
 

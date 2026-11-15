@@ -29,7 +29,7 @@ class PatchPostprocessor:
     def process(self, payload, *, destination):
         root=E.fromstring(payload)
         if root.tag!='Patch':return payload
-        original=patch_metrics(root)
+        original=patch_metrics(root, include_bytes=False)
         index=self._index()
         # An incomplete reference collection is NOT a proof that an operation
         # is redundant. Require every identifiable Def target to be indexed;
@@ -43,13 +43,15 @@ class PatchPostprocessor:
         if index.enabled and fully_covered and not (index.parse_errors or index.patch_errors):
             optimized=PatchOptimizer(index,preserve_missing_target_guards=True).optimize(root)
             if len(optimized)<=len(root):root=optimized
-        after_semantic=patch_metrics(root)
+        after_semantic=patch_metrics(root, include_bytes=False)
         compacted=PatchCompactor().compact(root)
-        compressed=patch_metrics(compacted)
+        compressed=patch_metrics(compacted, include_bytes=False)
         if (compressed['operations']<after_semantic['operations'] or
                 compressed['xpaths']<after_semantic['xpaths']):
             root=compacted
-        result=patch_metrics(root)
+            result=compressed
+        else:
+            result=after_semantic
         self.stats.append({'destination':destination,'operations_before':original['operations'],
                            'operations_after':result['operations'],'xpaths_before':original['xpaths'],
                            'xpaths_after':result['xpaths']})

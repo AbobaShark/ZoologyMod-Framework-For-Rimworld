@@ -1,5 +1,6 @@
 """Tree/nest/perched-pawn selection must be bidirectional and UI-only."""
 from pathlib import Path
+import re
 import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -19,7 +20,7 @@ class TreeSelectionContracts(unittest.TestCase):
         self.assertIn('"CommandSelectContainedPawn"', selection)
         self.assertIn('"CommandSelectContainedThing"', selection)
         self.assertIn("groupable: false", selection)
-        self.assertNotIn("ThingOwner", selection)
+        self.assertNotIn("ThingOwner", re.sub(r"//[^\n]*", "", selection))
         self.assertNotIn("ComponentTick", selection)
         self.assertNotIn("CompTick", selection)
         # The only new Harmony integration is the cold UI gizmo getter.

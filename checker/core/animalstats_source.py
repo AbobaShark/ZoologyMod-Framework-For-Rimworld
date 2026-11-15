@@ -31,7 +31,8 @@ import urllib.request
 from typing import Any, List, Optional
 
 import pandas as pd
-from functools import lru_cache
+from contextvars import ContextVar
+from functools import lru_cache, wraps
 from io import BytesIO
 from pathlib import Path
 
@@ -44,6 +45,19 @@ _GOOGLE_ID_RE = re.compile(r"^[A-Za-z0-9_-]{20,}$")
 _SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
 _DEFAULT_CREDENTIALS_FILENAME = "google_credentials.json"
 _DEFAULT_TOKEN_FILENAME = "google_token.json"
+_INPUT_SNAPSHOT = ContextVar("checker_input_snapshot", default=None)
+
+
+def generation_input_snapshot(function):
+    """Reuse loaded values during one independent generation run."""
+    @wraps(function)
+    def run(*args, **kwargs):
+        token = _INPUT_SNAPSHOT.set({})
+        try:
+            return function(*args, **kwargs)
+        finally:
+            _INPUT_SNAPSHOT.reset(token)
+    return run
 
 
 def _module_dir() -> str:
@@ -65,7 +79,19 @@ def read_excel_cached(source, **kwargs):
     """Read a sheet using a revision-aware, read-only workbook cache."""
     path = Path(source).expanduser().resolve(strict=True)
     stat = path.stat()
-    return _cached_excel_book(str(path), stat.st_mtime_ns, stat.st_size).parse(**kwargs)
+    book = _cached_excel_book(str(path), stat.st_mtime_ns, stat.st_size)
+    snapshot = _INPUT_SNAPSHOT.get()
+    if snapshot is None:
+        return book.parse(**kwargs)
+    key = ("excel", str(path), stat.st_mtime_ns, stat.st_size, tuple(sorted(kwargs.items())))
+    try:
+        hash(key)
+    except TypeError:
+        # Arbitrary pandas parser options may contain mutable objects.
+        return book.parse(**kwargs)
+    if key not in snapshot:
+        snapshot[key] = book.parse(**kwargs)
+    return snapshot[key].copy(deep=True)
 
 def is_excel_source(source: Any) -> bool:
     if not source:
@@ -363,7 +389,14 @@ def read_google_sheet(source: Any, sheet_name: str) -> pd.DataFrame:
         raise RuntimeError(f"Not a Google Sheets source: {source}")
     if not sheet_name:
         raise RuntimeError("A sheet name is required for a Google Sheets source.")
-    values = _fetch_google_values(sid, sheet_name)
+    snapshot = _INPUT_SNAPSHOT.get()
+    if snapshot is None:
+        values = _fetch_google_values(sid, sheet_name)
+    else:
+        key = ("google", sid, sheet_name)
+        if key not in snapshot:
+            snapshot[key] = _fetch_google_values(sid, sheet_name)
+        values = snapshot[key]
     return _values_to_dataframe(values)
 
 

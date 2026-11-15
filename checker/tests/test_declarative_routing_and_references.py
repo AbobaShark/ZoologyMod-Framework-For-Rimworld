@@ -18,11 +18,11 @@ class RegistryTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder:
             mod=Path(folder)/'Zoology';mod.mkdir();write_loadfolders(mod)
             r=load_registry(CHECKER/'generation.json',mod)
-            self.assertEqual(len(r['outputs']),39)
-            self.assertEqual([len(r[k]) for k in ('groups','biomes','shared_defs','outputs')],[81,29,3,39])
-            self.assertEqual(audit_routes(CHECKER/'generation.json',mod)['destinations'],152)
+            self.assertEqual(len(r['outputs']),25)
+            self.assertEqual([len(r[k]) for k in ('groups','biomes','shared_defs','outputs')],[81,29,3,25])
+            self.assertEqual(audit_routes(CHECKER/'generation.json',mod)['destinations'],138)
             self.assertEqual(output_by_id(r,'bionics.ce')['requires'],'CETeam.CombatExtended')
-            self.assertEqual(next(x for x in r['outputs'] if 'EggLayer_Odyssey' in x['destination'])['requires'],'Ludeon.Rimworld.Odyssey')
+            self.assertEqual(output_by_id(r,'products.amphibian.egglayer')['requires'],'Ludeon.Rimworld.Odyssey')
 
     def test_misrouted_output_rejected(self):
         with tempfile.TemporaryDirectory() as folder:

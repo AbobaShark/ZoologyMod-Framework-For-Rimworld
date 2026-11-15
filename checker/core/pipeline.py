@@ -24,7 +24,7 @@ from core.life_stage_mass_contract import audit_mass_profiles
 from core.sex_dimorphism import audit_mean_sex_dimorphism
 from core.sex_adult_profiles import audit_sex_adult_profiles
 from core.sex_adult_export import render_sex_adult_profiles
-from core.animalstats_source import is_multisheet_source
+from core.animalstats_source import generation_input_snapshot, is_multisheet_source
 from core.production_stats import render_reproduction, _read_repro, PRODUCTION_DESTINATION
 from core.energetics_profiles import render_energetics_profiles, OUTPUT_ID as ENERGETICS_OUTPUT_ID
 from core.checker_config import ROOT
@@ -95,6 +95,7 @@ def _check_selected(registry, selected):
     return [by_id[n] for n in selected]
 
 
+@generation_input_snapshot
 def stage_pipeline(source, *, root=None, registry_path=None, sheet_sources=None, categories=('animals',),
                    groups=None, ce=True, optimize=True, original_xml=None, original_patches=None,
                    venom_source=None, output_dir=None, preserve_runtime_preconditions=True):
@@ -204,8 +205,8 @@ def stage_pipeline(source, *, root=None, registry_path=None, sheet_sources=None,
                 source_map=sheets,enable_ce=ce,optimize=optimize,
                 require_venom=('venom' in cats),mod_root=mod)
             # Enforce complete data for generated groups, including CE body shapes.
-            known={generator._extract_def_name_from_row(row) for _,row in generator.vanilla_df.iterrows()}
             if 'animals' in cats:
+                known=generator.prepare_generation_context()
                 for group in _check_selected(registry,groups):
                     missing=set(group['defs'])-known
                     if missing:raise ValueError(f'{group["id"]}: missing in Animals: {sorted(missing)}')

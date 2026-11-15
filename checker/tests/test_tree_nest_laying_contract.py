@@ -49,10 +49,12 @@ class TreeNestLayingContracts(unittest.TestCase):
     def test_egg_laying_falls_back_to_vanilla_without_nest(self):
         src = NURSERY.read_text(encoding="utf-8")
         lay = src.split("internal static class Patch_LayEgg_UseAnimalNursery", 1)[1].split(
-            "[HarmonyPatch(typeof(Thing)", 1)[0]
+            "public sealed class JobDriver_LayEggInTreeNest", 1)[0]
         self.assertIn("nursery.TreeNest ? PathEndMode.Touch : PathEndMode.OnCell", lay)
         self.assertIn('"Zoology_LayEggInTreeNest"', lay)
-        self.assertIn("return true;", lay[-420:])
+        import re
+        code = re.sub(r"//[^\n]*", "", lay)
+        self.assertRegex(code, r"return false;\s*\}\s*return true;\s*\}\s*\}\s*$")
         self.assertNotIn("Never redirect species with obligatory nests", lay)
         self.assertIn("AnimalNestEggUtility.HasUsableEggBox(pawn)", lay)
 

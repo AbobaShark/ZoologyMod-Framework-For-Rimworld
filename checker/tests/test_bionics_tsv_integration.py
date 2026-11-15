@@ -25,8 +25,8 @@ def test_single_bionics_tsv_stages_vanilla_and_ce_without_main_source():
         sources = [
             ('bionics.vanilla', 'Core/Defs/HediffDefs/BionicAnimalVariants.xml', 'common_defs', 'bionics', 'installed_xml'),
             ('bionics.ce', 'ModPatches/CombatExtended/Patches/HediffDefs/BionicAnimalVariants_CE.xml', 'ce_patch', 'bionics', 'generated'),
-            ('life-stages.vanilla', 'Core/Patches/Core/LifeStageDefs/LifeStages.xml', 'animal_patch', 'life-stages', 'installed_xml'),
-            ('life-stages.ce', 'ModPatches/CombatExtended/Patches/LifeStageDefs/LifeStages_CE.xml', 'ce_patch', 'life-stages', 'installed_xml'),
+            ('life-stages.species', 'Core/Defs/Misc/LifeStageProfiles_Generated.xml', 'common_defs', 'life-stages', 'generated'),
+            ('life-stages.attacks.cs', 'Source/Behaviour/Shared/ZoologyLifeStageAttackProfiles_Generated.cs', 'source_code', 'life-stages', 'generated'),
             ('products.test', 'Core/Patches/Core/Misc/Products.xml', 'animal_patch', 'products', 'installed_xml'),
         ]
         outputs = [{'id': name, 'destination': destination, 'category': category,

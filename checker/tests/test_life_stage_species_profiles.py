@@ -244,7 +244,10 @@ class SpeciesLifeStageProfilesTests(unittest.TestCase):
                          ["0.02", "0.05"])
         self.assertEqual([n.findtext("ceOnly") for n in baby.xpath("./statOffsets/li")],
                          ["true", "true"])
-        self.assertFalse(baby.xpath("./statFactors/li[stat='ArmorRating_Sharp']"))
+        for stat in ("ArmorRating_Sharp", "ArmorRating_Blunt"):
+            factors = baby.xpath("./statFactors/li[stat=$name]", name=stat)
+            self.assertEqual([(f.findtext("factor"), f.findtext("ceOnly")) for f in factors],
+                             [("1", "true")])
         xml_without_ce, _ = render(*args, ce=False)
         baby_without_ce = [n for n in nodes(xml_without_ce)
                            if n.findtext("sourceStageDefName") == "AnimalBaby"][0]
@@ -329,6 +332,21 @@ class SpeciesLifeStageProfilesTests(unittest.TestCase):
         ])
         cs, _ = render_life_stage_attack_profiles_cs(args[0])
         self.assertIn(b"ceToolIndex = -1", cs)
+
+    def test_tool_records_preserve_empty_final_fields_across_crlf(self):
+        args = with_tools(sources(), [
+            tool_record(-1, 0, factors=("", "", .3, 1.1, 0, .5)),
+            tool_record(0, -1, "right claw", "FrontRightPaw",
+                        factors=(.4, 1.2, "", "", "", "")),
+        ])
+        records = args[0].at[2, "ToolRecordsV2"]
+        args[0].at[2, "ToolRecordsV2"] = records.replace("\n", "\r\n") + "\r\n"
+        actual, _ = render_life_stage_attack_profiles_cs(args[0])
+        args[0].at[2, "ToolRecordsV2"] = records
+        expected, _ = render_life_stage_attack_profiles_cs(args[0])
+        self.assertEqual(actual, expected)
+        self.assertIn(b"vanillaToolIndex = -1", actual)
+        self.assertIn(b"ceToolIndex = -1", actual)
 
     def test_unmatched_mode_with_non_neutral_data_is_rejected(self):
         args = with_tools(sources(), [tool_record(-1, 0)])
