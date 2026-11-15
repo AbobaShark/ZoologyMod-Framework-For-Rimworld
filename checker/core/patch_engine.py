@@ -2993,7 +2993,10 @@ class PatchGenerator:
                 if pval is not None and norm(pval) == norm(litter):
                     skip_litter = True
             if skip_litter:
-                pass
+                # A direct child curve otherwise merges its list of points with
+                # the generated parent curve during RimWorld XML inheritance.
+                # The shared parent is authoritative for the common litter size.
+                ops.append(self.create_safe_remove(def_name, 'race', 'litterSizeCurve'))
             else:
                 s = str(litter).strip()
                 if s in ['1', '1.00', '1.0']:
