@@ -44,7 +44,7 @@ class BoomAnimalProductionTests(unittest.TestCase):
             self.assert_fuel(root, "Boomalope", 11)
         self.assertEqual(len(root.xpath("//li[@Class='Unrelated']")), 1)
 
-    def test_with_ce_exclusive_fsx_preserves_yield_and_butchery(self):
+    def test_with_ce_exclusive_chemfuel_preserves_butchery(self):
         def comps(amount, interval, chemical):
             return f"""<comps>
                 <li Class="CombatExtended.CompProperties_ShearableRenameable">
@@ -58,13 +58,13 @@ class BoomAnimalProductionTests(unittest.TestCase):
         for _ in range(2):
             self.apply(root, CORE)
             self.apply(root, CE)
-        self.assertEqual(root.xpath("//li[milkDef='Chemfuel']"), [])
-        self.assertEqual(root.xpath("//li[woolDef='FSX']/woolAmount/text()"), ["1", "6"])
-        self.assertEqual(root.xpath("//li[woolDef='FSX']/shearIntervalDays/text()"), ["3", "10"])
+        self.assert_fuel(root, "Boomrat", 1)
+        self.assert_fuel(root, "Boomalope", 11)
+        self.assertEqual(root.xpath("//li[woolDef='FSX']"), [])
         self.assertEqual(len(root.xpath("//butcherProducts/FSX")), 2)
         self.assertEqual(len(root.xpath("//li[@Class='Unrelated']")), 2)
 
-    def test_ce_without_expected_fsx_does_not_remove_chemfuel(self):
+    def test_ce_without_fsx(self):
         root = self.fixture()
         self.apply(root, CORE)
         self.apply(root, CE)

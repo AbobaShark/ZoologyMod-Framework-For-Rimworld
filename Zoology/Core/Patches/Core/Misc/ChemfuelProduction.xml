@@ -1,69 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Patch>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName="Boomrat"]/comps/li[woolDef="FSX"]</xpath>
-    <nomatch Class="PatchOperationSequence">
-      <operations>
-        <li Class="PatchOperationConditional">
-          <xpath>/Defs/ThingDef[defName="Boomrat"]/comps</xpath>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>/Defs/ThingDef[defName="Boomrat"]</xpath>
-            <value>
-              <comps />
-            </value>
-          </nomatch>
-        </li>
-        <li Class="PatchOperationConditional">
+  <Operation Class="PatchOperationSequence">
+    <operations>
+      <li Class="PatchOperationConditional">
+        <xpath>/Defs/ThingDef[defName="Boomrat"]/comps</xpath>
+        <nomatch Class="PatchOperationAdd">
+          <xpath>/Defs/ThingDef[defName="Boomrat"]</xpath>
+          <value>
+            <comps />
+          </value>
+        </nomatch>
+      </li>
+      <li Class="PatchOperationConditional">
+        <xpath>/Defs/ThingDef[defName="Boomrat"]/comps/li[@Class="CompProperties_Milkable" or @Class="RimWorld.CompProperties_Milkable"][milkDef="Chemfuel"]</xpath>
+        <match Class="PatchOperationRemove">
           <xpath>/Defs/ThingDef[defName="Boomrat"]/comps/li[@Class="CompProperties_Milkable" or @Class="RimWorld.CompProperties_Milkable"][milkDef="Chemfuel"]</xpath>
-          <match Class="PatchOperationRemove">
-            <xpath>/Defs/ThingDef[defName="Boomrat"]/comps/li[@Class="CompProperties_Milkable" or @Class="RimWorld.CompProperties_Milkable"][milkDef="Chemfuel"]</xpath>
-          </match>
-        </li>
-        <li Class="PatchOperationAdd">
-          <xpath>/Defs/ThingDef[defName="Boomrat"]/comps</xpath>
-          <value>
-            <li Class="CompProperties_Milkable">
-              <milkDef>Chemfuel</milkDef>
-              <milkIntervalDays>1</milkIntervalDays>
-              <milkAmount>1</milkAmount>
-              <milkFemaleOnly>false</milkFemaleOnly>
-            </li>
-          </value>
-        </li>
-      </operations>
-    </nomatch>
+        </match>
+      </li>
+      <li Class="PatchOperationAdd">
+        <xpath>/Defs/ThingDef[defName="Boomrat"]/comps</xpath>
+        <value>
+          <li Class="CompProperties_Milkable">
+            <milkDef>Chemfuel</milkDef>
+            <milkIntervalDays>1</milkIntervalDays>
+            <milkAmount>1</milkAmount>
+            <milkFemaleOnly>false</milkFemaleOnly>
+          </li>
+        </value>
+      </li>
+    </operations>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName="Boomalope"]/comps/li[woolDef="FSX"]</xpath>
-    <nomatch Class="PatchOperationSequence">
-      <operations>
-        <li Class="PatchOperationConditional">
-          <xpath>/Defs/ThingDef[defName="Boomalope"]/comps</xpath>
-          <nomatch Class="PatchOperationAdd">
-            <xpath>/Defs/ThingDef[defName="Boomalope"]</xpath>
-            <value>
-              <comps />
-            </value>
-          </nomatch>
-        </li>
-        <li Class="PatchOperationConditional">
-          <xpath>/Defs/ThingDef[defName="Boomalope"]/comps/li[@Class="CompProperties_Milkable" or @Class="RimWorld.CompProperties_Milkable"][milkDef="Chemfuel"]</xpath>
-          <match Class="PatchOperationRemove">
-            <xpath>/Defs/ThingDef[defName="Boomalope"]/comps/li[@Class="CompProperties_Milkable" or @Class="RimWorld.CompProperties_Milkable"][milkDef="Chemfuel"]</xpath>
-          </match>
-        </li>
-        <li Class="PatchOperationAdd">
-          <xpath>/Defs/ThingDef[defName="Boomalope"]/comps</xpath>
+  <Operation Class="PatchOperationSequence">
+    <operations>
+      <li Class="PatchOperationConditional">
+        <xpath>/Defs/ThingDef[defName="Boomalope"]/comps</xpath>
+        <nomatch Class="PatchOperationAdd">
+          <xpath>/Defs/ThingDef[defName="Boomalope"]</xpath>
           <value>
-            <li Class="CompProperties_Milkable">
-              <milkDef>Chemfuel</milkDef>
-              <milkIntervalDays>1</milkIntervalDays>
-              <milkAmount>11</milkAmount>
-              <milkFemaleOnly>false</milkFemaleOnly>
-            </li>
+            <comps />
           </value>
-        </li>
-      </operations>
-    </nomatch>
+        </nomatch>
+      </li>
+      <li Class="PatchOperationConditional">
+        <xpath>/Defs/ThingDef[defName="Boomalope"]/comps/li[@Class="CompProperties_Milkable" or @Class="RimWorld.CompProperties_Milkable"][milkDef="Chemfuel"]</xpath>
+        <match Class="PatchOperationRemove">
+          <xpath>/Defs/ThingDef[defName="Boomalope"]/comps/li[@Class="CompProperties_Milkable" or @Class="RimWorld.CompProperties_Milkable"][milkDef="Chemfuel"]</xpath>
+        </match>
+      </li>
+      <li Class="PatchOperationAdd">
+        <xpath>/Defs/ThingDef[defName="Boomalope"]/comps</xpath>
+        <value>
+          <li Class="CompProperties_Milkable">
+            <milkDef>Chemfuel</milkDef>
+            <milkIntervalDays>1</milkIntervalDays>
+            <milkAmount>11</milkAmount>
+            <milkFemaleOnly>false</milkFemaleOnly>
+          </li>
+        </value>
+      </li>
+    </operations>
   </Operation>
 </Patch>
