@@ -19,8 +19,9 @@ from core.static_stats import read_table
 from core.xml_routing import digest
 from core.checker_config import ROOT
 from core.amphibian_reproduction import (
-    AMBI_DEFS, AMBI_PATCH, EGG_FIELDS, external_roe_rows, render_roe_defs, render_roe_patch,
-    _find_section, _normalize_header,
+    AMBI_DEFS, AMBI_PATCH, EGG_FIELDS, aquatic_rows, render_roe_defs, render_roe_patch,
+    _find_section, _normalize_header, AQUATIC_MOD_ROUTES,
+    aquatic_species_by_route, render_mod_aquatic_defs,
 )
 
 # Spreadsheet tab name; the stable legacy manifest marker 'EggMilk' is NOT a sheet name.
@@ -297,15 +298,30 @@ def render_reproduction(source,root,egg_milk_source=None,animals_source=None,ani
         raise ValueError('Animals table must contain Common name and XML name columns')
     # Pandas assigns 'Unnamed: 9' and 'Unnamed: 14' to separator columns.
     egg=pd_egg_map(frame)
-    amphibians=(external_roe_rows(frame)
-                if {AMBI_DEFS, AMBI_PATCH} & set(destinations) else {})
+    generated_defs = {defs for defs, _ in AQUATIC_MOD_ROUTES.values()}
+    generated_patches = {patch for _, patch in AQUATIC_MOD_ROUTES.values()}
+    aquatic_destinations = {AMBI_DEFS, AMBI_PATCH} | generated_defs | generated_patches
+    aquatic = aquatic_rows(frame) if aquatic_destinations & set(destinations) else {}
+    routed = aquatic_species_by_route(aquatic, animals)
+    for dest, species in routed.items():
+        if species and dest not in destinations:
+            raise ValueError(f'{dest}: missing required aquatic output route')
     outputs=[];report=[]
     for dest in destinations:
         original=mod/dest
+        if dest in generated_defs | generated_patches:
+            species = routed[dest]
+            tree = (render_mod_aquatic_defs(species, mod) if dest in generated_defs
+                    else render_roe_patch(species))
+            payload = E.tostring(tree, encoding='utf-8', xml_declaration=True, pretty_print=True)
+            outputs.append((dest, payload))
+            report.append({'target': dest, 'status': 'generated', 'generated_species': sorted(species)})
+            continue
         if not original.exists():
             report.append({'target':dest,'status':'missing','warnings':['File absent; no new patch synthesized']});continue
         tree=E.parse(str(original),E.XMLParser(remove_blank_text=False))
         if dest in (AMBI_DEFS, AMBI_PATCH):
+            amphibians = routed[dest]
             generated=(render_roe_defs(tree, amphibians) if dest==AMBI_DEFS
                        else render_roe_patch(amphibians))
             payload=E.tostring(generated,encoding='utf-8',xml_declaration=True,pretty_print=True)
@@ -325,7 +341,7 @@ def render_reproduction(source,root,egg_milk_source=None,animals_source=None,ani
                        'matched':touched})
     if include_missing_egg_counts:
         from core.product_generation import render_products
-        payload, records = render_products(frame, animals, amphibians)
+        payload, records = render_products(frame, animals, aquatic)
         outputs.append((PRODUCTION_DESTINATION, payload))
         report.append({'target': PRODUCTION_DESTINATION, 'status': 'generated',
                        'generated_species': sorted(records), 'records': len(records)})

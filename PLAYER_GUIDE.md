@@ -100,14 +100,14 @@ mean temperature is at least 15 °C. The size and connectivity of suitable
 inland water areas are evaluated together. Ocean water is excluded.
 Smaller water-dependent animals can spawn near smaller ponds, whereas
 giant crocodilians and hippopotamuses require substantial connected
-water habitats. Requirements use the final in-game body size and
-ectothermic classification, not a fixed common water-cell threshold.
+water habitats. Requirements depend on the species' adult body size.
 
 Water-dependent species are absent when their minimum connected-water
 requirement is not met. Their spawning weight rises gradually from zero
-to twice its usual value as inland water becomes more extensive and
-suitable. Flowing river water contributes more to habitat abundance than
-standing water. Terrestrial animals retain their usual spawning weight.
+to three times its usual value as inland water becomes more extensive
+and suitable, subject to a maximum biome commonality of 0.5.
+Flowing river water contributes more to habitat abundance than standing
+water. Terrestrial animals retain their usual spawning weight.
 Species in the coastal spawn pool follow the game's coastal spawn rules.
 Normal biome eligibility, temperatures, group sizes and other
 game spawning restrictions still apply. Incidents, quests, and
@@ -823,7 +823,7 @@ Tamed animals remain active throughout the year and can use family dens for repr
 
 #### Ectotherms and water habitat
 
-Ectothermic animals use their own cold-related physiological handling. Suitable ectotherms can bask on land under appropriate temperature and environmental conditions.
+Ectothermic animals use their own cold-related physiological handling. Animals with reduced wandering activity spend longer resting between idle movements on land.
 
 With **Water habitat behavior** active, water-adapted animals may seek water as part of ordinary idle movement. Terrestrial herd animals in water may look for accessible dry ground. This affects everyday habitat use; the water-escape response during an emergency is governed by advanced threat avoidance.
 

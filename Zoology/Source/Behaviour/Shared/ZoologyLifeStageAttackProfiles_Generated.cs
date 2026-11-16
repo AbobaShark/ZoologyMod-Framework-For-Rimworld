@@ -7775,10 +7775,10 @@ namespace ZoologyMod
             });
             target.Add("Meganeura\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
             {
-                new ZoologyLifeStageToolFactor { vanillaToolIndex = 0, ceToolIndex = 0, capacities = "Blunt", label = "head", linkedBodyPartsGroup = "HeadAttackTool", ceCooldownFactor = 0.32f },
-                new ZoologyLifeStageToolFactor { vanillaToolIndex = 1, ceToolIndex = 1, capacities = "Scratch", label = "left claw", linkedBodyPartsGroup = "LeftPincer", ceDamageFactor = 0.2f, ceCooldownFactor = 0.33f },
-                new ZoologyLifeStageToolFactor { vanillaToolIndex = 2, ceToolIndex = 2, capacities = "Scratch", label = "right claw", linkedBodyPartsGroup = "RightPincer", ceDamageFactor = 0.2f, ceCooldownFactor = 0.33f },
-                new ZoologyLifeStageToolFactor { vanillaToolIndex = 3, ceToolIndex = 3, capacities = "Bite", label = "mandibles", linkedBodyPartsGroup = "Mouth", ceDamageFactor = 0.02f, ceCooldownFactor = 0.38f, ceBluntPenetrationFactor = 0f },
+                new ZoologyLifeStageToolFactor { vanillaToolIndex = 0, ceToolIndex = 0, capacities = "Blunt", label = "head", linkedBodyPartsGroup = "HeadAttackTool", ceCooldownFactor = 0.2f },
+                new ZoologyLifeStageToolFactor { vanillaToolIndex = 1, ceToolIndex = 1, capacities = "Scratch", label = "left claw", linkedBodyPartsGroup = "LeftPincer", ceDamageFactor = 0.2f, ceCooldownFactor = 0.19f },
+                new ZoologyLifeStageToolFactor { vanillaToolIndex = 2, ceToolIndex = 2, capacities = "Scratch", label = "right claw", linkedBodyPartsGroup = "RightPincer", ceDamageFactor = 0.2f, ceCooldownFactor = 0.19f },
+                new ZoologyLifeStageToolFactor { vanillaToolIndex = 3, ceToolIndex = 3, capacities = "Bite", label = "mandibles", linkedBodyPartsGroup = "Mouth", ceDamageFactor = 0.02f, ceCooldownFactor = 0.25f, ceBluntPenetrationFactor = 0f },
             });
             target.Add("Meganeura\nAnimalJuvenile", new List<ZoologyLifeStageToolFactor>
             {
@@ -7796,10 +7796,10 @@ namespace ZoologyMod
             });
             target.Add("Meganeura\nEusocialInsectLarva", new List<ZoologyLifeStageToolFactor>
             {
-                new ZoologyLifeStageToolFactor { vanillaToolIndex = 0, ceToolIndex = 0, capacities = "Blunt", label = "head", linkedBodyPartsGroup = "HeadAttackTool", ceCooldownFactor = 0.32f },
-                new ZoologyLifeStageToolFactor { vanillaToolIndex = 1, ceToolIndex = 1, capacities = "Scratch", label = "left claw", linkedBodyPartsGroup = "LeftPincer", ceDamageFactor = 0.2f, ceCooldownFactor = 0.33f },
-                new ZoologyLifeStageToolFactor { vanillaToolIndex = 2, ceToolIndex = 2, capacities = "Scratch", label = "right claw", linkedBodyPartsGroup = "RightPincer", ceDamageFactor = 0.2f, ceCooldownFactor = 0.33f },
-                new ZoologyLifeStageToolFactor { vanillaToolIndex = 3, ceToolIndex = 3, capacities = "Bite", label = "mandibles", linkedBodyPartsGroup = "Mouth", ceDamageFactor = 0.02f, ceCooldownFactor = 0.38f, ceBluntPenetrationFactor = 0f },
+                new ZoologyLifeStageToolFactor { vanillaToolIndex = 0, ceToolIndex = 0, capacities = "Blunt", label = "head", linkedBodyPartsGroup = "HeadAttackTool", ceCooldownFactor = 0.2f },
+                new ZoologyLifeStageToolFactor { vanillaToolIndex = 1, ceToolIndex = 1, capacities = "Scratch", label = "left claw", linkedBodyPartsGroup = "LeftPincer", ceDamageFactor = 0.2f, ceCooldownFactor = 0.19f },
+                new ZoologyLifeStageToolFactor { vanillaToolIndex = 2, ceToolIndex = 2, capacities = "Scratch", label = "right claw", linkedBodyPartsGroup = "RightPincer", ceDamageFactor = 0.2f, ceCooldownFactor = 0.19f },
+                new ZoologyLifeStageToolFactor { vanillaToolIndex = 3, ceToolIndex = 3, capacities = "Bite", label = "mandibles", linkedBodyPartsGroup = "Mouth", ceDamageFactor = 0.02f, ceCooldownFactor = 0.25f, ceBluntPenetrationFactor = 0f },
             });
             target.Add("Megascarab\nAnimalBaby", new List<ZoologyLifeStageToolFactor>
             {

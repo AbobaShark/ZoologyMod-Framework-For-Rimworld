@@ -1,8 +1,7 @@
-"""Amphibian reproduction XML generated from EggMilkWool, without species literals.
+"""Aquatic cohort XML generated from independent EggMilkWool tables.
 
-An independent amphibian table holds larval development and cohort
-limits; ordinary egg production rows are joined by species DefName.
-The original egg/item definitions supply non-biological artwork and Thing metadata.
+The larval development table joins ordinary egg production by species DefName.
+Species-specific Thing definitions supply artwork and other non-biological metadata.
 """
 from __future__ import annotations
 
@@ -39,11 +38,48 @@ AMPHIBIAN_FIELDS = (
     'Mean clutch wet mass (kg)',
     'Mean clutch Nutrition',
 )
+AQUATIC_PROFILE_FIELDS = (
+    'Biological recruits per Pawn',
+    'Emergence stage',
+    'Larval form',
+    'Fertilization count per mating',
+    'Protect from conspecifics',
+)
 INTEGER_RANGE = re.compile(r'([1-9]\d*)(?:~([1-9]\d*))?\Z')
 DEF_REF = re.compile(r'<li>\s*([A-Za-z][A-Za-z_0-9]*)\s*</li>\Z')
 
 AMBI_DEFS = 'DLC/Odyssey/Defs/ThingDefs_Items/AmphibianRoe.xml'
 AMBI_PATCH = 'DLC/Odyssey/Patches/Misc/CompProperties_EggLayer_Amphibians.xml'
+
+AQUATIC_MOD_ROUTES = {
+    'spino.megafauna': (
+        'ModPatches/Megafauna/Defs/ThingDefs_Items/AquaticReproduction_Generated.xml',
+        'ModPatches/Megafauna/Patches/Misc/AquaticReproduction_Generated.xml',
+    ),
+}
+
+def aquatic_species_by_route(species, animals):
+    """Resolve source ownership by the race's Animals MayRequire field."""
+    ownership = {}
+    for _, row in animals.iterrows():
+        match = _as_xml_def(row.get('XML name', ''))
+        if match:
+            ownership[match[1]] = str(row.get('MayRequire', '')).strip().casefold()
+    routed = {AMBI_DEFS: {}, AMBI_PATCH: {}}
+    for defs, patch in AQUATIC_MOD_ROUTES.values():
+        routed[defs] = {}
+        routed[patch] = {}
+    for race, row in species.items():
+        owner = ownership.get(race)
+        if owner == 'ludeon.rimworld.odyssey':
+            defs, patch = AMBI_DEFS, AMBI_PATCH
+        elif owner in AQUATIC_MOD_ROUTES:
+            defs, patch = AQUATIC_MOD_ROUTES[owner]
+        else:
+            raise ValueError(f'{race}: no registered aquatic output for source-mod {owner!r}')
+        routed[defs][race] = row
+        routed[patch][race] = row
+    return routed
 
 
 def _positive_number(value, label):
@@ -98,7 +134,10 @@ def _find_section(headers, required, optional=()):
             occupied = [i for i, field in enumerate(segment) if field in required]
             if len(occupied) >= len(required) + len(tail):
                 if [segment[i] for i in occupied[-len(tail):]] == tail:
-                    segment = segment[:occupied[-len(tail)]]
+                    # Mask the projection without changing physical indices;
+                    # profile fields may be placed on either side of it.
+                    for i in occupied[-len(tail):]:
+                        segment[i] = ''
         if any(segment.count(field) != 1 for field in required):
             continue
         if any(segment.count(field) > 1 for field in optional):
@@ -116,20 +155,16 @@ def _as_xml_def(value):
     return DEF_REF.fullmatch(str(value).strip())
 
 
-def external_roe_rows(egg_frame, original_columns=None):
-    """Join two physically independent EggMilkWool tables by animal DefName.
-
-    The normal egg-production rows continue to describe every egg-laying
-    species. Only rows in the separate amphibian table with an explicit
-    EXTERNAL mode produce amphibian definitions.
-    """
+def aquatic_rows(egg_frame, original_columns=None):
+    """Join aquatic development records to egg production by animal DefName."""
     columns = list(egg_frame.columns)
     if original_columns is not None and len(original_columns) != len(columns):
         raise ValueError('EggMilkWool: header width differs from data width')
     raw_headers = original_columns if original_columns is not None else columns
     headers = [_normalize_header(value) for value in raw_headers]
     egg_positions = _find_section(headers, EGG_FIELDS)
-    amphibian_positions = _find_section(headers, AMPHIBIAN_FIELDS)
+    amphibian_positions = _find_section(
+        headers, AMPHIBIAN_FIELDS, optional=AQUATIC_PROFILE_FIELDS)
 
     def record(row_number, positions):
         return {field: egg_frame.iat[row_number, idx]
@@ -161,7 +196,7 @@ def external_roe_rows(egg_frame, original_columns=None):
                     f'EggMilkWool: amphibian {name!r} on row {n + 2} '
                     'has no fertilization mode')
             continue
-        if mode != 'EXTERNAL':
+        if mode not in ('EXTERNAL', 'INTERNAL'):
             raise ValueError(
                 f'EggMilkWool: unsupported fertilization mode {mode!r} on row {n + 2}')
         match = _as_xml_def(name)
@@ -187,8 +222,8 @@ def external_roe_rows(egg_frame, original_columns=None):
         game_larval = _positive_number(
             larva['Tadpole development (RimWorld days)'], f'{race}.larvalGameDays')
         geom = str(larva['Clutch jelly geometry']).strip().upper()
-        if geom not in ('SPHERE', 'STRING'):
-            raise ValueError(f'{race}: egg jelly geometry must be SPHERE or STRING')
+        if geom not in ('SPHERE', 'STRING', 'OVUM'):
+            raise ValueError(f'{race}: egg geometry must be SPHERE, STRING or OVUM')
         if geom == 'STRING':
             _positive_number(larva['Egg string pitch (mm)'], f'{race}.stringPitchMm')
         mass_g = _positive_number(
@@ -219,8 +254,47 @@ def external_roe_rows(egg_frame, original_columns=None):
         if (abs(mean_nutrition - expected_nutrition)
                 > expected_nutrition * Decimal('0.00001')):
             raise ValueError(f'{race}: mean Nutrition does not match chemical energy')
+        def profile_value(field, default):
+            value = str(larva.get(field, '')).strip()
+            if value.casefold() in ('', 'nan', 'none'):
+                if mode == 'INTERNAL':
+                    raise ValueError(f'{race}: missing aquatic field {field}')
+                return default
+            return value.upper()
+
+        recruits = _positive_number(profile_value('Biological recruits per Pawn', '100'),
+                                    f'{race}.biologicalRecruitsPerPawn')
+        if recruits != recruits.to_integral_value() or recruits > 2147483647:
+            raise ValueError(f'{race}: recruitment divisor must be a positive Int32')
+        stage = profile_value('Emergence stage', 'NEWBORN')
+        if stage not in ('NEWBORN', 'ADULT'):
+            raise ValueError(f'{race}: emergence stage must be NEWBORN or ADULT')
+        form = profile_value('Larval form', 'TADPOLE')
+        if form not in ('TADPOLE', 'NYMPH'):
+            raise ValueError(f'{race}: larval form must be TADPOLE or NYMPH')
+        protected = profile_value('Protect from conspecifics', 'TRUE')
+        if protected not in ('TRUE', 'FALSE'):
+            raise ValueError(f'{race}: protection must be TRUE or FALSE')
+        fertilization_count = 0
+        if mode == 'INTERNAL':
+            fertilization_count = _positive_number(
+                profile_value('Fertilization count per mating', ''),
+                f'{race}.fertilizationCountPerMating')
+            if (fertilization_count != fertilization_count.to_integral_value()
+                    or fertilization_count > 2147483647):
+                raise ValueError(f'{race}: fertilization count must be a positive Int32')
+        egg_prefix = f'Egg{race}' if form == 'TADPOLE' else f'Zoology_{race}AquaticEgg'
+        larva_def = f'Zoology_{race}' + ('Tadpole' if form == 'TADPOLE' else 'Nymph')
         rows[race] = {
             'race': race,
+            'fertilization_mode': mode,
+            'fertilization_count': int(fertilization_count),
+            'recruitment_divisor': int(recruits),
+            'emergence_stage': stage,
+            'larval_form': form,
+            'protect_from_conspecifics': protected.lower(),
+            'egg_prefix': egg_prefix,
+            'larva_def': larva_def,
             'common': str(larva['Name']).strip() or race,
             'egg_range': str(egg['eggCountRange']).strip(),
             'embryo_survival': format(embryo_survival.normalize(), 'f'),
@@ -302,15 +376,18 @@ def render_roe_defs(xml_tree, species):
     expected = set()
     for row in species.values():
         race = row['race']
-        expected.update((f'Egg{race}Unfertilized', f'Egg{race}Fertilized', f'Zoology_{race}Tadpole'))
+        egg_prefix, larva_def = row['egg_prefix'], row['larva_def']
+        expected.update((f'{egg_prefix}Unfertilized', f'{egg_prefix}Fertilized', larva_def))
         display = re.sub(r'(?<!^)(?=[A-Z])', ' ', row['common']).lower()
         for phase, name, template in (
-            ('unfertilized', f'Egg{race}Unfertilized', templates[0]),
-            ('fertilized', f'Egg{race}Fertilized', templates[1]),
-            ('tadpole', f'Zoology_{race}Tadpole', templates[2]),
+            ('unfertilized', f'{egg_prefix}Unfertilized', templates[0]),
+            ('fertilized', f'{egg_prefix}Fertilized', templates[1]),
+            ('tadpole', larva_def, templates[2]),
         ):
             node = current.get(name)
             if node is None:
+                if row['larval_form'] != 'TADPOLE':
+                    raise ValueError(f'{name}: required species-specific ThingDef with artwork')
                 node = deepcopy(template)
                 root.append(node)
                 current[name] = node
@@ -319,13 +396,21 @@ def render_roe_defs(xml_tree, species):
                 _neutralize_cloned_color(node)
             _set(node, 'defName', name)
             if phase == 'tadpole':
+                if row['larval_form'] != 'TADPOLE':
+                    texture = node.findtext('./graphicData/texPath')
+                    if not texture or texture.endswith('/Tadpole'):
+                        raise ValueError(f'{name}: species-specific larval texture required')
                 _set(node, 'thingClass', 'ZoologyMod.Thing_ColossusToadTadpoles' if race == 'ColossusToad' else 'ThingWithComps')
                 c = _tad_comp(node)
                 _set(c, 'pawnKind', race)
                 _set(c, 'daysToMetamorphosis', row['larval_days'])
                 _remove(c, 'frogletCountRange')
                 _set(c, 'tadpoleSurvival', row['tadpole_survival'])
-                _set(c, 'sourceRoeDef', f'Egg{race}Fertilized')
+                _set(c, 'sourceRoeDef', f'{egg_prefix}Fertilized')
+                _set(c, 'biologicalMetamorphsPerPawn', row['recruitment_divisor'])
+                _set(c, 'emergeAsAdult', str(row['emergence_stage'] == 'ADULT').lower())
+                _set(c, 'larvalForm', row['larval_form'].title())
+                _set(c, 'protectFromConspecifics', row['protect_from_conspecifics'])
                 _set(c, 'hatchMassKg', row['hatch_mass_kg'])
                 _set(c, 'metamorphMassKg', row['metamorph_mass_kg'])
                 _set(c, 'grossEnergyMJPerKg', row['tadpole_energy_mj_kg'])
@@ -349,7 +434,10 @@ def render_roe_defs(xml_tree, species):
                 if data is None:
                     data = E.SubElement(node, 'graphicData')
                 _set(data, 'graphicClass', 'Graphic_Single')
-                _set(data, 'texPath', 'Things/Item/Zoology/AmphibianRoe')
+                if row['larval_form'] == 'TADPOLE':
+                    _set(data, 'texPath', 'Things/Item/Zoology/AmphibianRoe')
+                elif not data.findtext('texPath') or data.findtext('texPath').endswith('/AmphibianRoe'):
+                    raise ValueError(f'{name}: species-specific clutch texture required')
                 stats = node.find('statBases')
                 if stats is None:
                     stats = E.SubElement(node, 'statBases')
@@ -359,6 +447,8 @@ def render_roe_defs(xml_tree, species):
                 _set(stats, 'Nutrition', row['mean_roe_nutrition'])
                 comp = _roe_comp(node)
                 _set(comp, 'parentRace', race)
+                _set(comp, 'fertilizationMode', row['fertilization_mode'].title())
+                _set(comp, 'protectFromConspecifics', row['protect_from_conspecifics'])
                 _set(comp, 'fertilized', 'true' if phase == 'fertilized' else 'false')
                 _set(comp, 'defaultOvaCount', row['mean_eggs'])
                 _set(comp, 'wetMassPerOvumKg', row['mass_per_egg_kg'])
@@ -366,31 +456,83 @@ def render_roe_defs(xml_tree, species):
                 _set(comp, 'joulesPerNutrition', row['joules_per_nutrition'])
                 _remove(comp, 'hatchlingCountRange')
                 if phase == 'unfertilized':
-                    _set(comp, 'fertilizedRoeDef', f'Egg{race}Fertilized')
+                    if row['fertilization_mode'] == 'EXTERNAL':
+                        _set(comp, 'fertilizedRoeDef', f'{egg_prefix}Fertilized')
+                    else:
+                        _remove(comp, 'fertilizedRoeDef')
                     _remove(comp, 'daysToHatch')
                     _remove(comp, 'tadpoleDef')
                     _remove(comp, 'embryoSurvival')
                 else:
                     _remove(comp, 'fertilizedRoeDef')
                     _set(comp, 'daysToHatch', row['hatch_days'])
-                    _set(comp, 'tadpoleDef', f'Zoology_{race}Tadpole')
+                    _set(comp, 'tadpoleDef', larva_def)
                     _set(comp, 'embryoSurvival', row['embryo_survival'])
     for name, node in list(current.items()):
         if (node.find('./comps/li[@Class="ZoologyMod.CompProperties_AmphibianRoe, ZoologyMod"]') is not None
             or node.find('./comps/li[@Class="ZoologyMod.CompProperties_Tadpole, ZoologyMod"]') is not None):
             if name not in expected:
-                raise ValueError(f'Amphibian definition {name} lacks matching EggMilkWool EXTERNAL row')
+                raise ValueError(f'Aquatic definition {name} lacks matching EggMilkWool row')
     return xml_tree
 
+
+
+def render_mod_aquatic_defs(species, mod):
+    """Build aquatic items from explicit species artwork and numeric profiles."""
+    root = E.Element('Defs')
+    for row in species.values():
+        race = row['race']
+        if row['larval_form'] != 'NYMPH':
+            raise ValueError(f'{race}: no species-specific artwork contract for larval form')
+        prefix = f'Things/Item/Zoology/Aquatic/{race}'
+        egg_tex = f'{prefix}/Clutch'
+        # Megafauna's nymph sprite is directional and is supplied by the dependency.
+        larva_tex = ('Things/Pawn/Animal/Meganeura/megafauna_meganeuraNymph'
+                     if race == 'Meganeura' else f'{prefix}/Nymph')
+        larva_graphic = 'Graphic_Multi' if race == 'Meganeura' else 'Graphic_Single'
+        owned_textures = (egg_tex,) if race == 'Meganeura' else (egg_tex, larva_tex)
+        for texture in owned_textures:
+            if not (mod / 'Textures' / (texture + '.png')).is_file():
+                raise ValueError(f'{race}: missing texture {texture}')
+        display = re.sub(r'(?<!^)(?=[A-Z])', ' ', row['common']).lower()
+        for fertile in (False, True):
+            node = E.SubElement(root, 'ThingDef', ParentName='EggUnfertBase')
+            _set(node, 'defName', row['egg_prefix'] + ('Fertilized' if fertile else 'Unfertilized'))
+            _set(node, 'label', display + (' eggs (fertilized)' if fertile else ' eggs (unfertilized)'))
+            _set(node, 'description', 'A clutch of aquatic eggs.')
+            _set(node, 'stackLimit', 1)
+            if fertile:
+                _set(node, 'tickerType', 'Normal')
+            data = E.SubElement(node, 'graphicData')
+            _set(data, 'texPath', egg_tex)
+            _set(data, 'graphicClass', 'Graphic_Single')
+            _roe_comp(node)
+        node = E.SubElement(root, 'ThingDef')
+        _set(node, 'defName', row['larva_def'])
+        _set(node, 'label', display + ' nymphs')
+        _set(node, 'description', 'A group of predatory aquatic nymphs that emerge as winged adults.')
+        for key, value in (('thingClass','ThingWithComps'), ('category','Item'),
+                           ('stackLimit','1'), ('tickerType','Normal'), ('selectable','true'),
+                           ('useHitPoints','true')):
+            _set(node, key, value)
+        stats = E.SubElement(node, 'statBases')
+        for key, value in (('MaxHitPoints','20'), ('MarketValue','0'), ('DeteriorationRate','0')):
+            _set(stats, key, value)
+        data = E.SubElement(node, 'graphicData')
+        _set(data, 'texPath', larva_tex)
+        _set(data, 'graphicClass', larva_graphic)
+        _set(data, 'drawSize', '(0.45,0.45)')
+        _tad_comp(node)
+    tree = E.ElementTree(root)
+    return render_roe_defs(tree, species) if species else tree
 
 def _value_comp(row):
     node = E.Element('li', Class='CompProperties_EggLayer')
     _set(node, 'eggLayIntervalDays', row['egg_interval'])
     _set(node, 'eggCountRange', row['egg_range'])
-    # External fertilization occurs after laying, not within CompEggLayer.
-    _set(node, 'eggFertilizationCountMax', 0)
-    _set(node, 'eggUnfertilizedDef', f"Egg{row['race']}Unfertilized")
-    _set(node, 'eggFertilizedDef', f"Egg{row['race']}Fertilized")
+    _set(node, 'eggFertilizationCountMax', row['fertilization_count'])
+    _set(node, 'eggUnfertilizedDef', f"{row['egg_prefix']}Unfertilized")
+    _set(node, 'eggFertilizedDef', f"{row['egg_prefix']}Fertilized")
     return node
 
 
@@ -399,6 +541,20 @@ def render_roe_patch(species):
     for row in species.values():
         race = row['race']
         base = f'/Defs/ThingDef[defName="{race}"]'
+        if row['fertilization_mode'] == 'INTERNAL':
+            # A native egg layer remains available when aquatic reproduction
+            # is disabled. Its cohort parameters are installed from this profile.
+            extension = _value_comp(row)
+            extension.set('Class', 'ZoologyMod.ModExtension_AquaticEggLayer, ZoologyMod')
+            op = E.SubElement(root, 'Operation', Class='PatchOperationConditional')
+            _set(op, 'xpath', base + '/modExtensions')
+            match = E.SubElement(op, 'match', Class='PatchOperationAdd')
+            _set(match, 'xpath', base + '/modExtensions')
+            E.SubElement(match, 'value').append(deepcopy(extension))
+            nomatch = E.SubElement(op, 'nomatch', Class='PatchOperationAdd')
+            _set(nomatch, 'xpath', base)
+            E.SubElement(E.SubElement(nomatch, 'value'), 'modExtensions').append(extension)
+            continue
         comp_path = base + '/comps/li[@Class="CompProperties_EggLayer"]'
         op = E.SubElement(root, 'Operation', Class='PatchOperationConditional')
         _set(op, 'xpath', comp_path)

@@ -70,7 +70,8 @@ namespace ZoologyMod
             }
             else if (waterBuckets.TryGetValue(key, out var cells)) cells.Remove(cell);
         }
-        internal bool TryWaterCell(Pawn pawn, IntVec3 center, float radius, out IntVec3 result)
+        internal bool TryWaterCell(Pawn pawn, IntVec3 center, float radius, out IntVec3 result,
+            Func<IntVec3, bool> accept = null)
         {
             float nearest = radius * radius + .001f; result = IntVec3.Invalid;
             PathGrid grid = pawn.Map.pathing.For(pawn).pathGrid;
@@ -80,11 +81,43 @@ namespace ZoologyMod
                         foreach (IntVec3 cell in cells)
                         {
                             float distance = (cell - center).LengthHorizontalSquared;
-                            if (distance < nearest && grid.WalkableFast(cell))
+                            if (distance < nearest && grid.WalkableFast(cell)
+                                && (accept == null || accept(cell)))
                             { nearest = distance; result = cell; }
                         }
             return result.IsValid;
         }
+        // Egg-laying is an occasional choice, using the existing water index.
+        // Randomize candidates before reachability checks instead of pathing to
+        // every cell in the pond or always selecting the closest shore.
+        internal bool TryRandomWaterCell(Pawn pawn, IntVec3 center, float radius, out IntVec3 result)
+        {
+            result = IntVec3.Invalid;
+            var candidates = new List<IntVec3>();
+            PathGrid grid = pawn.Map.pathing.For(pawn).pathGrid;
+            for (int x = Math.Max(0, center.x - (int)Math.Ceiling(radius)) / 16; x <= (center.x + radius) / 16; x++)
+                for (int z = Math.Max(0, center.z - (int)Math.Ceiling(radius)) / 16; z <= (center.z + radius) / 16; z++)
+                    if (waterBuckets.TryGetValue((x << 16) | z, out var cells))
+                        foreach (IntVec3 cell in cells)
+                            if (cell.InHorDistOf(center, radius) && grid.WalkableFast(cell)
+                                && cell.GetTerrain(map).IsWater && cell.GetEdifice(map) == null
+                                && !cell.IsForbidden(pawn))
+                                candidates.Add(cell);
+            while (candidates.Count > 0)
+            {
+                int i = Rand.Range(0, candidates.Count);
+                IntVec3 cell = candidates[i];
+                candidates[i] = candidates[candidates.Count - 1];
+                candidates.RemoveAt(candidates.Count - 1);
+                if (pawn.CanReach(cell, PathEndMode.OnCell, Danger.Some))
+                {
+                    result = cell;
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public void Register(Thing thing)
         {
             if (thing is Plant plant && plant.def.plant.IsTree && !plant.def.plant.isStump) Trees.Add(plant);

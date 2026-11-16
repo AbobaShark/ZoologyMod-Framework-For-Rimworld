@@ -896,6 +896,7 @@ namespace ZoologyMod
             DefModExtensionCache<ModExtension_CannotBeAugmented>.Clear();
             DefModExtensionCache<ModExtension_CannotChew>.Clear();
             DefModExtensionCache<ModExtension_Ectothermic>.Clear();
+            DefModExtensionCache<ModExtension_ReducedWandering>.Clear();
             DefModExtensionCache<ModExtension_IsMammal>.Clear();
             DefModExtensionCache<ModExtension_IsScavenger>.Clear();
             DefModExtensionCache<ModExtension_NoFlee>.Clear();

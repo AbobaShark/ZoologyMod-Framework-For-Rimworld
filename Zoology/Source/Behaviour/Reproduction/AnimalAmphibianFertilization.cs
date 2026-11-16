@@ -24,6 +24,12 @@ namespace ZoologyMod
                 return null;
 
             if (!AnimalSeasonalReproduction.AllowsMating(pawn)) return null;
+            CompProperties_EggLayer eggs = pawn.def.GetCompProperties<CompProperties_EggLayer>();
+            ThingDef unfertilizedDef = eggs?.eggUnfertilizedDef;
+            if (unfertilizedDef?.GetCompProperties<CompProperties_AmphibianRoe>()
+                ?.fertilizationMode != AquaticFertilizationMode.External)
+                return null;
+
             CompAnimalStrategyState state = pawn.TryGetComp<CompAnimalStrategyState>();
             if (state == null || state.nextRoeFertilizationPlan > GenTicks.TicksGame)
                 return null;
@@ -31,9 +37,6 @@ namespace ZoologyMod
             if (index == null || !index.TryPlan()) return null;
             state.nextRoeFertilizationPlan = GenTicks.TicksGame + SearchInterval;
 
-            CompProperties_EggLayer eggs = pawn.def.GetCompProperties<CompProperties_EggLayer>();
-            ThingDef unfertilizedDef = eggs?.eggUnfertilizedDef;
-            if (unfertilizedDef == null) return null;
             List<Thing> clutches = pawn.Map.listerThings.ThingsOfDef(unfertilizedDef);
             Thing nearest = null;
             float bestDistance = SearchRadius * SearchRadius;

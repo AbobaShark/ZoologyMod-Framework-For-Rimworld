@@ -5,12 +5,15 @@ aquatic reproduction table contains only opt-in species. Their rows must
 never be assumed to match and the source layout is discovered by headings.
 """
 import unittest
+import tempfile
+from pathlib import Path
 import pandas as pd
 from lxml import etree as E
 
 from core.amphibian_reproduction import (
-    EGG_FIELDS, AMPHIBIAN_FIELDS, external_roe_rows,
-    render_roe_defs, render_roe_patch,
+    EGG_FIELDS, AMPHIBIAN_FIELDS, AQUATIC_PROFILE_FIELDS, aquatic_rows,
+    render_roe_defs, render_roe_patch, AQUATIC_MOD_ROUTES, aquatic_species_by_route,
+    render_mod_aquatic_defs,
 )
 from core.production_stats import pd_egg_map, _index
 from core.product_generation import render_products
@@ -132,7 +135,7 @@ def initial_defs():
 class AmphibianGenerationTests(unittest.TestCase):
     def test_join_is_by_defname_not_shared_sheet_row(self):
         source = fixture()
-        species = external_roe_rows(source)
+        species = aquatic_rows(source)
         self.assertEqual(set(species), {"Bullfrog", "ColossusToad"})
         self.assertEqual(species["Bullfrog"]["egg_range"], "9110~16920")
         self.assertEqual(species["Bullfrog"]["mean_eggs"], 13014)
@@ -147,7 +150,7 @@ class AmphibianGenerationTests(unittest.TestCase):
         self.assertEqual(species["ColossusToad"]["tadpole_survival"], "0.05")
 
     def test_independent_xml_only_for_amphibians(self):
-        species = external_roe_rows(fixture())
+        species = aquatic_rows(fixture())
         defs = render_roe_defs(initial_defs(), species)
         self.assertEqual(len(defs.findall("./ThingDef")), 6)
         self.assertIsNotNone(defs.find('.//ThingDef[defName="Zoology_ColossusToadTadpole"]'))
@@ -178,13 +181,101 @@ class AmphibianGenerationTests(unittest.TestCase):
         # Repeated generation does not create additional ThingDefs.
         self.assertEqual(len(render_roe_defs(defs, species).findall("./ThingDef")), 6)
 
+    def test_frog_recruitment_defaults_remain_unchanged(self):
+        rows = aquatic_rows(fixture())
+        for race, hatchlings, recruits in (('Bullfrog', 11973, 673),
+                                          ('ColossusToad', 21540, 1077)):
+            row = rows[race]
+            self.assertEqual(row['fertilization_mode'], 'EXTERNAL')
+            self.assertEqual(row['recruitment_divisor'], 100)
+            self.assertEqual(row['emergence_stage'], 'NEWBORN')
+            self.assertEqual(row['protect_from_conspecifics'], 'true')
+            self.assertEqual(round(row['mean_eggs'] * float(row['embryo_survival'])), hatchlings)
+            self.assertEqual(round(hatchlings * float(row['tadpole_survival'])), recruits)
+
+    def test_internal_profile_requires_explicit_recruitment_data_and_artwork(self):
+        data = fixture()
+        data.iat[0, 28] = 'INTERNAL'
+        with self.assertRaisesRegex(ValueError, 'missing aquatic field'):
+            aquatic_rows(data)
+        for field, value in zip(AQUATIC_PROFILE_FIELDS, (10, 'ADULT', 'NYMPH', 20000, 'FALSE')):
+            data.insert(len(data.columns) - 5, field, [value] + [''] * (len(data) - 1))
+        rows = aquatic_rows(data)
+        row = rows['Bullfrog']
+        self.assertEqual(row['fertilization_mode'], 'INTERNAL')
+        self.assertEqual(row['recruitment_divisor'], 10)
+        self.assertEqual(row['emergence_stage'], 'ADULT')
+        self.assertEqual(row['larva_def'], 'Zoology_BullfrogNymph')
+        self.assertEqual(row['protect_from_conspecifics'], 'false')
+        op = render_roe_patch({'Bullfrog': row}).find('./Operation')
+        extension = op.find('./match/value/li')
+        self.assertEqual(extension.get('Class'), 'ZoologyMod.ModExtension_AquaticEggLayer, ZoologyMod')
+        self.assertEqual(extension.findtext('eggFertilizationCountMax'), '20000')
+        self.assertEqual(op.find('./match').get('Class'), 'PatchOperationAdd')
+        with self.assertRaisesRegex(ValueError, 'species-specific ThingDef'):
+            render_roe_defs(initial_defs(), rows)
+        with tempfile.TemporaryDirectory() as folder:
+            mod = Path(folder)
+            with self.assertRaisesRegex(ValueError, 'missing texture'):
+                render_mod_aquatic_defs({'Bullfrog': row}, mod)
+            # A synthetic data-only fixture: asset validation and biological
+            # XML generation are independent of the live animal database.
+            texture_dir = mod / 'Textures/Things/Item/Zoology/Aquatic/Bullfrog'
+            texture_dir.mkdir(parents=True)
+            for name in ('Clutch', 'Nymph'):
+                (texture_dir / (name + '.png')).touch()
+            defs = render_mod_aquatic_defs({'Bullfrog': row}, mod)
+            egg = defs.find('.//ThingDef[defName="Zoology_BullfrogAquaticEggFertilized"]')
+            nymph = defs.find('.//ThingDef[defName="Zoology_BullfrogNymph"]')
+            self.assertEqual(egg.findtext('./comps/li/fertilizationMode'), 'Internal')
+            self.assertEqual(nymph.findtext('./comps/li/biologicalMetamorphsPerPawn'), '10')
+            self.assertEqual(nymph.findtext('./comps/li/emergeAsAdult'), 'true')
+            self.assertEqual(nymph.findtext('./comps/li/larvalForm'), 'Nymph')
+            self.assertEqual(nymph.findtext('./comps/li/protectFromConspecifics'), 'false')
+
+    def test_meganeura_nymph_uses_dependency_directional_texture(self):
+        row = dict(aquatic_rows(fixture())['Bullfrog'])
+        row.update(race='Meganeura', common='Meganeura',
+                   egg_prefix='Zoology_MeganeuraAquaticEgg', larva_def='Zoology_MeganeuraNymph',
+                   larval_form='NYMPH', emergence_stage='ADULT', fertilization_mode='INTERNAL',
+                   protect_from_conspecifics='false')
+        with tempfile.TemporaryDirectory() as folder:
+            mod = Path(folder)
+            texture_dir = mod / 'Textures/Things/Item/Zoology/Aquatic/Meganeura'
+            texture_dir.mkdir(parents=True)
+            (texture_dir / 'Clutch.png').touch()
+            defs = render_mod_aquatic_defs({'Meganeura': row}, mod)
+            nymph = defs.find('.//ThingDef[defName="Zoology_MeganeuraNymph"]')
+            self.assertEqual(nymph.findtext('./graphicData/texPath'),
+                             'Things/Pawn/Animal/Meganeura/megafauna_meganeuraNymph')
+            self.assertEqual(nymph.findtext('./graphicData/graphicClass'), 'Graphic_Multi')
+
+    def test_profile_fields_after_projection_are_resolved_by_header(self):
+        data = fixture()
+        for field, value in zip(AQUATIC_PROFILE_FIELDS, (100, 'NEWBORN', 'TADPOLE', 0, 'TRUE')):
+            data[field] = [value, value] + [''] * (len(data) - 2)
+        self.assertEqual(aquatic_rows(data), aquatic_rows(fixture()))
+
+    def test_source_mod_is_independent_of_fertilization_mode(self):
+        rows = aquatic_rows(fixture())
+        animals = pd.DataFrame([
+            {'XML name': '<li>Bullfrog</li>', 'MayRequire': 'Ludeon.RimWorld.Odyssey'},
+            {'XML name': '<li>ColossusToad</li>', 'MayRequire': 'Spino.Megafauna'},
+        ])
+        routed = aquatic_species_by_route(rows, animals)
+        defs, patch = AQUATIC_MOD_ROUTES['spino.megafauna']
+        self.assertEqual(set(routed[defs]), {'ColossusToad'})
+        self.assertEqual(set(routed[patch]), {'ColossusToad'})
+        with self.assertRaisesRegex(ValueError, 'no registered aquatic output'):
+            aquatic_species_by_route(rows, animals.iloc[:1])
+
     def test_amphibian_table_can_move_without_rewriting_egg_rows(self):
         base = fixture()
-        species0 = external_roe_rows(base)
+        species0 = aquatic_rows(base)
         # Shifting the isolated subtable leaves the base table untouched.
         moved = base.copy()
         moved.insert(22, "Other spacer", [""] * len(moved))
-        species1 = external_roe_rows(moved)
+        species1 = aquatic_rows(moved)
         self.assertEqual(species0, species1)
 
     def test_reordered_amphibian_fields_keep_primary_record(self):
@@ -195,7 +286,7 @@ class AmphibianGenerationTests(unittest.TestCase):
         order = list(range(len(headers)))
         for a, b in ((1, 7), (23, 38), (24, 40)):
             order[a], order[b] = order[b], order[a]
-        self.assertEqual(external_roe_rows(base.iloc[:, order]), external_roe_rows(base))
+        self.assertEqual(aquatic_rows(base.iloc[:, order]), aquatic_rows(base))
 
     def test_unrelated_egg_layers_and_wool_are_unchanged(self):
         data = fixture()
@@ -203,18 +294,18 @@ class AmphibianGenerationTests(unittest.TestCase):
         self.assertEqual(mapped.iloc[0]["Def name"], "<li>Ostrich</li>")
         self.assertEqual(mapped.iloc[24]["Def name"], "<li>Bullfrog</li>")
         self.assertEqual(mapped.iloc[0]["Wool animal"], "")
-        self.assertEqual(set(external_roe_rows(data)), {"Bullfrog", "ColossusToad"})
+        self.assertEqual(set(aquatic_rows(data)), {"Bullfrog", "ColossusToad"})
 
     def test_survival_probabilities_validate_and_include_endpoints(self):
         for value in ("", "NaN", "-1%", 1.01, "200~400"):
             data = fixture()
             data.iat[0, 26] = value
             with self.subTest(value=value), self.assertRaisesRegex(ValueError, "embryoSurvival"):
-                external_roe_rows(data)
+                aquatic_rows(data)
         data = fixture()
         data.iat[0, 26] = 0
         data.iat[0, 27] = 1
-        species = external_roe_rows(data)
+        species = aquatic_rows(data)
         self.assertEqual(species["Bullfrog"]["embryo_survival"], "0")
         self.assertEqual(species["Bullfrog"]["tadpole_survival"], "1")
 
@@ -222,29 +313,29 @@ class AmphibianGenerationTests(unittest.TestCase):
         missing = fixture()
         missing.iat[24, 5] = "<li>DifferentAnimal</li>"
         with self.assertRaisesRegex(ValueError, "no matching ordinary egg"):
-            external_roe_rows(missing)
+            aquatic_rows(missing)
 
         duplicated = fixture()
         duplicated.iat[1, 23] = "<li>Bullfrog</li>"
         with self.assertRaisesRegex(ValueError, "duplicate amphibian DefName"):
-            external_roe_rows(duplicated)
+            aquatic_rows(duplicated)
 
         missing_mode = fixture()
         missing_mode.iat[0, 28] = ""
         with self.assertRaisesRegex(ValueError, "has no fertilization mode"):
-            external_roe_rows(missing_mode)
+            aquatic_rows(missing_mode)
 
         uncalculated = fixture()
         uncalculated.iat[0, 34] = "#ERROR!"
         with self.assertRaisesRegex(ValueError, "ovumEnergyJ"):
-            external_roe_rows(uncalculated)
+            aquatic_rows(uncalculated)
 
         absent_header = fixture()
         headers = list(absent_header.columns)
         headers[35] = "wrong header"
         absent_header.columns = headers
         with self.assertRaisesRegex(ValueError, "unambiguous"):
-            external_roe_rows(absent_header)
+            aquatic_rows(absent_header)
 
     def test_current_eggmilkwool_layout_and_reordered_fields(self):
         base = fixture()
@@ -270,7 +361,7 @@ class AmphibianGenerationTests(unittest.TestCase):
         headers = [str(c).rsplit('.', 1)[0] if str(c).rsplit('.', 1)[-1].isdigit()
                    else c for c in raw.columns]
         live = _values_to_dataframe([headers] + raw.values.tolist())
-        amphibians = external_roe_rows(live)
+        amphibians = aquatic_rows(live)
         xml, records = render_products(live, animals, amphibians)
         self.assertEqual(set(records), {'Ostrich', 'Cassowary', 'Cow', 'Muskox', 'AEXP_Muskox'})
         eggs, milk, wool, ambiguous = _index({'EggMilk': pd_egg_map(live), 'Animals': animals})
@@ -281,7 +372,7 @@ class AmphibianGenerationTests(unittest.TestCase):
         extended.insert(13, 'Reproductive pause (real days)', [15] + [0] * (len(extended) - 1))
         extended.insert(14, 'Active clutch formation (real days)', [18] * len(extended))
         self.assertEqual(len(extended.columns), 54)
-        self.assertEqual(external_roe_rows(extended), amphibians)
+        self.assertEqual(aquatic_rows(extended), amphibians)
         self.assertEqual(render_products(extended, animals, amphibians), (xml, records))
         self.assertEqual(pd_egg_map(extended).to_dict('records'), pd_egg_map(live).to_dict('records'))
         # Move fields within each Name-led table, keeping separators.
@@ -289,7 +380,7 @@ class AmphibianGenerationTests(unittest.TestCase):
         for a, b in ((1, 12), (2, 8), (15, 18), (21, 26), (29, 46)):
             order[a], order[b] = order[b], order[a]
         moved = live.iloc[:, order]
-        self.assertEqual(external_roe_rows(moved), amphibians)
+        self.assertEqual(aquatic_rows(moved), amphibians)
         self.assertEqual(render_products(moved, animals, amphibians), (xml, records))
         self.assertEqual(pd_egg_map(moved).to_dict('records'), pd_egg_map(live).to_dict('records'))
 

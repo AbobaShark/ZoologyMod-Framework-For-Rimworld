@@ -461,7 +461,8 @@ namespace ZoologyMod
         {
             foreach (IntVec3 part in NurseryFootprint(cell, builder, null).Cells)
             {
-                if (!NurserySiteAvailable(part, builder) || part.IsForbidden(builder))
+                if (!NurserySiteAvailable(part, builder) || part.IsForbidden(builder)
+                    || part.GetTerrain(map).IsWater)
                     return false;
                 if (nurserySites.TryGetValue(part, out NurserySiteClaim claim)
                     && claim.anchor != cell)

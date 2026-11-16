@@ -32,6 +32,7 @@ namespace ZoologyMod
             var state = mother.TryGetComp<CompAnimalStrategyState>();
             if (state != null)
                 state.realisticClutch = RealisticCounts && EggRangeInstalled
+                    && AquaticEggLayerUtility.InstalledProfile(mother.def) == null
                     && AnimalSeasonalReproduction.Profile(mother)?.realisticEggCountRange.min > 0;
         }
 
@@ -46,6 +47,8 @@ namespace ZoologyMod
 
         internal static IntRange EggRange(CompProperties_EggLayer props, CompEggLayer layer)
         {
+            if (AquaticEggLayerUtility.InstalledProfile(layer.parent?.def) != null)
+                return props.eggCountRange;
             if (ModConstants.AdvancedReproduction && EggRangeInstalled
                 && layer.parent is Pawn mother
                 && mother.TryGetComp<CompAnimalStrategyState>()?.realisticClutch == true)
@@ -69,6 +72,9 @@ namespace ZoologyMod
 
         internal static float ClutchMean(Pawn mother, float standard, bool beginning = false)
         {
+            if (ModConstants.AdvancedReproduction
+                && AquaticEggLayerUtility.InstalledProfile(mother?.def) is ModExtension_AquaticEggLayer aquatic)
+                return (aquatic.eggCountRange.min + (float)aquatic.eggCountRange.max) * 0.5f;
             if (EggRangeInstalled && mother.TryGetComp<CompAnimalStrategyState>() is CompAnimalStrategyState state
                 && (beginning ? RealisticCounts : state.realisticClutch))
             {

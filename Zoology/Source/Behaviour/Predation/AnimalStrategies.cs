@@ -243,7 +243,8 @@ namespace ZoologyMod
         }
         public static bool IsHunt(Pawn pawn, Pawn prey) => pawn?.RaceProps.predator == true
             && pawn.CurJob?.targetA.Thing == prey
-            && (pawn.jobs.curDriver is JobDriver_PredatorHunt || pawn.jobs.curDriver is JobDriver_Constrict);
+            && (pawn.jobs.curDriver is JobDriver_PredatorHunt
+                || (pawn.jobs.curDriver is JobDriver_Constrict && pawn.CurJob.count == 1));
         public static int ChaseLimit(Pawn pawn) => For(pawn) == PredationStrategy.Ambush || For(pawn) == PredationStrategy.WaterAmbush
             ? ZoologyTickLimiter.Pursuit.ChaseTimeoutTicks / 2 : ZoologyTickLimiter.Pursuit.ChaseTimeoutTicks;
         // A chase is unnecessary when prey is much slower. Otherwise a predator

@@ -183,9 +183,14 @@ def plan(manifest_path, root, *, current_run_only=False):
         'Items_Resource_Stuff_AnimalTextiles_Generated.xml',
         'Items_Resource_Stuff_Leather_Zoology_CE.xml',
     }
+    aquatic_removals = {
+        'ModPatches/Megafauna/Defs/ThingDefs_Items/AquaticReproduction_Generated.xml': 'Defs',
+        'ModPatches/Megafauna/Patches/Misc/AquaticReproduction_Generated.xml': 'Patch',
+    }
     for name in removals:
         rel = safe_relative(name)
-        if (rel.name not in generated_names and name not in RETIRED_LIFE_STAGE_OUTPUTS) or name in desired:
+        if (rel.name not in generated_names and name not in RETIRED_LIFE_STAGE_OUTPUTS
+                and name not in aquatic_removals) or name in desired:
             raise ValueError(f'Unsafe or conflicting generated XML removal: {name}')
         target = (mod/rel).resolve()
         if not target.is_relative_to(mod.resolve()):
@@ -197,8 +202,9 @@ def plan(manifest_path, root, *, current_run_only=False):
             if prior_hash is not None and digest(target) != prior_hash:
                 raise ValueError(f'Generated XML changed since last deployment: {target}')
             existing = E.parse(str(target)).getroot()
-            if existing.tag != 'Patch':
-                raise ValueError(f'Generated XML removal expects Patch: {target}')
+            expected = aquatic_removals.get(name, 'Patch')
+            if existing.tag != expected:
+                raise ValueError(f'Generated XML removal expects {expected}: {target}')
             operations.append(('delete', None, target, name))
     for key, old_hash in state['files'].items():
         if key in removals: continue

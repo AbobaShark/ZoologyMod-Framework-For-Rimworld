@@ -22,6 +22,17 @@ class PostmortemPredationTests(unittest.TestCase):
         self.assertIn("__state.deathInProgress = false", death)
         self.assertNotIn("Severity =", death)
 
+    def test_hunting_constriction_continues_with_ingestion(self):
+        src = (SOURCE / "AnimalConstriction.cs").read_text(encoding="utf-8")
+        self.assertIn('Scribe_Values.Look(ref hunting, "huntingConstriction")', src)
+        self.assertIn("public Pawn Hunter => Active && Hunting ? holder : null", src)
+        death = src.split("internal static class Patch_ReleaseConstrictionOnDeath", 1)[1].split("[HarmonyPatch", 1)[0]
+        self.assertLess(death.index("DelayedPredationAttribution.CausalHunter"), death.index("AnimalConstriction.Release"))
+        self.assertIn("JobMaker.MakeJob(JobDefOf.Ingest, corpse)", death)
+        self.assertIn("hunter.jobs.jobQueue.EnqueueFirst(ingest)", death)
+        self.assertIn("hunter.jobs.EndCurrentJob(JobCondition.Succeeded)", death)
+        self.assertIn("!hunter.WillEat(corpse)", death)
+
     def test_venom_does_not_recover_after_death(self):
         source = (SOURCE / "AnimalVenom.cs").read_text(encoding="utf-8")
         venom = source.split("public class Hediff_AnimalVenom", 1)[1].split("[HarmonyPatch", 1)[0]

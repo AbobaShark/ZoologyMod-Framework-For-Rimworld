@@ -60,14 +60,14 @@ class RouteAudit(unittest.TestCase):
     def test_whole_registry_and_every_static_category(self):
         reg = load_registry(CHECKER/'generation.json', self.mod)
         self.assertEqual((len(reg['groups']), len(reg['biomes']), len(reg['shared_defs'])), (81, 29, 3))
-        self.assertEqual(len(outputs_for(reg,'products')), 4)
+        self.assertEqual(len(outputs_for(reg,'products')), 6)
         seen = set()
         category_paths = []
         category_paths.extend((x['destination'],'animal_patch',x.get('requires')) for x in reg['groups'])
         category_paths.extend((x['destination'],'biome_patch',x.get('requires')) for x in reg['biomes'])
         category_paths.extend((x['destination'],x['category'],x.get('requires')) for x in reg['shared_defs'])
         category_paths.extend((x['destination'],x['category'],x.get('requires')) for x in reg['outputs'])
-        self.assertEqual(len(category_paths), 138)
+        self.assertEqual(len(category_paths), 140)
         for dest, category, required in category_paths:
             with self.subTest(destination=dest):
                 self.assertNotIn(dest.lower(), seen)
@@ -75,7 +75,7 @@ class RouteAudit(unittest.TestCase):
                 if category != 'source_code':
                     self.assertEqual(route_dependency(self.mod,dest,preferred=required),required)
                 self.assertEqual(validate_target(self.mod,{'destination':dest,'category':category,'requires':required}).as_posix(),dest)
-        self.assertEqual(len(seen), 138)
+        self.assertEqual(len(seen), 140)
 
     def test_reproduction_paths_cover_energetics_products_and_amphibians(self):
         products=[e['destination'] for e in load_registry(CHECKER/'generation.json',self.mod)['outputs'] if e['pipeline_category']=='products']
@@ -84,6 +84,8 @@ class RouteAudit(unittest.TestCase):
             'Core/Defs/Misc/EnergeticsProfiles_Generated.xml',
             'DLC/Odyssey/Defs/ThingDefs_Items/AmphibianRoe.xml',
             'DLC/Odyssey/Patches/Misc/CompProperties_EggLayer_Amphibians.xml',
+            'ModPatches/Megafauna/Defs/ThingDefs_Items/AquaticReproduction_Generated.xml',
+            'ModPatches/Megafauna/Patches/Misc/AquaticReproduction_Generated.xml',
         })
         for path in products:
             with self.subTest(path=path):
@@ -124,6 +126,45 @@ class RouteAudit(unittest.TestCase):
         self.assertEqual({a[3]:a[0] for a in actions},
                          {**dict.fromkeys(targets,'replace'), energetics:'copy'})
         self.assertEqual((self.mod/next(iter(targets))).read_bytes(), b'<Patch/>')
+
+    def test_generation_report_and_deployment_are_independent_across_real_runs(self):
+        from core.xml_routing import deploy
+        from rimworld_patch_generator import generation_summary, deployment_summary
+        dest = 'Core/Patches/Core/Misc/AnimalProducts_Generated.xml'
+        energetics = 'Core/Defs/Misc/EnergeticsProfiles_Generated.xml'
+        target = self.mod/dest
+        target.parent.mkdir(parents=True)
+        target.write_bytes(b'<Patch/>')
+
+        def generate(payload):
+            with (patch('core.pipeline.render_reproduction', return_value=([(dest, payload)], [])),
+                  patch('core.pipeline._read_repro', return_value=pd.DataFrame()),
+                  patch('core.pipeline.render_energetics_profiles', return_value=(b'<Defs/>', {}))):
+                return stage_pipeline('unused-source', root=self.root,
+                    registry_path=CHECKER/'generation.json', output_dir=self.stage,
+                    categories=('products',), optimize=False)
+
+        first = generate(b'<Patch><First/></Patch>')
+        self.assertIn('Generated: 2 files (2 XML, 0 other)', generation_summary(first))
+        self.assertIn('2 new to staging, 0 changed, 0 identical', generation_summary(first))
+        self.assertEqual(target.read_bytes(), b'<Patch/>')
+        self.assertEqual({op[3]: op[0] for op in deploy(first,self.root,current_run_only=True)},
+                         {dest: 'replace', energetics: 'copy'})
+        self.assertIn('0 changes (0 XML files)', deployment_summary(plan(first,self.root,current_run_only=True)[0]))
+        self.assertIn('Generated: 2 files', generation_summary(first))
+
+        second = generate(b'<Patch><Second/></Patch>')
+        self.assertIn('0 new to staging, 1 changed, 1 identical', generation_summary(second))
+        self.assertIn('UPDATED OUTPUT: '+dest, generation_summary(second))
+        self.assertEqual(target.read_bytes(), b'<Patch><First/></Patch>')
+        self.assertEqual({op[3]: op[0] for op in deploy(second,self.root,current_run_only=True)},
+                         {dest: 'replace', energetics: 'skip'})
+        self.assertEqual(target.read_bytes(), b'<Patch><Second/></Patch>')
+
+        third = generate(b'<Patch><Second/></Patch>')
+        self.assertIn('Generated: 2 files', generation_summary(third))
+        self.assertIn('0 new to staging, 0 changed, 2 identical', generation_summary(third))
+        self.assertTrue(all(op[0]=='skip' for op in deploy(third,self.root,current_run_only=True)))
 
     def test_only_evaluated_species_profiles_are_life_stage_outputs(self):
         outputs=outputs_for(load_registry(CHECKER/'generation.json',self.mod),'life-stages')
@@ -193,7 +234,7 @@ class RoutingAuditExtensions(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             mod=Path(tmp)/'Zoology';mod.mkdir();write_loadfolders(mod)
             report=audit_routes(CHECKER/'generation.json',mod)
-            self.assertEqual(report['destinations'],138)
+            self.assertEqual(report['destinations'],140)
             self.assertEqual(len(report['missing_static']),3)
             with self.assertRaisesRegex(ValueError,'Missing installed static XML'):
                 audit_routes(CHECKER/'generation.json',mod,require_static_sources=True)

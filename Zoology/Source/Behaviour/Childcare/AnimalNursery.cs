@@ -811,11 +811,10 @@ namespace ZoologyMod
             if (mode == OffspringShelterMode.AQUATIC_CLUTCH)
             {
                 AnimalRefugeMapComponent water = pawn.Map?.GetComponent<AnimalRefugeMapComponent>();
-                if (water != null && water.TryWaterCell(pawn, pawn.Position, 14f,
-                        out IntVec3 waterCell) && !waterCell.IsForbidden(pawn)
-                    && pawn.CanReach(waterCell, PathEndMode.OnCell, Danger.Some))
+                if (water != null && water.TryRandomWaterCell(pawn, pawn.Position, 14f,
+                        out IntVec3 waterCell))
                 {
-                    __result = JobMaker.MakeJob(JobDefOf.LayEgg, waterCell);
+                    __result = JobMaker.MakeJob(AnimalEggLayingTerrain.JobDef, waterCell);
                     return false;
                 }
                 return false; // No accessible water: never deposit aquatic roe on dry ground.

@@ -8,8 +8,7 @@ using Verse;
 
 namespace ZoologyMod
 {
-    // Only the membership list lives in XML. Physiological parameters are
-    // read from the fully patched race Defs in memory.
+    // Habitat requirements use the fully patched adult body size.
     public sealed class WaterBodySpawnRequirementDef : Def
     {
         public List<string> animals = new List<string>();
@@ -19,10 +18,11 @@ namespace ZoologyMod
     {
         private const int CacheLifetimeTicks = 15000;
         private const string RequirementDefName = "Zoology_WaterBodySpawnRequirements";
-        private const float AreaPerBodySizeSquared = 150f;
-        private const float EndothermAreaMultiplier = 2f;
-        private const float FullHabitatWetness = 0.048f;
-        private const float MaximumAquaticFactor = 2f;
+        private const float AreaPerBodySizePower = 200f;
+        private const float FullHabitatWetness = 0.111f;
+        private const float MaximumAquaticFactor = 3f;
+        private const float RiverAreaBonus = 4.2f;
+        private const float MaximumAquaticCommonality = 0.5f;
         private const float MarshClimateMinimum = 15f;
 
         private sealed class MapWaterCache
@@ -41,7 +41,7 @@ namespace ZoologyMod
         private static readonly HashSet<ThingDef> RequiredRaces = new HashSet<ThingDef>();
         private static bool requirementsLoaded;
 
-        internal static float NaturalSpawnCommonalityFactor(Map map, ThingDef animalRace)
+        internal static float NaturalSpawnCommonalityFactor(Map map, ThingDef animalRace, float baseCommonality)
         {
             if (animalRace == null || map?.terrainGrid == null)
                 return 1f;
@@ -60,8 +60,11 @@ namespace ZoologyMod
                 cache.initialized = true;
             }
 
-            return cache.aquaticFactors.TryGetValue(animalRace, out float factor)
-                ? factor : 1f;
+            float factor = cache.aquaticFactors.TryGetValue(animalRace, out float cachedFactor)
+                ? cachedFactor : 1f;
+            return baseCommonality > 0f
+                ? Math.Min(factor, MaximumAquaticCommonality / baseCommonality)
+                : factor;
         }
 
         private static void EnsureRequirementsLoaded()
@@ -165,13 +168,12 @@ namespace ZoologyMod
 
             int eligibleCells = count - oceanCells;
             float wetness = eligibleCells > 0
-                ? (totalWater + largestWater + 2f * riverCells) / (2f * eligibleCells) : 0f;
+                ? (totalWater + largestWater + RiverAreaBonus * riverCells) / (2f * eligibleCells) : 0f;
             // Flowing freshwater contributes additional habitat productivity
             // while connected-area requirements use actual water cells.
             float aquaticBoost = MaximumAquaticFactor * Math.Min(1f, wetness / FullHabitatWetness);
 
-            // Species scores and Def extension lookups are outside the
-            // candidate-selection hot path.
+            // Species habitat scores are cached outside candidate selection.
             cache.aquaticFactors.Clear();
             foreach (ThingDef race in RequiredRaces)
             {
@@ -182,9 +184,8 @@ namespace ZoologyMod
                     continue;
                 }
 
-                bool ectothermic = ZoologyCacheUtility.HasEctothermicExtension(race);
-                float requirement = AreaPerBodySizeSquared * size * size
-                    * (ectothermic ? 1f : EndothermAreaMultiplier);
+                float requirement = AreaPerBodySizePower * (float)Math.Pow(
+                    size, size <= 1f ? 2.0 : 4.0 / 3.0);
                 float minimumConnectedArea = requirement / 3f;
                 if (largestWater <= minimumConnectedArea)
                 {
@@ -248,8 +249,12 @@ namespace ZoologyMod
             if (biome == null || biome.CommonalityOfCoastalAnimal(def) > 0f)
                 return;
 
+            // Limit the habitat multiplier against unnormalized biome weights,
+            // retaining the game's group-size correction and other spawn modifiers.
+            float baseCommonality = Math.Max(
+                biome.CommonalityOfAnimal(def), biome.CommonalityOfPollutionAnimal(def));
             __result *= WaterBodySpawnRequirement.NaturalSpawnCommonalityFactor(
-                ___map, def.race);
+                ___map, def.race, baseCommonality > 0f ? baseCommonality : __result);
         }
     }
 }

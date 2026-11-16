@@ -24,13 +24,18 @@ namespace ZoologyMod
         // Read the configured type separately: the startup Comp installer must
         // include all eligible species so toggles can be changed without a reload.
         internal static OffspringShelterMode ConfiguredModeFor(ThingDef def) =>
-            DefModExtensionCache<ModExtension_OffspringShelter>.Get(def)?.mode
-                ?? OffspringShelterMode.NONE;
+            AquaticEggLayerUtility.Profile(def) != null ? OffspringShelterMode.AQUATIC_CLUTCH
+                : DefModExtensionCache<ModExtension_OffspringShelter>.Get(def)?.mode
+                    ?? OffspringShelterMode.NONE;
 
         public static OffspringShelterMode For(ThingDef def)
         {
             OffspringShelterMode mode = ConfiguredModeFor(def);
             if (mode == OffspringShelterMode.NONE || !ModConstants.AdvancedReproduction)
+                return OffspringShelterMode.NONE;
+            if (mode == OffspringShelterMode.AQUATIC_CLUTCH
+                && AquaticEggLayerUtility.Profile(def) != null
+                && AquaticEggLayerUtility.InstalledProfile(def) == null)
                 return OffspringShelterMode.NONE;
             return mode == OffspringShelterMode.DEN && !ModConstants.AdvancedThreatAvoidance
                 ? OffspringShelterMode.NONE : mode;

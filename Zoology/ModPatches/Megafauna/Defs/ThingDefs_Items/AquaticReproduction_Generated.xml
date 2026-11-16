@@ -1,0 +1,104 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Defs>
+  <ThingDef ParentName="EggUnfertBase">
+    <defName>Zoology_MeganeuraAquaticEggUnfertilized</defName>
+    <label>meganeura eggs (unfertilized)</label>
+    <description>A clutch of aquatic eggs.</description>
+    <stackLimit>1</stackLimit>
+    <graphicData>
+      <texPath>Things/Item/Zoology/Aquatic/Meganeura/Clutch</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+    </graphicData>
+    <comps>
+      <li Class="ZoologyMod.CompProperties_AmphibianRoe, ZoologyMod">
+        <parentRace>Meganeura</parentRace>
+        <fertilizationMode>Internal</fertilizationMode>
+        <protectFromConspecifics>false</protectFromConspecifics>
+        <fertilized>false</fertilized>
+        <defaultOvaCount>216</defaultOvaCount>
+        <wetMassPerOvumKg>0.0000027692632038482557</wetMassPerOvumKg>
+        <grossEnergyPerOvumJ>20.76947402886192</grossEnergyPerOvumJ>
+        <joulesPerNutrition>6537500</joulesPerNutrition>
+      </li>
+    </comps>
+    <statBases>
+      <DeteriorationRate>0</DeteriorationRate>
+      <Mass>0.0005981608520312233</Mass>
+      <Nutrition>0.0006862265988885928</Nutrition>
+    </statBases>
+  </ThingDef>
+  <ThingDef ParentName="EggUnfertBase">
+    <defName>Zoology_MeganeuraAquaticEggFertilized</defName>
+    <label>meganeura eggs (fertilized)</label>
+    <description>A clutch of aquatic eggs.</description>
+    <stackLimit>1</stackLimit>
+    <tickerType>Normal</tickerType>
+    <graphicData>
+      <texPath>Things/Item/Zoology/Aquatic/Meganeura/Clutch</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+    </graphicData>
+    <comps>
+      <li Class="ZoologyMod.CompProperties_AmphibianRoe, ZoologyMod">
+        <parentRace>Meganeura</parentRace>
+        <fertilizationMode>Internal</fertilizationMode>
+        <protectFromConspecifics>false</protectFromConspecifics>
+        <fertilized>true</fertilized>
+        <defaultOvaCount>216</defaultOvaCount>
+        <wetMassPerOvumKg>0.0000027692632038482557</wetMassPerOvumKg>
+        <grossEnergyPerOvumJ>20.76947402886192</grossEnergyPerOvumJ>
+        <joulesPerNutrition>6537500</joulesPerNutrition>
+        <daysToHatch>3.8</daysToHatch>
+        <tadpoleDef>Zoology_MeganeuraNymph</tadpoleDef>
+        <embryoSurvival>0.89</embryoSurvival>
+      </li>
+    </comps>
+    <statBases>
+      <DeteriorationRate>0</DeteriorationRate>
+      <Mass>0.0005981608520312233</Mass>
+      <Nutrition>0.0006862265988885928</Nutrition>
+    </statBases>
+  </ThingDef>
+  <ThingDef>
+    <defName>Zoology_MeganeuraNymph</defName>
+    <label>meganeura nymphs</label>
+    <description>A group of predatory aquatic nymphs that emerge as winged adults.</description>
+    <thingClass>ThingWithComps</thingClass>
+    <category>Item</category>
+    <stackLimit>1</stackLimit>
+    <tickerType>Normal</tickerType>
+    <selectable>true</selectable>
+    <useHitPoints>true</useHitPoints>
+    <statBases>
+      <MaxHitPoints>20</MaxHitPoints>
+      <MarketValue>0</MarketValue>
+      <DeteriorationRate>0</DeteriorationRate>
+      <Mass>0.0006121086716153101056</Mass>
+      <Nutrition>0.0004437543025742353077861655396</Nutrition>
+    </statBases>
+    <graphicData>
+      <texPath>Things/Pawn/Animal/Meganeura/megafauna_meganeuraNymph</texPath>
+      <graphicClass>Graphic_Multi</graphicClass>
+      <drawSize>(0.45,0.45)</drawSize>
+    </graphicData>
+    <comps>
+      <li Class="ZoologyMod.CompProperties_Tadpole, ZoologyMod">
+        <pawnKind>Meganeura</pawnKind>
+        <daysToMetamorphosis>70</daysToMetamorphosis>
+        <tadpoleSurvival>0.0213675</tadpoleSurvival>
+        <sourceRoeDef>Zoology_MeganeuraAquaticEggFertilized</sourceRoeDef>
+        <biologicalMetamorphsPerPawn>2</biologicalMetamorphsPerPawn>
+        <emergeAsAdult>true</emergeAsAdult>
+        <larvalForm>Nymph</larvalForm>
+        <protectFromConspecifics>false</protectFromConspecifics>
+        <hatchMassKg>0.0000031880659979964068</hatchMassKg>
+        <metamorphMassKg>0.138</metamorphMassKg>
+        <grossEnergyMJPerKg>4.739426000000001</grossEnergyMJPerKg>
+        <joulesPerNutrition>6537500</joulesPerNutrition>
+      </li>
+    </comps>
+    <ingestible>
+      <foodType>Meat</foodType>
+      <preferability>RawBad</preferability>
+    </ingestible>
+  </ThingDef>
+</Defs>

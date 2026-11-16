@@ -18,6 +18,30 @@ class RoutingTests(unittest.TestCase):
         entry = {'source': 'patch.xml', 'destination': destination, 'category': category, 'requires': dependency, **extra}
         self.manifest.write_text(json.dumps({'schema': 1, 'files': [entry]}))
 
+    def test_empty_aquatic_profile_can_remove_only_its_registered_outputs(self):
+        from core.xml_routing import plan
+        defs = 'ModPatches/Megafauna/Defs/ThingDefs_Items/AquaticReproduction_Generated.xml'
+        patch = 'ModPatches/Megafauna/Patches/Misc/AquaticReproduction_Generated.xml'
+        for destination, payload in ((defs, '<Defs/>'), (patch, '<Patch/>')):
+            target = self.mod/destination
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text(payload, encoding='utf-8')
+        self.manifest.write_text(json.dumps({'schema': 1, 'files': [],
+            'generated_this_run': [], 'remove': [defs, patch]}), encoding='utf-8')
+        (self.mod/defs).write_text('<Patch/>', encoding='utf-8')
+        with self.assertRaisesRegex(ValueError, 'expects Defs'):
+            plan(self.manifest,self.root,current_run_only=True)
+        (self.mod/defs).write_text('<Defs/>', encoding='utf-8')
+        self.assertEqual({op[3] for op in deploy(self.manifest,self.root,current_run_only=True)
+                          if op[0]=='delete'}, {defs,patch})
+        self.assertFalse((self.mod/defs).exists())
+        self.assertFalse((self.mod/patch).exists())
+        self.manifest.write_text(json.dumps({'schema':1,'files':[],
+            'generated_this_run': [], 'remove':['Core/Defs/AquaticReproduction_Generated.xml']}),
+            encoding='utf-8')
+        with self.assertRaisesRegex(ValueError, 'Unsafe or conflicting'):
+            plan(self.manifest,self.root,current_run_only=True)
+
     def test_current_run_only_never_redeploys_retained_older_xml(self):
         old=self.mod/'Core/Patches/Animals/old.xml'
         old.parent.mkdir(parents=True)

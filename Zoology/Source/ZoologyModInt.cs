@@ -36,9 +36,11 @@ namespace ZoologyMod
             {
                 Settings?.CleanupInvalidAnimalOverrides();
                 Settings?.ApplyRuntimeDefOverrides();
+                ZoologyNaturalAttackLabels.Apply();
                 ZoologyLifeStageProfileInstaller.ApplyOnce();
                 ZoologySexAdultProfiles.Install();
                 ZoologyAnimalGrowth.PrepareGrowthBudgets();
+                AquaticEggLayerUtility.Install();
                 ZoologyReproductiveEnergetics.Install();
 #if RIMWORLD17
                 AnimalBarnWorkPriority.MatchVanillaPens();
@@ -83,6 +85,7 @@ namespace ZoologyMod
             ZoologyLifeStageProfileInstaller.SyncProfileStages(
                 ZoologyAnimalGrowth.Enabled);
             ZoologySexAdultProfiles.SyncGraphics(ZoologySexAdultProfiles.Enabled);
+            AquaticEggLayerUtility.SyncSettings();
             ZoologyReproductiveEnergetics.SyncSettings();
             SyncLinearMeatAmount(!settings.DisableAllRuntimePatches && settings.EnableLinearMeatAmount);
 
@@ -178,6 +181,7 @@ namespace ZoologyMod
         {
             runtimeWasDisabled = true;
             SyncLinearMeatAmount(false);
+            AquaticEggLayerUtility.SyncSettings(false);
             ZoologyReproductiveEnergetics.SyncSettings(false);
             ZoologyLifeStageProfileInstaller.SyncProfileStages(false);
             ZoologyAnimalGraphics.Sync(false, false);

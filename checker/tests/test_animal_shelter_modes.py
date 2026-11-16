@@ -58,6 +58,37 @@ class DataDrivenShelterTests(unittest.TestCase):
         self.assertEqual(item.get("Class"), class_name)
         self.assertEqual({child.tag: child.text for child in item}, fields)
 
+    def test_reduced_wandering_is_concrete_and_independent_of_ectothermy(self):
+        marker = "ZoologyMod.ModExtension_ReducedWandering, ZoologyMod"
+        ecto = "ZoologyMod.ModExtension_Ectothermic, ZoologyMod"
+        self.assertIsNone(build_mod_extensions_for_parent({"ReducedWandering": "True"}))
+        for ectothermic, reduced in (("True", "True"), ("True", "False"),
+                                     ("False", "True"), ("False", "False")):
+            with self.subTest(ectothermic=ectothermic, reduced=reduced):
+                row = pd.Series({"Ectothermic": ectothermic, "ReducedWandering": reduced})
+                node = build_mod_extensions_for_child(row, {}, include_all=True)
+                classes = [] if node is None else [li.get("Class") for li in node]
+                self.assertEqual(marker in classes, reduced == "True")
+                self.assertEqual(ecto in classes, ectothermic == "True")
+                parent = {"ReducedWandering": reduced}
+                child = build_mod_extensions_for_child(row, parent, include_all=False)
+                child_classes = [] if child is None else [li.get("Class") for li in child]
+                self.assertEqual(marker in child_classes, reduced == "True")
+                ops = self.patch_generator.create_concrete_mod_extension_patches("TestAnimal", row)
+                added = [op.find("./value/li").get("Class") for op in ops
+                         if op.get("Class") == "PatchOperationAddModExtension"]
+                self.assertEqual(added, [marker] if reduced == "True" else [])
+        root = LET.fromstring('<Defs><ThingDef><defName>TestAnimal</defName><modExtensions>'
+                              '<li Class="' + ecto + '"/></modExtensions></ThingDef></Defs>')
+        for reduced in ("True", "False"):
+            patch = LET.Element("Patch")
+            patch.extend(self.patch_generator.create_concrete_mod_extension_patches(
+                "TestAnimal", pd.Series({"ReducedWandering": reduced})))
+            PatchApplier(record_missing=True).apply_patch_root(patch, root)
+            classes = [li.get("Class") for li in root.xpath("./ThingDef/modExtensions/li")]
+            self.assertEqual(marker in classes, reduced == "True")
+            self.assertIn(ecto, classes)
+
     def test_offspring_shelter_modes_roundtrip(self):
         for mode in SHELTERS:
             with self.subTest(mode=mode):

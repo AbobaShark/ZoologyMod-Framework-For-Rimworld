@@ -65,7 +65,7 @@ The reproductive data are maintained in three main tables:
 | Sheet | Contents |
 | --- | --- |
 | `Animals` | Gestation, breeding seasons, thermal limits, diapause, reproductive pauses, captive durations, biological litter and clutch sizes, shelter preferences and winter dormancy. |
-| `EggMilkWool` | Egg counts, egg formation and incubation, egg nutrition, milk and wool yields, and aquatic egg and tadpole development. |
+| `EggMilkWool` | Egg counts, egg formation and incubation, egg nutrition, milk and wool yields, and aquatic egg and larval development. |
 | `EnergeticsProfiles` | Nutritional costs of growth, pregnancy and egg production. |
 
 Checker matches animals by DefName. The sections of `EggMilkWool` have independent row orders.
@@ -88,7 +88,7 @@ Biological litter size comes from `Base stats`; biological clutch sizes and incu
 
 `EnergeticsProfiles` is exported to `Core/Defs/Misc/EnergeticsProfiles_Generated.xml`. Its growth model assigns half of ordinary allometric intake to tissue formation and adds any uncovered stage growth requirement. Standard life-stage hunger factors are calculated as the mean daily intake over the stage relative to the adult reference. The catalog provides the allometric exponent and growth efficiency for dynamic growth using loaded stage durations and sex-specific endpoints. The catalog stores the full fetal tissue budget, developmental stage weights, standard mean litter and clutch sizes, egg nutrition and the female's food requirement. The game derives the additional pregnancy and clutch costs from the full production budgets after crediting half of ordinary intake over the applicable active developmental duration. Edible egg nutrition matches hatchling nutrition for ordinary laid eggs.
 
-The aquatic egg and tadpole definitions use the count, wet mass and energy per ovum, development durations, and survival fractions in `EggMilkWool`. Only animals with external aquatic fertilization receive these definitions. Each clutch and tadpole group is represented collectively until juvenile amphibians emerge.
+Aquatic egg and larval cohort definitions use ovum count, wet mass and energy per ovum, development durations, survival fractions, fertilization mode and recruitment parameters in `EggMilkWool`. Each clutch and larval group is represented collectively. Aquatic profiles specify the life stage at emergence: amphibians recruit young animals after metamorphosis, whereas Meganeura recruits adults after its aquatic nymphal development. XML for each profile follows the dependency of its source animal.
 
 Winter shelter eligibility and maternity denning seasons are exported through `ModExtension_WinterDormancy`. Natural reproductive shelters are defined by `OffspringShelter`.
 
@@ -118,7 +118,7 @@ py rimworld_patch_generator.py --preview
 
 The Patch Generator's CLI accepts `--category`, `--group`, `--source`, `--sheet`, `--no-ce`, `--no-optimize`, `--original-xml`, and `--ce-patches`. Use `--stage-only` to prevent the normal automatic deployment; after inspecting staged changes, deploy manually using `--deploy --yes`. Category examples: `animals`, `leathers`, `textiles`, and `life-stages`.
 
-Checker prepares the output in a staging folder and checks the files before installing them. Use `--check` to verify that the configured output paths agree with `LoadFolders.xml`. Keep the game and mod reference XML matched to the version you are generating for.
+Checker prepares the output in a staging folder and checks the files before installing them. The generation report counts files produced in the current run and identifies content changes relative to the previous staged output. The installation report counts new, replaced and identical files relative to the installed mod. Preview shows only pending installation operations. Use `--check` to verify that the configured output paths agree with `LoadFolders.xml`. Keep the game and mod reference XML matched to the version you are generating for.
 
 The optimizer eliminates demonstrably redundant patch operations using available upstream references. The optional standalone XML compactor is invoked through `py -m core.rimworld_patch_compactor <staged XML path>`; it is not a substitute for upstream-aware optimization and should not be applied indiscriminately to shipped XML.
 

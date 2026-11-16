@@ -153,7 +153,8 @@ namespace ZoologyMod
     {
         public static bool Prepare() => ChildcareDefenseUtility.IsEggProtectionEnabled;
 
-        public static void Postfix(CompEggLayer __instance)
+        [HarmonyPriority(Priority.Last)]
+        public static void Postfix(CompEggLayer __instance, Thing __result)
         {
             if (!ChildcareDefenseUtility.IsEggProtectionEnabled)
             {
@@ -167,7 +168,8 @@ namespace ZoologyMod
                     return;
                 }
 
-                ChildcareDefenseUtility.RegisterNearbyLaidEggsForMother(mother);
+                if (__result != null && __result.TryGetComp<CompAmphibianRoe>() == null)
+                    EggClutchDefenseGameComponent.Instance?.RegisterOwnership(mother, __result);
             }
             catch (Exception ex)
             {

@@ -26,6 +26,23 @@ LABELS={'animals':'Animal patches (Vanilla + CE)','venom':'Venom, antivenoms and
         'leathers':'Leather stats and custom defs (Vanilla + CE)',
         'textiles':'Wool and animal silk (Vanilla + CE)'}
 
+def generation_summary(manifest_path):
+    """Report generation independently of installation or retained stage files."""
+    data = json.loads(Path(manifest_path).read_text(encoding='utf-8'))
+    generated = set(data['generated_this_run'])
+    xml = sum(Path(dest).suffix.lower() == '.xml' for dest in generated)
+    other = len(generated) - xml
+    lines = [f'Generated: {len(generated)} files ({xml} XML, {other} other).']
+    delta = data.get('generation_delta')
+    if delta is not None:
+        lines.append(
+            'Compared with previous generation: '
+            f'{len(delta["new"])} new to staging, {len(delta["changed"])} changed, '
+            f'{len(delta["identical"])} identical.')
+        lines.extend(f'  UPDATED OUTPUT: {dest}' for dest in delta['changed'])
+    return '\n'.join(lines)
+
+
 def deployment_summary(operations):
     counts = {action: sum(op[0] == action for op in operations)
               for action in ('copy', 'replace', 'skip', 'delete', 'rmdir')}
@@ -195,12 +212,16 @@ class PatchGeneratorApp(tk.Tk):
     def _worker(self,args,auto_deploy):
         try:
             generated=stage_pipeline(**args)
+            generation = generation_summary(generated)
             if auto_deploy:
                 ops=deploy(generated,args['root'],current_run_only=True)
-                self.messages.put(('ok',f'Installed: {deployment_summary(ops)}',
+                self.messages.put(('ok',f'{generation}\nInstalled: {deployment_summary(ops)}',
                                    '\n'.join(deployment_details(ops))))
             else:
-                self.messages.put(('ok',f'{generated}; staged only',None))
+                ops,_=plan(generated,args['root'],current_run_only=True)
+                self.messages.put(('ok',
+                                   f'{generation}\nStaged only. Pending installation: {deployment_summary(ops)}',
+                                   '\n'.join(deployment_details(ops))))
         except Exception as exc:
             # The full traceback is essential: GUI message boxes previously
             # hid the crashing file and line, making unrelated guesses likely.
@@ -213,7 +234,8 @@ class PatchGeneratorApp(tk.Tk):
                 kind,result,details=self.messages.get_nowait()
                 self.busy=False
                 if kind=='ok':
-                    self._note(f'Generation successful: {result}.')
+                    self._note('Generation successful.')
+                    self._note(result)
                     if details:self._note(details)
                     for message in life_stage_generation_summary():
                         self._note(message)
@@ -237,7 +259,9 @@ class PatchGeneratorApp(tk.Tk):
         if self.busy:return
         try:
             ops,_=plan(STAGE/'generation-manifest.json',find_project_root(ROOT),current_run_only=True)
-            self._note('Pending changes (staged vs installed files): '+deployment_summary(ops))
+            self._note('Pending installation (staged vs installed files): '+deployment_summary(ops))
+            if ops and all(op[0] == 'skip' for op in ops):
+                self._note('All selected generated files are already installed.')
             for line in deployment_details(ops):self._note(line)
         except Exception as e:messagebox.showerror('Preview failed',str(e))
 
@@ -247,6 +271,9 @@ class PatchGeneratorApp(tk.Tk):
             root=find_project_root(ROOT);path=STAGE/'generation-manifest.json'
             ops,_=plan(path,root,current_run_only=True)
             changes=[op for op in ops if op[0]!='skip']
+            if not changes:
+                self._note('Nothing to install: all selected generated files are already installed.')
+                return
             if not messagebox.askyesno('Deploy XML',f'Apply {len(changes)} changes to Zoology? Includes {sum(op[0]=="delete" for op in changes)} deletions.\n\nStaged checksums and destination paths will be revalidated. Existing XML may be overwritten.'):
                 return
             applied=deploy(path,root,current_run_only=True)
@@ -321,12 +348,13 @@ def cli_main(argv=None):
        preserve_runtime_preconditions=cfg.get('preserve_runtime_preconditions',True))
     for message in life_stage_generation_summary():
         print(message)
+    print(generation_summary(result))
     if cfg.get('auto_deploy',True) if args.auto_deploy is None else args.auto_deploy:
-        ops=deploy(STAGE/'generation-manifest.json',root,current_run_only=True)
-        print('Generated and installed:',result)
+        ops=deploy(result,root,current_run_only=True)
         print('Installed: '+deployment_summary(ops))
     else:
-        print('Generated files staged, not deployed:',result)
+        ops,_=plan(result,root,current_run_only=True)
+        print('Pending installation: '+deployment_summary(ops))
         print('Inspect with --preview, then apply with --deploy --yes.')
 
 

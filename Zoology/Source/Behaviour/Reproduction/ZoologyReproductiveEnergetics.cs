@@ -121,7 +121,9 @@ namespace ZoologyMod
                             Log.Warning("[Zoology] No supported CompEggLayer for " + race.defName);
                             continue;
                         }
-                        if (Math.Abs(eggs.eggLayIntervalDays - profile.eggIntervalDays) > 0.05f)
+                        float interval = AquaticEggLayerUtility.InstalledProfile(race)?.eggLayIntervalDays
+                            ?? eggs.eggLayIntervalDays;
+                        if (Math.Abs(interval - profile.eggIntervalDays) > 0.05f)
                         {
                             Log.Warning("[Zoology] Egg interval differs for " + race.defName);
                             continue;

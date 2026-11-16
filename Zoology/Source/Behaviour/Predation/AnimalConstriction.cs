@@ -25,9 +25,13 @@ namespace ZoologyMod
         public Pawn holder;
         public int sourceTick;
         internal bool deathInProgress;
+        internal bool hunting;
+        internal Pawn deathHunter;
         internal bool PreserveOnDeath => deathInProgress || pawn?.Dead == true;
         public override bool ShouldRemove => !PreserveOnDeath && base.ShouldRemove;
-        public Pawn Hunter => Active ? holder : null;
+        internal bool Hunting => hunting || (holder?.jobs?.curDriver is JobDriver_Constrict
+            && holder.CurJob?.count == 1);
+        public Pawn Hunter => Active && Hunting ? holder : null;
         public int SourceTick => sourceTick;
         public bool Active => holder?.Spawned == true && pawn.Spawned && !pawn.Dead && holder.Map == pawn.Map && !holder.Dead
             && holder.Position == pawn.Position
@@ -37,6 +41,7 @@ namespace ZoologyMod
         {
             base.ExposeData();
             Scribe_References.Look(ref holder, "constrictor"); Scribe_Values.Look(ref sourceTick, "constrictionSourceTick");
+            Scribe_Values.Look(ref hunting, "huntingConstriction");
         }
         public override void PostTick()
         {
@@ -177,6 +182,7 @@ namespace ZoologyMod
                         TargetA.Pawn.health.AddHediff(effect);
                     }
                 }
+                effect.hunting = job.count == 1 || effect.hunting;
                 state.constrictedPrey = TargetA.Pawn;
             };
             hold.tickAction = () =>
@@ -203,7 +209,13 @@ namespace ZoologyMod
             if (prey == null) return;
             if (___pawn.Spawned && prey.Spawned && ___pawn.Map == prey.Map && ___pawn.Position == prey.Position
                 && AnimalConstriction.Applicable(___pawn, prey))
-                ___pawn.jobs.StartJob(JobMaker.MakeJob(DefDatabase<JobDef>.GetNamed("Zoology_Constrict"), prey), JobCondition.InterruptForced);
+            {
+                var effect = prey.health.hediffSet.hediffs.OfType<Hediff_AnimalConstriction>()
+                    .FirstOrDefault(h => h.holder == ___pawn);
+                Job hold = JobMaker.MakeJob(DefDatabase<JobDef>.GetNamed("Zoology_Constrict"), prey);
+                hold.count = effect?.Hunting == true ? 1 : 0;
+                ___pawn.jobs.StartJob(hold, JobCondition.InterruptForced);
+            }
             else AnimalConstriction.Release(___pawn);
         }
     }
@@ -216,17 +228,47 @@ namespace ZoologyMod
     internal static class Patch_ReleaseConstrictionOnDeath
     {
         [HarmonyPriority(Priority.First)]
-        static void Prefix(Pawn __instance, out Hediff_AnimalConstriction __state)
+        static void Prefix(Pawn __instance, object[] __args, out Hediff_AnimalConstriction __state)
         {
             __state = __instance.health?.hediffSet?.hediffs
                 .OfType<Hediff_AnimalConstriction>().FirstOrDefault();
-            if (__state != null) __state.deathInProgress = true;
+            if (__state != null)
+            {
+                Pawn hunter = __state.Hunter;
+                bool causal = hunter != null && (DelayedPredationAttribution.CausalHunter(__instance, __args) == hunter
+                    || (__args?.Length > 1 && ReferenceEquals(__args[1], __state)
+                        && __args[0] is DamageInfo damage && damage.Instigator == hunter));
+                __state.deathHunter = causal ? hunter : null;
+                __state.deathInProgress = true;
+            }
             AnimalConstriction.Release(__instance);
+        }
+
+        static void Postfix(Pawn __instance, Hediff_AnimalConstriction __state)
+        {
+            Pawn hunter = __state?.deathHunter;
+            Corpse corpse = __instance.Corpse;
+            if (hunter?.Spawned != true || hunter.Dead || hunter.Downed || hunter.InMentalState
+                || corpse?.Spawned != true || corpse.Map != hunter.Map
+                || !corpse.IngestibleNow || !hunter.WillEat(corpse)
+                || !hunter.CanReach(corpse, PathEndMode.Touch, Danger.Some)) return;
+            Job ingest = JobMaker.MakeJob(JobDefOf.Ingest, corpse);
+            ThingDef foodDef = FoodUtility.GetFinalIngestibleDef(corpse);
+            ingest.count = FoodUtility.WillIngestStackCountOf(hunter, foodDef,
+                FoodUtility.GetNutrition(hunter, corpse, foodDef));
+            hunter.jobs.jobQueue.EnqueueFirst(ingest);
+            if (hunter.jobs.curDriver is JobDriver_Constrict
+                && hunter.CurJob?.targetA.Thing == __instance)
+                hunter.jobs.EndCurrentJob(JobCondition.Succeeded);
         }
 
         static void Finalizer(Hediff_AnimalConstriction __state)
         {
-            if (__state != null) __state.deathInProgress = false;
+            if (__state != null)
+            {
+                __state.deathInProgress = false;
+                __state.deathHunter = null;
+            }
         }
     }
     [HarmonyPatch(typeof(Pawn_PathFollower), nameof(Pawn_PathFollower.StartPath))]

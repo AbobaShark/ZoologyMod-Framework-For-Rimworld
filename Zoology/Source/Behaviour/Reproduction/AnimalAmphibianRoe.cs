@@ -11,6 +11,12 @@ namespace ZoologyMod
 {
     // Each clutch is one water-bound item. Its actual ovum count is retained
     // independently of RimWorld's stackCount, avoiding thousands of Pawns.
+    public enum AquaticFertilizationMode
+    {
+        External,
+        Internal
+    }
+
     public sealed class CompProperties_AmphibianRoe : CompProperties
     {
         public ThingDef parentRace;
@@ -24,6 +30,8 @@ namespace ZoologyMod
         public float joulesPerNutrition;
         public float daysToHatch;
         public bool fertilized;
+        public AquaticFertilizationMode fertilizationMode = AquaticFertilizationMode.External;
+        public bool protectFromConspecifics = true;
 
         public CompProperties_AmphibianRoe()
         {
@@ -57,7 +65,8 @@ namespace ZoologyMod
         // The fertilized target is defined in XML, never inferred from race names.
         internal bool CanBeFertilizedBy(Pawn male)
         {
-            if (Props.fertilized || Props.fertilizedRoeDef == null
+            if (Props.fertilizationMode != AquaticFertilizationMode.External
+                || Props.fertilized || Props.fertilizedRoeDef == null
                 || parent?.Spawned != true || male?.Spawned != true
                 || male.Map != parent.Map || male.Dead || male.Downed
                 || male.gender != Gender.Male || male.Sterile()
@@ -156,11 +165,11 @@ namespace ZoologyMod
         }
 
         public override string CompInspectStringExtra() =>
-            "Ova in clutch: " + eggCount +
+            "Zoology_AquaticOva".Translate(eggCount) +
             (Props.fertilized
-                ? "\nViable ova: " + ViableOva
-                    + "\nIncubation: " + progress.ToStringPercent()
-                : "\nUnfertilized");
+                ? "\n" + "Zoology_AquaticViableOva".Translate(ViableOva)
+                    + "\n" + "Zoology_AquaticIncubation".Translate(progress.ToStringPercent())
+                : "\n" + "Zoology_AquaticUnfertilized".Translate());
 
         public override IEnumerable<Gizmo> CompGetGizmosExtra()
         {
@@ -186,6 +195,12 @@ namespace ZoologyMod
         }
     }
 
+    public enum AquaticLarvalForm
+    {
+        Tadpole,
+        Nymph
+    }
+
     public sealed class CompProperties_Tadpole : CompProperties
     {
         public PawnKindDef pawnKind;
@@ -196,6 +211,10 @@ namespace ZoologyMod
         public float grossEnergyMJPerKg;
         public float joulesPerNutrition;
         public float daysToMetamorphosis;
+        public int biologicalMetamorphsPerPawn = 100;
+        public bool emergeAsAdult;
+        public AquaticLarvalForm larvalForm = AquaticLarvalForm.Tadpole;
+        public bool protectFromConspecifics = true;
 
         public CompProperties_Tadpole()
         {
@@ -217,10 +236,11 @@ namespace ZoologyMod
         private int frogletsReleased;
         private int recruitmentTarget = -1;
         private int biologicalMetamorphsReleased = -1;
-        private const int BiologicalMetamorphsPerPawn = 100;
+        private int BiologicalMetamorphsPerPawn => Math.Max(1, Props.biologicalMetamorphsPerPawn);
 
         private CompProperties_Tadpole Props => (CompProperties_Tadpole)props;
         internal ThingDef ParentRace => Props.pawnKind?.race;
+        internal bool ProtectFromConspecifics => Props.protectFromConspecifics;
 
         // Size (the cube root of mass) increases linearly; mass therefore
         // follows geometrically similar somatic growth between the measured
@@ -318,7 +338,7 @@ namespace ZoologyMod
                         (Math.Max(0.01f, Props.daysToMetamorphosis) * GenDate.TicksPerDay));
                 if (progress >= 1f)
                 {
-                    ReleaseOneFroglet();
+                    ReleaseOneAnimal(swim);
                     return;
                 }
             }
@@ -329,12 +349,15 @@ namespace ZoologyMod
         {
             Map map = parent.Map;
             IntVec3 origin = parent.Position;
+            bool stayNearShore = Props.emergeAsAdult && progress >= 1f
+                && AquaticEggLayerUtility.TryFindShore(map, origin, out _);
             int start = Rand.Range(0, GenAdj.AdjacentCells.Length);
             for (int i = 0; i < GenAdj.AdjacentCells.Length; i++)
             {
                 IntVec3 destination = origin + GenAdj.AdjacentCells[(start + i) % GenAdj.AdjacentCells.Length];
                 if (!destination.InBounds(map) || !destination.GetTerrain(map).IsWater
-                    || destination.GetEdifice(map) != null)
+                    || destination.GetEdifice(map) != null
+                    || (stayNearShore && !AquaticEggLayerUtility.TryFindShore(map, destination, out _)))
                     continue;
                 // Keep this Thing spawned: DeSpawn clears its selection and
                 // re-registers the whole cohort on every swimming step.
@@ -362,7 +385,7 @@ namespace ZoologyMod
             return false;
         }
 
-        private void ReleaseOneFroglet()
+        private void ReleaseOneAnimal(bool swim = false)
         {
             if (Props.pawnKind == null) return;
             if (recruitmentTarget < 0)
@@ -376,9 +399,39 @@ namespace ZoologyMod
                 parent.Destroy(DestroyMode.Vanish);
                 return;
             }
-            Pawn frog = PawnGenerator.GeneratePawn(new PawnGenerationRequest(
-                Props.pawnKind, faction, developmentalStages: DevelopmentalStage.Newborn));
-            if (!PawnUtility.TrySpawnHatchedOrBornPawn(frog, parent, null))
+            IntVec3? spawnCell = null;
+            PawnGenerationRequest request;
+            if (Props.emergeAsAdult)
+            {
+                // Imago recruitment takes place on land at the adult stage
+                // boundary. The cohort accounts for pre-emergence growth.
+                var stages = Props.pawnKind.race?.race?.lifeStageAges;
+                if (stages == null || stages.Count == 0) return;
+                if (!AquaticEggLayerUtility.TryFindShore(parent.Map, parent.Position, out IntVec3 shore))
+                {
+                    if (swim)
+                    {
+                        if (AquaticEggLayerUtility.TryStepTowardShore(parent.Map, parent.Position, out IntVec3 step))
+                            parent.Position = step;
+                        else
+                            Swim();
+                    }
+                    return;
+                }
+                spawnCell = shore;
+                float ticksPerYear = 60f * GenDate.TicksPerDay;
+                float age = (Mathf.Ceil(stages[stages.Count - 1].minAge * ticksPerYear) + 1f)
+                    / ticksPerYear;
+                request = new PawnGenerationRequest(Props.pawnKind, faction,
+                    forceGenerateNewPawn: true, canGeneratePawnRelations: false, allowPregnant: false,
+                    fixedBiologicalAge: age, developmentalStages: DevelopmentalStage.Adult);
+            }
+            else
+                request = new PawnGenerationRequest(Props.pawnKind, faction,
+                    developmentalStages: DevelopmentalStage.Newborn);
+            Pawn frog = PawnGenerator.GeneratePawn(request);
+            if (frog == null) return;
+            if (!PawnUtility.TrySpawnHatchedOrBornPawn(frog, parent, spawnCell))
             {
                 Find.WorldPawns.PassToWorld(frog, RimWorld.Planet.PawnDiscardDecideMode.Discard);
                 return;
@@ -394,10 +447,13 @@ namespace ZoologyMod
         }
 
         public override string CompInspectStringExtra() =>
-            "Tadpole development: " + progress.ToStringPercent() +
-            "\nOva in source clutch: " + eggCount +
-            "\nLiving tadpoles: " + LivingTadpoles +
-            "\nMetamorphosed: " + frogletsReleased;
+            (Props.larvalForm == AquaticLarvalForm.Nymph ? "Zoology_AquaticNymphDevelopment" : "Zoology_AquaticTadpoleDevelopment")
+                .Translate(progress.ToStringPercent()) +
+            "\n" + "Zoology_AquaticSourceOva".Translate(eggCount) +
+            "\n" + (Props.larvalForm == AquaticLarvalForm.Nymph ? "Zoology_AquaticLivingNymphs" : "Zoology_AquaticLivingTadpoles")
+                .Translate(LivingTadpoles) +
+            "\n" + (Props.larvalForm == AquaticLarvalForm.Nymph ? "Zoology_AquaticEmerged" : "Zoology_AquaticMetamorphosed")
+                .Translate(frogletsReleased);
 
         public override IEnumerable<Gizmo> CompGetGizmosExtra()
         {
@@ -405,14 +461,15 @@ namespace ZoologyMod
             if (Prefs.DevMode && DebugSettings.ShowDevGizmos)
                 yield return new Command_Action
                 {
-                    defaultLabel = "Zoology_DevCompleteMetamorphosis".Translate(),
+                    defaultLabel = (Props.larvalForm == AquaticLarvalForm.Nymph
+                        ? "Zoology_DevCompleteEmergence" : "Zoology_DevCompleteMetamorphosis").Translate(),
                     action = () =>
                     {
                         if (!parent.Spawned || !parent.Position.GetTerrain(parent.Map).IsWater)
                             return;
                         EnsureCohort();
                         progress = 1f;
-                        ReleaseOneFroglet();
+                        ReleaseOneAnimal();
                     }
                 };
         }
@@ -424,37 +481,61 @@ namespace ZoologyMod
         private static readonly FieldInfo FertilizedByField =
             AccessTools.Field(typeof(CompEggLayer), "fertilizedBy");
 
-        private static void Postfix(CompEggLayer __instance, ref Thing __result)
+        private static void Prefix(CompEggLayer __instance, out Pawn __state)
         {
-            if (__result?.TryGetComp<CompAmphibianRoe>() is not CompAmphibianRoe roe
-                || !ModConstants.AdvancedReproduction)
+            __state = null;
+            if (!ModConstants.AdvancedReproduction
+                || AquaticEggLayerUtility.InstalledProfile(__instance.parent?.def) == null)
                 return;
+            __state = FertilizedByField?.GetValue(__instance) as Pawn;
+        }
+
+        private static void Postfix(CompEggLayer __instance, ref Thing __result, Pawn __state)
+        {
+            if (__result == null) return;
             int originalEggCount = __result.stackCount;
-            // Aquatic clutches are externally fertilized. Never create a
-            // fertilized egg through vanilla internal mating, even if another
-            // mod left the CompEggLayer fertilized counter set.
-            if (roe.Props.fertilized
+            ThingDef aquaticDef = AquaticEggLayerUtility.AquaticOutput(__instance, __result.def);
+            if (aquaticDef != null)
+            {
+                Thing clutch = ThingMaker.MakeThing(aquaticDef);
+                if (clutch.TryGetComp<CompAmphibianRoe>() != null)
+                {
+                    __result.Destroy(DestroyMode.Vanish);
+                    __result = clutch;
+                }
+                else
+                    clutch.Destroy(DestroyMode.Vanish);
+            }
+            // A cohort is represented by one Thing with its biological count.
+            if (__result.TryGetComp<CompAmphibianRoe>() is not CompAmphibianRoe roe)
+                return;
+            // External fertilization must take place after laying. Internally
+            // fertilized species retain the result of native mating.
+            if (ModConstants.AdvancedReproduction
+                && roe.Props.fertilizationMode == AquaticFertilizationMode.External
+                && roe.Props.fertilized
                 && __instance.props is CompProperties_EggLayer layer
                 && layer.eggUnfertilizedDef != null)
             {
                 Thing unfertilized = ThingMaker.MakeThing(layer.eggUnfertilizedDef);
                 if (unfertilized.TryGetComp<CompAmphibianRoe>() is CompAmphibianRoe replacement)
                 {
+                    __result.Destroy(DestroyMode.Vanish);
                     __result = unfertilized;
                     roe = replacement;
                 }
             }
-            roe.eggCount = originalEggCount;
+            roe.eggCount = Math.Max(1, originalEggCount);
             roe.mother = __instance.parent as Pawn;
             roe.father = roe.Props.fertilized
-                ? FertilizedByField?.GetValue(__instance) as Pawn : null;
+                ? __state ?? FertilizedByField?.GetValue(__instance) as Pawn : null;
             roe.faction = __instance.parent.Faction;
             __result.stackCount = 1;
         }
     }
 
-    // Neither roe nor tadpole cohorts are food for their own species, at any
-    // age. Other species retain normal predator/prey food selection.
+    // Some aquatic offspring are protected from conspecific consumption.
+    // Other species retain normal predator/prey food selection.
     [HarmonyPatch(typeof(FoodUtility), nameof(FoodUtility.WillEat),
         new[] { typeof(Pawn), typeof(Thing), typeof(Pawn), typeof(bool), typeof(bool) })]
     internal static class Patch_AmphibianOffspringConspecificFood
@@ -465,6 +546,7 @@ namespace ZoologyMod
                 return;
             if (food.TryGetComp<CompAmphibianRoe>() is CompAmphibianRoe roe
                 && p.def == roe.Props.parentRace
+                && roe.Props.protectFromConspecifics
                 && ModConstants.AdvancedReproduction)
             {
                 __result = false;
@@ -472,6 +554,7 @@ namespace ZoologyMod
             }
             if (food.TryGetComp<CompTadpole>() is CompTadpole tadpole
                 && p.def == tadpole.ParentRace
+                && tadpole.ProtectFromConspecifics
                 && ModConstants.AdvancedReproduction)
                 __result = false;
         }

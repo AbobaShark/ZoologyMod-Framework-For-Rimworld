@@ -204,6 +204,7 @@ COLUMN_ALIASES = {
     'Constrictor': ['Constrictor'],
     'Venom sample producer': ['Venom sample producer'],
     'OffspringShelter': ['OffspringShelter'],
+    'ReducedWandering': ['ReducedWandering'],
     'WinterDormancy': ['WinterDormancy'],
     'Mating season': ['Mating season'],
 }
@@ -217,6 +218,7 @@ CONCRETE_MOD_EXTENSIONS = {
     'Constrictor': 'ZoologyMod.ModExtension_Constrictor, ZoologyMod',
     'Venom sample producer': 'ZoologyMod.ModExtension_VenomSample, ZoologyMod',
     'OffspringShelter': 'ZoologyMod.ModExtension_OffspringShelter, ZoologyMod',
+    'ReducedWandering': 'ZoologyMod.ModExtension_ReducedWandering, ZoologyMod',
     'WinterDormancy': 'ZoologyMod.ModExtension_WinterDormancy, ZoologyMod',
     'Mating season': 'ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod',
 }

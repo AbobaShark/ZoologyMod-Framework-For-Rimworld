@@ -232,13 +232,16 @@ namespace ZoologyMod
         }
     }
 
-    // A long, fully ordinary Wait_Wander, not a new uninterruptible activity.
-    public sealed class JobGiver_EctothermicBasking : ThinkNode_JobGiver
+    public sealed class ModExtension_ReducedWandering : DefModExtension
+    {
+    }
+
+    public sealed class JobGiver_ReducedWandering : ThinkNode_JobGiver
     {
         protected override Job TryGiveJob(Pawn pawn)
         {
             if (!AnimalWaterHabitat.IsIdleAnimal(pawn)
-                || !ZoologyCacheUtility.HasEctothermicExtension(pawn.def)
+                || DefModExtensionCache<ModExtension_ReducedWandering>.Get(pawn.def) == null
                 || pawn.Position.GetTerrain(pawn.Map).IsWater
                 || (ModConstants.Settings is ZoologyModSettings settings
                     && (settings.DisableAllRuntimePatches || !settings.EnableEctothermicPatch))

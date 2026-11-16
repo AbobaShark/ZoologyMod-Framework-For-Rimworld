@@ -265,7 +265,9 @@ def stage_pipeline(source, *, root=None, registry_path=None, sheet_sources=None,
             outputs, report=render_reproduction(source,root,egg_milk_source=sheets.get('EggMilkWool'),
                                                  animals_source=sheets.get('Animals'),
                                                  animals_frame=generator.vanilla_df if generator is not None else None,
-                                                 destinations=[entry['destination'] for entry in product_entries if entry['source']=='installed_xml'],
+                                                 destinations=[entry['destination'] for entry in product_entries
+                                                               if entry['source']=='installed_xml'
+                                                               or entry['id'].startswith('products.aquatic.')],
                                                  include_missing_egg_counts=True)
             unknown={d for d,_ in outputs}-{e['destination'] for e in product_entries}
             if unknown:raise ValueError(f'Unregistered products path: {unknown}')
@@ -273,6 +275,9 @@ def stage_pipeline(source, *, root=None, registry_path=None, sheet_sources=None,
             if missing:raise ValueError('Missing required reproductive XML in Zoology: '+', '.join(missing))
             for dest,payload in outputs:
                 e=registered_outputs[dest]
+                if e['id'].startswith('products.aquatic.') and not len(E.fromstring(payload)):
+                    remove_generated.add(dest)
+                    continue
                 emit(dest,e['category'],payload,e.get('requires'))
                 entry_by_dest[dest]['pipeline_category']='products'
             energetics = output_by_id(registry, ENERGETICS_OUTPUT_ID)
@@ -424,8 +429,19 @@ def stage_pipeline(source, *, root=None, registry_path=None, sheet_sources=None,
         if postprocessor is not None:
             (temp/'optimization-report.json').write_text(json.dumps(postprocessor.stats,indent=2,ensure_ascii=False)+'\n',encoding='utf8')
         # A full run should be self contained, but partial generation never purges unrelated outputs.
+        prior_hashes = {entry['destination']: entry['sha256'] for entry in old['files']}
+        generation_delta = {'new': [], 'changed': [], 'identical': []}
+        for dest in sorted(generated_this_run):
+            if dest not in prior_hashes:
+                status = 'new'
+            elif prior_hashes[dest] != entry_by_dest[dest]['sha256']:
+                status = 'changed'
+            else:
+                status = 'identical'
+            generation_delta[status].append(dest)
         data={'schema':1,'prune':False,'generated_this_run':sorted(generated_this_run),
               'files':sorted(entry_by_dest.values(),key=lambda x:x['destination']),
+              'generation_delta':generation_delta,
               'remove':sorted(remove_generated)}
         (temp/'generation-manifest.json').write_text(json.dumps(data,indent=2,ensure_ascii=False)+'\n',encoding='utf8')
         # Final route/collision/integrity checks without requiring generated files inside Zoology.

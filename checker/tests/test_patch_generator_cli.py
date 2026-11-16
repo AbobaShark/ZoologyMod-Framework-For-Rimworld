@@ -13,6 +13,16 @@ import rimworld_patch_generator as entry
 
 
 class UnifiedEntryPointTests(unittest.TestCase):
+    def setUp(self):
+        # CLI tests mock the pipeline; only the reporting integration test
+        # below uses a real generated manifest and actual installation.
+        summary = patch.object(entry, 'generation_summary', return_value='Generated: 1 files (1 XML, 0 other).')
+        pending = patch.object(entry, 'plan', return_value=([], {}))
+        summary.start()
+        pending.start()
+        self.addCleanup(summary.stop)
+        self.addCleanup(pending.stop)
+
     def test_no_arguments_open_gui(self):
         with patch.object(entry, 'PatchGeneratorApp') as app, patch.object(entry, 'cli_main') as cli:
             entry.main([])
@@ -59,11 +69,13 @@ class UnifiedEntryPointTests(unittest.TestCase):
         ops = [('replace', None, None, 'Animals.xml'),
                ('skip', None, None, 'Other.xml')]
         with patch.object(entry, 'stage_pipeline', return_value=manifest), \
+             patch.object(entry, 'generation_summary', return_value='Generated: 2 files (2 XML, 0 other).'), \
              patch.object(entry, 'deploy', return_value=ops) as deploy:
             entry.PatchGeneratorApp._worker(worker, {'root': Path('/tmp/project')}, True)
         deploy.assert_called_once_with(manifest, Path('/tmp/project'), current_run_only=True)
         kind, summary, details = worker.messages.get_nowait()
         self.assertEqual(kind, 'ok')
+        self.assertIn('Generated: 2 files (2 XML, 0 other).', summary)
         self.assertIn('1 changes (1 XML files)', summary)
         self.assertIn('1 already identical', summary)
         self.assertEqual(details, '  REPLACE: Animals.xml')
@@ -122,7 +134,7 @@ class UnifiedEntryPointTests(unittest.TestCase):
              patch.object(entry, 'find_project_root', return_value=Path('/tmp/project')):
             with contextlib.redirect_stdout(io.StringIO()):
                 entry.main(['--source', 'gsheet:test', '--category', 'life-stages'])
-            deploy.assert_called_once_with(entry.STAGE/'generation-manifest.json', Path('/tmp/project'),current_run_only=True)
+            deploy.assert_called_once_with(Path('manifest.json'), Path('/tmp/project'),current_run_only=True)
             deploy.reset_mock()
             with contextlib.redirect_stdout(io.StringIO()):
                 entry.main(['--source', 'gsheet:test', '--category', 'life-stages', '--stage-only'])

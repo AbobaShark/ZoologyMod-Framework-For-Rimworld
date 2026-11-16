@@ -107,6 +107,7 @@ COLUMN_ALIASES = {
     "LeatherDef": ["Leather def", "LeatherDef", "Leather_Def", "Leather"],
     "IsMammal": ["IsMammal", "Is Mammal"],
     "Ectothermic": ["Ectothermic"],
+    "ReducedWandering": ["ReducedWandering"],
     "AgroAtSlaughter": ["AgroAtSlaughter", "Agro At Slaughter"],
     "CannotBeAugmented": ["CannotBeAugmented", "Cannot Be Augmented"],
     "CannotBeMutated": ["CannotBeMutated", "Cannot Be Mutated"],
@@ -127,6 +128,7 @@ COLUMN_ALIASES = {
 MOD_EXTENSION_CLASS_MAP = {
     "IsMammal": "ZoologyMod.ModExtension_IsMammal, ZoologyMod",
     "Ectothermic": "ZoologyMod.ModExtension_Ectothermic, ZoologyMod",
+    "ReducedWandering": "ZoologyMod.ModExtension_ReducedWandering, ZoologyMod",
     "AgroAtSlaughter": "ZoologyMod.ModExtension_AgroAtSlaughter, ZoologyMod",
     "CannotBeAugmented": "ZoologyMod.ModExtension_CannotBeAugmented, ZoologyMod",
     "CannotBeMutated": "ZoologyMod.ModExtension_CannotBeMutated, ZoologyMod",
@@ -146,7 +148,7 @@ MOD_EXTENSION_CLASS_MAP = {
 
 # These three extensions always belong to concrete ThingDefs: inheriting them from
 # an abstract can accidentally grant a different hunting or hiding ability.
-CONCRETE_ONLY_MOD_EXTENSIONS = frozenset(("PredationStrategy", "Burrower", "TreeClimber", "Constrictor", "Venom sample producer", "OffspringShelter", "WinterDormancy", "Mating season"))
+CONCRETE_ONLY_MOD_EXTENSIONS = frozenset(("PredationStrategy", "Burrower", "TreeClimber", "Constrictor", "Venom sample producer", "OffspringShelter", "WinterDormancy", "Mating season", "ReducedWandering"))
 PREDATION_STRATEGIES = {
     "chasing": "Chasing",
     "waterambush": "WaterAmbush",

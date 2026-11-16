@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Patch>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="Meganeura"]/modExtensions</xpath>
+    <match Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName="Meganeura"]/modExtensions</xpath>
+      <value>
+        <li Class="ZoologyMod.ModExtension_AquaticEggLayer, ZoologyMod">
+          <eggLayIntervalDays>1.2</eggLayIntervalDays>
+          <eggCountRange>150~280</eggCountRange>
+          <eggFertilizationCountMax>280</eggFertilizationCountMax>
+          <eggUnfertilizedDef>Zoology_MeganeuraAquaticEggUnfertilized</eggUnfertilizedDef>
+          <eggFertilizedDef>Zoology_MeganeuraAquaticEggFertilized</eggFertilizedDef>
+        </li>
+      </value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName="Meganeura"]</xpath>
+      <value>
+        <modExtensions>
+          <li Class="ZoologyMod.ModExtension_AquaticEggLayer, ZoologyMod">
+            <eggLayIntervalDays>1.2</eggLayIntervalDays>
+            <eggCountRange>150~280</eggCountRange>
+            <eggFertilizationCountMax>280</eggFertilizationCountMax>
+            <eggUnfertilizedDef>Zoology_MeganeuraAquaticEggUnfertilized</eggUnfertilizedDef>
+            <eggFertilizedDef>Zoology_MeganeuraAquaticEggFertilized</eggFertilizedDef>
+          </li>
+        </modExtensions>
+      </value>
+    </nomatch>
+  </Operation>
+</Patch>

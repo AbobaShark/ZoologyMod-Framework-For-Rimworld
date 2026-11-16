@@ -1428,23 +1428,27 @@ namespace ZoologyMod
             if (!IsEggThing(thing))
                 return false;
 
+            // Aquatic eggs have their own immersion rules.
+            if (thing.TryGetComp<CompAmphibianRoe>() != null)
+                return false;
+
             Pawn mother = thing.TryGetComp<CompHatcher>()?.hatcheeParent;
             if (mother == null)
-            {
                 EggClutchDefenseGameComponent.Instance?.TryGetAnyMother(thing, out mother);
-            }
 
-            if (mother == null)
+            bool incubates;
+            if (mother != null)
+                incubates = ChildcareUtility.HasChildcareExtension(mother);
+            else
             {
-                return false;
+                // Fertilized eggs retain species identity even if parentage is
+                // unavailable (spawned eggs, dead parents, merged clutches).
+                PawnKindDef kind = thing.def.GetCompProperties<CompProperties_Hatcher>()?.hatcherPawn;
+                if (kind?.race?.race?.Animal != true) return false;
+                incubates = DefModExtensionCache<ModExtensiom_Chlidcare>.Get(kind) != null
+                    || DefModExtensionCache<ModExtensiom_Chlidcare>.Get(kind.race) != null;
             }
-
-            if (!ChildcareUtility.HasChildcareExtension(mother))
-            {
-                return true;
-            }
-
-            return IsFertilizedEgg(thing) && IsEggIncubatedNow(thing);
+            return !incubates || (IsFertilizedEgg(thing) && IsEggIncubatedNow(thing));
         }
 
         public static void RegisterNearbyLaidEggsForMother(Pawn mother)
