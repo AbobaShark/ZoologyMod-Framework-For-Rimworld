@@ -137,12 +137,6 @@
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "HiveQueen"]/race/gestationPeriodDays</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "HiveQueen"]/race/gestationPeriodDays</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "HiveQueen"]/race/herdAnimal</xpath>
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "HiveQueen"]/race/herdAnimal</xpath>
@@ -361,6 +355,12 @@
       <xpath>/Defs/ThingDef[defName = "HiveQueen"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
     </match>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "HiveQueen"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "HiveQueen"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
   <!-- HiveQueen PawnKindDef -->
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "HiveQueen"]/combatPower</xpath>
@@ -547,12 +547,6 @@
     <value>
       <lifeExpectancy>1</lifeExpectancy>
     </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Larva"]/race/gestationPeriodDays</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Larva"]/race/gestationPeriodDays</xpath>
-    </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Larva"]/race/herdAnimal</xpath>
@@ -786,6 +780,12 @@
       <xpath>/Defs/ThingDef[defName = "Larva"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
     </match>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Larva"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Larva"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
   <!-- Larva PawnKindDef -->
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "Larva"]/combatPower</xpath>
@@ -960,12 +960,6 @@
     <value>
       <baseHungerRate>0.1</baseHungerRate>
     </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Locust"]/race/gestationPeriodDays</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Locust"]/race/gestationPeriodDays</xpath>
-    </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Locust"]/race/herdAnimal</xpath>
@@ -1225,6 +1219,12 @@
       <xpath>/Defs/ThingDef[defName = "Locust"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
     </match>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Locust"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Locust"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
   <!-- Locust PawnKindDef -->
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "Locust"]/combatPower</xpath>
@@ -1266,10 +1266,7 @@
     </match>
   </Operation>
   <!-- Combat Extended specific patches -->
-  <Operation Class="PatchOperationFindMod">
-    <mods>
-      <li>Combat Extended</li>
-    </mods>
+  <Operation Class="ZoologyMod.PatchOperation_FindCombatExtended">
     <match Class="PatchOperationSequence">
       <operations>
         <!-- HiveQueen CE patches -->

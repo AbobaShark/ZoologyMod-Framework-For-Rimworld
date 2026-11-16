@@ -58,7 +58,7 @@ def render_products(frame, animals, amphibians):
             if bounds[0] > bounds[-1] or bounds[-1] > 2147483647:
                 raise ValueError(f'{name}: invalid egg count range')
             add(name, eggInterval=_format(_value(frame.iat[i, egg['eggLayIntervalDays']])),
-                eggCount=raw, hatchDays=_format(_value(frame.iat[i, egg['hatcherDaystoHatch']], integer=True)),
+                eggCount=raw, hatchDays=_format(_value(frame.iat[i, egg['hatcherDaystoHatch']])),
                 hatchling=hatchling, eggNutrition=_format(_value(frame.iat[i, nutrition_col])))
         for section, field, tag, identity in (
                 (milk, 'Milk yield', 'milkPerDay', 'Milk XML name'),

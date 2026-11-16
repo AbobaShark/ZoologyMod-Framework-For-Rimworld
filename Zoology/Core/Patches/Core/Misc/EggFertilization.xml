@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName="Duck"]/comps/li[@Class="CompProperties_EggLayer"]/eggProgressUnfertilizedMax</xpath>
+    <match Class="PatchOperationReplace">
+      <xpath>/Defs/ThingDef[defName="Duck"]/comps/li[@Class="CompProperties_EggLayer"]/eggProgressUnfertilizedMax</xpath>
+      <value><eggProgressUnfertilizedMax>0.5</eggProgressUnfertilizedMax></value>
+    </match>
+    <nomatch Class="PatchOperationAdd">
+      <xpath>/Defs/ThingDef[defName="Duck"]/comps/li[@Class="CompProperties_EggLayer"]</xpath>
+      <value><eggProgressUnfertilizedMax>0.5</eggProgressUnfertilizedMax></value>
+    </nomatch>
+  </Operation>
+</Patch>

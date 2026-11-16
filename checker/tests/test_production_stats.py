@@ -14,7 +14,7 @@ def _tables():
     egg=pd.DataFrame([
         {'Def name':'<li>Ostrich</li>','hatcherDaystoHatch':'7','eggLayIntervalDays':'18.81533101','eggCountRange':'6~12',
          'Milk animal':'Cow','Milk yield':'22','Wool animal':'Dromedary','Wool yield per day':'9'},
-        {'Def name':'<li>AEXP_Crocodile</li>','hatcherDaystoHatch':'17','eggLayIntervalDays':'60','eggCountRange':'35~65'},
+        {'Def name':'<li>AEXP_Crocodile</li>','hatcherDaystoHatch':'16.75','eggLayIntervalDays':'60','eggCountRange':'35~65'},
     ])
     animals=pd.DataFrame([
         {'XML name':'<li>Ostrich</li>','Common name':'Ostrich'},
@@ -100,7 +100,7 @@ class ReproductiveValuesTests(unittest.TestCase):
         <xpath>/Defs/ThingDef[defName="AEXP_EggCrocodileFertilized"]/comps/li[Class="CompProperties_Hatcher"]/hatcherDaystoHatch/text()</xpath>
         <match Class="PatchOperationReplace"><value>12</value></match></Operation></Patch>''')
         c,_,_=refresh_tree(tree,_tables())
-        self.assertEqual(c[0]['new'],'17')
+        self.assertEqual(c[0]['new'],'16.75')
 
     def test_daily_milk_yield_uses_explicit_interval_and_preserves_chemfuel(self):
         tree=_tree('''<Patch>

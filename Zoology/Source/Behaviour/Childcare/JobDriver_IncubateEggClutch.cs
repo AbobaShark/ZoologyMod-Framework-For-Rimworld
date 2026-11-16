@@ -6,18 +6,20 @@ namespace ZoologyMod
 {
     public class JobDriver_IncubateEggClutch : JobDriver
     {
-        private Thing EggTarget => job.GetTarget(TargetIndex.A).Thing;
+        private Thing IncubationTarget => job.GetTarget(TargetIndex.A).Thing;
+        private Thing EggTarget => IncubationTarget is Building_AnimalNursery
+            ? job.GetTarget(TargetIndex.B).Thing : IncubationTarget;
 
         public override bool TryMakePreToilReservations(bool errorOnFailed)
         {
-            Thing egg = EggTarget;
-            return egg != null && pawn.Reserve(egg, job, 1, -1, null, errorOnFailed);
+            Thing target = IncubationTarget;
+            return target != null && pawn.Reserve(target, job, 1, -1, null, errorOnFailed);
         }
 
         protected override IEnumerable<Toil> MakeNewToils()
         {
             this.FailOnDespawnedNullOrForbidden(TargetIndex.A);
-            this.FailOn(() => !ChildcareDefenseUtility.CanContinueEggIncubation(pawn, EggTarget));
+            this.FailOn(() => !ChildcareDefenseUtility.CanContinueEggIncubation(pawn, IncubationTarget, EggTarget));
 
             yield return Toils_Goto.GotoThing(TargetIndex.A, PathEndMode.Touch);
 
@@ -32,7 +34,7 @@ namespace ZoologyMod
             wait.tickAction = delegate
             {
                 Thing egg = EggTarget;
-                if (!ChildcareDefenseUtility.CanContinueEggIncubation(pawn, egg))
+                if (!ChildcareDefenseUtility.CanContinueEggIncubation(pawn, IncubationTarget, egg))
                 {
                     pawn.jobs?.EndCurrentJob(JobCondition.Succeeded);
                     return;
@@ -48,7 +50,7 @@ namespace ZoologyMod
 
             yield return Toils_General.Do(delegate
             {
-                ChildcareDefenseUtility.FinishEggIncubation(EggTarget);
+                ChildcareDefenseUtility.FinishEggIncubation(IncubationTarget, EggTarget);
             });
         }
     }

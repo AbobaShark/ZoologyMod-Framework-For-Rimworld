@@ -107,7 +107,7 @@ namespace ZoologyMod
                 return baseHunger;
             float growth = ZoologyAnimalGrowth.Enabled || ZoologySexAdultProfiles.Enabled
                 ? ZoologyAnimalGrowth.HungerRatio(pawn) : 1f;
-            return baseHunger * growth * AnimalWinterDormancy.BasalHungerFactor(pawn);
+            return baseHunger * growth * AnimalWinterDormancy.MaintenanceHungerFactor(pawn);
         }
 
     }
@@ -187,27 +187,55 @@ namespace ZoologyMod
     {
         private static bool Prepare() => ZoologyAnimalGrowth.Enabled;
 
-        private static void Postfix(PawnRenderNode node, PawnDrawParms parms,
-            ref Vector3 __result)
+        private static IEnumerable<CodeInstruction> Transpiler(
+            IEnumerable<CodeInstruction> instructions, ILGenerator il)
         {
-            // In RimWorld 1.7 PawnRenderNode.parent/tree and
-            // PawnRenderTree.rootNode are public fields. The graphical root
-            // is the only node that receives the animal growth transform:
-            // reject descendants BEFORE accessing the daily growth cache.
-            if (node == null || node.parent != null
-                || !ReferenceEquals(node.tree?.rootNode, node))
-                return;
+            var code = new List<CodeInstruction>(instructions);
+            FieldInfo parent = AccessTools.Field(typeof(PawnRenderNode), "parent");
+            MethodInfo scale = AccessTools.Method(typeof(Patch_ZoologyDailyAnimalRenderScale),
+                nameof(ScaleRoot));
+            if (parent == null || scale == null || !code.Exists(i => i.opcode == OpCodes.Ret)
+                || code.Exists(i => i.opcode == OpCodes.Ret && i.blocks.Count != 0))
+            {
+                Log.Error("[Zoology] Cannot install the root render scale transform.");
+                return code;
+            }
 
+            var result = new List<CodeInstruction>(code.Count + 12);
+            foreach (CodeInstruction instruction in code)
+            {
+                if (instruction.opcode == OpCodes.Ret)
+                {
+                    // Keep the original Vector3 on the evaluation stack.
+                    // Descendants return directly, without any managed callback.
+                    Label done = il.DefineLabel();
+                    var first = new CodeInstruction(OpCodes.Ldarg_1);
+                    first.labels.AddRange(instruction.labels);
+                    instruction.labels.Clear();
+                    instruction.labels.Add(done);
+                    result.Add(first);
+                    result.Add(new CodeInstruction(OpCodes.Brfalse, done));
+                    result.Add(new CodeInstruction(OpCodes.Ldarg_1));
+                    result.Add(new CodeInstruction(OpCodes.Ldfld, parent));
+                    result.Add(new CodeInstruction(OpCodes.Brtrue, done));
+                    result.Add(new CodeInstruction(OpCodes.Ldarg_1));
+                    result.Add(new CodeInstruction(OpCodes.Ldarg_2));
+                    result.Add(new CodeInstruction(OpCodes.Call, scale));
+                }
+                result.Add(instruction);
+            }
+            return result;
+        }
+
+        private static Vector3 ScaleRoot(Vector3 result, PawnRenderNode node, PawnDrawParms parms)
+        {
+            if (!ReferenceEquals(node.tree?.rootNode, node)) return result;
             Pawn pawn = parms.pawn;
-            if (pawn?.RaceProps?.Animal != true)
-                return;
+            if (pawn?.RaceProps?.Animal != true) return result;
             Vector2 scale = ZoologyAnimalGrowth.DrawRatio(pawn);
-            if (Mathf.Abs(scale.x - 1f) < 0.000001f
-                && Mathf.Abs(scale.y - 1f) < 0.000001f)
-                return;
-
-            __result.x *= scale.x;
-            __result.z *= scale.y;
+            result.x *= scale.x;
+            result.z *= scale.y;
+            return result;
         }
     }
 }

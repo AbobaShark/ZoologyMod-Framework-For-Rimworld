@@ -125,7 +125,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AA_FrostboundBehemoth"]/race/gestationPeriodDays</xpath>
     <value>
-      <gestationPeriodDays>18.5</gestationPeriodDays>
+      <gestationPeriodDays>94.7</gestationPeriodDays>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -390,6 +390,21 @@
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "AA_FrostboundBehemoth"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
     </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_FrostboundBehemoth"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_FrostboundBehemoth"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "AA_FrostboundBehemoth"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod">
+        <captiveGestationDays>18.5</captiveGestationDays>
+        <realisticLitterMean>1</realisticLitterMean>
+      </li>
+    </value>
   </Operation>
   <!-- AA_FrostboundBehemoth PawnKindDef -->
   <Operation Class="PatchOperationReplace">
@@ -858,6 +873,24 @@
       <xpath>/Defs/ThingDef[defName = "AA_GreatDevourer"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
     </match>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AA_GreatDevourer"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AA_GreatDevourer"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "AA_GreatDevourer"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod">
+        <reproductivePauseTicks>1032000</reproductivePauseTicks>
+        <captiveEggFormationDays>2.3</captiveEggFormationDays>
+        <captiveReproductivePauseDays>17.2</captiveReproductivePauseDays>
+        <captiveIncubationDays>6</captiveIncubationDays>
+        <realisticEggCountRange>1~1</realisticEggCountRange>
+      </li>
+    </value>
+  </Operation>
   <!-- AA_GreatDevourer PawnKindDef -->
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "AA_GreatDevourer"]/combatPower</xpath>
@@ -899,10 +932,7 @@
     </match>
   </Operation>
   <!-- Combat Extended specific patches -->
-  <Operation Class="PatchOperationFindMod">
-    <mods>
-      <li>Combat Extended</li>
-    </mods>
+  <Operation Class="ZoologyMod.PatchOperation_FindCombatExtended">
     <match Class="PatchOperationSequence">
       <operations>
         <!-- AA_FrostboundBehemoth CE patches -->

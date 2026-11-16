@@ -23,6 +23,7 @@ namespace ZoologyMod
                 || pawn.RaceProps?.disableMating == true)
                 return null;
 
+            if (!AnimalSeasonalReproduction.AllowsMating(pawn)) return null;
             CompAnimalStrategyState state = pawn.TryGetComp<CompAnimalStrategyState>();
             if (state == null || state.nextRoeFertilizationPlan > GenTicks.TicksGame)
                 return null;

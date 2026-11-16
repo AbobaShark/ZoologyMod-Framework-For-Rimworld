@@ -13,7 +13,7 @@ namespace ZoologyMod
         public ThingDef burrow;
         public float searchRadius = 24f;
         public int digTicks = 2500;
-        public int unusedDecayInterval = 60000;
+        public int unusedDecayInterval = 10000;
         public int occupiedRepairInterval = 2500;
         public TerrainAffordanceDef diggableTerrainAffordance;
         public float hungerExitThreshold = 0.2f;
@@ -109,6 +109,47 @@ namespace ZoologyMod
             if (thing is Building_Grave grave) Graves.Remove(grave);
             if (buckets.TryGetValue(Key(thing.Position), out var bucket)) bucket.Remove(thing);
         }
+        // Only shelter-planning and excavation completion use the full
+        // burrow index. Familiar sites take priority over new excavation.
+        internal Building_AnimalBurrow FindReusableBurrow(Pawn pawn,
+            CompAnimalStrategyState state, bool familyOnly, Danger danger)
+        {
+            PathEndMode end = familyOnly ? PathEndMode.Touch : PathEndMode.OnCell;
+            bool Eligible(Building_AnimalBurrow den) =>
+                den?.Spawned == true && den.Map == pawn.Map
+                && !den.IsForbidden(pawn)
+                && (familyOnly ? den.CanHouseFamily(pawn) : den.Accepts(pawn));
+            bool Reachable(Building_AnimalBurrow den) =>
+                pawn.CanReserveAndReach(den, end, danger, int.MaxValue, 0);
+
+            Building_AnimalBurrow preferred = state?.familyBurrow;
+            if (Eligible(preferred) && Reachable(preferred))
+                return preferred;
+
+            if (state != null)
+                for (int i = 0; i < state.familiarBurrows.Count; i++)
+                {
+                    Building_AnimalBurrow known = state.familiarBurrows[i];
+                    if (known != preferred && Eligible(known) && Reachable(known))
+                        return known;
+                }
+
+            Building_AnimalBurrow best = null;
+            float bestDistance = float.MaxValue;
+            foreach (Building_AnimalBurrow den in Burrows)
+            {
+                if (den == null) continue;
+                float distance = (den.Position - pawn.Position).LengthHorizontalSquared;
+                if (distance >= bestDistance || den == preferred
+                    || (state != null && state.familiarBurrows.Contains(den))
+                    || !Eligible(den) || !Reachable(den))
+                    continue;
+                best = den;
+                bestDistance = distance;
+            }
+            return best;
+        }
+
         public bool TryPlan()
         {
             if (budgetTick != GenTicks.TicksGame) { budgetTick = GenTicks.TicksGame; plans = 0; }
@@ -246,7 +287,9 @@ namespace ZoologyMod
             if (pawn.gender == Gender.Female && pawn.relations != null)
                 foreach (Pawn child in pawn.relations.Children)
                     if (child != null && !child.Dead && ChildcareUtility.IsAnimalChild(child) && child.MapHeld == pawn.MapHeld
-                        && child.PositionHeld.InHorDistOf(pawn.PositionHeld, settings.searchRadius))
+                        && child.PositionHeld.InHorDistOf(pawn.PositionHeld, settings.searchRadius)
+                        && !(ThingOwnerUtility.GetAnyParent<Building_AnimalBurrow>(child) is Building_AnimalBurrow den
+                            && den.IsFamilyDenFor(pawn)))
                     {
                         float childFood = child.needs?.food?.CurLevelPercentage ?? 1f;
                         if (childFood < settings.hungerExitThreshold || (child.TryGetComp<CompAnimalStrategyState>()?.groundEscapeUntilFed == true
@@ -724,18 +767,16 @@ namespace ZoologyMod
             if (!burrower || pawn.BodySize >
                 DefModExtensionCache<ModExtension_Burrower>.Get(pawn.def).maxBodySize)
                 return null;
-            // Awake animals with an existing nearby burrow need no sleep-path search.
-            foreach (Thing refuge in index.Nearby(pawn.Position, 16))
-                if (refuge is Building_AnimalBurrow burrow && burrow.Spawned
-                    && burrow.Accepts(pawn) && !burrow.IsForbidden(pawn))
-                {
-                    state.Remember(burrow);
-                    return null;
-                }
-            for (int i = 0; i < state.familiarBurrows.Count; i++)
-                if (state.familiarBurrows[i]?.Spawned == true
-                    && state.familiarBurrows[i].Map == pawn.Map)
-                    return null;
+            if (state.burrowReentryAfter > GenTicks.TicksGame)
+                return null;
+            Building_AnimalBurrow reusable = index.FindReusableBurrow(
+                pawn, state, false, Danger.None);
+            if (reusable != null)
+            {
+                state.Remember(reusable);
+                return wantsSleep ? JobMaker.MakeJob(
+                    DefDatabase<JobDef>.GetNamed("Zoology_EnterBurrow"), reusable) : null;
+            }
             foreach (IntVec3 c in GenRadial.RadialCellsAround(pawn.Position, 8f, true))
                 if (Diggable(pawn, c) && pawn.CanReserveAndReach(c, PathEndMode.OnCell, Danger.None))
                     return JobMaker.MakeJob(DefDatabase<JobDef>.GetNamed("Zoology_DigBurrow"), c);
@@ -788,25 +829,33 @@ namespace ZoologyMod
             yield return Toils_General.Wait(Building_AnimalBurrow.Settings.digTicks);
             yield return Toils_General.Do(() =>
             {
+                CompAnimalStrategyState state = pawn.TryGetComp<CompAnimalStrategyState>();
+                bool familyOnly = Building_AnimalBurrow.NeedsFamilyBurrow(pawn);
+                if (!familyOnly && (state?.burrowReentryAfter ?? 0) > GenTicks.TicksGame)
+                    return;
+
+                // Another animal may have finished a refuge or vacated one
+                // during the excavation. Reuse it rather than spawn a duplicate.
+                var index = Map.GetComponent<AnimalRefugeMapComponent>();
+                Building_AnimalBurrow reusable = index?.FindReusableBurrow(
+                    pawn, state, familyOnly, familyOnly ? Danger.Some : Danger.None);
+                if (reusable != null)
+                {
+                    state?.Remember(reusable);
+                    if (familyOnly && reusable.TryAssignFamily(pawn) && state != null)
+                        state.familyBurrow = reusable;
+                    return;
+                }
+
                 ThingDef shelter = Building_AnimalBurrow.SelectDefFor(pawn);
                 if (!JobGiver_AnimalBurrow.Diggable(pawn, TargetA.Cell, shelter))
                     return;
                 var burrow = (Building_AnimalBurrow)ThingMaker.MakeThing(shelter);
                 burrow.InitializeFor(pawn);
                 GenSpawn.Spawn(burrow, TargetA.Cell, Map);
-                CompAnimalStrategyState state = pawn.TryGetComp<CompAnimalStrategyState>();
                 state?.Remember(burrow);
-                if (AnimalOffspringShelter.For(pawn.def) == OffspringShelterMode.DEN
-                    && pawn.gender == Gender.Female && pawn.relations != null)
-                    foreach (Pawn child in pawn.relations.Children)
-                        if (child != null && !child.Dead && child.MapHeld == Map
-                            && AnimalLifeStageUtility.IsAnimalInfantLifeStage(
-                                child.ageTracker?.CurLifeStage))
-                        {
-                            if (burrow.TryAssignFamily(pawn) && state != null)
-                                state.familyBurrow = burrow;
-                            break;
-                        }
+                if (familyOnly && burrow.TryAssignFamily(pawn) && state != null)
+                    state.familyBurrow = burrow;
             });
         }
     }

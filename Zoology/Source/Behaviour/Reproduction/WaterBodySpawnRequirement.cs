@@ -21,8 +21,9 @@ namespace ZoologyMod
         private const string RequirementDefName = "Zoology_WaterBodySpawnRequirements";
         private const float AreaPerBodySizeSquared = 150f;
         private const float EndothermAreaMultiplier = 2f;
-        private const float WetnessStart = 0.01f;
-        private const float WetnessRange = 0.11f;
+        private const float FullHabitatWetness = 0.048f;
+        private const float MaximumAquaticFactor = 2f;
+        private const float MarshClimateMinimum = 15f;
 
         private sealed class MapWaterCache
         {
@@ -33,14 +34,12 @@ namespace ZoologyMod
             internal readonly List<int> waterBodyAreas = new List<int>(64);
             internal readonly Dictionary<ThingDef, float> aquaticFactors =
                 new Dictionary<ThingDef, float>(32);
-            internal float landFactor = 1f;
         }
 
         private static readonly ConditionalWeakTable<Map, MapWaterCache> MapCaches =
             new ConditionalWeakTable<Map, MapWaterCache>();
         private static readonly HashSet<ThingDef> RequiredRaces = new HashSet<ThingDef>();
         private static bool requirementsLoaded;
-        private static bool hasRequirements;
 
         internal static float NaturalSpawnCommonalityFactor(Map map, ThingDef animalRace)
         {
@@ -48,7 +47,7 @@ namespace ZoologyMod
                 return 1f;
 
             EnsureRequirementsLoaded();
-            if (!hasRequirements)
+            if (!RequiredRaces.Contains(animalRace))
                 return 1f;
 
             MapWaterCache cache = MapCaches.GetValue(map, _ => new MapWaterCache());
@@ -62,7 +61,7 @@ namespace ZoologyMod
             }
 
             return cache.aquaticFactors.TryGetValue(animalRace, out float factor)
-                ? factor : cache.landFactor;
+                ? factor : 1f;
         }
 
         private static void EnsureRequirementsLoaded()
@@ -76,7 +75,6 @@ namespace ZoologyMod
             if (rules?.animals == null)
                 return;
 
-            hasRequirements = true;
             for (int i = 0; i < rules.animals.Count; i++)
             {
                 string name = rules.animals[i];
@@ -90,10 +88,18 @@ namespace ZoologyMod
         }
 
         // One flood fill (four-way adjacency) per cached map refresh.
-        // Non-ocean Water, including Marsh, counts toward wetland habitat.
+        // Freshwater habitats include marsh terrain in warm climates.
         private static void RebuildMapFactors(Map map, MapWaterCache cache)
         {
             TerrainGrid terrain = map.terrainGrid;
+            bool includeMarsh = false;
+            if (map.TileInfo != null)
+            {
+                float annualTemperature = 0f;
+                for (int i = 0; i < 12; i++)
+                    annualTemperature += GenTemperature.AverageTemperatureAtTileForTwelfth(map.Tile, (Twelfth)i);
+                includeMarsh = annualTemperature / 12f >= MarshClimateMinimum;
+            }
             int width = map.Size.x;
             int count = map.cellIndices.NumGridCells;
             if (cache.visited == null || cache.visited.Length != count)
@@ -109,6 +115,7 @@ namespace ZoologyMod
             List<int> areas = cache.waterBodyAreas;
             areas.Clear();
             int oceanCells = 0;
+            int riverCells = 0;
             int totalWater = 0;
             int largestWater = 0;
             bool[] visited = cache.visited;
@@ -119,14 +126,17 @@ namespace ZoologyMod
                 for (int start = 0; start < count; start++)
                 {
                     TerrainDef startTerrain = terrain.TerrainAt(start);
-                    // Count ocean even if flood fill already visited that cell.
+                    // Count ocean and river terrain once per cell.
                     if (startTerrain != null && startTerrain.IsOcean)
                         oceanCells++;
+                    else if (IsHabitatWater(startTerrain, includeMarsh)
+                        && startTerrain.tags?.Contains("River") == true)
+                        riverCells++;
                     if (visited[start])
                         continue;
 
                     visited[start] = true;
-                    if (!IsNonOceanWater(startTerrain))
+                    if (!IsHabitatWater(startTerrain, includeMarsh))
                         continue;
 
                     int first = 0;
@@ -137,13 +147,13 @@ namespace ZoologyMod
                         int cell = queue[first++];
                         int x = cell % width;
                         if (x > 0)
-                            EnqueueWater(terrain, cell - 1, visited, queue, ref next);
+                            EnqueueWater(terrain, cell - 1, visited, queue, ref next, includeMarsh);
                         if (x + 1 < width)
-                            EnqueueWater(terrain, cell + 1, visited, queue, ref next);
+                            EnqueueWater(terrain, cell + 1, visited, queue, ref next, includeMarsh);
                         if (cell >= width)
-                            EnqueueWater(terrain, cell - width, visited, queue, ref next);
+                            EnqueueWater(terrain, cell - width, visited, queue, ref next, includeMarsh);
                         if (cell + width < count)
-                            EnqueueWater(terrain, cell + width, visited, queue, ref next);
+                            EnqueueWater(terrain, cell + width, visited, queue, ref next, includeMarsh);
                     }
 
                     areas.Add(next);
@@ -155,11 +165,10 @@ namespace ZoologyMod
 
             int eligibleCells = count - oceanCells;
             float wetness = eligibleCells > 0
-                ? (totalWater + largestWater) / (2f * eligibleCells) : 0f;
-            float trend = Math.Max(0f, Math.Min(1f,
-                (wetness - WetnessStart) / WetnessRange));
-            float aquaticBoost = 1f + 2f * trend;
-            cache.landFactor = 1f / aquaticBoost;
+                ? (totalWater + largestWater + 2f * riverCells) / (2f * eligibleCells) : 0f;
+            // Flowing freshwater contributes additional habitat productivity
+            // while connected-area requirements use actual water cells.
+            float aquaticBoost = MaximumAquaticFactor * Math.Min(1f, wetness / FullHabitatWetness);
 
             // Species scores and Def extension lookups are outside the
             // candidate-selection hot path.
@@ -176,7 +185,8 @@ namespace ZoologyMod
                 bool ectothermic = ZoologyCacheUtility.HasEctothermicExtension(race);
                 float requirement = AreaPerBodySizeSquared * size * size
                     * (ectothermic ? 1f : EndothermAreaMultiplier);
-                if (largestWater < requirement / 3f)
+                float minimumConnectedArea = requirement / 3f;
+                if (largestWater <= minimumConnectedArea)
                 {
                     cache.aquaticFactors[race] = 0f;
                     continue;
@@ -189,24 +199,28 @@ namespace ZoologyMod
                     effectiveArea += area * Math.Min(1f, area / requirement);
                 }
 
-                cache.aquaticFactors[race] = aquaticBoost
-                    * Math.Min(1f, effectiveArea / requirement);
+                float connectedSuitability = (largestWater - minimumConnectedArea)
+                    / (requirement - minimumConnectedArea);
+                float habitatSuitability = Math.Min(1f,
+                    Math.Min(connectedSuitability, effectiveArea / requirement));
+                cache.aquaticFactors[race] = aquaticBoost * habitatSuitability;
             }
         }
 
-        private static bool IsNonOceanWater(TerrainDef terrain)
+        private static bool IsHabitatWater(TerrainDef terrain, bool includeMarsh)
         {
-            return terrain != null && terrain.IsWater && !terrain.IsOcean;
+            return terrain != null && terrain.IsWater && !terrain.IsOcean
+                && (includeMarsh || terrain.defName != "Marsh");
         }
 
         private static void EnqueueWater(
-            TerrainGrid terrain, int index, bool[] visited, int[] queue, ref int next)
+            TerrainGrid terrain, int index, bool[] visited, int[] queue, ref int next, bool includeMarsh)
         {
             if (visited[index])
                 return;
 
             visited[index] = true;
-            if (IsNonOceanWater(terrain.TerrainAt(index)))
+            if (IsHabitatWater(terrain.TerrainAt(index), includeMarsh))
                 queue[next++] = index;
         }
     }

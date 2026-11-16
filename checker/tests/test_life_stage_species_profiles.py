@@ -14,7 +14,7 @@ def sources(base_size=1):
         "XML name": "<li>TestAnimal</li>",
         "baseBodySize": base_size,
         "baseHungerRate": 1,
-    }])
+    }], dtype=object)
     profiles = pd.DataFrame([{
         "XML name": "<li>TestAnimal</li>",
         "LifeStageDef": " or ".join(group),
@@ -41,7 +41,7 @@ def sources(base_size=1):
         "ToolStatus": "READY",
         "ToolCount": 0,
         "ToolRecordsV2": "",
-    } for i, group in enumerate(STAGE_GROUPS)])
+    } for i, group in enumerate(STAGE_GROUPS)], dtype=object)
     return profiles, profiles, animals
 
 
@@ -231,8 +231,8 @@ class SpeciesLifeStageProfilesTests(unittest.TestCase):
     def test_zero_adult_armor_uses_absolute_ce_offset(self):
         args = list(sources())
         args[0] = args[0].copy()
-        args[0]["CE_ArmorRating_Sharp_Offset"] = ""
-        args[0]["CE_ArmorRating_Blunt_Offset"] = ""
+        args[0]["CE_ArmorRating_Sharp_Offset"] = pd.Series("", index=args[0].index, dtype=object)
+        args[0]["CE_ArmorRating_Blunt_Offset"] = pd.Series("", index=args[0].index, dtype=object)
         args[0].at[2, "CE_ArmorRating_Sharp"] = 1
         args[0].at[2, "CE_ArmorRating_Blunt"] = 1
         args[0].at[2, "CE_ArmorRating_Sharp_Offset"] = .02
@@ -256,6 +256,7 @@ class SpeciesLifeStageProfilesTests(unittest.TestCase):
     def test_armor_offset_rejects_non_neutral_factor_and_bad_formula(self):
         args = list(sources())
         args[0] = args[0].copy()
+        args[0]["CE_ArmorRating_Sharp_Offset"] = pd.Series("", index=args[0].index, dtype=object)
         args[0].at[2, "CE_ArmorRating_Sharp_Offset"] = .02
         args[1] = args[0]
         with self.assertRaisesRegex(ValueError, "requires neutral"):

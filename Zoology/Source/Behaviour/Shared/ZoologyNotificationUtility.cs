@@ -189,6 +189,19 @@ namespace ZoologyMod
             Messages.Message(text.CapitalizeFirst(), protector, MessageTypeDefOf.NeutralEvent, false);
         }
 
+        internal static void NotifyProvokedManhunter(Pawn animal, Pawn aggressor)
+        {
+            if (animal?.Spawned != true || animal.Dead || animal.Downed
+                || aggressor?.Faction != Faction.OfPlayer
+                || animal.MentalStateDef != MentalStateDefOf.Manhunter)
+                return;
+
+            Find.LetterStack.ReceiveLetter(
+                "Zoology_ProvokedManhunter_Label".Translate(animal.LabelShortCap),
+                "Zoology_ProvokedManhunter_Text".Translate(animal.LabelShortCap, aggressor.LabelShort),
+                LetterDefOf.ThreatSmall, animal);
+        }
+
         private static long MakePairKey(Pawn aggressor, Thing protectedThing)
         {
             if (aggressor == null || protectedThing == null)

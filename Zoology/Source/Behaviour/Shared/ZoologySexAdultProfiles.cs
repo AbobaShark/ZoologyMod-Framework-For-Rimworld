@@ -266,6 +266,10 @@ namespace ZoologyMod
             }
         }
 
+        internal static ZoologySexAdultProfile GetForStage(ThingDef race, int index, Gender gender) =>
+            race != null && ByRace.TryGetValue(race, out var pair) && index == pair.stageIndex
+                ? pair.For(gender)?.profile : null;
+
         private static Endpoint Select(Pawn pawn, bool next)
         {
             if (!Enabled || pawn?.ageTracker == null || pawn.def == null)

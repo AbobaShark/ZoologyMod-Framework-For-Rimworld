@@ -179,13 +179,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "WasteRat"]/race/gestationPeriodDays</xpath>
       <value>
-        <gestationPeriodDays>7</gestationPeriodDays>
+        <gestationPeriodDays>14.8</gestationPeriodDays>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "WasteRat"]/race</xpath>
       <value>
-        <gestationPeriodDays>7</gestationPeriodDays>
+        <gestationPeriodDays>14.8</gestationPeriodDays>
       </value>
     </nomatch>
   </Operation>
@@ -629,6 +629,21 @@
       <xpath>/Defs/ThingDef[defName = "WasteRat"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
     </match>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "WasteRat"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "WasteRat"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "WasteRat"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod">
+        <captiveGestationDays>7</captiveGestationDays>
+        <realisticLitterMean>8</realisticLitterMean>
+      </li>
+    </value>
+  </Operation>
   <!-- WasteRat PawnKindDef -->
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "WasteRat"]/ecoSystemWeight</xpath>
@@ -673,10 +688,7 @@
     </match>
   </Operation>
   <!-- Combat Extended specific patches -->
-  <Operation Class="PatchOperationFindMod">
-    <mods>
-      <li>Combat Extended</li>
-    </mods>
+  <Operation Class="ZoologyMod.PatchOperation_FindCombatExtended">
     <match Class="PatchOperationSequence">
       <operations>
         <!-- WasteRat CE patches -->

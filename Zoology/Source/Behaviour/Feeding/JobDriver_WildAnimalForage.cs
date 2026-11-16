@@ -19,6 +19,7 @@ namespace ZoologyMod
             // Only cheap map/site checks run as an ongoing fail condition.
             this.FailOn(() => !PredatorFoodChoiceUtility.WildForageEnabled
                 || pawn.Map == null || pawn.Faction != null
+                || !job.targetA.Cell.InBounds(pawn.Map)
                 || !job.targetA.Cell.GetTerrain(pawn.Map).natural);
 
             yield return Toils_Goto.GotoCell(TargetIndex.A, PathEndMode.OnCell);

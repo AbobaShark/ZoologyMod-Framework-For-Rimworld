@@ -4,17 +4,9 @@ using Verse;
 
 namespace ZoologyMod
 {
-    // Egg boxes retain vanilla behaviour. Only natural bird nests reject
-    // unfertilized eggs and have a species-correct developer fill action.
+    // Natural bird nests use the standard egg container and a species-specific developer fill action.
     public sealed class CompAnimalNestEggContainer : CompEggContainer
     {
-        internal static bool IsFertilizedEgg(ThingDef eggDef) =>
-            eggDef != null
-            && eggDef.GetCompProperties<CompProperties_Hatcher>() != null;
-
-        public override bool Accepts(ThingDef thingDef) =>
-            IsFertilizedEgg(thingDef) && base.Accepts(thingDef);
-
         public override IEnumerable<Gizmo> CompGetGizmosExtra()
         {
             // CompEggContainer's built-in developer command creates

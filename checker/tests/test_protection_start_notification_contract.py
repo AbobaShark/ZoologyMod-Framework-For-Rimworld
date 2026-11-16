@@ -41,17 +41,34 @@ class ProtectionStartContracts(unittest.TestCase):
         self.assertIn("TryFillEggProtectors(protectedThing, aggressor, candidates, includeActiveDefense: true)", src)
         self.assertIn("List<Pawn> candidates = youngProtectorsScratch;", src)
 
-    def test_nest_parents_are_processed_together_and_burrow_fallback_is_shared(self):
+    def test_shelters_use_the_standard_protection_entry_points(self):
         nest = NEST.read_text(encoding="utf-8")
         attack = nest.split("public void NotifyAttacked(", 1)[1].split(
             "internal static class AnimalNestEggUtility", 1)[0]
         self.assertEqual(attack.count("TryOrderProtection("), 1)
-        self.assertIn("first, attacker, protectedThing, second", attack)
+        self.assertIn("TryTriggerEggProtection(attacker, protectedThing)", attack)
+        self.assertIn("TryOrderProtection(biologicalMother ?? mother, attacker, child)", attack)
+        self.assertIn("if (protectedThing == null && food != null) return;", attack)
         burrow = BURROW.read_text(encoding="utf-8")
         attack = burrow.split("public void NotifyAttacked(", 1)[1].split(
             "private bool SafeToJoin(", 1)[0]
-        self.assertIn("allowBurrowFallback: true", attack)
+        self.assertIn("TryOrderProtection(mother, attacker, protectedChild)", attack)
         self.assertNotIn("StartJob(", attack)
+        common = CHILD.read_text(encoding="utf-8")
+        self.assertNotIn("allowBurrowFallback", common)
+        self.assertNotIn("forceMelee", common)
+        self.assertIn("BuildDirectYoungProtectionTargetState(young, currentTick);", common)
+        self.assertIn("TryGetYoungProtectionTargetState(young, currentTick, out state)", common)
+
+    def test_manhunter_letter_follows_successful_transition(self):
+        wake = BURROW.read_text(encoding="utf-8").split(
+            "internal void WakeDormantOccupants", 1)[1].split("public void NotifyAttacked", 1)[0]
+        self.assertLess(wake.index("TryStartMentalState("), wake.index("NotifyProvokedManhunter("))
+        notify = NOTIFY.read_text(encoding="utf-8").split("internal static void NotifyProvokedManhunter(", 1)[1].split(
+            "private static long MakePairKey", 1)[0]
+        self.assertIn("aggressor?.Faction != Faction.OfPlayer", notify)
+        self.assertIn("LetterDefOf.ThreatSmall", notify)
+        self.assertEqual(notify.count("ReceiveLetter("), 1)
 
 
 if __name__ == "__main__":

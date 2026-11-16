@@ -424,6 +424,26 @@
       <xpath>/Defs/ThingDef[defName = "Iguana"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
     </match>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Iguana"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Iguana"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "Iguana"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod">
+        <matingSeasonMask>8</matingSeasonMask>
+        <reproductivePauseTicks>2958000</reproductivePauseTicks>
+        <birthSeasonMask>9</birthSeasonMask>
+        <captiveEggFormationDays>10.7</captiveEggFormationDays>
+        <captiveReproductivePauseDays>49.3</captiveReproductivePauseDays>
+        <captiveIncubationDays>7</captiveIncubationDays>
+        <realisticEggCountRange>44~46</realisticEggCountRange>
+      </li>
+    </value>
+  </Operation>
   <!-- Iguana PawnKindDef -->
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "Iguana"]/combatPower</xpath>
@@ -880,6 +900,26 @@
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Cobra"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
     </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Cobra"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Cobra"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "Cobra"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod">
+        <matingSeasonMask>9</matingSeasonMask>
+        <reproductivePauseTicks>2934000</reproductivePauseTicks>
+        <birthSeasonMask>3</birthSeasonMask>
+        <captiveEggFormationDays>11.1</captiveEggFormationDays>
+        <captiveReproductivePauseDays>48.9</captiveReproductivePauseDays>
+        <captiveIncubationDays>7</captiveIncubationDays>
+        <realisticEggCountRange>28~29</realisticEggCountRange>
+      </li>
+    </value>
   </Operation>
   <!-- Cobra PawnKindDef -->
   <Operation Class="PatchOperationReplace">
@@ -1374,6 +1414,25 @@
       <xpath>/Defs/ThingDef[defName = "Tortoise"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
     </match>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Tortoise"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Tortoise"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "Tortoise"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod">
+        <matingSeasonMask>3</matingSeasonMask>
+        <reproductivePauseTicks>3306000</reproductivePauseTicks>
+        <captiveEggFormationDays>4.9</captiveEggFormationDays>
+        <captiveReproductivePauseDays>55.1</captiveReproductivePauseDays>
+        <captiveIncubationDays>6.5</captiveIncubationDays>
+        <realisticEggCountRange>52~54</realisticEggCountRange>
+      </li>
+    </value>
+  </Operation>
   <!-- Tortoise PawnKindDef -->
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "Tortoise"]/combatPower</xpath>
@@ -1415,10 +1474,7 @@
     </match>
   </Operation>
   <!-- Combat Extended specific patches -->
-  <Operation Class="PatchOperationFindMod">
-    <mods>
-      <li>Combat Extended</li>
-    </mods>
+  <Operation Class="ZoologyMod.PatchOperation_FindCombatExtended">
     <match Class="PatchOperationSequence">
       <operations>
         <!-- Iguana CE patches -->

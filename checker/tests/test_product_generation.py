@@ -17,7 +17,7 @@ HEADERS = [
 class ProductGenerationTests(unittest.TestCase):
     def test_one_record_per_species_and_explicit_hatchling_and_wool_identity(self):
         frame = pd.DataFrame([
-            ['Spider', '', 7, 12, '1~2', '<li>AA_Spider</li>', 42, 12, 2,
+            ['Spider', '', 6.875, 12, '1~2', '<li>AA_Spider</li>', 42, 12, 2,
              0.8, '<li>AA_Larva</li>', 'Cow', 1.68, .55, 18,
              'Muskox', 1.2, 'Wool', .25, 6.5, 65, '<li>Muskox</li>'],
             ['Frog', '', 1, 60, '100~200', '<li>Frog</li>', 5, 1000, 150,
@@ -34,6 +34,7 @@ class ProductGenerationTests(unittest.TestCase):
         self.assertEqual(set(rows), {'AA_Spider', 'Cow', 'Muskox', 'AEXP_Muskox'})
         self.assertEqual(root.xpath('string(//li[animal="AA_Spider"]/hatchling)'), 'AA_Larva')
         self.assertEqual(rows['AA_Spider']['eggCount'], '1~2')
+        self.assertEqual(rows['AA_Spider']['hatchDays'], '6.875')
         self.assertEqual(rows['Cow']['milkPerDay'], '18')
         self.assertEqual(rows['Muskox']['woolPerDay'], '6.5')
         self.assertEqual(rows['AEXP_Muskox']['woolPerDay'], '7')

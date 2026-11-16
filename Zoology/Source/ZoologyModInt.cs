@@ -38,6 +38,7 @@ namespace ZoologyMod
                 Settings?.ApplyRuntimeDefOverrides();
                 ZoologyLifeStageProfileInstaller.ApplyOnce();
                 ZoologySexAdultProfiles.Install();
+                ZoologyAnimalGrowth.PrepareGrowthBudgets();
                 ZoologyReproductiveEnergetics.Install();
 #if RIMWORLD17
                 AnimalBarnWorkPriority.MatchVanillaPens();

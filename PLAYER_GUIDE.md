@@ -43,6 +43,8 @@ Zoology gives babies and juveniles distinct life-stage factors for body size, he
 
 With **Dynamic animal growth** enabled (default: on), young animals gradually increase in size and develop their species-specific characteristics each biological day, including their health, hunger, armor, movement and natural attacks. With growth disabled, these characteristics change at life-stage transitions.
 
+Young animals consume food according to their current size and metabolic group. Half of their ordinary nutritional intake is available for building new tissue. If this is insufficient to cover growth over a life stage, the animal receives an additional daily food requirement.
+
 ### Sexual dimorphism
 
 With **Sexual dimorphism** enabled (default: on), supported species have distinct male and female adult sizes, appearance and characteristics. Differences develop during the juvenile-to-adult interval when dynamic growth is active. The two settings can be configured independently.
@@ -55,18 +57,32 @@ Flight availability depends on biological age in supported flying species. Hatch
 
 **Automatic juvenile sprite scaling** is a separate enabled-by-default option. Zoology scales baby and juvenile graphics using their body masses relative to adults. Female-specific textures are used when the animal has separate artwork; otherwise a common texture is scaled to the animal's size. Dynamic growth applies its day-by-day visual interpolation separately.
 
-### Pregnancy and animal products
+### Breeding, pregnancy and animal products
 
-Species-specific husbandry characteristics include:
+Wild animals reproduce according to their species' breeding seasons, local climate and reproductive cycles. Owned animals follow husbandry schedules and can breed outside the usual wild breeding season. Some species require a rest period between clutches.
 
-- pregnancy increases hunger progressively through its stages;
-- egg-laying intervals and clutch sizes are species-specific;
-- fertilized egg incubation times are species-specific;
-- milk yield and milking intervals are adjusted for supported mammals;
-- wool/shearing data are adjusted for supported animals and integrations;
-- meat yields are derived from species data;
-- leather market, protection and insulation values are rebalanced;
-- chitin and other non-mammalian materials are handled separately where the animal data require it.
+Half of an animal’s ordinary food intake is available for pregnancy or egg formation. Pregnant animals need additional food when that allowance is insufficient, with the greatest additional demand late in pregnancy. Species such as bears can experience embryonic diapause, a period of suspended embryonic development before implantation. During diapause, pregnancy does not increase hunger. The pregnancy description shows the remaining time in diapause or the additional food requirement during active development.
+
+Egg-laying animals need additional nutrition when the cost of forming a clutch exceeds their ordinary dietary allowance. An egg's nutrition equals that of its newly hatched offspring. This additional demand is concentrated in the second half of egg formation and shown in the animal's health information.
+
+#### Reproduction settings
+
+With **Advanced reproductive behavior** enabled, two independent settings let you choose the balance between biological realism and husbandry:
+
+| Setting | Off (default) | On |
+| --- | --- | --- |
+| Realistic reproductive durations in captivity | Species-specific husbandry periods for owned animals; chickens lay two eggs per day. | Calendar-scaled pregnancy, diapause and incubation; birds lay at their biological daily rate. |
+| Realistic offspring counts | Game-balanced litter and clutch sizes. | Biological litter and clutch sizes for wild and owned animals. |
+
+Wild animals use calendar-scaled developmental durations in either case. A RimWorld year lasts 60 days. Captive birds produce eggs according to their biological annual laying productivity. In balanced mode chickens lay two eggs per day; other birds lay at the corresponding relative rates. In realistic mode an annual biological production of 365 eggs corresponds to one egg per game day. Larger captive bird clutches take proportionally longer to form. Larger litters and clutches require correspondingly more nutrition to produce; shorter active pregnancies concentrate their food costs into fewer days.
+
+Taming or releasing a pregnant animal, or changing the duration setting, preserves the fraction of development already completed. The remaining time in diapause changes in the same way. Once implantation has occurred, the pregnancy continues developing. Changing the duration setting also preserves the progress of forming clutches and developing eggs.
+
+The offspring-count option applies to new pregnancies and clutches. For example, a pig produces about three piglets per litter with game-balanced counts and about eleven with biological counts. Realistic counts can produce very large broods in some species, especially reptiles. Plan for the extra food, space and animals.
+
+#### Animal products
+
+Milk and wool yields, milking and shearing intervals, meat yields, leather and other animal materials vary by species. Egg production and egg nutrition also follow species-specific values. Chickens can lay unfertilized eggs, while ducks and turkeys require fertilization.
 
 ### Biomes and ecology
 
@@ -78,19 +94,21 @@ Wild population management also includes an independent, optional per-species ca
 
 ### Natural spawns of water-dependent species
 
-Natural wild animal spawning responds to inland water, including
-rivers, lakes, ponds, and marsh terrain. Ocean water is excluded. The size
-and connectivity of all inland water areas are evaluated together.
+Natural wild animal spawning responds to inland water in rivers, lakes
+and ponds. Marsh terrain also provides habitat where the tile's annual
+mean temperature is at least 15 °C. The size and connectivity of suitable
+inland water areas are evaluated together. Ocean water is excluded.
 Smaller water-dependent animals can spawn near smaller ponds, whereas
 giant crocodilians and hippopotamuses require substantial connected
 water habitats. Requirements use the final in-game body size and
 ectothermic classification, not a fixed common water-cell threshold.
 
-On very wet maps, water-dependent wildlife can gain up to three times
-its usual spawning selection weight; ordinary land wildlife can fall
-to one-third of its usual weight. Only animals included in a biome's
-coastal spawn pool are exempt. Species in pollution spawn pools are
-also weighted according to inland water habitat.
+Water-dependent species are absent when their minimum connected-water
+requirement is not met. Their spawning weight rises gradually from zero
+to twice its usual value as inland water becomes more extensive and
+suitable. Flowing river water contributes more to habitat abundance than
+standing water. Terrestrial animals retain their usual spawning weight.
+Species in the coastal spawn pool follow the game's coastal spawn rules.
 Normal biome eligibility, temperatures, group sizes and other
 game spawning restrictions still apply. Incidents, quests, and
 explicitly spawned animals are unchanged.
@@ -355,7 +373,7 @@ Wild foraging requires Odyssey and advanced food selection. Both options can be 
 Some food is protected by a natural structure rather than lying in the open. A sufficiently hungry predator may choose to access that food, provided its abilities and the target's suitability allow it.
 
 - **Burrows:** predators capable of digging, such as foxes, can excavate a burrow to reach suitable prey. The prey must still satisfy the predator's size and danger restrictions. A mother's protection of dependent young can make a family den a poor target.
-- **Nests:** predators that can reach a nest can attack it to obtain edible eggs or hatchlings. A tree nest is harder to access for a ground-bound animal.
+- **Nests:** animals that eat eggs can raid nests for food, and predators can hunt suitable chicks. Only animals that can climb the supporting tree can raid tree nests. The value of the food, travel distance, opening time and parental defense determine whether the raid is worthwhile.
 - **Graves:** sufficiently large animals capable of excavating soil (current BodySize of at least 1) can dig up edible corpses from ordinary graves. Grizzly bears are among the animals able to excavate. A sarcophagus is not an ordinary grave and does not provide this food source.
 
 Breaking into a shelter takes time, and prey inside may be guarded by a parent. A hungry animal can therefore prefer ordinary food, hunting or fishing if that offers a better opportunity.
@@ -487,7 +505,7 @@ Zoology's mammal system is designed so a newborn mammal does not immediately beh
 
 ### Birth starts lactation
 
-When a supported female mammal gives birth, Zoology applies the lactating hediff and associates the newborns with the birth context where possible.
+When a supported female mammal gives birth, she begins lactating and can nurse her newborns.
 
 The lactation state is maintained by nursing. It decays when the mother no longer feeds young and can be lost under severe malnutrition.
 
@@ -663,7 +681,7 @@ Egg protection is a childcare sub-feature and defaults to enabled.
 
 Zoology records the mother associated with fertilized eggs and maintains ownership information beyond the immediate laying event.
 
-The component can recover ownership from the egg's hatcher parent and maintains records when RimWorld splits, merges or moves supported egg stacks after laying.
+Eggs remain associated with their mother when they are moved or their stacks are divided or combined.
 
 ### Staying near a clutch
 
@@ -671,15 +689,13 @@ A laying female can wander near her clutch. Compatible herd protectors can also 
 
 ### Active incubation
 
-Supported animals can receive an incubation job for a nearby clutch. The childcare code searches locally for an incubation target and keeps the incubator at the egg for the configured incubation job duration.
-
-Incubation restores egg hit points.
+Mothers of species that care for eggs can incubate a reachable fertilized clutch when its condition falls below 80%. Incubation protects the eggs from natural deterioration and restores their condition when completed. This also applies to eggs in natural nests, where either damaged eggs or a damaged nest can prompt the mother to incubate.
 
 ### Defending eggs
 
 A threat to a protected clutch can trigger defensive jobs in the owning/compatible adults.
 
-The same minimum Combat Power setting used for protection from humans and mechanoids applies to this path.
+The minimum Combat Power for defending young against humans and mechanoids also applies to egg protection.
 
 "Do not flee from humans while protecting clutch" defaults to on, so an animal that has actually qualified to defend its eggs does not immediately abandon them through the separate human-flee system.
 
@@ -696,13 +712,13 @@ With **Advanced reproductive behavior** enabled, nesting birds can prepare a nat
 
 #### Building and laying
 
-A bird looks for a suitable reachable nest location. Tree-nesting birds need an appropriate living tree, and ground-nesting birds use a suitable site on the ground. A nest can be prepared before the female's eggs are fertilized. Only fertilized eggs are accepted into the nest. If the bird cannot find a usable nest or build one, it can lay its eggs outside.
+A bird looks for a suitable reachable nest location. Tree-nesting birds need an appropriate living tree, and ground-nesting birds use a suitable site on the ground. Large ground-nesting birds (adult base BodySize of at least 0.5) build 2×2 nests; smaller birds use 1×1 ground nests. Birds can lay both fertilized and unfertilized eggs in their nests. If the bird cannot find a usable nest or build one, it can lay its eggs outside.
 
 Tree nests appear in the crown and follow the tree's swaying movement. Select the nest itself to inspect its contents or select the supporting tree to access its attached nests.
 
 #### Incubation and parental care
 
-The nest holds the eggs, which develop according to their species' normal incubation period. Adults with egg care can incubate and defend them. Incubation repairs damaged eggs while the normal hatching progress continues.
+Fertilized eggs develop according to their species' incubation period and the reproductive duration setting. When a fertilized clutch or its nest falls below 80% condition, the mother can incubate it, fully restoring both the eggs and the nest when she finishes. Unfertilized eggs can be laid in the same kinds of nests but do not develop.
 
 For altricial species, hatchlings can remain inside the nest until the next life stage. Both parents can feed their dependent offspring if they are mobile and have enough food. A parent with at least 55% of its food need filled can go to feed a chick whose food level is below 55%. Feeding transfers actual nutrition from the parent, leaving the adult with at least 35% of its food need. If several chicks are hungry, the available nutrition is shared according to their needs.
 
@@ -710,9 +726,9 @@ Precocial hatchlings are not kept inside the nest for this feeding stage. They c
 
 #### Protecting nests
 
-Predators may attack accessible nests to reach eggs or chicks. Both parents can come to the defense of their offspring if they are nearby and able to fight. Protecting a breeding area and its food supply is particularly useful for tamed nesting birds with dependent young.
+Egg-eating animals may raid accessible nests for edible eggs; predators may also raid nests to hunt chicks. Guarded clutches and young are less attractive food sources. Both parents can defend their fertile eggs or young against a raider as soon as it starts opening the nest, using the same rules as when eggs are taken or chicks attacked outside the nest. Protecting a breeding area and its food supply is particularly useful for tamed nesting birds with dependent young.
 
-Nests are natural structures. They gradually deteriorate after becoming empty, and a tree nest depends on its supporting tree. If a nest is destroyed or the tree is cut down, eggs and surviving young are released. A natural nest cannot be deconstructed as an ordinary player building.
+Nests are natural structures. An undamaged, unused nest deteriorates over two game days, and a tree nest depends on its supporting tree. If a nest is destroyed or the tree is cut down, eggs and surviving young are released. A natural nest cannot be deconstructed as an ordinary player building.
 
 ### Shared burrows and maternity dens
 
@@ -734,11 +750,11 @@ The shelter's entrance size is based on the animal that built it. Its footprint 
 
 The adult occupancy budget is the entrance BodySize multiplied by the number of cells in the footprint. A small animal may therefore be able to use many more existing shelters than a large one. A family den also accommodates dependent young associated with its mother.
 
-Select the shelter to see its occupants and capacity. Natural shelters gradually lose hit points when unused, and occupied shelters can be maintained. Animals use them for sleep and may seek them when threatened.
+Natural shelters gradually wear out when unused, and occupants can maintain them. Animals use them for sleep and may seek them when threatened. Select a ground nest, burrow or den and use Open to assign the work to a colonist. Opening an occupied shelter may provoke an attack from a defending parent. Tree nests can be reached by climbing animals searching for food; colonists can expose their contents by cutting down the tree.
 
 #### Maternity dens
 
-Suitable mothers prepare a den for their offspring. After birth they can carry dependent babies into it, where the young are protected while they grow. The mother may nurse while inside or return to the entrance to feed her offspring. A hungry infant can receive milk without forcing its mother to abandon the shelter.
+Suitable mothers prepare a den for their offspring. Mothers that spend their maternity season underground can give birth in the den. Mothers can carry dependent babies into a family den, where the young are protected while they grow. The mother may nurse while inside or return to the entrance to feed her offspring. A hungry infant can receive milk without forcing its mother to abandon the shelter.
 
 When the mother needs food, she can leave the den and obtain it. Young that reach the juvenile stage can emerge and begin following or feeding outside.
 
@@ -748,7 +764,7 @@ A mother can defend her family den against a predator attempting to dig it open.
 
 Animals leave an ordinary refuge when hunger drops below 20%, when they have rested and the threat has passed, or when sufficiently urgent medical or reproductive needs require them to emerge. Winter-dormant occupants follow their seasonal exit rules. Destroying a shelter releases surviving occupants.
 
-For colony management, inspect the natural shelter before assuming an animal has disappeared. The occupants are still living animals with their own age, hunger and health.
+Animals continue to age, experience hunger and recover from injuries while sheltering underground. They can lick bleeding surface wounds inside the refuge. An undamaged, unused burrow or den deteriorates over ten game days.
 
 ### Marsupial pouches
 
@@ -780,8 +796,8 @@ The number of larvae declines during development while the surviving tadpoles gr
 
 | Species | Egg incubation after fertilization | Tadpole development | Embryo survival | Survival from hatching to metamorphosis |
 | --- | --- | --- | --- | --- |
-| Bullfrog | 1 day | 60 days | 92% | 5.62% |
-| Colossus toad | 1 day | 8 days | 71.8% | 5% |
+| Bullfrog | 0.66 days | 60 days | 92% | 5.62% |
+| Colossus toad | 0.74 days | 8 days | 71.8% | 5% |
 
 The number of offspring depends on the actual clutch size and the survival rates of the two aquatic stages. Losses to other animals or the wild population cap can reduce the eventual number of young.
 
@@ -799,18 +815,11 @@ Animals use different strategies to cope with cold, seasonal food shortages and 
 
 #### Winter dormancy
 
-During winter, suitable wild animals can seek or dig a shelter before entering a dormant state. Entry requires an animal with at least 80% of its food need filled, able to reach the shelter and free from immediate threats. A species' winter strategy determines how much energy it saves.
+Suitable wild animals seek or dig a winter shelter when local seasonal conditions favor dormancy and their food need is at least 80% full. Dormant animals consume 2.5% of their normal maintenance nutrition. Pregnancy and milk production require additional nutrition.
 
-| Winter strategy | Basal hunger while dormant | Description |
-| --- | --- | --- |
-| Deep hibernation | 4% of normal | Very strong energy conservation; for example, hedgehogs from Vanilla Animals Expanded. |
-| Winter rest | 100% of normal | Seasonal resting in a shelter with the normal basal hunger rate. |
-| Denning | 25% of normal | Reduced basal hunger during winter denning, as in grizzly bears. |
-| Maternity denning | 25% of normal | Winter denning of pregnant females or mothers with dependent infants, as in polar bears. |
+Animals remain dormant until the cold season ends, their food reserves fall below 20%, bleeding wakes them, or their shelter is attacked or excavated. When a person wakes a dormant animal by disturbing its shelter, the animal may become a manhunter according to its species' usual retaliation chance. Pregnant polar bears and mothers with dependent young use maternity dens during their denning season.
 
-The basal hunger reduction conserves food reserves. Pregnancy and milk production can have their own nutritional demands. Dormant animals remain in the shelter during ordinary rest recovery and can emerge when winter ends, hunger becomes urgent, they are bleeding, birth approaches or a dangerous ranged threat is present.
-
-Only wild animals enter this seasonal dormancy. Tamed animals continue ordinary activity, making it possible to manage them and feed them through the winter. Suitable mothers can still use family dens for reproduction.
+Tamed animals remain active throughout the year and can use family dens for reproduction.
 
 #### Ectotherms and water habitat
 
@@ -892,7 +901,7 @@ A mother actively tied to an egg clutch is protected from ordinary forced-depart
 
 Default: enabled.
 
-Zoology adds a mating job for compatible factionless wild animals.
+Wild animals seek mates and reproduce independently of the colony.
 
 ### Finding a mate
 
@@ -900,7 +909,7 @@ A fertile wild male searches for a nearby compatible female, preferring its own 
 
 The female must still pass RimWorld's normal fertile-mate check and ordinary reachability/interaction restrictions.
 
-The custom wild-compatibility path is for cases involving factionless animals. Normal colony/faction animal reproduction is not replaced wholesale by this job.
+Breeding also depends on the species' reproductive season, local climate and any applicable reproductive pause. The population limits described below help keep wild populations in balance.
 
 ### Ecosystem capacity
 
@@ -1110,7 +1119,7 @@ Default: enabled.
 
 Animals can lick their own bleeding surface wounds to stop bleeding and aid recovery. Wild animals and animals belonging to other factions do this autonomously. For colony animals, select **No medical care** in the medical care menu on the Health tab to allow wound licking. Animals assigned veterinary care, including care without medicine, rely on medical treatment instead.
 
-An animal must be able to act normally and must not be downed. Only bleeding, treatable wounds on external body parts can be licked. Each treatment takes time and provides low-quality tending without medicine. An animal can also lick its wounds while sheltering in a tree.
+An animal must be able to act normally and must not be downed. Only bleeding, treatable wounds on external body parts can be licked. Each treatment takes time and provides low-quality tending without medicine. An animal can also lick its wounds while sheltering in a tree or underground.
 
 For serious injuries, internal bleeding or infection, veterinary treatment remains important. To let a colony doctor treat an injured animal, choose an appropriate medical care level in its Health tab.
 
@@ -1281,7 +1290,9 @@ The scavenger species editor also exposes allowVeryRotten.
 | Dynamic animal growth | On | Day-by-day stats and graphic interpolation between stages. |
 | Sexual dimorphism | On | Male/female adult endpoints for configured species. Independent of growth. |
 | Automatic juvenile sprite scaling | On | Mass-based baby/juvenile graphic sizes. |
-| Advanced reproductive behavior | On | Bird nests, marsupial pouches, external amphibian fertilization and tadpole cohorts. Family dens require advanced threat avoidance too. |
+| Advanced reproductive behavior | On | Seasonal breeding, reproductive food requirements, bird nests, marsupial pouches and aquatic amphibian development. Family dens also require advanced threat avoidance. |
+| Realistic reproductive durations in captivity | Off | Calendar-based pregnancy, diapause and incubation, and biological daily laying rates for captive birds. Requires advanced reproductive behavior. |
+| Realistic offspring counts | Off | Biological litter and clutch sizes for new pregnancies and clutches in wild and owned animals. Requires advanced reproductive behavior. |
 | Enable mammal lactation | On | Mammal species are configurable. |
 | Allow handlers to feed baby mammals | On | Requires mammal lactation; Handling work, direct-orderable, no mechs. |
 | Allow slaughtering lactating animals | Off | Requires lactation; controls auto-slaughter exclusion. |
@@ -1361,7 +1372,7 @@ Turning mammal lactation off suspends handler baby feeding (without clearing its
 
 ## Changing settings
 
-Most behavior settings, including advanced food selection and wild foraging, apply during play and preserve their values in the mod settings. Disabling a reproductive or refuge feature releases affected held offspring or pauses aquatic development as appropriate.
+Most behavior settings can be changed during play. Changes to reproductive durations preserve progress; changes to offspring counts apply to new pregnancies and clutches. Disabling a reproductive or refuge feature releases affected held offspring or pauses aquatic development as appropriate.
 
 Restart RimWorld after changing animal bionics. For troubleshooting, a restart after changing low-level Dev settings ensures a clean game initialization.
 

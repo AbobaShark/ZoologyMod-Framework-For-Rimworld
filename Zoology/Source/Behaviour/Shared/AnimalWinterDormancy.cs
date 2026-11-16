@@ -5,45 +5,62 @@ using Verse.AI;
 
 namespace ZoologyMod
 {
-    public enum WinterDormancyMode
-    {
-        NONE, HIBERNATION, WINTER_REST, DENNING, MATERNITY_DENNING
-    }
-
     public class ModExtension_WinterDormancy : DefModExtension
     {
-        public WinterDormancyMode mode;
+        public bool ordinaryDormancy;
+        public int maternitySeasonMask;
     }
 
     internal static class AnimalWinterDormancy
     {
-        // Mammalian deep torpor typically suppresses basal metabolism to
-        // 2–5%, while a denning bear suppresses it to ~25%. Neither is
-        // appropriate for merely resting animals that remain normally active.
-        // References: Carey et al., Physiol Rev 2003; Tøien et al., Science 2011.
-        private const float DeepTorporBasalFraction = 0.04f;
-        private const float BearDenningBasalFraction = 0.25f;
+        // Food capacity in RimWorld represents a much shorter reserve than
+        // adipose stores in a naturally overwintering animal.
+        internal const float DormantMaintenanceFraction = 0.025f;
 
-        internal static WinterDormancyMode For(ThingDef def)
+        internal static bool For(ThingDef def) =>
+            ModConstants.WinterDormancy
+            && DefModExtensionCache<ModExtension_WinterDormancy>.Get(def) != null;
+
+        internal static bool MaternityDenning(Pawn pawn)
         {
-            WinterDormancyMode mode =
-                DefModExtensionCache<ModExtension_WinterDormancy>.Get(def)?.mode
-                    ?? WinterDormancyMode.NONE;
-            return mode != WinterDormancyMode.NONE && ModConstants.WinterDormancy
-                ? mode : WinterDormancyMode.NONE;
+            if (pawn?.gender != Gender.Female) return false;
+            if (!For(pawn.def)) return false;
+            var profile = DefModExtensionCache<ModExtension_WinterDormancy>.Get(pawn.def);
+            if (profile == null || profile.maternitySeasonMask == 0) return false;
+            if (pawn.health?.hediffSet?.HasHediff(HediffDefOf.Pregnant) == true) return true;
+            if (pawn.relations != null)
+                foreach (Pawn child in pawn.relations.Children)
+                    if (child != null && !child.Dead && !child.Destroyed
+                        && child.MapHeld == pawn.MapHeld
+                        && AnimalLifeStageUtility.IsAnimalInfantLifeStage(child.ageTracker?.CurLifeStage))
+                        return true;
+            return false;
         }
 
-        internal static bool Winter(Map map)
+        internal static bool Winter(Pawn pawn, Map map)
         {
-            if (!ModConstants.WinterDormancy || map == null) return false;
-            Season season = GenLocalDate.Season(map);
-            return season == Season.Winter || season == Season.PermanentWinter;
+            if (!ModConstants.WinterDormancy || map == null || AnimalSeasonalReproduction.Managed(pawn)) return false;
+            var winterProfile = DefModExtensionCache<ModExtension_WinterDormancy>.Get(pawn.def);
+            if (winterProfile == null) return false;
+            if (winterProfile.maternitySeasonMask != 0
+                && (winterProfile.maternitySeasonMask & AnimalSeasonalReproduction.SeasonBit(map)) != 0
+                && MaternityDenning(pawn))
+                return true;
+            if (!winterProfile.ordinaryDormancy) return false;
+            var profile = AnimalSeasonalReproduction.Profile(pawn);
+            if (profile != null && !float.IsNaN(profile.dormancyThreshold))
+                return AnimalSeasonalReproduction.SeasonalMean(map) < profile.dormancyThreshold;
+            Season local = GenLocalDate.Season(map);
+            return local == Season.Winter || local == Season.PermanentWinter;
         }
 
         internal static bool CanEnter(Pawn pawn)
         {
             return ModConstants.WinterDormancy && pawn?.Spawned == true && !pawn.Downed
                 && !pawn.InMentalState && pawn.needs?.food?.CurLevelPercentage >= 0.8f
+                && pawn.health.hediffSet.BleedRateTotal <= 0f
+                && pawn.mindState?.enemyTarget == null && pawn.mindState?.meleeThreat == null
+                && !ZoologyFleeSafetyUtility.IsPawnUnderMeleeAttack(pawn)
                 && CanUseWinterDen(pawn);
         }
 
@@ -53,77 +70,41 @@ namespace ZoologyMod
             // jobs. Tamed and other faction-owned animals remain active.
             if (!ModConstants.WinterDormancy || pawn == null || pawn.Dead || pawn.Destroyed
                 || pawn.Faction != null
-                || pawn.MapHeld == null || !Winter(pawn.MapHeld))
+                || pawn.MapHeld == null || !Winter(pawn, pawn.MapHeld))
                 return false;
 
-            WinterDormancyMode mode = For(pawn.def);
-            if (mode == WinterDormancyMode.NONE)
-                return false;
-            if (mode == WinterDormancyMode.MATERNITY_DENNING)
-            {
-                if (pawn.gender != Gender.Female || pawn.health?.hediffSet == null)
-                    return false;
-                bool pregnant = false;
-                foreach (Hediff hediff in pawn.health.hediffSet.hediffs)
-                    if (hediff is Hediff_Pregnant) { pregnant = true; break; }
-                bool dependentYoung = false;
-                if (!pregnant && pawn.relations != null)
-                    foreach (Pawn child in pawn.relations.Children)
-                        if (child != null && !child.Dead && !child.Destroyed
-                            && child.MapHeld == pawn.MapHeld
-                            && AnimalLifeStageUtility.IsAnimalInfantLifeStage(
-                                child.ageTracker?.CurLifeStage))
-                        {
-                            dependentYoung = true;
-                            break;
-                        }
-                if (!pregnant && !dependentYoung) return false;
-            }
-
-            CompAnimalStrategyState state = pawn.TryGetComp<CompAnimalStrategyState>();
-            return state != null && state.lastWinterWakeYear != GenLocalDate.Year(pawn.MapHeld);
+            return pawn.TryGetComp<CompAnimalStrategyState>() != null
+                && !ChildcareUtility.IsAnimalChild(pawn);
         }
 
         internal static bool IsDormant(Pawn pawn)
         {
-            if (!ModConstants.WinterDormancy || pawn?.Dead != false) return false;
+            if (!ModConstants.WinterDormancy || pawn?.Spawned != false
+                || pawn.Dead || pawn.Faction != null) return false;
             CompAnimalStrategyState state = pawn.TryGetComp<CompAnimalStrategyState>();
             return state?.inWinterDormancy == true
                 && ThingOwnerUtility.GetAnyParent<Building_AnimalBurrow>(pawn)
                     is Building_AnimalBurrow;
         }
 
-        internal static float BasalHungerFactor(Pawn pawn)
-        {
-            if (!IsDormant(pawn)) return 1f;
-            switch (For(pawn.def))
-            {
-                case WinterDormancyMode.HIBERNATION:
-                    return DeepTorporBasalFraction;
-                case WinterDormancyMode.DENNING:
-                case WinterDormancyMode.MATERNITY_DENNING:
-                    return BearDenningBasalFraction;
-                default:
-                    return 1f;
-            }
-        }
+        internal static float MaintenanceHungerFactor(Pawn pawn) =>
+            IsDormant(pawn) ? DormantMaintenanceFraction : 1f;
 
-        internal static void Enter(Pawn pawn, Building_AnimalBurrow burrow)
+        internal static void Enter(Pawn pawn, Building_AnimalBurrow burrow, bool eligibleAtEntry)
         {
             CompAnimalStrategyState state = pawn?.TryGetComp<CompAnimalStrategyState>();
             if (state == null) return;
-            state.inWinterDormancy = burrow != null
-                && Winter(pawn.MapHeld) && CanUseWinterDen(pawn)
-                && !ChildcareUtility.IsAnimalChild(pawn);
+            state.inWinterDormancy = eligibleAtEntry && burrow != null
+                && pawn.needs?.food?.CurLevelPercentage >= 0.8f
+                && CanUseWinterDen(pawn);
         }
 
-        internal static void Wake(Pawn pawn, Map map)
+        internal static void Wake(Pawn pawn)
         {
             CompAnimalStrategyState state = pawn?.TryGetComp<CompAnimalStrategyState>();
             if (state?.inWinterDormancy != true) return;
             state.inWinterDormancy = false;
-            if (map != null && For(pawn.def) != WinterDormancyMode.MATERNITY_DENNING)
-                state.lastWinterWakeYear = GenLocalDate.Year(map);
+            state.nextWinterDecision = 0;
         }
     }
 
@@ -134,35 +115,30 @@ namespace ZoologyMod
         protected override Job TryGiveJob(Pawn pawn)
         {
             if (!ModConstants.WinterDormancy) return null;
-            if (pawn?.Spawned != true || pawn.Map == null)
+            if (pawn?.Spawned != true || pawn.Map == null || pawn.Faction != null
+                || !(pawn.needs?.food?.CurLevelPercentage >= 0.8f)
+                || !AnimalWinterDormancy.For(pawn.def))
                 return null;
 
             CompAnimalStrategyState state = pawn.TryGetComp<CompAnimalStrategyState>();
-            if (state == null || state.nextWinterDecision > GenTicks.TicksGame)
+            if (state == null || state.nextWinterDecision > GenTicks.TicksGame
+                || state.burrowReentryAfter > GenTicks.TicksGame)
                 return null;
             state.nextWinterDecision = GenTicks.TicksGame + GenDate.TicksPerDay;
 
             if (!AnimalWinterDormancy.CanEnter(pawn)
-                || !AnimalDefense.CanUseShelter(pawn)
-                || ZoologyFleeSafetyUtility.IsPawnUnderMeleeAttack(pawn)
-                || pawn.mindState?.enemyTarget != null
-                || pawn.mindState?.meleeThreat != null)
+                || !AnimalDefense.CanUseShelter(pawn))
                 return null;
 
             AnimalRefugeMapComponent index = pawn.Map.GetComponent<AnimalRefugeMapComponent>();
             if (index == null || !index.TryPlan())
                 return null;
 
-            // Any physically compatible free burrow can serve as winter
-            // shelter. Dormancy depends on the occupant, not a building flag.
-            foreach (Thing refuge in index.Nearby(pawn.Position, 16))
-                if (refuge is Building_AnimalBurrow burrow
-                    && burrow.Accepts(pawn)
-                    && !burrow.IsForbidden(pawn)
-                    && pawn.CanReserveAndReach(burrow, PathEndMode.OnCell, Danger.None,
-                        int.MaxValue, 0))
-                    return JobMaker.MakeJob(
-                        DefDatabase<JobDef>.GetNamed("Zoology_EnterBurrow"), burrow);
+            Building_AnimalBurrow reusable = index.FindReusableBurrow(
+                pawn, state, false, Danger.None);
+            if (reusable != null)
+                return JobMaker.MakeJob(
+                    DefDatabase<JobDef>.GetNamed("Zoology_EnterBurrow"), reusable);
 
             // Newly excavated shelters use the creator's BodySize and
             // a matching 1x1, 2x2 or 3x3 footprint.

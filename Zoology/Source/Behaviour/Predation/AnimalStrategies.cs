@@ -51,12 +51,17 @@ namespace ZoologyMod
         public Thing shelter;
         public Building_AnimalNursery nursery; // Legacy nests and pre-refactor dens only.
         public Building_AnimalBurrow familyBurrow;
+        public Pawn offspringProtectionFather;
         public int nextNurseryPlan, nextRoeFertilizationPlan;
         public bool inWinterDormancy;
-        public int lastWinterWakeYear = int.MinValue;
         public int nextWinterDecision;
+        public int embryonicDiapauseUntil, embryonicDiapauseDuration, reproductivePauseUntil;
+        public int diapausePregnancyId = -1;
+        public bool realisticLitter;
+        public bool realisticClutch;
         public bool groundEscapeUntilFed;
         public int burrowReentryAfter, nextBurrowHuntPlan;
+        public int burrowWoundLickFinishTick;
         public int nextWildHarvestPlan, nextWildForagePlan, nextNaturalFoodScan;
         public int fleeingSince = -1;
         public Pawn fleeThreat;
@@ -90,10 +95,17 @@ namespace ZoologyMod
             Scribe_References.Look(ref shelter, "defenseShelter");
             Scribe_References.Look(ref nursery, "animalNursery");
             Scribe_References.Look(ref familyBurrow, "zoologyFamilyBurrow");
+            Scribe_References.Look(ref offspringProtectionFather, "zoologyOffspringProtectionFather");
             Scribe_Values.Look(ref inWinterDormancy, "inWinterDormancy");
-            Scribe_Values.Look(ref lastWinterWakeYear, "lastWinterWakeYear", int.MinValue);
+            Scribe_Values.Look(ref embryonicDiapauseUntil, "embryonicDiapauseUntil");
+            Scribe_Values.Look(ref embryonicDiapauseDuration, "embryonicDiapauseDuration");
+            Scribe_Values.Look(ref diapausePregnancyId, "diapausePregnancyId", -1);
+            Scribe_Values.Look(ref realisticLitter, "realisticLitter");
+            Scribe_Values.Look(ref realisticClutch, "realisticClutch");
+            Scribe_Values.Look(ref reproductivePauseUntil, "reproductivePauseUntil");
             Scribe_Values.Look(ref groundEscapeUntilFed, "groundEscapeUntilFed");
             Scribe_Values.Look(ref burrowReentryAfter, "burrowReentryAfter");
+            Scribe_Values.Look(ref burrowWoundLickFinishTick, "burrowWoundLickFinishTick");
             Scribe_Values.Look(ref fleeingSince, "fleeingSince", -1);
             Scribe_References.Look(ref fleeThreat, "fleeThreat");
             Scribe_References.Look(ref constrictedPrey, "constrictedPrey");

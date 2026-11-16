@@ -10,7 +10,7 @@ namespace ZoologyMod
         private Mesh canopyMesh;
         private Plant canopyMeshTree;
         private int canopyMeshPhase = -1;
-        private Material fertilizedEggWindMaterial;
+        private Material eggWindMaterial;
         private Material originalEggMaterial;
 
         public override Vector3 DrawPos
@@ -120,16 +120,16 @@ namespace ZoologyMod
                 if (wind != null && egg.Graphic.MatSingle.mainTexture is Texture2D tex)
                 {
                     Material eggMaterial = egg.Graphic.MatSingle;
-                    if (fertilizedEggWindMaterial == null
+                    if (eggWindMaterial == null
                         || originalEggMaterial != eggMaterial)
                     {
                         originalEggMaterial = eggMaterial;
-                        fertilizedEggWindMaterial = MaterialPool.MatFrom(
+                        eggWindMaterial = MaterialPool.MatFrom(
                             tex, ShaderDatabase.CutoutPlant, egg.DrawColor);
                     }
                     Graphics.DrawMesh(wind, Matrix4x4.TRS(p, Quaternion.identity,
                         new Vector3(0.20f, 1f, 0.20f)),
-                        fertilizedEggWindMaterial, 0);
+                        eggWindMaterial, 0);
                 }
                 else
                     egg.Graphic.Draw(p, Rot4.North, egg);

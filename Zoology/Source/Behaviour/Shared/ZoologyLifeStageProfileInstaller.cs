@@ -74,6 +74,11 @@ namespace ZoologyMod
             int installed = 0;
             int skipped = 0;
             var keys = new HashSet<string>(StringComparer.Ordinal);
+            Type ceToolType = CEChecker.IsCEInstalled()
+                ? HarmonyLib.AccessTools.TypeByName("CombatExtended.ToolCE") : null;
+            var checkedCeRaces = new HashSet<ThingDef>();
+            var incompatibleCeTools = new List<string>();
+            int incompatibleCeRaces = 0;
             for (int c = 0; c < catalogs.Count; c++)
             {
                 var catalog = catalogs[c];
@@ -103,6 +108,22 @@ namespace ZoologyMod
                     try
                     {
                         RegisterFlightRule(profile);
+                        if (ceToolType != null)
+                        {
+                            ThingDef race = DefDatabase<ThingDef>.GetNamedSilentFail(profile.animalDefName);
+                            if (race?.race?.Animal == true && checkedCeRaces.Add(race)
+                                && race.tools != null)
+                            {
+                                foreach (Tool tool in race.tools)
+                                {
+                                    if (tool == null || ceToolType.IsInstanceOfType(tool)) continue;
+                                    incompatibleCeRaces++;
+                                    if (incompatibleCeTools.Count < 12)
+                                        incompatibleCeTools.Add(race.defName + " [" + DescribeTools(race.tools) + "]");
+                                    break;
+                                }
+                            }
+                        }
                         if (profile.bodySizeFactor > 0f && TryInstall(profile))
                         {
                             installed++;
@@ -132,6 +153,10 @@ namespace ZoologyMod
             SyncProfileStages(ZoologyAnimalGrowth.Enabled);
 
             timer.Stop();
+            if (incompatibleCeRaces > 0)
+                Log.Warning("[Zoology] Combat Extended is active, but " + incompatibleCeRaces
+                    + " supported animal races have non-ToolCE natural attacks: "
+                    + string.Join("; ", incompatibleCeTools));
             if (unresolvedToolMappings > 0)
             {
                 Log.Warning("[Zoology] " + unresolvedToolMappings
@@ -570,7 +595,9 @@ namespace ZoologyMod
                         unresolvedToolMappings++;
                         if (unresolvedToolExamples.Count < 12)
                             unresolvedToolExamples.Add(animal.defName + "/" + original.defName
-                                + " [" + entry.label + ", " + entry.linkedBodyPartsGroup + "]");
+                                + " [" + entry.label + ", " + entry.linkedBodyPartsGroup
+                                + ", " + entry.capacities + ", index " + toolIndex
+                                + "]; loaded: " + DescribeTools(animal.tools));
                         continue;
                     }
                     if (!entry.HasChanges())
@@ -846,6 +873,27 @@ namespace ZoologyMod
                 if (first[i] != null && !second.Contains(first[i]))
                     return false;
             return true;
+        }
+
+        private static string DescribeTools(List<Tool> tools)
+        {
+            var descriptions = new List<string>(tools.Count);
+            for (int i = 0; i < tools.Count; i++)
+            {
+                Tool tool = tools[i];
+                if (tool == null)
+                {
+                    descriptions.Add(i + ":null");
+                    continue;
+                }
+                var capacities = new List<string>();
+                if (tool.capacities != null)
+                    foreach (var capacity in tool.capacities)
+                        capacities.Add(capacity?.defName ?? "null");
+                descriptions.Add(i + ":" + tool.label + "/" + tool.linkedBodyPartsGroup?.defName
+                    + "/" + string.Join(",", capacities) + "/" + tool.GetType().Name);
+            }
+            return string.Join(", ", descriptions);
         }
 
         private static string NormalizeToolLabel(string value)

@@ -25,6 +25,7 @@ namespace ZoologyMod
 
         private const long TicksPerBiologicalDay = 60000L;
         private const double TicksPerBiologicalYear = 3600000d;
+        private const double GrowthBaseFeedShare = 0.5d;
 
         private sealed class FactorPair
         {
@@ -44,6 +45,10 @@ namespace ZoologyMod
         {
             internal float exponent;
             internal float efficiency;
+            internal float baseSize;
+            internal double baseShape;
+            internal double adultFeed;
+            internal double nutritionPerSize;
         }
 
         private static readonly Dictionary<ThingDef, GrowthEnergetics> Energetics =
@@ -58,6 +63,10 @@ namespace ZoologyMod
             internal LifeStageDef from;
             internal LifeStageDef to;
             internal Dictionary<StatDef, FactorPair> statFactors;
+            internal GrowthEnergetics energetics;
+            internal float commonGrowthExtra;
+            internal float maleGrowthExtra;
+            internal float femaleGrowthExtra;
         }
 
         private sealed class Snapshot
@@ -70,18 +79,73 @@ namespace ZoologyMod
             internal float bodyRatio = 1f;
             internal float healthRatio = 1f;
             internal float hungerRatio = 1f;
+            internal float nominalHungerRatio = 1f;
+            internal bool hasGrowthExtra;
             internal float marketRatio = 1f;
             internal Vector2 drawRatio = Vector2.one;
             internal bool drawRatioReady;
             internal Gender graphicGender;
+            internal bool sexEnabled;
             internal int graphicVersion;
             internal ZoologySexAdultProfile sexTarget;
         }
 
         private static readonly Dictionary<ThingDef, Segment[]> RaceSegments =
             new Dictionary<ThingDef, Segment[]>();
-        private static readonly ConditionalWeakTable<Pawn, Snapshot> Snapshots =
-            new ConditionalWeakTable<Pawn, Snapshot>();
+        [ThreadStatic] private static ConditionalWeakTable<Pawn, Snapshot> snapshots;
+
+        // Bounded, thread-local front cache for the two hottest ratio queries.
+        // The biological day and life stage are the same sampling keys used
+        // by the complete growth snapshot.
+        private const int HotCacheSize = 4096;
+        private struct HotRatio
+        {
+            internal Pawn pawn;
+            internal ThingDef race;
+            internal PawnKindDef kind;
+            internal LifeStageDef stage;
+            internal long day;
+            internal Gender gender;
+            internal int version;
+            internal int mode;
+            internal bool bodyReady;
+            internal bool drawReady;
+            internal float body;
+            internal Vector2 draw;
+        }
+
+        [ThreadStatic] private static HotRatio[] hotRatios;
+        [ThreadStatic] private static Game hotGame;
+
+        private static ref HotRatio RatioEntry(Pawn pawn)
+        {
+            var entries = hotRatios;
+            if (entries == null)
+                entries = hotRatios = new HotRatio[HotCacheSize];
+            int slot = pawn.thingIDNumber & (HotCacheSize - 1);
+            ref HotRatio entry = ref entries[slot];
+            var settings = ZoologyMod.Settings ?? ZoologyModSettings.Instance;
+            int mode = settings == null ? 1 : settings.DisableAllRuntimePatches ? 0
+                : (settings.EnableDynamicAnimalGrowth ? 1 : 0)
+                    | (settings.EnableSexualDimorphism ? 2 : 0);
+            LifeStageDef stage = pawn.ageTracker.CurLifeStage;
+            long day = pawn.ageTracker.AgeBiologicalTicks / TicksPerBiologicalDay;
+            int version = ZoologySexAdultProfiles.GraphicVersion;
+            if (entry.pawn == pawn && entry.race == pawn.def && entry.kind == pawn.kindDef
+                && entry.stage == stage && entry.day == day
+                && entry.gender == pawn.gender && entry.version == version && entry.mode == mode)
+                return ref entry;
+
+            Game game = Current.Game;
+            if (hotGame != game)
+            {
+                Array.Clear(entries, 0, entries.Length);
+                hotGame = game;
+            }
+            entry = new HotRatio { pawn = pawn, race = pawn.def, kind = pawn.kindDef,
+                stage = stage, day = day, gender = pawn.gender, version = version, mode = mode };
+            return ref entry;
+        }
 
         internal static bool HandlesRace(ThingDef race)
         {
@@ -123,7 +187,11 @@ namespace ZoologyMod
                     Energetics[race] = new GrowthEnergetics
                     {
                         exponent = profile.growthExponent,
-                        efficiency = profile.growthEfficiency
+                        efficiency = profile.growthEfficiency,
+                        baseSize = race.race.baseBodySize,
+                        baseShape = HungerShape(race.race.baseBodySize, profile.growthExponent),
+                        adultFeed = 1.6d * race.race.baseHungerRate,
+                        nutritionPerSize = BodyNutrition(race, 1f)
                     };
                 }
             }
@@ -244,12 +312,14 @@ namespace ZoologyMod
             if (segment == null || pawn.ageTracker.CurLifeStage != segment.from)
                 return false;
 
-            snapshot = Snapshots.GetValue(pawn, _ => new Snapshot());
+            snapshot = (snapshots ??= new ConditionalWeakTable<Pawn, Snapshot>())
+                .GetValue(pawn, _ => new Snapshot());
             long ticks = pawn.ageTracker.AgeBiologicalTicks;
             long biologicalDay = ticks >= 0 ? ticks / TicksPerBiologicalDay : 0L;
             if (snapshot.segment != segment || snapshot.stageIndex != stageIndex
                 || snapshot.biologicalDay != biologicalDay || snapshot.kind != pawn.kindDef
                 || snapshot.graphicGender != pawn.gender
+                || snapshot.sexEnabled != ZoologySexAdultProfiles.Enabled
                 || snapshot.graphicVersion != ZoologySexAdultProfiles.GraphicVersion)
             {
                 snapshot.segment = segment;
@@ -257,24 +327,15 @@ namespace ZoologyMod
                 snapshot.biologicalDay = biologicalDay;
                 snapshot.kind = pawn.kindDef;
                 snapshot.graphicGender = pawn.gender;
+                snapshot.sexEnabled = ZoologySexAdultProfiles.Enabled;
                 snapshot.graphicVersion = ZoologySexAdultProfiles.GraphicVersion;
                 ZoologySexAdultProfile target;
                 snapshot.sexTarget = ZoologySexAdultProfiles.TryGet(pawn, true, out target)
                     ? target : null;
 
                 long sampled = biologicalDay * TicksPerBiologicalDay;
-                float t = (float)((double)(sampled - segment.startTick)
-                    / (segment.endTick - segment.startTick));
-                // All age-dependent values use the same daily samples,
-                // including their last day before the next LifeStageDef.
-                // This avoids the visual size reaching the next stage while
-                // speed, BodySize, health, hunger or combat stats lag behind.
-                float dailyProgress = segment.lastSampleTick > segment.firstSampleTick
-                    ? Mathf.Clamp01((float)((double)(sampled - segment.firstSampleTick)
-                        / (segment.lastSampleTick - segment.firstSampleTick)))
-                    : Mathf.Clamp01(t);
-                snapshot.progress = dailyProgress;
-                float fraction = dailyProgress;
+                float fraction = SampleProgress(segment, sampled);
+                snapshot.progress = fraction;
 
                 var sexEnd = snapshot.sexTarget;
                 snapshot.bodyRatio = LerpRatio(segment.from.bodySizeFactor,
@@ -283,40 +344,98 @@ namespace ZoologyMod
                     sexEnd != null ? sexEnd.healthScaleFactor : segment.to.healthScaleFactor, fraction);
                 snapshot.hungerRatio = LerpRatio(segment.from.hungerRateFactor,
                     sexEnd != null ? sexEnd.hungerRateFactor : segment.to.hungerRateFactor, fraction);
-                if (Energetics.TryGetValue(pawn.def, out var energetics)
-                    && Positive(segment.from.hungerRateFactor) && Positive(pawn.RaceProps.baseHungerRate))
+                snapshot.nominalHungerRatio = snapshot.hungerRatio;
+                snapshot.hasGrowthExtra = false;
+
+                var energetics = segment.energetics;
+                if (energetics != null && Positive(segment.from.hungerRateFactor))
                 {
                     float endpoint = sexEnd != null ? sexEnd.bodySizeFactor : segment.to.bodySizeFactor;
-                    float nextFraction = segment.lastSampleTick > segment.firstSampleTick
-                        ? Mathf.Clamp01((float)((double)(sampled + TicksPerBiologicalDay - segment.firstSampleTick)
-                            / (segment.lastSampleTick - segment.firstSampleTick)))
-                        : Mathf.Clamp01((float)((double)(sampled + TicksPerBiologicalDay - segment.startTick)
-                            / (segment.endTick - segment.startTick)));
-                    float current = Mathf.Lerp(segment.from.bodySizeFactor, endpoint, fraction);
-                    float next = Mathf.Lerp(segment.from.bodySizeFactor, endpoint, nextFraction);
-                    float baseSize = pawn.RaceProps.baseBodySize;
-                    float nutrition = BodyNutrition(pawn.def, current * baseSize);
-                    float adultNutrition = BodyNutrition(pawn.def, baseSize);
-                    if (Positive(adultNutrition))
-                    {
-                        float nominal = Mathf.Pow(nutrition / adultNutrition, energetics.exponent)
-                            * HungerSizeDivisor(baseSize) / HungerSizeDivisor(current * baseSize);
-                        float gain = Mathf.Max(0f, BodyNutrition(pawn.def, next * baseSize) - nutrition);
-                        float growth = gain / (energetics.efficiency * 1.6f * pawn.RaceProps.baseHungerRate);
-                        snapshot.hungerRatio = Mathf.Max(nominal, growth) / segment.from.hungerRateFactor;
-                    }
+                    float current = Mathf.Lerp(segment.from.bodySizeFactor, endpoint, fraction)
+                        * energetics.baseSize;
+                    float nominal = (float)(HungerShape(current, energetics.exponent) / energetics.baseShape);
+                    float extra = sexEnd == null ? segment.commonGrowthExtra
+                        : pawn.gender == Gender.Male ? segment.maleGrowthExtra : segment.femaleGrowthExtra;
+                    snapshot.nominalHungerRatio = nominal / segment.from.hungerRateFactor;
+                    snapshot.hungerRatio = (nominal + extra) / segment.from.hungerRateFactor;
+                    snapshot.hasGrowthExtra = extra > 0f;
                 }
                 // Follow the canonical age price unless the species explicitly
                 // opts into sex-specific market pricing in Base stats.
                 snapshot.marketRatio = LerpRatio(segment.from.marketValueFactor,
                     sexEnd != null && sexEnd.useSexSpecificMarketValue
                         ? sexEnd.marketValueFactor : segment.to.marketValueFactor, fraction);
-                // Do not touch sprite assets from physiological/stat queries.
-                // Visible size is resolved lazily by the render-only DrawRatio
-                // getter, never by BodySize, hunger, combat or market value.
+                // Resolve the interpolated draw ratio only for rendering.
+                // Its graphic endpoints are prepared by ZoologyAnimalGraphics
+                // before the parallel renderer accesses them.
                 snapshot.drawRatioReady = false;
             }
             return true;
+        }
+
+        private static float SampleProgress(Segment segment, long sampled)
+        {
+            return segment.lastSampleTick > segment.firstSampleTick
+                ? Mathf.Clamp01((float)((double)(sampled - segment.firstSampleTick)
+                    / (segment.lastSampleTick - segment.firstSampleTick)))
+                : Mathf.Clamp01((float)((double)(sampled - segment.startTick)
+                    / (segment.endTick - segment.startTick)));
+        }
+
+        private static double HungerShape(float size, float exponent) =>
+            Math.Pow(size, exponent) / HungerSizeDivisor(size);
+
+        // Install after sex-specific endpoints have been loaded. Cost is
+        // calculated once for each interval and endpoint, not for each pawn.
+        internal static void PrepareGrowthBudgets()
+        {
+            foreach (var pair in RaceSegments)
+            {
+                if (!Energetics.TryGetValue(pair.Key, out var energetics)
+                    || !(energetics.adultFeed > 0d) || !(energetics.baseShape > 0d))
+                    continue;
+                Segment[] intervals = pair.Value;
+                for (int index = 0; index < intervals.Length; index++)
+                {
+                    Segment segment = intervals[index];
+                    if (segment == null) continue;
+                    float common = segment.to.bodySizeFactor;
+                    float male = ZoologySexAdultProfiles.GetForStage(pair.Key, index + 1, Gender.Male)
+                        ?.bodySizeFactor ?? common;
+                    float female = ZoologySexAdultProfiles.GetForStage(pair.Key, index + 1, Gender.Female)
+                        ?.bodySizeFactor ?? common;
+                    segment.commonGrowthExtra = StageGrowthExtra(segment, energetics, common);
+                    segment.maleGrowthExtra = male == common ? segment.commonGrowthExtra
+                        : StageGrowthExtra(segment, energetics, male);
+                    segment.femaleGrowthExtra = female == common ? segment.commonGrowthExtra
+                        : female == male ? segment.maleGrowthExtra : StageGrowthExtra(segment, energetics, female);
+                    segment.energetics = energetics;
+                }
+            }
+        }
+
+        private static float StageGrowthExtra(Segment segment, GrowthEnergetics energetics, float endpoint)
+        {
+            // The accumulated ordinary ration uses exactly the same day
+            // samples as BodySize, including partial first and last days.
+            long start = segment.startTick, end = segment.endTick;
+            double ordinary = 0d;
+            for (long day = start / TicksPerBiologicalDay * TicksPerBiologicalDay;
+                day < end; day += TicksPerBiologicalDay)
+            {
+                long elapsed = Math.Min(end, day + TicksPerBiologicalDay) - Math.Max(start, day);
+                float size = Mathf.Lerp(segment.from.bodySizeFactor, endpoint,
+                    SampleProgress(segment, day)) * energetics.baseSize;
+                ordinary += energetics.adultFeed * HungerShape(size, energetics.exponent)
+                    / energetics.baseShape * elapsed / TicksPerBiologicalDay;
+            }
+
+            // The whole transition is funded even for a one-day stage or
+            // a change in size on the exact life-stage boundary.
+            double gain = Math.Max(0d, (endpoint - segment.from.bodySizeFactor)
+                * (double)energetics.baseSize * energetics.nutritionPerSize) / energetics.efficiency;
+            double extra = Math.Max(0d, gain - GrowthBaseFeedShare * ordinary);
+            return (float)(extra / ((end - start) / (double)TicksPerBiologicalDay) / energetics.adultFeed);
         }
 
         private static float HungerSizeDivisor(float size)
@@ -381,6 +500,18 @@ namespace ZoologyMod
 
         internal static float BodyRatio(Pawn pawn)
         {
+            if (pawn?.ageTracker == null) return 1f;
+            ref HotRatio entry = ref RatioEntry(pawn);
+            if (!entry.bodyReady)
+            {
+                entry.body = CalculateBodyRatio(pawn);
+                entry.bodyReady = true;
+            }
+            return entry.body;
+        }
+
+        private static float CalculateBodyRatio(Pawn pawn)
+        {
             Snapshot state;
             if (TryGetSnapshot(pawn, out state))
                 return state.bodyRatio;
@@ -401,11 +532,12 @@ namespace ZoologyMod
                 ? sex.healthScaleFactor / pawn.ageTracker.CurLifeStage.healthScaleFactor : 1f;
         }
 
-        internal static float HungerRatio(Pawn pawn)
+        internal static float HungerRatio(Pawn pawn, bool includeGrowthExtra = true)
         {
             Snapshot state;
             if (TryGetSnapshot(pawn, out state))
-                return state.hungerRatio;
+                return !includeGrowthExtra || (state.hasGrowthExtra && Hediff_GrowthArrest.IsActive(pawn))
+                    ? state.nominalHungerRatio : state.hungerRatio;
             ZoologySexAdultProfile sex;
             return ZoologySexAdultProfiles.TryGet(pawn, false, out sex)
                 && Positive(pawn.ageTracker.CurLifeStage.hungerRateFactor)
@@ -451,6 +583,18 @@ namespace ZoologyMod
         }
 
         internal static Vector2 DrawRatio(Pawn pawn)
+        {
+            if (pawn?.ageTracker == null) return Vector2.one;
+            ref HotRatio entry = ref RatioEntry(pawn);
+            if (!entry.drawReady)
+            {
+                entry.draw = CalculateDrawRatio(pawn);
+                entry.drawReady = true;
+            }
+            return entry.draw;
+        }
+
+        private static Vector2 CalculateDrawRatio(Pawn pawn)
         {
             Snapshot state;
             if (!TryGetSnapshot(pawn, out state))

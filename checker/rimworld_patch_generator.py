@@ -26,6 +26,24 @@ LABELS={'animals':'Animal patches (Vanilla + CE)','venom':'Venom, antivenoms and
         'leathers':'Leather stats and custom defs (Vanilla + CE)',
         'textiles':'Wool and animal silk (Vanilla + CE)'}
 
+def deployment_summary(operations):
+    counts = {action: sum(op[0] == action for op in operations)
+              for action in ('copy', 'replace', 'skip', 'delete', 'rmdir')}
+    xml_changes = sum(action in ('copy', 'replace', 'delete') and
+                      Path(destination).suffix.lower() == '.xml'
+                      for action, _, _, destination in operations)
+    changed = sum(counts[action] for action in ('copy', 'replace', 'delete', 'rmdir'))
+    return (f'{changed} changes ({xml_changes} XML files); '
+            f'{counts["copy"]} new, {counts["replace"]} replaced, '
+            f'{counts["skip"]} already identical, {counts["delete"]} deleted, '
+            f'{counts["rmdir"]} directories removed')
+
+
+def deployment_details(operations):
+    return [f'  {action.upper()}: {destination}'
+            for action, _, _, destination in operations if action != 'skip']
+
+
 def life_stage_generation_summary():
     """Summarize only the diagnostics produced by the current successful stage pass."""
     path = STAGE / 'static-report.json'
@@ -120,7 +138,7 @@ class PatchGeneratorApp(tk.Tk):
         opt=ttk.Frame(panel);opt.pack(fill='x',pady=8)
         ttk.Checkbutton(opt,text='Generate Combat Extended patches',variable=self.ce).pack(side='left',padx=(0,20))
         ttk.Checkbutton(opt,text='Optimize patches against OriginalXML',variable=self.optimize).pack(side='left',padx=(0,20))
-        ttk.Checkbutton(opt,text='Automatically install generated XML',variable=self.auto_deploy).pack(side='left')
+        ttk.Checkbutton(opt,text='Automatically install generated files',variable=self.auto_deploy).pack(side='left')
         frame=ttk.LabelFrame(panel,text='3 · Generate (validated staging, optional automatic installation)');frame.pack(fill='x',pady=5)
         for idx,key in enumerate(CATEGORIES):
             ttk.Button(frame,text=LABELS[key],command=lambda key=key:self._stage((key,))).grid(row=idx//2,column=idx%2,sticky='ew',padx=6,pady=6)
@@ -130,8 +148,8 @@ class PatchGeneratorApp(tk.Tk):
         ttk.Button(frame,text='GENERATE ALL',command=lambda:self._stage(CATEGORIES)).grid(row=6,column=0,columnspan=2,sticky='ew',padx=6,pady=8)
         actions=ttk.Frame(panel);actions.pack(fill='x',pady=7)
         ttk.Button(actions,text='Check registry / load destinations',command=self._check).pack(side='left',padx=3)
-        ttk.Button(actions,text='Preview staged deployment',command=self._preview).pack(side='left',padx=3)
-        ttk.Button(actions,text='Deploy reviewed XML',command=self._deploy).pack(side='left',padx=3)
+        ttk.Button(actions,text='Preview pending changes',command=self._preview).pack(side='left',padx=3)
+        ttk.Button(actions,text='Deploy reviewed files',command=self._deploy).pack(side='left',padx=3)
         ttk.Button(actions,text='Save local settings',command=self._save).pack(side='right',padx=3)
         ttk.Label(panel,text='4 · Results and diagnostics').pack(anchor='w',pady=4)
         self.log=tk.Text(panel,height=11,wrap='word',state='disabled');self.log.pack(fill='both',expand=True)
@@ -178,9 +196,9 @@ class PatchGeneratorApp(tk.Tk):
         try:
             generated=stage_pipeline(**args)
             if auto_deploy:
-                ops=deploy(STAGE/'generation-manifest.json',args['root'])
-                updated=sum(a!='skip' for a,*_ in ops)
-                self.messages.put(('ok',f'{generated}; installed {updated} XML changes',None))
+                ops=deploy(generated,args['root'],current_run_only=True)
+                self.messages.put(('ok',f'Installed: {deployment_summary(ops)}',
+                                   '\n'.join(deployment_details(ops))))
             else:
                 self.messages.put(('ok',f'{generated}; staged only',None))
         except Exception as exc:
@@ -196,6 +214,7 @@ class PatchGeneratorApp(tk.Tk):
                 self.busy=False
                 if kind=='ok':
                     self._note(f'Generation successful: {result}.')
+                    if details:self._note(details)
                     for message in life_stage_generation_summary():
                         self._note(message)
                 else:
@@ -215,12 +234,11 @@ class PatchGeneratorApp(tk.Tk):
         self.after(150,self._poll)
 
     def _preview(self):
+        if self.busy:return
         try:
             ops,_=plan(STAGE/'generation-manifest.json',find_project_root(ROOT),current_run_only=True)
-            counts={k:sum(o[0]==k for o in ops) for k in ('copy','replace','skip','delete','rmdir')}
-            self._note('Validated current-generation deployment plan: '+str(counts))
-            for action,_,_,dest in ops:
-                if action!='skip':self._note(f' {action.upper()}: {dest}')
+            self._note('Pending changes (staged vs installed files): '+deployment_summary(ops))
+            for line in deployment_details(ops):self._note(line)
         except Exception as e:messagebox.showerror('Preview failed',str(e))
 
     def _deploy(self):
@@ -231,7 +249,9 @@ class PatchGeneratorApp(tk.Tk):
             changes=[op for op in ops if op[0]!='skip']
             if not messagebox.askyesno('Deploy XML',f'Apply {len(changes)} changes to Zoology? Includes {sum(op[0]=="delete" for op in changes)} deletions.\n\nStaged checksums and destination paths will be revalidated. Existing XML may be overwritten.'):
                 return
-            deploy(path,root,current_run_only=True);self._note(f'Deployed {len(changes)} current-generation modifications successfully')
+            applied=deploy(path,root,current_run_only=True)
+            self._note('Installed: '+deployment_summary(applied))
+            for line in deployment_details(applied):self._note(line)
         except Exception as e:messagebox.showerror('Deployment failed',str(e))
 
 # The GUI and command-line interface share the same staging and routing engine.
@@ -277,7 +297,9 @@ def cli_main(argv=None):
         print('Routing and static sources verified:', result)
         return
     if args.preview or args.deploy:
-        deploy(output,root,dry_run=not args.deploy,current_run_only=not args.all_staged)
+        ops=deploy(output,root,dry_run=not args.deploy,current_run_only=not args.all_staged)
+        prefix='Installed: ' if args.deploy else 'Pending changes (staged vs installed files): '
+        print(prefix+deployment_summary(ops))
         return
     overrides=dict(cfg.get('sheet_sources',{}))
     for pair in args.sheet:
@@ -301,7 +323,8 @@ def cli_main(argv=None):
         print(message)
     if cfg.get('auto_deploy',True) if args.auto_deploy is None else args.auto_deploy:
         ops=deploy(STAGE/'generation-manifest.json',root,current_run_only=True)
-        print('Generated and installed:',result,'XML changes:',sum(action!='skip' for action,*_ in ops))
+        print('Generated and installed:',result)
+        print('Installed: '+deployment_summary(ops))
     else:
         print('Generated files staged, not deployed:',result)
         print('Inspect with --preview, then apply with --deploy --yes.')

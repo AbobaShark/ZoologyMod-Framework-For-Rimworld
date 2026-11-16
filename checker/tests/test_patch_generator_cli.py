@@ -36,6 +36,38 @@ class UnifiedEntryPointTests(unittest.TestCase):
         self.assertIn("TypeError:", details)
         self.assertIn("_worker", details)
 
+    def test_deployment_summary_distinguishes_changes_from_identical_files(self):
+        ops = [('replace', None, None, 'Core/Patches/Animals.xml'),
+               ('copy', None, None, 'Source/Generated.cs'),
+               ('skip', None, None, 'Core/Patches/Other.xml'),
+               ('delete', None, None, 'Core/Patches/Obsolete.xml'),
+               ('rmdir', None, None, 'Core/Patches/Empty')]
+        self.assertEqual(entry.deployment_summary(ops),
+                         '4 changes (2 XML files); 1 new, 1 replaced, '
+                         '1 already identical, 1 deleted, 1 directories removed')
+        self.assertEqual(entry.deployment_details(ops), [
+            '  REPLACE: Core/Patches/Animals.xml',
+            '  COPY: Source/Generated.cs',
+            '  DELETE: Core/Patches/Obsolete.xml',
+            '  RMDIR: Core/Patches/Empty'])
+
+    def test_worker_reports_actual_current_generation_installation(self):
+        import queue
+        from types import SimpleNamespace
+        worker = SimpleNamespace(messages=queue.Queue())
+        manifest = Path('manifest.json')
+        ops = [('replace', None, None, 'Animals.xml'),
+               ('skip', None, None, 'Other.xml')]
+        with patch.object(entry, 'stage_pipeline', return_value=manifest), \
+             patch.object(entry, 'deploy', return_value=ops) as deploy:
+            entry.PatchGeneratorApp._worker(worker, {'root': Path('/tmp/project')}, True)
+        deploy.assert_called_once_with(manifest, Path('/tmp/project'), current_run_only=True)
+        kind, summary, details = worker.messages.get_nowait()
+        self.assertEqual(kind, 'ok')
+        self.assertIn('1 changes (1 XML files)', summary)
+        self.assertIn('1 already identical', summary)
+        self.assertEqual(details, '  REPLACE: Animals.xml')
+
     def test_cli_errors_write_full_traceback_log(self):
         import tempfile
         with tempfile.TemporaryDirectory() as directory:

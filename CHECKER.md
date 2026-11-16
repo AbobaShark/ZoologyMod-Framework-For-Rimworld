@@ -1,8 +1,8 @@
 # Zoology Checker
 
-Checker is the source-data validation and generation toolchain for Zoology. It reads **AnimalStats**, biomechanical exports, and original game/mod XML, then creates validated XML patches and generated C# profiles for the supported RimWorld installations.
+Checker reads **AnimalStats**, biomechanical calculations and original game and mod XML to generate Zoology's animal definitions, patches and C# profiles.
 
-**The spreadsheets own biological numbers and formulas.** Checker validates, joins, routes, and exports those values; generated patches are not the authoritative data source.
+**Biological values and formulas are maintained in the spreadsheets.** Checker checks the calculated values and writes them to the corresponding XML and C# files.
 
 ## Layout and prerequisites
 
@@ -46,7 +46,7 @@ Apply only reviewed changes. Missing or ambiguous source definitions must be res
 - `generation.json` owns group membership, module ownership, output categories, and exact output paths.
 - `LoadFolders.xml` determines which generated destinations are actually available in RimWorld 1.6/1.7 and under optional DLC/mods.
 
-Recognized workbook tables include `Animals`, `Animals CE`, `Bionics`, `LifeStages`, `LifeStageProfiles`, `SexDimorphism`, `SexAdultProfiles`, `EggMilkWool`, `Venom profiles`, `Biomes`, `Leathers`, and `Animal textiles`, as required by their respective generator categories. Individual sources can be overridden by workbook, Google URL, or TSV. Use DefName and named columns to join records, never coincident spreadsheet row positions.
+Recognized workbook tables include `Animals`, `Animals CE`, `Bionics`, `LifeStages`, `LifeStageProfiles`, `SexDimorphism`, `SexAdultProfiles`, `EggMilkWool`, `EnergeticsProfiles`, `Venom profiles`, `Biomes`, `Leathers`, and `Animal textiles`, as required by their respective generator categories. Individual sources can be overridden by workbook, Google URL, or TSV. Use DefName and named columns to join records, never coincident spreadsheet row positions.
 
 ### Life stages, dynamic growth, and adult sex profiles
 
@@ -60,13 +60,39 @@ For young animals, `foodMaxFactor` must not duplicate the existing BodySize cont
 
 ### Reproduction and offspring ecology
 
-The independent tables inside `EggMilkWool` do **not** have matching row orders. Ordinary egg production, milk, wool and the separate amphibian-development section are joined by explicit species DefName. Only species whose amphibian row declares external aquatic fertilization receive the specialized roe/tadpole definitions.
+The reproductive data are maintained in three main tables:
 
-The calculated aquatic clutch records supply ovum count, wet mass, nutrition/energy, hatching duration, embryo and tadpole survival fractions, larval biomass and metamorphosis timing; the runtime uses one Thing for each clutch or tadpole group, not thousands of animal Pawns.
+| Sheet | Contents |
+| --- | --- |
+| `Animals` | Gestation, breeding seasons, thermal limits, diapause, reproductive pauses, captive durations, biological litter and clutch sizes, shelter preferences and winter dormancy. |
+| `EggMilkWool` | Egg counts, egg formation and incubation, egg nutrition, milk and wool yields, and aquatic egg and tadpole development. |
+| `EnergeticsProfiles` | Nutritional costs of growth, pregnancy and egg production. |
 
-The runtime settings `EnableAdvancedReproductiveBehavior`, `EnableAdvancedThreatAvoidance`, `EnableWaterHabitatBehavior`, and `EnableWinterDormancy` are defined in C# settings, not as per-species spreadsheet columns. They default to enabled. `OffspringShelter=DEN` takes effect for family denning only when both advanced reproduction and advanced threat avoidance are enabled; winter dormancy is independent. Checker must continue exporting the complete source-data profiles irrespective of the player's switches.
+Checker matches animals by DefName. The sections of `EggMilkWool` have independent row orders.
 
-`OffspringShelter` and supported winter-dormancy fields are source-data features, not a request to embed species name lists in Python. Generator and runtime behavior must agree on allowed modes and the actual loaded XML extensions.
+The ordinary litter curve, egg count range and calendar-scaled development periods are exported to the species' usual game definitions. Captive bird laying durations use the mean game-balanced clutch size and biological annual egg production: the balanced mode scales production relative to two chicken eggs per day, and the realistic mode uses biological eggs per 365 days. Alternative reproduction values from `Animals` are written to each species' `ModExtension_SeasonalReproduction` in its race XML:
+
+| AnimalStats column | XML field |
+| --- | --- |
+| Captive gestation (game days) | `captiveGestationDays` |
+| Captive diapause (game days) | `captiveDiapauseDays` |
+| Captive real diapause (game days) | `captiveRealDiapauseDays` |
+| Captive egg formation (game days) | `captiveEggFormationDays` |
+| Captive real egg formation (game days) | `captiveRealEggFormationDays` |
+| Captive reproductive pause (game days) | `captiveReproductivePauseDays` |
+| Captive incubation (game days) | `captiveIncubationDays` |
+| Realistic litter size | `realisticLitterMean` |
+| Realistic egg count range | `realisticEggCountRange` |
+
+Biological litter size comes from `Base stats`; biological clutch sizes and incubation calculations use the egg data in `EggMilkWool`. The game chooses the applicable values using its reproduction settings. Both sets are exported regardless of the selected settings.
+
+`EnergeticsProfiles` is exported to `Core/Defs/Misc/EnergeticsProfiles_Generated.xml`. Its growth model assigns half of ordinary allometric intake to tissue formation and adds any uncovered stage growth requirement. Standard life-stage hunger factors are calculated as the mean daily intake over the stage relative to the adult reference. The catalog provides the allometric exponent and growth efficiency for dynamic growth using loaded stage durations and sex-specific endpoints. The catalog stores the full fetal tissue budget, developmental stage weights, standard mean litter and clutch sizes, egg nutrition and the female's food requirement. The game derives the additional pregnancy and clutch costs from the full production budgets after crediting half of ordinary intake over the applicable active developmental duration. Edible egg nutrition matches hatchling nutrition for ordinary laid eggs.
+
+The aquatic egg and tadpole definitions use the count, wet mass and energy per ovum, development durations, and survival fractions in `EggMilkWool`. Only animals with external aquatic fertilization receive these definitions. Each clutch and tadpole group is represented collectively until juvenile amphibians emerge.
+
+Winter shelter eligibility and maternity denning seasons are exported through `ModExtension_WinterDormancy`. Natural reproductive shelters are defined by `OffspringShelter`.
+
+After changing reproduction data, generate both the **animals** and **products** categories, or use **Generate All**.
 
 ### Hunting and venom data
 
@@ -92,7 +118,7 @@ py rimworld_patch_generator.py --preview
 
 The Patch Generator's CLI accepts `--category`, `--group`, `--source`, `--sheet`, `--no-ce`, `--no-optimize`, `--original-xml`, and `--ce-patches`. Use `--stage-only` to prevent the normal automatic deployment; after inspecting staged changes, deploy manually using `--deploy --yes`. Category examples: `animals`, `leathers`, `textiles`, and `life-stages`.
 
-Checker stages XML and generated source before applying them, validates the registry/destinations and checksums, and does not treat old output as a source of facts. The `--check` registry preflight verifies actual registered destinations against `LoadFolders.xml`. Do not copy outputs into an unrelated mod version, or let an obsolete local snapshot stand in for the currently installed source.
+Checker prepares the output in a staging folder and checks the files before installing them. Use `--check` to verify that the configured output paths agree with `LoadFolders.xml`. Keep the game and mod reference XML matched to the version you are generating for.
 
 The optimizer eliminates demonstrably redundant patch operations using available upstream references. The optional standalone XML compactor is invoked through `py -m core.rimworld_patch_compactor <staged XML path>`; it is not a substitute for upstream-aware optimization and should not be applied indiscriminately to shipped XML.
 
@@ -104,7 +130,7 @@ From `checker/`, local checks can be run with:
 py -m pytest -q tests
 ```
 
-The test suite covers input parsing, mass/stage constraints, sex-profile export, venom-profile export, material routing, generated XML structure, localization and atomic deployment. **Python tests do not validate C# compilation, in-game pathfinding, graphics, AI jobs, or Combat Extended combat behavior.**
+The tests check the source tables, generated files and deployment. Build the mod and test animal behavior in RimWorld with the required DLCs and other mods enabled.
 
 After changing C# or generated C# sources, rebuild the appropriate `ZoologyMod.dll` for the game version and restart RimWorld. Source changes alone do not update an existing DLL. Exercise the modified mechanics in an actual game with the relevant DLC and mod combination loaded. For growth, inspect animals across multiple biological days rather than skipping straight across an entire stage with a one-year age command.
 

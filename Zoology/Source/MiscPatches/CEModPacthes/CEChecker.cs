@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Xml;
 using HarmonyLib;
 using Verse;
 
@@ -50,4 +51,13 @@ namespace ZoologyMod
             }
         }
     }
+
+    public sealed class PatchOperation_FindCombatExtended : PatchOperation
+    {
+        public PatchOperation match;
+
+        protected override bool ApplyWorker(XmlDocument xml) =>
+            !CEChecker.IsCEInstalled() || match != null && match.Apply(xml);
+    }
+
 }

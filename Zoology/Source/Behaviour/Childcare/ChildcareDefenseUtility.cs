@@ -505,7 +505,8 @@ namespace ZoologyMod
                 return false;
             }
 
-            if (protector.Map != anchorMap || !anchorPosition.IsValid)
+            if (protector.Map != anchorMap || !anchorPosition.IsValid
+                || !PreyProtectionUtility.IsPawnWithinProtectionRange(protector, anchorMap, anchorPosition, GetProtectionRangeSquared()))
             {
                 return false;
             }
@@ -530,36 +531,6 @@ namespace ZoologyMod
             }
         }
 
-        private static bool CanProtectorDeterPredationFast(
-            Pawn protector,
-            Pawn aggressor,
-            Thing protectedThing,
-            Map anchorMap,
-            IntVec3 anchorPosition)
-        {
-            if (protector == null
-                || aggressor == null
-                || protectedThing == null
-                || anchorMap == null
-                || !anchorPosition.IsValid
-                || aggressor == protector
-                || aggressor.Dead
-                || aggressor.Destroyed
-                || aggressor.MapHeld != anchorMap
-                || !IsProtectorEligibleForDefense(protector, protectedThing)
-                || protector.Map != anchorMap
-                || !PreyProtectionUtility.IsPawnWithinProtectionRange(protector, anchorMap, anchorPosition, GetProtectionRangeSquared())
-                || IsSameFactionBlocked(protector, aggressor)
-                || !CanProtectorMeetHumanlikeThreatThreshold(protector, aggressor)
-                || IsAttackerTooStrong(aggressor, protector)
-                || !CanProtectorInterruptCurrentJobFast(protector, aggressor, protectedThing))
-            {
-                return false;
-            }
-
-            return true;
-        }
-
         private static bool CanProtectorDeterPredationTargetFast(
             Pawn protector,
             Thing protectedThing,
@@ -572,33 +543,8 @@ namespace ZoologyMod
                 || !anchorPosition.IsValid
                 || !IsProtectorEligibleForDefense(protector, protectedThing)
                 || protector.Map != anchorMap
+                || !PreyProtectionUtility.IsPawnWithinProtectionRange(protector, anchorMap, anchorPosition, GetProtectionRangeSquared())
                 || !CanProtectorDeterCurrentJobFast(protector, protectedThing))
-            {
-                return false;
-            }
-
-            return true;
-        }
-
-        private static bool CanProtectorInterruptCurrentJobFast(Pawn protector, Pawn newAggressor, Thing protectedThing)
-        {
-            Job curJob = protector?.CurJob;
-            if (curJob == null)
-            {
-                return true;
-            }
-
-            if (ProtectYoungUtility.IsProtectYoungJob(curJob, protector))
-            {
-                return ProtectYoungUtility.CanRetargetProtectYoungJob(protector, curJob, newAggressor, protectedThing);
-            }
-
-            if (ProtectPreyState.IsProtectPreyJob(protector))
-            {
-                return false;
-            }
-
-            if (curJob.playerForced || curJob.def == JobDefOf.AttackMelee)
             {
                 return false;
             }
@@ -724,9 +670,12 @@ namespace ZoologyMod
 
             try
             {
-                if (!component.TryGetProtectors(egg, childcareOwnerScratch))
+                component.TryGetProtectors(egg, childcareOwnerScratch);
+                var nursery = ThingOwnerUtility.GetAnyParent<Building_AnimalNursery>(egg);
+                if (nursery != null)
                 {
-                    return false;
+                    TryAddUniqueProtector(childcareOwnerScratch, nursery.Mother);
+                    TryAddUniqueProtector(childcareOwnerScratch, nursery.Father);
                 }
 
                 for (int i = 0; i < childcareOwnerScratch.Count; i++)
@@ -760,74 +709,6 @@ namespace ZoologyMod
             return protectors.Count > 0;
         }
 
-        private static bool HasAnyYoungProtector(Pawn mother, Pawn aggressor, Thing protectedThing)
-        {
-            if (!IsYoungProtectionEnabled
-                || mother == null
-                || aggressor == null
-                || protectedThing == null
-                || !TryGetProtectionAnchor(protectedThing, null, out Map anchorMap, out IntVec3 anchorPosition))
-            {
-                return false;
-            }
-
-            if (CanProtectorDeterPredationFast(mother, aggressor, protectedThing, anchorMap, anchorPosition))
-            {
-                return true;
-            }
-
-            if (!ShouldUseSharedProtectionGroup(mother))
-            {
-                return false;
-            }
-
-            return HasAnySharedYoungProtectorNearAnchor(mother, aggressor, protectedThing, anchorMap, anchorPosition);
-        }
-
-        private static bool HasAnySharedYoungProtectorNearAnchor(
-            Pawn mother,
-            Pawn aggressor,
-            Thing protectedThing,
-            Map anchorMap,
-            IntVec3 anchorPosition)
-        {
-            if (mother?.Map != anchorMap || anchorMap == null || !anchorPosition.IsValid)
-            {
-                return false;
-            }
-
-            int cellCount = GenRadial.NumCellsInRadius(GetProtectionRange());
-            for (int i = 0; i < cellCount; i++)
-            {
-                IntVec3 cell = anchorPosition + GenRadial.RadialPattern[i];
-                if (!cell.InBounds(anchorMap))
-                {
-                    continue;
-                }
-
-                List<Thing> things = cell.GetThingList(anchorMap);
-                for (int j = 0; j < things.Count; j++)
-                {
-                    if (things[j] is not Pawn candidate)
-                    {
-                        continue;
-                    }
-
-                    if (!IsSharedProtectionCandidate(mother, candidate, anchorMap, anchorPosition))
-                    {
-                        continue;
-                    }
-
-                    if (CanProtectorDeterPredationFast(candidate, aggressor, protectedThing, anchorMap, anchorPosition))
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
-        }
-
         private static bool TryGetDirectYoungProtectionTargetState(Pawn young, int currentTick, out YoungProtectionTargetState state)
         {
             state = default;
@@ -835,6 +716,9 @@ namespace ZoologyMod
             {
                 return false;
             }
+
+            if (!young.Spawned)
+                return TryGetYoungProtectionTargetState(young, currentTick, out state);
 
             if (TryRefreshDirectYoungProtectionMapCache(young.MapHeld, currentTick))
             {
@@ -923,20 +807,13 @@ namespace ZoologyMod
             };
 
             if (young == null
-                || !ChildcareUtility.TryGetBiologicalMother(young, out Pawn mother)
-                || !ChildcareUtility.HasChildcareExtension(mother)
                 || !TryGetProtectionAnchor(young, null, out Map anchorMap, out IntVec3 anchorPosition))
-            {
                 return state;
-            }
 
             state.AnchorMap = anchorMap;
-            TryAddYoungProtectionTargetCandidate(ref state, mother, young, anchorMap, anchorPosition);
-            if (ShouldUseSharedProtectionGroup(mother))
-            {
-                AddSharedYoungProtectionTargetCandidates(ref state, mother, young, anchorMap, anchorPosition);
-            }
-
+            ChildcareUtility.TryGetBiologicalMother(young, out Pawn mother);
+            AddParentProtectionCandidates(ref state, mother, young, anchorMap, anchorPosition);
+            AddParentProtectionCandidates(ref state, ChildcareUtility.GetYoungProtectionFather(young), young, anchorMap, anchorPosition);
             return state;
         }
 
@@ -984,31 +861,16 @@ namespace ZoologyMod
             return true;
         }
 
-        private static YoungProtectionTargetState BuildYoungProtectionTargetState(Pawn young, int currentTick)
+        private static YoungProtectionTargetState BuildYoungProtectionTargetState(Pawn young, int currentTick) =>
+            BuildDirectYoungProtectionTargetState(young, currentTick);
+
+        private static void AddParentProtectionCandidates(ref YoungProtectionTargetState state, Pawn parent,
+            Pawn young, Map anchorMap, IntVec3 anchorPosition)
         {
-            YoungProtectionTargetState state = new YoungProtectionTargetState
-            {
-                YoungId = young?.thingIDNumber ?? 0,
-                Tick = currentTick
-            };
-
-            if (young == null
-                || !ChildcareUtility.TryGetKnownBiologicalMother(young, out Pawn mother)
-                || !ChildcareUtility.HasChildcareExtension(mother)
-                || !TryGetProtectionAnchor(young, null, out Map anchorMap, out IntVec3 anchorPosition))
-            {
-                return state;
-            }
-
-            state.AnchorMap = anchorMap;
-            TryAddYoungProtectionTargetCandidate(ref state, mother, young, anchorMap, anchorPosition);
-
-            if (ShouldUseSharedProtectionGroup(mother))
-            {
-                AddSharedYoungProtectionTargetCandidates(ref state, mother, young, anchorMap, anchorPosition);
-            }
-
-            return state;
+            if (!ChildcareUtility.HasChildcareExtension(parent)) return;
+            TryAddYoungProtectionTargetCandidate(ref state, parent, young, anchorMap, anchorPosition);
+            if (ShouldUseSharedProtectionGroup(parent))
+                AddSharedYoungProtectionTargetCandidates(ref state, parent, young, anchorMap, anchorPosition);
         }
 
         private static void AddSharedYoungProtectionTargetCandidates(
@@ -1191,8 +1053,6 @@ namespace ZoologyMod
             Pawn bestYoung = null;
             int bestDistanceSq = int.MaxValue;
             IReadOnlyList<Pawn> all = protector.Map.mapPawns.AllPawnsSpawned;
-            int sharedRangeSq = GetProtectionRangeSquared();
-
             for (int i = 0; i < all.Count; i++)
             {
                 Pawn candidate = all[i];
@@ -1204,28 +1064,7 @@ namespace ZoologyMod
                     || candidate.Dead
                     || candidate.Destroyed
                     || candidate.Map != protector.Map
-                    || !ChildcareUtility.TryGetBiologicalMother(candidate, out Pawn mother))
-                {
-                    continue;
-                }
-
-                if (!ChildcareUtility.HasChildcareExtension(mother))
-                {
-                    continue;
-                }
-
-                bool matchesProtector = ReferenceEquals(mother, protector);
-                if (!matchesProtector)
-                {
-                    matchesProtector = ShouldUseSharedProtectionGroup(mother)
-                        && ReferenceEquals(mother.Faction, protector.Faction)
-                        && SharesSpeciesLineage(mother, protector)
-                        && mother.Spawned
-                        && mother.Map == protector.Map
-                        && (mother.Position - protector.Position).LengthHorizontalSquared <= sharedRangeSq;
-                }
-
-                if (!matchesProtector)
+                    || !IsProtectorLinkedToProtectedYoung(protector, candidate, candidate.Map, candidate.Position))
                 {
                     continue;
                 }
@@ -1333,23 +1172,37 @@ namespace ZoologyMod
         }
 
         public static bool TryOrderProtection(Pawn protector, Pawn aggressor, Thing protectedThing,
-            Pawn secondParent = null, bool allowBurrowFallback = false)
+            Pawn secondParent = null)
         {
-            if (!IsYoungProtectionEnabled || (protector == null && secondParent == null)
-                || aggressor == null || protectedThing == null)
+            if (IsEggThing(protectedThing))
+                return TryTriggerEggProtection(aggressor, protectedThing);
+            if (!IsYoungProtectionEnabled || aggressor == null || protectedThing is not Pawn child
+                || !ChildcareUtility.IsAnimalChild(child) || child.Dead || child.Destroyed)
                 return false;
 
-            bool eggClutch = IsEggThing(protectedThing);
-            if (eggClutch && (!IsEggProtectionEnabled || !IsFertilizedEgg(protectedThing)))
-                return false;
+            secondParent ??= ChildcareUtility.GetYoungProtectionFather(child);
+            if (protector == null && secondParent == null) return false;
+            WakeParentForProtection(protector, aggressor, child);
+            if (secondParent != protector)
+                WakeParentForProtection(secondParent, aggressor, child);
+            RememberActiveYoungProtectionThreat(aggressor, child);
+            return TryBeginProtection(aggressor, child, eggClutch: false,
+                protector, secondParent);
+        }
 
-            RememberActiveYoungProtectionThreat(aggressor, protectedThing);
-            return TryBeginProtection(aggressor, protectedThing, eggClutch,
-                protector, secondParent, allowBurrowFallback);
+        private static void WakeParentForProtection(Pawn parent, Pawn aggressor, Pawn child)
+        {
+            if (parent?.Spawned != true || parent.Dead || parent.Downed || parent.InMentalState
+                || parent == aggressor || !ChildcareUtility.HasChildcareExtension(parent)
+                || parent.Map != child.MapHeld || parent.Awake()
+                || !parent.Position.InHorDistOf(child.PositionHeld, GetProtectionRange()))
+                return;
+            parent.mindState.canSleepTick = (Find.TickManager?.TicksGame ?? 0) + 1000;
+            RestUtility.WakeUp(parent);
         }
 
         private static bool TryBeginProtection(Pawn aggressor, Thing protectedThing, bool eggClutch,
-            Pawn firstParent = null, Pawn secondParent = null, bool allowBurrowFallback = false)
+            Pawn firstParent = null, Pawn secondParent = null)
         {
             if (!(eggClutch ? ShouldTriggerEggProtection(aggressor, protectedThing)
                 : ShouldTriggerYoungProtection(aggressor, protectedThing)))
@@ -1360,7 +1213,7 @@ namespace ZoologyMod
             try
             {
                 triggeredProtectorsScratch.Clear();
-                if (firstParent == null && secondParent == null && eggClutch)
+                if (eggClutch)
                     TryFillEggProtectors(protectedThing, aggressor, candidates, includeActiveDefense: true);
                 else
                     TryFillYoungProtectors(firstParent, aggressor, protectedThing, candidates, secondParent);
@@ -1379,14 +1232,6 @@ namespace ZoologyMod
                         continue;
                     if (TryTakeProtectionJob(candidate, aggressor, protectedThing))
                         TryAddUniqueProtector(triggeredProtectorsScratch, candidate);
-                }
-
-                if (!alreadyActive && triggeredProtectorsScratch.Count == 0 && allowBurrowFallback
-                    && firstParent?.Spawned == true && firstParent.Faction == null
-                    && CanProtectorMeetHumanlikeThreatThreshold(firstParent, aggressor)
-                    && TryTakeProtectionJob(firstParent, aggressor, protectedThing, forceMelee: true))
-                {
-                    triggeredProtectorsScratch.Add(firstParent);
                 }
 
                 if (triggeredProtectorsScratch.Count == 0)
@@ -1524,20 +1369,16 @@ namespace ZoologyMod
                 return false;
             }
 
-            if (!ChildcareUtility.TryGetBiologicalMother(young, out Pawn mother)
-                || !ChildcareUtility.HasChildcareExtension(mother))
-            {
-                return false;
-            }
-
-            if (ReferenceEquals(mother, protector))
-            {
-                return true;
-            }
-
-            return ShouldUseSharedProtectionGroup(mother)
-                && IsSharedProtectionCandidate(mother, protector, anchorMap, anchorPosition);
+            ChildcareUtility.TryGetBiologicalMother(young, out Pawn mother);
+            Pawn father = ChildcareUtility.GetYoungProtectionFather(young);
+            return IsParentOrSharedProtector(mother, protector, anchorMap, anchorPosition)
+                || IsParentOrSharedProtector(father, protector, anchorMap, anchorPosition);
         }
+
+        private static bool IsParentOrSharedProtector(Pawn parent, Pawn protector, Map anchorMap, IntVec3 anchorPosition) =>
+            ChildcareUtility.HasChildcareExtension(parent) && (parent == protector
+                || ShouldUseSharedProtectionGroup(parent)
+                    && IsSharedProtectionCandidate(parent, protector, anchorMap, anchorPosition));
 
         private static bool CanProtectorReachAndFightYoungThreat(
             Pawn protector,
@@ -1580,10 +1421,12 @@ namespace ZoologyMod
 
         public static bool ShouldNullifyEggDeterioration(Thing thing)
         {
-            if (!IsEggProtectionEnabled || thing == null || thing.Destroyed || !IsEggThing(thing))
-            {
+            if (!IsEggProtectionEnabled || thing == null || thing.Destroyed)
                 return false;
-            }
+            if (thing is Building_AnimalNursery nest)
+                return IsEggIncubatedNow(GetIncubationEgg(nest));
+            if (!IsEggThing(thing))
+                return false;
 
             Pawn mother = thing.TryGetComp<CompHatcher>()?.hatcheeParent;
             if (mother == null)
@@ -1663,6 +1506,17 @@ namespace ZoologyMod
                 return null;
             }
 
+            // The parent's nest is already indexed by its strategy state.
+            // A held egg cannot be found by the ground-food search.
+            Building_AnimalNursery nest = mother.TryGetComp<CompAnimalStrategyState>()?.nursery;
+            if (nest != null && IsEggIncubationTargetForMother(mother, nest)
+                && mother.Position.InHorDistOf(nest.Position, EggIncubationSearchRadius)
+                && mother.CanReach(nest, PathEndMode.Touch, Danger.Some))
+            {
+                lastIncubationSearchFailureTickByPawnId.Remove(mother.thingIDNumber);
+                return nest;
+            }
+
             Thing egg = GenClosest.ClosestThingReachable(
                 mother.Position,
                 mother.Map,
@@ -1687,14 +1541,16 @@ namespace ZoologyMod
             return egg;
         }
 
-        public static bool CanContinueEggIncubation(Pawn mother, Thing egg)
-        {
-            if (!CanUseEggIncubation(mother))
-            {
-                return false;
-            }
+        internal static Thing GetIncubationEgg(Thing target) =>
+            target is Building_AnimalNursery nest
+                ? nest.TryGetComp<CompEggContainer>()?.ContainedThing
+                : target;
 
-            return IsEggIncubationTargetForMother(mother, egg, requireReservationAvailability: false);
+        public static bool CanContinueEggIncubation(Pawn mother, Thing target, Thing egg)
+        {
+            return CanUseEggIncubation(mother)
+                && egg != null && ReferenceEquals(GetIncubationEgg(target), egg)
+                && IsEggIncubationTargetForMother(mother, target, requireReservationAvailability: false);
         }
 
         public static void MarkEggIncubated(Thing egg)
@@ -1723,7 +1579,7 @@ namespace ZoologyMod
             incubatedEggTouchTickByEggId.Remove(egg.thingIDNumber);
         }
 
-        public static void FinishEggIncubation(Thing egg)
+        public static void FinishEggIncubation(Thing target, Thing egg)
         {
             StopEggIncubation(egg);
             if (egg == null || egg.Destroyed)
@@ -1734,6 +1590,9 @@ namespace ZoologyMod
             try
             {
                 egg.HitPoints = egg.MaxHitPoints;
+                if (target is Building_AnimalNursery nest && nest.Spawned
+                    && ReferenceEquals(GetIncubationEgg(nest), egg))
+                    nest.HitPoints = nest.MaxHitPoints;
             }
             catch
             {
@@ -1812,43 +1671,36 @@ namespace ZoologyMod
             return mother.TryGetComp<CompEggLayer>() != null;
         }
 
-        private static bool IsEggIncubationTargetForMother(Pawn mother, Thing egg, bool requireReservationAvailability = true)
+        private static bool IsEggIncubationTargetForMother(Pawn mother, Thing target, bool requireReservationAvailability = true)
         {
-            if (mother == null
-                || egg == null
-                || egg.Destroyed
-                || !egg.Spawned
-                || egg.Map != mother.Map
-                || egg.IsForbidden(mother)
-                || !IsFertilizedEgg(egg)
-                || !NeedsEggIncubation(egg))
-            {
+            if (mother == null || target == null || target.Destroyed || !target.Spawned
+                || target.Map != mother.Map || target.IsForbidden(mother))
                 return false;
+
+            Thing egg = GetIncubationEgg(target);
+            if (!IsFertilizedEgg(egg))
+                return false;
+
+            if (target is Building_AnimalNursery nest)
+            {
+                if (!ModConstants.AdvancedReproduction || nest.Mother != mother)
+                    return false;
+                if (!NeedsEggIncubation(egg) && !NeedsEggIncubation(nest))
+                    return false;
+            }
+            else
+            {
+                if (!NeedsEggIncubation(egg)
+                    || EggClutchDefenseGameComponent.Instance?.IsAssociatedWithMother(egg, mother) != true)
+                    return false;
             }
 
-            EggClutchDefenseGameComponent component = EggClutchDefenseGameComponent.Instance;
-            if (component == null || !component.IsAssociatedWithMother(egg, mother))
-            {
-                return false;
-            }
-
-            if (requireReservationAvailability && !mother.CanReserve(egg))
-            {
-                return false;
-            }
-
-            return true;
+            return !requireReservationAvailability || mother.CanReserve(target);
         }
 
-        private static bool NeedsEggIncubation(Thing egg)
-        {
-            if (egg == null || egg.Destroyed || !egg.Spawned || egg.Map == null || !egg.PositionHeld.IsValid)
-            {
-                return false;
-            }
-
-            return egg.MaxHitPoints > 0 && egg.HitPoints * 5 < egg.MaxHitPoints * 4;
-        }
+        private static bool NeedsEggIncubation(Thing thing) =>
+            thing != null && !thing.Destroyed && thing.MaxHitPoints > 0
+            && thing.HitPoints * 5 < thing.MaxHitPoints * 4;
 
         private static bool IsEggCompatibleWithMother(Pawn mother, Thing egg)
         {
@@ -1897,8 +1749,7 @@ namespace ZoologyMod
             return position.IsValid;
         }
 
-        private static bool TryTakeProtectionJob(Pawn protector, Pawn aggressor, Thing protectedThing,
-            bool forceMelee = false)
+        private static bool TryTakeProtectionJob(Pawn protector, Pawn aggressor, Thing protectedThing)
         {
             try
             {
@@ -1911,8 +1762,7 @@ namespace ZoologyMod
                     && !ProtectYoungUtility.CanRetargetProtectYoungJob(protector, current, aggressor, protectedThing))
                     return false;
 
-                JobDef jobDef = forceMelee ? JobDefOf.AttackMelee
-                    : protectYoungJobDef ?? (protectYoungJobDef = DefDatabase<JobDef>.GetNamedSilentFail(ProtectYoungUtility.ProtectYoungDefName));
+                JobDef jobDef = protectYoungJobDef ?? (protectYoungJobDef = DefDatabase<JobDef>.GetNamedSilentFail(ProtectYoungUtility.ProtectYoungDefName));
                 Job job = JobMaker.MakeJob(jobDef ?? JobDefOf.AttackMelee, aggressor, protectedThing);
                 protector.jobs.StartJob(
                     job,

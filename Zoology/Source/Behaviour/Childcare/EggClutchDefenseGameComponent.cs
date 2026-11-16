@@ -198,6 +198,9 @@ namespace ZoologyMod
 
             output.Clear();
             FillOwners(egg, output);
+            CompHatcher hatcher = egg?.TryGetComp<CompHatcher>();
+            if (ChildcareUtility.UsesBiparentalProtection(hatcher?.hatcheeParent?.def ?? hatcher?.otherParent?.def))
+                AppendUniqueMother(output, hatcher?.otherParent);
             return output.Count > 0;
         }
 
@@ -208,8 +211,16 @@ namespace ZoologyMod
                 return false;
             }
 
+            var nursery = ThingOwnerUtility.GetAnyParent<Building_AnimalNursery>(egg);
+            if (nursery != null
+                && (IsPotentialFoodOptimalityProtector(nursery.Mother, eater, anchorMap)
+                    || IsPotentialFoodOptimalityProtector(nursery.Father, eater, anchorMap)))
+                return true;
+
             CompHatcher hatcher = egg.TryGetComp<CompHatcher>();
-            if (IsPotentialFoodOptimalityProtector(hatcher?.hatcheeParent, eater, anchorMap))
+            if (IsPotentialFoodOptimalityProtector(hatcher?.hatcheeParent, eater, anchorMap)
+                || (ChildcareUtility.UsesBiparentalProtection(hatcher?.hatcheeParent?.def ?? hatcher?.otherParent?.def)
+                    && IsPotentialFoodOptimalityProtector(hatcher?.otherParent, eater, anchorMap)))
             {
                 return true;
             }

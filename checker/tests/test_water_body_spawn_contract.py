@@ -10,17 +10,18 @@ VEF_PATCH = ROOT / "Zoology/ModPatches/VanillaAnimalsExpanded/Patches/Misc/River
 RUNTIME = ROOT / "Zoology/Source/Behaviour/Reproduction/WaterBodySpawnRequirement.cs"
 
 
-def habitat_factors(areas, map_cells, body_size, ectothermic):
+def habitat_factors(areas, map_cells, body_size, ectothermic, river_cells=0):
     """Python reference for C# algebra, independent of RimWorld APIs."""
     total = sum(areas)
     largest = max(areas, default=0)
-    wetness = (total + largest) / (2 * map_cells) if map_cells > 0 else 0
-    t = max(0, min(1, (wetness - .01) / .11))
-    boost = 1 + 2 * t
+    wetness = (total + largest + 2 * river_cells) / (2 * map_cells) if map_cells > 0 else 0
+    boost = 2 * min(1, wetness / .048)
     r = 150 * body_size ** 2 * (1 if ectothermic else 2)
+    if largest <= r / 3:
+        return 0, 1
     h = sum(a * min(1, a / r) for a in areas)
-    aquatic = boost * min(1, h / r) if largest >= r / 3 else 0
-    return aquatic, 1 / boost
+    connected = (largest - r / 3) / (r - r / 3)
+    return boost * min(1, connected, h / r), 1
 
 
 class WaterBodySpawnContractTests(unittest.TestCase):
@@ -78,21 +79,48 @@ class WaterBodySpawnContractTests(unittest.TestCase):
             "race.race?.baseBodySize",
             "ZoologyCacheUtility.HasEctothermicExtension(race)",
             "AreaPerBodySizeSquared * size * size",
-            "largestWater < requirement / 3f",
+            "FullHabitatWetness = 0.048f",
+            'startTerrain.tags?.Contains("River") == true',
+            "riverCells++",
+            "totalWater + largestWater + 2f * riverCells",
+            "MaximumAquaticFactor = 2f",
+            "!RequiredRaces.Contains(animalRace)",
+            "largestWater <= minimumConnectedArea",
+            "Math.Min(connectedSuitability, effectiveArea / requirement)",
             "area * Math.Min(1f, area / requirement)",
             "cache.aquaticFactors.TryGetValue(animalRace, out float factor)",
-            "cache.landFactor = 1f / aquaticBoost",
+            "? factor : 1f",
             "biome.CommonalityOfCoastalAnimal(def) > 0f",
             "BiomeDef biome = ___map.BiomeAt(loc)",
         ):
             self.assertIn(token, source)
-        self.assertNotIn("TerrainDefOf.Marsh", source)
-        # A normal rat is no longer protected merely because it also occurs
-        # in the biome's pollution pool.
+        self.assertIn("MarshClimateMinimum = 15f", source)
+        self.assertIn("GenTemperature.AverageTemperatureAtTileForTwelfth(map.Tile, (Twelfth)i)", source)
+        self.assertIn("annualTemperature / 12f >= MarshClimateMinimum", source)
+        self.assertIn('includeMarsh || terrain.defName != "Marsh"', source)
+        self.assertIn("IsHabitatWater(startTerrain, includeMarsh)", source)
+        self.assertIn("IsHabitatWater(terrain.TerrainAt(index), includeMarsh)", source)
+        for offset in ("cell - 1", "cell + 1", "cell - width", "cell + width"):
+            self.assertIn(f"EnqueueWater(terrain, {offset}, visited, queue, ref next, includeMarsh)", source)
         self.assertNotIn("CommonalityOfPollutionAnimal", source)
-        self.assertIn("biome.CommonalityOfCoastalAnimal(def) > 0f", source)
+        self.assertNotIn("landFactor", source)
         self.assertNotIn("AnimalStats", source)
         self.assertNotIn("AEXP_Crocodile", source)
+
+    def test_marsh_climate_threshold_and_connectivity(self):
+        # Two freshwater ponds separated by a marsh band.
+        # The band connects the ponds only in warm climates.
+        for annual_temperature, areas in ((-5, [200, 200]),
+                                          (14.99, [200, 200]),
+                                          (15, [1500]),
+                                          (25, [1500])):
+            crocodile = habitat_factors(areas, 62500, 1.8, True)[0]
+            if annual_temperature < 15:
+                self.assertLess(crocodile, 0.1)
+            else:
+                self.assertEqual(crocodile, 1)
+        self.assertEqual(habitat_factors([], 62500, 0.15, False)[0], 0)
+        self.assertEqual(habitat_factors([1500], 62500, 1.8, True, river_cells=1500)[0], 2)
 
     def test_large_animals_require_large_connected_water(self):
         p = lambda areas: habitat_factors(areas, 62500, 4.5, True)[0]
@@ -103,23 +131,57 @@ class WaterBodySpawnContractTests(unittest.TestCase):
         self.assertGreater(p([3000]), 0)
         self.assertGreater(p([17700]), p([3000]))
         self.assertGreater(a([650]), 0)
-        self.assertGreater(a([3000]), a([650]))
+        self.assertGreater(a([1500]), a([650]))
         self.assertEqual(habitat_factors([], 62500, 1.5, True), (0, 1))
-        self.assertAlmostEqual(habitat_factors([30000], 62500, 4.5, True)[1], 1/3)
+        self.assertAlmostEqual(habitat_factors([30000], 62500, 4.5, True)[1], 1)
 
-    def test_pollution_pool_species_use_ordinary_land_wetness_factor(self):
-        # Rat (base commonality 0.5) must be reduced to one third of
-        # its original weight at maximum wetness; coastal pools are
-        # independently exempted by the C# Postfix.
-        dry = habitat_factors([], 62500, 0.1, False)[1]
-        wet = habitat_factors([30000], 62500, 0.1, False)[1]
-        self.assertAlmostEqual(0.5 * dry, 0.5)
-        self.assertAlmostEqual(0.5 * wet, 1 / 6)
+    def test_land_animals_always_keep_base_weight(self):
+        for areas in ([], [3], [100], [1500], [30000]):
+            self.assertEqual(habitat_factors(areas, 62500, 0.1, False)[1], 1)
+
+    def test_inland_water_calibration(self):
+        # A 495-cell largest pond in 1000 total water cells.
+        areas = [495, 250, 255]
+        for body_size, ectothermic in ((0.15, False), (0.2, False),
+                                       (0.65, False), (1.5, True), (1.8, True)):
+            factor = habitat_factors(areas, 62500, body_size, ectothermic)[0]
+            self.assertAlmostEqual(factor, 1495 / 3000)
+        self.assertEqual(habitat_factors([1500], 62500, 1.8, True)[0], 1)
+
+    def test_river_width_calibration(self):
+        for body_size in (1.5, 1.8):
+            self.assertAlmostEqual(
+                habitat_factors([1000], 62500, body_size, True, river_cells=1000)[0],
+                4 / 3)
+            for area in (1500, 3500, 7500):
+                self.assertEqual(
+                    habitat_factors([area], 62500, body_size, True,
+                                    river_cells=area)[0], 2)
+        self.assertEqual(habitat_factors([1000], 62500, 4.5, True, river_cells=1000)[0], 0)
+
+    def test_marginal_habitat_has_low_weight(self):
+        for body_size, ectothermic in ((0.15, False), (0.2, False),
+                                       (1.5, True), (1.8, True), (4.5, True)):
+            r = 150 * body_size ** 2 * (1 if ectothermic else 2)
+            at_threshold = r / 3
+            self.assertEqual(habitat_factors([at_threshold], 62500,
+                                             body_size, ectothermic)[0], 0)
+            marginal = habitat_factors([at_threshold * 1.01] * 10,
+                                       62500, body_size, ectothermic)[0]
+            self.assertGreater(marginal, 0)
+            self.assertLess(marginal, 0.02)
+
+    def test_monotonic_and_bounded(self):
+        for body_size, ectothermic in ((0.15, False), (1.8, True), (4.5, True)):
+            factors = [habitat_factors([area], 62500, body_size, ectothermic)[0]
+                       for area in range(0, 10001, 25)]
+            self.assertEqual(factors, sorted(factors))
+            self.assertTrue(all(0 <= factor <= 2 for factor in factors))
 
     def test_equal_coverage_at_different_map_sizes(self):
         self.assertAlmostEqual(
-            habitat_factors([1000], 10000, 1.5, True)[1],
-            habitat_factors([4000], 40000, 1.5, True)[1],
+            habitat_factors([100], 10000, 0.15, False)[0],
+            habitat_factors([400], 40000, 0.15, False)[0],
         )
 
     def test_endotherms_require_more_water_at_equal_size(self):

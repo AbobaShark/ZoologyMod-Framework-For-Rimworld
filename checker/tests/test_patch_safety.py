@@ -304,6 +304,22 @@ class CombatExtendedBodyShapeSafetyTests(unittest.TestCase):
         self._assert_concrete_body_shape_upsert(patch, "CatA", "Quadruped")
         self._assert_concrete_body_shape_upsert(patch, "CatB", "Quadruped")
 
+    def test_ce_guard_uses_package_identity(self):
+        patch = self._generate_ce_block({"TestAnimal": "Quadruped"})
+        self.assertEqual(patch.get("Class"), "ZoologyMod.PatchOperation_FindCombatExtended")
+        for active, expected in [([], False), (["ceteam.combatextended"], True),
+                                 (["ceteam.combatextended_copy"], True)]:
+            with self.subTest(active=active):
+                root = LET.fromstring(b"""<Defs>
+                    <ThingDef Name="BaseTestAnimal" Abstract="True"/>
+                    <ThingDef><defName>TestAnimal</defName></ThingDef>
+                </Defs>""")
+                PatchApplier(active_mods=active, record_missing=False).apply_patch_root(patch, root)
+                self.assertEqual(bool(root.xpath(
+                    './ThingDef[defName="TestAnimal"]/modExtensions/'
+                    'li[@Class="CombatExtended.RacePropertiesExtensionCE"]/bodyShape'
+                )), expected)
+
     def test_missing_body_shape_fails_generation(self):
         with self.assertRaisesRegex(
             ValueError, "Combat Extended Body shape is required"
@@ -347,7 +363,7 @@ class CombatExtendedBodyShapeSafetyTests(unittest.TestCase):
         )
 
         PatchApplier(
-            active_mods=["Combat Extended"],
+            active_mods=["ceteam.combatextended"],
             record_missing=True,
         ).apply_patch_root(patch, runtime_root)
 

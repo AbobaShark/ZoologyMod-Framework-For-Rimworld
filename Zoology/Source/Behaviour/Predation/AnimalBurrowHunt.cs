@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using RimWorld;
 using Verse;
 using Verse.AI;
@@ -12,6 +13,40 @@ namespace ZoologyMod
     {
         [ThreadStatic] internal static Pawn EvaluatingOccupant;
 
+        // Resolve eligible diets from the installed egg definitions once.
+        // There is no map search for herbivores that cannot eat any eggs.
+        private static readonly Lazy<HashSet<ThingDef>> EggDefs = new Lazy<HashSet<ThingDef>>(() =>
+        {
+            var eggs = new HashSet<ThingDef>();
+            foreach (ThingDef race in DefDatabase<ThingDef>.AllDefsListForReading)
+            {
+                if (race.race?.Animal != true) continue;
+                var layer = race.GetCompProperties<CompProperties_EggLayer>();
+                if (layer?.eggFertilizedDef?.IsNutritionGivingIngestible == true)
+                    eggs.Add(layer.eggFertilizedDef);
+                if (layer?.eggUnfertilizedDef?.IsNutritionGivingIngestible == true)
+                    eggs.Add(layer.eggUnfertilizedDef);
+            }
+            return eggs;
+        });
+        private static readonly ConcurrentDictionary<ThingDef, bool> EggEatingRaces =
+            new ConcurrentDictionary<ThingDef, bool>();
+
+        private static bool EatsAnyEgg(ThingDef race)
+        {
+            foreach (ThingDef egg in EggDefs.Value)
+                if (race.race.CanEverEat(egg)) return true;
+            return false;
+        }
+
+        internal static bool CanRaidNests(Pawn pawn) =>
+            ModConstants.AdvancedReproduction && pawn?.RaceProps?.Animal == true
+            && (pawn.RaceProps.predator || EggEatingRaces.GetOrAdd(pawn.def, EatsAnyEgg));
+
+        internal static bool UsesUnifiedShelterFood(Pawn pawn) =>
+            PredatorFoodChoiceUtility.EnabledFor(pawn)
+            || (PredatorFoodChoiceUtility.FoodChoiceEnabled && CanRaidNests(pawn));
+
         // Digging a live prey animal out of a refuge remains a specialist
         // Burrower ability, independent of maternity denning.
         internal static bool CanDig(Pawn pawn) =>
@@ -19,15 +54,13 @@ namespace ZoologyMod
 
         // Excavating a grave requires sufficient strength/size and the ability
         // to move soil. Foxes fail the actual BodySize threshold; wolves do
-        // not have Burrower or bear-style winter denning.
+        // not have Burrower or winter shelter behavior.
         internal static bool CanExcavateGrave(Pawn pawn)
         {
             if (pawn?.Spawned != true || pawn.BodySize < 1f
                 || !Building_AnimalBurrow.CanConstructShelter(pawn))
                 return false;
-            WinterDormancyMode winter = AnimalWinterDormancy.For(pawn.def);
-            return CanDig(pawn) || winter == WinterDormancyMode.DENNING
-                || winter == WinterDormancyMode.MATERNITY_DENNING;
+            return CanDig(pawn) || AnimalWinterDormancy.For(pawn.def);
         }
 
         internal static bool Eligible(Pawn predator, Building_AnimalBurrow burrow)
@@ -61,8 +94,7 @@ namespace ZoologyMod
             if (predator?.Spawned != true || !predator.RaceProps.predator || predator.Downed
                 || !CanDig(predator)
                 || burrow?.Spawned != true || burrow.Map != predator.Map || burrow.IsForbidden(predator)
-                || prey == null || !burrow.Contains(prey) || prey.Dead || prey == predator
-                || burrow.ProtectedByMotherFrom(predator, prey)) return false;
+                || prey == null || !burrow.Contains(prey) || prey.Dead || prey == predator) return false;
             if (predator.Faction != null && (prey.Faction != null || prey.HostFaction != null)
                 && !predator.HostileTo(prey)) return false;
             return EvaluateHeldPrey(predator, prey);
@@ -122,7 +154,10 @@ namespace ZoologyMod
 
         internal static bool CanOpen(Pawn predator, Thing shelter, Thing food)
         {
-            return food != null && FindFood(predator, shelter) == food;
+            if (food == null) return false;
+            if (shelter is Building_AnimalNursery nursery)
+                return nursery.CanRaidTarget(predator, food);
+            return FindFood(predator, shelter) == food;
         }
 
         internal static int OpeningTicks(Thing shelter)
@@ -134,21 +169,21 @@ namespace ZoologyMod
             return Building_AnimalBurrow.Settings.digTicks;
         }
 
-        internal static void BeginOpening(Pawn predator, Thing shelter)
+        internal static void BeginOpening(Pawn predator, Thing shelter, Thing food = null)
         {
             if (shelter is Building_AnimalBurrow burrow)
             {
                 burrow.SetThreat(predator);
-                burrow.NotifyAttacked(predator);
+                burrow.NotifyAttacked(predator, food as Pawn);
             }
             else if (shelter is Building_AnimalNursery nursery)
-                nursery.NotifyAttacked(predator);
+                nursery.NotifyAttacked(predator, food);
         }
 
-        internal static void Open(Pawn predator, Thing shelter)
+        internal static void Open(Pawn predator, Thing shelter, Thing food = null)
         {
-            if (shelter is Building_AnimalBurrow burrow) burrow.Excavate(predator);
-            else if (shelter is Building_AnimalNursery nursery) nursery.OpenForPredator(predator);
+            if (shelter is Building_AnimalBurrow burrow) burrow.Excavate(predator, food as Pawn);
+            else if (shelter is Building_AnimalNursery nursery) nursery.OpenBy(predator, food);
             else if (shelter is Building_Grave grave
                 && grave is not Building_Sarcophagus && grave.GetType() == typeof(Building_Grave))
                 grave.EjectContents();
@@ -162,7 +197,7 @@ namespace ZoologyMod
             // For predators the food JobGiver compares shelters, map food,
             // live prey and fishing in a single decision. Do not preempt it
             // from Animal_PreMain, which has no common food score.
-            if (PredatorFoodChoiceUtility.EnabledFor(pawn))
+            if (AnimalBurrowHunt.UsesUnifiedShelterFood(pawn))
                 return null;
             return TryPlanFoodJob(pawn, out _);
         }
@@ -170,13 +205,15 @@ namespace ZoologyMod
         internal static Job TryPlanFoodJob(Pawn pawn, out float selectedScore)
         {
             selectedScore = float.NegativeInfinity;
-            bool unified = PredatorFoodChoiceUtility.EnabledFor(pawn);
+            bool unified = AnimalBurrowHunt.UsesUnifiedShelterFood(pawn);
             bool refugeEnabled = ModConstants.AdvancedThreatAvoidance;
             bool nestsEnabled = ModConstants.AdvancedReproduction;
             if (!refugeEnabled && !nestsEnabled) return null;
             if (pawn?.Spawned != true || pawn.Downed || pawn.InMentalState
                 || pawn.needs?.food?.CurLevelPercentage >= 0.3f
-                || (!pawn.RaceProps.predator && !AnimalBurrowHunt.CanDig(pawn))
+                || MammalBabyCache.ShouldUseBabyFoodRules(pawn)
+                || (!pawn.RaceProps.predator && !AnimalBurrowHunt.CanDig(pawn)
+                    && !AnimalBurrowHunt.CanRaidNests(pawn))
                 || ZoologyFleeSafetyUtility.IsPawnUnderMeleeAttack(pawn)
                 || PredatorPreyPairGameComponent.Instance?.GetPairedCorpse(pawn) != null)
                 return null;
@@ -201,6 +238,8 @@ namespace ZoologyMod
                     || !nestsEnabled && shelter is Building_AnimalNursery)
                     continue;
                 float distance = (shelter.Position - pawn.Position).LengthHorizontalSquared;
+                if (shelter is Building_AnimalNursery && !AnimalBurrowHunt.CanRaidNests(pawn))
+                    continue;
                 if (shelter is Building_Grave)
                 {
                     if (!AnimalBurrowHunt.CanExcavateGrave(pawn)) continue;
@@ -216,7 +255,7 @@ namespace ZoologyMod
                 }
                 Thing food = AnimalBurrowHunt.FindFood(pawn, shelter);
                 if (food == null) continue;
-                float rank = unified
+                float rank = unified || shelter is Building_AnimalNursery
                     ? PredatorFoodChoiceUtility.ScoreShelterFood(pawn, shelter, food)
                     : -distance;
                 if (rank <= bestRank)
@@ -258,7 +297,7 @@ namespace ZoologyMod
                 || !AnimalBurrowHunt.CanOpen(pawn, TargetA.Thing, TargetB.Thing));
             yield return Toils_Goto.GotoThing(TargetIndex.A, PathEndMode.Touch);
             yield return Toils_General.Do(() =>
-                AnimalBurrowHunt.BeginOpening(pawn, TargetA.Thing));
+                AnimalBurrowHunt.BeginOpening(pawn, TargetA.Thing, TargetB.Thing));
             Toil opening = Toils_General.Wait(
                     AnimalBurrowHunt.OpeningTicks(TargetA.Thing), TargetIndex.A)
                 .WithProgressBarToilDelay(TargetIndex.A)
@@ -269,13 +308,23 @@ namespace ZoologyMod
             opening.AddPreTickAction(() =>
             {
                 if (pawn.IsHashIntervalTick(60))
-                    AnimalBurrowHunt.BeginOpening(pawn, TargetA.Thing);
+                    AnimalBurrowHunt.BeginOpening(pawn, TargetA.Thing, TargetB.Thing);
             });
             yield return opening;
             yield return Toils_General.Do(() =>
             {
                 Thing food = TargetB.Thing;
-                AnimalBurrowHunt.Open(pawn, TargetA.Thing);
+                bool nest = TargetA.Thing is Building_AnimalNursery;
+                AnimalBurrowHunt.Open(pawn, TargetA.Thing, food);
+                if (nest && food is not Pawn && food?.Spawned == true
+                    && pawn.WillEat(food) && !food.IsForbidden(pawn))
+                {
+                    Job ingest = JobMaker.MakeJob(JobDefOf.Ingest, food);
+                    ThingDef foodDef = FoodUtility.GetFinalIngestibleDef(food);
+                    ingest.count = FoodUtility.WillIngestStackCountOf(pawn, foodDef,
+                        FoodUtility.GetNutrition(pawn, food, foodDef));
+                    pawn.jobs.jobQueue.EnqueueFirst(ingest);
+                }
                 if (food is Pawn prey && prey.Spawned && !prey.Dead
                     && FoodUtility.IsAcceptablePreyFor(pawn, prey))
                     pawn.jobs.jobQueue.EnqueueFirst(

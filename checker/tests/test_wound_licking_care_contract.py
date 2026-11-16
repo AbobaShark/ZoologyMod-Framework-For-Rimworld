@@ -41,6 +41,18 @@ class WoundLickingCareContracts(unittest.TestCase):
         self.assertIn("treeWoundLickFinishTick = 0;", tick)
         self.assertIn("AnimalWoundLickingUtility.TryApplyWoundLicking(pawn)", tick)
 
+    def test_burrow_treatment_uses_same_policy(self):
+        burrow = (BEHAVIOUR / "Flee/AnimalBurrow.cs").read_text(encoding="utf-8")
+        winter = (BEHAVIOUR / "Shared/AnimalWinterDormancy.cs").read_text(encoding="utf-8")
+        self.assertIn("ThingOwnerUtility.GetAnyParent<Building_AnimalBurrow>(pawn) == null", self.utility)
+        treatment = burrow.split("private static bool TickWoundLicking(Pawn pawn)", 1)[1].split(
+            "protected override void Tick()", 1)[0]
+        for token in ("CanUseWoundLicking", "TryApplyWoundLicking", "HasLickableWounds", "GetLickDurationTicks"):
+            self.assertIn("AnimalWoundLickingUtility." + token, treatment)
+        self.assertIn("!hungry && TickWoundLicking(pawn)", burrow)
+        self.assertIn("if (licking) continue;", burrow)
+        self.assertIn("pawn.health.hediffSet.BleedRateTotal <= 0f", winter)
+
     def test_only_treatable_external_bleeding_wounds_are_selected(self):
         self.assertIn("!hediff.Bleeding || !hediff.TendableNow()", self.utility)
         self.assertIn("IsSurfaceBodyPart(hediff.Part)", self.utility)

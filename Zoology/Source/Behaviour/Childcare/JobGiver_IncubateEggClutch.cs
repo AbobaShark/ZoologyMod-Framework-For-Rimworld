@@ -21,14 +21,17 @@ namespace ZoologyMod
                     return null;
                 }
 
-                Thing egg = ChildcareDefenseUtility.TryFindEggIncubationTarget(pawn);
-                if (egg == null)
+                Thing target = ChildcareDefenseUtility.TryFindEggIncubationTarget(pawn);
+                if (target == null)
                 {
                     return null;
                 }
 
                 JobDef jobDef = ChildcareDefenseUtility.GetEggIncubationJobDef();
-                return jobDef == null ? null : JobMaker.MakeJob(jobDef, egg);
+                if (jobDef == null) return null;
+                return target is Building_AnimalNursery
+                    ? JobMaker.MakeJob(jobDef, target, ChildcareDefenseUtility.GetIncubationEgg(target))
+                    : JobMaker.MakeJob(jobDef, target);
             }
             catch (Exception ex)
             {

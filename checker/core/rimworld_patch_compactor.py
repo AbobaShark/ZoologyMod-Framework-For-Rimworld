@@ -24,6 +24,7 @@ from typing import Iterable, Optional
 from lxml import etree as LET
 
 
+CE_PATCH_CLASS = "ZoologyMod.PatchOperation_FindCombatExtended"
 PATCH_PREFIX = "PatchOperation"
 DIRECT_CLASSES = {
     "PatchOperationAdd",
@@ -186,7 +187,7 @@ def _operation_class(node) -> str:
 
 
 def _is_patch_operation(node) -> bool:
-    return _operation_class(node).startswith(PATCH_PREFIX)
+    return _operation_class(node).startswith(PATCH_PREFIX) or _operation_class(node) == CE_PATCH_CLASS
 
 
 def patch_metrics(root, *, include_bytes=True) -> dict:
@@ -195,7 +196,7 @@ def patch_metrics(root, *, include_bytes=True) -> dict:
         "operations": len(operations),
         "xpaths": sum(1 for node in operations for child in node if child.tag == "xpath"),
         "conditionals": sum(1 for node in operations if node.get("Class") == "PatchOperationConditional"),
-        "findmods": sum(1 for node in operations if node.get("Class") == "PatchOperationFindMod"),
+        "findmods": sum(1 for node in operations if node.get("Class") in ("PatchOperationFindMod", CE_PATCH_CLASS)),
     }
     if include_bytes:
         metrics["bytes"] = len(LET.tostring(root, encoding="utf-8", pretty_print=False, with_tail=False))
@@ -296,7 +297,7 @@ class PatchCompactor:
             # first child that returns false, so even transformations that are
             # final-XML-equivalent can change runtime patch semantics.
             return
-        if cls in {"PatchOperationConditional", "PatchOperationFindMod"}:
+        if cls in {"PatchOperationConditional", "PatchOperationFindMod", CE_PATCH_CLASS}:
             for branch_name in ("match", "nomatch"):
                 branch = node.find(branch_name)
                 if branch is not None and _is_patch_operation(branch):

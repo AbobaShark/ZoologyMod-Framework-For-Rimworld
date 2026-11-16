@@ -64,6 +64,13 @@ namespace ZoologyMod
         private int sourceTick;
         public Pawn Hunter => hunter;
         public int SourceTick => sourceTick;
+        public override bool ShouldRemove => pawn?.Dead != true && base.ShouldRemove;
+
+        public override void PostTick()
+        {
+            if (pawn?.Dead != true) base.PostTick();
+        }
+
         public void RecordSource(DamageInfo? dinfo)
         {
             Pawn source = dinfo?.Instigator as Pawn;

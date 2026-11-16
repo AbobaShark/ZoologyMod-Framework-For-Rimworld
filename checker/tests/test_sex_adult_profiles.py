@@ -37,7 +37,7 @@ def inputs():
             "CalculationStatus": "READY",
             "GroupName": "Plantigrade carnivoran",
         })
-    return pd.DataFrame(profiles), sex, animals
+    return pd.DataFrame(profiles, dtype=object), sex, animals
 
 
 class SexAdultProfilesTests(unittest.TestCase):

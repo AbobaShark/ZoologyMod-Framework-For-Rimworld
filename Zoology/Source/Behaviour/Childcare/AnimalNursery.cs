@@ -18,7 +18,6 @@ namespace ZoologyMod
         private Pawn father;
         private Plant anchorTree;
         private OffspringShelterMode mode;
-        private int emptySince;
         private int canopySlot = -1;
 
         public Building_AnimalNursery()
@@ -26,11 +25,15 @@ namespace ZoologyMod
             young = new ThingOwner<Thing>(this, false, LookMode.Deep);
         }
 
-        public static ThingDef NurseryDef(OffspringShelterMode kind) =>
+        private const float LargeGroundNestBodySize = 0.5f;
+
+        public static ThingDef NurseryDef(OffspringShelterMode kind, Pawn builder = null) =>
             !AnimalOffspringShelter.IsNest(kind) ? null :
             DefDatabase<ThingDef>.GetNamedSilentFail(
                 AnimalOffspringShelter.IsTreeNest(kind)
-                    ? "Zoology_AnimalTreeNest" : "Zoology_AnimalGroundNest");
+                    ? "Zoology_AnimalTreeNest"
+                    : builder?.RaceProps?.baseBodySize >= LargeGroundNestBodySize
+                        ? "Zoology_AnimalGroundNestLarge" : "Zoology_AnimalGroundNest");
 
         // Render, selectable position and sway are defined in the presentation partial.
 
@@ -49,7 +52,6 @@ namespace ZoologyMod
             canopySlot = slot;
             mother = builder?.gender == Gender.Female ? builder : null;
             father = builder?.gender == Gender.Male ? builder : null;
-            emptySince = 0;
         }
 
         public bool TreeNest => AnimalOffspringShelter.IsTreeNest(mode);
@@ -83,35 +85,54 @@ namespace ZoologyMod
         public bool OwnedBy(Pawn adult) => adult != null && (adult == mother || adult == father);
         public bool Contains(Pawn baby) => baby != null && young.Contains(baby);
         // Evaluate sheltered prey without spawning or modifying their identity.
-        internal Thing FindFoodFor(Pawn predator)
+        internal bool CanRaidTarget(Pawn eater, Thing food)
         {
-            if (predator?.Spawned != true || predator.Map != Map || predator.Downed
-                || !predator.RaceProps.predator)
-                return null;
+            if (!PredatorCanOpen(eater) || eater.Downed || food == null || food.Destroyed)
+                return false;
+            if (food is Pawn chick)
+                return AnimalBurrowHunt.CanHuntNurseryYoung(eater, this, chick);
+            return food == this.TryGetComp<CompEggContainer>()?.ContainedThing
+                && food.def.IsNutritionGivingIngestible && eater.WillEat(food);
+        }
+
+        internal Thing FindFoodFor(Pawn eater)
+        {
+            if (!PredatorCanOpen(eater) || eater.Downed) return null;
+            Thing best = null;
+            float bestScore = float.NegativeInfinity;
             for (int i = 0; i < young.Count; i++)
-                if (young[i] is Pawn baby && !baby.Dead && !baby.Destroyed
-                    && AnimalBurrowHunt.CanHuntNurseryYoung(predator, this, baby))
-                    return baby;
+            {
+                if (young[i] is not Pawn chick || !CanRaidTarget(eater, chick)) continue;
+                float score = PredatorFoodChoiceUtility.ScoreShelterFood(eater, this, chick);
+                if (score > bestScore)
+                {
+                    bestScore = score;
+                    best = chick;
+                }
+            }
             Thing egg = this.TryGetComp<CompEggContainer>()?.ContainedThing;
-            return egg != null && predator.WillEat(egg) ? egg : null;
+            if (CanRaidTarget(eater, egg)
+                && PredatorFoodChoiceUtility.ScoreShelterFood(eater, this, egg) > bestScore)
+                best = egg;
+            return best;
         }
 
         // A tree nest's technical ground cell is not a route to its contents.
         internal bool PredatorCanOpen(Pawn predator)
         {
             if (predator?.Spawned != true || predator.Map != Map || !Spawned
-                || this.IsForbidden(predator)) return false;
+                || !predator.RaceProps.Animal || this.IsForbidden(predator)) return false;
             if (TreeNest)
                 return anchorTree?.Spawned == true
-                    && (AnimalDefense.CanClimbTree(predator, anchorTree)
-                        || predator.flight?.CanFlyNow == true);
+                    && predator.RaceProps.Animal
+                    && AnimalDefense.CanClimbTree(predator, anchorTree);
             return Nest;
         }
 
-        internal void OpenForPredator(Pawn attacker)
+        internal void OpenBy(Pawn attacker, Thing food = null)
         {
             if (!Spawned) return;
-            NotifyAttacked(attacker);
+            NotifyAttacked(attacker, food);
             Destroy();
         }
 
@@ -137,12 +158,55 @@ namespace ZoologyMod
             if (state != null) state.nursery = this;
         }
 
+        private bool ActiveClaim(Pawn parent)
+        {
+            return parent != null && !parent.Dead && !parent.Destroyed
+                && parent.MapHeld == Map
+                && parent.TryGetComp<CompAnimalStrategyState>()?.nursery == this
+                && AnimalNestEggUtility.ReadyToPrepareNest(parent);
+        }
+
+        internal bool CanReuseFor(Pawn layer, OffspringShelterMode requested)
+        {
+            ThingDef required = NurseryDef(requested, layer);
+            if (!Spawned || Map != layer.Map || required == null
+                || TreeNest != AnimalOffspringShelter.IsTreeNest(requested)
+                || def.size.x < required.size.x || def.size.z < required.size.z
+                || this.IsBurning()
+                || (TreeNest && (anchorTree?.Spawned != true || anchorTree.IsBurning())))
+                return false;
+            if (HasProtectedContents && mode != requested) return false;
+            if (!OwnedBy(layer) && (HasProtectedContents || ActiveClaim(mother) || ActiveClaim(father)))
+                return false;
+            return this.TryGetComp<CompEggContainer>() is CompEggContainer eggs
+                && layer.TryGetComp<CompEggLayer>() is CompEggLayer eggLayer
+                && eggs.Accepts(eggLayer.NextEggType());
+        }
+
+        internal void ClaimFor(Pawn layer)
+        {
+            if (!OwnedBy(layer))
+            {
+                if (mother?.TryGetComp<CompAnimalStrategyState>() is CompAnimalStrategyState previous
+                    && previous.nursery == this)
+                    previous.nursery = null;
+                if (father?.TryGetComp<CompAnimalStrategyState>() is CompAnimalStrategyState previousFather
+                    && previousFather.nursery == this)
+                    previousFather.nursery = null;
+                mother = null;
+                father = null;
+                mode = AnimalOffspringShelter.For(layer.def);
+                if (def.CanHaveFaction && Faction != layer.Faction)
+                    SetFaction(layer.Faction);
+            }
+            AssignParent(layer);
+        }
+
         public bool CanReceiveEgg(Pawn layer)
         {
             return Nest && Spawned && OwnedBy(layer)
                 && this.TryGetComp<CompEggContainer>() is CompEggContainer eggs
                 && layer?.TryGetComp<CompEggLayer>() is CompEggLayer eggLayer
-                && CompAnimalNestEggContainer.IsFertilizedEgg(eggLayer.NextEggType())
                 && eggs.Accepts(eggLayer.NextEggType());
         }
 
@@ -175,7 +239,6 @@ namespace ZoologyMod
             if (young.TryAdd(baby, false))
             {
                 baby.Drawer?.renderer?.SetAnimation(null);
-                emptySince = 0;
                 return true;
             }
             if (originalMap != null && baby.holdingOwner == null && !baby.Spawned)
@@ -199,7 +262,6 @@ namespace ZoologyMod
 
             if (carrier.carryTracker.innerContainer.TryTransferToContainer(baby, young, 1) <= 0)
                 return false;
-            emptySince = 0;
             return true;
         }
 
@@ -261,7 +323,6 @@ namespace ZoologyMod
             Scribe_References.Look(ref father, "zoologyNurseryFather");
             Scribe_References.Look(ref anchorTree, "zoologyNurseryTree");
             Scribe_Values.Look(ref mode, "zoologyNurseryMode", OffspringShelterMode.GROUND_NEST_PRECOCIAL);
-            Scribe_Values.Look(ref emptySince, "zoologyNurseryEmptySince");
             Scribe_Values.Look(ref canopySlot, "zoologyNurseryCanopySlot", -1);
             if (Scribe.mode == LoadSaveMode.PostLoadInit)
                 young ??= new ThingOwner<Thing>(this, false, LookMode.Deep);
@@ -297,22 +358,17 @@ namespace ZoologyMod
                     || !AnimalLifeStageUtility.IsAnimalInfantLifeStage(baby.ageTracker?.CurLifeStage))
                     Release(baby);
             }
-            if (!this.IsHashIntervalTick(2500)) return;
-            if (HasProtectedContents)
-            {
-                emptySince = 0;
-                return;
-            }
-            if (emptySince == 0) emptySince = GenTicks.TicksGame;
-            if (GenTicks.TicksGame - emptySince >= 5000)
-            {
-                if (HitPoints > 1) HitPoints--; else Destroy();
-            }
+            if (!this.IsHashIntervalTick(2000) || HasProtectedContents) return;
+            if (HitPoints > 1) HitPoints--; else Destroy();
         }
 
         private bool Release(Pawn baby)
         {
             if (baby == null || !young.Contains(baby)) return false;
+            ChildcareUtility.RegisterObservedMother(baby, mother);
+            if (baby.TryGetComp<CompAnimalStrategyState>() is CompAnimalStrategyState state
+                && state.offspringProtectionFather == null)
+                state.offspringProtectionFather = father;
             if (Spawned && young.TryDrop(baby, Position, Map, ThingPlaceMode.Near, out _))
                 return true;
             return false;
@@ -352,6 +408,8 @@ namespace ZoologyMod
         public override IEnumerable<Gizmo> GetGizmos()
         {
             foreach (Gizmo gizmo in base.GetGizmos()) yield return gizmo;
+            if (Spawned && !TreeNest)
+                yield return AnimalRefugeOpening.Command(this);
             if (TreeNest && anchorTree?.Spawned == true && anchorTree.Map == Map)
             {
                 Gizmo treeSelection = AnimalTreeSelection.SelectTree(anchorTree);
@@ -366,30 +424,35 @@ namespace ZoologyMod
         }
 
         // A real attack event is sufficient; no per-pawn enemy search.
-        public void NotifyAttacked(Pawn attacker)
+        public void NotifyAttacked(Pawn attacker, Thing food = null)
         {
-            if (attacker?.Spawned != true || attacker.Dead || !HasProtectedContents)
+            if (attacker?.Spawned != true || attacker.Dead || attacker.Map != Map || !Spawned || !HasProtectedContents)
                 return;
-            Thing protectedThing = null;
-            for (int i = 0; i < young.Count; i++)
-                if (young[i] is Pawn baby && !baby.Dead && !baby.Destroyed)
-                {
-                    protectedThing = baby;
-                    break;
-                }
-            protectedThing ??= this.TryGetComp<CompEggContainer>()?.ContainedThing;
+            Thing egg = this.TryGetComp<CompEggContainer>()?.ContainedThing;
+            Thing protectedThing = food is Pawn chick && Contains(chick) && !chick.Dead
+                ? chick : food == egg && ChildcareDefenseUtility.CouldBeFertilizedEggFoodSource(egg)
+                    ? egg : null;
+            if (protectedThing == null && food != null) return;
+            if (protectedThing == null)
+            {
+                for (int i = 0; i < young.Count; i++)
+                    if (young[i] is Pawn baby && !baby.Dead && !baby.Destroyed)
+                    {
+                        protectedThing = baby;
+                        break;
+                    }
+                protectedThing ??= egg;
+            }
             if (protectedThing == null) return;
-            Pawn first = CanRespond(mother, attacker) ? mother : null;
-            Pawn second = CanRespond(father, attacker) ? father : null;
-            ChildcareDefenseUtility.TryOrderProtection(first, attacker, protectedThing, second);
+            if (protectedThing is Pawn child)
+            {
+                ChildcareUtility.TryGetBiologicalMother(child, out Pawn biologicalMother);
+                ChildcareDefenseUtility.TryOrderProtection(biologicalMother ?? mother, attacker, child);
+            }
+            else
+                ChildcareDefenseUtility.TryTriggerEggProtection(attacker, protectedThing);
         }
 
-        private bool CanRespond(Pawn adult, Pawn attacker)
-        {
-            return adult?.Spawned == true && adult.Map == Map && !adult.Downed
-                && !adult.InMentalState && adult != attacker
-                && adult.Position.InHorDistOf(Position, 30f);
-        }
     }
 
 
@@ -404,15 +467,41 @@ namespace ZoologyMod
         internal static bool ReadyToPrepareNest(Pawn pawn)
         {
             CompEggLayer layer = pawn?.TryGetComp<CompEggLayer>();
-            // Building a nest is a parental behaviour, not a test of egg
-            // fertility. An unfertilized egg must be laid outside the nest,
-            // but its mother can still prepare a nest for a later clutch.
             if (layer == null || pawn.gender != Gender.Female)
                 return false;
             if (layer.CanLayNow)
                 return true;
             return EggProgressField != null
                 && (float)EggProgressField.GetValue(layer) >= 0.9f;
+        }
+
+        internal static Building_AnimalNursery FindReusableNest(Pawn pawn, OffspringShelterMode mode)
+        {
+            var index = pawn?.Map?.GetComponent<AnimalRefugeMapComponent>();
+            if (index == null) return null;
+            bool Available(Building_AnimalNursery nest) =>
+                nest != null && nest.CanReuseFor(pawn, mode) && !nest.IsForbidden(pawn)
+                && pawn.CanReserveAndReach(nest,
+                    nest.TreeNest ? PathEndMode.Touch : PathEndMode.OnCell, Danger.Some);
+            var known = pawn.TryGetComp<CompAnimalStrategyState>()?.nursery;
+            if (known?.OwnedBy(pawn) == true && Available(known)) return known;
+
+            Building_AnimalNursery best = null;
+            float distance = float.MaxValue;
+            bool own = false;
+            foreach (Building_AnimalNursery nest in index.Nurseries)
+            {
+                if (nest == null) continue;
+                bool owned = nest.OwnedBy(pawn);
+                float d = (nest.Position - pawn.Position).LengthHorizontalSquared;
+                if (best != null && (own && !owned || own == owned && d >= distance))
+                    continue;
+                if (!Available(nest)) continue;
+                best = nest;
+                distance = d;
+                own = owned;
+            }
+            return best;
         }
 
         internal static bool HasUsableEggBox(Pawn pawn)
@@ -426,7 +515,6 @@ namespace ZoologyMod
             // ThingDef-indexed lookup, not a search of all map buildings.
             foreach (Thing box in pawn.Map.listerThings.ThingsOfDef(ThingDefOf.EggBox))
                 if (box.Spawned && !box.IsForbidden(pawn)
-                    && pawn.Position.InHorDistOf(box.Position, 30f)
                     && pawn.CanReserve(box)
                     && box.TryGetComp<CompEggContainer>()?.Accepts(eggDef) == true
                     && pawn.CanReach(box, PathEndMode.OnCell, Danger.Some))
@@ -471,7 +559,7 @@ namespace ZoologyMod
 
             foreach (IntVec3 cell in GenRadial.RadialCellsAround(pawn.Position, 6f, true))
                 if (cell.InBounds(pawn.Map) && cell.Standable(pawn.Map)
-                    && index.NurserySiteAvailable(cell, pawn) && !cell.IsForbidden(pawn)
+                    && index.GroundNurserySiteAvailable(cell, pawn) && !cell.IsForbidden(pawn)
                     && pawn.CanReach(cell, PathEndMode.OnCell, Danger.Some))
                 {
                     result = cell;
@@ -491,47 +579,11 @@ namespace ZoologyMod
         private static Job TryFamilyBurrow(Pawn mother, CompAnimalStrategyState state,
             AnimalRefugeMapComponent index)
         {
-            bool hasDependentChild = false;
-            if (mother.relations != null)
-                foreach (Pawn child in mother.relations.Children)
-                    if (child != null && !child.Dead && child.def == mother.def
-                        && child.MapHeld == mother.Map
-                        && AnimalLifeStageUtility.IsAnimalInfantLifeStage(
-                            child.ageTracker?.CurLifeStage))
-                    {
-                        hasDependentChild = true;
-                        break;
-                    }
-            if (!hasDependentChild) return null;
+            if (!Building_AnimalBurrow.NeedsFamilyBurrow(mother)) return null;
 
-            Building_AnimalBurrow den = state.familyBurrow;
-            if (den?.Spawned != true || den.Map != mother.Map
-                || !den.CanHouseFamily(mother))
-                den = null;
-
-            if (den == null)
-            {
-                // A free, compatible burrow is better than excavating an
-                // additional family structure. The index is spatially bounded.
-                int pathCandidates = 0;
-                foreach (Thing refuge in index.Nearby(mother.Position, 24))
-                {
-                    if (refuge is not Building_AnimalBurrow candidate
-                        || candidate.IsForbidden(mother)
-                        || !candidate.CanHouseFamily(mother))
-                        continue;
-                    if (++pathCandidates > ZoologyTickLimiter.Refuges.MaxPathCandidates)
-                        break;
-                    if (mother.CanReserveAndReach(candidate, PathEndMode.Touch,
-                            Danger.Some, int.MaxValue, 0)
-                        && candidate.TryAssignFamily(mother))
-                    {
-                        den = candidate;
-                        break;
-                    }
-                }
-                state.familyBurrow = den;
-            }
+            Building_AnimalBurrow den = index.FindReusableBurrow(
+                mother, state, true, Danger.Some);
+            state.familyBurrow = den;
             if (den != null)
             {
                 if (!den.TryAssignFamily(mother)) return null;
@@ -604,8 +656,15 @@ namespace ZoologyMod
             }
 
             if (!AnimalNestEggUtility.ReadyToPrepareNest(pawn)
-                || AnimalNestEggUtility.HasUsableEggBox(pawn)
-                || !FindLocation(pawn, mode, out IntVec3 cell, out Plant tree))
+                || AnimalNestEggUtility.HasUsableEggBox(pawn))
+                return null;
+            Building_AnimalNursery reusable = AnimalNestEggUtility.FindReusableNest(pawn, mode);
+            if (reusable != null)
+            {
+                reusable.ClaimFor(pawn);
+                return null;
+            }
+            if (!FindLocation(pawn, mode, out IntVec3 cell, out Plant tree))
                 return null;
             if (!index.TryClaimNurserySite(tree, pawn, cell, out _)) return null;
             JobDef def = DefDatabase<JobDef>.GetNamed("Zoology_BuildAnimalNursery");
@@ -622,9 +681,14 @@ namespace ZoologyMod
             Plant tree = TargetB.Thing as Plant;
             if (index == null || !index.TryClaimNurserySite(tree, pawn, TargetA.Cell, out _))
                 return false;
-            if (pawn.Reserve(TargetA, job, 1, -1, null, errorOnFailed)) return true;
-            index.ReleaseNurserySite(TargetA.Cell, pawn);
-            return false;
+            foreach (IntVec3 part in AnimalRefugeMapComponent.NurseryFootprint(
+                TargetA.Cell, pawn, tree).Cells)
+                if (!pawn.Reserve(new LocalTargetInfo(part), job, 1, -1, null, errorOnFailed))
+                {
+                    index.ReleaseNurserySite(TargetA.Cell, pawn);
+                    return false;
+                }
+            return true;
         }
 
         protected override IEnumerable<Toil> MakeNewToils()
@@ -649,10 +713,17 @@ namespace ZoologyMod
                 if (AnimalOffspringShelter.IsTreeNest(mode)
                     && (tree == null || !tree.Spawned || tree.IsBurning()))
                     return;
+                if (AnimalNestEggUtility.HasUsableEggBox(pawn)) return;
+                Building_AnimalNursery reusable = AnimalNestEggUtility.FindReusableNest(pawn, mode);
+                if (reusable != null)
+                {
+                    reusable.ClaimFor(pawn);
+                    return;
+                }
                 var index = Map.GetComponent<AnimalRefugeMapComponent>();
                 if (!index.TryClaimNurserySite(tree, pawn, TargetA.Cell, out int slot))
                     return;
-                ThingDef nurseryDef = Building_AnimalNursery.NurseryDef(mode);
+                ThingDef nurseryDef = Building_AnimalNursery.NurseryDef(mode, pawn);
                 if (nurseryDef == null) return;
                 var nursery = (Building_AnimalNursery)ThingMaker.MakeThing(nurseryDef);
                 nursery.Initialize(pawn, mode, tree, slot);
@@ -751,25 +822,15 @@ namespace ZoologyMod
             }
             if (!AnimalOffspringShelter.IsNest(mode))
                 return true;
-            // Unfertilized eggs are laid by vanilla outside natural nests.
-            // Neither a nest build job nor an egg-box nest diversion may
-            // insert them into the protected hatching container.
-            if (!CompAnimalNestEggContainer.IsFertilizedEgg(
-                    pawn.TryGetComp<CompEggLayer>()?.NextEggType()))
-                return true;
-
             // Colonist-owned birds use a suitable, available egg box first.
             // A nest is preferred, not mandatory: a fully developed egg
             // must be laid outdoors if no suitable nest can be built.
             if (AnimalNestEggUtility.HasUsableEggBox(pawn))
                 return true;
-            Building_AnimalNursery nursery =
-                pawn.TryGetComp<CompAnimalStrategyState>()?.nursery;
-            if (nursery?.CanReceiveEgg(pawn) == true
-                && pawn.CanReserveAndReach(nursery,
-                    nursery.TreeNest ? PathEndMode.Touch : PathEndMode.OnCell,
-                    Danger.Some))
+            Building_AnimalNursery nursery = AnimalNestEggUtility.FindReusableNest(pawn, mode);
+            if (nursery != null)
             {
+                nursery.ClaimFor(pawn);
                 // Vanilla LayEgg always walks OnCell, which is invalid for
                 // the tree's footprint. Use a Touch-based driver only there.
                 JobDef layDef = nursery.TreeNest
@@ -846,12 +907,13 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(Thing), nameof(Thing.TakeDamage))]
     internal static class Patch_NurseryAttackDefense
     {
-        private static void Postfix(Thing __instance, DamageInfo dinfo)
+        private static void Prefix(Thing __instance, DamageInfo dinfo)
         {
+            if (dinfo.Amount <= 0f || dinfo.Instigator is not Pawn attacker) return;
             if (__instance is Building_AnimalNursery nursery)
-                nursery.NotifyAttacked(dinfo.Instigator as Pawn);
+                nursery.NotifyAttacked(attacker);
             else if (__instance is Building_AnimalBurrow burrow)
-                burrow.NotifyAttacked(dinfo.Instigator as Pawn);
+                burrow.NotifyAttacked(attacker);
         }
     }
 }

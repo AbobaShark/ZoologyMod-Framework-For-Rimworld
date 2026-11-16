@@ -8,6 +8,7 @@ import csv
 from core.animal_venom_policy import is_platypus_spur
 import core.checker_config as checker_config
 from core.venom_profiles import VenomCatalog
+from core.seasonal_reproduction import seasonal_fields, dormancy_fields, native_reproduction
 import pandas as pd
 from lxml import etree as LET
 from collections import defaultdict
@@ -19,6 +20,7 @@ import tempfile
 from collections import OrderedDict
 from core.rimworld_original_xml import OriginalXmlIndex
 from core.rimworld_patch_optimizer import PatchOptimizer
+from core.rimworld_patch_apply import CE_PATCH_CLASS
 from core.rimworld_patch_compactor import compact_files
 from core.animalstats_source import (
     is_google_sheet_source,
@@ -203,6 +205,7 @@ COLUMN_ALIASES = {
     'Venom sample producer': ['Venom sample producer'],
     'OffspringShelter': ['OffspringShelter'],
     'WinterDormancy': ['WinterDormancy'],
+    'Mating season': ['Mating season'],
 }
 
 # New extensions intentionally live on concrete ThingDefs only. Sharing one on
@@ -215,11 +218,11 @@ CONCRETE_MOD_EXTENSIONS = {
     'Venom sample producer': 'ZoologyMod.ModExtension_VenomSample, ZoologyMod',
     'OffspringShelter': 'ZoologyMod.ModExtension_OffspringShelter, ZoologyMod',
     'WinterDormancy': 'ZoologyMod.ModExtension_WinterDormancy, ZoologyMod',
+    'Mating season': 'ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod',
 }
 PREDATION_STRATEGIES = {'chasing': 'Chasing', 'waterambush': 'WaterAmbush', 'ambush': 'Ambush'}
 ANIMAL_BEHAVIOR_MODES = {
     'OffspringShelter': frozenset(('POUCH', 'DEN', 'GROUND_NEST_ALTRICIAL', 'TREE_NEST_ALTRICIAL', 'GROUND_NEST_PRECOCIAL', 'TREE_NEST_PRECOCIAL', 'AQUATIC_CLUTCH')),
-    'WinterDormancy': frozenset(('HIBERNATION', 'WINTER_REST', 'DENNING', 'MATERNITY_DENNING')),
 }
 
 
@@ -1510,6 +1513,8 @@ class PatchGenerator:
                 if self._is_use_meat_from_col(col):
                     v = self._normalize_use_meat_from_value(v)
                 vals.append(norm(v))
+            if any(native_reproduction(v) for v in vals):
+                continue
             vals_non_empty = [v for v in vals if v != '']
             if len(vals_non_empty) == 0:
                 continue
@@ -2181,6 +2186,8 @@ class PatchGenerator:
                     if self._is_use_meat_from_col(col):
                         v = self._normalize_use_meat_from_value(v)
                     vals.append(norm(v))
+                if any(native_reproduction(v) for v in vals):
+                    continue
                 vals_non_empty = [v for v in vals if v != '']
                 if len(vals_non_empty) == 0:
                     continue
@@ -2580,7 +2587,16 @@ class PatchGenerator:
             value = '' if raw is None else str(raw).strip()
             strategy = None
             mode = None
-            if col in ANIMAL_BEHAVIOR_MODES:
+            fields = {}
+            if col == 'Mating season':
+                fields = seasonal_fields(row)
+                if not fields:
+                    continue
+            elif col == 'WinterDormancy':
+                fields = dormancy_fields(row)
+                if not fields:
+                    continue
+            elif col in ANIMAL_BEHAVIOR_MODES:
                 if value.lower() in ('', 'no', 'none', 'nan'):
                     continue
                 mode = value.upper()
@@ -2606,6 +2622,8 @@ class PatchGenerator:
                 LET.SubElement(li, 'strategy').text = strategy
             if mode is not None:
                 LET.SubElement(li, 'mode').text = mode
+            for key, val in fields.items():
+                LET.SubElement(li, key).text = str(val)
             if col == 'Venom sample producer':
                 sample = row.get('_ZoologyVenomSample')
                 if not sample:
@@ -2782,6 +2800,9 @@ class PatchGenerator:
 
             # compute XML-safe field name (lowerCamelCase)
             xml_tag = tag if tag and tag[0].islower() else (tag[0].lower() + tag[1:] if tag else tag)
+
+            if xml_tag == 'gestationPeriodDays' and native_reproduction(get_row_value(row, col)):
+                continue
 
             # If parent_common_map states that parent owns this field -> child must remove it (safety).
             if parent and parent_common_map and parent in parent_common_map:
@@ -2984,7 +3005,7 @@ class PatchGenerator:
 
         # litterSizeCurve
         litter = get_row_value(row, 'Litter size')
-        if litter is not None and str(litter).strip() != '':
+        if litter is not None and str(litter).strip() != '' and not native_reproduction(litter):
             # if parent has same value -> skip
             skip_litter = False
             if parent and parent_common_map and parent in parent_common_map:
@@ -3996,9 +4017,7 @@ class PatchGenerator:
         child_tools_remove = set()
         child_comp_remove = set()
         # build CE operation block
-        ce_op = LET.Element("Operation", Class="PatchOperationFindMod")
-        mods = LET.SubElement(ce_op, "mods")
-        LET.SubElement(mods, "li").text = "Combat Extended"
+        ce_op = LET.Element("Operation", Class=CE_PATCH_CLASS)
         match = LET.SubElement(ce_op, "match", Class="PatchOperationSequence")
         operations = LET.SubElement(match, "operations")
 

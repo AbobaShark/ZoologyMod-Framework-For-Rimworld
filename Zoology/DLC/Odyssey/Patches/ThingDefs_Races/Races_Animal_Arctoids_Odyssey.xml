@@ -133,7 +133,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "Panda"]/race/gestationPeriodDays</xpath>
     <value>
-      <gestationPeriodDays>8</gestationPeriodDays>
+      <gestationPeriodDays>7.4</gestationPeriodDays>
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
@@ -429,6 +429,25 @@
       <xpath>/Defs/ThingDef[defName = "Panda"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
     </match>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Panda"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Panda"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "Panda"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod">
+        <matingSeasonMask>1</matingSeasonMask>
+        <embryonicDiapauseTicks>888000</embryonicDiapauseTicks>
+        <captiveGestationDays>6</captiveGestationDays>
+        <captiveDiapauseDays>2</captiveDiapauseDays>
+        <captiveRealDiapauseDays>14.8</captiveRealDiapauseDays>
+        <realisticLitterMean>1.5</realisticLitterMean>
+      </li>
+    </value>
+  </Operation>
   <!-- Panda PawnKindDef -->
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "Panda"]/combatPower</xpath>
@@ -470,10 +489,7 @@
     </match>
   </Operation>
   <!-- Combat Extended specific patches -->
-  <Operation Class="PatchOperationFindMod">
-    <mods>
-      <li>Combat Extended</li>
-    </mods>
+  <Operation Class="ZoologyMod.PatchOperation_FindCombatExtended">
     <match Class="PatchOperationSequence">
       <operations>
         <!-- Panda CE patches -->

@@ -6,6 +6,9 @@ from lxml import etree as LET
 from core.indexed_xpath import indexed_xpath, before_mutation
 
 
+CE_PATCH_CLASS = "ZoologyMod.PatchOperation_FindCombatExtended"
+CE_MOD_IDENTIFIERS = frozenset({"combat extended", "ceteam.combatextended", "ceteam.combatextended_copy"})
+
 DIRECT_PATCH_CLASSES = {
     "PatchOperationAdd",
     "PatchOperationAddModExtension",
@@ -59,7 +62,7 @@ class PatchApplier:
         if cls == "PatchOperationConditional":
             return self._apply_conditional(node, sim_root, source_path)
 
-        if cls == "PatchOperationFindMod":
+        if cls in ("PatchOperationFindMod", CE_PATCH_CLASS):
             return self._apply_find_mod(node, sim_root, source_path)
 
         if cls in DIRECT_PATCH_CLASSES:
@@ -122,6 +125,8 @@ class PatchApplier:
     def _find_mod_matches(self, node):
         if self.active_mods is None:
             return bool(self.apply_find_mod_match)
+        if node.get("Class") == CE_PATCH_CLASS:
+            return bool(CE_MOD_IDENTIFIERS & self.active_mods)
         mods = node.find("mods")
         if mods is None:
             return False

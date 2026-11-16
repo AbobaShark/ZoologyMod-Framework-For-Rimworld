@@ -50,7 +50,8 @@ class TreeNestLayingContracts(unittest.TestCase):
         src = NURSERY.read_text(encoding="utf-8")
         lay = src.split("internal static class Patch_LayEgg_UseAnimalNursery", 1)[1].split(
             "public sealed class JobDriver_LayEggInTreeNest", 1)[0]
-        self.assertIn("nursery.TreeNest ? PathEndMode.Touch : PathEndMode.OnCell", lay)
+        self.assertIn("nest.TreeNest ? PathEndMode.Touch : PathEndMode.OnCell", src)
+        self.assertIn("AnimalNestEggUtility.FindReusableNest(pawn, mode)", lay)
         self.assertIn('"Zoology_LayEggInTreeNest"', lay)
         import re
         code = re.sub(r"//[^\n]*", "", lay)
@@ -65,11 +66,63 @@ class TreeNestLayingContracts(unittest.TestCase):
         self.assertIn("layer.CanLayNow", ready)
         self.assertNotIn("IsFertilizedEgg(", ready)
         self.assertIn("pawn.gender != Gender.Female", ready)
+
+    def test_nests_use_standard_egg_acceptance_for_both_egg_types(self):
         eggs = EGGS.read_text(encoding="utf-8")
-        self.assertIn("eggDef.GetCompProperties<CompProperties_Hatcher>() != null", eggs)
-        self.assertIn("IsFertilizedEgg(thingDef) && base.Accepts(thingDef)", eggs)
-        self.assertIn("CompAnimalNestEggContainer.IsFertilizedEgg(", src)
-        self.assertIn("nursery?.CanReceiveEgg(pawn) == true", src)
+        self.assertIn("class CompAnimalNestEggContainer : CompEggContainer", eggs)
+        self.assertNotIn("override bool Accepts(", eggs)
+        self.assertNotIn("IsFertilizedEgg(", eggs)
+
+        src = NURSERY.read_text(encoding="utf-8")
+        receive = src.split("public bool CanReceiveEgg(", 1)[1].split(
+            "public bool TryReceiveBaby(", 1)[0]
+        self.assertIn("Nest && Spawned && OwnedBy(layer)", receive)
+        self.assertIn("eggs.Accepts(eggLayer.NextEggType())", receive)
+        self.assertNotIn("IsFertilizedEgg(", receive)
+        self.assertNotIn("CompHatcher", receive)
+
+        lay = src.split("internal static class Patch_LayEgg_UseAnimalNursery", 1)[1].split(
+            "public sealed class JobDriver_LayEggInTreeNest", 1)[0]
+        self.assertNotIn("IsFertilizedEgg(", lay)
+        self.assertNotIn("NextEggType()", lay)
+        self.assertIn("AnimalNestEggUtility.FindReusableNest(pawn, mode)", lay)
+        self.assertIn("nursery.ClaimFor(pawn);", lay)
+        self.assertIn(": JobDefOf.LayEgg;", lay)
+        self.assertIn("__result = JobMaker.MakeJob(layDef, nursery);", lay)
+
+        nests = ET.parse(ROOT / "Zoology/Core/Defs/ThingDefs/AnimalNursery.xml").getroot()
+        nodes = {node.get("Name"): node for node in nests.findall("ThingDef") if node.get("Name")}
+        def inherited(node, path):
+            value = node.findtext(path)
+            if value is not None:
+                return value
+            parent = nodes.get(node.get("ParentName"))
+            return inherited(parent, path) if parent is not None else None
+        for nest in nests.findall("ThingDef"):
+            if nest.find("defName") is not None:
+                self.assertEqual(inherited(nest, "comps/li/compClass"),
+                                 "ZoologyMod.CompAnimalNestEggContainer, ZoologyMod")
+
+    def test_large_ground_nest_reserves_entire_footprint(self):
+        src = NURSERY.read_text(encoding="utf-8")
+        canopy = CANOPY.read_text(encoding="utf-8")
+        self.assertIn("builder?.RaceProps?.baseBodySize >= LargeGroundNestBodySize", src)
+        self.assertIn("NurseryDef(mode, pawn)", src)
+        self.assertIn("GroundNurserySiteAvailable(cell, pawn)", src)
+        self.assertIn("foreach (IntVec3 part in AnimalRefugeMapComponent.NurseryFootprint(", src)
+        self.assertIn("pawn.Reserve(new LocalTargetInfo(part)", src)
+        self.assertIn("GenAdj.OccupiedRect(cell, Rot4.North,", canopy)
+        self.assertIn("foreach (IntVec3 part in footprint.Cells)", canopy)
+        self.assertIn("foreach (IntVec3 part in claim.footprint.Cells)", canopy)
+        self.assertIn("IsNestBuildJob(p, claim.tree, claim.anchor)", canopy)
+        defs = ET.parse(ROOT / "Zoology/Core/Defs/ThingDefs/AnimalNursery.xml").getroot()
+        nests = {node.findtext("defName"): node for node in defs.findall("ThingDef")
+                 if node.find("defName") is not None}
+        small = nests["Zoology_AnimalGroundNest"]
+        large = nests["Zoology_AnimalGroundNestLarge"]
+        self.assertEqual(small.attrib["ParentName"], large.attrib["ParentName"])
+        self.assertEqual(small.findtext("size"), "(1,1)")
+        self.assertEqual(large.findtext("size"), "(2,2)")
 
 
 if __name__ == "__main__":

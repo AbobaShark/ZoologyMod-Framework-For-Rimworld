@@ -35,7 +35,7 @@ def fixtures():
         "MaleMean_kg": 3, "FemaleMean_kg": 3,
         "MaleMeanBodySize": 0.2, "FemaleMeanBodySize": 0.2,
     })
-    return pd.DataFrame([polar, fox]), animals, base
+    return pd.DataFrame([polar, fox], dtype=object), animals, base
 
 
 class SexDimorphismContractTests(unittest.TestCase):

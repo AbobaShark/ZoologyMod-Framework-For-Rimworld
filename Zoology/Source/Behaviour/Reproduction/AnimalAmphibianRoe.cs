@@ -61,6 +61,7 @@ namespace ZoologyMod
                 || parent?.Spawned != true || male?.Spawned != true
                 || male.Map != parent.Map || male.Dead || male.Downed
                 || male.gender != Gender.Male || male.Sterile()
+                || !AnimalSeasonalReproduction.AllowsMating(male)
                 || male.def != Props.parentRace
                 || !parent.Position.GetTerrain(parent.Map).IsWater
                 || parent.IsForbidden(male))
@@ -116,7 +117,9 @@ namespace ZoologyMod
                 || !ModConstants.AdvancedReproduction || !parent.Position.GetTerrain(parent.Map).IsWater)
                 return;
             EnsureHatchlingTarget();
-            progress = Math.Min(1f, progress + 250f / (Math.Max(0.01f, Props.daysToHatch) * GenDate.TicksPerDay));
+            float days = AnimalSeasonalReproduction.IncubationDays(Props.daysToHatch,
+                Props.parentRace, faction != null);
+            progress = Math.Min(1f, progress + 250f / (Math.Max(0.01f, days) * GenDate.TicksPerDay));
             if (progress >= 1f) HatchIntoTadpole();
         }
 
@@ -347,12 +350,11 @@ namespace ZoologyMod
             if (faction != null || !WildAnimalEcosystemUtility.IsSpeciesLimitActive(settings)
                 || Props.pawnKind?.race == null)
                 return false;
-            IReadOnlyList<Pawn> pawns = map.mapPawns.AllPawnsSpawned;
+            List<Thing> candidates = map.listerThings.ThingsOfDef(Props.pawnKind.race);
             int count = 0;
-            for (int i = 0; i < pawns.Count; i++)
+            for (int i = 0; i < candidates.Count; i++)
             {
-                Pawn candidate = pawns[i];
-                if (candidate.def == Props.pawnKind.race && !candidate.Dead
+                if (candidates[i] is Pawn candidate && candidate.Spawned && !candidate.Dead
                     && WildAnimalEcosystemUtility.IsWildAnimal(candidate)
                     && ++count >= settings.WildAnimalSpeciesLimit)
                     return true;

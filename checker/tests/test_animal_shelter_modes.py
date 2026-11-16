@@ -20,7 +20,6 @@ SHELTERS = (
     "POUCH", "DEN", "GROUND_NEST_ALTRICIAL", "TREE_NEST_ALTRICIAL",
     "GROUND_NEST_PRECOCIAL", "TREE_NEST_PRECOCIAL", "AQUATIC_CLUTCH",
 )
-DORMANCIES = ("HIBERNATION", "WINTER_REST", "DENNING", "MATERNITY_DENNING")
 OFFSPRING_CLASS = "ZoologyMod.ModExtension_OffspringShelter, ZoologyMod"
 DORMANCY_CLASS = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"
 
@@ -42,33 +41,41 @@ class DataDrivenShelterTests(unittest.TestCase):
     def test_both_columns_are_concrete_only(self):
         parent = build_mod_extensions_for_parent({
             "OffspringShelter": "POUCH",
-            "WinterDormancy": "DENNING",
+            "WinterDormancy": "True",
         })
         self.assertIsNone(parent)
 
-    def test_each_valid_mode_roundtrips_in_both_generators(self):
-        for column, choices, class_name in (
-            ("OffspringShelter", SHELTERS, OFFSPRING_CLASS),
-            ("WinterDormancy", DORMANCIES, DORMANCY_CLASS),
-        ):
-            for mode in choices:
-                with self.subTest(column=column, mode=mode):
-                    r = animal(mode if column == "OffspringShelter" else "",
-                               mode if column == "WinterDormancy" else "")
-                    generated = build_mod_extensions_for_child(r, {}, include_all=True)
-                    extensions = generated.findall("li")
-                    self.assertEqual(len(extensions), 1)
-                    self.assertEqual(extensions[0].get("Class"), class_name)
-                    self.assertEqual(extensions[0].findtext("mode"), mode)
-                    ops = self.patch_generator.create_concrete_mod_extension_patches(
-                        "TestAnimal", r)
-                    added = [
-                        op for op in ops
-                        if op.get("Class") == "PatchOperationAddModExtension"
-                    ]
-                    self.assertEqual(len(added), 1)
-                    self.assertEqual(added[0].xpath("./value/li/@Class"), [class_name])
-                    self.assertEqual(added[0].xpath("./value/li/mode/text()"), [mode])
+    def assert_profile_roundtrip(self, row, class_name, fields):
+        generated = build_mod_extensions_for_child(row, {}, include_all=True)
+        extensions = generated.findall("li")
+        self.assertEqual(len(extensions), 1)
+        self.assertEqual(extensions[0].get("Class"), class_name)
+        self.assertEqual({child.tag: child.text for child in extensions[0]}, fields)
+        ops = self.patch_generator.create_concrete_mod_extension_patches("TestAnimal", row)
+        added = [op for op in ops if op.get("Class") == "PatchOperationAddModExtension"]
+        self.assertEqual(len(added), 1)
+        item = added[0].find("./value/li")
+        self.assertEqual(item.get("Class"), class_name)
+        self.assertEqual({child.tag: child.text for child in item}, fields)
+
+    def test_offspring_shelter_modes_roundtrip(self):
+        for mode in SHELTERS:
+            with self.subTest(mode=mode):
+                self.assert_profile_roundtrip(animal(mode), OFFSPRING_CLASS, {"mode": mode})
+
+    def test_winter_eligibility_roundtrip(self):
+        self.assert_profile_roundtrip(animal(dormancy="True"), DORMANCY_CLASS,
+                                      {"ordinaryDormancy": "true"})
+        for flag in ("True", "False"):
+            row = animal(dormancy=flag)
+            row["Maternity denning season"] = "Autumn, Winter"
+            self.assert_profile_roundtrip(row, DORMANCY_CLASS,
+                {"ordinaryDormancy": flag.lower(), "maternitySeasonMask": "12"})
+        for flag in ("", "False"):
+            row = animal(dormancy=flag)
+            self.assertIsNone(build_mod_extensions_for_child(row, {}, True))
+            ops = self.patch_generator.create_concrete_mod_extension_patches("TestAnimal", row)
+            self.assertFalse(any(op.get("Class") == "PatchOperationAddModExtension" for op in ops))
 
     def test_none_and_empty_clear_only_owned_modes(self):
         root = LET.fromstring("""<ThingDef><modExtensions>
@@ -76,7 +83,7 @@ class DataDrivenShelterTests(unittest.TestCase):
           <li Class="ZoologyMod.ModExtension_OffspringShelter, ZoologyMod">
             <mode>DEN</mode></li>
           <li Class="ZoologyMod.ModExtension_WinterDormancy, ZoologyMod">
-            <mode>HIBERNATION</mode></li>
+            <ordinaryDormancy>true</ordinaryDormancy></li>
         </modExtensions></ThingDef>""")
         no_modes = animal("NONE", "")
         self.assertIsNone(build_mod_extensions_for_child(no_modes, {}, True))
@@ -85,11 +92,11 @@ class DataDrivenShelterTests(unittest.TestCase):
                          ["Other.Custom, Other"])
 
     def test_invalid_modes_fail_not_silently_ignored(self):
-        for row in (animal("NEST"), animal("POUCHES"), animal("DEN", "HIBERNATE")):
+        for row in (animal("NEST"), animal("POUCHES"), animal("DEN", "INVALID")):
             with self.subTest(row=row.to_dict()):
-                with self.assertRaisesRegex(ValueError, "Unknown"):
+                with self.assertRaisesRegex(ValueError, "Unknown|Invalid"):
                     build_mod_extensions_for_child(row, {}, True)
-                with self.assertRaisesRegex(ValueError, "Unknown"):
+                with self.assertRaisesRegex(ValueError, "Unknown|Invalid"):
                     self.patch_generator.create_concrete_mod_extension_patches(
                         "TestAnimal", row)
 
@@ -100,7 +107,7 @@ class DataDrivenShelterTests(unittest.TestCase):
         applier = PatchApplier(record_missing=True)
         for mode in ("DEN", "POUCH", "NONE", "POUCH"):
             ops = self.patch_generator.create_concrete_mod_extension_patches(
-                "TestAnimal", animal(mode, "WINTER_REST"))
+                "TestAnimal", animal(mode, "True"))
             patch = LET.Element("Patch")
             patch.extend(ops)
             applier.apply_patch_root(patch, root)

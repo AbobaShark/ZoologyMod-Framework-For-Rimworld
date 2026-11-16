@@ -24,9 +24,12 @@ namespace ZoologyMod
     {
         public Pawn holder;
         public int sourceTick;
+        internal bool deathInProgress;
+        internal bool PreserveOnDeath => deathInProgress || pawn?.Dead == true;
+        public override bool ShouldRemove => !PreserveOnDeath && base.ShouldRemove;
         public Pawn Hunter => Active ? holder : null;
         public int SourceTick => sourceTick;
-        public bool Active => holder?.Spawned == true && pawn.Spawned && holder.Map == pawn.Map && !holder.Dead
+        public bool Active => holder?.Spawned == true && pawn.Spawned && !pawn.Dead && holder.Map == pawn.Map && !holder.Dead
             && holder.Position == pawn.Position
             && (holder.Downed ? holder.TryGetComp<CompAnimalStrategyState>()?.constrictedPrey == pawn
                 : holder.CurJob?.targetA.Thing == pawn && holder.jobs.curDriver is JobDriver_Constrict);
@@ -37,8 +40,9 @@ namespace ZoologyMod
         }
         public override void PostTick()
         {
+            if (PreserveOnDeath) return;
             base.PostTick();
-            if (!Active) pawn.health.RemoveHediff(this);
+            if (!PreserveOnDeath && !Active) pawn.health.RemoveHediff(this);
         }
     }
     internal static class AnimalConstriction
@@ -73,7 +77,8 @@ namespace ZoologyMod
             {
                 var effect = prey.health.hediffSet.hediffs.OfType<Hediff_AnimalConstriction>()
                     .FirstOrDefault(h => h.holder == holder);
-                if (effect != null) prey.health.RemoveHediff(effect);
+                if (effect != null && !effect.PreserveOnDeath)
+                    prey.health.RemoveHediff(effect);
             }
             if (endJob && holder?.jobs?.curDriver is JobDriver_Constrict)
                 holder.jobs.EndCurrentJob(JobCondition.InterruptForced);
@@ -210,7 +215,19 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(Pawn), nameof(Pawn.Kill))]
     internal static class Patch_ReleaseConstrictionOnDeath
     {
-        static void Prefix(Pawn __instance) => AnimalConstriction.Release(__instance);
+        [HarmonyPriority(Priority.First)]
+        static void Prefix(Pawn __instance, out Hediff_AnimalConstriction __state)
+        {
+            __state = __instance.health?.hediffSet?.hediffs
+                .OfType<Hediff_AnimalConstriction>().FirstOrDefault();
+            if (__state != null) __state.deathInProgress = true;
+            AnimalConstriction.Release(__instance);
+        }
+
+        static void Finalizer(Hediff_AnimalConstriction __state)
+        {
+            if (__state != null) __state.deathInProgress = false;
+        }
     }
     [HarmonyPatch(typeof(Pawn_PathFollower), nameof(Pawn_PathFollower.StartPath))]
     internal static class Patch_ConstrictedMovement

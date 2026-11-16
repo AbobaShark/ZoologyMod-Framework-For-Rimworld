@@ -471,6 +471,26 @@
       <xpath>/Defs/ThingDef[defName = "MonitorLizard"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
     </match>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "MonitorLizard"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "MonitorLizard"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "MonitorLizard"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod">
+        <matingSeasonMask>8</matingSeasonMask>
+        <reproductivePauseTicks>3306000</reproductivePauseTicks>
+        <birthSeasonMask>9</birthSeasonMask>
+        <captiveEggFormationDays>4.9</captiveEggFormationDays>
+        <captiveReproductivePauseDays>55.1</captiveReproductivePauseDays>
+        <captiveIncubationDays>10.5</captiveIncubationDays>
+        <realisticEggCountRange>21~23</realisticEggCountRange>
+      </li>
+    </value>
+  </Operation>
   <!-- MonitorLizard PawnKindDef -->
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "MonitorLizard"]/combatPower</xpath>
@@ -897,6 +917,35 @@
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "Alligator"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
     </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "Alligator"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_WinterDormancy, ZoologyMod">
+        <ordinaryDormancy>true</ordinaryDormancy>
+      </li>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Alligator"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Alligator"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "Alligator"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod">
+        <matingSeasonMask>3</matingSeasonMask>
+        <reproductivePauseTicks>2712000</reproductivePauseTicks>
+        <birthSeasonMask>2</birthSeasonMask>
+        <dormancyThreshold>13</dormancyThreshold>
+        <captiveEggFormationDays>14.8</captiveEggFormationDays>
+        <captiveReproductivePauseDays>45.2</captiveReproductivePauseDays>
+        <captiveIncubationDays>6.5</captiveIncubationDays>
+        <realisticEggCountRange>39~40</realisticEggCountRange>
+      </li>
+    </value>
   </Operation>
   <!-- Alligator PawnKindDef -->
   <Operation Class="PatchOperationReplace">
@@ -1373,6 +1422,25 @@
       <xpath>/Defs/ThingDef[defName = "SeaTurtle"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
     </match>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "SeaTurtle"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "SeaTurtle"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "SeaTurtle"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod">
+        <reproductivePauseTicks>2232000</reproductivePauseTicks>
+        <birthSeasonMask>15</birthSeasonMask>
+        <captiveEggFormationDays>2.2</captiveEggFormationDays>
+        <captiveReproductivePauseDays>37.2</captiveReproductivePauseDays>
+        <captiveIncubationDays>6</captiveIncubationDays>
+        <realisticEggCountRange>93~94</realisticEggCountRange>
+      </li>
+    </value>
+  </Operation>
   <!-- SeaTurtle PawnKindDef -->
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "SeaTurtle"]/combatPower</xpath>
@@ -1408,10 +1476,7 @@
     </value>
   </Operation>
   <!-- Combat Extended specific patches -->
-  <Operation Class="PatchOperationFindMod">
-    <mods>
-      <li>Combat Extended</li>
-    </mods>
+  <Operation Class="ZoologyMod.PatchOperation_FindCombatExtended">
     <match Class="PatchOperationSequence">
       <operations>
         <!-- MonitorLizard CE patches -->

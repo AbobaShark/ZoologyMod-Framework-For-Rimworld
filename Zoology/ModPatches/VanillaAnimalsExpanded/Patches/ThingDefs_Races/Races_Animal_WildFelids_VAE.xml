@@ -237,13 +237,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AEXP_Cheetah"]/race/gestationPeriodDays</xpath>
       <value>
-        <gestationPeriodDays>7</gestationPeriodDays>
+        <gestationPeriodDays>14.5</gestationPeriodDays>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AEXP_Cheetah"]/race</xpath>
       <value>
-        <gestationPeriodDays>7</gestationPeriodDays>
+        <gestationPeriodDays>14.5</gestationPeriodDays>
       </value>
     </nomatch>
   </Operation>
@@ -450,11 +450,8 @@
       </value>
     </nomatch>
   </Operation>
-  <Operation Class="PatchOperationConditional">
+  <Operation Class="PatchOperationRemove">
     <xpath>/Defs/ThingDef[defName = "AEXP_Cheetah"]/race/litterSizeCurve</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "AEXP_Cheetah"]/race/litterSizeCurve</xpath>
-    </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AEXP_Cheetah"]/race/specialTrainables</xpath>
@@ -525,6 +522,21 @@
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "AEXP_Cheetah"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
     </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AEXP_Cheetah"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AEXP_Cheetah"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "AEXP_Cheetah"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod">
+        <captiveGestationDays>7</captiveGestationDays>
+        <realisticLitterMean>3</realisticLitterMean>
+      </li>
+    </value>
   </Operation>
   <!-- AEXP_Cheetah PawnKindDef -->
   <Operation Class="PatchOperationConditional">
@@ -731,7 +743,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "AEXP_Lion"]/race/gestationPeriodDays</xpath>
     <value>
-      <gestationPeriodDays>7.5</gestationPeriodDays>
+      <gestationPeriodDays>17.9</gestationPeriodDays>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -1057,6 +1069,21 @@
       <xpath>/Defs/ThingDef[defName = "AEXP_Lion"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
     </match>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AEXP_Lion"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AEXP_Lion"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "AEXP_Lion"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod">
+        <captiveGestationDays>7.5</captiveGestationDays>
+        <realisticLitterMean>3</realisticLitterMean>
+      </li>
+    </value>
+  </Operation>
   <!-- AEXP_Lion PawnKindDef -->
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "AEXP_Lion"]/combatPower</xpath>
@@ -1327,13 +1354,13 @@
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[defName = "AEXP_Jaguar"]/race/gestationPeriodDays</xpath>
       <value>
-        <gestationPeriodDays>7</gestationPeriodDays>
+        <gestationPeriodDays>16.3</gestationPeriodDays>
       </value>
     </match>
     <nomatch Class="PatchOperationAdd">
       <xpath>/Defs/ThingDef[defName = "AEXP_Jaguar"]/race</xpath>
       <value>
-        <gestationPeriodDays>7</gestationPeriodDays>
+        <gestationPeriodDays>16.3</gestationPeriodDays>
       </value>
     </nomatch>
   </Operation>
@@ -1552,6 +1579,12 @@
     </nomatch>
   </Operation>
   <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AEXP_Jaguar"]/race/litterSizeCurve</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AEXP_Jaguar"]/race/litterSizeCurve</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "AEXP_Jaguar"]/race/specialTrainables</xpath>
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "AEXP_Jaguar"]/race/specialTrainables</xpath>
@@ -1627,6 +1660,21 @@
       <xpath>/Defs/ThingDef[defName = "AEXP_Jaguar"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
     </match>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "AEXP_Jaguar"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "AEXP_Jaguar"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "AEXP_Jaguar"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod">
+        <captiveGestationDays>7</captiveGestationDays>
+        <realisticLitterMean>2</realisticLitterMean>
+      </li>
+    </value>
+  </Operation>
   <!-- AEXP_Jaguar PawnKindDef -->
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/PawnKindDef[defName = "AEXP_Jaguar"]/combatPower</xpath>
@@ -1677,10 +1725,7 @@
     </match>
   </Operation>
   <!-- Combat Extended specific patches -->
-  <Operation Class="PatchOperationFindMod">
-    <mods>
-      <li>Combat Extended</li>
-    </mods>
+  <Operation Class="ZoologyMod.PatchOperation_FindCombatExtended">
     <match Class="PatchOperationSequence">
       <operations>
         <!-- AEXP_Cheetah CE patches -->

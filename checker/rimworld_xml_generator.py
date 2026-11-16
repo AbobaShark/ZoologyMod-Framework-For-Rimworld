@@ -16,6 +16,7 @@ import traceback
 from typing import Dict, List, Optional, Tuple
 
 from core.animal_venom_policy import is_platypus_spur
+from core.seasonal_reproduction import seasonal_fields, dormancy_fields, native_reproduction
 import core.checker_config as checker_config
 from core.checker_clipboard import enable_paste
 
@@ -120,6 +121,7 @@ COLUMN_ALIASES = {
     "Venom sample producer": ["Venom sample producer"],
     "OffspringShelter": ["OffspringShelter"],
     "WinterDormancy": ["WinterDormancy"],
+    "Mating season": ["Mating season"],
 }
 
 MOD_EXTENSION_CLASS_MAP = {
@@ -139,11 +141,12 @@ MOD_EXTENSION_CLASS_MAP = {
     "Venom sample producer": "ZoologyMod.ModExtension_VenomSample, ZoologyMod",
     "OffspringShelter": "ZoologyMod.ModExtension_OffspringShelter, ZoologyMod",
     "WinterDormancy": "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod",
+    "Mating season": "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod",
 }
 
 # These three extensions always belong to concrete ThingDefs: inheriting them from
 # an abstract can accidentally grant a different hunting or hiding ability.
-CONCRETE_ONLY_MOD_EXTENSIONS = frozenset(("PredationStrategy", "Burrower", "TreeClimber", "Constrictor", "Venom sample producer", "OffspringShelter", "WinterDormancy"))
+CONCRETE_ONLY_MOD_EXTENSIONS = frozenset(("PredationStrategy", "Burrower", "TreeClimber", "Constrictor", "Venom sample producer", "OffspringShelter", "WinterDormancy", "Mating season"))
 PREDATION_STRATEGIES = {
     "chasing": "Chasing",
     "waterambush": "WaterAmbush",
@@ -151,7 +154,6 @@ PREDATION_STRATEGIES = {
 }
 ANIMAL_BEHAVIOR_MODES = {
     "OffspringShelter": frozenset(("POUCH", "DEN", "GROUND_NEST_ALTRICIAL", "TREE_NEST_ALTRICIAL", "GROUND_NEST_PRECOCIAL", "TREE_NEST_PRECOCIAL", "AQUATIC_CLUTCH")),
-    "WinterDormancy": frozenset(("HIBERNATION", "WINTER_REST", "DENNING", "MATERNITY_DENNING")),
 }
 
 
@@ -1184,6 +1186,22 @@ def build_mod_extensions_for_child(row, p_common: Dict, include_all: bool) -> Op
         if col == "PredationStrategy" and not is_truthy(get_row_value(row, "predator")):
             continue
         val = get_row_value(row, col)
+        if col == "WinterDormancy":
+            fields = dormancy_fields(row)
+            if fields:
+                li = LET.SubElement(mod_extensions, "li", Class=MOD_EXTENSION_CLASS_MAP[col])
+                for key, value in fields.items():
+                    LET.SubElement(li, key).text = str(value)
+                any_added = True
+            continue
+        if col == "Mating season":
+            fields = seasonal_fields(row)
+            if fields:
+                li = LET.SubElement(mod_extensions, "li", Class=MOD_EXTENSION_CLASS_MAP[col])
+                for key, value in fields.items():
+                    LET.SubElement(li, key).text = str(value)
+                any_added = True
+            continue
         if col == "Venom sample producer" and is_truthy(val):
             sample = row.get('_ZoologyVenomSample')
             if not sample:
@@ -1213,6 +1231,8 @@ def _common_value_and_differing(rows: List, canonical_key: str) -> Tuple[Optiona
         vals.append(norm(v))
         raw_vals.append("" if v is None else str(v).strip())
 
+    if any(native_reproduction(v) for v in vals):
+        return None, False
     vals_non_empty = [v for v in vals if v != ""]
     if not vals_non_empty:
         return None, False
@@ -1432,7 +1452,7 @@ def build_parent_thingdef(parent_name: str, common: Dict, tools_row, game_root_d
         if is_no_like(v):
             continue
         s = str(v).strip()
-        if xml_tag == "gestationPeriodDays" and re.search(r"\blay\s*egg(s)?\b", s, flags=re.I):
+        if xml_tag == "gestationPeriodDays" and try_parse_number(s) is None:
             continue
         if xml_tag in bool_tags:
             s = "true" if is_truthy(s) else "false"
@@ -2068,6 +2088,8 @@ def update_thingdef_inplace(
     prob_tags = {"manhunterOnTameFailChance", "manhunterOnDamageChance"}
 
     for xml_tag, col in race_fields:
+        if xml_tag == "gestationPeriodDays" and native_reproduction(get_row_value(row, col)):
+            continue
         if consider_parent_rules and _parent_has_key(p_common, col):
             _remove_from_container(race, xml_tag)
             continue
@@ -2134,13 +2156,14 @@ def update_thingdef_inplace(
             _update_special_trainables(race, split_and_strip(s), allow_inherit_false_base and parent_special_owned)
 
     litter = get_row_value(row, "Litter size")
-    if consider_parent_rules and _parent_has_key(p_common, "Litter size"):
-        _remove_from_container(race, "litterSizeCurve")
-    elif litter is not None and str(litter).strip() != "":
-        mean = _parse_litter_mean(litter)
-        _remove_from_container(race, "litterSizeCurve")
-        if mean is not None and mean >= 1:
-            add_litter_curve(race, mean)
+    if not native_reproduction(litter):
+        if consider_parent_rules and _parent_has_key(p_common, "Litter size"):
+            _remove_from_container(race, "litterSizeCurve")
+        elif litter is not None and str(litter).strip() != "":
+            mean = _parse_litter_mean(litter)
+            _remove_from_container(race, "litterSizeCurve")
+            if mean is not None and mean >= 1:
+                add_litter_curve(race, mean)
 
     trade_raw = get_row_value(row, "TradeTags")
     if consider_parent_rules and _parent_has_key(p_common, "TradeTags"):

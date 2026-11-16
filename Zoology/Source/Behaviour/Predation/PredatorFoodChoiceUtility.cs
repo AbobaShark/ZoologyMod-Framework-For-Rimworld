@@ -2,6 +2,7 @@ using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Reflection.Emit;
 using RimWorld;
 using Verse;
 using Verse.AI;
@@ -208,6 +209,7 @@ namespace ZoologyMod
                 score = FoodBaseline
                     + LargeMammalPredationUtility.GetPreySelectionScore(predator, prey)
                     + GetPreyOpportunityAdjustment(predator, prey, held: true)
+                    + ChildcareDefenseUtility.GetYoungPreyScoreDelta(predator, prey)
                     - distance;
             }
             else
@@ -485,7 +487,7 @@ namespace ZoologyMod
             // A successful vanilla site search is performed only after the
             // no-pathfinding yield score can beat the current food choice.
             Job vanilla = forageSiteGiver.FindSite(eater);
-            if (vanilla == null)
+            if (vanilla == null || !vanilla.targetA.Cell.InBounds(eater.Map))
                 return null;
             score = ScoreWildForage(eater, vanilla.targetA.Cell);
             JobDef def = DefDatabase<JobDef>.GetNamedSilentFail("Zoology_WildForage");
@@ -497,7 +499,46 @@ namespace ZoologyMod
     // wild variant is invoked only from a hungry animal's food decision.
     internal sealed class JobGiver_WildForageSite : JobGiver_Forage
     {
-        internal Job FindSite(Pawn pawn) => base.TryGiveJob(pawn);
+        internal Job FindSite(Pawn pawn) =>
+            Patch_ForageSiteBounds.Installed && pawn?.Map != null
+                && pawn.Position.InBounds(pawn.Map) ? base.TryGiveJob(pawn) : null;
+    }
+
+    [HarmonyPatch(typeof(JobGiver_Forage), "TryGiveJob")]
+    internal static class Patch_ForageSiteBounds
+    {
+        internal static bool Installed { get; private set; }
+
+        private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        {
+            var original = AccessTools.Method(typeof(CellFinder), nameof(CellFinder.TryFindRandomCellNear),
+                new[] { typeof(IntVec3), typeof(Map), typeof(int), typeof(Predicate<IntVec3>),
+                    typeof(IntVec3).MakeByRefType(), typeof(int) });
+            var replacement = AccessTools.Method(typeof(Patch_ForageSiteBounds), nameof(TryFindBoundedCell));
+            Installed = false;
+            foreach (CodeInstruction instruction in instructions)
+            {
+                if (original != null && replacement != null && instruction.opcode == OpCodes.Call
+                    && Equals(instruction.operand, original))
+                {
+                    instruction.operand = replacement;
+                    Installed = true;
+                }
+                yield return instruction;
+            }
+            if (!Installed)
+                Log.WarningOnce("[Zoology] Forage site search could not be made map-safe.", 99173118);
+        }
+
+        private static bool TryFindBoundedCell(IntVec3 root, Map map, int squareRadius,
+            Predicate<IntVec3> validator, out IntVec3 result, int maxTries)
+        {
+            result = IntVec3.Invalid;
+            if (map == null || !root.InBounds(map)) return false;
+            return CellFinder.TryFindRandomCellNear(root, map, squareRadius,
+                cell => cell.InBounds(map) && (validator == null || validator(cell)),
+                out result, maxTries);
+        }
     }
 
     [HarmonyPatch(typeof(FoodUtility), nameof(FoodUtility.TryFindBestFoodSourceFor))]
@@ -583,7 +624,8 @@ namespace ZoologyMod
             }
 
             float bestScore = PredatorFoodChoiceUtility.ScoreFoodJob(pawn, __result);
-            if (predator && pawn.needs.food.CurLevelPercentage < 0.3f && bestScore < 1000f)
+            if (AnimalBurrowHunt.UsesUnifiedShelterFood(pawn)
+                && pawn.needs.food.CurLevelPercentage < 0.3f && bestScore < 1000f)
             {
                 Job shelterJob = JobGiver_ExcavateAnimalBurrow.TryPlanFoodJob(pawn,
                     out float shelterScore);

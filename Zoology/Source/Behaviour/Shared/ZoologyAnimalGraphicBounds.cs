@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -8,8 +9,8 @@ using Verse;
 namespace ZoologyMod
 {
     // The only graphic-growth endpoints are the current and next stage's
-    // authored footprints. All expensive texture measurements happen once
-    // per PawnKind and sex, never per biological day or rendering frame.
+    // authored footprints. Prepare these on the main thread before publishing
+    // a read-only snapshot to the parallel renderer.
     internal static class ZoologyAnimalGraphicBounds
     {
         private const byte VisibleAlpha = 12;
@@ -39,7 +40,7 @@ namespace ZoologyMod
 
         private static readonly Dictionary<Texture, Size> TextureBounds =
             new Dictionary<Texture, Size>();
-        private static readonly Dictionary<PawnKindDef, KindBoundsData[]> KindBounds =
+        private static Dictionary<PawnKindDef, KindBoundsData[]> kindBounds =
             new Dictionary<PawnKindDef, KindBoundsData[]>();
         private static readonly HashSet<string> ReportedDrawSizeErrors =
             new HashSet<string>(StringComparer.Ordinal);
@@ -51,7 +52,7 @@ namespace ZoologyMod
         internal static Vector2 Interpolate(PawnKindDef kind, int index,
             bool female, float progress)
         {
-            KindBoundsData data = GetOrBuild(kind, female);
+            KindBoundsData data = GetPrepared(kind, female);
             if (data == null || index < 0 || index >= data.targetRatios.Length)
                 return Vector2.one;
             Vector2 target = data.targetRatios[index];
@@ -59,9 +60,24 @@ namespace ZoologyMod
                 1f + (target.y - 1f) * progress);
         }
 
-        internal static void ClearCache()
+        // Called after the active PawnKind graphics are installed, on the
+        // main thread. Keep the previous snapshot available until the next
+        // one is complete; no published dictionary or array is mutated.
+        internal static void PrepareCache()
         {
-            KindBounds.Clear();
+            var prepared = new Dictionary<PawnKindDef, KindBoundsData[]>();
+            foreach (var kind in DefDatabase<PawnKindDef>.AllDefsListForReading)
+            {
+                if (kind?.lifeStages == null || kind.lifeStages.Count < 2
+                    || !ZoologyAnimalGrowth.HandlesRace(kind.race))
+                    continue;
+                KindBoundsData common = Build(kind, false);
+                bool distinctFemale = kind.lifeStages.Exists(stage =>
+                    stage?.femaleGraphicData != null
+                    && !ReferenceEquals(stage.femaleGraphicData, stage.bodyGraphicData));
+                prepared.Add(kind, new[] { common, distinctFemale ? Build(kind, true) : common });
+            }
+            Volatile.Write(ref kindBounds, prepared);
         }
 
         // Convert a biological linear scale into a drawSize independent of
@@ -293,22 +309,11 @@ namespace ZoologyMod
                 + "is applied.");
         }
 
-        private static KindBoundsData GetOrBuild(PawnKindDef kind, bool female)
+        private static KindBoundsData GetPrepared(PawnKindDef kind, bool female)
         {
-            if (kind?.lifeStages == null || kind.lifeStages.Count < 2)
-                return null;
-
-            KindBoundsData[] variants;
-            if (!KindBounds.TryGetValue(kind, out variants))
-            {
-                variants = new KindBoundsData[2];
-                KindBounds.Add(kind, variants);
-            }
-
-            int variant = female ? 1 : 0;
-            if (variants[variant] == null)
-                variants[variant] = Build(kind, female);
-            return variants[variant];
+            var prepared = Volatile.Read(ref kindBounds);
+            return kind != null && prepared.TryGetValue(kind, out var variants)
+                ? variants[female ? 1 : 0] : null;
         }
 
         private static KindBoundsData Build(PawnKindDef kind, bool female)
@@ -430,7 +435,7 @@ namespace ZoologyMod
         internal static void AppendDiagnostics(PawnKindDef kind, int index,
             bool female, float progress, StringBuilder output)
         {
-            KindBoundsData data = GetOrBuild(kind, female);
+            KindBoundsData data = GetPrepared(kind, female);
             if (data == null || index < 0 || index >= data.targetRatios.Length)
                 return;
 

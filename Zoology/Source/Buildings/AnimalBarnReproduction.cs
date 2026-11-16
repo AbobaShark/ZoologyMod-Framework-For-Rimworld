@@ -71,7 +71,8 @@ namespace ZoologyMod
                 && !pawn.Downed && !pawn.InMentalState
                 && pawn.ageTracker?.CurLifeStage?.reproductive == true
                 && pawn.RaceProps?.disableMating != true
-                && !pawn.Sterile();
+                && !pawn.Sterile()
+                && AnimalSeasonalReproduction.AllowsMating(pawn);
         }
 
         private static bool CanPair(Pawn male, Pawn female)

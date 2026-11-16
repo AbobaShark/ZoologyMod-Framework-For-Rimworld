@@ -96,12 +96,6 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[@Name = "BaseInsect"]/race/gestationPeriodDays</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[@Name = "BaseInsect"]/race/gestationPeriodDays</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[@Name = "BaseInsect"]/race/herdAnimal</xpath>
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[@Name = "BaseInsect"]/race/herdAnimal</xpath>
@@ -322,12 +316,6 @@
       </value>
     </nomatch>
   </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[@Name = "BaseInsect"]/race/litterSizeCurve</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[@Name = "BaseInsect"]/race/litterSizeCurve</xpath>
-    </match>
-  </Operation>
   <Operation Class="PatchOperationAddModExtension">
     <xpath>/Defs/ThingDef[@Name = "BaseInsect"]</xpath>
     <value>
@@ -502,12 +490,6 @@
     <value>
       <lifeExpectancy>8</lifeExpectancy>
     </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Megascarab"]/race/gestationPeriodDays</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Megascarab"]/race/gestationPeriodDays</xpath>
-    </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Megascarab"]/race/herdAnimal</xpath>
@@ -772,6 +754,12 @@
       <xpath>/Defs/ThingDef[defName = "Megascarab"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
     </match>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Megascarab"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Megascarab"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
   <!-- Megascarab PawnKindDef -->
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "Megascarab"]/combatPower</xpath>
@@ -970,12 +958,6 @@
     <value>
       <lifeExpectancy>12</lifeExpectancy>
     </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Spelopede"]/race/gestationPeriodDays</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Spelopede"]/race/gestationPeriodDays</xpath>
-    </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Spelopede"]/race/herdAnimal</xpath>
@@ -1217,6 +1199,12 @@
       <xpath>/Defs/ThingDef[defName = "Spelopede"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
     </match>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Spelopede"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Spelopede"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
   <!-- Spelopede PawnKindDef -->
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "Spelopede"]/combatPower</xpath>
@@ -1421,12 +1409,6 @@
     <value>
       <lifeExpectancy>18</lifeExpectancy>
     </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "Megaspider"]/race/gestationPeriodDays</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "Megaspider"]/race/gestationPeriodDays</xpath>
-    </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "Megaspider"]/race/herdAnimal</xpath>
@@ -1668,6 +1650,12 @@
       <xpath>/Defs/ThingDef[defName = "Megaspider"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
     </match>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Megaspider"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Megaspider"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
   <!-- Megaspider PawnKindDef -->
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "Megaspider"]/combatPower</xpath>
@@ -1709,10 +1697,7 @@
     </match>
   </Operation>
   <!-- Combat Extended specific patches -->
-  <Operation Class="PatchOperationFindMod">
-    <mods>
-      <li>Combat Extended</li>
-    </mods>
+  <Operation Class="ZoologyMod.PatchOperation_FindCombatExtended">
     <match Class="PatchOperationSequence">
       <operations>
         <li Class="PatchOperationConditional">

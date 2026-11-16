@@ -7,7 +7,21 @@ namespace ZoologyMod
     [HarmonyPatch(typeof(PawnUtility), nameof(PawnUtility.TrySpawnHatchedOrBornPawn), new[] { typeof(Pawn), typeof(Thing), typeof(IntVec3?) })]
     internal static class Patch_Childcare_RegisterMotherOnSpawn
     {
-        public static void Postfix(Pawn pawn, Thing motherOrEgg, bool __result)
+        private static void Prefix(Thing motherOrEgg, ref IntVec3? __2,
+            out Building_AnimalBurrow __state)
+        {
+            __state = null;
+            if (motherOrEgg is Pawn mother
+                && ThingOwnerUtility.GetAnyParent<Building_AnimalBurrow>(mother) is Building_AnimalBurrow den
+                && den.PrepareContainedBirth(mother, out IntVec3 cell))
+            {
+                __state = den;
+                __2 = cell;
+            }
+        }
+
+        public static void Postfix(Pawn pawn, Thing motherOrEgg, bool __result,
+            Building_AnimalBurrow __state)
         {
             try
             {
@@ -31,6 +45,15 @@ namespace ZoologyMod
                 }
 
                 ChildcareUtility.RegisterObservedMother(pawn, mother);
+                if (ChildcareUtility.UsesBiparentalProtection(pawn.def)
+                    && pawn.TryGetComp<CompAnimalStrategyState>() is CompAnimalStrategyState state
+                    && motherOrEgg.TryGetComp<CompHatcher>()?.otherParent is Pawn father)
+                    state.offspringProtectionFather = father;
+                if (__state != null && mother != null)
+                {
+                    if (__state.ReceiveNewborn(mother, pawn)) return;
+                    __state.ReleaseMotherForBirth(mother);
+                }
                 if (mother != null && AnimalEffectiveArea.TryGetFollowingMother(pawn, out Pawn currentMother)
                     && ReferenceEquals(currentMother, mother))
                 {

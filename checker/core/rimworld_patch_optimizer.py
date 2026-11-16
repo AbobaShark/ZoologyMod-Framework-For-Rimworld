@@ -4,7 +4,7 @@ from collections import Counter
 
 from lxml import etree as LET
 
-from core.rimworld_patch_apply import PatchApplier
+from core.rimworld_patch_apply import PatchApplier, CE_PATCH_CLASS
 from core.indexed_xpath import xpath_scope, before_mutation
 from core.material_colors import xml_color
 from core.rimworld_original_xml import normalize_xpath, parse_target, rel_path_from_target, xpath_literal
@@ -109,7 +109,7 @@ class PatchOptimizer:
             return self._resolve_conditional(node, sim_root, patched_sim_root)
         if cls == "PatchOperationSequence":
             return self._optimize_sequence(node, sim_root, patched_sim_root, preserve_conditionals=preserve_conditionals)
-        if cls == "PatchOperationFindMod":
+        if cls in ("PatchOperationFindMod", CE_PATCH_CLASS):
             return self._optimize_find_mod(node, sim_root, patched_sim_root)
         if cls in DIRECT_PATCH_CLASSES:
             return self._optimize_direct_operation(node, sim_root, patched_sim_root)

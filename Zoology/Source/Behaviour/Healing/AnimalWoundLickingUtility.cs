@@ -38,7 +38,7 @@ namespace ZoologyMod
                 return false;
             }
 
-            if (!pawn.IsAnimal || pawn.Dead || pawn.Destroyed || !pawn.Spawned || pawn.Downed || pawn.InAggroMentalState || pawn.InMentalState)
+            if (!pawn.IsAnimal || pawn.Dead || pawn.Destroyed || (!pawn.Spawned && ThingOwnerUtility.GetAnyParent<Building_AnimalBurrow>(pawn) == null) || pawn.Downed || pawn.InAggroMentalState || pawn.InMentalState)
             {
                 return false;
             }

@@ -172,6 +172,8 @@ namespace ZoologyMod
 
         private sealed class NurserySiteClaim
         {
+            internal IntVec3 anchor;
+            internal CellRect footprint;
             internal Pawn builder;
             internal Plant tree;
             internal int slot;
@@ -405,11 +407,11 @@ namespace ZoologyMod
             return true;
         }
 
-        private bool SiteClaimValid(IntVec3 cell, NurserySiteClaim claim)
+        private bool SiteClaimValid(NurserySiteClaim claim)
         {
             Pawn p = claim.builder;
             return p?.Spawned == true && !p.Dead && !p.Destroyed && p.Map == map
-                && (IsNestBuildJob(p, claim.tree, cell)
+                && (IsNestBuildJob(p, claim.tree, claim.anchor)
                     || GenTicks.TicksGame - claim.claimedAt <= PendingTreeClaimTicks);
         }
 
@@ -438,12 +440,37 @@ namespace ZoologyMod
                 if (things[i] is Building_AnimalNursery) return false;
             if (nurserySites.TryGetValue(cell, out NurserySiteClaim claim))
             {
-                if (!SiteClaimValid(cell, claim))
+                if (!SiteClaimValid(claim))
                 {
-                    nurserySites.Remove(cell);
-                    if (claim.tree != null) ReleaseTreeClaim(claim.tree, claim.builder);
+                    ReleaseNurserySite(claim.anchor, claim.builder);
                 }
                 else if (claim.builder != builder) return false;
+            }
+            return true;
+        }
+
+        internal static CellRect NurseryFootprint(IntVec3 cell, Pawn builder, Plant tree)
+        {
+            ThingDef def = Building_AnimalNursery.NurseryDef(
+                AnimalOffspringShelter.For(builder?.def), builder);
+            return GenAdj.OccupiedRect(cell, Rot4.North,
+                tree != null || def == null ? new IntVec2(1, 1) : def.size);
+        }
+
+        internal bool GroundNurserySiteAvailable(IntVec3 cell, Pawn builder)
+        {
+            foreach (IntVec3 part in NurseryFootprint(cell, builder, null).Cells)
+            {
+                if (!NurserySiteAvailable(part, builder) || part.IsForbidden(builder))
+                    return false;
+                if (nurserySites.TryGetValue(part, out NurserySiteClaim claim)
+                    && claim.anchor != cell)
+                    return false;
+                List<Thing> things = part.GetThingList(map);
+                for (int i = 0; i < things.Count; i++)
+                    if (things[i] is Building
+                        || (things[i] is Plant plant && plant.def.plant.IsTree))
+                        return false;
             }
             return true;
         }
@@ -452,10 +479,11 @@ namespace ZoologyMod
         {
             slot = -1;
             if (builder?.Spawned != true || builder.Map != map
-                || !NurserySiteAvailable(cell, builder, tree))
+                || (tree != null ? !NurserySiteAvailable(cell, builder, tree)
+                    : !GroundNurserySiteAvailable(cell, builder)))
                 return false;
             if (nurserySites.TryGetValue(cell, out NurserySiteClaim current)
-                && current.builder == builder)
+                && current.builder == builder && current.anchor == cell)
             {
                 slot = current.slot;
                 return true;
@@ -472,17 +500,23 @@ namespace ZoologyMod
                 claims.Add(new TreeClaim { pawn = builder, buildCell = cell,
                     slot = slot, claimedAt = GenTicks.TicksGame });
             }
-            nurserySites.Add(cell, new NurserySiteClaim { builder = builder,
-                tree = tree, slot = slot, claimedAt = GenTicks.TicksGame });
+            CellRect footprint = NurseryFootprint(cell, builder, tree);
+            var claim = new NurserySiteClaim { anchor = cell, footprint = footprint,
+                builder = builder, tree = tree, slot = slot, claimedAt = GenTicks.TicksGame };
+            foreach (IntVec3 part in footprint.Cells)
+                nurserySites[part] = claim;
             return true;
         }
 
         internal void ReleaseNurserySite(IntVec3 cell, Pawn builder)
         {
             if (nurserySites.TryGetValue(cell, out NurserySiteClaim claim)
-                && claim.builder == builder)
+                && claim.builder == builder && claim.anchor == cell)
             {
-                nurserySites.Remove(cell);
+                foreach (IntVec3 part in claim.footprint.Cells)
+                    if (nurserySites.TryGetValue(part, out NurserySiteClaim occupant)
+                        && ReferenceEquals(occupant, claim))
+                        nurserySites.Remove(part);
                 if (claim.tree != null) ReleaseTreeClaim(claim.tree, builder);
             }
         }

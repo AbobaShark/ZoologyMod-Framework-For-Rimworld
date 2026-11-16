@@ -99,6 +99,11 @@ namespace ZoologyMod
                 found = TryGetObservedMother(childId);
             }
 
+            if (!IsValidMotherRef(found) && !child.Spawned
+                && ThingOwnerUtility.GetAnyParent<Building_AnimalNursery>(child) is Building_AnimalNursery nest
+                && nest.Contains(child))
+                found = nest.Mother;
+
             if (!IsValidMotherRef(found))
             {
                 found = TryInferMotherFromNearbyAdults(child);
@@ -151,6 +156,11 @@ namespace ZoologyMod
                 found = TryGetObservedMother(childId);
             }
 
+            if (!IsValidMotherRef(found) && !child.Spawned
+                && ThingOwnerUtility.GetAnyParent<Building_AnimalNursery>(child) is Building_AnimalNursery nest
+                && nest.Contains(child))
+                found = nest.Mother;
+
             if (!IsValidMotherRef(found))
             {
                 return false;
@@ -186,6 +196,29 @@ namespace ZoologyMod
             {
                 motherCacheByChildId[childId] = new MotherCacheEntry(mother, now, hasMother: true);
             }
+        }
+
+        internal static bool UsesBiparentalProtection(ThingDef def) =>
+            AnimalOffspringShelter.IsNest(AnimalOffspringShelter.ConfiguredModeFor(def));
+
+        internal static Pawn GetYoungProtectionFather(Pawn child)
+        {
+            if (child == null || !UsesBiparentalProtection(child.def)) return null;
+            Pawn father = child.TryGetComp<CompAnimalStrategyState>()?.offspringProtectionFather;
+            if (IsValidMotherRef(father)) return father;
+
+            if (ThingOwnerUtility.GetAnyParent<Building_AnimalNursery>(child) is Building_AnimalNursery nest
+                && nest.Contains(child) && IsValidMotherRef(nest.Father))
+                return nest.Father;
+
+            var relations = child.relations?.DirectRelations;
+            if (relations != null)
+                for (int i = 0; i < relations.Count; i++)
+                    if (relations[i].def == PawnRelationDefOf.Parent
+                        && relations[i].otherPawn is Pawn parent && parent.gender == Gender.Male
+                        && IsValidMotherRef(parent))
+                        return parent;
+            return null;
         }
 
         private static bool IsValidMotherRef(Pawn mother)

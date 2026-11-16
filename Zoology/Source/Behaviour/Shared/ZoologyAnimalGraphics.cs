@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -47,7 +48,8 @@ namespace ZoologyMod
         private static bool reportedUnmatchedStages;
         private static bool installed;
         private static int activeMode = -1;
-        internal static int GraphicVersion { get; private set; }
+        private static int graphicVersion;
+        internal static int GraphicVersion => Volatile.Read(ref graphicVersion);
 
         internal static bool Enabled
         {
@@ -132,9 +134,9 @@ namespace ZoologyMod
                         : BuildVariant(item.Key, item.Value, sexual, juvenile);
                 item.Key.lifeStages = cached[mode];
             }
+            ZoologyAnimalGraphicBounds.PrepareCache();
             activeMode = mode;
-            GraphicVersion++;
-            ZoologyAnimalGraphicBounds.ClearCache();
+            Interlocked.Increment(ref graphicVersion);
             ZoologyAnimalGraphicBounds.ValidateDrawSizeOrder();
             if (juvenile && !reportedUnmatchedStages && UnmatchedJuvenileStages.Count > 0)
             {

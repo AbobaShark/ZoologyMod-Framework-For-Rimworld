@@ -73,7 +73,7 @@ Fields: none.
 
 Meaning: enables Zoology childcare behavior for the marked animal: young following, protection behavior and the egg-clutch systems that depend on childcare.
 
-The misspellings in both Extensiom and Chlidcare are part of the actual class name and therefore part of the XML contract.
+Use the class name exactly as shown in the example.
 
 ### ModExtension_AgroAtSlaughter
 
@@ -498,7 +498,7 @@ The generic companion-safety system does not require this marker. It evaluates a
 Zoology recognizes these trainable names in its runtime compatibility layer:
 
 - `Zoology_Beastmastery` — current Zoology trainable;
-- `Zoology_DraftControl` — shipped legacy compatibility trainable;
+- `Zoology_DraftControl` — compatible draft-control training;
 - `VEF_Beastmastery` when that compatible Def exists.
 
 The shipped `Zoology_Beastmastery` and `Zoology_DraftControl` TrainableDefs are gated by Odyssey.
@@ -567,11 +567,13 @@ Supported editable parameters are:
 - drugs-immune cleanupIntervalTicks;
 - clotting checkInterval and tending-quality min/max.
 
-## Growth, reproduction and shelter contracts
+## Growth, reproduction and shelters
 
 ### Species-specific life stages and continuous growth
 
 `LifeStageProfiles` provides the concrete young/special-stage endpoints for each supported race; the species-specific installer retains the original `LifeStageAge` metadata, merges defined stats and attacks and leaves unrelated stages unchanged. `ZoologyAnimalGrowth` reads a cached biological-day snapshot, interpolating health, hunger, body size, natural attacks, armor and drawn size when the corresponding setting is enabled.
+
+Growth nutrition follows the allometric intake for current BodySize. Additional food per day is the positive difference between the stage's tissue nutrition requirement and half of its ordinary intake, divided by the duration of that stage. The game calculates this budget for each loaded stage interval and sex endpoint using its actual duration. A mod can use `ZoologyMod.Hediff_GrowthArrest` as a Hediff class to suspend only the additional growth requirement while biological development is arrested.
 
 `SexAdultProfiles_Generated.xml` supplies male and female **adult** endpoints. `ZoologySexAdultProfiles` selects the endpoint for the pawn's gender; if dynamic growth is on, the same juvenile-to-adult interval approaches that endpoint. Adults remain on the final normal adult life stage. `EnableSexualDimorphism` and `EnableDynamicAnimalGrowth` are separate runtime settings. The optional `EnableAutomaticJuvenileSpriteScaling` uses stage mass to replace inconsistent young sprite sizes. An existing distinct female texture is retained; art scaling does not require duplicating a texture.
 
@@ -583,25 +585,53 @@ With Combat Extended active, supported natural attacks use generated CE life-sta
 
 - `CompAnimalStrategyState` tracks applicable strategy decisions and planned searches.
 - `Building_AnimalBurrow` and `AnimalNursery` implement shared shelters, family occupancy and natural bird nests.
-- `CompAnimalNestEggContainer` retains fertilized eggs and young as genuine held Things; rendering and interaction follow the visual canopy where a tree nest is placed.
+- `Building_AnimalNursery` houses dependent chicks and uses `CompAnimalNestEggContainer` for fertilized and unfertilized eggs. Tree nests are attached to a living tree. Ground nests occupy 1 × 1 cells, or 2 × 2 for species with adult base BodySize of at least 0.5. Both ground sizes inherit the same properties from `Zoology_AnimalGroundNestBase`. Mothers with egg care can restore the health of fertilized eggs and their nest by incubating them.
 - `AnimalOffspringPouch` handles dependent marsupial offspring.
 - `CompAmphibianRoe`, `CompTadpole` and `JobDriver_FertilizeAmphibianRoe` model externally fertilized aquatic clutches and larval cohorts using one Thing per group with cohort mass and nutrition. Stage-transition counts are derived from actual clutch size and species-specific embryo and larval survival fractions in `EggMilkWool`. The shipped aquatic definitions and egg-layer patches are Odyssey-gated.
 
 Nests and dens are natural animal structures. `AnimalTreeSelection` connects the selected tree to its current perched animals and anchored nests through vanilla-style selection gizmos; occupants are resolved through the refuge map component. The tree claim enforces a shared BodySize budget.
 
-### Runtime behavior gates and feature combinations
+### Behavior settings and dependencies
 
-`ModConstants.AdvancedReproduction`, `AdvancedThreatAvoidance`, `WaterHabitatBehavior` and `WinterDormancy` provide constant-time gates sourced from the corresponding persisted `ZoologyModSettings` flags. Each gate also checks `DisableAllRuntimePatches`. They are checked at ThinkTree job-giver entry, before any target or path search, and at the existing periodic ThingComp processing intervals.
+Advanced reproductive behavior governs natural nests, marsupial pouches, aquatic amphibian development and species-specific reproductive schedules and costs. Family dens additionally require advanced threat avoidance. Winter dormancy and water habitat behavior are independent settings.
 
-`AnimalOffspringShelter.For` returns `NONE` for specialized reproductive shelter modes when advanced reproduction is disabled. **DEN is additionally disabled unless advanced threat avoidance is enabled.** `AnimalPouchBootstrap` uses the ungated configured mode only to install the component once, preserving safe live toggles. Winter denning does not depend on threat avoidance and is controlled exclusively by its own seasonal gate. Water seeking and dry-ground recovery are separate from choosing emergency water refuges.
+Nests, pouches and family dens release their dependent occupants when their corresponding behavior is disabled. Aquatic clutches and tadpole groups retain their development progress until advanced reproduction is enabled again.
 
-When switches are disabled during an existing game, previously contained offspring must not be discarded: nests eject their real eggs and chicks, pouches release babies to the map or caravan, and family burrows release non-dormant residents. Already spawned amphibian clutches/tadpole cohorts retain their saved progress while the advanced reproduction switch is off. No map-wide periodic scan is added by these settings.
+Features implemented in the assembly respect **Disable all runtime patches**. Static animal definitions and statistics remain available.
 
-The developer master switch unpatches known Harmony IDs and checks remaining Harmony patch methods belonging to this assembly **once at disable time**. However, disabling Harmony patches alone cannot remove injected ThinkTree nodes, CompProperties or already loaded XML definitions. All new behavior entrypoints must therefore also honor the runtime gates. Mammalian nursing interacts with mother and dependent-young holders. The physical shelter, visible sprite and click target must remain consistent.
+### Seasonal reproduction
+
+Add `ModExtension_SeasonalReproduction` to an animal's ThingDef to define its reproductive seasons and alternative husbandry values. Seasons follow the local hemisphere, and temperature-dependent breeding follows the local seasonal climate. Wild animals follow their species' breeding and laying seasons; faction-owned animals use captive reproductive schedules.
+
+| Field | Meaning |
+| --- | --- |
+| `matingSeasonMask` | Mating seasons: spring = 1, summer = 2, autumn = 4, winter = 8; add the values for multiple seasons. All seasons = 15. |
+| `birthSeasonMask` | Birth or laying seasons, using the same values. |
+| `thermalBreedingMinimum` | Minimum seasonal temperature for breeding, in °C. |
+| `embryonicDiapauseTicks` | Duration of embryonic diapause in the wild, in ticks. |
+| `reproductivePauseTicks` | Reproductive pause in the wild, in ticks. |
+| `captiveGestationDays` | Alternative active gestation duration, in game days. |
+| `captiveDiapauseDays` | Alternative duration of embryonic diapause in captivity. |
+| `captiveRealDiapauseDays` | Diapause duration under realistic captive reproductive durations. |
+| `captiveEggFormationDays` | Balanced duration of egg formation in captivity. |
+| `captiveRealEggFormationDays` | Duration of egg formation for captive birds at their biological daily laying rate. |
+| `captiveReproductivePauseDays` | Reproductive pause in captivity. |
+| `captiveIncubationDays` | Alternative egg incubation duration in captivity. |
+| `realisticLitterMean` | Mean biological litter size. |
+| `realisticEggCountRange` | Biological clutch size range, for example `8~10`. |
+| `dormancyThreshold` | Seasonal temperature below which a species eligible for winter dormancy seeks winter shelter. |
+
+The optional captive duration fields use game days. The ordinary gestation, egg formation and incubation periods in the race and egg definitions represent calendar-scaled durations.
+
+**Realistic reproductive durations in captivity** selects calendar-scaled gestation, embryonic diapause and incubation for owned animals, and biological daily laying rates for captive birds. Balanced captive bird production uses the ratio of each species' biological annual egg production to that of chickens, with chickens producing two eggs per game day. Both captive laying rates use continuous clutch formation and scale clutch duration with the selected mean clutch size. Other oviparous animals use species-specific active formation durations and reproductive pauses. A change in pregnancy duration preserves the proportion of development or diapause already completed. Completed diapause does not recur during the same pregnancy.
+
+**Realistic offspring counts** selects biological litter and clutch sizes for both wild and owned animals. The selected distribution is saved at the start of each reproductive cycle and used for birth or laying. Both realism options default to off and belong to advanced reproductive behavior.
+
+`EnergeticsProfiles_Generated.xml` supplies the species-specific nutritional costs of reproduction. Growth, fetal development and egg formation convert allocated nutrition into edible biomass at a 1:1 ratio. Half of ordinary food intake is available for production. Pregnancy and clutch surcharges cover only the positive difference between production cost and that allowance over active development, using the selected offspring counts and durations. Egg nutrition equals hatchling nutrition for ordinary laid eggs; aquatic clutches use their ovum energy profiles. Pregnancy surcharges are weighted by developmental stage, and diapause has no additional pregnancy food cost. Reproductive food requirements are shown in the animal's health information.
 
 ### Winter dormancy and refuges
 
-`ModExtension_WinterDormancy.mode` accepts `NONE`, `HIBERNATION`, `WINTER_REST`, `DENNING` and `MATERNITY_DENNING`. Runtime entry requires suitable wild animals during winter with food level at least 80%; maternity denning requires pregnancy or dependent young. Basal hunger factors are 0.04 for hibernation, 0.25 for denning/maternity denning and 1 for winter rest. The system can reuse compatible burrows and makes decisions in idle job scheduling. Ectotherm idle behavior and habitat selection are implemented separately. Refuge decision-making uses actual visible and overt threat information, movement speed and shelter reachability.
+`ModExtension_WinterDormancy` defines winter shelter eligibility through `ordinaryDormancy` and a maternal denning calendar through `maternitySeasonMask`. Wild animals enter suitable shelters when seasonal conditions permit and their food need is at least 80% full. Dormant animals consume 2.5% of their ordinary maintenance nutrition; the costs of pregnancy and nursing are accounted for separately. Dormancy ends with the season, food reserves below 20%, bleeding, or an attack on or excavation of the shelter. Animals can tend their surface wounds underground. Unused burrows and dens erode over ten game days at full health; empty nests erode over two. Human disturbance can trigger ordinary manhunter behavior using the animal's `manhunterOnDamageChance`. Animals reuse accessible compatible shelters before excavating another.
 
 ### Wild population, predation and husbandry
 
@@ -800,11 +830,12 @@ Current sheets:
 | Groups | Group-level biological/game defaults and inherited values used by species rows. |
 | Base stats | Main species data and calculated baseline fields. |
 | Species overrides | Explicit per-species exceptions layered over group/base logic. |
-| Animals | Final vanilla-facing production table consumed by the checker. |
+| Animals | Species statistics, breeding seasons, reproductive durations, alternative offspring counts and behavioral assignments. |
 | Animals CE | Final Combat Extended production table consumed alongside Animals. |
 | Biomes | Per-animal biome distribution/output data. |
 | Leathers | Leather market, armor and insulation data. |
-| EggMilkWool | Independently keyed egg, milk, wool and amphibian reproduction output tables. |
+| EggMilkWool | Egg, milk and wool production; aquatic egg and tadpole development. |
+| EnergeticsProfiles | Nutritional costs of growth, pregnancy and egg formation. |
 | Animal textiles | Wool and silk material stats and source-mod ownership. |
 | Venom profiles | Natural-attack capacity mappings, venom effects, sample producers and antivenom definitions. |
 | LifeStageProfiles | Species-specific young/special life-stage stat, attack and graphic endpoints. |
@@ -854,7 +885,7 @@ The production flow is:
 
 AnimalStats imports the production export from Calculations with IMPORTRANGE. Calculations is therefore an upstream model workbook, while AnimalStats is the species/game-production workbook.
 
-## Model/data maintenance rules
+## Maintaining animal data
 
 Generated race patches are downstream artifacts. Biological values, model changes and group/species rules are maintained in the relevant workbook source/model/override and then regenerated into XML.
 

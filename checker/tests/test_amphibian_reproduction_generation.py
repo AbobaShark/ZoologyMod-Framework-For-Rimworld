@@ -101,7 +101,7 @@ def fixture():
         count = counts.get(title, 0)
         counts[title] = count + 1
         unique_headers.append(f"{title}.{count}" if title and count else title)
-    return pd.DataFrame(rows, columns=unique_headers)
+    return pd.DataFrame(rows, columns=unique_headers, dtype=object)
 
 
 def initial_defs():
@@ -276,6 +276,14 @@ class AmphibianGenerationTests(unittest.TestCase):
         eggs, milk, wool, ambiguous = _index({'EggMilk': pd_egg_map(live), 'Animals': animals})
         self.assertEqual(set(wool), {'Muskox', 'AEXP_Muskox'})
         self.assertFalse(ambiguous)
+        # Reproductive inputs are inserted after Hatchling XML name (M).
+        extended = live.copy()
+        extended.insert(13, 'Reproductive pause (real days)', [15] + [0] * (len(extended) - 1))
+        extended.insert(14, 'Active clutch formation (real days)', [18] * len(extended))
+        self.assertEqual(len(extended.columns), 54)
+        self.assertEqual(external_roe_rows(extended), amphibians)
+        self.assertEqual(render_products(extended, animals, amphibians), (xml, records))
+        self.assertEqual(pd_egg_map(extended).to_dict('records'), pd_egg_map(live).to_dict('records'))
         # Move fields within each Name-led table, keeping separators.
         order = list(range(52))
         for a, b in ((1, 12), (2, 8), (15, 18), (21, 26), (29, 46)):

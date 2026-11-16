@@ -674,6 +674,27 @@
             <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
           </match>
         </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationAddModExtension">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Quail"]</xpath>
+          <value>
+            <li Class="ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod">
+              <matingSeasonMask>3</matingSeasonMask>
+              <reproductivePauseTicks>3486000</reproductivePauseTicks>
+              <birthSeasonMask>3</birthSeasonMask>
+              <captiveEggFormationDays>31.403</captiveEggFormationDays>
+              <captiveRealEggFormationDays>94.397</captiveRealEggFormationDays>
+              <captiveReproductivePauseDays>0</captiveReproductivePauseDays>
+              <captiveIncubationDays>3</captiveIncubationDays>
+              <realisticEggCountRange>11~12</realisticEggCountRange>
+            </li>
+          </value>
+        </li>
         <!-- VAERoy_Quail PawnKindDef -->
         <li Class="PatchOperationConditional">
           <xpath>/Defs/PawnKindDef[defName = "VAERoy_Quail"]/combatPower</xpath>
@@ -1452,6 +1473,27 @@
             <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
           </match>
         </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationAddModExtension">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Swan"]</xpath>
+          <value>
+            <li Class="ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod">
+              <matingSeasonMask>1</matingSeasonMask>
+              <reproductivePauseTicks>3522000</reproductivePauseTicks>
+              <birthSeasonMask>3</birthSeasonMask>
+              <captiveEggFormationDays>57.276</captiveEggFormationDays>
+              <captiveRealEggFormationDays>172.17</captiveRealEggFormationDays>
+              <captiveReproductivePauseDays>0</captiveReproductivePauseDays>
+              <captiveIncubationDays>5.9</captiveIncubationDays>
+              <realisticEggCountRange>5~6</realisticEggCountRange>
+            </li>
+          </value>
+        </li>
         <!-- VAERoy_Swan PawnKindDef -->
         <li Class="PatchOperationConditional">
           <xpath>/Defs/PawnKindDef[defName = "VAERoy_Swan"]/combatPower</xpath>
@@ -2218,6 +2260,27 @@
             <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
           </match>
         </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+          <match Class="PatchOperationRemove">
+            <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+          </match>
+        </li>
+        <li Class="PatchOperationAddModExtension">
+          <xpath>/Defs/ThingDef[defName = "VAERoy_Peacock"]</xpath>
+          <value>
+            <li Class="ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod">
+              <matingSeasonMask>7</matingSeasonMask>
+              <reproductivePauseTicks>690000</reproductivePauseTicks>
+              <birthSeasonMask>7</birthSeasonMask>
+              <captiveEggFormationDays>10.605</captiveEggFormationDays>
+              <captiveRealEggFormationDays>31.878</captiveRealEggFormationDays>
+              <captiveReproductivePauseDays>0</captiveReproductivePauseDays>
+              <captiveIncubationDays>4.8</captiveIncubationDays>
+              <realisticEggCountRange>4~6</realisticEggCountRange>
+            </li>
+          </value>
+        </li>
         <!-- VAERoy_Peacock PawnKindDef -->
         <li Class="PatchOperationConditional">
           <xpath>/Defs/PawnKindDef[defName = "VAERoy_Peacock"]/combatPower</xpath>
@@ -2290,10 +2353,7 @@
   </Operation>
   <!---->
   <!-- Combat Extended specific patches -->
-  <Operation Class="PatchOperationFindMod">
-    <mods>
-      <li>Combat Extended</li>
-    </mods>
+  <Operation Class="ZoologyMod.PatchOperation_FindCombatExtended">
     <match Class="PatchOperationSequence">
       <operations>
         <li Class="PatchOperationFindMod">

@@ -3,7 +3,7 @@ import pandas as pd
 from lxml import etree as E
 from core.energetics_profiles import (
     render_energetics_profiles, growth_stage_factors, body_nutrition, round_base_hunger_rate,
-    extra_clutch_budget, REQUIRED,
+    extra_clutch_budget, extra_production_budget, stage_growth_budget, REQUIRED,
 )
 
 def row(**values):
@@ -18,7 +18,8 @@ class EnergeticsProfilesTests(unittest.TestCase):
                          "Mean eggs / clutch": 1, "Female adult HungerRateFactor": 1})
         self.gestation = row(**{"XML name": "<li>Pig</li>", "Adult base feed (N/d)": 1.36,
                          "Reproduction mode": "Gestation", "Reproductive coverage": "READY",
-                         "Gestation (d)": 6, "Gestation budget (N)": 18,
+                         "Gestation (d)": 6, "Mean litter": 3, "Newborn food (N)": 6,
+                         "Gestation budget (N)": 18,
                          "Pregnancy stage 1 (N/d)": 1, "Pregnancy stage 2 (N/d)": 3,
                          "Pregnancy stage 3 (N/d)": 5})
 
@@ -29,6 +30,10 @@ class EnergeticsProfilesTests(unittest.TestCase):
         self.assertEqual(root.xpath("//profiles/li/animalDefName/text()"), ["Chicken", "Pig"])
         self.assertEqual(root.xpath("//eggNutrition/text()"), ["0.8"])
         self.assertEqual(root.xpath("//gestationBudget/text()"), ["18"])
+        self.assertEqual(root.xpath("//meanLitter/text()"), ["3"])
+        self.assertEqual(root.xpath("//meanClutch/text()"), ["1"])
+        self.assertEqual(root.xpath("//formationNutritionPerOvum/text()"), ["0.8"])
+        self.assertEqual(root.xpath("//femaleBaseFeed/text()"), ["0.48"])
 
     def test_fractional_egg_interval(self):
         self.egg["Egg interval (d)"] = 1.8438430007299678
@@ -69,6 +74,19 @@ class EnergeticsProfilesTests(unittest.TestCase):
         self.assertIsNone(root.find(".//eggNutrition"))
         self.assertEqual(root.findtext(".//gravidExtra"), "0")
 
+    def test_gestation_budget_uses_newborn_nutrition(self):
+        self.gestation["Newborn food (N)"] = 7
+        with self.assertRaisesRegex(ValueError, "inconsistent"):
+            render_energetics_profiles(pd.DataFrame([self.gestation]))
+
+    def test_reproduction_budget_credits_half_ordinary_feed(self):
+        self.assertEqual(extra_production_budget(4.005414556651282, 1.2 * 7.5), 0)
+        self.assertEqual(extra_production_budget(5.861050109875482, 1.6 * 11.5), 0)
+        self.assertAlmostEqual(extra_production_budget(18, 1.36 * 6), 13.92)
+        self.assertAlmostEqual(extra_production_budget(18, 1.36 * 3), 15.96)
+        self.assertAlmostEqual(extra_production_budget(36, 1.36 * 6), 31.92)
+        self.assertEqual(extra_production_budget(0, 10), 0)
+
     def test_pregnancy_stage_weights(self):
         self.gestation["Pregnancy stage 1 (N/d)"] = 2
         self.gestation["Pregnancy stage 2 (N/d)"] = 2
@@ -79,6 +97,30 @@ class EnergeticsProfilesTests(unittest.TestCase):
         self.egg["Gravid extra (N/d)"] = 1
         with self.assertRaisesRegex(ValueError, "inconsistent"):
             render_energetics_profiles(pd.DataFrame([self.egg]))
+
+    def test_half_ordinary_feed_covers_growth_first(self):
+        ordinary, gain, extra = stage_growth_budget(0.2, 0.3, 60, 0.8, 1, 0.734, 1)
+        self.assertGreaterEqual(0.5 * ordinary, gain)
+        self.assertEqual(extra, 0)
+        ordinary, gain, extra = stage_growth_budget(0.01, 0.8, 2, 0.8, 1, 0.734, 1)
+        self.assertGreater(extra, 0)
+        self.assertAlmostEqual(0.5 * ordinary + extra, gain)
+        self.assertAlmostEqual(ordinary + extra, gain + 0.5 * ordinary)
+
+    def test_one_day_transition_and_no_negative_growth_cost(self):
+        ordinary, gain, extra = stage_growth_budget(0.1, 0.7, 1, 0.8, 1, 0.734, 1)
+        self.assertAlmostEqual(0.5 * ordinary + extra, gain)
+        self.assertGreater(extra, 0)
+        _, gain, extra = stage_growth_budget(0.7, 0.5, 2, 0.8, 1, 0.734, 1)
+        self.assertEqual((gain, extra), (0, 0))
+
+    def test_custom_stages_receive_allometric_parameters(self):
+        custom = row(**{"XML name": "<li>SpecialStageAnimal</li>", "Adult base feed (N/d)": 0.8,
+                         "Reproductive coverage": "SPECIAL", "Allometric exponent": 0.734,
+                         "Growth efficiency": 1, "Baseline adult BodySize": 1})
+        xml, _ = render_energetics_profiles(pd.DataFrame([self.egg, custom]))
+        special = E.fromstring(xml).xpath("//li[animalDefName='SpecialStageAnimal']")[0]
+        self.assertEqual(special.findtext("growthExponent"), "0.734")
 
     def test_growth_floor_and_shared_allometry(self):
         growth = row(**{"XML name": "<li>TestAnimal</li>", "Adult base feed (N/d)": 0.8,

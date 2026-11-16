@@ -93,12 +93,6 @@
     </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[@Name = "VAEWaste_BaseInsect"]/race/gestationPeriodDays</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[@Name = "VAEWaste_BaseInsect"]/race/gestationPeriodDays</xpath>
-    </match>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[@Name = "VAEWaste_BaseInsect"]/race/herdAnimal</xpath>
     <match Class="PatchOperationReplace">
       <xpath>/Defs/ThingDef[@Name = "VAEWaste_BaseInsect"]/race/herdAnimal</xpath>
@@ -302,12 +296,6 @@
         </tradeTags>
       </value>
     </nomatch>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[@Name = "VAEWaste_BaseInsect"]/race/litterSizeCurve</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[@Name = "VAEWaste_BaseInsect"]/race/litterSizeCurve</xpath>
-    </match>
   </Operation>
   <Operation Class="PatchOperationAddModExtension">
     <xpath>/Defs/ThingDef[@Name = "VAEWaste_BaseInsect"]</xpath>
@@ -714,6 +702,24 @@
       <xpath>/Defs/ThingDef[defName = "VAEWaste_Hydra"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
     </match>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Hydra"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Hydra"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Hydra"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod">
+        <reproductivePauseTicks>2934000</reproductivePauseTicks>
+        <captiveEggFormationDays>11.1</captiveEggFormationDays>
+        <captiveReproductivePauseDays>48.9</captiveReproductivePauseDays>
+        <captiveIncubationDays>7</captiveIncubationDays>
+        <realisticEggCountRange>39~41</realisticEggCountRange>
+      </li>
+    </value>
+  </Operation>
   <!-- VAEWaste_Hydra PawnKindDef -->
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "VAEWaste_Hydra"]/combatPower</xpath>
@@ -877,12 +883,6 @@
     <value>
       <baseHungerRate>0.2</baseHungerRate>
     </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "VAEWaste_Megatardi"]/race/gestationPeriodDays</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "VAEWaste_Megatardi"]/race/gestationPeriodDays</xpath>
-    </match>
   </Operation>
   <Operation Class="PatchOperationRemove">
     <xpath>/Defs/ThingDef[defName = "VAEWaste_Megatardi"]/race/herdAnimal</xpath>
@@ -1095,6 +1095,12 @@
       <xpath>/Defs/ThingDef[defName = "VAEWaste_Megatardi"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
     </match>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Megatardi"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Megatardi"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
   <!-- VAEWaste_Megatardi PawnKindDef -->
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "VAEWaste_Megatardi"]/combatPower</xpath>
@@ -1245,12 +1251,6 @@
     <value>
       <lifeExpectancy>60</lifeExpectancy>
     </value>
-  </Operation>
-  <Operation Class="PatchOperationConditional">
-    <xpath>/Defs/ThingDef[defName = "VAEWaste_Pestigator"]/race/gestationPeriodDays</xpath>
-    <match Class="PatchOperationRemove">
-      <xpath>/Defs/ThingDef[defName = "VAEWaste_Pestigator"]/race/gestationPeriodDays</xpath>
-    </match>
   </Operation>
   <Operation Class="PatchOperationConditional">
     <xpath>/Defs/ThingDef[defName = "VAEWaste_Pestigator"]/race/herdMigrationAllowed</xpath>
@@ -1514,6 +1514,12 @@
       <xpath>/Defs/ThingDef[defName = "VAEWaste_Pestigator"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
     </match>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Pestigator"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Pestigator"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
   <!-- VAEWaste_Pestigator PawnKindDef -->
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "VAEWaste_Pestigator"]/combatPower</xpath>
@@ -1703,7 +1709,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxafox"]/race/gestationPeriodDays</xpath>
     <value>
-      <gestationPeriodDays>6</gestationPeriodDays>
+      <gestationPeriodDays>8.5</gestationPeriodDays>
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
@@ -2012,6 +2018,21 @@
       <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxafox"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
     </match>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxafox"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxafox"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxafox"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod">
+        <captiveGestationDays>6</captiveGestationDays>
+        <realisticLitterMean>5</realisticLitterMean>
+      </li>
+    </value>
+  </Operation>
   <!-- VAEWaste_Toxafox PawnKindDef -->
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "VAEWaste_Toxafox"]/combatPower</xpath>
@@ -2202,7 +2223,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxbear"]/race/gestationPeriodDays</xpath>
     <value>
-      <gestationPeriodDays>7.5</gestationPeriodDays>
+      <gestationPeriodDays>18.1</gestationPeriodDays>
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
@@ -2526,6 +2547,21 @@
     <match Class="PatchOperationRemove">
       <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxbear"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
     </match>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxbear"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxbear"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxbear"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod">
+        <captiveGestationDays>7.5</captiveGestationDays>
+        <realisticLitterMean>2</realisticLitterMean>
+      </li>
+    </value>
   </Operation>
   <!-- VAEWaste_Toxbear PawnKindDef -->
   <Operation Class="PatchOperationReplace">
@@ -2984,6 +3020,24 @@
       <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxiguana"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
     </match>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxiguana"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxiguana"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxiguana"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod">
+        <reproductivePauseTicks>2958000</reproductivePauseTicks>
+        <captiveEggFormationDays>10.7</captiveEggFormationDays>
+        <captiveReproductivePauseDays>49.3</captiveReproductivePauseDays>
+        <captiveIncubationDays>7.5</captiveIncubationDays>
+        <realisticEggCountRange>64~66</realisticEggCountRange>
+      </li>
+    </value>
+  </Operation>
   <!-- VAEWaste_Toxiguana PawnKindDef -->
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "VAEWaste_Toxiguana"]/combatPower</xpath>
@@ -3165,7 +3219,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxlion"]/race/gestationPeriodDays</xpath>
     <value>
-      <gestationPeriodDays>7.5</gestationPeriodDays>
+      <gestationPeriodDays>17.9</gestationPeriodDays>
     </value>
   </Operation>
   <Operation Class="PatchOperationReplace">
@@ -3494,6 +3548,21 @@
       <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxlion"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
     </match>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxlion"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxlion"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxlion"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod">
+        <captiveGestationDays>7.5</captiveGestationDays>
+        <realisticLitterMean>3</realisticLitterMean>
+      </li>
+    </value>
+  </Operation>
   <!-- VAEWaste_Toxlion PawnKindDef -->
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "VAEWaste_Toxlion"]/combatPower</xpath>
@@ -3706,9 +3775,6 @@
     <value>
       <lifeExpectancy>18</lifeExpectancy>
     </value>
-  </Operation>
-  <Operation Class="PatchOperationRemove">
-    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxscorpion"]/race/gestationPeriodDays</xpath>
   </Operation>
   <Operation Class="PatchOperationRemove">
     <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxscorpion"]/race/herdAnimal</xpath>
@@ -3965,6 +4031,12 @@
       <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxscorpion"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
     </match>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxscorpion"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Toxscorpion"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
   <!-- VAEWaste_Toxscorpion PawnKindDef -->
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "VAEWaste_Toxscorpion"]/combatPower</xpath>
@@ -4118,7 +4190,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "VAEWaste_Wasteboar"]/race/gestationPeriodDays</xpath>
     <value>
-      <gestationPeriodDays>7.5</gestationPeriodDays>
+      <gestationPeriodDays>18.9</gestationPeriodDays>
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
@@ -4463,6 +4535,21 @@
       <xpath>/Defs/ThingDef[defName = "VAEWaste_Wasteboar"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
     </match>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Wasteboar"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Wasteboar"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Wasteboar"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod">
+        <captiveGestationDays>7.5</captiveGestationDays>
+        <realisticLitterMean>7</realisticLitterMean>
+      </li>
+    </value>
+  </Operation>
   <!-- VAEWaste_Wasteboar PawnKindDef -->
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "VAEWaste_Wasteboar"]/combatPower</xpath>
@@ -4630,7 +4717,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "VAEWaste_Wastedeer"]/race/gestationPeriodDays</xpath>
     <value>
-      <gestationPeriodDays>8.5</gestationPeriodDays>
+      <gestationPeriodDays>25</gestationPeriodDays>
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
@@ -4935,6 +5022,21 @@
       <xpath>/Defs/ThingDef[defName = "VAEWaste_Wastedeer"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
     </match>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Wastedeer"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Wastedeer"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Wastedeer"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod">
+        <captiveGestationDays>8.5</captiveGestationDays>
+        <realisticLitterMean>1</realisticLitterMean>
+      </li>
+    </value>
+  </Operation>
   <!-- VAEWaste_Wastedeer PawnKindDef -->
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "VAEWaste_Wastedeer"]/ecoSystemWeight</xpath>
@@ -5080,7 +5182,7 @@
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/ThingDef[defName = "VAEWaste_Wasteffalo"]/race/gestationPeriodDays</xpath>
     <value>
-      <gestationPeriodDays>10.5</gestationPeriodDays>
+      <gestationPeriodDays>39.8</gestationPeriodDays>
     </value>
   </Operation>
   <Operation Class="PatchOperationConditional">
@@ -5331,6 +5433,21 @@
       <xpath>/Defs/ThingDef[defName = "VAEWaste_Wasteffalo"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
     </match>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Wasteffalo"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "VAEWaste_Wasteffalo"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "VAEWaste_Wasteffalo"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod">
+        <captiveGestationDays>10.5</captiveGestationDays>
+        <realisticLitterMean>1</realisticLitterMean>
+      </li>
+    </value>
+  </Operation>
   <!-- VAEWaste_Wasteffalo PawnKindDef -->
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "VAEWaste_Wasteffalo"]/combatPower</xpath>
@@ -5360,10 +5477,7 @@
     </match>
   </Operation>
   <!-- Combat Extended specific patches -->
-  <Operation Class="PatchOperationFindMod">
-    <mods>
-      <li>Combat Extended</li>
-    </mods>
+  <Operation Class="ZoologyMod.PatchOperation_FindCombatExtended">
     <match Class="PatchOperationSequence">
       <operations>
         <li Class="PatchOperationConditional">

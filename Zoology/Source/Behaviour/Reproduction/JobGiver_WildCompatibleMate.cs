@@ -31,6 +31,8 @@ namespace ZoologyMod
                 return null;
             }
 
+            if (!AnimalSeasonalReproduction.AllowsMating(pawn)) return null;
+
             Pawn mate = FindCompatibleMate(pawn, pawn.def);
             if (mate == null)
             {

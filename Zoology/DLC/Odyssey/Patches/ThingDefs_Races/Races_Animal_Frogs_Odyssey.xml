@@ -478,6 +478,35 @@
       <xpath>/Defs/ThingDef[defName = "Bullfrog"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
     </match>
   </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "Bullfrog"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_WinterDormancy, ZoologyMod">
+        <ordinaryDormancy>true</ordinaryDormancy>
+      </li>
+    </value>
+  </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "Bullfrog"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "Bullfrog"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "Bullfrog"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod">
+        <matingSeasonMask>3</matingSeasonMask>
+        <reproductivePauseTicks>2820000</reproductivePauseTicks>
+        <thermalBreedingMinimum>20</thermalBreedingMinimum>
+        <dormancyThreshold>15</dormancyThreshold>
+        <captiveEggFormationDays>9.2</captiveEggFormationDays>
+        <captiveReproductivePauseDays>46.9</captiveReproductivePauseDays>
+        <captiveIncubationDays>0.66</captiveIncubationDays>
+        <realisticEggCountRange>9110~16920</realisticEggCountRange>
+      </li>
+    </value>
+  </Operation>
   <!-- Bullfrog PawnKindDef -->
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "Bullfrog"]/combatPower</xpath>
@@ -987,6 +1016,25 @@
       <xpath>/Defs/ThingDef[defName = "ColossusToad"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_WinterDormancy, ZoologyMod"]</xpath>
     </match>
   </Operation>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/ThingDef[defName = "ColossusToad"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    <match Class="PatchOperationRemove">
+      <xpath>/Defs/ThingDef[defName = "ColossusToad"]/modExtensions/li[@Class = "ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod"]</xpath>
+    </match>
+  </Operation>
+  <Operation Class="PatchOperationAddModExtension">
+    <xpath>/Defs/ThingDef[defName = "ColossusToad"]</xpath>
+    <value>
+      <li Class="ZoologyMod.ModExtension_SeasonalReproduction, ZoologyMod">
+        <reproductivePauseTicks>3048000</reproductivePauseTicks>
+        <thermalBreedingMinimum>19</thermalBreedingMinimum>
+        <captiveEggFormationDays>9.2</captiveEggFormationDays>
+        <captiveReproductivePauseDays>50.8</captiveReproductivePauseDays>
+        <captiveIncubationDays>0.74</captiveIncubationDays>
+        <realisticEggCountRange>21000~39000</realisticEggCountRange>
+      </li>
+    </value>
+  </Operation>
   <!-- ColossusToad PawnKindDef -->
   <Operation Class="PatchOperationReplace">
     <xpath>/Defs/PawnKindDef[defName = "ColossusToad"]/combatPower</xpath>
@@ -1022,10 +1070,7 @@
     </match>
   </Operation>
   <!-- Combat Extended specific patches -->
-  <Operation Class="PatchOperationFindMod">
-    <mods>
-      <li>Combat Extended</li>
-    </mods>
+  <Operation Class="ZoologyMod.PatchOperation_FindCombatExtended">
     <match Class="PatchOperationSequence">
       <operations>
         <!-- Bullfrog CE patches -->

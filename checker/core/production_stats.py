@@ -193,7 +193,7 @@ def refresh_tree(tree,tables):
                     bounds = [int(x) for x in desired.split('~')]
                     if bounds[-1] < bounds[0] or bounds[-1] > 2147483647:
                         raise ValueError(f'Invalid eggCountRange: {desired!r}')
-                elif field=='hatcherDaystoHatch': desired=_format(_value(row.get('hatcherDaystoHatch'),integer=True))
+                elif field=='hatcherDaystoHatch': desired=_format(_value(row.get('hatcherDaystoHatch')))
                 elif field=='milkAmount':
                     # Chemfuel-producing and other exotic milkable comps are NOT
                     # ordinary milk; their values are intentionally hand-maintained.

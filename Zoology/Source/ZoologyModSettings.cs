@@ -42,6 +42,8 @@ namespace ZoologyMod
         public bool EnableHandlerBabyFeeding = ModConstants.DefaultEnableHandlerBabyFeeding;
         public bool EnableAnimalChildcare = ModConstants.DefaultEnableAnimalChildcare;
         public bool EnableAdvancedReproductiveBehavior = ModConstants.DefaultEnableAdvancedReproductiveBehavior;
+        public bool RealisticCaptiveGestation = false;
+        public bool RealisticOffspringCounts = false;
         public bool EnableAdvancedThreatAvoidance = ModConstants.DefaultEnableAdvancedThreatAvoidance;
         public bool EnableWaterHabitatBehavior = ModConstants.DefaultEnableWaterHabitatBehavior;
         public bool EnableWinterDormancy = ModConstants.DefaultEnableWinterDormancy;
@@ -568,6 +570,10 @@ namespace ZoologyMod
                 "Zoology_EnableAdvancedReproduction_Label".Translate(),
                 ref EnableAdvancedReproductiveBehavior,
                 "Zoology_EnableAdvancedReproduction_Desc".Translate());
+            list.CheckboxLabeled("Zoology_RealisticCaptiveGestation_Label".Translate(), ref RealisticCaptiveGestation,
+                "Zoology_RealisticCaptiveGestation_Desc".Translate());
+            list.CheckboxLabeled("Zoology_RealisticOffspringCounts_Label".Translate(), ref RealisticOffspringCounts,
+                "Zoology_RealisticOffspringCounts_Desc".Translate());
             list.GapLine(12f);
             bool oldMammalLactationEnabled = EnableMammalLactation;
             list.CheckboxLabeled("Zoology_EnableMammalLactation_Label".Translate(), ref EnableMammalLactation, "Zoology_EnableMammalLactation_Desc".Translate());
@@ -1145,6 +1151,8 @@ namespace ZoologyMod
             EnableHandlerBabyFeeding = ModConstants.DefaultEnableHandlerBabyFeeding;
             EnableAnimalChildcare = ModConstants.DefaultEnableAnimalChildcare;
             EnableAdvancedReproductiveBehavior = ModConstants.DefaultEnableAdvancedReproductiveBehavior;
+            RealisticCaptiveGestation = false;
+            RealisticOffspringCounts = false;
             EnableAdvancedThreatAvoidance = ModConstants.DefaultEnableAdvancedThreatAvoidance;
             EnableWaterHabitatBehavior = ModConstants.DefaultEnableWaterHabitatBehavior;
             EnableWinterDormancy = ModConstants.DefaultEnableWinterDormancy;
@@ -1261,6 +1269,8 @@ namespace ZoologyMod
             Scribe_Values.Look(ref EnableHandlerBabyFeeding, "EnableHandlerBabyFeeding", ModConstants.DefaultEnableHandlerBabyFeeding);
             Scribe_Values.Look(ref EnableAnimalChildcare, "EnableAnimalChildcare", ModConstants.DefaultEnableAnimalChildcare);
             Scribe_Values.Look(ref EnableAdvancedReproductiveBehavior, "EnableAdvancedReproductiveBehavior", ModConstants.DefaultEnableAdvancedReproductiveBehavior);
+            Scribe_Values.Look(ref RealisticCaptiveGestation, "RealisticCaptiveGestation", false);
+            Scribe_Values.Look(ref RealisticOffspringCounts, "RealisticOffspringCounts", false);
             Scribe_Values.Look(ref EnableAdvancedThreatAvoidance, "EnableAdvancedThreatAvoidance", ModConstants.DefaultEnableAdvancedThreatAvoidance);
             Scribe_Values.Look(ref EnableWaterHabitatBehavior, "EnableWaterHabitatBehavior", ModConstants.DefaultEnableWaterHabitatBehavior);
             Scribe_Values.Look(ref EnableWinterDormancy, "EnableWinterDormancy", ModConstants.DefaultEnableWinterDormancy);
