@@ -107,7 +107,9 @@ namespace ZoologyMod
                     prefix: new HarmonyMethod(AccessTools.Method(typeof(ZoologyCeDamageTrace),
                         nameof(DamagePrefix))) { priority = Priority.Last },
                     postfix: new HarmonyMethod(AccessTools.Method(typeof(ZoologyCeDamageTrace),
-                        nameof(DamagePostfix))) { priority = Priority.Last });
+                        nameof(DamagePostfix))) { priority = Priority.Last },
+                    finalizer: new HarmonyMethod(AccessTools.Method(typeof(ZoologyCeDamageTrace),
+                        nameof(DamageFinalizer))));
                 Harmony.Patch(armorMethod,
                     prefix: new HarmonyMethod(AccessTools.Method(typeof(ZoologyCeDamageTrace),
                         nameof(ArmorPrefix))),
@@ -146,6 +148,18 @@ namespace ZoologyMod
             DamageFrames.Clear();
             ExplainedAttackers.Clear();
             Unpatch(takeDamageMethod, nameof(DamagePrefix), nameof(DamagePostfix));
+            if (takeDamageMethod != null)
+            {
+                try
+                {
+                    Harmony.Unpatch(takeDamageMethod,
+                        AccessTools.Method(typeof(ZoologyCeDamageTrace), nameof(DamageFinalizer)));
+                }
+                catch (Exception ex)
+                {
+                    Log.ErrorOnce("[Zoology CE trace] Finalizer unpatch failed: " + ex, 2026111809);
+                }
+            }
             Unpatch(armorMethod, nameof(ArmorPrefix), nameof(ArmorPostfix));
             Unpatch(meleeMethod, nameof(MeleePrefix), nameof(MeleePostfix));
             takeDamageMethod = armorMethod = meleeMethod = null;
@@ -236,6 +250,14 @@ namespace ZoologyMod
             {
                 Log.ErrorOnce("[Zoology CE trace] Damage report error: " + ex, 2026111805);
             }
+        }
+
+        private static Exception DamageFinalizer(Exception __exception, DamageFrame __state)
+        {
+            if (__exception != null && __state != null
+                && DamageFrames.Count > 0 && ReferenceEquals(DamageFrames.Peek(), __state))
+                DamageFrames.Pop();
+            return __exception;
         }
 
         private static void ArmorPrefix(DamageInfo originalDinfo, Pawn pawn,
