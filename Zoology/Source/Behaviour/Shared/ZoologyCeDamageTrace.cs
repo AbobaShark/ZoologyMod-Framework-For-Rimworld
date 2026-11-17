@@ -1,0 +1,421 @@
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Text;
+using HarmonyLib;
+using LudeonTK;
+using RimWorld;
+using Verse;
+
+namespace ZoologyMod
+{
+    public static class ZoologyCeDamageTrace
+    {
+        private const string HarmonyId = "com.abobashark.zoology.debug.ce-damage";
+        private static readonly Harmony Harmony = new Harmony(HarmonyId);
+        private static readonly Stack<DamageFrame> DamageFrames = new Stack<DamageFrame>();
+
+        private static WeakReference<Pawn> watched;
+        private static MethodBase takeDamageMethod;
+        private static MethodBase armorMethod;
+        private static MethodBase meleeMethod;
+        private static MethodInfo partialPawnMethod;
+        private static MethodInfo partialApparelMethod;
+        private static PropertyInfo lastAttackVerbProperty;
+        private static PropertyInfo sharpApProperty;
+        private static PropertyInfo bluntApProperty;
+
+        private sealed class DamageFrame
+        {
+            internal Pawn victim;
+            internal DamageInfo input;
+            internal readonly List<string> armorSteps = new List<string>(2);
+            internal string weapon;
+        }
+
+        private sealed class ArmorStep
+        {
+            internal DamageFrame frame;
+            internal StringBuilder details;
+            internal float before;
+            internal float penetration;
+        }
+
+        [DebugAction("Zoology", "Trace CE damage to animal (toggle)",
+            actionType = DebugActionType.ToolMapForPawns,
+            allowedGameStates = AllowedGameStates.PlayingOnMap)]
+        public static void Toggle(Pawn pawn)
+        {
+            if (pawn?.RaceProps?.Animal != true)
+            {
+                Log.Warning("[Zoology CE trace] Select an animal.");
+                return;
+            }
+            if (!CEChecker.IsCEInstalled())
+            {
+                Log.Warning("[Zoology CE trace] Combat Extended is not loaded.");
+                return;
+            }
+
+            Pawn old = WatchedPawn();
+            if (ReferenceEquals(old, pawn))
+            {
+                Stop();
+                Log.Message("[Zoology CE trace] Stopped.");
+                return;
+            }
+
+            Stop();
+            try
+            {
+                Type ceArmor = AccessTools.TypeByName("CombatExtended.ArmorUtilityCE");
+                Type ceVerb = AccessTools.TypeByName("CombatExtended.Verb_MeleeAttackCE");
+                if (ceArmor == null || ceVerb == null)
+                    throw new InvalidOperationException("CE armor utility or melee verb not found");
+
+                takeDamageMethod = AccessTools.DeclaredMethod(typeof(Pawn), "TakeDamage",
+                    new[] { typeof(DamageInfo) })
+                    ?? AccessTools.Method(typeof(Thing), "TakeDamage",
+                        new[] { typeof(DamageInfo) });
+                armorMethod = AccessTools.Method(ceArmor, "GetAfterArmorDamage",
+                    new[]
+                    {
+                        typeof(DamageInfo), typeof(Pawn), typeof(BodyPartRecord),
+                        typeof(bool).MakeByRefType(), typeof(bool).MakeByRefType(),
+                        typeof(bool).MakeByRefType()
+                    });
+                meleeMethod = AccessTools.Method(ceVerb, "TryCastShot");
+                partialPawnMethod = AccessTools.Method(ceArmor, "PartialStat",
+                    new[] { typeof(Pawn), typeof(StatDef), typeof(BodyPartRecord) });
+                partialApparelMethod = AccessTools.Method(ceArmor, "PartialStat",
+                    new[] { typeof(Apparel), typeof(StatDef), typeof(BodyPartRecord) });
+                lastAttackVerbProperty = AccessTools.Property(ceVerb, "LastAttackVerb");
+                sharpApProperty = AccessTools.Property(ceVerb, "ArmorPenetrationSharp");
+                bluntApProperty = AccessTools.Property(ceVerb, "ArmorPenetrationBlunt");
+
+                if (takeDamageMethod == null || armorMethod == null || meleeMethod == null
+                    || partialPawnMethod == null || partialApparelMethod == null)
+                    throw new InvalidOperationException("A required CE/RimWorld combat method was not found");
+
+                Harmony.Patch(takeDamageMethod,
+                    prefix: new HarmonyMethod(AccessTools.Method(typeof(ZoologyCeDamageTrace),
+                        nameof(DamagePrefix))) { priority = Priority.Last },
+                    postfix: new HarmonyMethod(AccessTools.Method(typeof(ZoologyCeDamageTrace),
+                        nameof(DamagePostfix))));
+                Harmony.Patch(armorMethod,
+                    prefix: new HarmonyMethod(AccessTools.Method(typeof(ZoologyCeDamageTrace),
+                        nameof(ArmorPrefix))),
+                    postfix: new HarmonyMethod(AccessTools.Method(typeof(ZoologyCeDamageTrace),
+                        nameof(ArmorPostfix))));
+                Harmony.Patch(meleeMethod,
+                    prefix: new HarmonyMethod(AccessTools.Method(typeof(ZoologyCeDamageTrace),
+                        nameof(MeleePrefix))),
+                    postfix: new HarmonyMethod(AccessTools.Method(typeof(ZoologyCeDamageTrace),
+                        nameof(MeleePostfix))));
+
+                watched = new WeakReference<Pawn>(pawn);
+                Log.Message("[Zoology CE trace] Monitoring " + pawn.LabelShortCap
+                    + " (" + pawn.def.defName + "). Select the same pawn again to stop."
+                    + " Every received damage event reports CE armor processing and health damage.");
+                LogArmorSummary(pawn);
+            }
+            catch (Exception ex)
+            {
+                Stop();
+                Log.Error("[Zoology CE trace] Cannot start: " + ex);
+            }
+        }
+
+        public static void Stop()
+        {
+            watched = null;
+            DamageFrames.Clear();
+            Unpatch(takeDamageMethod, nameof(DamagePrefix), nameof(DamagePostfix));
+            Unpatch(armorMethod, nameof(ArmorPrefix), nameof(ArmorPostfix));
+            Unpatch(meleeMethod, nameof(MeleePrefix), nameof(MeleePostfix));
+            takeDamageMethod = armorMethod = meleeMethod = null;
+        }
+
+        private static void Unpatch(MethodBase target, string prefix, string postfix)
+        {
+            if (target == null) return;
+            try
+            {
+                Harmony.Unpatch(target, AccessTools.Method(typeof(ZoologyCeDamageTrace), prefix));
+                Harmony.Unpatch(target, AccessTools.Method(typeof(ZoologyCeDamageTrace), postfix));
+            }
+            catch (Exception ex)
+            {
+                Log.ErrorOnce("[Zoology CE trace] Unpatch failed: " + ex, 2026111803);
+            }
+        }
+
+        private static Pawn WatchedPawn()
+        {
+            Pawn pawn;
+            return watched != null && watched.TryGetTarget(out pawn) ? pawn : null;
+        }
+
+        private static bool IsWatched(Pawn pawn)
+        {
+            return pawn != null && ReferenceEquals(pawn, WatchedPawn());
+        }
+
+        private static DamageFrame ActiveFrame(Pawn pawn)
+        {
+            if (!IsWatched(pawn)) return null;
+            return DamageFrames.Count > 0 ? DamageFrames.Peek() : null;
+        }
+
+        private static void DamagePrefix(Thing __instance, DamageInfo dinfo, out DamageFrame __state)
+        {
+            __state = null;
+            Pawn victim = __instance as Pawn;
+            if (!IsWatched(victim)) return;
+            try
+            {
+                var frame = new DamageFrame
+                {
+                    victim = victim,
+                    input = dinfo,
+                    weapon = dinfo.Tool?.label ?? dinfo.Weapon?.label ?? "(unspecified)"
+                };
+                DamageFrames.Push(frame);
+                __state = frame;
+            }
+            catch (Exception ex)
+            {
+                Log.ErrorOnce("[Zoology CE trace] Damage entry error: " + ex, 2026111804);
+            }
+        }
+
+        private static void DamagePostfix(DamageWorker.DamageResult __result, DamageFrame __state)
+        {
+            if (__state == null) return;
+            try
+            {
+                if (DamageFrames.Count > 0 && ReferenceEquals(DamageFrames.Peek(), __state))
+                    DamageFrames.Pop();
+                var data = __state.input;
+                var text = new StringBuilder(512);
+                text.Append("[Zoology CE trace] TICK ")
+                    .Append(Find.TickManager?.TicksGame ?? -1)
+                    .Append(" | target=").Append(__state.victim.LabelShortCap)
+                    .Append(" | attacker=").Append(data.Instigator?.LabelShortCap ?? "(none)")
+                    .Append(" | weapon/tool=").Append(__state.weapon)
+                    .Append(" | type=").Append(data.Def?.defName ?? "(none)")
+                    .Append(" | pre-armor damage=").Append(N(data.Amount))
+                    .Append(" | AP=").Append(N(data.ArmorPenetrationInt))
+                    .Append(" | total health damage=").Append(N(__result.totalDamageDealt))
+                    .AppendLine();
+                if (__state.armorSteps.Count == 0)
+                    text.AppendLine("  No CE armor calculation observed for this damage event.");
+                else
+                    foreach (string step in __state.armorSteps)
+                        text.AppendLine(step);
+                if (__result.totalDamageDealt <= 0f)
+                    text.AppendLine("  Result: no health damage. See CE armor result and attack metadata above.");
+                Log.Message(text.ToString());
+            }
+            catch (Exception ex)
+            {
+                Log.ErrorOnce("[Zoology CE trace] Damage report error: " + ex, 2026111805);
+            }
+        }
+
+        private static void ArmorPrefix(DamageInfo originalDinfo, Pawn pawn,
+            BodyPartRecord hitPart, out ArmorStep __state)
+        {
+            __state = null;
+            DamageFrame frame = ActiveFrame(pawn);
+            if (frame == null) return;
+            try
+            {
+                var step = new ArmorStep
+                {
+                    frame = frame,
+                    before = originalDinfo.Amount,
+                    penetration = originalDinfo.ArmorPenetrationInt,
+                    details = new StringBuilder(320)
+                };
+                var sb = step.details;
+                var stat = originalDinfo.Def?.armorCategory?.armorRatingStat;
+                sb.Append("  CE: part=").Append(hitPart?.def?.defName ?? "(unspecified)")
+                    .Append("; category=").Append(stat?.defName ?? "(none)")
+                    .Append("; incoming damage=").Append(N(step.before))
+                    .Append("; incoming AP=").Append(N(step.penetration))
+                    .AppendLine();
+
+                if (stat != null && hitPart != null)
+                {
+                    sb.Append("    Natural armor: UI/general=")
+                        .Append(N(pawn.GetStatValue(stat)))
+                        .Append("; CE part-specific=").Append(N(PartialPawnArmor(pawn, stat, hitPart)))
+                        .Append("; anatomical density=");
+                    StatDef densityStat = DefDatabase<StatDef>.GetNamedSilentFail(
+                        stat == StatDefOf.ArmorRating_Sharp
+                            ? "BodyPartSharpArmor" : "BodyPartBluntArmor");
+                    sb.Append(densityStat == null ? "n/a" : N(pawn.GetStatValue(densityStat)));
+                    AppendDurability(pawn, sb);
+                    sb.AppendLine();
+
+                    var apparel = pawn.apparel?.WornApparel;
+                    if (apparel != null)
+                    {
+                        for (int i = apparel.Count - 1; i >= 0; i--)
+                        {
+                            Apparel item = apparel[i];
+                            if (item?.def?.apparel?.CoversBodyPart(hitPart) != true)
+                                continue;
+                            sb.Append("    Worn armor ").Append(item.LabelShortCap)
+                                .Append(": CE part-specific=")
+                                .Append(N(PartialApparelArmor(item, stat, hitPart)))
+                                .AppendLine();
+                        }
+                    }
+
+                    if (originalDinfo.Def.harmAllLayersUntilOutside)
+                    {
+                        BodyPartRecord layer = hitPart;
+                        while (layer.parent != null && layer.depth == BodyPartDepth.Inside)
+                        {
+                            layer = layer.parent;
+                            sb.Append("    Outer body layer ").Append(layer.def.defName)
+                                .Append(": CE armor=").Append(N(PartialPawnArmor(pawn, stat, layer)))
+                                .AppendLine();
+                        }
+                    }
+                }
+                AppendAttackerPenetration(originalDinfo, sb);
+                __state = step;
+            }
+            catch (Exception ex)
+            {
+                Log.ErrorOnce("[Zoology CE trace] Armor entry error: " + ex, 2026111806);
+            }
+        }
+
+        private static void ArmorPostfix(DamageInfo __result, object[] __args, ArmorStep __state)
+        {
+            if (__state == null) return;
+            try
+            {
+                bool deflected = __args.Length > 3 && __args[3] is bool a && a;
+                bool reduced = __args.Length > 4 && __args[4] is bool b && b;
+                bool shield = __args.Length > 5 && __args[5] is bool c && c;
+                __state.details.Append("    After CE armor: damage=")
+                    .Append(N(__result.Amount))
+                    .Append(" (").Append(N(__state.before - __result.Amount))
+                    .Append(" blocked/reduced); resulting type=")
+                    .Append(__result.Def?.defName ?? "(none)")
+                    .Append("; hit part=").Append(__result.HitPart?.def?.defName ?? "(unspecified)")
+                    .Append("; deflected=").Append(deflected)
+                    .Append("; reduced=").Append(reduced)
+                    .Append("; shield absorbed=").Append(shield)
+                    .AppendLine();
+                __state.frame.armorSteps.Add(__state.details.ToString());
+            }
+            catch (Exception ex)
+            {
+                Log.ErrorOnce("[Zoology CE trace] Armor result error: " + ex, 2026111807);
+            }
+        }
+
+        private static void MeleePrefix(Verb __instance, out bool __state)
+        {
+            __state = IsWatched(__instance?.CurrentTarget.Thing as Pawn);
+        }
+
+        private static void MeleePostfix(Verb __instance, bool __result, bool __state)
+        {
+            if (!__state || __result) return;
+            try
+            {
+                Log.Message("[Zoology CE trace] TICK "
+                    + (Find.TickManager?.TicksGame ?? -1)
+                    + " | melee attempt by " + (__instance.CasterPawn?.LabelShortCap ?? "(none)")
+                    + " did not connect with " + (__instance.CurrentTarget.Thing?.LabelShortCap ?? "(none)")
+                    + " (miss, dodge, parry or failed cast). No armor calculation for that attempt.");
+            }
+            catch (Exception ex)
+            {
+                Log.ErrorOnce("[Zoology CE trace] Melee attempt error: " + ex, 2026111808);
+            }
+        }
+
+        private static float PartialPawnArmor(Pawn pawn, StatDef stat, BodyPartRecord part)
+        {
+            return (float)partialPawnMethod.Invoke(null, new object[] { pawn, stat, part });
+        }
+
+        private static float PartialApparelArmor(Apparel apparel, StatDef stat, BodyPartRecord part)
+        {
+            return (float)partialApparelMethod.Invoke(null, new object[] { apparel, stat, part });
+        }
+
+        private static void AppendDurability(Pawn pawn, StringBuilder sb)
+        {
+            var all = pawn.AllComps;
+            if (all == null) return;
+            foreach (ThingComp comp in all)
+            {
+                if (comp?.GetType().FullName != "CombatExtended.CompArmorDurability")
+                    continue;
+                Type t = comp.GetType();
+                object current = AccessTools.Field(t, "curDurability")?.GetValue(comp);
+                object maximum = AccessTools.Property(t, "maxDurability")?.GetValue(comp, null);
+                object fraction = AccessTools.Property(t, "curDurabilityPercent")?.GetValue(comp, null);
+                sb.Append("; CE durability=").Append(current ?? "?")
+                    .Append("/").Append(maximum ?? "?")
+                    .Append(" (fraction=").Append(fraction ?? "?").Append(")");
+                break;
+            }
+        }
+
+        private static void AppendAttackerPenetration(DamageInfo info, StringBuilder sb)
+        {
+            var attacker = info.Instigator as Pawn;
+            if (attacker == null) return;
+            object verb = lastAttackVerbProperty?.GetValue(null, null);
+            if (verb != null && ReferenceEquals(CEReflectionUtility.GetCasterPawn(verb), attacker))
+            {
+                sb.Append("    Active CE attack verb: sharp AP=")
+                    .Append(sharpApProperty == null ? "n/a" : N((float)sharpApProperty.GetValue(verb, null)))
+                    .Append("; blunt AP=")
+                    .Append(bluntApProperty == null ? "n/a" : N((float)bluntApProperty.GetValue(verb, null)));
+                object tool;
+                if (CEReflectionUtility.TryGetVerbTool(verb, out tool) && tool is Tool selected)
+                    sb.Append("; selected tool=").Append(selected.label);
+                sb.AppendLine();
+            }
+
+            StatDef displayed = DefDatabase<StatDef>.GetNamedSilentFail("MeleeArmorPenetration");
+            if (attacker.RaceProps?.Animal == true && displayed != null
+                && AnimalLifeStageCeApStatDisplay.TryCalculate(displayed.Worker,
+                    StatRequest.For(attacker), out string label, out string explanation))
+            {
+                sb.Append("    CE UI weighted mean across tools: ")
+                    .Append(label)
+                    .AppendLine(" (not necessarily the selected tool).");
+            }
+        }
+
+        private static void LogArmorSummary(Pawn pawn)
+        {
+            var output = new StringBuilder(256);
+            output.Append("[Zoology CE trace] Target's displayed armor: sharp=")
+                .Append(N(pawn.GetStatValue(StatDefOf.ArmorRating_Sharp)))
+                .Append(" mm RHA; blunt=")
+                .Append(N(pawn.GetStatValue(StatDefOf.ArmorRating_Blunt)))
+                .Append(" MPa; life stage=")
+                .Append(pawn.ageTracker?.CurLifeStage?.defName ?? "(none)");
+            AppendDurability(pawn, output);
+            Log.Message(output.ToString());
+        }
+
+        private static string N(float value)
+        {
+            return value.ToString("0.######");
+        }
+    }
+}
