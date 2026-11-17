@@ -48,7 +48,9 @@ class NestIncubationContracts(unittest.TestCase):
 
     def test_burrow_open_command_has_icon(self):
         source = (ROOT / "Zoology/Source/Behaviour/Flee/AnimalRefugeOpening.cs").read_text(encoding="utf-8")
-        self.assertIn('icon = icon ??= ContentFinder<Texture2D>.Get("UI/Designators/Open")', source)
+        self.assertIn("[StaticConstructorOnStartup]\n    internal static class AnimalRefugeOpening", source)
+        self.assertIn('private static readonly Texture2D OpenIcon = ContentFinder<Texture2D>.Get("UI/Designators/Open");', source)
+        self.assertIn("icon = OpenIcon,", source)
         self.assertIn("toggleAction =", source)
 
 
