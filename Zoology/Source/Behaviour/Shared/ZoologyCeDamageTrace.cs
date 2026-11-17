@@ -14,11 +14,13 @@ namespace ZoologyMod
         private const string HarmonyId = "com.abobashark.zoology.debug.ce-damage";
         private static readonly Harmony Harmony = new Harmony(HarmonyId);
         private static readonly Stack<DamageFrame> DamageFrames = new Stack<DamageFrame>();
+        private static readonly Stack<ArmorStep> ActiveArmorSteps = new Stack<ArmorStep>();
         private static readonly HashSet<int> ExplainedAttackers = new HashSet<int>();
 
         private static WeakReference<Pawn> watched;
         private static MethodBase takeDamageMethod;
         private static MethodBase armorMethod;
+        private static MethodBase penetrationMethod;
         private static MethodBase meleeMethod;
         private static MethodInfo partialPawnMethod;
         private static MethodInfo partialApparelMethod;
@@ -40,6 +42,17 @@ namespace ZoologyMod
             internal StringBuilder details;
             internal float before;
             internal float penetration;
+        }
+
+        private sealed class PenetrationStep
+        {
+            internal ArmorStep owner;
+            internal string damageType;
+            internal string source;
+            internal float armor;
+            internal float initialPenetration;
+            internal float initialDamage;
+            internal float density;
         }
 
         [DebugAction("Zoology", "Trace CE damage to animal (toggle)",
@@ -90,6 +103,13 @@ namespace ZoologyMod
                         typeof(bool).MakeByRefType(), typeof(bool).MakeByRefType(),
                         typeof(bool).MakeByRefType()
                     });
+                penetrationMethod = AccessTools.Method(ceArmor, "TryPenetrateArmor",
+                    new[]
+                    {
+                        typeof(DamageDef), typeof(float),
+                        typeof(float).MakeByRefType(), typeof(float).MakeByRefType(),
+                        typeof(Thing), typeof(float)
+                    });
                 meleeMethod = AccessTools.Method(ceVerb, "TryCastShot");
                 partialPawnMethod = AccessTools.Method(ceArmor, "PartialStat",
                     new[] { typeof(Pawn), typeof(StatDef), typeof(BodyPartRecord) });
@@ -100,7 +120,8 @@ namespace ZoologyMod
                 bluntApProperty = AccessTools.Property(ceVerb, "ArmorPenetrationBlunt");
 
                 if (takeDamageMethod == null || armorMethod == null || meleeMethod == null
-                    || partialPawnMethod == null || partialApparelMethod == null)
+                    || penetrationMethod == null || partialPawnMethod == null
+                    || partialApparelMethod == null)
                     throw new InvalidOperationException("A required CE/RimWorld combat method was not found");
 
                 Harmony.Patch(takeDamageMethod,
@@ -114,7 +135,14 @@ namespace ZoologyMod
                     prefix: new HarmonyMethod(AccessTools.Method(typeof(ZoologyCeDamageTrace),
                         nameof(ArmorPrefix))),
                     postfix: new HarmonyMethod(AccessTools.Method(typeof(ZoologyCeDamageTrace),
-                        nameof(ArmorPostfix))));
+                        nameof(ArmorPostfix))),
+                    finalizer: new HarmonyMethod(AccessTools.Method(typeof(ZoologyCeDamageTrace),
+                        nameof(ArmorFinalizer))));
+                Harmony.Patch(penetrationMethod,
+                    prefix: new HarmonyMethod(AccessTools.Method(typeof(ZoologyCeDamageTrace),
+                        nameof(PenetrationPrefix))),
+                    postfix: new HarmonyMethod(AccessTools.Method(typeof(ZoologyCeDamageTrace),
+                        nameof(PenetrationPostfix))));
                 Harmony.Patch(meleeMethod,
                     prefix: new HarmonyMethod(AccessTools.Method(typeof(ZoologyCeDamageTrace),
                         nameof(MeleePrefix))),
@@ -146,6 +174,7 @@ namespace ZoologyMod
         {
             watched = null;
             DamageFrames.Clear();
+            ActiveArmorSteps.Clear();
             ExplainedAttackers.Clear();
             Unpatch(takeDamageMethod, nameof(DamagePrefix), nameof(DamagePostfix));
             if (takeDamageMethod != null)
@@ -161,8 +190,21 @@ namespace ZoologyMod
                 }
             }
             Unpatch(armorMethod, nameof(ArmorPrefix), nameof(ArmorPostfix));
+            if (armorMethod != null)
+            {
+                try
+                {
+                    Harmony.Unpatch(armorMethod,
+                        AccessTools.Method(typeof(ZoologyCeDamageTrace), nameof(ArmorFinalizer)));
+                }
+                catch (Exception ex)
+                {
+                    Log.ErrorOnce("[Zoology CE trace] Armor finalizer unpatch failed: " + ex, 2026111810);
+                }
+            }
+            Unpatch(penetrationMethod, nameof(PenetrationPrefix), nameof(PenetrationPostfix));
             Unpatch(meleeMethod, nameof(MeleePrefix), nameof(MeleePostfix));
-            takeDamageMethod = armorMethod = meleeMethod = null;
+            takeDamageMethod = armorMethod = penetrationMethod = meleeMethod = null;
         }
 
         private static void Unpatch(MethodBase target, string prefix, string postfix)
@@ -335,6 +377,7 @@ namespace ZoologyMod
                     }
                 }
                 AppendAttackerPenetration(originalDinfo, sb);
+                ActiveArmorSteps.Push(step);
                 __state = step;
             }
             catch (Exception ex)
@@ -348,6 +391,8 @@ namespace ZoologyMod
             if (__state == null) return;
             try
             {
+                if (ActiveArmorSteps.Count > 0 && ReferenceEquals(ActiveArmorSteps.Peek(), __state))
+                    ActiveArmorSteps.Pop();
                 bool deflected = __args.Length > 3 && __args[3] is bool a && a;
                 bool reduced = __args.Length > 4 && __args[4] is bool b && b;
                 bool shield = __args.Length > 5 && __args[5] is bool c && c;
@@ -366,6 +411,61 @@ namespace ZoologyMod
             catch (Exception ex)
             {
                 Log.ErrorOnce("[Zoology CE trace] Armor result error: " + ex, 2026111807);
+            }
+        }
+
+        private static Exception ArmorFinalizer(Exception __exception, ArmorStep __state)
+        {
+            if (__exception != null && __state != null
+                && ActiveArmorSteps.Count > 0 && ReferenceEquals(ActiveArmorSteps.Peek(), __state))
+                ActiveArmorSteps.Pop();
+            return __exception;
+        }
+
+        private static void PenetrationPrefix(DamageDef def, float armorAmount,
+            ref float penAmount, ref float dmgAmount, Thing armor, float partDensity,
+            out PenetrationStep __state)
+        {
+            __state = null;
+            if (ActiveArmorSteps.Count == 0 || DamageFrames.Count == 0)
+                return;
+            ArmorStep owner = ActiveArmorSteps.Peek();
+            if (!ReferenceEquals(owner.frame, DamageFrames.Peek())
+                || !IsWatched(owner.frame.victim))
+                return;
+
+            __state = new PenetrationStep
+            {
+                owner = owner,
+                damageType = def?.defName ?? "(unknown)",
+                source = armor?.LabelShortCap ?? "natural body armor",
+                armor = armorAmount,
+                initialPenetration = penAmount,
+                initialDamage = dmgAmount,
+                density = partDensity
+            };
+        }
+
+        private static void PenetrationPostfix(bool __result,
+            ref float penAmount, ref float dmgAmount, PenetrationStep __state)
+        {
+            if (__state == null) return;
+            try
+            {
+                __state.owner.details.Append("    CE armor layer [")
+                    .Append(__state.source).Append("] type=").Append(__state.damageType)
+                    .Append("; armor=").Append(N(__state.armor))
+                    .Append("; AP ").Append(N(__state.initialPenetration))
+                    .Append(" -> ").Append(N(penAmount))
+                    .Append("; damage ").Append(N(__state.initialDamage))
+                    .Append(" -> ").Append(N(dmgAmount))
+                    .Append("; part density=").Append(N(__state.density))
+                    .Append("; penetrated=").Append(__result)
+                    .AppendLine();
+            }
+            catch (Exception ex)
+            {
+                Log.ErrorOnce("[Zoology CE trace] Penetration step error: " + ex, 2026111811);
             }
         }
 
