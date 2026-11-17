@@ -298,6 +298,14 @@ namespace ZoologyMod
                     sb.Append(densityStat == null ? "n/a" : N(pawn.GetStatValue(densityStat)));
                     AppendDurability(pawn, sb);
                     sb.AppendLine();
+                    if (stat == StatDefOf.ArmorRating_Sharp)
+                    {
+                        sb.Append("    Blunt armor for possible CE sharp deflection: general=")
+                            .Append(N(pawn.GetStatValue(StatDefOf.ArmorRating_Blunt)))
+                            .Append("; part-specific=")
+                            .Append(N(PartialPawnArmor(pawn, StatDefOf.ArmorRating_Blunt, hitPart)))
+                            .AppendLine();
+                    }
 
                     var apparel = pawn.apparel?.WornApparel;
                     if (apparel != null)
