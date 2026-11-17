@@ -105,9 +105,9 @@ class AnimalRefugeVisualContracts(unittest.TestCase):
         self.assertIn("pawn.CanReserveAndReach", search)
         self.assertIn("!den.IsForbidden(pawn)", search)
         winter_plan = winter.split("class JobGiver_AnimalWinterDormancy", 1)[1]
-        self.assertLess(winter_plan.index("FindReusableBurrow"), winter_plan.index("Zoology_DigBurrow"))
+        self.assertLess(winter_plan.index("FindReusableBurrow"), winter_plan.index("AnimalShelterDigPurpose.WinterDen"))
         family_plan = nursery.split("private static Job TryFamilyBurrow", 1)[1].split("protected override Job TryGiveJob", 1)[0]
-        self.assertLess(family_plan.index("FindReusableBurrow"), family_plan.index("Zoology_DigBurrow"))
+        self.assertLess(family_plan.index("FindReusableBurrow"), family_plan.index("AnimalShelterDigPurpose.FamilyDen"))
         dig = refuges.split("class JobDriver_DigAnimalBurrow", 1)[1].split("class JobDriver_EnterAnimalBurrow", 1)[0]
         self.assertLess(dig.index("FindReusableBurrow"), dig.index("GenSpawn.Spawn(burrow"))
         self.assertIn("state.burrowReentryAfter > GenTicks.TicksGame", winter_plan)
@@ -128,6 +128,37 @@ class AnimalRefugeVisualContracts(unittest.TestCase):
         self.assertIn("MentalStateDefOf.Manhunter,", wake)
         self.assertLess(wake.index("TryStartMentalState("), wake.index("NotifyProvokedManhunter("))
         self.assertNotIn("ManhunterPermanent", wake)
+
+    def test_tamed_shelter_settings_obey_parent_switches(self):
+        constants = (ROOT / "Zoology/Source/ModConstants.cs").read_text(encoding="utf-8")
+        settings = (ROOT / "Zoology/Source/ZoologyModSettings.cs").read_text(encoding="utf-8")
+        nursery = (BEHAVIOUR / "Childcare/AnimalNursery.cs").read_text(encoding="utf-8")
+        refuges = (BEHAVIOUR / "Flee/AnimalRefuges.cs").read_text(encoding="utf-8")
+        winter = (BEHAVIOUR / "Shared/AnimalWinterDormancy.cs").read_text(encoding="utf-8")
+        burrow = (BEHAVIOUR / "Flee/AnimalBurrow.cs").read_text(encoding="utf-8")
+        defaults = {
+            "AllowTamedAnimalWinterDormancy": "false",
+            "AllowTamedAnimalNests": "true",
+            "AllowTamedAnimalBurrows": "true",
+            "AllowTamedAnimalFamilyDens": "true",
+        }
+        for name, default in defaults.items():
+            with self.subTest(setting=name):
+                self.assertIn(f"Default{name} = {default};", constants)
+                self.assertIn(f"Scribe_Values.Look(ref {name},", settings)
+                self.assertIn(f"{name} = ModConstants.Default{name};", settings)
+        self.assertIn("TamedWinterDormancy => WinterDormancy", constants)
+        self.assertIn("TamedNestBuilding => AdvancedReproduction", constants)
+        self.assertIn("TamedBurrowDigging => AdvancedThreatAvoidance", constants)
+        self.assertIn("TamedFamilyDenBuilding => FamilyDens", constants)
+        self.assertIn("FamilyDens => AdvancedReproduction && AdvancedThreatAvoidance", constants)
+        self.assertIn("pawn?.Faction == Faction.OfPlayer", constants)
+        self.assertIn("!ModConstants.TamedNestBuilding", nursery)
+        self.assertIn("!ModConstants.TamedFamilyDenBuilding", nursery)
+        self.assertIn("!ModConstants.TamedBurrowDigging", refuges)
+        self.assertIn("CanDigFor(pawn, job)", refuges)
+        self.assertIn("ModConstants.TamedWinterDormancy", winter)
+        self.assertIn("!AnimalWinterDormancy.FactionAllowed(pawn)", burrow)
 
     def test_nests_are_reused_before_building(self):
         nest = (BEHAVIOUR / "Childcare/AnimalNursery.cs").read_text(encoding="utf-8")

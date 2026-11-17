@@ -707,8 +707,37 @@ namespace ZoologyMod
         }
     }
 
+    internal enum AnimalShelterDigPurpose
+    {
+        Burrow = 1,
+        FamilyDen = 2,
+        WinterDen = 3
+    }
+
     public class JobGiver_AnimalBurrow : ThinkNode_JobGiver
     {
+        internal static Job DigJob(IntVec3 cell, AnimalShelterDigPurpose purpose)
+        {
+            Job result = JobMaker.MakeJob(DefDatabase<JobDef>.GetNamed("Zoology_DigBurrow"), cell);
+            result.count = (int)purpose;
+            return result;
+        }
+
+        internal static bool CanDigFor(Pawn pawn, Job job)
+        {
+            switch ((AnimalShelterDigPurpose)job.count)
+            {
+                case AnimalShelterDigPurpose.FamilyDen:
+                    return ModConstants.FamilyDens
+                        && (!ModConstants.IsTamedAnimal(pawn) || ModConstants.TamedFamilyDenBuilding);
+                case AnimalShelterDigPurpose.WinterDen:
+                    return ModConstants.WinterDormancy && AnimalWinterDormancy.FactionAllowed(pawn);
+                default:
+                    return ModConstants.AdvancedThreatAvoidance
+                        && (!ModConstants.IsTamedAnimal(pawn) || ModConstants.TamedBurrowDigging);
+            }
+        }
+
         protected override Job TryGiveJob(Pawn pawn)
         {
             if (!ModConstants.AdvancedThreatAvoidance) return null;
@@ -810,9 +839,11 @@ namespace ZoologyMod
                 return wantsSleep ? JobMaker.MakeJob(
                     DefDatabase<JobDef>.GetNamed("Zoology_EnterBurrow"), reusable) : null;
             }
+            if (ModConstants.IsTamedAnimal(pawn) && !ModConstants.TamedBurrowDigging)
+                return null;
             foreach (IntVec3 c in GenRadial.RadialCellsAround(pawn.Position, 8f, true))
                 if (Diggable(pawn, c) && pawn.CanReserveAndReach(c, PathEndMode.OnCell, Danger.None))
-                    return JobMaker.MakeJob(DefDatabase<JobDef>.GetNamed("Zoology_DigBurrow"), c);
+                    return DigJob(c, AnimalShelterDigPurpose.Burrow);
             return null;
         }
         internal static bool Diggable(Pawn pawn, IntVec3 c) =>
@@ -837,8 +868,7 @@ namespace ZoologyMod
     {
         public override bool TryMakePreToilReservations(bool errorOnFailed)
         {
-            if (!ModConstants.AdvancedThreatAvoidance
-                && !AnimalWinterDormancy.CanUseWinterDen(pawn)) return false;
+            if (!JobGiver_AnimalBurrow.CanDigFor(pawn, job)) return false;
             ThingDef shelter = Building_AnimalBurrow.SelectDefFor(pawn);
             if (!JobGiver_AnimalBurrow.Diggable(pawn, TargetA.Cell, shelter))
                 return false;
@@ -854,14 +884,14 @@ namespace ZoologyMod
 
         protected override IEnumerable<Toil> MakeNewToils()
         {
-            this.FailOn(() => (!ModConstants.AdvancedThreatAvoidance
-                    && !AnimalWinterDormancy.CanUseWinterDen(pawn))
+            this.FailOn(() => !JobGiver_AnimalBurrow.CanDigFor(pawn, job)
                 || pawn.mindState.meleeThreat != null
                 || pawn.mindState.enemyTarget != null || pawn.Downed);
             yield return Toils_Goto.GotoCell(TargetIndex.A, PathEndMode.OnCell);
             yield return Toils_General.Wait(Building_AnimalBurrow.Settings.digTicks);
             yield return Toils_General.Do(() =>
             {
+                if (!JobGiver_AnimalBurrow.CanDigFor(pawn, job)) return;
                 CompAnimalStrategyState state = pawn.TryGetComp<CompAnimalStrategyState>();
                 bool familyOnly = Building_AnimalBurrow.NeedsFamilyBurrow(pawn);
                 if (!familyOnly && (state?.burrowReentryAfter ?? 0) > GenTicks.TicksGame)

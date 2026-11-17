@@ -532,7 +532,9 @@ namespace ZoologyMod
         {
             result = IntVec3.Invalid;
             anchor = null;
-            if (pawn?.Map == null) return false;
+            if (pawn?.Map == null || !ModConstants.AdvancedReproduction
+                || (ModConstants.IsTamedAnimal(pawn) && !ModConstants.TamedNestBuilding))
+                return false;
             AnimalRefugeMapComponent index = pawn.Map.GetComponent<AnimalRefugeMapComponent>();
             if (index == null || !index.TryPlan()) return false;
 
@@ -602,12 +604,13 @@ namespace ZoologyMod
                 return null;
             }
 
+            if (ModConstants.IsTamedAnimal(mother) && !ModConstants.TamedFamilyDenBuilding)
+                return null;
             ThingDef shelter = Building_AnimalBurrow.SelectDefFor(mother);
             foreach (IntVec3 cell in GenRadial.RadialCellsAround(mother.Position, 8f, true))
                 if (JobGiver_AnimalBurrow.Diggable(mother, cell, shelter)
                     && mother.CanReserveAndReach(cell, PathEndMode.OnCell, Danger.None))
-                    return JobMaker.MakeJob(
-                        DefDatabase<JobDef>.GetNamed("Zoology_DigBurrow"), cell);
+                    return JobGiver_AnimalBurrow.DigJob(cell, AnimalShelterDigPurpose.FamilyDen);
             return null;
         }
 
@@ -677,6 +680,9 @@ namespace ZoologyMod
     {
         public override bool TryMakePreToilReservations(bool errorOnFailed)
         {
+            if (!ModConstants.AdvancedReproduction
+                || (ModConstants.IsTamedAnimal(pawn) && !ModConstants.TamedNestBuilding))
+                return false;
             var index = Map?.GetComponent<AnimalRefugeMapComponent>();
             Plant tree = TargetB.Thing as Plant;
             if (index == null || !index.TryClaimNurserySite(tree, pawn, TargetA.Cell, out _))
@@ -697,6 +703,7 @@ namespace ZoologyMod
             AddFinishAction(_ => originalMap?.GetComponent<AnimalRefugeMapComponent>()
                 .ReleaseNurserySite(TargetA.Cell, pawn));
             this.FailOn(() => !ModConstants.AdvancedReproduction
+                || (ModConstants.IsTamedAnimal(pawn) && !ModConstants.TamedNestBuilding)
                 || pawn.Downed || pawn.InMentalState
                 || (TargetB.Thing is Plant anchor && (!anchor.Spawned || anchor.IsBurning())));
             // Tree tiles need not be Standable. The builder works from
@@ -708,6 +715,9 @@ namespace ZoologyMod
             yield return Toils_General.Wait(400);
             yield return Toils_General.Do(() =>
             {
+                if (!ModConstants.AdvancedReproduction
+                    || (ModConstants.IsTamedAnimal(pawn) && !ModConstants.TamedNestBuilding))
+                    return;
                 OffspringShelterMode mode = AnimalOffspringShelter.For(pawn.def);
                 Plant tree = TargetB.Thing as Plant;
                 if (AnimalOffspringShelter.IsTreeNest(mode)
@@ -805,6 +815,7 @@ namespace ZoologyMod
     {
         private static bool Prefix(Pawn pawn, ref Job __result)
         {
+            if (!ModConstants.AdvancedReproduction) return true;
             OffspringShelterMode mode = AnimalOffspringShelter.For(pawn?.def);
             if (pawn?.TryGetComp<CompEggLayer>()?.CanLayNow != true)
                 return true;

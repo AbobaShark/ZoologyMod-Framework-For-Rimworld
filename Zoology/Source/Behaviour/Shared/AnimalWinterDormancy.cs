@@ -37,9 +37,13 @@ namespace ZoologyMod
             return false;
         }
 
+        internal static bool FactionAllowed(Pawn pawn) =>
+            pawn != null && (pawn.Faction == null
+                || (ModConstants.IsTamedAnimal(pawn) && ModConstants.TamedWinterDormancy));
+
         internal static bool Winter(Pawn pawn, Map map)
         {
-            if (!ModConstants.WinterDormancy || map == null || AnimalSeasonalReproduction.Managed(pawn)) return false;
+            if (!ModConstants.WinterDormancy || map == null || !FactionAllowed(pawn)) return false;
             var winterProfile = DefModExtensionCache<ModExtension_WinterDormancy>.Get(pawn.def);
             if (winterProfile == null) return false;
             if (winterProfile.maternitySeasonMask != 0
@@ -66,10 +70,8 @@ namespace ZoologyMod
 
         internal static bool CanUseWinterDen(Pawn pawn)
         {
-            // Only genuinely wild animals may make winter dens and dormancy
-            // jobs. Tamed and other faction-owned animals remain active.
             if (!ModConstants.WinterDormancy || pawn == null || pawn.Dead || pawn.Destroyed
-                || pawn.Faction != null
+                || !FactionAllowed(pawn)
                 || pawn.MapHeld == null || !Winter(pawn, pawn.MapHeld))
                 return false;
 
@@ -80,7 +82,7 @@ namespace ZoologyMod
         internal static bool IsDormant(Pawn pawn)
         {
             if (!ModConstants.WinterDormancy || pawn?.Spawned != false
-                || pawn.Dead || pawn.Faction != null) return false;
+                || pawn.Dead || !FactionAllowed(pawn)) return false;
             CompAnimalStrategyState state = pawn.TryGetComp<CompAnimalStrategyState>();
             return state?.inWinterDormancy == true
                 && ThingOwnerUtility.GetAnyParent<Building_AnimalBurrow>(pawn)
@@ -115,7 +117,7 @@ namespace ZoologyMod
         protected override Job TryGiveJob(Pawn pawn)
         {
             if (!ModConstants.WinterDormancy) return null;
-            if (pawn?.Spawned != true || pawn.Map == null || pawn.Faction != null
+            if (pawn?.Spawned != true || pawn.Map == null || !AnimalWinterDormancy.FactionAllowed(pawn)
                 || !(pawn.needs?.food?.CurLevelPercentage >= 0.8f)
                 || !AnimalWinterDormancy.For(pawn.def))
                 return null;
@@ -149,8 +151,7 @@ namespace ZoologyMod
                     // Dig completion can immediately schedule entering the
                     // resulting den, without another full-day search delay.
                     state.nextWinterDecision = GenTicks.TicksGame + 250;
-                    return JobMaker.MakeJob(
-                        DefDatabase<JobDef>.GetNamed("Zoology_DigBurrow"), cell);
+                    return JobGiver_AnimalBurrow.DigJob(cell, AnimalShelterDigPurpose.WinterDen);
                 }
             return null;
         }

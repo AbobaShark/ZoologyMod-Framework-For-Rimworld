@@ -703,7 +703,7 @@ The minimum Combat Power for defending young against humans and mechanoids also 
 
 ### Tree and ground nests
 
-With **Advanced reproductive behavior** enabled, nesting birds can prepare a natural nest before laying their eggs. The kind of nest follows the species' reproductive strategy and normal habitat.
+With **Advanced reproductive behavior** enabled, nesting birds can prepare a natural nest before laying their eggs. The kind of nest follows the species' reproductive strategy and normal habitat. The **Allow tamed animals to build nests** setting controls whether player-owned birds create new nests; they can still use available nests and egg boxes.
 
 | Nesting strategy | Examples | Hatchling behavior |
 | --- | --- | --- |
@@ -734,7 +734,7 @@ Nests are natural structures. An undamaged, unused nest deteriorates over two ga
 
 Burrows and dens serve several purposes: resting, escaping from predators, raising dependent young and, for certain species, spending the winter underground.
 
-Ordinary refuge behavior requires **Advanced threat avoidance**. Family denning requires both **Advanced threat avoidance** and **Advanced reproductive behavior**. Winter denning has its own seasonal setting.
+Ordinary refuge behavior requires **Advanced threat avoidance**. Family denning requires both **Advanced threat avoidance** and **Advanced reproductive behavior**. Winter denning has its own seasonal setting. The **Allow tamed animals to dig burrows** and **Allow tamed animals to build family dens** settings independently control new shelters constructed by player-owned animals. Existing compatible shelters remain available.
 
 #### Creating and sharing a shelter
 
@@ -815,11 +815,11 @@ Animals use different strategies to cope with cold, seasonal food shortages and 
 
 #### Winter dormancy
 
-Suitable wild animals seek or dig a winter shelter when local seasonal conditions favor dormancy and their food need is at least 80% full. Dormant animals consume 2.5% of their normal maintenance nutrition. Pregnancy and milk production require additional nutrition.
+Suitable wild animals, and player-owned animals when **Allow tamed animals to hibernate** is enabled, seek or dig a winter shelter when local seasonal conditions favor dormancy and their food need is at least 80% full. Dormant animals consume 2.5% of their normal maintenance nutrition. Pregnancy and milk production require additional nutrition.
 
 Animals remain dormant until the cold season ends, their food reserves fall below 20%, bleeding wakes them, or their shelter is attacked or excavated. When a person wakes a dormant animal by disturbing its shelter, the animal may become a manhunter according to its species' usual retaliation chance. Pregnant polar bears and mothers with dependent young use maternity dens during their denning season.
 
-Tamed animals remain active throughout the year and can use family dens for reproduction.
+Player-owned animals hibernate only when their dedicated setting is enabled. The setting is available under **Winter dormancy** and defaults to off.
 
 #### Ectotherms and water habitat
 

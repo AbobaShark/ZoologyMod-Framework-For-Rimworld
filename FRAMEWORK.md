@@ -593,7 +593,7 @@ Nests and dens are natural animal structures. `AnimalTreeSelection` connects the
 
 ### Behavior settings and dependencies
 
-Advanced reproductive behavior governs natural nests, marsupial pouches, aquatic amphibian development and species-specific reproductive schedules and costs. Family dens additionally require advanced threat avoidance. Winter dormancy and water habitat behavior are independent settings.
+Advanced reproductive behavior governs natural nests, marsupial pouches, aquatic amphibian development and species-specific reproductive schedules and costs. Family dens additionally require advanced threat avoidance. Winter dormancy and water habitat behavior are independent settings. Player-owned animals have separate controls for winter dormancy, natural nest construction, ordinary burrow excavation and family den construction. Each control requires its parent behavior; family den construction requires both advanced reproduction and threat avoidance.
 
 Nests, pouches and family dens release their dependent occupants when their corresponding behavior is disabled. Aquatic clutches and tadpole groups retain their development progress until advanced reproduction is enabled again.
 

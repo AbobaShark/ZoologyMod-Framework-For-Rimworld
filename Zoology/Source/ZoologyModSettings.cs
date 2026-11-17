@@ -47,6 +47,10 @@ namespace ZoologyMod
         public bool EnableAdvancedThreatAvoidance = ModConstants.DefaultEnableAdvancedThreatAvoidance;
         public bool EnableWaterHabitatBehavior = ModConstants.DefaultEnableWaterHabitatBehavior;
         public bool EnableWinterDormancy = ModConstants.DefaultEnableWinterDormancy;
+        public bool AllowTamedAnimalWinterDormancy = ModConstants.DefaultAllowTamedAnimalWinterDormancy;
+        public bool AllowTamedAnimalNests = ModConstants.DefaultAllowTamedAnimalNests;
+        public bool AllowTamedAnimalBurrows = ModConstants.DefaultAllowTamedAnimalBurrows;
+        public bool AllowTamedAnimalFamilyDens = ModConstants.DefaultAllowTamedAnimalFamilyDens;
         public bool EnableAnimalEggProtection = ModConstants.DefaultEnableAnimalEggProtection;
         public bool PreventFleeFromHumansWhileProtectingYoung = ModConstants.DefaultPreventFleeFromHumansWhileProtectingYoung;
         public bool PreventFleeFromHumansWhileProtectingEggClutches = ModConstants.DefaultPreventFleeFromHumansWhileProtectingEggClutches;
@@ -394,11 +398,13 @@ namespace ZoologyMod
             list.End();
             Widgets.EndScrollView();
 
-            // These four behavior switches are read directly by job givers
-            // and components. Rebuilding all Def overrides and Harmony hooks
-            // for them would cause a long stall in the settings window.
-            if ((behaviorToggleMaskBefore & 1) != (GetBehaviorToggleMask() & 1))
+            // Behavioral controls are read directly by job givers and components.
+            // They do not require rebuilding all Harmony patches or Def overrides.
+            int behaviorToggleMaskAfter = GetBehaviorToggleMask();
+            if ((behaviorToggleMaskBefore & 1) != (behaviorToggleMaskAfter & 1))
                 CompAnimalPouch.ReleaseDisabledCaravanPouches();
+            if (behaviorToggleMaskBefore != behaviorToggleMaskAfter)
+                Write();
 
             if (runtimePatchToggleHashBefore != GetRuntimePatchToggleHash())
             {
@@ -450,11 +456,15 @@ namespace ZoologyMod
                         + (EnablePredatorDefendCorpse ? 156f : 0f);
                 case SettingsPage.Physiology:
                     return 1705f
-                        + (EnableAnimalChildcare && AnimalsFreeFromHumans ? 90f : 0f);
+                        + (EnableAnimalChildcare && AnimalsFreeFromHumans ? 90f : 0f)
+                        + (EnableAdvancedReproductiveBehavior ? 35f : 0f)
+                        + (EnableAdvancedReproductiveBehavior && EnableAdvancedThreatAvoidance ? 35f : 0f);
                 case SettingsPage.Combat:
                     return 580f;
                 case SettingsPage.OtherBehavior:
                     return 2450f
+                        + (EnableAdvancedThreatAvoidance ? 35f : 0f)
+                        + (EnableWinterDormancy ? 35f : 0f)
                         + ((EnablePetPlay || EnablePetBonding) ? 96f : 0f)
                         + (EnableCustomFleeDanger ? 170f : 0f)
                         + (EnableIgnoreSmallPetsByRaiders ? 200f : 0f)
@@ -570,6 +580,14 @@ namespace ZoologyMod
                 "Zoology_EnableAdvancedReproduction_Label".Translate(),
                 ref EnableAdvancedReproductiveBehavior,
                 "Zoology_EnableAdvancedReproduction_Desc".Translate());
+            if (EnableAdvancedReproductiveBehavior)
+            {
+                list.CheckboxLabeled("Zoology_TamedAnimalNests_Label".Translate(),
+                    ref AllowTamedAnimalNests, "Zoology_TamedAnimalNests_Desc".Translate());
+                if (EnableAdvancedThreatAvoidance)
+                    list.CheckboxLabeled("Zoology_TamedAnimalFamilyDens_Label".Translate(),
+                        ref AllowTamedAnimalFamilyDens, "Zoology_TamedAnimalFamilyDens_Desc".Translate());
+            }
             list.CheckboxLabeled("Zoology_RealisticCaptiveGestation_Label".Translate(), ref RealisticCaptiveGestation,
                 "Zoology_RealisticCaptiveGestation_Desc".Translate());
             list.CheckboxLabeled("Zoology_RealisticOffspringCounts_Label".Translate(), ref RealisticOffspringCounts,
@@ -802,6 +820,9 @@ namespace ZoologyMod
             list.CheckboxLabeled("Zoology_EnableAdvancedThreatAvoidance_Label".Translate(),
                 ref EnableAdvancedThreatAvoidance,
                 "Zoology_EnableAdvancedThreatAvoidance_Desc".Translate());
+            if (EnableAdvancedThreatAvoidance)
+                list.CheckboxLabeled("Zoology_TamedAnimalBurrows_Label".Translate(),
+                    ref AllowTamedAnimalBurrows, "Zoology_TamedAnimalBurrows_Desc".Translate());
             list.GapLine(12f);
             list.CheckboxLabeled("Zoology_EnableWaterHabitatBehavior_Label".Translate(),
                 ref EnableWaterHabitatBehavior,
@@ -810,6 +831,9 @@ namespace ZoologyMod
             list.CheckboxLabeled("Zoology_EnableWinterDormancy_Label".Translate(),
                 ref EnableWinterDormancy,
                 "Zoology_EnableWinterDormancy_Desc".Translate());
+            if (EnableWinterDormancy)
+                list.CheckboxLabeled("Zoology_TamedAnimalWinterDormancy_Label".Translate(),
+                    ref AllowTamedAnimalWinterDormancy, "Zoology_TamedAnimalWinterDormancy_Desc".Translate());
             list.GapLine(12f);
             list.CheckboxLabeled("Zoology_EnableCustomFleeDanger_Label".Translate(), ref EnableCustomFleeDanger, "Zoology_EnableCustomFleeDanger_Desc".Translate());
 
@@ -1156,6 +1180,10 @@ namespace ZoologyMod
             EnableAdvancedThreatAvoidance = ModConstants.DefaultEnableAdvancedThreatAvoidance;
             EnableWaterHabitatBehavior = ModConstants.DefaultEnableWaterHabitatBehavior;
             EnableWinterDormancy = ModConstants.DefaultEnableWinterDormancy;
+            AllowTamedAnimalWinterDormancy = ModConstants.DefaultAllowTamedAnimalWinterDormancy;
+            AllowTamedAnimalNests = ModConstants.DefaultAllowTamedAnimalNests;
+            AllowTamedAnimalBurrows = ModConstants.DefaultAllowTamedAnimalBurrows;
+            AllowTamedAnimalFamilyDens = ModConstants.DefaultAllowTamedAnimalFamilyDens;
             EnableAnimalEggProtection = ModConstants.DefaultEnableAnimalEggProtection;
             PreventFleeFromHumansWhileProtectingYoung = ModConstants.DefaultPreventFleeFromHumansWhileProtectingYoung;
             PreventFleeFromHumansWhileProtectingEggClutches = ModConstants.DefaultPreventFleeFromHumansWhileProtectingEggClutches;
@@ -1274,6 +1302,10 @@ namespace ZoologyMod
             Scribe_Values.Look(ref EnableAdvancedThreatAvoidance, "EnableAdvancedThreatAvoidance", ModConstants.DefaultEnableAdvancedThreatAvoidance);
             Scribe_Values.Look(ref EnableWaterHabitatBehavior, "EnableWaterHabitatBehavior", ModConstants.DefaultEnableWaterHabitatBehavior);
             Scribe_Values.Look(ref EnableWinterDormancy, "EnableWinterDormancy", ModConstants.DefaultEnableWinterDormancy);
+            Scribe_Values.Look(ref AllowTamedAnimalWinterDormancy, "AllowTamedAnimalWinterDormancy", ModConstants.DefaultAllowTamedAnimalWinterDormancy);
+            Scribe_Values.Look(ref AllowTamedAnimalNests, "AllowTamedAnimalNests", ModConstants.DefaultAllowTamedAnimalNests);
+            Scribe_Values.Look(ref AllowTamedAnimalBurrows, "AllowTamedAnimalBurrows", ModConstants.DefaultAllowTamedAnimalBurrows);
+            Scribe_Values.Look(ref AllowTamedAnimalFamilyDens, "AllowTamedAnimalFamilyDens", ModConstants.DefaultAllowTamedAnimalFamilyDens);
             Scribe_Values.Look(ref EnableAnimalEggProtection, "EnableAnimalEggProtection", ModConstants.DefaultEnableAnimalEggProtection);
             Scribe_Values.Look(ref PreventFleeFromHumansWhileProtectingYoung, "PreventFleeFromHumansWhileProtectingYoung", ModConstants.DefaultPreventFleeFromHumansWhileProtectingYoung);
             Scribe_Values.Look(ref PreventFleeFromHumansWhileProtectingEggClutches, "PreventFleeFromHumansWhileProtectingEggClutches", ModConstants.DefaultPreventFleeFromHumansWhileProtectingEggClutches);
@@ -1355,7 +1387,11 @@ namespace ZoologyMod
             return (EnableAdvancedReproductiveBehavior ? 1 : 0)
                 | (EnableAdvancedThreatAvoidance ? 2 : 0)
                 | (EnableWaterHabitatBehavior ? 4 : 0)
-                | (EnableWinterDormancy ? 8 : 0);
+                | (EnableWinterDormancy ? 8 : 0)
+                | (AllowTamedAnimalWinterDormancy ? 16 : 0)
+                | (AllowTamedAnimalNests ? 32 : 0)
+                | (AllowTamedAnimalBurrows ? 64 : 0)
+                | (AllowTamedAnimalFamilyDens ? 128 : 0);
         }
 
         private int GetRuntimePatchToggleHash()

@@ -643,7 +643,7 @@ namespace ZoologyMod
                     || pawn.Dead)
                     continue;
 
-                if (pawn.Faction != null
+                if (!AnimalWinterDormancy.FactionAllowed(pawn)
                     && pawn.TryGetComp<CompAnimalStrategyState>()?.inWinterDormancy == true)
                 {
                     Drop(pawn);

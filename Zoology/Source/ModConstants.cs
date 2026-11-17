@@ -35,6 +35,10 @@ namespace ZoologyMod
         public const bool DefaultEnableAdvancedThreatAvoidance = true;
         public const bool DefaultEnableWaterHabitatBehavior = true;
         public const bool DefaultEnableWinterDormancy = true;
+        public const bool DefaultAllowTamedAnimalWinterDormancy = false;
+        public const bool DefaultAllowTamedAnimalNests = true;
+        public const bool DefaultAllowTamedAnimalBurrows = true;
+        public const bool DefaultAllowTamedAnimalFamilyDens = true;
         public const bool DefaultEnableAnimalEggProtection = true;
         public const bool DefaultPreventFleeFromHumansWhileProtectingYoung = false;
         public const bool DefaultPreventFleeFromHumansWhileProtectingEggClutches = true;
@@ -112,6 +116,16 @@ namespace ZoologyMod
                 ? !s.DisableAllRuntimePatches && s.EnableWinterDormancy
                 : DefaultEnableWinterDormancy;
         public static bool FamilyDens => AdvancedReproduction && AdvancedThreatAvoidance;
+        public static bool IsTamedAnimal(Pawn pawn) =>
+            pawn?.Faction == Faction.OfPlayer && pawn.RaceProps?.Animal == true;
+        public static bool TamedWinterDormancy => WinterDormancy
+            && (Settings?.AllowTamedAnimalWinterDormancy ?? DefaultAllowTamedAnimalWinterDormancy);
+        public static bool TamedNestBuilding => AdvancedReproduction
+            && (Settings?.AllowTamedAnimalNests ?? DefaultAllowTamedAnimalNests);
+        public static bool TamedBurrowDigging => AdvancedThreatAvoidance
+            && (Settings?.AllowTamedAnimalBurrows ?? DefaultAllowTamedAnimalBurrows);
+        public static bool TamedFamilyDenBuilding => FamilyDens
+            && (Settings?.AllowTamedAnimalFamilyDens ?? DefaultAllowTamedAnimalFamilyDens);
 
         public static float SmallPetBodySizeThreshold => Settings?.SmallPetBodySizeThreshold ?? DefaultSmallPetBodySizeThreshold;
         public static float SafePredatorBodySizeThreshold => Settings?.SafePredatorBodySizeThreshold ?? DefaultSafePredatorBodySizeThreshold;
