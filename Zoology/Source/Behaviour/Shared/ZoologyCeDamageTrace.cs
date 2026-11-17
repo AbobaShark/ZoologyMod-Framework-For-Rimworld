@@ -56,6 +56,11 @@ namespace ZoologyMod
                 Log.Warning("[Zoology CE trace] Combat Extended is not loaded.");
                 return;
             }
+            if (ZoologyMod.Settings?.AreAllRuntimeTogglesDisabled() == true)
+            {
+                Log.Warning("[Zoology CE trace] Zoology runtime patches are disabled.");
+                return;
+            }
 
             Pawn old = WatchedPawn();
             if (ReferenceEquals(old, pawn))
