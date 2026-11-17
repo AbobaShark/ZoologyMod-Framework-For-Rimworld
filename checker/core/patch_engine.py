@@ -2781,6 +2781,7 @@ class PatchGenerator:
             'nuzzleMtbHours': 'nuzzleMtbHours',
             'mateMtbHours': 'mateMtbHours',
             'trainability': 'trainability',
+            'packAnimal': 'PackAnimal',
             'predator': 'predator',
             'maxPreyBodySize': 'maxPreyBodySize',
             'nameOnTameChance': 'nameOnTameChance',
@@ -2810,7 +2811,7 @@ class PatchGenerator:
             if parent and parent_common_map and parent in parent_common_map:
                 parent_common = parent_common_map[parent].get('common_values', {})
                 # проверяем несколько вариантов ключей (col, tag, xml_tag, регистронезависимо)
-                if (col in parent_common) or (tag in parent_common) or (xml_tag in parent_common) or any(k.lower() == col.lower() for k in parent_common.keys()):
+                if xml_tag != 'packAnimal' and ((col in parent_common) or (tag in parent_common) or (xml_tag in parent_common) or any(k.lower() == col.lower() for k in parent_common.keys())):
                     ops.append(self.create_safe_remove(def_name, 'race', xml_tag))
                     if tag == 'LeatherDef':
                         ops.append(self.create_safe_remove(def_name, 'race', 'useLeatherFrom'))
