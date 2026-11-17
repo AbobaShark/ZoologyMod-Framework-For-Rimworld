@@ -190,6 +190,7 @@ namespace ZoologyMod
 
         private static void UnpatchAllZoologyHarmonyIds(bool logSummary = true)
         {
+            ZoologyCeDamageTrace.Stop();
             try
             {
                 var ids = new List<string>
