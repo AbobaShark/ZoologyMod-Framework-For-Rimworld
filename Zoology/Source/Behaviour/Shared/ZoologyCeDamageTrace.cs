@@ -132,6 +132,14 @@ namespace ZoologyMod
             }
         }
 
+        [DebugAction("Zoology", "Stop CE damage trace",
+            allowedGameStates = AllowedGameStates.PlayingOnMap)]
+        public static void StopFromDevMenu()
+        {
+            Stop();
+            Log.Message("[Zoology CE trace] Stopped.");
+        }
+
         public static void Stop()
         {
             watched = null;
