@@ -14,6 +14,7 @@ namespace ZoologyMod
         private const string HarmonyId = "com.abobashark.zoology.debug.ce-damage";
         private static readonly Harmony Harmony = new Harmony(HarmonyId);
         private static readonly Stack<DamageFrame> DamageFrames = new Stack<DamageFrame>();
+        private static readonly HashSet<int> ExplainedAttackers = new HashSet<int>();
 
         private static WeakReference<Pawn> watched;
         private static MethodBase takeDamageMethod;
@@ -106,7 +107,7 @@ namespace ZoologyMod
                     prefix: new HarmonyMethod(AccessTools.Method(typeof(ZoologyCeDamageTrace),
                         nameof(DamagePrefix))) { priority = Priority.Last },
                     postfix: new HarmonyMethod(AccessTools.Method(typeof(ZoologyCeDamageTrace),
-                        nameof(DamagePostfix))));
+                        nameof(DamagePostfix))) { priority = Priority.Last });
                 Harmony.Patch(armorMethod,
                     prefix: new HarmonyMethod(AccessTools.Method(typeof(ZoologyCeDamageTrace),
                         nameof(ArmorPrefix))),
@@ -135,6 +136,7 @@ namespace ZoologyMod
         {
             watched = null;
             DamageFrames.Clear();
+            ExplainedAttackers.Clear();
             Unpatch(takeDamageMethod, nameof(DamagePrefix), nameof(DamagePostfix));
             Unpatch(armorMethod, nameof(ArmorPrefix), nameof(ArmorPostfix));
             Unpatch(meleeMethod, nameof(MeleePrefix), nameof(MeleePostfix));
@@ -257,9 +259,12 @@ namespace ZoologyMod
                         .Append(N(pawn.GetStatValue(stat)))
                         .Append("; CE part-specific=").Append(N(PartialPawnArmor(pawn, stat, hitPart)))
                         .Append("; anatomical density=");
-                    StatDef densityStat = DefDatabase<StatDef>.GetNamedSilentFail(
-                        stat == StatDefOf.ArmorRating_Sharp
-                            ? "BodyPartSharpArmor" : "BodyPartBluntArmor");
+                    string densityDefName = stat == StatDefOf.ArmorRating_Sharp
+                        ? "BodyPartSharpArmor"
+                        : stat == StatDefOf.ArmorRating_Blunt
+                            ? "BodyPartBluntArmor" : null;
+                    StatDef densityStat = densityDefName == null ? null
+                        : DefDatabase<StatDef>.GetNamedSilentFail(densityDefName);
                     sb.Append(densityStat == null ? "n/a" : N(pawn.GetStatValue(densityStat)));
                     AppendDurability(pawn, sb);
                     sb.AppendLine();
@@ -310,12 +315,12 @@ namespace ZoologyMod
                 bool shield = __args.Length > 5 && __args[5] is bool c && c;
                 __state.details.Append("    After CE armor: damage=")
                     .Append(N(__result.Amount))
-                    .Append(" (").Append(N(__state.before - __result.Amount))
-                    .Append(" blocked/reduced); resulting type=")
+                    .Append(" (net delta ").Append(N(__state.before - __result.Amount))
+                    .Append("); resulting type=")
                     .Append(__result.Def?.defName ?? "(none)")
                     .Append("; hit part=").Append(__result.HitPart?.def?.defName ?? "(unspecified)")
                     .Append("; deflected=").Append(deflected)
-                    .Append("; reduced=").Append(reduced)
+                    .Append("; CE armorReduced flag=").Append(reduced)
                     .Append("; shield absorbed=").Append(shield)
                     .AppendLine();
                 __state.frame.armorSteps.Add(__state.details.ToString());
@@ -394,14 +399,17 @@ namespace ZoologyMod
                 sb.AppendLine();
             }
 
+            if (!ExplainedAttackers.Add(attacker.thingIDNumber))
+                return;
+
             StatDef displayed = DefDatabase<StatDef>.GetNamedSilentFail("MeleeArmorPenetration");
             if (attacker.RaceProps?.Animal == true && displayed != null
                 && AnimalLifeStageCeApStatDisplay.TryCalculate(displayed.Worker,
                     StatRequest.For(attacker), out string label, out string explanation))
             {
-                sb.Append("    CE UI weighted mean across tools: ")
-                    .Append(label)
-                    .AppendLine(" (not necessarily the selected tool).");
+                Log.Message("[Zoology CE trace] Attacker " + attacker.LabelShortCap
+                    + " | CE UI weighted average: " + label
+                    + " | individual natural tools:\n" + explanation);
             }
         }
 
@@ -415,6 +423,17 @@ namespace ZoologyMod
                 .Append(" MPa; life stage=")
                 .Append(pawn.ageTracker?.CurLifeStage?.defName ?? "(none)");
             AppendDurability(pawn, output);
+            MethodBase ceDamageWorker = AccessTools.Method(typeof(DamageWorker_AddInjury),
+                "ApplyDamageToPart");
+            var patches = ceDamageWorker == null ? null : HarmonyLib.Harmony.GetPatchInfo(ceDamageWorker);
+            bool ceArmorTranspiler = false;
+            if (patches?.Transpilers != null)
+                foreach (var patch in patches.Transpilers)
+                    if (patch.PatchMethod?.DeclaringType?.FullName?.Contains(
+                            "CombatExtended.HarmonyCE.Harmony_DamageWorker_AddInjury_ApplyDamageToPart") == true)
+                        ceArmorTranspiler = true;
+            output.Append("; CE damage-worker armor transpiler=")
+                .Append(ceArmorTranspiler ? "installed" : "not detected");
             Log.Message(output.ToString());
         }
 
