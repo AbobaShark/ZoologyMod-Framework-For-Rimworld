@@ -57,7 +57,7 @@ def load_registry(path,mod):
             if not isinstance(ident,str) or not ident or ident in ids:
                 raise ValueError(f'Missing or duplicate output ID: {ident!r}')
             ids.add(ident)
-            if entry.get('pipeline_category') not in ('products','bionics','life-stages','leathers','textiles'):
+            if entry.get('pipeline_category') not in ('animals','products','bionics','life-stages','leathers','textiles'):
                 raise ValueError(f'Unsupported output pipeline category: {ident}')
             if entry.get('source') not in ('installed_xml','generated'):
                 raise ValueError(f'Unknown source for {ident}')

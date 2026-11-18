@@ -330,19 +330,28 @@ namespace ZoologyMod
 
         protected override void Tick()
         {
-            // The old nest may still hold eggs or chicks when the feature is
-            // switched off. Destroy() ejects them using the normal safe paths.
             if (this.IsHashIntervalTick(250) && !ModConstants.AdvancedReproduction)
             {
                 Destroy();
                 return;
             }
-            base.Tick(); // Vanilla CompEggContainer advances actual eggs.
             if (TreeNest && (anchorTree == null || !anchorTree.Spawned))
             {
                 Destroy();
                 return;
             }
+
+            // An empty nest needs only its periodic erosion check.
+            if (!HasProtectedContents)
+            {
+                if (this.IsHashIntervalTick(2000))
+                {
+                    if (HitPoints > 1) HitPoints--; else Destroy();
+                }
+                return;
+            }
+
+            base.Tick(); // CompEggContainer advances the held eggs.
             for (int i = young.Count - 1; i >= 0; i--)
             {
                 if (i >= young.Count || !(young[i] is Pawn baby))

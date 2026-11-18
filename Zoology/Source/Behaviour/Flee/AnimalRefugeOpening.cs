@@ -19,9 +19,10 @@ namespace ZoologyMod
         }
     }
 
+    [StaticConstructorOnStartup]
     internal static class AnimalRefugeOpening
     {
-        private static Texture2D icon;
+        private static readonly Texture2D OpenIcon = ContentFinder<Texture2D>.Get("UI/Designators/Open");
 
         internal static bool IsRefuge(Thing thing) =>
             thing is Building_AnimalBurrow || thing is Building_AnimalNursery;
@@ -39,7 +40,7 @@ namespace ZoologyMod
             {
                 defaultLabel = "Zoology_OpenBurrow_Label".Translate(),
                 defaultDesc = "Zoology_OpenBurrow_Desc".Translate(),
-                icon = icon ??= ContentFinder<Texture2D>.Get("UI/Designators/Open"),
+                icon = OpenIcon,
                 isActive = () => DesignationFor(thing) != null,
                 toggleAction = () =>
                 {

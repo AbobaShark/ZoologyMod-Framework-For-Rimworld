@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using HarmonyLib;
+using RimWorld;
 using Verse;
 
 namespace ZoologyMod
@@ -12,6 +13,8 @@ namespace ZoologyMod
         private static bool patched;
         private const int ERR_REG = 12345682;
         private const int ERR_PREFIX = 12345683;
+        private static PropertyInfo nativeOtherMultipliersProperty;
+        private static StatDef meleePenetrationFactorStat;
 
         static CEPatches_Melee()
         {
@@ -35,28 +38,49 @@ namespace ZoologyMod
                     return;
 
                 var harmony = new Harmony("com.abobashark.zoology.mod.melee");
+                nativeOtherMultipliersProperty = AccessTools.Property(ceVerbType, "PenetrationOtherMultipliers");
+                meleePenetrationFactorStat = DefDatabase<StatDef>.GetNamedSilentFail("MeleePenetrationFactor");
+                if (nativeOtherMultipliersProperty == null || meleePenetrationFactorStat == null)
+                {
+                    Log.ErrorOnce("[Zoology] Cannot resolve CE melee penetration factors; leaving CE melee AP unchanged.", ERR_REG + 2);
+                    return;
+                }
 
                 MethodInfo sharpGetter = TryGetPropertyGetter(ceVerbType, "ArmorPenetrationSharp")
                     ?? FindMethodByNameCandidates(ceVerbType, new[] { "get_ArmorPenetrationSharp" });
                 MethodInfo bluntGetter = TryGetPropertyGetter(ceVerbType, "ArmorPenetrationBlunt")
                     ?? FindMethodByNameCandidates(ceVerbType, new[] { "get_ArmorPenetrationBlunt" });
 
-                if (sharpGetter != null)
-                    harmony.Patch(sharpGetter, postfix: new HarmonyMethod(
-                        typeof(CEPatches_Melee).GetMethod(nameof(Postfix_ArmorPenetrationSharp),
-                            BindingFlags.Static | BindingFlags.NonPublic)));
+                bool sharpPatched = sharpGetter != null && EnsureSinglePostfix(harmony,
+                    sharpGetter, typeof(CEPatches_Melee).GetMethod(
+                        nameof(Postfix_ArmorPenetrationSharp), BindingFlags.Static | BindingFlags.NonPublic));
+                bool bluntPatched = bluntGetter != null && EnsureSinglePostfix(harmony,
+                    bluntGetter, typeof(CEPatches_Melee).GetMethod(
+                        nameof(Postfix_ArmorPenetrationBlunt), BindingFlags.Static | BindingFlags.NonPublic));
 
-                if (bluntGetter != null)
-                    harmony.Patch(bluntGetter, postfix: new HarmonyMethod(
-                        typeof(CEPatches_Melee).GetMethod(nameof(Postfix_ArmorPenetrationBlunt),
-                            BindingFlags.Static | BindingFlags.NonPublic)));
-
-                patched = sharpGetter != null || bluntGetter != null;
+                patched = sharpPatched || bluntPatched;
             }
             catch (Exception ex)
             {
                 Log.ErrorOnce($"[Zoology] Error registering melee AP patches: {ex}", ERR_REG);
             }
+        }
+
+        private static bool EnsureSinglePostfix(Harmony harmony, MethodInfo target, MethodInfo postfix)
+        {
+            if (target == null || postfix == null)
+                return false;
+
+            var patchInfo = Harmony.GetPatchInfo(target);
+            int copies = patchInfo?.Postfixes?.Count(p => p.PatchMethod == postfix) ?? 0;
+            if (copies == 1)
+                return true;
+
+            if (copies > 1)
+                harmony.Unpatch(target, postfix);
+
+            harmony.Patch(target, postfix: new HarmonyMethod(postfix));
+            return true;
         }
 
         public static void ResetPatchedState()
@@ -89,49 +113,80 @@ namespace ZoologyMod
 
         private static void ApplyArmorPenetration(object verbInstance, ref float result, bool sharp)
         {
-            if (verbInstance == null)
-                return;
-
             if (!(ZoologyAnimalGrowth.Enabled || ZoologySexAdultProfiles.Enabled))
                 return;
 
+            float nativePenetration, stageFactor, expectedPenetration;
+            if (TryCalculateNaturalPenetration(verbInstance, sharp,
+                    out nativePenetration, out stageFactor, out expectedPenetration))
+            {
+                // Assign the absolute result rather than multiplying __result:
+                // repeated Harmony postfixes must not compound the age factor.
+                // The native CE factors still include body-part efficiency,
+                // skill, equipment stats and other CE verb modifiers.
+                result = expectedPenetration;
+            }
+        }
+
+        internal static bool TryCalculateNaturalPenetration(object verbInstance,
+            bool sharp, out float nativePenetration, out float stageFactor,
+            out float expectedPenetration)
+        {
+            nativePenetration = 0f;
+            stageFactor = 1f;
+            expectedPenetration = 0f;
+
+            if (verbInstance is not Verb verb)
+                return false;
+
             Pawn caster = CEReflectionUtility.GetCasterPawn(verbInstance);
             if (caster?.RaceProps?.Animal != true)
-                return;
+                return false;
 
-            // CE may use CasterPawn as the equipment source for natural verbs.
-            // Actual equipped weapons and Hediff-granted attacks are excluded.
             object equipment = CEReflectionUtility.GetEquipmentSource(verbInstance);
             if (equipment != null && !ReferenceEquals(equipment, caster))
-                return;
+                return false;
 
-            object toolObj;
-            if (!CEReflectionUtility.TryGetVerbTool(verbInstance, out toolObj))
-                return;
+            if (!CEReflectionUtility.TryGetVerbTool(verbInstance, out object toolObj)
+                || toolObj is not Tool tool)
+                return false;
+
+            float basePenetration;
+            if (!(sharp
+                    ? CEReflectionUtility.TryReadSharpToolPenetration(toolObj, out basePenetration)
+                    : CEReflectionUtility.TryReadBluntToolPenetration(toolObj, out basePenetration)))
+                return false;
 
             float interpolated;
-            if (ZoologyAnimalGrowth.TryGetToolFactor(caster, toolObj as Tool,
+            if (ZoologyAnimalGrowth.TryGetToolFactor(caster, tool,
                     sharp ? ZoologyAnimalGrowth.GrowthToolFactor.CeSharpPenetration
                           : ZoologyAnimalGrowth.GrowthToolFactor.CeBluntPenetration,
                     out interpolated))
-            {
-                result *= interpolated;
-                return;
-            }
+                stageFactor = interpolated;
+            else if (ZoologyLifeStageProfileInstaller.TryGetToolFactor(caster,
+                         tool, out ZoologyLifeStageToolFactor profile))
+                stageFactor = sharp ? profile.ceSharpPenetrationFactor
+                                    : profile.ceBluntPenetrationFactor;
+            else
+                return false;
 
-            ZoologyLifeStageToolFactor factors;
-            if (ZoologyLifeStageProfileInstaller.TryGetToolFactor(caster,
-                    toolObj as Tool, out factors))
-            {
-                // The CE getter's native computation already includes natural
-                // pawn stat, skill and any other external modifiers. Apply
-                // AnimalStats' final stage/adult Tool ratio exactly once.
-                result *= sharp ? factors.ceSharpPenetrationFactor
-                    : factors.ceBluntPenetrationFactor;
-                return;
-            }
+            PropertyInfo otherProperty = nativeOtherMultipliersProperty
+                ?? AccessTools.Property(verbInstance.GetType(), "PenetrationOtherMultipliers");
+            if (otherProperty == null)
+                return false;
 
+            float other = Convert.ToSingle(otherProperty.GetValue(verbInstance, null));
+            float skill = CEReflectionUtility.GetPenetrationSkillMultiplier(verbInstance);
+            float equipmentFactor = equipment is Thing thing
+                ? thing.GetStatValue(meleePenetrationFactorStat
+                    ?? DefDatabase<StatDef>.GetNamed("MeleePenetrationFactor"))
+                : 1f;
 
+            nativePenetration = basePenetration * other * skill * equipmentFactor;
+            expectedPenetration = nativePenetration * stageFactor;
+            return !float.IsNaN(expectedPenetration)
+                && !float.IsInfinity(expectedPenetration)
+                && expectedPenetration >= 0f;
         }
 
         private static MethodInfo TryGetPropertyGetter(Type type, string propName)

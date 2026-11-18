@@ -419,20 +419,22 @@ namespace ZoologyMod
             {
                 var getter = AccessTools.PropertyGetter(ceVerbType, property);
                 var patchInfo = getter == null ? null : Harmony.GetPatchInfo(getter);
-                bool zoologyActive = false;
+                int zoologyCopies = 0;
                 if (patchInfo != null)
                 {
                     foreach (var postfix in patchInfo.Postfixes)
                     {
                         if (postfix.owner == "com.abobashark.zoology.mod.melee")
-                        {
-                            zoologyActive = true;
-                            break;
-                        }
+                            zoologyCopies++;
                     }
                 }
                 output.Append("CE combat ").Append(property)
-                    .Append(" Zoology postfix active: ").Append(zoologyActive).AppendLine();
+                    .Append(" Zoology postfix count: ").Append(zoologyCopies)
+                    .Append("; all postfix owners: ");
+                if (patchInfo?.Postfixes != null)
+                    foreach (var postfix in patchInfo.Postfixes)
+                        output.Append(postfix.owner).Append(" / ");
+                output.AppendLine();
             }
         }
 

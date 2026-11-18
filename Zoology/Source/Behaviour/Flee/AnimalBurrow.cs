@@ -636,6 +636,8 @@ namespace ZoologyMod
 
         protected override void Tick()
         {
+            if (innerContainer.Count == 0 && !this.IsHashIntervalTick(250))
+                return;
             base.Tick();
             for (int i = innerContainer.Count - 1; i >= 0; i--)
             {

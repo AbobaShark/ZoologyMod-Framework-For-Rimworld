@@ -171,6 +171,27 @@ class AnimalRefugeVisualContracts(unittest.TestCase):
             "public sealed class JobDriver_DeliverNurseryBaby", 1)[0]
         self.assertLess(build.index("FindReusableNest"), build.index("ThingMaker.MakeThing(nurseryDef)"))
 
+    def test_empty_shelters_skip_per_tick_content_processing(self):
+        nursery = (BEHAVIOUR / "Childcare/AnimalNursery.cs").read_text(encoding="utf-8")
+        burrow = (BEHAVIOUR / "Flee/AnimalBurrow.cs").read_text(encoding="utf-8")
+        nursery_tick = nursery.split("protected override void Tick()", 1)[1].split(
+            "private bool Release(Pawn baby)", 1)[0]
+        burrow_tick = burrow.split("protected override void Tick()", 1)[1].split(
+            "public override void EjectContents()", 1)[0]
+
+        self.assertLess(
+            nursery_tick.index("if (!HasProtectedContents)"),
+            nursery_tick.index("base.Tick();"))
+        self.assertIn("if (this.IsHashIntervalTick(2000))", nursery_tick)
+        self.assertIn("AnimalGameApi.TickContainedPhysiology(baby)", nursery_tick)
+        self.assertIn("if (!this.IsHashIntervalTick(2000) || HasProtectedContents) return;",
+                      nursery_tick)
+        self.assertLess(
+            burrow_tick.index("if (innerContainer.Count == 0 && !this.IsHashIntervalTick(250))"),
+            burrow_tick.index("base.Tick();"))
+        self.assertIn("AnimalGameApi.TickContainedPhysiology(pawn)", burrow_tick)
+        self.assertIn("if (!this.IsHashIntervalTick(250)) return;", burrow_tick)
+
     def test_normal_decay_and_destruction_preserved(self):
         burrow = (BEHAVIOUR / "Flee/AnimalBurrow.cs").read_text(
             encoding="utf-8")

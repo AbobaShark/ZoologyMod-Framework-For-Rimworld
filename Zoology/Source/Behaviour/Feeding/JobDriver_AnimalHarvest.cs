@@ -12,8 +12,11 @@ namespace ZoologyMod
     public sealed class JobDriver_AnimalHarvest : JobDriver
     {
         public override bool TryMakePreToilReservations(bool errorOnFailed)
-            => PredatorFoodChoiceUtility.FoodChoiceEnabled
-                && pawn.Reserve(TargetA, job, 1, -1, null, errorOnFailed);
+        {
+            // Two pawns can choose the same plant between food-search ticks.
+            // Keep the exclusive reservation; a lost race is not an error.
+            return pawn.Reserve(TargetA, job, 1, -1, null, false);
+        }
 
         protected override IEnumerable<Toil> MakeNewToils()
         {

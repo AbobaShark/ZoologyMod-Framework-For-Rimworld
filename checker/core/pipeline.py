@@ -31,6 +31,7 @@ from core.checker_config import ROOT
 from core.patch_postprocess import PatchPostprocessor
 from core.leather_generation import render_leather_outputs
 from core.textile_generation import render_textile_outputs
+from core.animal_physiology import render_animal_physiology
 
 STAGE=ROOT/'output/staged'
 CATEGORIES=('animals','venom','biomes','products','bionics','life-stages','leathers','textiles')
@@ -150,7 +151,7 @@ def stage_pipeline(source, *, root=None, registry_path=None, sheet_sources=None,
             expected_category = 'biome_patch' if declared_section=='biomes' else ('animal_patch' if declared_section=='groups' else declared['category'])
             if expected_category!=category or declared.get('requires')!=requires:
                 raise ValueError(f'Output category or requirement differs from generation.json: {dest}')
-            if postprocessor is not None and category.endswith('patch') and dest not in animal_group_destinations and dest not in life_stage_destinations and dest != PRODUCTION_DESTINATION:
+            if postprocessor is not None and category.endswith('patch') and dest not in animal_group_destinations and dest not in life_stage_destinations and dest != PRODUCTION_DESTINATION and dest != 'Core/Patches/Core/ThingDefs_Races/ZZZ_Animal_Physiology.xml':
                 if postprocessor.index is None and generator is not None:
                     postprocessor.index=getattr(generator,'_original_xml_index',None)
                 data=postprocessor.process(data,destination=dest)
@@ -217,6 +218,12 @@ def stage_pipeline(source, *, root=None, registry_path=None, sheet_sources=None,
                     e=group
                     emit(e['destination'],'animal_patch',path.read_bytes(),e.get('requires'))
                     entry_by_dest[e['destination']]['pipeline_category']='animals'
+                if groups is None:
+                    physiology = output_by_id(registry, 'animals.physiology')
+                    payload = render_animal_physiology(generator.vanilla_df)
+                    emit(physiology['destination'], physiology['category'], payload,
+                         physiology.get('requires'))
+                    entry_by_dest[physiology['destination']]['pipeline_category'] = 'animals'
             if 'venom' in cats:
                 if generator.venom_catalog is None:raise ValueError('Validated Venom profiles not available')
                 defs=generator.venom_catalog.render_item_defs()

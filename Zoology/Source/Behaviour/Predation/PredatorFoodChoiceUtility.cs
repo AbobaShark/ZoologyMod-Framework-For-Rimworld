@@ -457,7 +457,8 @@ namespace ZoologyMod
                 || plant.IsForbidden(eater) || !plant.HarvestableNow || !plant.CanYieldNow()
                 || plant.def.plant?.harvestedThingDef is not ThingDef food
                 || !food.IsNutritionGivingIngestible || food.IsDrug
-                || !eater.WillEat(food, eater, true, false))
+                || !eater.WillEat(food, eater, true, false)
+                || !eater.CanReserve(plant))
                 return false;
             return HarvestWorkRate(eater, plant) > 0f;
         }
@@ -615,7 +616,8 @@ namespace ZoologyMod
             bool predator = PredatorFoodChoiceUtility.EnabledFor(pawn);
             if (__result?.def == JobDefOf.Harvest
                 && __result.targetA.Thing is Plant vanillaPlant
-                && PredatorFoodChoiceUtility.CanHarvest(pawn))
+                && PredatorFoodChoiceUtility.CanHarvest(pawn)
+                && pawn.CanReserve(vanillaPlant))
             {
                 JobDef animalHarvest =
                     DefDatabase<JobDef>.GetNamedSilentFail("Zoology_AnimalHarvest");
